@@ -1,0 +1,1 @@
+(ns midje.core)
