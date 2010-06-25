@@ -95,9 +95,7 @@
 	  (unique-function-symbols expectations))
 )
 
-
-
-(defn check-call-counts [expectations]
+(defn- check-call-counts [expectations]
   (doseq [expectation expectations]
       (if (zero? @(expectation :count-atom))
 	  (report {:type :fail 
@@ -110,10 +108,10 @@
 
 
 (defmacro short-circuiting-failure 
-  ([form check-type expected]
-   `(short-circuiting-failure ~form ~check-type ~expected nil))
+  ([form expected]
+   `(short-circuiting-failure ~form ~expected nil))
 
-  ([form check-type expected failure-message]
+  ([form expected failure-message]
   `(with-handler (let [code-under-test-result# (eagerly ~form)]
 		   (is (= code-under-test-result# ~expected) ~failure-message))
 		 (handle *failure-during-computation* [])))
