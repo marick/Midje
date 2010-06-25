@@ -7,7 +7,7 @@
 
 (testable-privates midje.semi-sweet
 		   pairs position-string matching-args? find-matching-call eagerly
-		   unique-function-symbols
+		   unique-function-symbols binding-map
 )
 
 
@@ -90,3 +90,23 @@
   )
 )
 
+(deftest binding-map-test 
+  (let [expectations [(fake (f 1) => 3)
+		      (fake (g 1) => 4)
+		      (fake (f 2) => 5)]
+	result-map (binding-map expectations)
+	count-checker (fn [val-f-1 val-g-1 val-f-2]
+			  (is (= val-f-1 (deref (:count-atom (first expectations)))))
+			  (is (= val-g-1 (deref (:count-atom (second expectations)))))
+			  (is (= val-f-2 (deref (:count-atom (nth expectations 2))))))]
+
+    (call-faker 'f [1] expectations)
+    (count-checker 1 0 0)
+    (call-faker 'f [1] expectations)
+    (count-checker 2 0 0)
+    (call-faker 'f [2] expectations)
+    (count-checker 2 0 1)
+    (call-faker 'g [1] expectations)
+    (count-checker 2 1 1)
+    )
+)

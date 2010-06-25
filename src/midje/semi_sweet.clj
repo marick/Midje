@@ -57,9 +57,8 @@
 )
 
 (defn- unique-function-symbols [expectations]
-  (vec (set (map #(:function %) expectations)))
+  (distinct (map #(:function %) expectations))
 )
-
 
 (defn- find-matching-call [faked-function args expectations]
   (find-first (fn [expectation] 
@@ -70,27 +69,6 @@
 )
 
 
-
-
-
-(defmacro fake 
-  "Creates an expectation that a particular call will be made. When it is made,
-   the result is to be returned. Either form may contain bound variables. 
-   Example: (let [a 5] (fake (f a) => a))"
-  [call-form ignored result]
-  `{:function '~(first call-form)
-    :arg-matchers [ (fn [actual#] (= actual# ~(second call-form))) ]
-    :call-text-for-failures (str '~call-form)
-    :result-supplier (fn [] ~result)
-    :count-atom (atom 0)
-    :file-position (user-file-position)}
-)
-
-
-
-; ======
-
-(comment
 
 (defn call-faker [faked-function args expectations]
   (let [found (find-matching-call faked-function args expectations)]
@@ -107,6 +85,16 @@
 	 (swap! (found :count-atom) inc)
 	 ((found :result-supplier)))))
 )
+
+(defn- binding-map [expectations]
+  (reduce (fn [accumulator function-symbol] 
+	      (let [function-var (intern *ns* function-symbol)
+		    faker (fn [& actual-args] (call-faker function-symbol actual-args expectations))]
+		(assoc accumulator function-var faker)))
+	  {}
+	  (unique-function-symbols expectations))
+)
+
 
 
 (defn check-call-counts [expectations]
@@ -131,14 +119,19 @@
 		 (handle *failure-during-computation* [])))
 )
 
-(defn binding-map [expectations]
-  (reduce (fn [accumulator function-symbol] 
-	      (let [function-var (intern *ns* function-symbol)
-		    faker (fn [& actual-args] (call-faker function-symbol actual-args expectations))]
-		(assoc accumulator function-var faker)))
-	  {}
-	  (unique-function-symbols expectations))
+(defmacro fake 
+  "Creates an expectation that a particular call will be made. When it is made,
+   the result is to be returned. Either form may contain bound variables. 
+   Example: (let [a 5] (fake (f a) => a))"
+  [call-form ignored result]
+  `{:function '~(first call-form)
+    :arg-matchers [ (fn [actual#] (= actual# ~(second call-form))) ]
+    :call-text-for-failures (str '~call-form)
+    :result-supplier (fn [] ~result)
+    :count-atom (atom 0)
+    :file-position (user-file-position)}
 )
+
 
 
 (defmacro during 
@@ -155,5 +148,3 @@
 )
 
 
-
-)
