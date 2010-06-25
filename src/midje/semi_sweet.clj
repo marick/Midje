@@ -1,19 +1,14 @@
-(ns midje.core
+(ns midje.semi-sweet
   (:use clojure.test)
   (:use clojure.contrib.seq-utils)
   (:use clojure.contrib.error-kit)
 )
 
 
-(def 
- #^{:doc "The best approximation to the user-written code that failed.
-    In the format of clojure.test/file-position."}
-  *file-position-of-call-under-test* nil)
+(def *file-position-of-call-under-test* nil)
 
-
-(deferror 
-  #^{:doc "Raising a failure-during-computation means 'don't check expectations'."}
-  *failure-during-computation [] [])
+  "Raising a failure-during-computation means 'don't check expectations'."
+(deferror *failure-during-computation* [] [])
 
 
 (defn- pairs [first-seq second-seq]
@@ -31,6 +26,52 @@
 (defn- matching-args? [actual-args matchers]
   (every? (fn [ [actual matcher] ] (matcher actual))
    	  (pairs actual-args matchers))
+)
+
+(defn- contains-element?
+  "Is the element in the sequence? Works for vectors."
+  [seq elt]
+  (some #{elt} seq))
+
+(defn- midje-file? [position]
+  (contains-element? ["semi_sweet.clj"] (first position))
+)
+
+(defn- without-java [positions]
+  (remove (fn [position] (re-find #"\.java" (first position)))
+	  positions))
+
+(defn strip-leading-infrastructure [positions]
+  (let [ [clojure-core midje-files & more-partitions] (partition-by midje-file? positions)]
+    (first more-partitions))
+)
+
+(defn user-file-position []
+  (try
+   (let [integers (iterate inc 1)
+	 positions (without-java (map file-position integers))
+	 above-midje-files (strip-leading-infrastructure positions)
+	 ]
+     (first above-midje-files))
+   (catch Exception e ["unknown file" 0]))
+)
+
+(defmacro fake 
+  "Creates an expectation that a particular call will be made. When it is made,
+   the result is to be returned. Either form may contain bound variables. 
+   Example: (let [a 5] (fake (f a) => a))"
+  [call-form ignored result]
+  `{:function '~(first call-form)
+    :arg-matchers [ (fn [actual#] (= actual# ~(second call-form))) ]
+    :call-text-for-failures (str '~call-form)
+    :result-supplier (fn [] ~result)
+    :count-atom (atom 0)
+    :file-position (user-file-position)}
+)
+
+
+(defn unique-function-symbols [expectations]
+  (vec (set (map #(:function %) expectations)))
 )
 
 
@@ -90,11 +131,6 @@
 		 (handle *failure-during-computation* [])))
 )
 
-(defn unique-function-symbols [expectations]
-  (vec (set (map #(:function %) expectations)))
-)
-
-
 (defn binding-map [expectations]
   (reduce (fn [accumulator function-symbol] 
 	      (let [function-var (intern *ns* function-symbol)
@@ -119,13 +155,5 @@
 )
 
 
-(defmacro fake [call-form ignored resulting-result]
-  `{:function '~(first call-form)
-    :arg-matchers [ (fn [actual#] (= actual# ~(second call-form))) ]
-    :call-text-for-failures (str '~call-form)
-    :result-supplier (fn [] ~resulting-result)
-    :count-atom (atom 0)
-    :file-position (file-position 2)}
-)
 
 )

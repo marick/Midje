@@ -1,5 +1,5 @@
-(ns midje.core-test
-  (:use [midje.core] :reload-all)
+(ns midje.semi-sweet-test
+  (:use [midje.semi-sweet] :reload-all)
   (:use [midje.checkers])
   (:use [clojure.test]))
 
@@ -10,7 +10,7 @@
   `(do ~@forms))
 )
 
-(testable-privates midje.core
+(testable-privates midje.semi-sweet
 		   pairs position-string matching-args? find-matching-call eagerly
 )
 
@@ -49,6 +49,38 @@
   (is (truthy (matching-args? [] [])))
   (is (truthy (matching-args? ['()] [seq?])))
   (is (falsey (matching-args? ['() 1] [seq? seq?])))
+)
+
+(def faked-function)
+(deftest basic-fake-test
+  (let [some-variable 5
+	previous-line-position (file-position 1)
+	expectation (fake (faked-function some-variable) => (+ 2 some-variable))]
+
+    (is (= (:function expectation)
+	   'faked-function))
+    (is (= (:call-text-for-failures expectation)
+	   "(faked-function some-variable)"))
+    (is (= (deref (:count-atom expectation))
+	   0))
+
+    (testing "argument matching" 
+	     (let [matchers (:arg-matchers expectation)]
+	       (is (= (count matchers) 1))
+	       (is (truthy ((first matchers) 5)))
+	       (is (falsey ((first matchers) nil)))))
+
+    (testing "result supplied" 
+	     (is (= ((:result-supplier expectation))
+		    (+ 2 some-variable))))
+)
+)
+
+(deftest unique-function-symbols-test 
+  (let [expectations [ (fake (f 1) => 2)
+		       (fake (f 2) => 4)
+		       (fake (g) => 3)] ]
+    (is (truthy ((in-any-order '[f g]) (unique-function-symbols expectations)))))
 )
 
 (deftest find-matching-call-test
