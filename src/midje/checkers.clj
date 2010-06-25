@@ -1,7 +1,15 @@
 (ns midje.checkers)
 
-(defn #^{:doc "Returns precisely true if arg is not nil and not false."}
-  truthy [arg] (not (not arg)))
+(defn truthy 
+  "Returns precisely true if actual is not nil and not false."
+  [actual] 
+  (not (not actual)))
 
-(defn #^{:doc "Returns precisely true if arg is nil or false."}
-  falsey [arg] (not arg))
+(defn falsey 
+  "Returns precisely true if actual is nil or false."
+  [actual] 
+  (not actual))
+
+(defn in-any-order "Produces matcher that matches sequences without regard to order"
+  [expected]
+  (fn [actual] (= (set expected) (set actual))))
