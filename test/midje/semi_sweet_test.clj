@@ -1,17 +1,13 @@
 (ns midje.semi-sweet-test
   (:use [midje.semi-sweet] :reload-all)
   (:use [midje.checkers])
-  (:use [clojure.test]))
+  (:use [clojure.test])
+  (:use [midje.test-util]))
 
-
-(defmacro testable-privates [namespace & symbols]
-  (let [make-form (fn [symbol] `(def ~symbol (intern '~namespace '~symbol)))
-	forms (map make-form symbols)]
-  `(do ~@forms))
-)
 
 (testable-privates midje.semi-sweet
 		   pairs position-string matching-args? find-matching-call eagerly
+		   unique-function-symbols
 )
 
 

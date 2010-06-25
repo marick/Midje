@@ -1,7 +1,7 @@
 (ns midje.file_position_test
   (:use [midje.semi-sweet] :reload-all)
-  (:use [midje.checkers])
-  (:use [clojure.test]))
+  (:use [clojure.test])
+  (:use [midje.test-util]))
 
 (def line-marker-1 6)
 (deftest simple-user-file-position-test []

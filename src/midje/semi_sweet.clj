@@ -41,7 +41,7 @@
   (remove (fn [position] (re-find #"\.java" (first position)))
 	  positions))
 
-(defn strip-leading-infrastructure [positions]
+(defn- strip-leading-infrastructure [positions]
   (let [ [clojure-core midje-files & more-partitions] (partition-by midje-file? positions)]
     (first more-partitions))
 )
@@ -56,21 +56,7 @@
    (catch Exception e ["unknown file" 0]))
 )
 
-(defmacro fake 
-  "Creates an expectation that a particular call will be made. When it is made,
-   the result is to be returned. Either form may contain bound variables. 
-   Example: (let [a 5] (fake (f a) => a))"
-  [call-form ignored result]
-  `{:function '~(first call-form)
-    :arg-matchers [ (fn [actual#] (= actual# ~(second call-form))) ]
-    :call-text-for-failures (str '~call-form)
-    :result-supplier (fn [] ~result)
-    :count-atom (atom 0)
-    :file-position (user-file-position)}
-)
-
-
-(defn unique-function-symbols [expectations]
+(defn- unique-function-symbols [expectations]
   (vec (set (map #(:function %) expectations)))
 )
 
@@ -85,6 +71,20 @@
 
 
 
+
+
+(defmacro fake 
+  "Creates an expectation that a particular call will be made. When it is made,
+   the result is to be returned. Either form may contain bound variables. 
+   Example: (let [a 5] (fake (f a) => a))"
+  [call-form ignored result]
+  `{:function '~(first call-form)
+    :arg-matchers [ (fn [actual#] (= actual# ~(second call-form))) ]
+    :call-text-for-failures (str '~call-form)
+    :result-supplier (fn [] ~result)
+    :count-atom (atom 0)
+    :file-position (user-file-position)}
+)
 
 
 
