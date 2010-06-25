@@ -11,7 +11,7 @@
 )
 
 (testable-privates midje.core
-		   pairs position-string matching-args? find-matching-call
+		   pairs position-string matching-args? find-matching-call eagerly
 )
 
 

@@ -23,14 +23,10 @@
   (format "(%s:%d)" (first position-pair) (second position-pair))
 )
 
-(defn eagerly [value]
+(defn- eagerly [value]
   (if (seq? value)
     (doall value)
     value))
-
-
-
-
 
 (defn- matching-args? [actual-args matchers]
   (every? (fn [ [actual matcher] ] (matcher actual))
