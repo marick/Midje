@@ -13,3 +13,8 @@
 (defn in-any-order "Produces matcher that matches sequences without regard to order"
   [expected]
   (fn [actual] (= (set expected) (set actual))))
+
+(defn anything
+  "Accepts any value"
+  [actual]
+  true)
