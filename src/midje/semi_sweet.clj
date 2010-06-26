@@ -1,9 +1,39 @@
+
 (ns midje.semi-sweet
   (:use clojure.test)
   (:use clojure.contrib.seq-utils)
   (:use clojure.contrib.error-kit)
 )
 
+
+  (defn- position-string [position-pair]
+    (format "(%s:%d)" (first position-pair) (second position-pair)))
+
+
+  (defmethod clojure.test/report :mock-argument-match-failure [m]
+    (with-test-out
+     (inc-report-counter :fail)
+     (println "\nFAIL near" (midje.semi-sweet/position-string (:position m)))
+     (when (seq *testing-contexts*) (println (testing-contexts-str)))
+     (println "You never said" (:name (meta (:function m))) "would be called with these arguments:")
+     (println (pr-str (:actual m)))))
+
+  (defmethod clojure.test/report :mock-incorrect-call-count [m]
+    (with-test-out
+     (inc-report-counter :fail)
+     (println "\nFAIL for" (midje.semi-sweet/position-string (:position m)))
+     (when (seq *testing-contexts*) (println (testing-contexts-str)))
+     (println "This expectation was never satisfied:")
+     (println (:expected m) "should be called at least once.")))
+
+
+  (defmethod clojure.test/report :mock-expected-result-failure [m]
+    (with-test-out
+     (inc-report-counter :fail)
+     (println "\nFAIL near" (midje.semi-sweet/position-string (:position m)))
+     (when (seq *testing-contexts*) (println (testing-contexts-str)))
+     (println "expected:" (pr-str (:expected m)))
+     (println "  actual:" (pr-str (:actual m)))))
 
 (def *file-position-of-call-under-test* nil)
 
@@ -13,10 +43,6 @@
 
 (defn- pairs [first-seq second-seq]
   (partition 2 (interleave first-seq second-seq)))
-
-(defn- position-string [position-pair]
-  (format "(%s:%d)" (first position-pair) (second position-pair))
-)
 
 (defn- eagerly [value]
   (if (seq? value)
@@ -74,12 +100,10 @@
   (let [found (find-matching-call faked-function args expectations)]
     (if-not found 
 	    (do 
-	      (report {:type :fail :subtype :unexpected-call
-		      :message (str "The form being tested near "
-				    (position-string *file-position-of-call-under-test*)
-				    " made an unexpected call.")
-		      :expected "Call matching a predefined expectation"
-		      :actual (cons faked-function args)})
+	      (report {:type :mock-argument-match-failure
+		      :function faked-function
+		      :actual args
+		      :position (:file-position (first expectations))})
 	      (raise *failure-during-computation*))
        (do 
 	 (swap! (found :count-atom) inc)
@@ -98,21 +122,28 @@
   (doseq [expectation expectations]
       (if (zero? @(expectation :count-atom))
 	(do
-	  (report {:type :fail :subtype :incorrect-call-count
-		   :message (str "The form being tested near "
-				 (position-string *file-position-of-call-under-test*)
-				 " didn't make a call that was expected.")
-		   :expected (str (expectation :call-text-for-failures) " should be called once.")
-		   :actual "Never called"})
+	  (report {:type :mock-incorrect-call-count
+		   :expected-call (expectation :call-text-for-failures)
+		   :position (:file-position expectation)
+		   :expected (expectation :call-text-for-failures)})
 	  (raise *failure-during-computation*))))
 	  
+)
+
+; TODO: (expect calls need to record their file position)
+(defn- check-result [actual expected expectations]
+  (if-not (= actual expected)
+     (report {:type :mock-expected-result-failure
+	      :position (:file-position (first expectations))
+	      :actual actual
+	      :expected expected }))
 )
 
 
 (defmacro #^{:private true} short-circuiting-failure [tested-fn expected-result expectations]
   `(with-handler (let [code-under-test-result# (eagerly (~tested-fn))]
 		   (check-call-counts ~expectations)
-		   (is (= code-under-test-result# ~expected-result)))
+		   (check-result code-under-test-result# ~expected-result ~expectations))
 		 (handle *failure-during-computation* []))
 )
 

@@ -27,14 +27,13 @@
 	  ~expect-form)
 	~@check-forms))))
 
-(defn last-subtype? [expected]
-  (= (:subtype (last (deref reported))) expected))
+(defn last-type? [expected]
+  (= (:type (last (deref reported))) expected))
 (defn no-failures? []
   (every? #(= (:type %) :pass) (deref reported)))
-(defn only-one-failure? []
-  (= 1 (count (filter #(= (:type %) :fail) (deref reported)))))
+(defn only-one-result? []
+  (= 1 (count (deref reported))))
   
-
 (deftest simple-examples
   (one-case "Without expectations, this is just a different syntax for 'is'"
     (expect (function-under-test) => nil))
@@ -51,13 +50,14 @@
   (one-case "mocked calls go fine, but function under test produces the wrong result"
      (expect (function-under-test 33) => 12
 	     [ (fake (mocked-function 33) => (not 12) ) ])
-     (is (= (:actual (last @reported)) '(not (clojure.core/= false 12)))))
+     (is (= (:actual (last @reported)) false))
+     (is (= (:expected (last @reported)) 12)))
 
   (one-case "mock call supposed to be made, but wasn't (zero call count)"
     (expect (no-caller) => "irrelevant"
 	    [ (fake (mocked-function) => 33) ])
-    (is (last-subtype? :incorrect-call-count))
-    (is (only-one-failure?)))
+    (is (last-type? :mock-incorrect-call-count))
+    (is (only-one-result?)))
 
 
   (def other-function)
@@ -67,19 +67,23 @@
 	       (fake (other-function 12) => 1) ])
      (is (no-failures?)))
 
+
+
   (one-case "call that matches none of the expected arguments"
      (expect (+ (mocked-function 12) (mocked-function 33)) => "result irrelevant because of earlier failure"
 	     [ (fake (mocked-function 12) => "hi") ])
-     (is (last-subtype? :unexpected-call))
-     (is (only-one-failure?)))
+     (is (last-type? :mock-argument-match-failure))
+     (is (only-one-result?)))
+
+
 
   (one-case "failure because one variant of multiply-mocked function is not called"
      (expect (+ (mocked-function 12) (mocked-function 22)) => 3
 	     [ (fake (mocked-function 12) => 1)
 	       (fake (mocked-function 22) => 2)
 	       (fake (mocked-function 33) => 3)])
-     (is (last-subtype? :incorrect-call-count))
-     (is (only-one-failure?)))
+     (is (last-type? :mock-incorrect-call-count))
+     (is (only-one-result?)))
 
   (one-case "multiple calls to a mocked function are perfectly fine")
 )
