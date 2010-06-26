@@ -140,9 +140,11 @@
 
 (defmacro during 
   "doc string here"
-  [call-form ignored expected-result expectations]
+  ([call-form ignored expected-result]
+   `(during ~call-form ~ignored ~expected-result []))
+  ([call-form ignored expected-result expectations]
    `(binding [*file-position-of-call-under-test* (user-file-position)]
-      (during* (fn [] ~call-form) ~expected-result ~expectations))
+      (during* (fn [] ~call-form) ~expected-result ~expectations)))
 )
 
 

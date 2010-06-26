@@ -5,7 +5,7 @@
   (:use [midje.test-util]))
 
 
-(def mocked-function)
+(defn mocked-function [] "supposed to be mocked")
 (defn function-under-test [& rest]
   (apply mocked-function rest))
 (defn no-caller [])
@@ -36,7 +36,8 @@
   
 
 (deftest simple-examples
-  (one-case "Without expectations, this is just a different syntax for 'is'")
+  (one-case "Without expectations, this is just a different syntax for 'is'"
+    (during (function-under-test) => nil))
 
   (one-case "mocked functions must be declared before use")
 
