@@ -74,7 +74,7 @@
   (let [found (find-matching-call faked-function args expectations)]
     (if-not found 
 	    (do 
-	      (report {:type :fail
+	      (report {:type :fail :subtype :unexpected-call
 		      :message (str "The form being tested near "
 				    (position-string *file-position-of-call-under-test*)
 				    " made an unexpected call.")
