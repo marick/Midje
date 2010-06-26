@@ -16,15 +16,15 @@
 (defmacro one-case 
   ([description]
    `(println "Pending:"  ~description))
-  ([description during-form & check-forms]
-   (let [form-is-during? (fn [form] (and (seq? form)
-					 (= (first form) 'during)))]
-     (assert (form-is-during? during-form))
-     (assert (every? #(not (form-is-during? %)) check-forms))
+  ([description expect-form & check-forms]
+   (let [form-is-expect? (fn [form] (and (seq? form)
+					 (= (first form) 'expect)))]
+     (assert (form-is-expect? expect-form))
+     (assert (every? #(not (form-is-expect? %)) check-forms))
      `(do 
 	(binding [report (fn [report-map#] (swap! reported conj report-map#))]
 	  (reset! reported [])
-	  ~during-form)
+	  ~expect-form)
 	~@check-forms))))
 
 (defn last-subtype? [expected]
@@ -37,24 +37,24 @@
 
 (deftest simple-examples
   (one-case "Without expectations, this is just a different syntax for 'is'"
-    (during (function-under-test) => nil))
+    (expect (function-under-test) => nil))
 
   (one-case "mocked functions must be declared before use")
 
 
   (one-case "successful mocking"
-    (during (function-under-test) => 33
+    (expect (function-under-test) => 33
 	    [ (fake (mocked-function) => 33) ])
     (is (no-failures?)))
 
 
   (one-case "mocked calls go fine, but function under test produces the wrong result"
-     (during (function-under-test 33) => 12
+     (expect (function-under-test 33) => 12
 	     [ (fake (mocked-function 33) => (not 12) ) ])
      (is (= (:actual (last @reported)) '(not (clojure.core/= false 12)))))
 
   (one-case "mock call supposed to be made, but wasn't (zero call count)"
-    (during (no-caller) => "irrelevant"
+    (expect (no-caller) => "irrelevant"
 	    [ (fake (mocked-function) => 33) ])
     (is (last-subtype? :incorrect-call-count))
     (is (only-one-failure?)))
@@ -62,19 +62,19 @@
 
   (def other-function)
   (one-case "call not from inside function"
-     (during (+ (mocked-function 12) (other-function 12)) => 12
+     (expect (+ (mocked-function 12) (other-function 12)) => 12
 	     [ (fake (mocked-function 12) => 11)
 	       (fake (other-function 12) => 1) ])
      (is (no-failures?)))
 
   (one-case "call that matches none of the expected arguments"
-     (during (+ (mocked-function 12) (mocked-function 33)) => "result irrelevant because of earlier failure"
+     (expect (+ (mocked-function 12) (mocked-function 33)) => "result irrelevant because of earlier failure"
 	     [ (fake (mocked-function 12) => "hi") ])
      (is (last-subtype? :unexpected-call))
      (is (only-one-failure?)))
 
   (one-case "failure because one variant of multiply-mocked function is not called"
-     (during (+ (mocked-function 12) (mocked-function 22)) => 3
+     (expect (+ (mocked-function 12) (mocked-function 22)) => 3
 	     [ (fake (mocked-function 12) => 1)
 	       (fake (mocked-function 22) => 2)
 	       (fake (mocked-function 33) => 3)])

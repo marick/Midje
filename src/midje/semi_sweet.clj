@@ -133,18 +133,18 @@
 )
 
 
-(defn during* [call-fn expected-result expectations]
+(defn expect* [call-fn expected-result expectations]
   (with-bindings (binding-map expectations)
       (short-circuiting-failure call-fn expected-result expectations))
   )
 
-(defmacro during 
+(defmacro expect 
   "doc string here"
   ([call-form ignored expected-result]
-   `(during ~call-form ~ignored ~expected-result []))
+   `(expect ~call-form ~ignored ~expected-result []))
   ([call-form ignored expected-result expectations]
    `(binding [*file-position-of-call-under-test* (user-file-position)]
-      (during* (fn [] ~call-form) ~expected-result ~expectations)))
+      (expect* (fn [] ~call-form) ~expected-result ~expectations)))
 )
 
 
