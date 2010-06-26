@@ -56,7 +56,7 @@
    (catch Exception e ["unknown file" 0]))
 )
 
-(defn- unique-function-symbols [expectations]
+(defn- unique-function-vars [expectations]
   (distinct (map #(:function %) expectations))
 )
 
@@ -87,18 +87,17 @@
 )
 
 (defn- binding-map [expectations]
-  (reduce (fn [accumulator function-symbol] 
-	      (let [function-var (intern *ns* function-symbol)
-		    faker (fn [& actual-args] (call-faker function-symbol actual-args expectations))]
+  (reduce (fn [accumulator function-var] 
+	      (let [faker (fn [& actual-args] (call-faker function-var actual-args expectations))]
 		(assoc accumulator function-var faker)))
 	  {}
-	  (unique-function-symbols expectations))
+	  (unique-function-vars expectations))
 )
 
 (defn- check-call-counts [expectations]
   (doseq [expectation expectations]
       (if (zero? @(expectation :count-atom))
-	  (report {:type :fail 
+	  (report {:type :fail :subtype :incorrect-call-count
 		   :message (str "The form being tested near "
 				 (position-string *file-position-of-call-under-test*)
 				 " didn't make a call that was expected.")
@@ -107,7 +106,7 @@
 )
 
 
-(defmacro short-circuiting-failure 
+(defmacro #^{:private true} short-circuiting-failure 
   ([form expected]
    `(short-circuiting-failure ~form ~expected nil))
 
@@ -117,13 +116,16 @@
 		 (handle *failure-during-computation* [])))
 )
 
+(defn arg-matcher-maker [expected]
+  (fn [actual] (= actual expected)))
+
 (defmacro fake 
   "Creates an expectation that a particular call will be made. When it is made,
    the result is to be returned. Either form may contain bound variables. 
    Example: (let [a 5] (fake (f a) => a))"
   [call-form ignored result]
-  `{:function '~(first call-form)
-    :arg-matchers [ (fn [actual#] (= actual# ~(second call-form))) ]
+  `{:function (def ~(first call-form))
+    :arg-matchers (map arg-matcher-maker [~@(rest call-form)])
     :call-text-for-failures (str '~call-form)
     :result-supplier (fn [] ~result)
     :count-atom (atom 0)
@@ -131,18 +133,16 @@
 )
 
 
+(defn during* [call-fn expected-result expectations]
+  (with-bindings (binding-map expectations)
+      (short-circuiting-failure (call-fn) expected-result))
+  (check-call-counts expectations))
 
 (defmacro during 
+  "doc string here"
   ([call-form ignored expected-result expectations]
-   `(during ~call-form ~ignored ~expected-result ~expectations {}))
-
-  ([call-form ignored expected-result expectations annotations]
-     (let [expectations-symbol (gensym "expectations")]
-       `(binding [*file-position-of-call-under-test* (or ~(annotations :position) (file-position 1))]
-	  (let [~expectations-symbol ~expectations]
-	    (with-bindings (binding-map ~expectations-symbol)
-			   (short-circuiting-failure ~call-form :equality ~expected-result))
-	    (check-call-counts ~expectations-symbol)))))
+   `(binding [*file-position-of-call-under-test* (user-file-position)]
+      (during* (fn [] ~call-form) ~expected-result ~expectations)))
 )
 
 

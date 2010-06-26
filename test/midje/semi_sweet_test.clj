@@ -7,7 +7,7 @@
 
 (testable-privates midje.semi-sweet
 		   pairs position-string matching-args? find-matching-call eagerly
-		   unique-function-symbols binding-map
+		   unique-function-vars binding-map
 )
 
 
@@ -51,32 +51,50 @@
 (deftest basic-fake-test
   (let [some-variable 5
 	previous-line-position (file-position 1)
-	expectation (fake (faked-function some-variable) => (+ 2 some-variable))]
+	expectation-0 (fake (faked-function) => 2)
+	expectation-1 (fake (faked-function some-variable) => (+ 2 some-variable))
+	expectation-2 (fake (faked-function 1 some-variable) => [1 some-variable])]
 
-    (is (= (:function expectation)
-	   'faked-function))
-    (is (= (:call-text-for-failures expectation)
+    (is (= (:function expectation-0)
+	   #'midje.semi-sweet-test/faked-function))
+    (is (= (:call-text-for-failures expectation-1)
 	   "(faked-function some-variable)"))
-    (is (= (deref (:count-atom expectation))
+    (is (= (deref (:count-atom expectation-0))
 	   0))
 
     (testing "argument matching" 
-	     (let [matchers (:arg-matchers expectation)]
+	     (let [matchers (:arg-matchers expectation-0)]
+	       (is (= (count matchers) 0)))
+
+	     (let [matchers (:arg-matchers expectation-1)]
 	       (is (= (count matchers) 1))
 	       (is (truthy ((first matchers) 5)))
-	       (is (falsey ((first matchers) nil)))))
+	       (is (falsey ((first matchers) nil))))
+
+	     (let [matchers (:arg-matchers expectation-2)]
+	       (is (= (count matchers) 2))
+	       (is (falsey ((first matchers) 5)))
+	       (is (truthy ((first matchers) 1)))
+	       (is (truthy ((second matchers) 5)))
+	       (is (falsey ((second matchers) 1))))
+    )
 
     (testing "result supplied" 
-	     (is (= ((:result-supplier expectation))
-		    (+ 2 some-variable))))
-)
+	     (is (= ((:result-supplier expectation-0))
+		    2))
+	     (is (= ((:result-supplier expectation-1))
+		    (+ 2 some-variable)))
+	     (is (= ((:result-supplier expectation-2))
+		    [1 some-variable]))
+    )
+    )
 )
 
-(deftest unique-function-symbols-test 
+(deftest unique-function-vars-test 
   (let [expectations [ (fake (f 1) => 2)
 		       (fake (f 2) => 4)
 		       (fake (g) => 3)] ]
-    (is (truthy ((in-any-order '[f g]) (unique-function-symbols expectations)))))
+    (is (truthy ((in-any-order [#'f #'g]) (unique-function-vars expectations)))))
 )
 
 (deftest find-matching-call-test
@@ -100,13 +118,13 @@
 			  (is (= val-g-1 (deref (:count-atom (second expectations)))))
 			  (is (= val-f-2 (deref (:count-atom (nth expectations 2))))))]
 
-    (call-faker 'f [1] expectations)
+    (call-faker (var f) [1] expectations)
     (count-checker 1 0 0)
-    (call-faker 'f [1] expectations)
+    (call-faker (var f) [1] expectations)
     (count-checker 2 0 0)
-    (call-faker 'f [2] expectations)
+    (call-faker (var f) [2] expectations)
     (count-checker 2 0 1)
-    (call-faker 'g [1] expectations)
+    (call-faker (var g) [1] expectations)
     (count-checker 2 1 1)
     )
 )
