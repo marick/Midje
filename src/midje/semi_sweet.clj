@@ -97,18 +97,22 @@
 (defn- check-call-counts [expectations]
   (doseq [expectation expectations]
       (if (zero? @(expectation :count-atom))
+	(do
 	  (report {:type :fail :subtype :incorrect-call-count
 		   :message (str "The form being tested near "
 				 (position-string *file-position-of-call-under-test*)
 				 " didn't make a call that was expected.")
 		   :expected (str (expectation :call-text-for-failures) " should be called once.")
-		   :actual "Never called"})))
+		   :actual "Never called"})
+	  (raise *failure-during-computation*))))
+	  
 )
 
 
-(defmacro #^{:private true} short-circuiting-failure [form expected]
-  `(with-handler (let [code-under-test-result# (eagerly ~form)]
-		   (is (= code-under-test-result# ~expected)))
+(defmacro #^{:private true} short-circuiting-failure [tested-fn expected-result expectations]
+  `(with-handler (let [code-under-test-result# (eagerly (~tested-fn))]
+		   (check-call-counts ~expectations)
+		   (is (= code-under-test-result# ~expected-result)))
 		 (handle *failure-during-computation* []))
 )
 
@@ -131,14 +135,14 @@
 
 (defn during* [call-fn expected-result expectations]
   (with-bindings (binding-map expectations)
-      (short-circuiting-failure (call-fn) expected-result))
-  (check-call-counts expectations))
+      (short-circuiting-failure call-fn expected-result expectations))
+  )
 
 (defmacro during 
   "doc string here"
-  ([call-form ignored expected-result expectations]
+  [call-form ignored expected-result expectations]
    `(binding [*file-position-of-call-under-test* (user-file-position)]
-      (during* (fn [] ~call-form) ~expected-result ~expectations)))
+      (during* (fn [] ~call-form) ~expected-result ~expectations))
 )
 
 

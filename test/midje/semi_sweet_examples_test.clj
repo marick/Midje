@@ -31,6 +31,8 @@
   (= (:subtype (last (deref reported))) expected))
 (defn no-failures? []
   (every? #(= (:type %) :pass) (deref reported)))
+(defn only-one-failure? []
+  (= 1 (count (filter #(= (:type %) :fail) (deref reported)))))
   
 
 (deftest simple-examples
@@ -41,15 +43,18 @@
 	    [ (fake (mocked-function) => 33) ])
     (is (no-failures?)))
 
-  (one-case "mocking is made, but function under test produces the wrong result"
+
+  (one-case "mocked calls go fine, but function under test produces the wrong result"
      (during (function-under-test 33) => 12
 	     [ (fake (mocked-function 33) => (not 12) ) ])
      (is (= (:actual (last @reported)) '(not (clojure.core/= false 12)))))
 
   (one-case "mock call supposed to be made, but wasn't (zero call count)"
-    (during (no-caller) => nil
+    (during (no-caller) => "irrelevant"
 	    [ (fake (mocked-function) => 33) ])
-    (is (last-subtype? :incorrect-call-count)))
+    (is (last-subtype? :incorrect-call-count))
+    (is (only-one-failure?)))
+
 
   (def other-function)
   (one-case "call not from inside function"
@@ -61,9 +66,16 @@
   (one-case "call that matches none of the expected arguments"
      (during (+ (mocked-function 12) (mocked-function 33)) => "result irrelevant because of earlier failure"
 	     [ (fake (mocked-function 12) => "hi") ])
-     (is (last-subtype? :unexpected-call)))
+     (is (last-subtype? :unexpected-call))
+     (is (only-one-failure?)))
 
-  (one-case "failure because one variant of doubly-mocked function is not called")
+  (one-case "failure because one variant of multiply-mocked function is not called"
+     (during (+ (mocked-function 12) (mocked-function 22)) => 3
+	     [ (fake (mocked-function 12) => 1)
+	       (fake (mocked-function 22) => 2)
+	       (fake (mocked-function 33) => 3)])
+     (is (last-subtype? :incorrect-call-count))
+     (is (only-one-failure?)))
 
   (one-case "multiple calls to a mocked function are perfectly fine")
 )
