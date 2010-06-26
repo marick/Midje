@@ -36,7 +36,10 @@
   
 
 (deftest simple-examples
+  (one-case "Without expectations, this is just a different syntax for 'is'")
+
   (one-case "mocked functions must be declared before use")
+
 
   (one-case "successful mocking"
     (during (function-under-test) => 33
