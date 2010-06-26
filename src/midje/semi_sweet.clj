@@ -106,14 +106,10 @@
 )
 
 
-(defmacro #^{:private true} short-circuiting-failure 
-  ([form expected]
-   `(short-circuiting-failure ~form ~expected nil))
-
-  ([form expected failure-message]
+(defmacro #^{:private true} short-circuiting-failure [form expected]
   `(with-handler (let [code-under-test-result# (eagerly ~form)]
-		   (is (= code-under-test-result# ~expected) ~failure-message))
-		 (handle *failure-during-computation* [])))
+		   (is (= code-under-test-result# ~expected)))
+		 (handle *failure-during-computation* []))
 )
 
 (defn arg-matcher-maker [expected]
