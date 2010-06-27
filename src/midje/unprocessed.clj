@@ -90,6 +90,12 @@
 	  (unique-function-vars expectations))
 )
 
+(defn- function-aware-= [actual expected]
+  (if (fn? expected) 
+    (expected actual)
+    (= actual expected))
+)
+
 (defn- check-call-counts [expectations]
   (doseq [expectation expectations]
       (if (zero? @(expectation :count-atom))

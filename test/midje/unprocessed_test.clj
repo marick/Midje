@@ -8,7 +8,7 @@
 
 (testable-privates midje.unprocessed
 		   pairs matching-args? find-matching-call eagerly
-		   unique-function-vars binding-map
+		   unique-function-vars binding-map function-aware-=
 )
 
 
@@ -82,4 +82,10 @@
     (call-faker (var g) [1] expectations)
     (count-checker 2 1 1)
     )
+)
+
+
+(deftest function-aware-equality-test
+  (is (falsey (function-aware-= 1 2)))
+  (is (truthy (function-aware-= 1 odd?)))
 )
