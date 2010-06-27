@@ -1,9 +1,10 @@
 (ns midje.file_position_test
-  (:use [midje.semi-sweet] :reload-all)
+  (:use [midje.unprocessed] :reload-all)
+  (:use [midje.semi-sweet :only [fake]])
   (:use [clojure.test])
   (:use [midje.test-util]))
 
-(def line-marker-1 6)
+(def line-marker-1 7)
 (deftest simple-user-file-position-test []
   (let [position (user-file-position)]
     (is (= "file_position_test.clj" (first position)))
