@@ -10,11 +10,19 @@
   [actual] 
   (not actual))
 
-(defn in-any-order "Produces matcher that matches sequences without regard to order"
+(defn in-any-order
+  "Produces matcher that matches sequences without regard to order"
   [expected]
-  (fn [actual] (= (set expected) (set actual))))
+  (fn [actual] 
+      (and (= (count expected) (count actual))
+	   (= (set expected) (set actual)))))
 
 (defn anything
   "Accepts any value"
   [actual]
   true)
+
+(defn exactly
+  "Checks for equality. Use to avoid default handling of functions."
+  [expected]
+  (fn [actual] (= expected actual)))
