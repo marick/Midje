@@ -6,6 +6,19 @@
   (:use clojure.contrib.error-kit)
 )
 
+
+(defn- only-mocked* [names]
+  (let [declarations (map (fn [name] 
+			      `(defn ~name [& args#] 
+				 (throw (Error. (str '~name " has no implementation. It's used in mock tests.")))))
+			  names)]
+    `(do ~@declarations)))
+
+(defmacro only-mocked 
+  "Defines a list of names as functions that have no implementation yet. They will
+   throw Errors if ever called."
+  [& names] (only-mocked* names))
+
 (defmacro fake 
   "Creates an expectation that a particular call will be made. When it is made,
    the result is to be returned. Either form may contain bound variables. 

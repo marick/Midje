@@ -4,7 +4,15 @@
   (:use [clojure.test])
   (:use [midje.test-util]))
 
-(def faked-function)
+(only-mocked faked-function mocked-function other-function)
+
+(deftest only-mocked-test
+  (try
+     (faked-function)
+     (is false "Function didn't raise.")
+     (catch Error e)))
+
+
 (deftest basic-fake-test
   (let [some-variable 5
 	previous-line-position (file-position 1)
@@ -47,14 +55,12 @@
     )
 )
 
-(defn mocked-function [] "supposed to be mocked")
 (defn function-under-test [& rest]
   (apply mocked-function rest))
 (defn no-caller [])
 
 (def reported (atom []))
 
-(def reportX) ;; so you can easily see real reports.
 (defmacro one-case 
   ([description]
    `(println "PENDING:"  ~description))
@@ -78,11 +84,11 @@
   
 
 (deftest simple-examples
-  (one-case "Without expectations, this is just a different syntax for 'is'"
-    (expect (function-under-test) => nil))
-
-  (one-case "mocked functions must be declared before use")
-
+  (one-case "Without expectations, this is like 'is'."
+    (expect (+ 1 3) => nil)
+    (is (last-type? :mock-expected-result-failure))
+    (is (= (:actual (last @reported)) 4))
+    (is (= (:expected (last @reported)) nil)))
 
   (one-case "successful mocking"
     (expect (function-under-test) => 33
@@ -103,7 +109,6 @@
     (is (only-one-result?)))
 
 
-  (def other-function)
   (one-case "call not from inside function"
      (expect (+ (mocked-function 12) (other-function 12)) => 12
 	     [ (fake (mocked-function 12) => 11)
