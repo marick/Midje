@@ -108,7 +108,7 @@
 )
 
 (defn- check-result [actual call expectations]
-  (if-not (= actual (call :expected-result))
+  (if-not (function-aware-= actual (call :expected-result))
      (report {:type :mock-expected-result-failure
 	      :position (call :file-position)
 	      :actual actual
@@ -119,7 +119,7 @@
 (defn arg-matcher-maker [expected]
   "Based on an expected value, generates a function that returns true if the 
    actual value matches it. Don't use this."
-  (fn [actual] (= actual expected)))
+  (fn [actual] (function-aware-= actual expected)))
 
 (defmacro #^{:private true} stopping-upon-mock-failures [form]
   `(with-handler ~form

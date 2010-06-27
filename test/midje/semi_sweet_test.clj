@@ -116,3 +116,18 @@
 
 
   
+(deftest function-awareness-test
+  (one-case "expected results can be functions"
+     (expect (+ 1 1) => even?)
+     (is (no-failures?)))
+  (let [myfun (fn [] 33)
+	funs [myfun]]
+    (one-case "exact function matches can be checked with exactly"
+       (expect (first funs) => (exactly myfun))
+       (is (no-failures?))))
+
+  (one-case "mocked function argument matching uses function-aware equality"
+     (expect (function-under-test 1 "floob" even?) => even?
+	     [ (fake (mocked-function odd? anything (exactly even?)) => 44) ])
+     (is (no-failures?)))
+)
