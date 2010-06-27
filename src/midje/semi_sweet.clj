@@ -13,7 +13,7 @@
   (defmethod clojure.test/report :mock-argument-match-failure [m]
     (with-test-out
      (inc-report-counter :fail)
-     (println "\nFAIL near" (midje.semi-sweet/position-string (:position m)))
+     (println "\nFAIL at" (midje.semi-sweet/position-string (:position m)))
      (when (seq *testing-contexts*) (println (testing-contexts-str)))
      (println "You never said" (:name (meta (:function m))) "would be called with these arguments:")
      (println (pr-str (:actual m)))))
@@ -30,15 +30,12 @@
   (defmethod clojure.test/report :mock-expected-result-failure [m]
     (with-test-out
      (inc-report-counter :fail)
-     (println "\nFAIL near" (midje.semi-sweet/position-string (:position m)))
+     (println "\nFAIL at" (midje.semi-sweet/position-string (:position m)))
      (when (seq *testing-contexts*) (println (testing-contexts-str)))
      (println "expected:" (pr-str (:expected m)))
      (println "  actual:" (pr-str (:actual m)))))
 
-(def *file-position-of-call-under-test* nil)
-
-  "Raising a failure-during-computation means 'don't check expectations'."
-(deferror *failure-during-computation* [] [])
+(deferror one-failure-per-test [] [])  ; Check nothing further
 
 
 (defn- pairs [first-seq second-seq]
@@ -104,7 +101,7 @@
 		      :function faked-function
 		      :actual args
 		      :position (:file-position (first expectations))})
-	      (raise *failure-during-computation*))
+	      (raise one-failure-per-test))
        (do 
 	 (swap! (found :count-atom) inc)
 	 ((found :result-supplier)))))
@@ -126,26 +123,18 @@
 		   :expected-call (expectation :call-text-for-failures)
 		   :position (:file-position expectation)
 		   :expected (expectation :call-text-for-failures)})
-	  (raise *failure-during-computation*))))
-	  
+	  (raise one-failure-per-test))))
 )
 
 ; TODO: (expect calls need to record their file position)
-(defn- check-result [actual expected expectations]
-  (if-not (= actual expected)
+(defn- check-result [actual call expectations]
+  (if-not (= actual (call :expected-result))
      (report {:type :mock-expected-result-failure
-	      :position (:file-position (first expectations))
+	      :position (call :file-position)
 	      :actual actual
-	      :expected expected }))
+	      :expected (call :expected-result) }))
 )
 
-
-(defmacro #^{:private true} short-circuiting-failure [tested-fn expected-result expectations]
-  `(with-handler (let [code-under-test-result# (eagerly (~tested-fn))]
-		   (check-call-counts ~expectations)
-		   (check-result code-under-test-result# ~expected-result ~expectations))
-		 (handle *failure-during-computation* []))
-)
 
 (defn arg-matcher-maker [expected]
   (fn [actual] (= actual expected)))
@@ -164,18 +153,28 @@
 )
 
 
-(defn expect* [call-fn expected-result expectations]
+(defmacro call-being-tested [call-form expected-result]
+   `{:function-under-test (fn [] ~call-form)
+     :expected-result ~expected-result
+     :file-position (user-file-position)})
+
+
+(defmacro #^{:private true} stopping-upon-mock-failures [form]
+  `(with-handler ~form
+		 (handle one-failure-per-test [])))
+
+(defn expect* [call expectations]
   (with-bindings (binding-map expectations)
-      (short-circuiting-failure call-fn expected-result expectations))
-  )
+     (stopping-upon-mock-failures
+      (let [code-under-test-result (eagerly ((call :function-under-test)))]
+	(check-call-counts expectations)
+	(check-result code-under-test-result call expectations)))))
 
 (defmacro expect 
   "doc string here"
-  ([call-form ignored expected-result]
-   `(expect ~call-form ~ignored ~expected-result []))
-  ([call-form ignored expected-result expectations]
-   `(binding [*file-position-of-call-under-test* (user-file-position)]
-      (expect* (fn [] ~call-form) ~expected-result ~expectations)))
+  ([call-form => expected-result]
+   `(expect ~call-form => ~expected-result []))
+  ([call-form => expected-result expectations]
+   `(let [call# (call-being-tested ~call-form ~expected-result)]
+      (expect* call# ~expectations)))
 )
-
-
