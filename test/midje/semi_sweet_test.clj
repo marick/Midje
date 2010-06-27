@@ -57,7 +57,7 @@
 (def reportX) ;; so you can easily see real reports.
 (defmacro one-case 
   ([description]
-   `(println "Pending:"  ~description))
+   `(println "PENDING:"  ~description))
   ([description expect-form & check-forms]
    (let [form-is-expect? (fn [form] (and (seq? form)
 					 (= (first form) 'expect)))]
@@ -128,5 +128,7 @@
      (is (last-type? :mock-incorrect-call-count))
      (is (only-one-result?)))
 
-  (one-case "multiple calls to a mocked function are perfectly fine")
+  (one-case "multiple calls to a mocked function are perfectly fine"
+     (expect (+ (mocked-function 12) (mocked-function 12)) => 2
+	     [ (fake (mocked-function 12) => 1) ]))
 )
