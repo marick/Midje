@@ -6,7 +6,7 @@
 
 
 (testable-privates midje.semi-sweet
-		   pairs position-string matching-args? find-matching-call eagerly
+		   pairs matching-args? find-matching-call eagerly
 		   unique-function-vars binding-map
 )
 
@@ -36,10 +36,6 @@
   (is (= (eagerly 3) 3))
 )
 
-
-(deftest position-string-test
-  (is (= (position-string ["filename.clj" 33])
-	 "(filename.clj:33)")))
 
 (deftest matching-args-test
   (is (truthy (matching-args? [] [])))

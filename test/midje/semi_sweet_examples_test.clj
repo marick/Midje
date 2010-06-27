@@ -35,13 +35,6 @@
   (= 1 (count (deref reported))))
   
 
-(deftest foo
-(expect (function-under-test 33) => 12
-	[ (fake (mocked-function 33) => (not 12) ) ])
-)
-
-
-
 (deftest simple-examples
   (one-case "Without expectations, this is just a different syntax for 'is'"
     (expect (function-under-test) => nil))
