@@ -108,11 +108,12 @@
 )
 
 (defn- check-result [actual call expectations]
-  (if-not (function-aware-= actual (call :expected-result))
-     (report {:type :mock-expected-result-failure
-	      :position (call :file-position)
-	      :actual actual
-	      :expected (call :expected-result) }))
+  (if (function-aware-= actual (call :expected-result))
+    (report {:type :pass})
+    (report {:type :mock-expected-result-failure
+  	     :position (call :file-position)
+	     :actual actual
+	     :expected (call :expected-result) }))
 )
 
 
@@ -134,4 +135,5 @@
       (let [code-under-test-result (eagerly ((call-map :function-under-test)))]
 	(check-call-counts expectations)
 	(check-result code-under-test-result call-map expectations)))))
+      
 

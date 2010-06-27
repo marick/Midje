@@ -66,6 +66,11 @@
     (is (= (:actual (last @reported)) 4))
     (is (= (:expected (last @reported)) nil)))
 
+  (one-case "A passing test so reports"
+    (expect (+ 1 3) => 4)
+    (is (last-type? :pass)))
+	    
+
   (one-case "successful mocking"
     (expect (function-under-test) => 33
 	    [ (fake (mocked-function) => 33) ])
