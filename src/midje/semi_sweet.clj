@@ -20,10 +20,10 @@
   [& names] (only-mocked* names))
 
 (defmacro fake 
-  "Creates an expectation that a particular call will be made. When it is made,
+  "Creates an expectation map that a particular call will be made. When it is made,
    the result is to be returned. Either form may contain bound variables. 
    Example: (let [a 5] (fake (f a) => a))"
-  [call-form ignored result]
+  [call-form => result]
   `{:function (def ~(first call-form))
     :arg-matchers (map arg-matcher-maker [~@(rest call-form)])
     :call-text-for-failures (str '~call-form)
@@ -34,12 +34,18 @@
 
 
 (defmacro call-being-tested [call-form expected-result]
+  "Creates a map that contains a function-ized version of the form being 
+   tested, an expected result, and the file position to refer to in case of 
+   failure. See 'expect'."
    `{:function-under-test (fn [] ~call-form)
      :expected-result ~expected-result
      :file-position (user-file-position)})
 
 (defmacro expect 
-  "doc string here"
+  "Run the call form, check that all the mocks defined in the expectations 
+   (probably with 'fake') have been satisfied, and check that the actual
+   results are as expected. If the expected results are a function, it
+   will be called with the actual result as its single argument."
   ([call-form => expected-result]
    `(expect ~call-form => ~expected-result []))
   ([call-form => expected-result expectations]

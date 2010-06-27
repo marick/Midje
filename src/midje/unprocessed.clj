@@ -42,6 +42,8 @@
 )
 
 (defn user-file-position []
+  "Guesses the file position (basename and line number) that the user is
+   most likely to be interested in if a test fails."
   (try
    (let [integers (iterate inc 1)
 	 positions (without-java (map file-position integers))
@@ -66,6 +68,7 @@
 
 
 (defn call-faker [faked-function args expectations]
+  "This is the function that handles all mocked calls. Don't use it."
   (let [found (find-matching-call faked-function args expectations)]
     (if-not found 
 	    (do 
@@ -98,7 +101,6 @@
 	  (raise one-failure-per-test))))
 )
 
-; TODO: (expect calls need to record their file position)
 (defn- check-result [actual call expectations]
   (if-not (= actual (call :expected-result))
      (report {:type :mock-expected-result-failure
@@ -109,16 +111,21 @@
 
 
 (defn arg-matcher-maker [expected]
+  "Based on an expected value, generates a function that returns true if the 
+   actual value matches it. Don't use this."
   (fn [actual] (= actual expected)))
 
 (defmacro #^{:private true} stopping-upon-mock-failures [form]
   `(with-handler ~form
 		 (handle one-failure-per-test [])))
 
-(defn expect* [call expectations]
+(defn expect* [call-map expectations]
+  "The core function in unprocessed Midje. Takes a map describing a call and a 
+   list of maps, each of which describes a secondary call the first call is supposed to 
+   make. See the documentation at http://github.com/marick/Midje."
   (with-bindings (binding-map expectations)
      (stopping-upon-mock-failures
-      (let [code-under-test-result (eagerly ((call :function-under-test)))]
+      (let [code-under-test-result (eagerly ((call-map :function-under-test)))]
 	(check-call-counts expectations)
-	(check-result code-under-test-result call expectations)))))
+	(check-result code-under-test-result call-map expectations)))))
 
