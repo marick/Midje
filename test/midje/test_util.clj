@@ -31,4 +31,5 @@
   (every? #(= (:type %) :pass) (deref reported)))
 (defn only-one-result? []
   (= 1 (count (deref reported))))
-  
+
+(defn raw-report [] (println @reported))
