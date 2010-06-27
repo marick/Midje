@@ -59,30 +59,6 @@
   (apply mocked-function rest))
 (defn no-caller [])
 
-(def reported (atom []))
-
-(defmacro one-case 
-  ([description]
-   `(println "PENDING:"  ~description))
-  ([description expect-form & check-forms]
-   (let [form-is-expect? (fn [form] (and (seq? form)
-					 (= (first form) 'expect)))]
-     (assert (form-is-expect? expect-form))
-     (assert (every? #(not (form-is-expect? %)) check-forms))
-     `(do 
-	(binding [report (fn [report-map#] (swap! reported conj report-map#))]
-	  (reset! reported [])
-	  ~expect-form)
-	~@check-forms))))
-
-(defn last-type? [expected]
-  (= (:type (last (deref reported))) expected))
-(defn no-failures? []
-  (every? #(= (:type %) :pass) (deref reported)))
-(defn only-one-result? []
-  (= 1 (count (deref reported))))
-  
-
 (deftest simple-examples
   (one-case "Without expectations, this is like 'is'."
     (expect (+ 1 3) => nil)
@@ -137,3 +113,6 @@
      (expect (+ (mocked-function 12) (mocked-function 12)) => 2
 	     [ (fake (mocked-function 12) => 1) ]))
 )
+
+
+  
