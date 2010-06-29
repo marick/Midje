@@ -30,8 +30,13 @@ This isn't implemented yet. It will look something like this
 
 # Semi-sweet style #
 
-<script
-src="http://gist.github.com/457829.js?file=Midje%200.0.1%20examples.clj"></script>
+Briefly, the syntax looks like this:
+
+    (expect (function-under-test) => 33
+       (fake (mocked-function) => 33))
+
+A [separate page](http://gist.github.com/457829) contains complete descriptions of the style 
+in the form of executable examples.
 
 # Unprocessed style #
 
