@@ -1,6 +1,7 @@
 (ns midje.semi-sweet
   (:use clojure.test)
   (:use midje.unprocessed)
+  (:use midje.checkers)
   (:use midje.report)
   (:use clojure.contrib.seq-utils)
   (:use clojure.contrib.error-kit)
@@ -47,9 +48,7 @@
    (probably with 'fake') have been satisfied, and check that the actual
    results are as expected. If the expected results are a function, it
    will be called with the actual result as its single argument."
-  ([call-form => expected-result]
-   `(expect ~call-form => ~expected-result []))
-  ([call-form => expected-result expectations]
+  [call-form => expected-result & expectations]
    `(let [call# (call-being-tested ~call-form ~expected-result)]
-      (expect* call# ~expectations)))
+      (expect* call# (vector ~@expectations)))
 )

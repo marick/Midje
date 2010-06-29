@@ -73,34 +73,34 @@
 
   (one-case "successful mocking"
     (expect (function-under-test) => 33
-	    [ (fake (mocked-function) => 33) ])
+       (fake (mocked-function) => 33))
     (is (no-failures?)))
 
 
   (one-case "mocked calls go fine, but function under test produces the wrong result"
      (expect (function-under-test 33) => 12
-	     [ (fake (mocked-function 33) => (not 12) ) ])
+	(fake (mocked-function 33) => (not 12) ))
      (is (= (:actual (last @reported)) false))
      (is (= (:expected (last @reported)) 12)))
 
   (one-case "mock call supposed to be made, but wasn't (zero call count)"
     (expect (no-caller) => "irrelevant"
-	    [ (fake (mocked-function) => 33) ])
+       (fake (mocked-function) => 33))
     (is (last-type? :mock-incorrect-call-count))
     (is (only-one-result?)))
 
 
   (one-case "call not from inside function"
      (expect (+ (mocked-function 12) (other-function 12)) => 12
-	     [ (fake (mocked-function 12) => 11)
-	       (fake (other-function 12) => 1) ])
+	     (fake (mocked-function 12) => 11)
+	     (fake (other-function 12) => 1))
      (is (no-failures?)))
 
 
 
   (one-case "call that matches none of the expected arguments"
      (expect (+ (mocked-function 12) (mocked-function 33)) => "result irrelevant because of earlier failure"
-	     [ (fake (mocked-function 12) => "hi") ])
+	     (fake (mocked-function 12) => "hi"))
      (is (last-type? :mock-argument-match-failure))
      (is (only-one-result?)))
 
@@ -108,15 +108,15 @@
 
   (one-case "failure because one variant of multiply-mocked function is not called"
      (expect (+ (mocked-function 12) (mocked-function 22)) => 3
-	     [ (fake (mocked-function 12) => 1)
-	       (fake (mocked-function 22) => 2)
-	       (fake (mocked-function 33) => 3)])
+	     (fake (mocked-function 12) => 1)
+	     (fake (mocked-function 22) => 2)
+	     (fake (mocked-function 33) => 3))
      (is (last-type? :mock-incorrect-call-count))
      (is (only-one-result?)))
 
   (one-case "multiple calls to a mocked function are perfectly fine"
      (expect (+ (mocked-function 12) (mocked-function 12)) => 2
-	     [ (fake (mocked-function 12) => 1) ]))
+	      (fake (mocked-function 12) => 1) ))
 )
 
 
@@ -133,6 +133,6 @@
 
   (one-case "mocked function argument matching uses function-aware equality"
      (expect (function-under-test 1 "floob" even?) => even?
-	     [ (fake (mocked-function odd? anything (exactly even?)) => 44) ])
+	     (fake (mocked-function odd? anything (exactly even?)) => 44))
      (is (no-failures?)))
 )
