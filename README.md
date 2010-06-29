@@ -8,8 +8,14 @@ Clojure that supports three levels of syntactic sugar:
   person who hates my style of sugaring and wants to write
   her own.
 
-* **Semi-sweet** Adds a few constructs to make tests look
-  more like the examples you see in tutorials and the like.
+* **Semi-sweet** When people write documentation containing
+  examples, they often use a clear marker between the code
+  you type and what you should see. It's often an
+  arrow. Sometimes the distinction is made by making the
+  example look like it's being typed at the REPL. The
+  semi-sweet style adds a few constructs to make Midje tests
+  look like that, while still being easy enough to generate
+  from a more elaborate syntax.
 
 * **Sweet** The style I like to use. A "little language" for
   top-down test-driven development, which repaints Freeman
@@ -24,66 +30,20 @@ This isn't implemented yet. It will look something like this
 
 # Semi-sweet style #
 
-Here's a typical test:
+<script
+src="http://gist.github.com/457829.js?file=Midje%200.0.1%20examples.clj"></script>
 
-(deftest some-mock-test 
+# Unprocessed style #
 
+Both calls with their expected results and expectations for
+calls of faked functions are defined by maps. You can find
+the format by looking at the definitions of code(fake) and
+code(call-being-tested) in code(midje/semi_sweet.clj). The
+function that does the actual work is code(expect*). Its
+first argument is the map in the code(call-being-tested) format,
+followed by zero or more maps in the code(fake) format.
 
+Note: Midje uses the code(report) function that clojure.test
+supplies. However, it uses its own type codes, so you can't
+easily plug in clojure.test.tap or clojure.test.junit.
 
-
-
-
-# What's common to each style #
-
-All use the clojure.test reporting mechanism, so you can
-wrap your tests in code(deftest). At the moment, you're
-stuck with the default test supporting--no fancy XML output,
-etc. 
-
-The semi-sweet and sweet styles are build on this
-representation:
-
-	(function arg1 arg2) => result
-
-It's common for the values to be literals, like this:
-
-     (function 1 2) => 4
-
-When describing expected results of a function, though, you
-can provide a function:
-
-    (function 1 2) => even?
-
-That means "the result of code(function 1 2) will be an even
-number. Specifically, the function code(even?) is called
-with the actual result as its only argument. 
-
-What if your function-under-test is a higher-order function
-that returns the code(even?) function? In that (less common)
-case, you write this:
-
-      (function 1 2) => (exactly even?) 
-
-When describing a function call that should happen, you can
-use the same syntax. So, for example, the following say that
-code(subfunction) will be called with value code(1) and
-return 33.
-
-		  (subfunction 1) => 33
-
-If you want the subfunction to return 33 for any odd argument,
-use this:
-
-    (subfunction odd?) => 33
-
-If you want the subfunction to return 33 when it is given
-exactly the function named by code(odd?), do this:
-
-	(subfunction (exactly odd?) => 33)
-
-There are a variety of functions that will match more than one
-value. You can see all of them with this:
-
-       (ns-publics (find-ns 'midje.checkers))
-
-       
