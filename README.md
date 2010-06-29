@@ -17,6 +17,22 @@ Clojure that supports three levels of syntactic sugar:
   Tests](http://www.growing-object-oriented-software.com/)
   to the functional landscape. 
 
+# Sweet style #
+
+This isn't implemented yet. It will look something like this
+[workthrough]http://www.exampler.com/blog/2010/06/10/tdd-in-clojure-a-sketch-part-1/)
+
+# Semi-sweet style #
+
+Here's a typical test:
+
+(deftest some-mock-test 
+
+
+
+
+
+
 # What's common to each style #
 
 All use the clojure.test reporting mechanism, so you can
@@ -69,14 +85,5 @@ There are a variety of functions that will match more than one
 value. You can see all of them with this:
 
        (ns-publics (find-ns 'midje.checkers))
-
-# Sweet style #
-
-This isn't implemented yet. It will look something like this
-[workthrough]http://www.exampler.com/blog/2010/06/10/tdd-in-clojure-a-sketch-part-1/)
-
-# Semi-sweet style #
-
-Here's a typical test:
 
        
