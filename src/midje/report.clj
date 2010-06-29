@@ -30,3 +30,12 @@
    (println "expected:" (pr-str (:expected m)))
    (println "  actual:" (pr-str (:actual m)))))
 
+(defmethod clojure.test/report :mock-expected-result-functional-failure [m]
+  (with-test-out
+   (inc-report-counter :fail)
+   (println "\nFAIL at" (midje-position-string (:position m)))
+   (when (seq *testing-contexts*) (println (testing-contexts-str)))
+   (println "Actual result did not pass expected function.")
+   (println "expected function:" (pr-str (:expected m)))
+   (println "    actual result:" (pr-str (:actual m)))))
+

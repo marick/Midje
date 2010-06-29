@@ -39,6 +39,7 @@
    failure. See 'expect'."
    `{:function-under-test (fn [] ~call-form)
      :expected-result ~expected-result
+     :expected-result-text-for-failures '~expected-result
      :file-position (user-file-position)})
 
 (defmacro expect 

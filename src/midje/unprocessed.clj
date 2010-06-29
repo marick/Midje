@@ -107,13 +107,20 @@
 	  (raise one-failure-per-test))))
 )
 
+
 (defn- check-result [actual call expectations]
-  (if (function-aware-= actual (call :expected-result))
-    (report {:type :pass})
-    (report {:type :mock-expected-result-failure
-  	     :position (call :file-position)
-	     :actual actual
-	     :expected (call :expected-result) }))
+  (cond (function-aware-= actual (call :expected-result))
+   	  (report {:type :pass})
+	(fn? (call :expected-result))
+	  (report {:type :mock-expected-result-functional-failure
+		   :position (call :file-position)
+		   :actual actual
+		   :expected (call :expected-result-text-for-failures) })
+	:else 
+	  (report {:type :mock-expected-result-failure
+		   :position (call :file-position)
+		   :actual actual
+		   :expected (call :expected-result) }))
 )
 
 
