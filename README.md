@@ -26,7 +26,7 @@ Clojure that supports three levels of syntactic sugar:
 # Sweet style #
 
 This isn't implemented yet. It will look something like this
-[workthrough]http://www.exampler.com/blog/2010/06/10/tdd-in-clojure-a-sketch-part-1/)
+[workthrough](http://www.exampler.com/blog/2010/06/10/tdd-in-clojure-a-sketch-part-1/)
 
 # Semi-sweet style #
 
