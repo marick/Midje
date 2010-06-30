@@ -1,0 +1,13 @@
+The process for pushing a new version is too complicated and
+manual. 
+
+* Touch the new version number whenever its used. 
+* Run the tests.
+* make jar and rename it to midje-x.x.x.jar
+* make pom
+* scp pom.xml midje-x.x.x.jar clojars@clojars.org:
+* Run the example and compare to stashed result. (It should
+  fetch the new version.)
+* Make new downloads
+* git tag -a -m "message" v.x.x.x
+* Push to github
