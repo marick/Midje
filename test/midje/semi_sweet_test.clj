@@ -1,7 +1,6 @@
 (ns midje.semi-sweet-test
+  (:use clojure.test)
   (:use [midje.semi-sweet] :reload-all)
-  (:use [midje.checkers])
-  (:use [clojure.test])
   (:use [midje.test-util]))
 
 (only-mocked faked-function mocked-function other-function)
