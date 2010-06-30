@@ -25,13 +25,13 @@ Clojure that supports three levels of syntactic sugar:
 
 # For the impatient #
 
-If you want to see Midje in action by downloading one file and typing
-two commands, do this:
+If you'd rather see Midje in action and fiddle with tests
+than read on, do this:
 
 * [Click here](http://github.com/marick/Midje/raw/master/downloads/semi-sweet-examples.zip).
 * In a shell, go to the directory your browser unpacked the example
-  into.
-* Type "run".  (Windows users, see README.html)
+  into. It should be named code(semi-sweet-example).
+* Type "./run".  (Windows users, see README.html)
 
 # Sweet style #
 
