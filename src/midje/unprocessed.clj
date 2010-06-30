@@ -3,7 +3,9 @@
   (:use midje.report)
   (:use clojure.contrib.seq-utils)
   (:use clojure.contrib.error-kit)
+  (:use clojure.contrib.ns-utils)
 )
+(immigrate 'midje.checkers)
 
 
 

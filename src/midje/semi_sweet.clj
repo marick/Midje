@@ -1,11 +1,10 @@
 (ns midje.semi-sweet
   (:use clojure.test)
-  (:use midje.unprocessed)
-  (:use midje.checkers)
-  (:use midje.report)
   (:use clojure.contrib.seq-utils)
   (:use clojure.contrib.error-kit)
+  (:use clojure.contrib.ns-utils)
 )
+(immigrate 'midje.unprocessed)
 
 
 (defn- only-mocked* [names]
