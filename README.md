@@ -13,13 +13,16 @@ Clojure that supports three levels of syntactic sugar:
        
          (expect (numerical-reverser 103) => 301)
     
-    I use the arrows because people often use them in
-    examples where the message is "When you type _this_,
-    you'll see _this_." The above says "After
+    I use the arrows because I think of tests as
+    [examples](http://www.exampler.com/old-blog/2003/08/22/#agile-testing-project-2). When
+    people show snippets of code as examples, they often use
+    an arrow to 
+    separate what you type from what you should expect to
+    see. The Midje line above says "After
     `numerical-reverser` is given `103`, the test should see it
     return `301`. 
     
-    In this form, Midje does the same thing as
+    In that form, Midje does the same thing as
     `clojure.test`. (Indeed, it uses `clojure.test`'s
     reporting mechanism.) If, however, you want
     `numerical-reverser` to use a function that
