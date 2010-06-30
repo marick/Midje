@@ -1,9 +1,10 @@
 
 (ns semi-sweet-simple.core-test
-  (:use [clojure.test])
-  (:use [midje.checkers])
-  (:use [midje.semi-sweet])
+  (:use clojure.test)
+  (:use midje.semi-sweet)
 )
+
+(defn note-expected [] (println "^^^^ The previous failure was expected ^^^^"))
 
                        ;;; 
 
@@ -21,12 +22,12 @@
 ;;     expected: 3
 ;;       actual: 4
 (deftest example-of-a-simple-equality-test-failure
-  (expect ( #(+ 1 %) 3) => 3))
+  (expect ( #(+ 1 %) 3) => 3)                                          (note-expected))
 
 ;; You can also use functions on the right-hand side. In that case,
 ;; the actual result is passed as the function's single argument.
 (deftest example-of-a-function-as-right-hand-side
-  (expect ( #(+ 1 %) 3) => odd?))
+  (expect ( #(+ 1 %) 3) => odd?)                                       (note-expected))
 ;; The failing test will look slighly different:
 ;;     FAIL at (core_test.clj:28)
 ;;     Actual result did not pass expected function.
@@ -35,8 +36,8 @@
 
 ;; If you're testing something that produces a function, use
 ;; (exactly):
-(deftest example-of-a-function-as-right-hand-side
-  (expect (first [even? odd?]) => (exactly odd?)))
+(deftest example-of-an-exact-function-as-right-hand-side
+  (expect (first [even? odd?]) => (exactly odd?))                      (note-expected))
 ;;     Actual result did not pass expected function.
 ;;     expected function: (exactly odd?)
 ;;         actual result: #<core$even_QMARK___4680 clojure.core$even_QMARK___4680@494b6bed>
@@ -45,9 +46,9 @@
 ;;            (ns-publics (40 'midje.checkers))
 ;; They have doc strings.
 ;; Here's one of them:
-(deftest example-of-in-any-order
-  (expect '[3 1 2] => (in-any-order [1 2 3]))  ;; succeeds
-  (expect '[3 3 1 2] => (in-any-order [1 2 3])))  ;; fails
+(deftest example-of-a-predefined-checker
+  (expect '[3 1 2] => (in-any-order [1 2 3]))                         ;; succeeds
+  (expect '[3 3 1 2] => (in-any-order [1 2 3]))                       (note-expected))
 ;;     FAIL at (core_test.clj:51)
 ;;     Actual result did not pass expected function.
 ;;     expected function: (in-any-order [1 2 3])
@@ -66,15 +67,15 @@
 ;; The following test fakes the first-fake so that it returns a
 ;; predefined value when it's called. After that, the result of
 ;; function-under-test is checked in the normal way. 
-(deftest example-of-simple-fake
+(deftest example-of-a-simple-fake
   (expect (function-under-test-1 3) => 5
       (fake (first-fake 3) => 5)))
 
 ;; Here's the failure when a fake is never called
 (defn function-under-test-2 [_] 5)
-(deftest example-of-simple-fake-failure
+(deftest example-of-a-simple-fake-failure
   (expect (function-under-test-2 3) => 5
-      (fake (first-fake 3) => 5)))
+      (fake (first-fake 3) => 5))                                      (note-expected))
 ;;     FAIL for (core_test.clj:80)
 ;;     This expectation was never satisfied:
 ;;     (first-fake 3) should be called at least once.
@@ -145,3 +146,21 @@
 ;; If I call (frozzle), I get this:
 ;;      Exception in thread "main" java.lang.Error: frozzle has no
 ;;      implementation. It's used in mock tests. (core_test.clj:1)
+
+
+
+
+
+(defn test-ns-hook []
+  "This calls the functions in order."
+  (example-of-a-simple-equality-test)
+  (example-of-a-simple-equality-test-failure)
+  (example-of-a-function-as-right-hand-side)
+  (example-of-an-exact-function-as-right-hand-side)
+  (example-of-a-predefined-checker)
+  (example-of-a-simple-fake)
+  (example-of-a-simple-fake-failure)
+  (example-of-multiple-faked-functions)
+  (example-of-interesting-functional-args)
+)
+
