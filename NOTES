@@ -14,5 +14,5 @@ manual.
 * Try it out against the expected output.
 * DO NOT CLEAN.
 * Make new downloads
-* git tag -a -m "message" v.x.x.x
+* git tag -a -m "message" v.x.x.x   ;; git push --tags
 * Push to github

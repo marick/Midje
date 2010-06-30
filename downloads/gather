@@ -1,2 +1,1 @@
-tar cvf semi-sweet-examples.tar ../examples/semi-sweet-examples/
 zip -r semi-sweet-examples.zip ../examples/semi-sweet-examples/
