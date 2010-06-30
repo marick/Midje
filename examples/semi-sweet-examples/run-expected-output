@@ -1,0 +1,34 @@
+
+Testing semi-sweet-simple.core-test
+
+FAIL at (core_test.clj:25)
+expected: 3
+  actual: 4
+^^^^ The previous failure was expected ^^^^
+
+FAIL at (core_test.clj:30)
+Actual result did not pass expected function.
+expected function: odd?
+    actual result: 4
+^^^^ The previous failure was expected ^^^^
+
+FAIL at (core_test.clj:40)
+Actual result did not pass expected function.
+expected function: (exactly odd?)
+    actual result: #<core$even_QMARK___4680 clojure.core$even_QMARK___4680@19e09a4>
+^^^^ The previous failure was expected ^^^^
+
+FAIL at (core_test.clj:51)
+Actual result did not pass expected function.
+expected function: (in-any-order [1 2 3])
+    actual result: [3 3 1 2]
+^^^^ The previous failure was expected ^^^^
+
+FAIL for (core_test.clj:78)
+This expectation was never satisfied:
+(first-fake 3) should be called at least once.
+^^^^ The previous failure was expected ^^^^
+
+Ran 9 tests containing 10 assertions.
+5 failures, 0 errors.
+{:type :summary, :test 9, :pass 5, :fail 5, :error 0}
