@@ -1,6 +1,5 @@
 
 (ns semi-sweet-simple.core-test
-  (:use [semi-sweet-simple.core] :reload-all)
   (:use [clojure.test])
   (:use [midje.checkers])
   (:use [midje.semi-sweet])
