@@ -26,7 +26,7 @@ Clojure that supports three levels of syntactic sugar:
     clojure.test. (Indeed, it uses clojure.test's
     reporting mechanism.) If, however, you want
     `numerical-reverser` to use a function that
-    doesn't exist yet, you can fake that function out like
+    hasn't been coded yet, you can fake out that function like
     this: 
 
         (expect (numerical-reverser 103) => 301
@@ -34,7 +34,7 @@ Clojure that supports three levels of syntactic sugar:
 
     In the second line, the arrow signifies that when
     `string-reverser` is given `"103"`, we know its caller
-    will receive `"301"`
+    will get back `"301"`
 
     The semi-sweet style does nothing more than add
     the `expect` and `fake` macros, which are ways of
@@ -49,18 +49,19 @@ Clojure that supports three levels of syntactic sugar:
 
 # For the impatient #
 
-If you'd rather see Midje in action and fiddle with tests
-than read on, do this:
+You can easily see Midje in action and fiddle with its
+test. You don't even need Clojure installed. Here's how:
 
 * [Click here](http://github.com/marick/Midje/raw/master/downloads/semi-sweet-examples.zip).
 * In a shell, go to the directory your browser unpacked the example
-  into. It should be named `semi-sweet-example`.
+  into. It should be named `semi-sweet-examples`.
 * Type "./run".  (Windows users, see README.html)
+* To change the tests, edit `semi-sweet-examples/test/semi_sweet_simple/core_test.clj`.
 
 # Documentation #
 
 * The sweet style isn't implemented yet. It will look something like this
-[workthrough](http://www.exampler.com/blog/2010/06/10/tdd-in-clojure-a-sketch-part-1/)
+[workthrough](http://www.exampler.com/blog/2010/06/10/tdd-in-clojure-a-sketch-part-1/).
 
 * A [separate page](http://gist.github.com/457829) contains
 complete descriptions of the semi-sweet style 
