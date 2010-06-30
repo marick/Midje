@@ -2,12 +2,17 @@ The process for pushing a new version is too complicated and
 manual. 
 
 * Touch the new version number whenever its used. 
+   (Should only be in the project files.)
 * Run the tests.
-* make jar and rename it to midje-x.x.x.jar
-* make pom
+* lein jar and rename it to midje-x.x.x.jar
+* lein pom
 * scp pom.xml midje-x.x.x.jar clojars@clojars.org:
-* Run the example and compare to stashed result. (It should
-  fetch the new version.)
+* Go to the example, 'lein clean', and 'lein deps'. (It should fetch the
+  new version.)
+* Run the example and compare to stashed result. 
+* Make a new version of 'run' in the example directory. 
+* Try it out against the expected output.
+* DO NOT CLEAN.
 * Make new downloads
 * git tag -a -m "message" v.x.x.x
 * Push to github
