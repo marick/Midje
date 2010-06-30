@@ -20,10 +20,10 @@ Clojure that supports three levels of syntactic sugar:
     separate what you type from what you should expect to
     see. The Midje line above says "After
     `numerical-reverser` is given `103`, the test should see it
-    return `301`. 
+    return `301`."
     
     In that form, Midje does the same thing as
-    `clojure.test`. (Indeed, it uses `clojure.test`'s
+    clojure.test. (Indeed, it uses clojure.test's
     reporting mechanism.) If, however, you want
     `numerical-reverser` to use a function that
     doesn't exist yet, you can fake that function out like
@@ -32,9 +32,14 @@ Clojure that supports three levels of syntactic sugar:
         (expect (numerical-reverser 103) => 301
            (fake (string-reverser "103") => "301"))
 
-  The semi-sweet style adds the `expect` and `fake` macros,
-  which make for readable tests while still being easy
-  enough to generate from a more ambitious syntax.
+    In the second line, the arrow signifies that when
+    `string-reverser` is given `"103"`, we know its caller
+    will receive `"301"`
+
+    The semi-sweet style does nothing more than add
+    the `expect` and `fake` macros, which are ways of
+    generating the maps the unprocessed style expects while themselves
+    not being too hard to generate from more ambitious macros.
 
 * **Sweet** The style I like to use. A "little language" for
   top-down test-driven development, which repaints Freeman
