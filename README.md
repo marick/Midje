@@ -49,8 +49,8 @@ Clojure that supports three levels of syntactic sugar:
 
 # For the impatient #
 
-You can easily see Midje in action and fiddle with its
-test. You don't even need Clojure installed. Here's how:
+You can easily see Midje in action and fiddle with some
+tests. You don't even need Clojure installed. Here's how:
 
 * [Click here](http://github.com/marick/Midje/raw/master/downloads/semi-sweet-examples.zip).
 * In a shell, go to the directory your browser unpacked the example
