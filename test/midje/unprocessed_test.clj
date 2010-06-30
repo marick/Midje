@@ -1,8 +1,7 @@
 (ns midje.unprocessed-test
+  (:use clojure.test)
   (:use [midje.unprocessed] :reload-all)
   (:use [midje.semi-sweet :only [fake]])
-  (:use [midje.checkers])
-  (:use [clojure.test])
   (:use [midje.test-util]))
 
 
