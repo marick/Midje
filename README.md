@@ -23,6 +23,16 @@ Clojure that supports three levels of syntactic sugar:
   Tests](http://www.growing-object-oriented-software.com/)
   to the functional landscape. 
 
+# For the impatient #
+
+If you want to see Midje in action by downloading one file and typing
+two commands, do this:
+
+* [Click here](http://github.com/marick/Midje/raw/master/downloads/semi-sweet-examples.zip).
+* In a shell, go to the directory your browser unpacked the example
+  into.
+* Type "run".  (Windows users, see README.html)
+
 # Sweet style #
 
 This isn't implemented yet. It will look something like this
