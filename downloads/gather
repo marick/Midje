@@ -1,1 +1,2 @@
-zip -r semi-sweet-examples.zip ../examples/semi-sweet-examples/
+cd ../examples
+zip -r ../downloads/semi-sweet-examples.zip semi-sweet-examples/
