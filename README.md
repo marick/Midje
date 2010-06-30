@@ -8,14 +8,30 @@ Clojure that supports three levels of syntactic sugar:
   person who hates my style of sugaring and wants to write
   her own.
 
-* **Semi-sweet** When people write documentation containing
-  examples, they often use a clear marker between the code
-  you type and what you should see. It's often an
-  arrow. Sometimes the distinction is made by making the
-  example look like it's being typed at the REPL. The
-  semi-sweet style adds a few constructs to make Midje tests
-  look like that, while still being easy enough to generate
-  from a more elaborate syntax.
+
+* **Semi-sweet** Here's a simple Midje test:
+       
+         (expect (numerical-reverser 103) => 301)
+    
+    I use the arrows because people often use them in
+    examples where the message is "When you type _this_,
+    you'll see _this_." The above says "After
+    `numerical-reverser` is given `103`, the test should see it
+    return `301`. 
+    
+    In this form, Midje does the same thing as
+    `clojure.test`. (Indeed, it uses `clojure.test`'s
+    reporting mechanism.) If, however, you want
+    `numerical-reverser` to use a function that
+    doesn't exist yet, you can fake that function out like
+    this: 
+
+        (expect (numerical-reverser 103) => 301
+           (fake (string-reverser "103") => "301"))
+
+  The semi-sweet style adds the `expect` and `fake` macros,
+  which make for readable tests while still being easy
+  enough to generate from a more ambitious syntax.
 
 * **Sweet** The style I like to use. A "little language" for
   top-down test-driven development, which repaints Freeman
@@ -30,35 +46,22 @@ than read on, do this:
 
 * [Click here](http://github.com/marick/Midje/raw/master/downloads/semi-sweet-examples.zip).
 * In a shell, go to the directory your browser unpacked the example
-  into. It should be named code(semi-sweet-example).
+  into. It should be named `semi-sweet-example`.
 * Type "./run".  (Windows users, see README.html)
 
-# Sweet style #
+# Documentation #
 
-This isn't implemented yet. It will look something like this
+* The sweet style isn't implemented yet. It will look something like this
 [workthrough](http://www.exampler.com/blog/2010/06/10/tdd-in-clojure-a-sketch-part-1/)
 
-# Semi-sweet style #
-
-Briefly, the syntax looks like this:
-
-    (expect (function-under-test) => 33
-       (fake (mocked-function) => 33))
-
-A [separate page](http://gist.github.com/457829) contains complete descriptions of the style 
+* A [separate page](http://gist.github.com/457829) contains
+complete descriptions of the semi-sweet style 
 in the form of executable examples.
 
-# Unprocessed style #
-
-Both calls with their expected results and expectations for
+* In the unprocessed style, both calls with their expected results and expectations for
 calls of faked functions are defined by maps. You can find
-the format by looking at the definitions of code(fake) and
-code(call-being-tested) in code(midje/semi_sweet.clj). The
-function that does the actual work is code(expect*). Its
-first argument is the map in the code(call-being-tested) format,
-followed by zero or more maps in the code(fake) format.
-
-Note: Midje uses the code(report) function that clojure.test
-supplies. However, it uses its own type codes, so you can't
-easily plug in clojure.test.tap or clojure.test.junit.
-
+the format by looking at the definitions of `fake` and
+`call-being-tested` in `midje/semi_sweet.clj`. The
+function that does the actual work is `expect*`. Its
+first argument is the map in the `call-being-tested` format,
+followed by zero or more maps in the `fake` format.
