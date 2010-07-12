@@ -24,13 +24,16 @@
    the result is to be returned. Either form may contain bound variables. 
    Example: (let [a 5] (fake (f a) => a))"
   [call-form => result]
-  `{:function (def ~(first call-form))
-    :arg-matchers (map arg-matcher-maker [~@(rest call-form)])
-    :call-text-for-failures (str '~call-form)
-    :result-supplier (fn [] ~result)
-    :count-atom (atom 0)
-    :file-position (user-file-position)}
-)
+  (let [var-sym (first call-form)]
+    `(do
+       ~(when-not (resolve var-sym) `(def ~var-sym))
+       {:function (var ~var-sym)
+        :arg-matchers (map arg-matcher-maker [~@(rest call-form)])
+        :call-text-for-failures (str '~call-form)
+        :result-supplier (fn [] ~result)
+        :count-atom (atom 0)
+        :file-position (user-file-position)}))
+  )
 
 
 (defmacro call-being-tested [call-form expected-result]

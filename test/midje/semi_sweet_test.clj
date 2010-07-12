@@ -135,3 +135,8 @@
 	     (fake (mocked-function odd? anything (exactly even?)) => 44))
      (is (no-failures?)))
 )
+
+(deftest fake-function-from-other-ns
+  (let [myfun (fn [x] (list x))]
+    (expect (myfun 1) => :list-called
+            (fake (list 1) => :list-called))))
