@@ -1,10 +1,9 @@
 (ns midje.unprocessed
-  (:use clojure.test)
-  (:use midje.report)
-  (:use clojure.contrib.seq-utils)
-  (:use clojure.contrib.error-kit)
-  (:use clojure.contrib.ns-utils)
-)
+  (:use clojure.test
+        midje.report
+        clojure.contrib.error-kit
+        [clojure.contrib.ns-utils :only [immigrate]]
+        [clojure.contrib.seq-utils :only [partition-by find-first]]))
 (immigrate 'midje.checkers)
 
 

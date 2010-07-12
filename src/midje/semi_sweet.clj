@@ -1,9 +1,7 @@
 (ns midje.semi-sweet
-  (:use clojure.test)
-  (:use clojure.contrib.seq-utils)
-  (:use clojure.contrib.error-kit)
-  (:use clojure.contrib.ns-utils)
-)
+  (:use clojure.test
+        [clojure.contrib.ns-utils :only [immigrate]]))
+
 (immigrate 'midje.unprocessed)
 
 
