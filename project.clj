@@ -1,4 +1,4 @@
-(defproject midje "0.1.1"
+(defproject midje "0.2.0"
   :description "A mock/stubbing library for Clojure"
   :dependencies [[org.clojure/clojure "1.1.0"]
                  [org.clojure/clojure-contrib "1.1.0"]])

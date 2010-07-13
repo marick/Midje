@@ -117,18 +117,29 @@
 ;; for that. If you do, let me know.
 
 
-;; Right now, you can't fake a function outside the current
-;; namespace. There's a saying from the OO world: "don't mock objects
-;; you don't own", so maybe this limitation is OK. If you want it, let
-;; me know, but I'm not sure it's possible.
-(comment 
-    (defn function-under-test-5 [arg]
-      (inc arg))
+;; You can fake a function outside the current namespace. Suppose we 
+;; have a function that operates on two sets. We want to override 
+;; clojure.set/intersection so that our tests can only talk about properties
+;; of tests, rather than have to laboriously construct actual sets with those
+;; properties. So we pass in descriptive strings and fake out intersection.
+;;
+;; There is (will be) more support for this style in midje.sweet.
 
-    (deftest example-of-mocking-functions-from-another-namespace
-      (expect (function-under-test-5 1) => 5
-   	   (fake (clojure.core/inc 1) => 5)))
+(use 'clojure.set)
+(defn set-handler [set1 set2]
+  (if (empty? (intersection set1 set2))
+    set1
+    (intersection set1 set2)))
+
+(deftest example-of-faking-function-from-another-namespace
+  "For disjoint sets, return the first."
+  (expect (set-handler "some set" "some disjoint set") => "some set"
+	  (fake (intersection "some set" "some disjoint set") => #{}))
+  "For overlapping sets, return the intersection"
+  (expect (set-handler "set" "overlapping set") => #{"intersection"}
+	  (fake (intersection "set" "overlapping set") => #{"intersection"}))
 )
+
 
 ;; My development style is "programming by wishful thinking"
 ;; (Sussman). Suppose I'm writing function (quux). If I hit anything
@@ -162,5 +173,6 @@
   (example-of-a-simple-fake-failure)
   (example-of-multiple-faked-functions)
   (example-of-interesting-functional-args)
+  (example-of-faking-function-from-another-namespace)
 )
 

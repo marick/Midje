@@ -140,3 +140,18 @@
   (let [myfun (fn [x] (list x))]
     (expect (myfun 1) => :list-called
             (fake (list 1) => :list-called))))
+
+(use 'clojure.set)
+(defn set-handler [set1 set2]
+  (if (empty? (intersection set1 set2))
+    set1
+    (intersection set1 set2)))
+
+(deftest fake-function-from-other-namespace-used-in-var
+  (expect (set-handler 'set 'disjoint-set) => 'set
+	  (fake (intersection 'set 'disjoint-set) => #{}))
+  (expect (set-handler 'set 'overlapping-set) => #{'intersection}
+	  (fake (intersection 'set 'overlapping-set) => #{'intersection}))
+)
+
+
