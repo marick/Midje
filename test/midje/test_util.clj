@@ -10,6 +10,14 @@
 
 (def reported (atom []))
 
+(defn run-and-check [run-form check-forms]
+  `(do 
+     (binding [report (fn [report-map#] (swap! reported conj report-map#))]
+       (reset! reported [])
+       ~run-form)
+     ~@check-forms))
+
+
 (defmacro one-case 
   ([description]
    `(println "PENDING:"  ~description))
@@ -18,11 +26,15 @@
 					 (= (first form) 'expect)))]
      (assert (form-is-expect? expect-form))
      (assert (every? #(not (form-is-expect? %)) check-forms))
-     `(do 
-	(binding [report (fn [report-map#] (swap! reported conj report-map#))]
-	  (reset! reported [])
-	  ~expect-form)
-	~@check-forms))))
+     (run-and-check expect-form check-forms))))
+
+
+(defmacro after
+  ([description]
+   `(println "PENDING:"  ~description))
+  ([example-form & check-forms]
+   (run-and-check example-form check-forms)))
+  
 
 (defn last-type? [expected]
   (= (:type (last (deref reported))) expected))
@@ -32,3 +44,4 @@
   (= 1 (count (deref reported))))
 
 (defn raw-report [] (println @reported))
+
