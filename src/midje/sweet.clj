@@ -7,10 +7,31 @@
 (immigrate 'midje.semi-sweet)
 
 (deferror odd-test-forms [] [forms]) 
-  
 
-(defn- parse-forms 
-  ([forms] (parse-forms forms []))
+(defn- basic-frozen-run [call-form expected-result]
+  { :function-under-test call-form :expected-result expected-result
+    :expectations [] }
+)
+
+(def frozen-runs)
+
+(defn- no-expectations-follow? [forms]
+  (or (empty? forms)
+      (not (seq? (first forms)))
+      (not (= 'provided (ffirst forms))))
+)
+
+(defn- add-expectations [run forms so-far]
+  (if (no-expectations-follow? forms)
+    (frozen-runs forms (conj so-far run))
+    (let [provided-forms (rest (first forms))
+	    forms (rest forms)
+	    triplets (vec (partition 3 provided-forms))]
+      (frozen-runs forms (conj so-far (assoc run :expectations triplets)))))
+)
+
+(defn- frozen-runs
+  ([forms] (vec (frozen-runs forms [])))
   ([forms so-far] 
    (cond 
     (empty? forms) 
@@ -18,16 +39,8 @@
 
     (= (second forms) '=>)
     (let [[call-form _ expected-result & remainder] forms
-	  this-result { :function-under-test call-form
-	  :expected-result expected-result }
-	  so-farther (conj so-far this-result)]
-      (parse-forms remainder so-farther))
-
-    (= (and (seq? forms)
-	    (= (first forms) 'provided)))
-    (do 
-      (println "To handle -- provided")
-      so-far)
+	  run (basic-frozen-run call-form expected-result)]
+      (add-expectations run remainder so-far))
 
     :else
     (do (println "Problem with " + forms)
@@ -35,12 +48,17 @@
    )
 )
 
-(defn make-expect-call [parsed-form]
-  `(expect ~(:function-under-test parsed-form) => ~(:expected-result parsed-form)))
+(defn- make-fake-calls [frozen-run]
+  (map (fn [fake-call] `(fake ~@fake-call))
+       (frozen-run :expectations)))
+
+(defn- make-expect-call [frozen-run]
+  `(expect ~(:function-under-test frozen-run) => ~(:expected-result frozen-run)
+	   ~@(make-fake-calls frozen-run)))
 
 (defmacro fact [& forms]
-  (let [parsed-forms (parse-forms forms)
-	expect-calls (map make-expect-call parsed-forms)]
+  (let [runs (frozen-runs forms)
+	expect-calls (map make-expect-call runs)]
     `(do ~@expect-calls))
   )
 
