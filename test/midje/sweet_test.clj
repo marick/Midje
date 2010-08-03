@@ -54,3 +54,12 @@
 
 )
 
+
+(defn always-one [x] 1)
+(defn g-caller [x] (g x))
+
+(deftest metavariable-examples
+  (fact (always-one ...anything...) => 1)
+  (fact (g-caller ...something...) => ...g-value...
+	(provided (g-caller ...something...) => ...g-value...))
+)

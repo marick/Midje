@@ -46,7 +46,24 @@
     (do (println "Problem with " + forms)
 	(raise odd-test-forms forms)))
    )
-)
+  )
+
+(defn- form-branch? [candidate]
+  ;; In the absence of seqable?
+  (or (seq? candidate)
+      (map? candidate)
+      (vector? candidate)
+      (set? candidate)))
+
+(defn- metavar? [symbol-or-form]
+  (and (symbol? symbol-or-form)
+       (re-matches #"^\.+.+\.+" (name symbol-or-form))))
+
+(defn- define-metavars [form]
+  (let [metavars (filter metavar? (tree-seq form-branch? seq form))]
+    (doseq [metavar metavars]
+      (intern *ns* metavar (symbol metavar)))
+    metavars))
 
 (defn- make-fake-calls [frozen-run]
   (map (fn [fake-call] `(fake ~@fake-call))
@@ -57,10 +74,11 @@
 	   ~@(make-fake-calls frozen-run)))
 
 (defmacro fact [& forms]
+  (define-metavars forms)
   (let [runs (frozen-runs forms)
 	expect-calls (map make-expect-call runs)]
     `(do ~@expect-calls))
-  )
+    )
 
 (defmacro facts [& forms]
   `(fact ~@forms))

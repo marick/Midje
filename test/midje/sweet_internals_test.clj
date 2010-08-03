@@ -9,7 +9,7 @@
 		      names)]
     `(do ~@settings)))
 	   
-(deprivatize midje.sweet frozen-runs no-expectations-follow?)
+(deprivatize midje.sweet frozen-runs no-expectations-follow? define-metavars metavar?)
 
 (use 'clojure.test)
 
@@ -29,6 +29,25 @@
 (defmacro one! [seq]
   `(n! 1 ~seq))
 
+
+(deftest metavars-begin-and-end-with-dots
+  (is (metavar? '...foo...))
+  (is (metavar? '.foo.))
+  (is (not (metavar? 'foo)))
+  (is (not (metavar? '.foo)))
+  (is (not (metavar? 'foo.)))
+  )
+
+(deftest metavars-are-automatically-defined
+  (define-metavars '(fact (f ...form...) => 1
+			  [:in ...vec...]
+			  {:in ...map...}
+			  #{:in ...set...}))
+  (doseq [metavar-symbol '(...form... ...vec... ...map... ...set...)]
+    (is ((ns-interns *ns*) metavar-symbol))
+    (is (= (var-get ((ns-interns *ns*) metavar-symbol))
+	   metavar-symbol)))
+)
 
 (deftest when-no-expectations-follow?
   (is (no-expectations-follow? []))
