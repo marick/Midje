@@ -4,14 +4,7 @@
   (:use midje.test-util)
 )
 
-(defmacro deprivatize [ns-name & names] 
-  (let [settings (map (fn [name] `(def ~name ((ns-map (find-ns '~ns-name)) '~name)))
-		      names)]
-    `(do ~@settings)))
-	   
 (deprivatize midje.sweet frozen-runs no-expectations-follow? define-metavars metavar?)
-
-(use 'clojure.test)
 
 (defmacro frozen-run! [actual call-being-tested _ expected-result]
   `(is (= '~call-being-tested (~actual :function-under-test)))

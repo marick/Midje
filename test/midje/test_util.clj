@@ -45,3 +45,8 @@
 
 (defn raw-report [] (println @reported))
 
+(defmacro deprivatize [ns-name & names] 
+  (let [settings (map (fn [name] `(def ~name ((ns-map (find-ns '~ns-name)) '~name)))
+		      names)]
+    `(do ~@settings)))
+	   
