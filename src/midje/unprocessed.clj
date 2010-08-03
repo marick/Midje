@@ -3,7 +3,7 @@
         midje.report
         clojure.contrib.error-kit
         [clojure.contrib.ns-utils :only [immigrate]]
-        [clojure.contrib.seq-utils :only [partition-by find-first]]))
+        [clojure.contrib.seq-utils :only [find-first]]))
 (immigrate 'midje.checkers)
 
 
@@ -24,34 +24,11 @@
    	  (pairs actual-args matchers))
 )
 
-(defn- contains-element?
-  "Is the element in the sequence? Works for vectors."
-  [seq elt]
-  (some #{elt} seq))
-
-(defn- midje-file? [position]
-  (contains-element? ["semi_sweet.clj" "unprocessed.clj"] (first position))
-)
-
-(defn- without-java [positions]
-  (remove (fn [position] (re-find #"\.java" (first position)))
-	  positions))
-
-(defn- strip-leading-infrastructure [positions]
-  (let [ [clojure-core midje-files & more-partitions] (partition-by midje-file? positions)]
-    (first more-partitions))
-)
-
 (defn user-file-position []
   "Guesses the file position (basename and line number) that the user is
    most likely to be interested in if a test fails."
-  (try
-   (let [integers (iterate inc 1)
-	 positions (without-java (map file-position integers))
-	 above-midje-files (strip-leading-infrastructure positions)
-	 ]
-     (first above-midje-files))
-   (catch Exception e ["unknown file" 0]))
+  (second (map #(list (.getFileName %) (.getLineNumber %))
+               (.getStackTrace (Throwable.))))
 )
 
 (defn- unique-function-vars [expectations]
