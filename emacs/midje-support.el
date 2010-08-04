@@ -2,10 +2,16 @@
 
 (defvar midje-root (expand-file-name "~"))
 
-(defun clojure-here ()
-  (interactive)
-  (global-set-key "\^h\^h" 'clojure-visit-source)    
-  (setq midje-root (file-name-directory buffer-file-name))
+(defun clojure-here (here)
+  (interactive "Ddirectory: ")
+  (with-temp-buffer
+    (global-set-key "\^h\^h" 'clojure-visit-source)    
+    (setq midje-root here)
+    (setq default-directory here)
+    (setq clojure-inferior-lisp-program "lein repl")
+    (if (get-buffer "*inferior-lisp*") (kill-buffer "*inferior-lisp*"))
+    ;; TODO: figure out how to get rid of double-echo.
+    (inferior-lisp clojure-inferior-lisp-program))
 )
 
 (defvar midje-filename-stash '())
