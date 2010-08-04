@@ -2,3 +2,4 @@ pom.xml
 *jar
 lib
 classes
+test/midje/scratch
