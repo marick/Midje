@@ -66,7 +66,7 @@
     metavars))
 
 (defn- make-fake-calls [frozen-run]
-  (map (fn [fake-call] `(fake ~@fake-call))
+  (map (fn [fake-call] `(midje.semi-sweet/fake ~@fake-call))
        (frozen-run :expectations)))
 
 (defn- make-expect-call [frozen-run]

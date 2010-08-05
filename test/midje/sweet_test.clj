@@ -32,9 +32,9 @@
   (after 
    (facts 
 
-    (f 1) => 33
+    (f 1) => 313
       (provided
-         (g 1) => 33)
+         (g 1) => 313)
     
     (f 22) => 500
       (provided 
