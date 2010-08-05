@@ -96,7 +96,13 @@
        (fake (mocked-function) => 33))
     (is (no-failures?)))
 
-  (one-case "successful mocking with not-called"
+  (one-case "successful mocking with not-called expected first"
+    (expect (function-under-test) => 33
+       (not-called no-caller)
+       (fake (mocked-function) => 33))
+    (is (no-failures?)))
+
+  (one-case "successful mocking not-called expected last"
     (expect (function-under-test) => 33
        (fake (mocked-function) => 33)
        (not-called no-caller))

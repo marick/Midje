@@ -40,7 +40,7 @@
 
 (defmethod matches-call? :not-called
   [expectation faked-function args]
-  true)
+  (= faked-function (expectation :function)))
 
 (defmethod matches-call? :default
   [expectation faked-function args]
