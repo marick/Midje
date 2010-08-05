@@ -17,20 +17,38 @@
    throw Errors if ever called."
   [& names] (only-mocked* names))
 
+(defn- make-expectation-map 
+  [var-sym override-map]
+  `(do
+     ~(when-not (resolve var-sym) `(def ~var-sym))
+     ~(merge
+       `{:function (var ~var-sym)
+         :count-atom (atom 0)
+         :file-position (user-file-position)}
+       override-map))
+  )
+
 (defmacro fake 
   "Creates an expectation map that a particular call will be made. When it is made,
    the result is to be returned. Either form may contain bound variables. 
    Example: (let [a 5] (fake (f a) => a))"
   [call-form => result]
-  (let [var-sym (first call-form)]
-    `(do
-       ~(when-not (resolve var-sym) `(def ~var-sym))
-       {:function (var ~var-sym)
-        :arg-matchers (map arg-matcher-maker [~@(rest call-form)])
-        :call-text-for-failures (str '~call-form)
-        :result-supplier (fn [] ~result)
-        :count-atom (atom 0)
-        :file-position (user-file-position)}))
+  (let [[var-sym & args] call-form]
+    (make-expectation-map var-sym
+                          `{:arg-matchers (map arg-matcher-maker [~@args])
+                            :call-text-for-failures (str '~call-form)
+                            :result-supplier (fn [] ~result)
+                            :type :fake}))
+  )
+
+(defmacro not-called
+  "Creates an expectation map that a function will not be called.
+   Example: (not-called f))"
+  [var-sym]
+  (make-expectation-map var-sym
+                        `{:call-text-for-failures (str '~var-sym " was called.")
+                          :result-supplier (fn [] nil)
+                          :type :not-called})
   )
 
 

@@ -35,29 +35,37 @@
   (distinct (map #(:function %) expectations))
 )
 
+(defmulti matches-call? (fn [expectation faked-function args]
+                          (:type expectation)))
+
+(defmethod matches-call? :not-called
+  [expectation faked-function args]
+  true)
+
+(defmethod matches-call? :default
+  [expectation faked-function args]
+  (and (= faked-function (expectation :function))
+       (= (count args) (count (expectation :arg-matchers)))
+       (matching-args? args (expectation :arg-matchers))))
+
+
 (defn- find-matching-call [faked-function args expectations]
-  (find-first (fn [expectation] 
-		  (and (= faked-function (expectation :function))
-		       (= (count args) (count (expectation :arg-matchers)))
-		       (matching-args? args (expectation :arg-matchers))))
-	      expectations)
+  (find-first #(matches-call? % faked-function args) expectations)
 )
-
-
 
 (defn call-faker [faked-function args expectations]
   "This is the function that handles all mocked calls. Don't use it."
   (let [found (find-matching-call faked-function args expectations)]
     (if-not found 
-	    (do 
-	      (report {:type :mock-argument-match-failure
-		      :function faked-function
-		      :actual args
-		      :position (:file-position (first expectations))})
-	      (raise one-failure-per-test))
-       (do 
-	 (swap! (found :count-atom) inc)
-	 ((found :result-supplier)))))
+      (do 
+        (report {:type :mock-argument-match-failure
+                 :function faked-function
+                 :actual args
+                 :position (:file-position (first expectations))})
+        (raise one-failure-per-test))
+      (do 
+        (swap! (found :count-atom) inc)
+        ((found :result-supplier)))))
 )
 
 (defn- binding-map [expectations]
@@ -74,17 +82,30 @@
     (= actual expected))
 )
 
+(defmulti call-count-incorrect? :type)
+
+(defmethod call-count-incorrect? :fake
+  [expectation]
+  (zero? @(expectation :count-atom)))
+
+(defmethod call-count-incorrect? :not-called
+  [expectation]
+  (not (zero? @(expectation :count-atom))))
+
+(defmethod call-count-incorrect? :default
+  [expectation]
+  false)
+
 (defn- check-call-counts [expectations]
   (doseq [expectation expectations]
-      (if (zero? @(expectation :count-atom))
-	(do
-	  (report {:type :mock-incorrect-call-count
-		   :expected-call (expectation :call-text-for-failures)
-		   :position (:file-position expectation)
-		   :expected (expectation :call-text-for-failures)})
-	  (raise one-failure-per-test))))
+    (if (call-count-incorrect? expectation)
+      (do
+        (report {:type :mock-incorrect-call-count
+                 :expected-call (expectation :call-text-for-failures)
+                 :position (:file-position expectation)
+                 :expected (expectation :call-text-for-failures)})
+        (raise one-failure-per-test))))
 )
-
 
 (defn- check-result [actual call expectations]
   (cond (function-aware-= actual (call :expected-result))

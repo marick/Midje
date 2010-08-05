@@ -42,7 +42,6 @@
 	       (is (truthy ((second matchers) 5)))
 	       (is (falsey ((second matchers) 1))))
     )
-
     (testing "result supplied" 
 	     (is (= ((:result-supplier expectation-0))
 		    2))
@@ -53,6 +52,28 @@
     )
     )
 )
+
+(deftest basic-not-called-test
+  (let [expectation-0 (not-called faked-function)]
+
+    (is (= (:function expectation-0)
+           #'midje.semi-sweet-test/faked-function))
+    (is (= (:call-text-for-failures expectation-0)
+           "faked-function was called."))
+    (is (= (deref (:count-atom expectation-0))
+           0))
+
+    (testing "arg-matchers are not needed" 
+      (let [matchers (:arg-matchers expectation-0)]
+        (is (nil? matchers)))
+    )
+
+    (testing "result supplied" 
+	     (is (= ((:result-supplier expectation-0))
+		    nil)))
+    )
+ )
+
 
 (defn function-under-test [& rest]
   (apply mocked-function rest))
@@ -75,6 +96,12 @@
        (fake (mocked-function) => 33))
     (is (no-failures?)))
 
+  (one-case "successful mocking with not-called"
+    (expect (function-under-test) => 33
+       (fake (mocked-function) => 33)
+       (not-called no-caller))
+    (is (no-failures?)))
+
 
   (one-case "mocked calls go fine, but function under test produces the wrong result"
      (expect (function-under-test 33) => 12
@@ -87,6 +114,12 @@
        (fake (mocked-function) => 33))
     (is (last-type? :mock-incorrect-call-count))
     (is (only-one-result?)))
+
+  (one-case "mock call was not supposed to be made, but was (non-zero call count)"
+     (expect (function-under-test 33) => "irrelevant"
+             (not-called mocked-function))
+     (is (last-type? :mock-incorrect-call-count))
+     (is (only-one-result?)))
 
 
   (one-case "call not from inside function"
