@@ -19,49 +19,71 @@
    throw Errors if ever called."
   [& names] (only-mocked* names))
 
-(defn midje-tolerant-assoc [map rest] ; regular assoc doesn't tolerate empty list
-  (if (empty? rest)
-    map
-    (apply assoc (cons map rest))))
+(defn- common-to-all-expectations [var-sym] 
+  `{:function (var ~var-sym)
+    :count-atom (atom 0)
+    :file-position (user-file-position)})
+  
+(defn- make-expectation-map 
+  [var-sym special-to-expectation-type user-override-pairs]
+  `(do
+     ~(when-not (resolve var-sym) `(def ~var-sym))
+     ~(merge
+       (common-to-all-expectations var-sym)
+       special-to-expectation-type
+       (apply hash-map user-override-pairs)))
+)
 
 (defmacro fake 
   "Creates an expectation map that a particular call will be made. When it is made,
    the result is to be returned. Either form may contain bound variables. 
    Example: (let [a 5] (fake (f a) => a))"
   [call-form => result & overrides]
-  (let [var-sym (first call-form)]
-    `(do
-       ~(when-not (resolve var-sym) `(def ~var-sym))
-       (midje-tolerant-assoc
-	{:function (var ~var-sym)
-	 :arg-matchers (map arg-matcher-maker [~@(rest call-form)])
-	 :call-text-for-failures (str '~call-form)
-	 :result-supplier (fn [] ~result)
-	 :count-atom (atom 0)
-	 :file-position (user-file-position)}
-	'~overrides)))
-  )
+  (let [[var-sym & args] call-form & overrides]
+    (make-expectation-map var-sym
+                          `{:arg-matchers (map arg-matcher-maker [~@args])
+                            :call-text-for-failures (str '~call-form)
+                            :result-supplier (fn [] ~result)
+			    :type :fake}
+			  overrides))
+)
+
+(defmacro not-called
+  "Creates an expectation map that a function will not be called.
+   Example: (not-called f))"
+  [var-sym & overrides]
+  (make-expectation-map var-sym
+                        `{:call-text-for-failures (str '~var-sym " was called.")
+                          :result-supplier (fn [] nil)
+                          :type :not-called}
+			overrides)
+)
 
 
 (defmacro call-being-tested [call-form expected-result augmentations]
   "Creates a map that contains a function-ized version of the form being 
    tested, an expected result, and the file position to refer to in case of 
    failure. See 'expect'."
-  `(midje-tolerant-assoc
+  `(merge
     {:function-under-test (fn [] ~call-form)
      :expected-result ~expected-result
      :expected-result-text-for-failures '~expected-result
      :file-position (user-file-position)}
-    '~augmentations))
+    (hash-map ~@augmentations)))
 
 ;; I want to use resolve() to compare calls to fake, rather than the string
 ;; value of the symbol, but for some reason when the tests run, *ns* is User,
 ;; rather than midje.semi_sweet_test. Since 'fake' is used only in the latter,
 ;; the tests fail.
+;;
+;; FURTHERMORE, I wanted to use set operations to check for fake and not-called,
+;; but those fail for reasons I don't understand. Bah.
+
+
 (defn- separate [augmentations-and-expectations]
   (let [expectation? #(and (seq? %)
-			   (= (name (first %)) "fake"))
-			   ; (= (resolve (first %)) #'midje.semi-sweet/fake))
+			   (or (= "fake" (name (first %)))
+			       (= "not-called" (name (first %)))))
 	grouped (group-by expectation? augmentations-and-expectations)
 	default-values {false '() true '()}
 	separated (merge default-values grouped)]
