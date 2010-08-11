@@ -15,6 +15,12 @@
    (is (no-failures?)))
 )
 
+(deftest fact-takes-doc-strings-that-are-ignored
+  (facts "this is a doc string"
+	 (+ 10 10) => 20
+	 "this is another one"
+	 (+ 20 20) => 40)
+)
 
 (only-mocked g)
 (defn f [n] (g n))
@@ -29,7 +35,7 @@
    (is (no-failures?)))
 
 
-  (after 
+  (after
    (facts 
 
     (f 1) => 313

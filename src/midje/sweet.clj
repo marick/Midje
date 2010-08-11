@@ -42,6 +42,9 @@
 	  run (basic-frozen-run call-form expected-result)]
       (add-expectations run remainder so-far))
 
+    (string? (first forms))
+    (recur (rest forms) so-far)
+
     :else
     (do (println "Problem with " + forms)
 	(raise odd-test-forms forms)))
