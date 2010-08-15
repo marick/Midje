@@ -107,19 +107,26 @@
         (raise one-failure-per-test))))
 )
 
+;; TODO: I'm not wild about signalling failure in two ways: by report() and by
+;; return value. Fix this when (a) we move away from clojure.test.report and
+;; (b) we figure out how to make fact() some meaningful unit of reporting.
 (defn- check-result [actual call expectations]
   (cond (function-aware-= actual (call :expected-result))
-   	  (report {:type :pass})
+   	  (do (report {:type :pass})
+	      true)
 	(fn? (call :expected-result))
-	  (report {:type :mock-expected-result-functional-failure
-		   :position (call :file-position)
-		   :actual actual
-		   :expected (call :expected-result-text-for-failures) })
-	:else 
-	  (report {:type :mock-expected-result-failure
-		   :position (call :file-position)
-		   :actual actual
-		   :expected (call :expected-result) }))
+	  (do (report {:type :mock-expected-result-functional-failure
+		       :position (call :file-position)
+		       :actual actual
+		       :expected (call :expected-result-text-for-failures) })
+	      false)
+	:else
+	  (do 
+	    (report {:type :mock-expected-result-failure
+		     :position (call :file-position)
+		     :actual actual
+		     :expected (call :expected-result) })
+	    false))
 )
 
 
@@ -130,7 +137,7 @@
 
 (defmacro #^{:private true} stopping-upon-mock-failures [form]
   `(with-handler ~form
-		 (handle one-failure-per-test [])))
+		 (handle one-failure-per-test [] false)))
 
 (defn expect* [call-map expectations]
   "The core function in unprocessed Midje. Takes a map describing a call and a 

@@ -20,7 +20,15 @@
 	 (+ 10 10) => 20
 	 "this is another one"
 	 (+ 20 20) => 40)
-)
+  )
+
+(deftest fact-returns-a-truth-value
+  (is (true? (run-silently (fact (+ 1 1) => 2))))
+  (is (false? (run-silently (fact (+ 1 2) => 2))))
+  (is (false? (run-silently
+	       (fact
+		(+ 1 2) => 2
+		(+ 1 2) => 3)))))
 
 (only-mocked g)
 (defn f [n] (g n))

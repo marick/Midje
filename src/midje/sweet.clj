@@ -80,7 +80,7 @@
   (define-metavars forms)
   (let [runs (frozen-runs forms)
 	expect-calls (map make-expect-call runs)]
-    `(do ~@expect-calls))
+    `(every? true? (list ~@expect-calls)))
     )
 
 (defmacro facts [& forms]

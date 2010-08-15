@@ -196,7 +196,15 @@
   (let [expected "not 33"]
     (expect (function-under-test 1) => 33 :expected-result expected
 	    (fake (mocked-function 1) => "not 33")))
-)
+  )
+
+(deftest expect-returns-truth-value-test
+  (is (true? (run-silently (expect (function-under-test 1) => 33
+				   (fake (mocked-function 1) => 33)))))   
+  (is (false? (run-silently (expect (function-under-test 1) => 33
+				   (fake (mocked-function 2) => 33)))))  ; mock failure
+  (is (false? (run-silently (expect (+ 1 1) => 33))))
+)  
 
   
 (deftest function-awareness-test
