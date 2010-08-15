@@ -10,13 +10,18 @@
 
 (def reported (atom []))
 
-(defn run-and-check [run-form check-forms]
-  `(do 
-     (binding [report (fn [report-map#] (swap! reported conj report-map#))]
-       (reset! reported [])
-       ~run-form)
-     ~@check-forms))
+(defmacro run-silently [run-form]
+  `(run-without-reporting (fn [] ~run-form)))
 
+(defn run-without-reporting [function] 
+  (binding [report (fn [report-map#] (swap! reported conj report-map#))]
+    (reset! reported [])
+    (function)))
+
+(defn run-and-check [run-form check-forms]
+  `(do
+     (run-without-reporting (fn [] ~run-form))
+     ~@check-forms))
 
 (defmacro one-case 
   ([description]
