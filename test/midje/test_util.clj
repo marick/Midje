@@ -48,7 +48,7 @@
 (defn only-one-result? []
   (= 1 (count (deref reported))))
 
-(defn raw-report [] (println @reported))
+(defn raw-report [] (println @reported) true)
 
 (defmacro deprivatize [ns-name & names] 
   (let [settings (map (fn [name] `(def ~name ((ns-map (find-ns '~ns-name)) '~name)))
