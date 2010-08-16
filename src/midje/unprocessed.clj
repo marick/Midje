@@ -137,7 +137,17 @@
 
 (defmacro #^{:private true} stopping-upon-mock-failures [form]
   `(with-handler ~form
-		 (handle one-failure-per-test [] false)))
+     (handle one-failure-per-test [] false)))
+
+(defn- is-error-kit-throwable? [e]   
+  (re-find #"^Error Kit Control Exception" (.toString e))) ; Ick.
+
+(defmacro capturing-exception [form]
+  `(try ~form
+	(catch Throwable e#
+	  (if (is-error-kit-throwable? e#)
+	    (throw e#)
+	    (midje.checkers/captured-exception e#)))))
 
 (defn expect* [call-map expectations]
   "The core function in unprocessed Midje. Takes a map describing a call and a 
@@ -145,7 +155,7 @@
    make. See the documentation at http://github.com/marick/Midje."
   (with-bindings (binding-map expectations)
      (stopping-upon-mock-failures
-      (let [code-under-test-result (eagerly ((call-map :function-under-test)))]
+      (let [code-under-test-result (capturing-exception (eagerly ((call-map :function-under-test))))]
 	(check-call-counts expectations)
 	(check-result code-under-test-result call-map expectations)))))
       
