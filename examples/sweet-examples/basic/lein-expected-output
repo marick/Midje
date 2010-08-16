@@ -1,0 +1,30 @@
+     [null] FAIL at (core_test.clj:43)
+     [null] expected: 3
+     [null]   actual: 4
+     [null] ^^^^ The previous failure was expected ^^^^
+     [null] FAIL at (core_test.clj:47)
+     [null] Actual result did not pass expected function.
+     [null] expected function: odd?
+     [null]     actual result: 4
+     [null] ^^^^ The previous failure was expected ^^^^
+     [null] FAIL at (core_test.clj:57)
+     [null] Actual result did not pass expected function.
+     [null] expected function: (exactly odd?)
+     [null]     actual result: #<core$even_QMARK___4680 clojure.core$even_QMARK___4680@5d04e28b>
+     [null] ^^^^ The previous failure was expected ^^^^
+     [null] FAIL at (core_test.clj:69)
+     [null] Actual result did not pass expected function.
+     [null] expected function: (in-any-order [1 2 3])
+     [null]     actual result: [3 3 1 2]
+     [null] ^^^^ The previous failure was expected ^^^^
+     [null] FAIL for (core_test.clj:94)
+     [null] This expectation was never satisfied:
+     [null] (alive? ...cell...) should be called at least once.
+     [null] ^^^^ The previous failure was expected ^^^^
+     [null] Testing basic.core-test
+     [null] Ran 1 tests containing 1 assertions.
+     [null] 0 failures, 0 errors.
+     [null] --------------------
+     [null] Total:
+     [null] Ran 1 tests containing 1 assertions.
+     [null] 0 failures, 0 errors.
