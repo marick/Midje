@@ -4,7 +4,7 @@
   (:use midje.sweet)
 )
 
-(defn note-expected [] (println "^^^^ The previous failure was expected ^^^^"))
+(defn note-expected-failure [] (println "^^^^ The previous failure was expected ^^^^"))
 
                        ;;; 
 
@@ -20,9 +20,11 @@
 ;; has an alias, facts, for those of you who are sticklers about
 ;; grammar:
 
-(facts
+(facts "arithmetic"
  (+ 1 1) => 2
  (+ 1 0) => 1)
+
+;; Notice also that you can add "doc strings" to facts. Right now, they're just ignored.
 
 ;;
 ;; At the moment, midje uses the clojure.test reporting mechanism, so you can wrap
@@ -40,11 +42,11 @@
 ;;     expected: 3
 ;;       actual: 4
 
-(fact ( #(+ 1 %) 3) => 3)                                          (note-expected)
+(fact ( #(+ 1 %) 3) => 3)                                          (note-expected-failure)
 
 ;; You can also use functions on the right-hand side. In that case,
 ;; the actual result is passed as the function's single argument.
-(fact ( #(+ 1 %) 3) => odd?)                                       (note-expected)
+(fact ( #(+ 1 %) 3) => odd?)                                       (note-expected-failure)
 ;; The failing test will look slighly different:
 ;;     FAIL at (core_test.clj:47)
 ;;     Actual result did not pass expected function.
@@ -54,7 +56,7 @@
 ;; If you're testing something that produces a function, use
 ;; (exactly):
 
-(fact (first [even? odd?]) => (exactly odd?))                      (note-expected)
+(fact (first [even? odd?]) => (exactly odd?))                      (note-expected-failure)
 
 ;;     FAIL at (core_test.clj:57)
 ;;     Actual result did not pass expected function.
@@ -68,7 +70,7 @@
 
 (fact
   [3 1 2] => (in-any-order [1 2 3])                         ;; succeeds
-  [3 3 1 2] => (in-any-order [1 2 3]))                       (note-expected)
+  [3 3 1 2] => (in-any-order [1 2 3]))                       (note-expected-failure)
 ;;     FAIL at (core_test.clj:69)
 ;;     Actual result did not pass expected function.
 ;;     expected function: (in-any-order [1 2 3])
@@ -95,7 +97,7 @@
  (alive-in-next-generation? ...cell...) => truthy
    (provided 
     (alive? ...cell...) => false
-    (neighbor-count ...cell...) => 3))                                         (note-expected)
+    (neighbor-count ...cell...) => 3))                                         (note-expected-failure)
 
 ;; Notes:
 ;; ...cell... : I use this shorthand to represent some 
