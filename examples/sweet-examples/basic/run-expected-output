@@ -1,28 +1,28 @@
 
-FAIL at (core_test.clj:43)
+FAIL at (core_test.clj:45)
 expected: 3
   actual: 4
 ^^^^ The previous failure was expected ^^^^
 
-FAIL at (core_test.clj:47)
+FAIL at (core_test.clj:49)
 Actual result did not pass expected function.
 expected function: odd?
     actual result: 4
 ^^^^ The previous failure was expected ^^^^
 
-FAIL at (core_test.clj:57)
+FAIL at (core_test.clj:59)
 Actual result did not pass expected function.
 expected function: (exactly odd?)
-    actual result: #<core$even_QMARK___4680 clojure.core$even_QMARK___4680@56e2ecc7>
+    actual result: #<core$even_QMARK_ clojure.core$even_QMARK_@1b609c13>
 ^^^^ The previous failure was expected ^^^^
 
-FAIL at (core_test.clj:69)
+FAIL at (core_test.clj:71)
 Actual result did not pass expected function.
 expected function: (in-any-order [1 2 3])
     actual result: [3 3 1 2]
 ^^^^ The previous failure was expected ^^^^
 
-FAIL for (core_test.clj:94)
+FAIL for (core_test.clj:104)
 This expectation was never satisfied:
 (alive? ...cell...) should be called at least once.
 ^^^^ The previous failure was expected ^^^^
