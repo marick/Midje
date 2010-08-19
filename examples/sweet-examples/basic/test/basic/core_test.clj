@@ -76,6 +76,14 @@
 ;;     expected function: (in-any-order [1 2 3])
 ;;         actual result: [3 3 1 2]
 
+;; Facts work with bound variables as you'd expect:
+
+(let [a 3]
+  (fact (+ a a) => 6))
+
+;; Note, though, that the bindings have to be made *outside* the
+;; fact. That may change in the future.
+
 
 ;; Sometimes facts are only true provided other facts are true. Midje
 ;; has a notation for that. Suppose we're testing the rules for
