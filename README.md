@@ -1,8 +1,9 @@
 About Midje
 =======================
 
-Midje is (will be) a full-featured mocking package for
-Clojure that supports three levels of syntactic sugar:
+Midje is a test framework for Clojure that emphasizes
+mocking and [ease of use](http://exampler.com/ease-and-joy.html). It supports three levels of
+syntactic sugar:
 
 * **Unprocessed** None at all. You work with maps. For the
   person who hates my style of sugaring and wants to write
@@ -80,7 +81,7 @@ You can [download everything](http://github.com/marick/Midje/downloads) to get m
 # Documentation #
 
 * [This heavily annotated
-  example](http://github.com/marick/Midje/blob/master/examples/semi-sweet-examples/test/semi_sweet_simple/core_test.clj)
+  example]http://github.com/marick/Midje/blob/master/examples/sweet-examples/basic/test/basic/core_test.clj)
   of the sweet style is the place to look.
 
 * [Another example](http://github.com/marick/Midje/blob/master/examples/semi-sweet-examples/test/semi_sweet_simple/core_test.clj) contains
