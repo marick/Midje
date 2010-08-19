@@ -45,27 +45,46 @@ Clojure that supports three levels of syntactic sugar:
   top-down test-driven development, which repaints Freeman
   and Pryce's [Growing Object-Oriented Software, Guided by
   Tests](http://www.growing-object-oriented-software.com/)
-  to the functional landscape. 
+  to the functional landscape. There, I like to think of TDD
+  as building a web of interrelated facts. For example,
+  here's a fact about `numerical-reverser`:
+
+         (fact 
+            (numerical-reverser 103) => 301)
+
+  But that fact is only true for this implementation
+  provided something else is true for `string-reverser`:
+
+        (fact
+          (numerical-reverser 103) => 301
+          (provided 
+            (string-reverser "103") => "301"))
+
 
 # For the impatient #
 
 You can easily see Midje in action and fiddle with some
 tests. You don't even need Clojure installed. Here's how:
 
-* [Click here](http://github.com/marick/Midje/raw/master/downloads/semi-sweet-examples.zip).
+* [Click here](http://github.com/marick/Midje/raw/master/downloads/examples.zip).
 * In a shell, go to the directory your browser unpacked the example
-  into. It should be named `semi-sweet-examples`.
+  into. It should be named `examples`.
+* For a sweet example, go to
+  `examples/sweet-examples/basic/`. For a semi-sweet
+  example, go to `examples/semi-sweet-examples`. 
 * Type "./run".  (Windows users, see README.html)
-* To change the tests, edit `semi-sweet-examples/test/semi_sweet_simple/core_test.clj`.
+* To change the tests, edit `test/*/core_test.clj`.
+
+You can [download everything](http://github.com/marick/Midje/downloads) to get more examples.
 
 # Documentation #
 
-* The sweet style isn't implemented yet. It will look something like this
-[workthrough](http://www.exampler.com/blog/2010/06/10/tdd-in-clojure-a-sketch-part-1/).
+* [This heavily annotated
+  example](http://github.com/marick/Midje/blob/master/examples/semi-sweet-examples/test/semi_sweet_simple/core_test.clj)
+  of the sweet style is the place to look.
 
-* A [separate page](http://gist.github.com/457829) contains
-complete descriptions of the semi-sweet style 
-in the form of executable examples.
+* [Another example](http://github.com/marick/Midje/blob/master/examples/semi-sweet-examples/test/semi_sweet_simple/core_test.clj) contains
+complete descriptions of the semi-sweet style.
 
 * In the unprocessed style, both calls with their expected results and expectations for
 calls of faked functions are defined by maps. You can find
