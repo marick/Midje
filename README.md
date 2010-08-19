@@ -80,8 +80,7 @@ You can [download everything](http://github.com/marick/Midje/downloads) to get m
 
 # Documentation #
 
-* [This heavily annotated
-  example]http://github.com/marick/Midje/blob/master/examples/sweet-examples/basic/test/basic/core_test.clj)
+* [This heavily annotated example](http://github.com/marick/Midje/blob/master/examples/sweet-examples/basic/test/basic/core_test.clj)
   of the sweet style is the place to look.
 
 * [Another example](http://github.com/marick/Midje/blob/master/examples/semi-sweet-examples/test/semi_sweet_simple/core_test.clj) contains
