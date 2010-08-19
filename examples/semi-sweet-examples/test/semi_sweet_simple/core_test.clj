@@ -116,6 +116,13 @@
 ;; produces when given the actual arguments. I've never seen a need
 ;; for that. If you do, let me know.
 
+;; You can insist that a function not be called:
+
+(defn not-caller [n] (+ 1 n))
+(defn some-function-never-called [])
+(deftest example-of-not-called
+  (expect (not-caller 3) => 4
+     (not-called some-function-never-called)))
 
 ;; You can fake a function outside the current namespace. Suppose we 
 ;; have a function that operates on two sets. We want to override 
@@ -173,6 +180,7 @@
   (example-of-a-simple-fake-failure)
   (example-of-multiple-faked-functions)
   (example-of-interesting-functional-args)
+  (example-of-not-called)
   (example-of-faking-function-from-another-namespace)
 )
 
