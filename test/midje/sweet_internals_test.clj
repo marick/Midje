@@ -1,5 +1,6 @@
 (ns midje.sweet-internals-test
   (:use [midje.sweet] :reload-all)
+  (:use [midje.fact-body-transformation] :reload-all)
   (:use clojure.test)
   (:use midje.test-util)
 )
@@ -75,3 +76,5 @@
       (expectation! (expectations 0) (g 1) => 3)
       )
 ))
+
+

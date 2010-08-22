@@ -6,6 +6,7 @@
 (if (re-find #"1.1" (clojure-version))
   (use '[clojure.contrib.seq-utils :only [group-by]]))
 
+(def => "=>")   ; So every namespace uses the same qualified name.
 
 (defn- only-mocked* [names]
   (let [declarations (map (fn [name] 
