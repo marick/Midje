@@ -7,62 +7,112 @@
 )
 
 (defn node [expected] (fn [actual] (= expected (zip/node actual))))
-  
 
-(deftest ignoring-certain-forms-test
-  (doseq [skippable '(expect fake)]
-    (let [z (zip/seq-zip (list 111 (list skippable 1 2 3) :next))
+;; Identifying forms
+
+(deftest should-accept-symbols-in-more-than-one-namespace
+  (let [values (zip/seq-zip '(m midje.semi-sweet/expect))
+	m-node (zip/down values)
+	expect-node (-> values zip/down zip/right)]
+    (expect (namespacey-match '(m) m-node) => truthy)
+    (expect (namespacey-match '(expect) expect-node) => truthy)
+    (expect (namespacey-match '(n) m-node) => falsey)))
+
+(deftest should-ignore-expect-and-fake
+  (doseq [skippable '(expect fake midje.semi-sweet/expect midje.semi-sweet/fake)]
+    (let [z (zip/seq-zip (list 111 (list skippable 1 2 '(3)) :next))
 	  skippable (-> z zip/down zip/next zip/down)]
-      (expect (ignore-form-headed-by? skippable) => truthy)
-      (expect (zip/next (skip skippable)) => (node :next))
+      (expect (is-semi-sweet-keyword? skippable) => truthy)
+      (expect (zip/next (skip-to-end-of-full-form skippable)) => (node :next))
       )))
 
-(deftest deleting-provided-forms-test
-  (let [z (zip/seq-zip '( (expect ...) (provided ...) :next))
-	loc (-> z zip/down zip/right zip/down)]
-    (expect (fake-source? loc) => truthy)
-    (let [resulting-loc (delete-fake-source loc)
-	  leaves-location-on-previous-form? #(= (zip/node %) '(expect ...))]
-      (expect (zip/root resulting-loc) => '((expect ...) :next))
-      (expect (leaves-location-on-previous-form? resulting-loc) => truthy))))
+(deftest should-know-when-at-full-expect-form
+  (expect (at-full-expect-form? (zip/seq-zip '(expect x => y))) => truthy)
+  (expect (at-full-expect-form? (zip/seq-zip '(midje.semi-sweet/expect x => y))) => truthy)
+  (expect (at-full-expect-form? (zip/seq-zip '(+ x y))) => falsey)
+  (expect (at-full-expect-form? (zip/seq-zip 'expect)) => falsey))
 
-(deftest convert-provided-body-into-fake-calls-test
-  (let [form '( provided (f 1) => 3 (f 2) => (+ 1 1))]
-    (expect (expand-into-fake-calls form) => '( (midje.semi-sweet/fake (f 1) => 3)
-						(midje.semi-sweet/fake (f 2) => (+ 1 1))))))
 
-(deftest appending-to-current-form-test
-  (let [z (zip/seq-zip '( (expect ...) :next))
-	loc (-> z zip/down)]
-    (expect (zip/node loc) => '(expect ...))
-    (let [resulting-loc (tack-on '(fake (f) => 2) loc)]
-      (expect (zip/next resulting-loc) => (node :next))
-      (expect (zip/root resulting-loc) => '( (expect ... (fake (f) => 2)) :next)))))
+(deftest should-know-head-of-provided-form
+  (let [values (zip/seq-zip '(provided midje.semi-sweet/provided fluke))
+	simple (zip/down values)
+	qualified (zip/right simple)
+	incorrect (zip/right qualified)]
+    (expect (head-of-provided-form? simple) => truthy)
+    (expect (head-of-provided-form? qualified) => truthy)
+    (expect (head-of-provided-form? incorrect) => falsey)))
+    
 
-(deftest detecting-need-for-expect-test
+
+
+(deftest should-know-when-at-sequence-that-needs-rewriting-into-semi-sweet-style
   (let [z (zip/seq-zip '( (f 1) ))
 	loc (-> z zip/down)]
-    (expect (needs-wrapping-with-expect? loc) => falsey))
+    (expect (start-of-arrow-sequence? loc) => falsey))
 
     (let [z (zip/seq-zip '( (f 1) (f 2)))
 	loc (-> z zip/down)]
-    (expect (needs-wrapping-with-expect? loc) => falsey))
+    (expect (start-of-arrow-sequence? loc) => falsey))
 
     (let [z (zip/seq-zip '( (f 1) => 2))
 	loc (-> z zip/down)]
-    (expect (needs-wrapping-with-expect? loc) => truthy)))
+      (expect (start-of-arrow-sequence? loc) => truthy))
+    
+    (let [z (zip/seq-zip '( (f 1) midje.semi-sweet/=> 2))
+	loc (-> z zip/down)]
+    (expect (start-of-arrow-sequence? loc) => truthy)))
 
 
-(deftest wrapping-with-expect-test
+;; Simple movement
+
+(deftest should-be-able-to-position-at-enclosing-full-expect-form
+  (let [z (zip/seq-zip '(expect (f 1) => (+ 1 1)))
+	finds-enclosing (fn [loc] (= (zip/node (zip/down loc)) 'expect))]
+    (expect (up-to-full-expect-form z) => finds-enclosing)
+    (expect (up-to-full-expect-form (zip/down z)) => finds-enclosing)
+    (expect (up-to-full-expect-form (-> z zip/down zip/rightmost)) => finds-enclosing)
+    (expect (up-to-full-expect-form (-> z zip/down zip/rightmost zip/down)) => finds-enclosing)))
+
+
+;; Editing
+
+
+
+(deftest should-be-able-to-delete-provided-form-and-position-for-appending
+  (let [z (zip/seq-zip '( (expect (f x) => (+ 1 2)) (provided ...) :next))
+	loc (-> z zip/down zip/right zip/down)]
+    (expect (head-of-provided-form? loc) => truthy)
+    (let [resulting-loc (delete-enclosing-provided-form__at-previous-full-expect-form loc)]
+      (expect (zip/root resulting-loc) => '((expect (f x) => (+ 1 2)) :next))
+      (expect resulting-loc => at-full-expect-form?))))
+
+(deftest should-be-able-to-convert-provided-body-into-fake-calls
+  (let [z (zip/seq-zip '( provided (f 1) => 3 (f 2) => (+ 1 1)))
+	loc (zip/down z)]
+    (expect (expand-following-into-fake-calls loc) => '( (midje.semi-sweet/fake (f 1) => 3)
+							  (midje.semi-sweet/fake (f 2) => (+ 1 1))))))
+
+(deftest should-be-able-to-append-to-expect-form
+  (let [z (zip/seq-zip '( (expect ...) :next))
+	loc (-> z zip/down)]
+    (expect loc => at-full-expect-form?)
+    (let [resulting-loc (tack-on__at-same-location '((fake (f) => 2) (fake (g) => 3)) loc)]
+      (expect resulting-loc => at-full-expect-form?)
+      (expect (zip/root resulting-loc) => '( (expect ...
+						     (fake (f) => 2)
+						     (fake (g) => 3))
+					     :next)))))
+
+(deftest should-be-able-to-wrap-expect-forms
   (let [z (zip/seq-zip '( (f 1) => 2 :next))
 	loc (-> z zip/down)]
     (expect (zip/node loc) => '(f 1))
-    (expect (needs-wrapping-with-expect? loc) => truthy)
-    (let [resulting-loc (wrap-with-expect loc)]
+    (expect (start-of-arrow-sequence? loc) => truthy)
+    (let [resulting-loc (wrap-with-expect__at-rightmost-wrapped-location loc)]
       (expect (zip/next resulting-loc) => (node :next))
       (expect (zip/root resulting-loc) => '( (midje.semi-sweet/expect (f 1) midje.semi-sweet/=> 2) :next)))))
 
-;; top-level
+;; ;; top-level
 
 (deftest rewrite-trivial-form-test
   (let [form '(a-form-would-go-here another-would-go-here)]
@@ -84,5 +134,16 @@
 		    (midje.semi-sweet/expect (f 2) midje.semi-sweet/=> (+ 1 2)))]
     (expect (rewrite form) => expected)))
 
+(deftest handle-provided-clause-test
+  (let [form '( (f 1) => [1]
+		(f 2) => (+ 2 2)
+		(provided (g 3) => 3
+			  (g 4) => 4)
+		(f 5) => truthy)
+	expected '( (midje.semi-sweet/expect (f 1) midje.semi-sweet/=> [1])
+		    (midje.semi-sweet/expect (f 2) midje.semi-sweet/=> (+ 2 2)
+					     (midje.semi-sweet/fake (g 3) => 3)
+					     (midje.semi-sweet/fake (g 4) => 4))
+		    (midje.semi-sweet/expect (f 5) midje.semi-sweet/=> truthy))]
+    (expect (rewrite form) => expected)))
 
-  

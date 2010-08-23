@@ -5,48 +5,84 @@
   (:require [clojure.zip :as zip])
 )
 
-(defn ignore-form-headed-by? [loc]
-  (#{'expect 'fake} (zip/node loc)))
+;; Identifying forms
 
-(defn fake-source? [loc]
-  (= 'provided (zip/node loc)))
+;; TODO: There must be a better way of handling namespaces.
+(defn namespacey-match [symbols loc]
+  (let [base-names (map name symbols)
+	qualified-names (map #(str "midje.semi-sweet/" %) base-names)]
+    ( (set (concat base-names qualified-names)) (str (zip/node loc)))))
 
-(defn expand-into-fake-calls [form-headed-by-keyword]
-  (let [expectations (rest form-headed-by-keyword)
-	triplets (vec (partition 3 expectations))]
-    (map (fn [triplet] `(midje.semi-sweet/fake ~@triplet))
-	 triplets)))
+(defn is-semi-sweet-keyword? [loc]
+  (namespacey-match '(expect fake) loc))
 
-(defn skip [loc]
-  (zip/rightmost loc))
+(defn head-of-provided-form? [loc]
+  (namespacey-match '(provided) loc))
 
-(defn delete-fake-source [loc]
-  (-> loc zip/up zip/remove zip/up))
+(defn at-full-expect-form? [loc]
+  (and (zip/branch? loc)
+       (namespacey-match '(expect) (zip/down loc))))
 
-(defn tack-on [form loc]
-  (let [append-location (zip/append-child loc form)]
-    (-> append-location zip/right zip/prev)))
-
-(defn needs-wrapping-with-expect? [loc]
+(defn start-of-arrow-sequence? [loc]
   (and (zip/right loc)
-       (= (-> loc zip/right zip/node) '=>))
-)
+       (namespacey-match '(=>) (zip/right loc))))
 
-(defn wrap-with-expect [loc]
+;; Simple movement
+
+(defn up-to-full-expect-form [loc]
+  (if (at-full-expect-form? loc)
+    loc
+    (recur (zip/up loc))))
+
+(defn skip-to-end-of-full-form [loc]
+  (let [end-form (zip/rightmost loc)]
+    (if (zip/branch? end-form)
+      (recur (zip/down end-form))
+      end-form)))
+
+
+;; Editing
+
+(defn delete-enclosing-provided-form__at-previous-full-expect-form [loc]
+  (assert (head-of-provided-form? loc))
+  (let [x (-> loc zip/up zip/remove)]
+    (up-to-full-expect-form x)))
+
+(defn tack-on__at-same-location [forms loc]
+  (assert (at-full-expect-form? loc))
+  (if (empty? forms)
+    (up-to-full-expect-form loc)
+    (recur (rest forms) (zip/append-child loc (first forms)))))
+
+(defn wrap-with-expect__at-rightmost-wrapped-location [loc]
+  (assert (start-of-arrow-sequence? loc))
   (let [right-hand (-> loc zip/right zip/right)
 	edited-loc (zip/edit loc
 			     (fn [loc] `(expect ~loc => ~(zip/node right-hand))))]
     (-> edited-loc zip/right zip/right zip/remove zip/remove)))
 
+;; The meat of it.
+
+(defn expand-following-into-fake-calls [provided-loc]
+  (let [expectations (rest (zip/node (zip/up provided-loc)))
+	triplets (vec (partition 3 expectations))]
+    (map (fn [triplet] `(midje.semi-sweet/fake ~@triplet))
+	 triplets)))
+
 (defn rewrite [multi-form]
   (loop [loc (zip/seq-zip multi-form)]
     (if (zip/end? loc)
       (zip/root loc)
-      (recur (zip/next (cond (needs-wrapping-with-expect? loc)
-			     (wrap-with-expect loc)
+      (recur (zip/next (cond (start-of-arrow-sequence? loc)
+			     (wrap-with-expect__at-rightmost-wrapped-location loc)
 
-			     (ignore-form-headed-by? loc)
-			     (skip loc)
+			     (head-of-provided-form? loc)
+			     (let [fake-calls (expand-following-into-fake-calls loc)
+				   full-expect-form (delete-enclosing-provided-form__at-previous-full-expect-form loc)]
+			       (tack-on__at-same-location fake-calls full-expect-form))
+
+			     (is-semi-sweet-keyword? loc)
+			     (skip-to-end-of-full-form loc)
 
 			     :else loc))))))
 	
