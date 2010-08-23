@@ -54,6 +54,10 @@
     (up-to-full-expect-form loc)
     (recur (rest forms) (zip/append-child loc (first forms)))))
 
+(defn tack-on__at-rightmost-expect-location [forms loc]
+  (let [tack (fn [loc] (tack-on__at-same-location forms loc))]
+    (-> loc tack zip/down skip-to-end-of-full-form)))
+
 (defn wrap-with-expect__at-rightmost-wrapped-location [loc]
   (assert (start-of-arrow-sequence? loc))
   (let [right-hand (-> loc zip/right zip/right)
@@ -79,10 +83,12 @@
 			     (head-of-provided-form? loc)
 			     (let [fake-calls (expand-following-into-fake-calls loc)
 				   full-expect-form (delete-enclosing-provided-form__at-previous-full-expect-form loc)]
-			       (tack-on__at-same-location fake-calls full-expect-form))
+			       (tack-on__at-rightmost-expect-location fake-calls full-expect-form))
 
 			     (is-semi-sweet-keyword? loc)
-			     (skip-to-end-of-full-form loc)
+			     (throw (Exception. (str "Why is this form processed twice?" (zip/node loc))))
+			     ; See comment in ignores-semi-sweet-constructs-test
+;			     (skip-to-end-of-full-form loc)
 
 			     :else loc))))))
 	

@@ -121,11 +121,16 @@
   (let [form '( (nested (form) form ) [ 1 2 3])]
     (expect (rewrite form) => form)))
 
-
+(comment
+  ;; At some point, it may be useful not to painstakingly skip over
+  ;; generated or edited (expect) or (fake) trees. In that case,
+  ;; reintroduce this test and make it pass by removing a comment
+  ;; from (rewrite).
 (deftest ignores-semi-sweet-constructs-test
   (let [form '(    (expect (f 1) => 2 (fake (g 1) => 2))
 		   (fake (m 1) => 33))]
     (expect (rewrite form) => form)))
+)
 
 (deftest wraps-forms-in-expect
   (let [form '( (f 1) => [2]
