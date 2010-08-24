@@ -69,6 +69,15 @@
 )
 
 
+
+(deftest binding-examples
+  (let [outer-value 2]
+    (fact
+     (let [inner-value 3]
+       (call2 outer-value inner-value) => 23
+       (provided (g outer-value) => (* 10 outer-value)
+		 (g inner-value) => inner-value)))))
+
 (defn always-one [x] 1)
 (defn g-caller [x] (g x))
 

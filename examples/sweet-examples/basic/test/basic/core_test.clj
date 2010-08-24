@@ -76,13 +76,13 @@
 ;;     expected function: (in-any-order [1 2 3])
 ;;         actual result: [3 3 1 2]
 
-;; Facts work with bound variables as you'd expect:
+;; Facts work with variables bound both within and outside of the fact form.
 
 (let [a 3]
-  (fact (+ a a) => 6))
+  (fact (+ a a) => 6)
+  (let [b 1]
+    (fact (+ a b) => 4)))
 
-;; Note, though, that the bindings have to be made *outside* the
-;; fact. That may change in the future.
 
 
 ;; Sometimes facts are only true provided other facts are true. Midje

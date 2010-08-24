@@ -1,30 +1,26 @@
-     [null] FAIL at (core_test.clj:45)
-     [null] expected: 3
-     [null]   actual: 4
-     [null] ^^^^ The previous failure was expected ^^^^
-     [null] FAIL at (core_test.clj:49)
-     [null] Actual result did not pass expected function.
-     [null] expected function: odd?
-     [null]     actual result: 4
-     [null] ^^^^ The previous failure was expected ^^^^
-     [null] FAIL at (core_test.clj:59)
-     [null] Actual result did not pass expected function.
-     [null] expected function: (exactly odd?)
-     [null]     actual result: #<core$even_QMARK_ clojure.core$even_QMARK_@427ab40c>
-     [null] ^^^^ The previous failure was expected ^^^^
-     [null] FAIL at (core_test.clj:71)
-     [null] Actual result did not pass expected function.
-     [null] expected function: (in-any-order [1 2 3])
-     [null]     actual result: [3 3 1 2]
-     [null] ^^^^ The previous failure was expected ^^^^
-     [null] FAIL for (core_test.clj:104)
-     [null] This expectation was never satisfied:
-     [null] (alive? ...cell...) should be called at least once.
-     [null] ^^^^ The previous failure was expected ^^^^
-     [null] Testing basic.core-test
-     [null] Ran 1 tests containing 1 assertions.
-     [null] 0 failures, 0 errors.
-     [null] --------------------
-     [null] Total:
-     [null] Ran 1 tests containing 1 assertions.
-     [null] 0 failures, 0 errors.
+FAIL at (core_test.clj:45)
+expected: 3
+  actual: 4
+^^^^ The previous failure was expected ^^^^
+FAIL at (core_test.clj:49)
+Actual result did not pass expected function.
+expected function: odd?
+    actual result: 4
+^^^^ The previous failure was expected ^^^^
+FAIL at (core_test.clj:59)
+Actual result did not pass expected function.
+expected function: (exactly odd?)
+    actual result: #<core$even_QMARK_ clojure.core$even_QMARK_@15151aa>
+^^^^ The previous failure was expected ^^^^
+FAIL at (core_test.clj:71)
+Actual result did not pass expected function.
+expected function: (in-any-order [1 2 3])
+    actual result: [3 3 1 2]
+^^^^ The previous failure was expected ^^^^
+FAIL for (core_test.clj:104)
+This expectation was never satisfied:
+(alive? ...cell...) should be called at least once.
+^^^^ The previous failure was expected ^^^^
+Testing basic.core-test
+Ran 1 tests containing 1 assertions.
+0 failures, 0 errors.
