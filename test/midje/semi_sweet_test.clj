@@ -12,7 +12,6 @@
      (is false "Function didn't raise.")
      (catch Error e)))
 
-
 (deftest basic-fake-test
   (let [some-variable 5
 	previous-line-position (file-position 1)
@@ -222,28 +221,6 @@
 	     (fake (mocked-function odd? anything (exactly even?)) => 44))
      (is (no-failures?)))
   )
-
-(defn throw-exception
-  ([] (throw (NullPointerException.)))
-  ([message] (throw (Error. message)))
-)
-
-(deftest throwing-exceptions-test
-  (one-case "detects correctly thrown exception"
-    (expect (throw-exception) => (throws NullPointerException))
-    (is (no-failures?)))
-  (one-case "rejects incorrectly thrown exception"
-    (expect (throw-exception "throws Error") => (throws NullPointerException))
-    (is (last-type? :mock-expected-result-functional-failure)))
-  (one-case "detects correct message"
-    (expect (throw-exception "hi") => (throws Error "hi"))
-    (is (no-failures?)))
-  (one-case "detects incorrect message"
-     (expect (throw-exception "throws Error") => (throws Error "bye"))
-     (is (last-type? :mock-expected-result-functional-failure)))
-
-  ;; TODO: error-kit error
-)
 
 (deftest fake-function-from-other-ns
   (let [myfun (fn [x] (list x))]

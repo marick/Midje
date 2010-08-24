@@ -1,5 +1,9 @@
 (ns midje.checkers)
 
+(if (re-find #"1.1" (clojure-version))
+  (use '[clojure.contrib.seq-utils :only [frequencies]]))
+
+
 (defn truthy 
   "Returns precisely true if actual is not nil and not false."
   [actual] 
@@ -13,9 +17,8 @@
 (defn in-any-order
   "Produces matcher that matches sequences without regard to order"
   [expected]
-  (fn [actual] 
-      (and (= (count expected) (count actual))
-	   (= (set expected) (set actual)))))
+  (fn [actual]
+    (= (frequencies expected) (frequencies actual))))
 
 (defn anything
   "Accepts any value"

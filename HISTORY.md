@@ -1,4 +1,9 @@
-= 0.4.0 
+= 0.5.0 (in progress)
+* The in-any-order checker should work correctly.
+* Expectations (x => y) can appear at any level, so they can
+  be nested within lets.
+
+= 0.4.0 (stable)
 * midje.sweet in workable shape.
 * (not-called f) expectation added (Wilkes Joiner)
 * key&value arguments can be passed to expect(), fake(), and
