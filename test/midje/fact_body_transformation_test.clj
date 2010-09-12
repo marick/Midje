@@ -20,10 +20,10 @@
 
 (deftest should-ignore-expect-and-fake
   (doseq [skippable '(expect fake midje.semi-sweet/expect midje.semi-sweet/fake)]
-    (let [z (zip/seq-zip (list 111 (list skippable 1 2 '(3)) :next))
+    (let [z (zip/seq-zip (list 111 (list skippable 1 2 '(3)) "next"))
 	  skippable (-> z zip/down zip/next zip/down)]
       (expect (is-semi-sweet-keyword? skippable) => truthy)
-      (expect (zip/next (skip-to-end-of-full-form skippable)) => (node :next))
+      (expect (zip/next (skip-to-end-of-full-form skippable)) => (node "next"))
       )))
 
 (deftest should-know-when-at-full-expect-form
@@ -41,9 +41,21 @@
     (expect (head-of-provided-form? simple) => truthy)
     (expect (head-of-provided-form? qualified) => truthy)
     (expect (head-of-provided-form? incorrect) => falsey)))
-    
 
+(deftest should-produce-list-of-overrides
+  (let [move-to-loc (fn [root] (-> root zip/down zip/right zip/right))
+	start (fn [form] (move-to-loc (zip/seq-zip form)))]
 
+    (expect (overrides (start '( (f 1) => 4))) => '())
+    (expect (overrides (start '( (f 1) => 3 (g 1) => 1))) => '())
+    (let [loc (start '( (f n) => 4 :expected-result 3 :file-position "foo.clj:33"))]
+      (expect (overrides loc) => '(:expected-result 3 :file-position "foo.clj:33")))
+    (let [loc (start '( (f n) => 4 :expected-result 3 :file-position "foo.clj:33" (f 1)))]
+      (expect (overrides loc) => '(:expected-result 3 :file-position "foo.clj:33")))
+    (let [loc (start '( (f n) => 4 :expected-result 3 :file-position "foo.clj:33"
+			(f 1) => 1 :expected-result 2))]
+      (expect (overrides loc) => '(:expected-result 3 :file-position "foo.clj:33")))
+))
 
 (deftest should-know-when-at-sequence-that-needs-rewriting-into-semi-sweet-style
   (let [z (zip/seq-zip '( (f 1) ))
@@ -79,11 +91,11 @@
 
 
 (deftest should-be-able-to-delete-provided-form-and-position-for-appending
-  (let [z (zip/seq-zip '( (expect (f x) => (+ 1 2)) (provided ...) :next))
+  (let [z (zip/seq-zip '( (expect (f x) => (+ 1 2)) (provided ...) "next"))
 	loc (-> z zip/down zip/right zip/down)]
     (expect (head-of-provided-form? loc) => truthy)
     (let [resulting-loc (delete-enclosing-provided-form__at-previous-full-expect-form loc)]
-      (expect (zip/root resulting-loc) => '((expect (f x) => (+ 1 2)) :next))
+      (expect (zip/root resulting-loc) => '((expect (f x) => (+ 1 2)) "next"))
       (expect resulting-loc => at-full-expect-form?))))
 
 (deftest should-be-able-to-convert-provided-body-into-fake-calls
@@ -93,7 +105,7 @@
 							  (midje.semi-sweet/fake (f 2) => (+ 1 1))))))
 
 (deftest should-be-able-to-append-to-expect-form
-  (let [z (zip/seq-zip '( (expect ...) :next))
+  (let [z (zip/seq-zip '( (expect ...) "next"))
 	loc (-> z zip/down)]
     (expect loc => at-full-expect-form?)
     (let [resulting-loc (tack-on__at-same-location '((fake (f) => 2) (fake (g) => 3)) loc)]
@@ -101,16 +113,26 @@
       (expect (zip/root resulting-loc) => '( (expect ...
 						     (fake (f) => 2)
 						     (fake (g) => 3))
-					     :next)))))
+					     "next")))))
 
 (deftest should-be-able-to-wrap-expect-forms
-  (let [z (zip/seq-zip '( (f 1) => 2 :next))
+  (let [z (zip/seq-zip '( (f 1) => (+ 2 3) "next"))
 	loc (-> z zip/down)]
     (expect (zip/node loc) => '(f 1))
     (expect (start-of-arrow-sequence? loc) => truthy)
     (let [resulting-loc (wrap-with-expect__at-rightmost-wrapped-location loc)]
-      (expect (zip/next resulting-loc) => (node :next))
-      (expect (zip/root resulting-loc) => '( (midje.semi-sweet/expect (f 1) midje.semi-sweet/=> 2) :next)))))
+      (expect (zip/next resulting-loc) => (node "next"))
+      (expect (zip/root resulting-loc) => '( (midje.semi-sweet/expect (f 1) midje.semi-sweet/=> (+ 2 3)) "next")))))
+
+;; (deftest should-be-able-to-include-annotations-in-expect-form-wrapping
+;;   (let [z (zip/seq-zip '( (f 1) => (+ 2 3) :key "value" "next"))
+;; 	loc (-> z zip/down)]
+;;     (expect (zip/node loc) => '(f 1))
+;;     (expect (start-of-arrow-sequence? loc) => truthy)
+;;     (let [resulting-loc (wrap-with-expect__at-rightmost-wrapped-location loc)]
+;;       (expect (zip/next resulting-loc) => (node "next"))
+;;       (expect (zip/root resulting-loc) =>
+;; 	      '( (midje.semi-sweet/expect (f 1) midje.semi-sweet/=> (+ 2 3) :key "value") "next")))))
 
 ;; ;; top-level
 

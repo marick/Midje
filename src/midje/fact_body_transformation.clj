@@ -27,6 +27,9 @@
   (and (zip/right loc)
        (namespacey-match '(=>) (zip/right loc))))
 
+(defn overrides [loc]
+  (apply concat (take-while #(keyword? (first %)) (partition 2 (zip/rights loc)))))
+
 ;; Simple movement
 
 (defn up-to-full-expect-form [loc]
@@ -40,8 +43,12 @@
       (recur (zip/down end-form))
       end-form)))
 
-
 ;; Editing
+
+(defn remove-n [loc n]
+  (if (= n 0)
+    loc
+    (recur (zip/remove loc) (- n 1))))
 
 (defn delete-enclosing-provided-form__at-previous-full-expect-form [loc]
   (assert (head-of-provided-form? loc))
@@ -61,6 +68,7 @@
 (defn wrap-with-expect__at-rightmost-wrapped-location [loc]
   (assert (start-of-arrow-sequence? loc))
   (let [right-hand (-> loc zip/right zip/right)
+	additions (overrides right-hand)
 	edited-loc (zip/edit loc
 			     (fn [loc] `(expect ~loc => ~(zip/node right-hand))))]
     (-> edited-loc zip/right zip/right zip/remove zip/remove)))
