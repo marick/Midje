@@ -45,6 +45,11 @@
 
 ;; Editing
 
+(defn remove-n [n loc]
+  (if (= n 0)
+    loc
+    (recur (- n 1) (zip/remove loc))))
+
 (defn remove-n [loc n]
   (if (= n 0)
     loc
@@ -71,7 +76,7 @@
 	additions (overrides right-hand)
 	edited-loc (zip/edit loc
 			     (fn [loc] `(expect ~loc => ~(zip/node right-hand))))]
-    (-> edited-loc zip/right zip/right zip/remove zip/remove)))
+    (-> edited-loc zip/right zip/right (remove-n 2))))
 
 ;; The meat of it.
 
