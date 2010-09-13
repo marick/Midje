@@ -61,7 +61,7 @@
 )
 
 
-(defmacro call-being-tested [call-form expected-result augmentations]
+(defmacro call-being-tested [call-form expected-result overrides]
   "Creates a map that contains a function-ized version of the form being 
    tested, an expected result, and the file position to refer to in case of 
    failure. See 'expect'."
@@ -70,7 +70,7 @@
      :expected-result ~expected-result
      :expected-result-text-for-failures '~expected-result
      :file-position (user-file-position)}
-    (hash-map ~@augmentations)))
+    (hash-map ~@overrides)))
 
 ;; I want to use resolve() to compare calls to fake, rather than the string
 ;; value of the symbol, but for some reason when the tests run, *ns* is User,
@@ -81,11 +81,11 @@
 ;; but those fail for reasons I don't understand. Bah.
 
 
-(defn- separate [augmentations-and-expectations]
+(defn- separate [overrides-and-expectations]
   (let [expectation? #(and (seq? %)
 			   (or (= "fake" (name (first %)))
 			       (= "not-called" (name (first %)))))
-	grouped (group-by expectation? augmentations-and-expectations)
+	grouped (group-by expectation? overrides-and-expectations)
 	default-values {false '() true '()}
 	separated (merge default-values grouped)]
     [(separated false) (separated true)])
@@ -96,8 +96,8 @@
    (probably with 'fake') have been satisfied, and check that the actual
    results are as expected. If the expected results are a function, it
    will be called with the actual result as its single argument."
-  [call-form => expected-result & augmentations-and-expectations]
-  (let [ [augmentations expectations] (separate augmentations-and-expectations)]
-    `(let [call# (call-being-tested ~call-form ~expected-result ~augmentations)]
+  [call-form => expected-result & overrides-and-expectations]
+  (let [ [overrides expectations] (separate overrides-and-expectations)]
+    `(let [call# (call-being-tested ~call-form ~expected-result ~overrides)]
        (expect* call# (vector ~@expectations))))
 )
