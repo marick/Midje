@@ -45,6 +45,13 @@
 	(recur (conj so-far whole-body)
 	       (nthnext remainder (count whole-body)))))))
 
+;; Yeah, it's not tail-recursive. So sue me.
+(defn arrow-line-number [arrow-loc]
+  (try (or  (-> arrow-loc zip/left zip/node meta :line)
+	    (-> arrow-loc zip/right zip/node meta :line)
+	    (inc (arrow-line-number (zip/prev arrow-loc))))
+       (catch Throwable ex nil)))
+
 ;; Simple movement
 
 (defn up-to-full-expect-form [loc]
@@ -64,7 +71,6 @@
     (recur (dec n) zip-fn (zip-fn loc))))
 
 ;; Editing
-
 
 (defn remove-moving-right [loc]
   (-> loc zip/remove zip/next)
@@ -95,6 +101,9 @@
 	 zip/right
 	 (n-times (+ 1 (count additions)) remove-moving-right)
 	 zip/remove)))
+
+
+;; 
 
 ;; The meat of it.
 (defn expand-following-into-fake-calls [provided-loc]

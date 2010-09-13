@@ -57,8 +57,34 @@
     
     (let [z (zip/seq-zip '( (f 1) midje.semi-sweet/=> 2))
 	loc (-> z zip/down)]
-    (expect (start-of-arrow-sequence? loc) => truthy)))
+      (expect (start-of-arrow-sequence? loc) => truthy)))
 
+(deftest should-be-able-to-deduce-line-numbers
+  (let [at-line (fn [line-no form] (with-meta form {:line line-no}))
+	assume-position (fn [test-form]
+			  (loop [loc (zip/seq-zip test-form)]
+			    (if (start-of-arrow-sequence? loc)
+			      (zip/right loc)
+			      (recur (zip/next loc)))))
+	finds (fn [form] (arrow-line-number (assume-position form)))]
+
+    ;; most common case
+    (expect (finds `( ~(at-line 33 '(f 1)) => 5)) => 33)
+
+    ;; ... but the right-hand-side might be a symbol. We might luck out on left
+    (expect (finds `( ...a... => ~(at-line 33 '(exactly 1)))) => 33)
+
+    ;; If both, left takes precedence
+    (expect (finds `( ~(at-line 33 '(f 1)) => ~(at-line 34 '(exactly 1)))) => 33)
+
+    ;; If neither, look to the left and add one.
+    (expect (finds `( (let ~(at-line 32 '[a 2]) a => b))) => 33)
+    
+    ;; If no line whatsoever can be found, nil
+    (expect (finds '( 1 => 2)) => nil)
+
+))
+    
 ;; Munging ordinary forms
 
 (deftest should-produce-list-of-overrides
@@ -172,16 +198,14 @@
   (let [form '( (nested (form) form ) [ 1 2 3])]
     (expect (rewrite form) => form)))
 
-(comment
   ;; At some point, it may be useful not to painstakingly skip over
   ;; generated or edited (expect) or (fake) trees. In that case,
   ;; reintroduce this test and make it pass by removing a comment
   ;; from (rewrite).
-(deftest ignores-semi-sweet-constructs-test
-  (let [form '(    (expect (f 1) => 2 (fake (g 1) => 2))
-		   (fake (m 1) => 33))]
-    (expect (rewrite form) => form)))
-)
+;; (deftest ignores-semi-sweet-constructs-test
+;;   (let [form '(    (expect (f 1) => 2 (fake (g 1) => 2))
+;; 		   (fake (m 1) => 33))]
+;;     (expect (rewrite form) => form)))
 
 (deftest wraps-forms-in-expect
   (let [form '( (f 1) => [2]
