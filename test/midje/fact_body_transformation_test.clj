@@ -42,21 +42,6 @@
     (expect (head-of-provided-form? qualified) => truthy)
     (expect (head-of-provided-form? incorrect) => falsey)))
 
-(deftest should-produce-list-of-overrides
-  (let [move-to-loc (fn [root] (-> root zip/down zip/right zip/right))
-	start (fn [form] (move-to-loc (zip/seq-zip form)))]
-
-    (expect (overrides (start '( (f 1) => 4))) => '())
-    (expect (overrides (start '( (f 1) => 3 (g 1) => 1))) => '())
-    (let [loc (start '( (f n) => 4 :expected-result 3 :file-position "foo.clj:33"))]
-      (expect (overrides loc) => '(:expected-result 3 :file-position "foo.clj:33")))
-    (let [loc (start '( (f n) => 4 :expected-result 3 :file-position "foo.clj:33" (f 1)))]
-      (expect (overrides loc) => '(:expected-result 3 :file-position "foo.clj:33")))
-    (let [loc (start '( (f n) => 4 :expected-result 3 :file-position "foo.clj:33"
-			(f 1) => 1 :expected-result 2))]
-      (expect (overrides loc) => '(:expected-result 3 :file-position "foo.clj:33")))
-))
-
 (deftest should-know-when-at-sequence-that-needs-rewriting-into-semi-sweet-style
   (let [z (zip/seq-zip '( (f 1) ))
 	loc (-> z zip/down)]
@@ -73,6 +58,34 @@
     (let [z (zip/seq-zip '( (f 1) midje.semi-sweet/=> 2))
 	loc (-> z zip/down)]
     (expect (start-of-arrow-sequence? loc) => truthy)))
+
+;; Munging ordinary forms
+
+(deftest should-produce-list-of-overrides
+  (let [move-to-loc (fn [root] (-> root zip/down zip/right zip/right))
+	start (fn [form] (move-to-loc (zip/seq-zip form)))]
+
+    (expect (overrides '()) => '())
+    (expect (overrides '((g 1) => 1)) => '())
+    (let [form '( :expected-result 3 :file-position "foo.clj:33")]
+      (expect (overrides form) => '(:expected-result 3 :file-position "foo.clj:33")))
+    (let [form '( :expected-result 3 :file-position "foo.clj:33" (f 1))]
+      (expect (overrides form) => '(:expected-result 3 :file-position "foo.clj:33")))
+    (let [form '( :expected-result 3 :file-position "foo.clj:33"
+		  (f 1) => 1 :expected-result 2)]
+      (expect (overrides form) => '(:expected-result 3 :file-position "foo.clj:33")))
+))
+
+
+(deftest should-partition-fake-bodies
+  (expect (partition-fake-bodies '(  (f 1) => 2   (g 1) => 3)) =>
+   	                         '( [(f 1) => 2] [(g 1) => 3]))
+
+  (expect (partition-fake-bodies '(  (f 1) => 2 :key value   (g 1) => 3)) =>
+	                         '( [(f 1) => 2 :key value] [(g 1) => 3]))
+)
+
+
 
 
 ;; Simple movement
@@ -178,15 +191,15 @@
     (expect (rewrite form) => expected)))
 
 (deftest handle-provided-clause-test
-  (let [form '( (f 1) => [1]
+  (let [form '( (f 1) => [1] :ekey "evalue"
 		(f 2) => (+ 2 2)
 		(provided (g 3) => 3
-			  (g 4) => 4)
+			  (g 4) => 4 :pkey "pvalue")
 		(f 5) => truthy)
-	expected '( (midje.semi-sweet/expect (f 1) midje.semi-sweet/=> [1])
+	expected '( (midje.semi-sweet/expect (f 1) midje.semi-sweet/=> [1] :ekey "evalue")
 		    (midje.semi-sweet/expect (f 2) midje.semi-sweet/=> (+ 2 2)
 					     (midje.semi-sweet/fake (g 3) => 3)
-					     (midje.semi-sweet/fake (g 4) => 4))
+					     (midje.semi-sweet/fake (g 4) => 4 :pkey "pvalue"))
 		    (midje.semi-sweet/expect (f 5) midje.semi-sweet/=> truthy))]
     (expect (rewrite form) => expected)))
 
