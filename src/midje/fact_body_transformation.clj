@@ -43,17 +43,17 @@
       (recur (zip/down end-form))
       end-form)))
 
+(defn n-times [n zip-fn loc]
+  (if (zero? n)
+    loc
+    (recur (dec n) zip-fn (zip-fn loc))))
+
 ;; Editing
 
-(defn remove-n [n loc]
-  (if (= n 0)
-    loc
-    (recur (- n 1) (zip/remove loc))))
 
-(defn remove-n [loc n]
-  (if (= n 0)
-    loc
-    (recur (zip/remove loc) (- n 1))))
+(defn remove-moving-right [loc]
+  (-> loc zip/remove zip/next)
+)
 
 (defn delete-enclosing-provided-form__at-previous-full-expect-form [loc]
   (assert (head-of-provided-form? loc))
@@ -75,8 +75,11 @@
   (let [right-hand (-> loc zip/right zip/right)
 	additions (overrides right-hand)
 	edited-loc (zip/edit loc
-			     (fn [loc] `(expect ~loc => ~(zip/node right-hand))))]
-    (-> edited-loc zip/right zip/right (remove-n 2))))
+			     (fn [loc] `(expect ~loc => ~(zip/node right-hand) ~@additions)))]
+    (->> edited-loc
+	 zip/right
+	 (n-times (+ 1 (count additions)) remove-moving-right)
+	 zip/remove)))
 
 ;; The meat of it.
 

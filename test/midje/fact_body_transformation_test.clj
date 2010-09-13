@@ -88,6 +88,12 @@
 
 ;; Editing
 
+(deftest should-be-able-to-delete-and-end-up-at-next-form-of-same-level
+  (let [z (zip/seq-zip '( (f n) => (+ 3 4)))
+	loc (-> z zip/down zip/right)]
+    (expect (zip/node (remove-moving-right loc)) => '(+ 3 4))
+    (expect (zip/root (remove-moving-right loc)) => '( (f n) (+ 3 4)))))
+  
 
 
 (deftest should-be-able-to-delete-provided-form-and-position-for-appending
@@ -124,15 +130,25 @@
       (expect (zip/next resulting-loc) => (node "next"))
       (expect (zip/root resulting-loc) => '( (midje.semi-sweet/expect (f 1) midje.semi-sweet/=> (+ 2 3)) "next")))))
 
-;; (deftest should-be-able-to-include-annotations-in-expect-form-wrapping
-;;   (let [z (zip/seq-zip '( (f 1) => (+ 2 3) :key "value" "next"))
-;; 	loc (-> z zip/down)]
-;;     (expect (zip/node loc) => '(f 1))
-;;     (expect (start-of-arrow-sequence? loc) => truthy)
-;;     (let [resulting-loc (wrap-with-expect__at-rightmost-wrapped-location loc)]
-;;       (expect (zip/next resulting-loc) => (node "next"))
-;;       (expect (zip/root resulting-loc) =>
-;; 	      '( (midje.semi-sweet/expect (f 1) midje.semi-sweet/=> (+ 2 3) :key "value") "next")))))
+(deftest should-be-able-to-include-annotations-in-expect-form-wrapping
+  (let [z (zip/seq-zip '( (f 1) => (+ 2 3) :key "value" "next"))
+	loc (-> z zip/down)]
+    (expect (zip/node loc) => '(f 1))
+    (expect (start-of-arrow-sequence? loc) => truthy)
+    (let [resulting-loc (wrap-with-expect__at-rightmost-wrapped-location loc)]
+      (expect (zip/next resulting-loc) => (node "next"))
+      (expect (zip/root resulting-loc) =>
+	      '( (midje.semi-sweet/expect (f 1) midje.semi-sweet/=> (+ 2 3) :key "value") "next")))))
+
+(deftest expectations-at-end-of-form-are-successfully-wrapped
+  (let [z (zip/seq-zip '( (f 1) => (+ 2 3) :key "value"))
+	loc (-> z zip/down)]
+    (expect (zip/node loc) => '(f 1))
+    (expect (start-of-arrow-sequence? loc) => truthy)
+    (let [resulting-loc (wrap-with-expect__at-rightmost-wrapped-location loc)]
+      (expect (zip/next resulting-loc) => zip/end?)
+      (expect (zip/root resulting-loc) =>
+	      '( (midje.semi-sweet/expect (f 1) midje.semi-sweet/=> (+ 2 3) :key "value"))))))
 
 ;; ;; top-level
 

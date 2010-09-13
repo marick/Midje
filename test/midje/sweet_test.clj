@@ -85,4 +85,7 @@
   (fact (always-one ...anything...) => 1)
   (fact (g-caller ...something...) => ...g-value...
 	(provided (g-caller ...something...) => ...g-value...))
-)
+  )
+
+(deftest overriding-defaults
+  (fact (always-one 3) => 3 :expected-result 1))
