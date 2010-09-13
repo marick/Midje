@@ -24,7 +24,13 @@
   `{:function (var ~var-sym)
     :count-atom (atom 0)
     :file-position (user-file-position)})
-  
+
+;; In case of multiple keys, the last one takes precedence.
+(defn midje-override-map [keys-and-vals]
+  (if (empty? keys-and-vals)
+    {}
+    (apply assoc (cons {} keys-and-vals))))
+
 (defn- make-expectation-map 
   [var-sym special-to-expectation-type user-override-pairs]
   `(do
@@ -32,7 +38,7 @@
      ~(merge
        (common-to-all-expectations var-sym)
        special-to-expectation-type
-       (apply hash-map user-override-pairs)))
+       (midje-override-map user-override-pairs)))
 )
 
 (defmacro fake 
@@ -70,7 +76,7 @@
      :expected-result ~expected-result
      :expected-result-text-for-failures '~expected-result
      :file-position (user-file-position)}
-    (hash-map ~@overrides)))
+    (midje-override-map ~overrides)))
 
 ;; I want to use resolve() to compare calls to fake, rather than the string
 ;; value of the symbol, but for some reason when the tests run, *ns* is User,

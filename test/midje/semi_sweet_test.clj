@@ -80,6 +80,12 @@
   (let [filepos 33
 	expectation (fake (faked-function) => 2 :file-position filepos)]
     (is (= 33 (expectation :file-position))))
+  )
+
+(deftest midje-override-map-test
+  (is (= {} (midje-override-map [])))
+  (is (= {:a 1 :b 2} (midje-override-map [:a 1 :b 2])))
+  (is (= {:a 1 :b 33333} (midje-override-map [:a 1 :b 2 :b 33333])))
 )
 
 (deftest basic-not-called-test
@@ -194,8 +200,18 @@
 
   (let [expected "not 33"]
     (expect (function-under-test 1) => 33 :expected-result expected
-	    (fake (mocked-function 1) => "not 33")))
-  )
+	    (fake (mocked-function 1) => "not 33"))))
+
+(deftest duplicate-overrides---last-one-takes-precedence
+  (let [expected "not 33"]
+    (expect (function-under-test 1) => 33 :expected-result "to be overridden"
+	                                  :expected-result expected
+	  (fake (mocked-function 1) => "not 33"))
+    (expect (function-under-test 1) => 33 :expected-result "to be overridden"
+	                                  :expected-result expected
+	  (fake (mocked-function 1) => 5 :result-supplier "IGNORED"
+		                         :result-supplier (fn [] expected)))))
+    
 
 (deftest expect-returns-truth-value-test
   (is (true? (run-silently (expect (function-under-test 1) => 33
