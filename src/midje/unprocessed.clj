@@ -31,6 +31,9 @@
                (.getStackTrace (Throwable.))))
 )
 
+(defmacro line-number-known [number]
+  `[(first (user-file-position)) ~number])
+
 (defn- unique-function-vars [expectations]
   (distinct (map #(:function %) expectations))
 )

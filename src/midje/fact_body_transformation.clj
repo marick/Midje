@@ -103,7 +103,25 @@
 	 zip/remove)))
 
 
-;; 
+;; Adding line numbers
+
+(defn add-line-number-to-end-of-arrow-sequence__no-movement [number loc]
+  (-> loc
+      zip/right
+      (zip/insert-right `(midje.unprocessed/line-number-known ~number))
+      (zip/insert-right :position)
+      zip/left))
+
+(defn add-line-numbers [form]
+  (loop [loc (zip/seq-zip form)]
+    (if (zip/end? loc)
+      (zip/root loc)
+     (recur (zip/next (cond (namespacey-match '(=>) loc)
+			    (add-line-number-to-end-of-arrow-sequence__no-movement
+			     (arrow-line-number loc)
+			     loc)
+
+			    :else loc))))))
 
 ;; The meat of it.
 (defn expand-following-into-fake-calls [provided-loc]

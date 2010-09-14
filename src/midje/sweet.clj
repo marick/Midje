@@ -12,7 +12,7 @@
 
 (defmacro fact [& forms]
   (define-metavars forms)
-  (let [runs (transform/rewrite forms)]
+  (let [runs (transform/rewrite (transform/add-line-numbers forms))]
     `(every? true? (list ~@runs)))
     )
 

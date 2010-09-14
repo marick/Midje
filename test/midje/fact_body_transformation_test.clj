@@ -149,6 +149,14 @@
     (expect (expand-following-into-fake-calls loc) => '( (midje.semi-sweet/fake (f 1) => 3)
 							  (midje.semi-sweet/fake (f 2) => (+ 1 1))))))
 
+(deftest should-be-able-to-add-line-numbers-to-forms
+  (let [z (zip/seq-zip '( (f n) => 2  ))
+	loc (-> z zip/down zip/right)
+	fut add-line-number-to-end-of-arrow-sequence__no-movement
+	new-loc (fut 10 loc)]
+    (expect (zip/node new-loc) => '=>)
+    (expect (zip/root new-loc) => '( (f n) => 2 :position (midje.unprocessed/line-number-known 10)))))
+
 (deftest should-be-able-to-append-to-expect-form
   (let [z (zip/seq-zip '( (expect ...) "next"))
 	loc (-> z zip/down)]
@@ -190,6 +198,15 @@
 	      '( (midje.semi-sweet/expect (f 1) midje.semi-sweet/=> (+ 2 3) :key "value"))))))
 
 ;; ;; top-level
+
+(deftest adding-line-number-test
+  (let [form `(let ~(with-meta '[a 1] {:line 33})
+		a => 2
+		~(with-meta '(f 2) {:line 35}) => a)]
+    (expect (add-line-numbers form) =>
+	    '(clojure.core/let [a 1]
+	      midje.fact-body-transformation-test/a midje.semi-sweet/=> 2 :position (midje.unprocessed/line-number-known 34)
+	      (f 2) midje.semi-sweet/=> midje.fact-body-transformation-test/a :position (midje.unprocessed/line-number-known 35)))))
 
 (deftest rewrite-trivial-form-test
   (let [form '(a-form-would-go-here another-would-go-here)]

@@ -1,4 +1,4 @@
-(ns midje.file_position_test
+(ns midje.file-position-test
   (:use [midje.unprocessed] :reload-all)
   (:use [midje.semi-sweet :only [fake]])
   (:use [clojure.test])
