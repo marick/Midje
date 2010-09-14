@@ -117,9 +117,7 @@
 			       (tack-on__at-rightmost-expect-location fake-calls full-expect-form))
 
 			     (is-semi-sweet-keyword? loc)
-			     (throw (Exception. (str "Why is this form processed twice?" (zip/node loc))))
-			     ; See comment in ignores-semi-sweet-constructs-test
-;			     (skip-to-end-of-full-form loc)
+			     (skip-to-end-of-full-form loc)
 
 			     :else loc))))))
 	

@@ -89,3 +89,14 @@
 
 (deftest overriding-defaults
   (fact (always-one 3) => 3 :expected-result 1))
+
+(defn some-fn [n] n)
+(deftest issue-5-test ; http://github.com/marick/Midje/issues/#issue/5
+  (doseq [v (range 5)]
+    (fact
+     (str "It should be the identity for value " v)
+     (some-fn v) => v)))
+
+(deftest issue-2-test ; http://github.com/marick/Midje/issues/#issue/2
+  (fact
+   (expect (always-one 5) => 1 (not-called some-fn))))
