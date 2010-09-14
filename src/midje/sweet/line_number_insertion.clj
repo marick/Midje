@@ -19,7 +19,7 @@
   (-> loc
       zip/right
       (zip/insert-right `(line-number-known ~number))
-      (zip/insert-right :position)
+      (zip/insert-right :file-position)
       zip/left))
 
 (defn add-line-numbers [form]

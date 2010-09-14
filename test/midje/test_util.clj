@@ -43,6 +43,10 @@
 
 (defn last-type? [expected]
   (= (:type (last (deref reported))) expected))
+(defn last-file? [expected]
+  (= (first (:position (last @reported))) expected))
+(defn last-line? [expected]
+  (= (second (:position (last @reported))) expected))
 (defn no-failures? []
   (every? #(= (:type %) :pass) (deref reported)))
 (defn only-one-result? []
