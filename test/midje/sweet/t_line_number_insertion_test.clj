@@ -8,11 +8,6 @@
 
 (println "NEED TO FINISH file position TESTS")
 (comment
-(deftest simple-user-file-position-test
-  (let [position (line-number-known 33)]
-    (is (= "sweet_file_position_test.clj" (first position)))
-    (is (= 33 (second position)))))
-
 (defn f [n] n)
 (println (macroexpand-1 '(fact (f 1) => 2)))
 
@@ -54,7 +49,7 @@
 	fut add-line-number-to-end-of-arrow-sequence__no-movement
 	new-loc (fut 10 loc)]
     (expect (zip/node new-loc) => '=>)
-    (expect (zip/root new-loc) => '( (f n) => 2 :position (midje.unprocessed/line-number-known 10)))))
+    (expect (zip/root new-loc) => '( (f n) => 2 :position (midje.util.file-position/line-number-known 10)))))
 
 
 (deftest adding-line-number-test
@@ -63,7 +58,7 @@
 		~(with-meta '(f 2) {:line 35}) => a)]
     (expect (add-line-numbers form) =>
 	    '(clojure.core/let [a 1]
-	      midje.sweet.t-line-number-insertion-test/a midje.semi-sweet/=> 2 :position (midje.unprocessed/line-number-known 34)
-	      (f 2) midje.semi-sweet/=> midje.sweet.t-line-number-insertion-test/a :position (midje.unprocessed/line-number-known 35)))))
+	      midje.sweet.t-line-number-insertion-test/a midje.semi-sweet/=> 2 :position (midje.util.file-position/line-number-known 34)
+	      (f 2) midje.semi-sweet/=> midje.sweet.t-line-number-insertion-test/a :position (midje.util.file-position/line-number-known 35)))))
 
 

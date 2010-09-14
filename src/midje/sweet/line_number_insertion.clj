@@ -2,6 +2,7 @@
   (:require [clojure.zip :as zip])
   (:use clojure.test
 	[midje.semi-sweet :only [=>]]
+	[midje.util.file-position :only [line-number-known]]
 	[midje.sweet.sweet-to-semi-sweet-rewrite :only [namespacey-match]])
 )
 
@@ -17,7 +18,7 @@
 (defn add-line-number-to-end-of-arrow-sequence__no-movement [number loc]
   (-> loc
       zip/right
-      (zip/insert-right `(midje.unprocessed/line-number-known ~number))
+      (zip/insert-right `(line-number-known ~number))
       (zip/insert-right :position)
       zip/left))
 

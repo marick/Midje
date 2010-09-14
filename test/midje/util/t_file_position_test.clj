@@ -1,5 +1,5 @@
-(ns midje.semi-sweet.t-file-position-test
-  (:use [midje.unprocessed] :reload-all)
+(ns midje.util.t-file-position-test
+  (:use [midje.util.file-position] :reload-all)
   (:use [midje.semi-sweet :only [fake]])
   (:use [clojure.test])
   (:use [midje.test-util]))
@@ -50,4 +50,8 @@
     (is (= (+ 2 line-marker-4) (second position))))
 )
 
-(println "File positions should be broken into their own ns.")
+(deftest simple-user-file-position-test
+  (let [position (line-number-known 33)]
+    (is (= "t_file_position_test.clj" (first position)))
+    (is (= 33 (second position)))))
+

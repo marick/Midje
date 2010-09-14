@@ -1,5 +1,6 @@
 (ns midje.semi-sweet
   (:use clojure.test
+	midje.util.file-position
         [clojure.contrib.ns-utils :only [immigrate]]))
 
 (immigrate 'midje.unprocessed)
