@@ -1,4 +1,4 @@
-(ns midje.checkers)
+(ns midje.util.checkers)
 
 (if (re-find #"1.1" (clojure-version))
   (use '[clojure.contrib.seq-utils :only [frequencies]]))

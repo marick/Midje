@@ -48,7 +48,7 @@
   [call-form => result & overrides]
   (let [[var-sym & args] call-form & overrides]
     (make-expectation-map var-sym
-                          `{:arg-matchers (map arg-matcher-maker [~@args])
+                          `{:arg-matchers (map midje.unprocessed.unprocessed-internals/arg-matcher-maker [~@args])
                             :call-text-for-failures (str '~call-form)
                             :result-supplier (fn [] ~result)
 			    :type :fake}

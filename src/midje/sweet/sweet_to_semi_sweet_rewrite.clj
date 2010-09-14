@@ -1,9 +1,10 @@
-(ns midje.fact-body-transformation
+(ns midje.sweet.sweet-to-semi-sweet-rewrite
   (:use clojure.test
 	midje.semi-sweet
         [clojure.contrib.ns-utils :only [immigrate]])
   (:require [clojure.zip :as zip])
 )
+
 
 ;; Identifying forms
 
@@ -44,13 +45,6 @@
 	    whole-body (concat constant-part overrides)]
 	(recur (conj so-far whole-body)
 	       (nthnext remainder (count whole-body)))))))
-
-;; Yeah, it's not tail-recursive. So sue me.
-(defn arrow-line-number [arrow-loc]
-  (try (or  (-> arrow-loc zip/left zip/node meta :line)
-	    (-> arrow-loc zip/right zip/node meta :line)
-	    (inc (arrow-line-number (zip/prev arrow-loc))))
-       (catch Throwable ex nil)))
 
 ;; Simple movement
 
@@ -102,26 +96,6 @@
 	 (n-times (+ 1 (count additions)) remove-moving-right)
 	 zip/remove)))
 
-
-;; Adding line numbers
-
-(defn add-line-number-to-end-of-arrow-sequence__no-movement [number loc]
-  (-> loc
-      zip/right
-      (zip/insert-right `(midje.unprocessed/line-number-known ~number))
-      (zip/insert-right :position)
-      zip/left))
-
-(defn add-line-numbers [form]
-  (loop [loc (zip/seq-zip form)]
-    (if (zip/end? loc)
-      (zip/root loc)
-     (recur (zip/next (cond (namespacey-match '(=>) loc)
-			    (add-line-number-to-end-of-arrow-sequence__no-movement
-			     (arrow-line-number loc)
-			     loc)
-
-			    :else loc))))))
 
 ;; The meat of it.
 (defn expand-following-into-fake-calls [provided-loc]

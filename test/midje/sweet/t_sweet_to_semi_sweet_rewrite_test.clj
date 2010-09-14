@@ -1,5 +1,5 @@
-(ns midje.fact-body-transformation-test
-  (:use [midje.fact-body-transformation] :reload-all)
+(ns midje.sweet.t-sweet-to-semi-sweet-rewrite-test
+  (:use [midje.sweet.sweet-to-semi-sweet-rewrite] :reload-all)
   (:use midje.semi-sweet)
   (:use clojure.test)
   (:require [clojure.zip :as zip])
@@ -59,32 +59,6 @@
 	loc (-> z zip/down)]
       (expect (start-of-arrow-sequence? loc) => truthy)))
 
-(deftest should-be-able-to-deduce-line-numbers
-  (let [at-line (fn [line-no form] (with-meta form {:line line-no}))
-	assume-position (fn [test-form]
-			  (loop [loc (zip/seq-zip test-form)]
-			    (if (start-of-arrow-sequence? loc)
-			      (zip/right loc)
-			      (recur (zip/next loc)))))
-	finds (fn [form] (arrow-line-number (assume-position form)))]
-
-    ;; most common case
-    (expect (finds `( ~(at-line 33 '(f 1)) => 5)) => 33)
-
-    ;; ... but the right-hand-side might be a symbol. We might luck out on left
-    (expect (finds `( ...a... => ~(at-line 33 '(exactly 1)))) => 33)
-
-    ;; If both, left takes precedence
-    (expect (finds `( ~(at-line 33 '(f 1)) => ~(at-line 34 '(exactly 1)))) => 33)
-
-    ;; If neither, look to the left and add one.
-    (expect (finds `( (let ~(at-line 32 '[a 2]) a => b))) => 33)
-    
-    ;; If no line whatsoever can be found, nil
-    (expect (finds '( 1 => 2)) => nil)
-
-))
-    
 ;; Munging ordinary forms
 
 (deftest should-produce-list-of-overrides
@@ -149,14 +123,6 @@
     (expect (expand-following-into-fake-calls loc) => '( (midje.semi-sweet/fake (f 1) => 3)
 							  (midje.semi-sweet/fake (f 2) => (+ 1 1))))))
 
-(deftest should-be-able-to-add-line-numbers-to-forms
-  (let [z (zip/seq-zip '( (f n) => 2  ))
-	loc (-> z zip/down zip/right)
-	fut add-line-number-to-end-of-arrow-sequence__no-movement
-	new-loc (fut 10 loc)]
-    (expect (zip/node new-loc) => '=>)
-    (expect (zip/root new-loc) => '( (f n) => 2 :position (midje.unprocessed/line-number-known 10)))))
-
 (deftest should-be-able-to-append-to-expect-form
   (let [z (zip/seq-zip '( (expect ...) "next"))
 	loc (-> z zip/down)]
@@ -198,15 +164,6 @@
 	      '( (midje.semi-sweet/expect (f 1) midje.semi-sweet/=> (+ 2 3) :key "value"))))))
 
 ;; ;; top-level
-
-(deftest adding-line-number-test
-  (let [form `(let ~(with-meta '[a 1] {:line 33})
-		a => 2
-		~(with-meta '(f 2) {:line 35}) => a)]
-    (expect (add-line-numbers form) =>
-	    '(clojure.core/let [a 1]
-	      midje.fact-body-transformation-test/a midje.semi-sweet/=> 2 :position (midje.unprocessed/line-number-known 34)
-	      (f 2) midje.semi-sweet/=> midje.fact-body-transformation-test/a :position (midje.unprocessed/line-number-known 35)))))
 
 (deftest rewrite-trivial-form-test
   (let [form '(a-form-would-go-here another-would-go-here)]

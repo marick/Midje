@@ -1,15 +1,9 @@
-(ns midje.unprocessed-test
+(ns midje.unprocessed.t-unprocessed-internals-test
   (:use clojure.test)
-  (:use [midje.unprocessed] :reload-all)
+  (:use [midje.unprocessed.unprocessed-internals] :reload-all)
   (:use [midje.semi-sweet :only [fake]])
+  (:use [midje.util.checkers])
   (:use [midje.test-util]))
-
-
-(testable-privates midje.unprocessed
-		   pairs matching-args? find-matching-call eagerly
-		   unique-function-vars binding-map function-aware-=
-)
-
 
 (deftest pairs-test
   (is (= (pairs [:a :b :c] [1 2 3])
@@ -62,6 +56,7 @@
   )
 )
 
+
 (deftest binding-map-test 
   (let [expectations [(fake (f 1) => 3)
 		      (fake (g 1) => 4)
@@ -82,7 +77,6 @@
     (count-checker 2 1 1)
     )
 )
-
 
 (deftest function-aware-equality-test
   (is (falsey (function-aware-= 1 2)))

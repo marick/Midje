@@ -1,4 +1,4 @@
-(ns midje.metavars
+(ns midje.sweet.metavars
 )
 
 (defn- form-branch? [candidate]

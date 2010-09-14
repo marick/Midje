@@ -1,4 +1,4 @@
-(ns midje.checker-test
+(ns midje.util.t-checker-test
   (:use clojure.test)
   (:use [midje.semi-sweet] :reload-all)
   (:use [midje.test-util]))

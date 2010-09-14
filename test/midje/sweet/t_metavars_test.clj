@@ -1,5 +1,5 @@
-(ns midje.metavars-test
-  (:use [midje.metavars] :reload-all)
+(ns midje.sweet.t-metavars-test
+  (:use [midje.sweet.metavars] :reload-all)
   (:use clojure.test)
   (:use midje.test-util)
 )

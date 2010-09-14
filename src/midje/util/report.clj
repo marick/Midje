@@ -1,4 +1,4 @@
-(ns midje.report
+(ns midje.util.report
     (:use clojure.test))
 
 (defn- midje-position-string [position-pair]

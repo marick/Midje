@@ -2,8 +2,9 @@
   (:use clojure.test
         [clojure.contrib.ns-utils :only [immigrate]]
 	clojure.contrib.error-kit)
-  (:require [midje.fact-body-transformation :as transform])
-  (:use midje.metavars)
+  (:require [midje.sweet.sweet-to-semi-sweet-rewrite :as transform])
+  (:require [midje.sweet.line-number-insertion :as position])
+  (:use midje.sweet.metavars)
 )
 (immigrate 'midje.unprocessed)
 (immigrate 'midje.semi-sweet)
@@ -12,7 +13,7 @@
 
 (defmacro fact [& forms]
   (define-metavars forms)
-  (let [runs (transform/rewrite (transform/add-line-numbers forms))]
+  (let [runs (transform/rewrite (position/add-line-numbers forms))]
     `(every? true? (list ~@runs)))
     )
 
