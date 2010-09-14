@@ -2,7 +2,6 @@
   (:use clojure.test)
   (:use [midje.semi-sweet] :reload-all)
   (:use [midje.test-util]))
-(deprivatize midje.semi-sweet separate)
 
 (only-mocked faked-function mocked-function other-function)
 
@@ -53,26 +52,6 @@
     )
 )
 
-(deftest separation-test
-  (let [actual (separate '( (fake (f 1) => 2) :key 'value))]
-    (is (= '[:key 'value] (first actual)))
-    (is (= '[(fake (f 1) => 2)] (second actual))))
-
-  (let [actual (separate '( (not-called some-function) :key 'value))]
-    (is (= '[:key 'value] (first actual)))
-    (is (= '[(not-called some-function)] (second actual))))
-
-  ;; often passed a seq.
-  (let [actual (separate (seq '( (fake (f 1) => 2) :key 'value)))]
-    (is (= '[:key 'value] (first actual)))
-    (is (= '[(fake (f 1) => 2)] (second actual))))
-
-  ;; Either arg may be omitted.
-  (let [actual (separate '())]
-    (is (= [] (first actual)))
-    (is (= [] (second actual))))
-)  
-
 (deftest fakes-with-overrides-test
   (let [expectation (fake (faked-function) => 2 :file-position 33)]
     (is (= 33 (expectation :file-position))))
@@ -81,12 +60,6 @@
 	expectation (fake (faked-function) => 2 :file-position filepos)]
     (is (= 33 (expectation :file-position))))
   )
-
-(deftest midje-override-map-test
-  (is (= {} (midje-override-map [])))
-  (is (= {:a 1 :b 2} (midje-override-map [:a 1 :b 2])))
-  (is (= {:a 1 :b 33333} (midje-override-map [:a 1 :b 2 :b 33333])))
-)
 
 (deftest basic-not-called-test
   (let [expectation-0 (not-called faked-function)]

@@ -1,4 +1,6 @@
 = 0.5.0 (in progress)
+* Line numbers almost always point to the line that provoked
+  the error (one of the lines with => on them).
 * The in-any-order checker should work correctly.
 * Expectations (x => y) can appear at any level, so they can
   be nested within lets.
