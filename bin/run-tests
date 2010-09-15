@@ -1,0 +1,36 @@
+#!/usr/bin/env ruby
+
+require 'fileutils'
+include FileUtils
+
+standard_tests = %w{examples/semi-sweet-examples examples/sweet-examples/basic}
+lein_only_tests = %w{examples/sweet-examples/adder-webapp}
+
+puts "= Main Tests"
+system("ls lib")
+system("lein clean")
+system("lein test | grep failure")
+
+standard_tests.each do | dir | 
+  puts("= " + dir)
+  Dir.chdir(dir) do
+    system("ls lib")
+    system("lein clean")
+    puts "  run"
+    system("run > ~/tmp/run.out; diff ~/tmp/run.out run-expected-output")
+    puts "  lein"
+    system("lein test > ~/tmp/lein.out; diff ~/tmp/lein.out lein-expected-output")
+  end
+end
+
+lein_only_tests.each do | dir | 
+  puts("= " + dir)
+  Dir.chdir(dir) do
+    system("ls lib")
+    system("lein clean")
+    puts "  lein"
+    system("lein test > ~/tmp/lein.out; diff ~/tmp/lein.out lein-expected-output")
+  end
+end
+
+

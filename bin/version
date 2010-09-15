@@ -1,0 +1,46 @@
+#!/usr/bin/env ruby
+
+require 'fileutils'
+include FileUtils
+
+def arg(index, error)
+  unless ARGV[index]
+    puts "No #{error} version"
+    exit 1
+  end
+  ARGV[index]
+end
+
+
+$clojure_version = arg(0, "clojure")
+$midje_version = arg(1, "midje")
+
+
+$clojure_jar="#{ENV['HOME']}/.m2/repository/org/clojure/clojure/#{$clojure_version}/clojure-#{$clojure_version}.jar"
+$contrib_jar="#{ENV['HOME']}/.m2/repository/org/clojure/clojure-contrib/#{$clojure_version}/clojure-contrib-#{$clojure_version}.jar"
+$midje_jar="midje-#{$midje_version}.jar"
+
+def remove_jars(*dirs)
+  dirs.each do | dir | 
+    `rm -f #{File.join(dir, "lib", "clojure-*")}`
+    `rm -f #{File.join(dir, "lib", "midje-*")}`
+  end
+end
+
+def install_jars(*dirs)
+  dirs.each do | dir | 
+    cp $clojure_jar, File.join(dir, "lib")
+    cp $contrib_jar, File.join(dir, "lib")
+    cp $midje_jar, File.join(dir, "lib")
+  end
+end
+
+remove_jars(".", "examples/semi-sweet-examples", "examples/sweet-examples/adder-webapp", 
+            "examples/sweet-examples/basic")
+install_jars(".", "examples/semi-sweet-examples", "examples/sweet-examples/adder-webapp", 
+            "examples/sweet-examples/basic")
+
+`cd examples/semi-sweet-examples; make-run`
+`cd examples/sweet-examples/basic; make-run`
+
+exit 0

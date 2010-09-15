@@ -23,8 +23,7 @@ desc "Test a fresh build, manual checking for now"
 task :fresh do
      doit("lein clean")
      doit("lein jar")
-     doit("lein test")
-     puts "If the tests passed, 'rake upload' "
+     puts "bin/version and bin/run-tests"
 end
 
 desc "upload to clojars"
