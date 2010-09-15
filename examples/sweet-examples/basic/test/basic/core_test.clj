@@ -77,12 +77,12 @@
 ;;         actual result: [3 3 1 2]
 
 ;; Facts work with variables bound both within and outside of the fact form.
-;; (Note: bindings within the fact form come with the as-yet-unreleased version 0.5.)
+
 
 (let [a 3]
-  (fact (+ a a) => 6))
-;  (fact (let [b 33]
-;	  (+ a b) => 36)))
+  (fact (+ a a) => 6)
+  (fact (let [b 33]
+	  (+ a b) => 36)))
 
 
 
