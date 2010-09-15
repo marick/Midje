@@ -4,9 +4,6 @@
         [clojure.contrib.ns-utils :only [immigrate]]))
 (immigrate 'midje.unprocessed)
 
-(if (re-find #"1.1" (clojure-version))
-  (use '[clojure.contrib.seq-utils :only [group-by]]))
-
 (def => "=>")   ; So every namespace uses the same qualified name.
 
 (defmacro only-mocked 
