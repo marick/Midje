@@ -11,6 +11,11 @@
    throw Errors if ever called."
   [& names] (only-mocked* names))
 
+(defmacro unfinished
+  "Defines a list of names as functions that have no implementation yet. They will
+   throw Errors if ever called."
+  [& names] (only-mocked* names))
+
 (defmacro fake 
   "Creates an expectation map that a particular call will be made. When it is made,
    the result is to be returned. Either form may contain bound variables. 
