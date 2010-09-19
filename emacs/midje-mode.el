@@ -1,11 +1,18 @@
 ;;; midje-mode.el --- Minor mode for Midje tests
+;;
+;; I use these indentation settings for the two main Midje constructs:
+;;
+;; (eval-after-load 'clojure-mode
+;;   '(define-clojure-indent
+;;      (fact 'defun)
+;;      (provided 0)))
 
 (require 'clojure-mode)
 (require 'slime)
 
 (defvar midje-comments ";.;.")
 (defvar last-checked-midje-fact nil)
-
+(defvar midje-fact-regexp "^(facts?\\([[:space:]]\\|$\\)")
 
 ;; Callbacks
 (defun midje-insert-above-fact (result)
@@ -56,8 +63,22 @@
       (goto-char (point-min))
       (search-forward "fact" nil t))))
 
+(defun midje-doto-facts (fun)
+  (save-excursion
+    (goto-char (point-min))
+    (while (re-search-forward midje-fact-regexp nil t)
+      (funcall fun))))
+
 
 ;; Interactive
+
+(defun midje-next-fact ()
+  (interactive)
+  (re-search-forward midje-fact-regexp))
+
+(defun midje-previous-fact ()
+  (interactive)
+  (re-search-backward midje-fact-regexp))
 
 (defun midje-clear-comments ()
   "Midje uses comments to display test results. Delete
@@ -100,13 +121,24 @@ the last fact checked (by `midje-check-fact-near-point')."
 `midje-check-fact-near-point'. Otherwise, compile the
 nearby Clojure form and recheck the last fact checked
 (with `midje-recheck-last-fact-checked')."
-
   (interactive)
   (if (midje-on-fact?) 
       (midje-check-fact-near-point)
     (midje-recheck-last-fact-checked)))
 
+(defun midje-hide-all-facts ()
+  (interactive)
+  (midje-doto-facts #'hs-hide-block))
 
+(defun midje-show-all-facts ()
+  (interactive)
+  (midje-doto-facts #'hs-show-block))
+
+
+(defun midje-focus-on-this-fact ()
+  (interactive)
+  (midje-hide-all-facts)
+  (hs-show-block))
 
 (defvar midje-mode-map
   (let ((map (make-sparse-keymap)))
@@ -114,6 +146,13 @@ nearby Clojure form and recheck the last fact checked
     (define-key map (kbd "C-c C-,") 'midje-check-fact-near-point)
     (define-key map (kbd "C-c C-.") 'midje-recheck-last-fact-checked)
     (define-key map (kbd "C-c k")   'midje-clear-comments)
+
+    (define-key map (kbd "C-c f") 'midje-focus-on-this-fact)
+    (define-key map (kbd "C-c h") 'midje-hide-all-facts)
+    (define-key map (kbd "C-c s") 'midje-show-all-facts)
+
+    (define-key map (kbd "C-c n") 'midje-next-fact)
+    (define-key map (kbd "C-c p") 'midje-previous-fact)
     map)
   "Keymap for Midje mode.")
 
@@ -123,8 +162,7 @@ nearby Clojure form and recheck the last fact checked
 
 \\{midje-mode-map}"
   nil " Midje" midje-mode-map
-  (when (slime-connected-p)
-    (run-hooks 'slime-connected-hook)))
+  (hs-minor-mode 1))
 
 (provide 'midje-mode)
 (require 'midje-mode-praise)
