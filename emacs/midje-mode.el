@@ -31,7 +31,8 @@
 	(end-point (progn (insert str) (point))))
     (midje-add-midje-comments start-point end-point)
     (goto-char start-point)
-    (delete-char 1)))
+    (unless (string= ";" (char-to-string (char-after))) 
+      (delete-char 1))))
 
 (defun midje-display-reward ()
   (save-excursion
@@ -59,6 +60,8 @@
 ;; Interactive
 
 (defun midje-clear-comments ()
+  "Midje uses comments to display test results. Delete
+all such comments."
   (interactive)
   (save-excursion
     (goto-char (point-min))
@@ -68,6 +71,9 @@
 	(kill-line)))))
 
 (defun midje-check-fact-near-point ()
+  "Used when `point' is on or just after a Midje fact.
+Check that fact and also save it for use of
+`midje-recheck-last-fact-checked'."
   (interactive)
   (midje-clear-comments)
   (let ((string (save-excursion
@@ -79,6 +85,10 @@
 
 
 (defun midje-recheck-last-fact-checked ()
+  "Used when `point` is on or just after a def* form.
+Has the Clojure REPL compile that form, then rechecks
+the last fact checked (by `midje-check-fact-near-point')."
+
   (interactive)
   (midje-clear-comments)
   (slime-compile-defun)
@@ -86,6 +96,11 @@
     'midje-insert-below-code-under-test))
 
 (defun midje-check-fact ()
+  "If on or near a Midje fact, check it with
+`midje-check-fact-near-point'. Otherwise, compile the
+nearby Clojure form and recheck the last fact checked
+(with `midje-recheck-last-fact-checked')."
+
   (interactive)
   (if (midje-on-fact?) 
       (midje-check-fact-near-point)
@@ -104,7 +119,9 @@
 
 ;;;###autoload
 (define-minor-mode midje-mode
-  "A minor mode for running Midje tests."
+"A minor mode for running Midje tests when in `slime-mode'.
+
+\\{midje-mode-map}"
   nil " Midje" midje-mode-map
   (when (slime-connected-p)
     (run-hooks 'slime-connected-hook)))
