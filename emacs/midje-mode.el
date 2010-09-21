@@ -1,3 +1,4 @@
+
 ;;; midje-mode.el --- Minor mode for Midje tests
 ;;
 ;; I use these indentation settings for the two main Midje constructs:
@@ -104,7 +105,6 @@ Check that fact and also save it for use of
     (slime-eval-async `(swank:eval-and-grab-output ,string)
       'midje-insert-above-fact)))
 
-
 (defun midje-recheck-last-fact-checked ()
   "Used when `point` is on or just after a def* form.
 Has the Clojure REPL compile that form, then rechecks
@@ -113,8 +113,25 @@ the last fact checked (by `midje-check-fact-near-point')."
   (interactive)
   (midje-clear-comments)
   (slime-compile-defun)
+  ; Callback is slime-compilation-finished, then midje-after-compilation-check-fact
+)
+
+;; This is a HACK. I want to add midje-after-compilation-check-fact to
+;; the slime-compilation-finished-hook, but I can't seem to override the 
+;; :options declaration in the original slime.el defcustom. 
+(unless (fboundp 'original-slime-compilation-finished)
+  (setf (symbol-function 'original-slime-compilation-finished)
+	(symbol-function 'slime-compilation-finished)))
+
+(defun slime-compilation-finished (result)
+  (original-slime-compilation-finished result)
+  (with-struct (slime-compilation-result. notes duration successp) result
+    (if successp (midje-after-compilation-check-fact))))
+
+(defun midje-after-compilation-check-fact ()
   (slime-eval-async `(swank:eval-and-grab-output ,last-checked-midje-fact)
     'midje-insert-below-code-under-test))
+
 
 (defun midje-check-fact ()
   "If on or near a Midje fact, check it with
@@ -162,6 +179,9 @@ nearby Clojure form and recheck the last fact checked
 
 \\{midje-mode-map}"
   nil " Midje" midje-mode-map
+  ;; This doesn't seem to work.
+  ;; (custom-add-option 'slime-compilation-finished-hook
+  ;;                    'midje-post-compilation-action)
   (hs-minor-mode 1))
 
 (provide 'midje-mode)
