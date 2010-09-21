@@ -5,7 +5,7 @@ require 'rake'
 
 def jar_name
     text = File.read('project.clj')
-    unless /midje\s+"(\d+\.\d+\.\d+)"/ =~ text
+    unless /midje\s+"(\d+\.\d+\.\d+(-[A-Z]+)?)"/ =~ text
     	"Couldn't find version in project file."
 	exit 1
    end
@@ -24,6 +24,10 @@ task :fresh do
      doit("lein clean")
      doit("lein jar")
      puts "bin/version and bin/run-tests"
+end
+
+task :jar_name do 
+  puts jar_name
 end
 
 desc "upload to clojars"
