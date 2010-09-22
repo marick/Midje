@@ -18,7 +18,8 @@
     ;; most common case
     (expect (finds `( ~(at-line 33 '(f 1)) => 5)) => 33)
 
-    ;; ... but the right-hand-side might be a symbol. We might luck out on left
+    ;; ... but the left-hand-side might be a symbol. We might luck out on right
+    ;; ...a... => (exactly 1)
     (expect (finds `( ...a... => ~(at-line 33 '(exactly 1)))) => 33)
 
     ;; If both, left takes precedence
@@ -30,7 +31,8 @@
     ;; If no line whatsoever can be found, nil
     (expect (finds '( 1 => 2)) => nil)
 
-))
+    ))
+
 
 (deftest should-be-able-to-add-line-numbers-to-forms
   (let [z (zip/seq-zip '( (f n) => 2  ))
