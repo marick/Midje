@@ -1,18 +1,13 @@
 (ns midje.sweet.sweet-to-semi-sweet-rewrite
   (:use clojure.test
 	midje.semi-sweet
+	midje.sweet.util
         [clojure.contrib.ns-utils :only [immigrate]])
   (:require [clojure.zip :as zip])
 )
 
 
 ;; Identifying forms
-
-;; TODO: There must be a better way of handling namespaces.
-(defn namespacey-match [symbols loc]
-  (let [base-names (map name symbols)
-	qualified-names (map #(str "midje.semi-sweet/" %) base-names)]
-    ( (set (concat base-names qualified-names)) (str (zip/node loc)))))
 
 (defn is-semi-sweet-keyword? [loc]
   (namespacey-match '(expect fake) loc))

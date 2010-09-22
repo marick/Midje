@@ -3,7 +3,7 @@
   (:use clojure.test
 	[midje.semi-sweet :only [=>]]
 	[midje.util.file-position :only [line-number-known]]
-	[midje.sweet.sweet-to-semi-sweet-rewrite :only [namespacey-match]])
+	midje.sweet.util)
 )
 
 ;; Yeah, it's not tail-recursive. So sue me.
