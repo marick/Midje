@@ -1,5 +1,6 @@
 (ns midje.test-util
   (:use [clojure.test])
+  (:use [clojure.contrib.string :only [substring?]])
 )
 
 (defmacro testable-privates [namespace & symbols]
@@ -42,15 +43,23 @@
   
 
 (defn last-type? [expected]
-  (= (:type (last (deref reported))) expected))
+  (= (:type (last @reported)) expected))
+(defn last-expected? [expected]
+  (= (:expected-call (last @reported)) expected))
+(defn last-expected-refers-to? [string]
+  (substring? string (str (:expected-call (last @reported)))))
+(defn last-function? [expected]
+  (= (:function (last @reported)) expected))
+(defn last-actual? [expected]
+  (= (:actual (last @reported)) expected))
 (defn last-file? [expected]
   (= (first (:position (last @reported))) expected))
 (defn last-line? [expected]
   (= (second (:position (last @reported))) expected))
 (defn no-failures? []
-  (every? #(= (:type %) :pass) (deref reported)))
+  (every? #(= (:type %) :pass) @reported))
 (defn only-one-result? []
-  (= 1 (count (deref reported))))
+  (= 1 (count @reported)))
 
 (defn raw-report [] (println @reported) true)
 

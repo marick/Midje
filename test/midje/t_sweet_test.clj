@@ -68,6 +68,52 @@
 
 )
 
+(unfinished favorite-animal)
+(defn favorite-animal-name [] (name (favorite-animal)))
+(defn favorite-animal-empty [] )
+(defn favorite-animal-only-animal [] (favorite-animal))
+(defn favorite-animal-only-name [] (name "fred"))
+
+(def unfolding-line-count 77)
+(deftest unfolding-expectations-examples
+  (after
+   (fact
+     (favorite-animal-name) => "betsy"
+     (provided
+       (name (favorite-animal)) => "betsy"))
+   (is (no-failures?)))
+
+  (after
+   (fact
+     (favorite-animal-empty) => "betsy"
+     (provided
+       (name (favorite-animal)) => "betsy"))
+   (is (last-type? :mock-incorrect-call-count))
+   (is (last-expected? "(favorite-animal)"))
+   (is (last-line? (+ 13 unfolding-line-count))))
+
+  (after
+   (fact
+     (favorite-animal-only-animal) => "betsy"
+     (provided
+       (name (favorite-animal)) => "betsy"))
+   (is (last-type? :mock-incorrect-call-count))
+   (is (last-expected-refers-to? "name"))
+   (is (last-expected-refers-to? "...favorite"))
+   (is (last-line? (+ 22 unfolding-line-count))))
+
+  (after
+   (fact
+     (favorite-animal-only-name) => "betsy"
+     (provided
+       (name (favorite-animal)) => "betsy"))
+   (is (last-type? :mock-argument-match-failure))
+   (is (last-function? #'clojure.core/name))
+   (is (last-actual? '("fred")))
+   (is (last-line? (+ 32 unfolding-line-count))))
+)
+
+
 
 
 (deftest binding-examples
