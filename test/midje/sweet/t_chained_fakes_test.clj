@@ -1,4 +1,4 @@
-(ns midje.sweet.t-chained-fakes
+(ns midje.sweet.t-chained-fakes-test
   (:use [midje.sweet.chained-fakes] :reload-all)
   (:use midje.semi-sweet)
   (:use [clojure.test])
@@ -16,13 +16,19 @@
   (let [run (fn [form] (at-chained-fake? (zip/seq-zip form)))]
     (expect (run '()) => falsey)
     (expect (run '(+ 1 2)) => falsey)
+    (expect (run '(midje.semi-sweet/fake (f) => 3)) => falsey)
     (expect (run '(midje.semi-sweet/fake (f 1) => 3)) => falsey)
     (expect (run '(midje.semi-sweet/fake (f '(l)) => 3)) => falsey)
+    (expect (run '(midje.semi-sweet/fake (f [l]) => 3)) => falsey)
+    (expect (run '(midje.semi-sweet/fake (f {a 1}) => 3)) => falsey)
     ;; This next is surprisingly hard to get right.
     ;; Note also that (currently) symbols-in-the-function-slot don't
     ;; have to predefined to be faked, which is another case to worry about.
 ;    (expect (run '(midje.semi-sweet/fake (f (some-macro 33)) => 3)) => falsey)
-    (expect (run '(midje.semi-sweet/fake (f (g 3)) => 33)) => truthy)))
+    (expect (run '(midje.semi-sweet/fake (f (g 3)) => 33)) => truthy)
+    ;; Sad but true: a cons is not a list.
+    (expect (run (cons 'midje.semi-sweet/fake '((f (g 3)) => 33))) => truthy)
+))
 
 
 
@@ -39,7 +45,7 @@
   (expect (replace-interior-function-with-metaconstant
 	    '(fake (f   (g))   => 3 :key 'val)    '(g) '...g...) =>
 	    '(fake (f ...g...) => 3 :key 'val)))
-	    
+
 (deftest trivial-example-of-unchaining-a-fake
   (let [input-form '(fake (f (g)) => 3)]
     (expect (unchain input-form) =>

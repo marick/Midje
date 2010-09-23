@@ -28,16 +28,38 @@
       (replace-interior-function-with-metaconstant fake-form interior-form placeholder) ]))
 
 
-(defn- at-funcall? [loc]
-  (let [tree (zip/node loc)]
-    (and (list? tree)
-	 (not (= 'quote (first tree))))))
+(defn- true-function-symbol? [loc]
+  (let [symbol (zip/node loc)]
+    (not (= 'quote symbol))))
+
+(defn looks-like-a-function-call? [loc first-symbol-validity-test]
+;  (println "looks-like-a-function-call?" loc)
+  (when-let [tree (and loc (zip/node loc))]
+;    (println "does this look like a function call? " tree)
+;    (println (type tree))
+;    (println (list? tree))
+    (and tree
+	 (or (list? tree) (= (type tree) clojure.lang.Cons))
+	 (-> tree first) 
+	 (-> tree first symbol?) 
+	 (-> loc zip/down first-symbol-validity-test))))
+
+(defn- nested-function-like-list
+  ([loc]
+     (nested-function-like-list loc (fn [symbol] true)))
+  ([loc first-symbol-validity-test]
+;     (println "Processing: " (and loc (zip/node loc)))
+     (when (looks-like-a-function-call? loc first-symbol-validity-test)
+       (-> loc zip/down zip/right))))
 
 (defn at-chained-fake? [loc]
-;  (println "chained fake:" loc)
-  (let [fake-head (zip/down loc)]
-    (and (namespacey-match '(fake) fake-head)
-	 (at-funcall? (-> fake-head zip/right zip/down zip/right)))))
+  (-> loc
+      ;; (fake ...) or something else
+      (nested-function-like-list (fn [loc] (namespacey-match '(fake) loc)))
+      ;; (f ...) or nil
+      nested-function-like-list
+      ;; (g ...) or nil
+      (looks-like-a-function-call? true-function-symbol?)))
 
 (defn replace-with-two-links__stay_put [fake-loc]
 ;  (println "replacing" (zip/node fake-loc))
