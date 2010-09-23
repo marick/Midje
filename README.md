@@ -94,6 +94,6 @@ function that does the actual work is `expect*`. Its
 first argument is the map in the `call-being-tested` format,
 followed by zero or more maps in the `fake` format.
 
-# Mailing list # 
+# Mailing list 
 
 [Here](http://groups.google.com/group/midje)

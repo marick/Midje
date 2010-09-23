@@ -1,3 +1,8 @@
+= 0.6.0
+* Can "unfold" nested function calls in provided facts, so
+  that (f (g 1)) produces two mock calls, the first of which
+  returns a metaconstant that the second expects.
+
 = 0.5.0 (stable)
 * Line numbers almost always point to the line that provoked
   the error (one of the lines with => on them).
