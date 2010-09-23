@@ -10,6 +10,9 @@
 
 (require 'clojure-mode)
 (require 'slime)
+(require 'newcomment)
+
+(defvar midje-running-fact nil)   ;; KLUDGE!
 
 (defvar midje-comments ";.;.")
 (defvar last-checked-midje-fact nil)
@@ -112,6 +115,7 @@ the last fact checked (by `midje-check-fact-near-point')."
 
   (interactive)
   (midje-clear-comments)
+  (setq midje-running-fact t)
   (slime-compile-defun)
   ; Callback is slime-compilation-finished, then midje-after-compilation-check-fact
 )
@@ -129,9 +133,10 @@ the last fact checked (by `midje-check-fact-near-point')."
     (if successp (midje-after-compilation-check-fact))))
 
 (defun midje-after-compilation-check-fact ()
-  (slime-eval-async `(swank:eval-and-grab-output ,last-checked-midje-fact)
-    'midje-insert-below-code-under-test))
-
+  (if midje-running-fact
+      (slime-eval-async `(swank:eval-and-grab-output ,last-checked-midje-fact)
+	'midje-insert-below-code-under-test))
+  (setq midje-running-fact nil))
 
 (defun midje-check-fact ()
   "If on or near a Midje fact, check it with
