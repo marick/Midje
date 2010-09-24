@@ -112,7 +112,7 @@
 ;; ...cell... : I use this shorthand to represent some 
 ;;              random value. None of its characteristics
 ;;              matter except those defined below. You
-;;              don't have to define such "metavars" -
+;;              don't have to define such "metaconstants" -
 ;;              Midje does it for you.
 ;;
 ;; truthy     : Truthy is another one of Midje's checking

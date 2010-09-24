@@ -5,7 +5,7 @@
   (:require [midje.sweet.sweet-to-semi-sweet-rewrite :as transform])
   (:require [midje.sweet.line-number-insertion :as position])
   (:require [midje.sweet.chained-fakes :as chained])
-  (:use midje.sweet.metavars)
+  (:use midje.sweet.metaconstants)
 )
 (immigrate 'midje.unprocessed)
 (immigrate 'midje.semi-sweet)
@@ -14,7 +14,7 @@
 
 (defmacro fact [& forms]
   (let [runs (chained/rewrite (transform/rewrite (position/add-line-numbers forms)))]
-    (define-metavars runs)
+    (define-metaconstants runs)
     `(every? true? (list ~@runs)))
     )
 
