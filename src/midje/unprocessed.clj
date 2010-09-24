@@ -14,9 +14,8 @@
    list of maps, each of which describes a secondary call the first call is supposed to 
    make. See the documentation at http://github.com/marick/Midje."
   (with-bindings (binding-map expectations)
-     (stopping-upon-mock-failures
       (let [code-under-test-result (capturing-exception (eagerly ((call-map :function-under-test))))]
 	(check-call-counts expectations)
-	(check-result code-under-test-result call-map expectations)))))
+	(check-result code-under-test-result call-map expectations))))
       
 

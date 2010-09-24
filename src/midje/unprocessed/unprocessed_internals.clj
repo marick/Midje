@@ -6,8 +6,6 @@
 	)
 )
 
-(deferror one-failure-per-test [] [])  ; Check nothing further
-
 (defn pairs [first-seq second-seq]
   (partition 2 (interleave first-seq second-seq)))
 
@@ -51,8 +49,7 @@
         (clojure.test/report {:type :mock-argument-match-failure
                  :function faked-function
                  :actual args
-                 :position (:file-position (first expectations))})
-        (raise one-failure-per-test))
+                 :position (:file-position (first expectations))}))
       (do 
         (swap! (found :count-atom) inc)
         ((found :result-supplier)))))
@@ -93,8 +90,7 @@
         (report {:type :mock-incorrect-call-count
                  :expected-call (expectation :call-text-for-failures)
                  :position (:file-position expectation)
-                 :expected (expectation :call-text-for-failures)})
-        (raise one-failure-per-test))))
+                 :expected (expectation :call-text-for-failures)}))))
 )
 
 ;; TODO: I'm not wild about signalling failure in two ways: by report() and by
@@ -119,20 +115,10 @@
 	    false))
 )
 
-
-(defmacro stopping-upon-mock-failures [form]
-  `(with-handler ~form
-     (handle one-failure-per-test [] false)))
-
-(defn is-error-kit-throwable? [e]   
-  (re-find #"^Error Kit Control Exception" (.toString e))) ; Ick.
-
 (defmacro capturing-exception [form]
   `(try ~form
 	(catch Throwable e#
-	  (if (is-error-kit-throwable? e#)
-	    (throw e#)
-	    (midje.util.checkers/captured-exception e#)))))
+	  (midje.util.checkers/captured-exception e#))))
 
 (defn arg-matcher-maker [expected]
   "Based on an expected value, generates a function that returns true if the 
