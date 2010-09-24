@@ -11,14 +11,6 @@
 
 ;; Identifying forms
 
-(deftest should-accept-symbols-in-more-than-one-namespace
-  (let [values (zip/seq-zip '(m midje.semi-sweet/expect))
-	m-node (zip/down values)
-	expect-node (-> values zip/down zip/right)]
-    (expect (namespacey-match '(m) m-node) => truthy)
-    (expect (namespacey-match '(expect) expect-node) => truthy)
-    (expect (namespacey-match '(n) m-node) => falsey)))
-
 (deftest should-ignore-expect-and-fake
   (doseq [skippable '(expect fake midje.semi-sweet/expect midje.semi-sweet/fake)]
     (let [z (zip/seq-zip (list 111 (list skippable 1 2 '(3)) "next"))
