@@ -1,6 +1,7 @@
 (ns midje.test-util
   (:use [clojure.test])
   (:use [clojure.contrib.string :only [substring?]])
+  (:use [clojure.set :only [subset?]])
 )
 
 (defmacro testable-privates [namespace & symbols]
@@ -40,31 +41,41 @@
    `(println "PENDING:"  ~description))
   ([example-form & check-forms]
    (run-and-check example-form check-forms)))
-  
 
-(defn last-type? [expected]
-  (= (:type (last @reported)) expected))
-(defn last-expected? [expected]
-  (= (:expected-call (last @reported)) expected))
-(defn last-expected-refers-to? [string]
-  (substring? string (str (:expected-call (last @reported)))))
-(defn last-function? [expected]
-  (= (:function (last @reported)) expected))
-(defn last-actual? [expected]
-  (= (:actual (last @reported)) expected))
-(defn last-file? [expected]
-  (= (first (:position (last @reported))) expected))
-(defn last-line? [expected]
-  (= (second (:position (last @reported))) expected))
+
+(defn reported?
+  ([expected-count]
+     (reported? expected-count {}))
+  ([expected-count expected-maps]
+     (if (= expected-count (count @reported))
+       (let [one-expected-matches-one-reported?
+	     (fn [expected reported] (subset? (set expected) (set reported)))
+
+	     one-expected-matches-any-reported?
+	     (fn [expected reported-seq]
+	       (some #(one-expected-matches-one-reported? expected %) reported-seq))
+
+	     all-expected-match-some-reported?
+	     (fn [expected-seq reported-seq]
+	       (every? (fn [expected]
+			 (one-expected-matches-any-reported? expected reported-seq))
+		       expected-seq))]
+	 (if (all-expected-match-some-reported? expected-maps @reported)
+	   true
+	   (do
+	     (println "Expected not a subset of actual.")
+	     (println "Expected" expected-maps)
+	     (println "Actual" @reported)
+	     false)))
+       (do
+	 (println "Count" (count @reported) "when" expected-count "expected")
+	 (println @reported)
+	 false))))
+  
+  
+(defn only-one-result? []
+  (reported? 1))
 (defn no-failures? []
   (every? #(= (:type %) :pass) @reported))
-(defn only-one-result? []
-  (= 1 (count @reported)))
 
 (defn raw-report [] (println @reported) true)
-
-(defmacro deprivatize [ns-name & names] 
-  (let [settings (map (fn [name] `(def ~name ((ns-map (find-ns '~ns-name)) '~name)))
-		      names)]
-    `(do ~@settings)))
-	   

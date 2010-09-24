@@ -90,13 +90,13 @@
 (deftest simple-examples
   (one-case "Without expectations, this is like 'is'."
     (expect (+ 1 3) => nil)
-    (is (last-type? :mock-expected-result-failure))
-    (is (= (:actual (last @reported)) 4))
-    (is (= (:expected (last @reported)) nil)))
+    (is (reported? 1 [{:type :mock-expected-result-failure
+		      :actual 4
+		      :expected nil}])))
 
   (one-case "A passing test so reports"
     (expect (+ 1 3) => 4)
-    (is (last-type? :pass)))
+    (is (reported? 1 [{:type :pass}])))
 	    
 
   (one-case "successful mocking"
@@ -120,21 +120,20 @@
   (one-case "mocked calls go fine, but function under test produces the wrong result"
      (expect (function-under-test 33) => 12
 	(fake (mocked-function 33) => (not 12) ))
-     (is (= (:actual (last @reported)) false))
-     (is (= (:expected (last @reported)) 12)))
+     (is (reported? 1 [{:actual false
+			:expected 12}])))
 
   (one-case "mock call supposed to be made, but wasn't (zero call count)"
     (expect (no-caller) => "irrelevant"
-       (fake (mocked-function) => 33))
-    (is (last-type? :mock-incorrect-call-count))
-    (is (only-one-result?)))
+	    (fake (mocked-function) => 33))
+    (is (reported? 2 [{:type :mock-incorrect-call-count}
+		      {:type :mock-expected-result-failure}])))
 
   (one-case "mock call was not supposed to be made, but was (non-zero call count)"
      (expect (function-under-test 33) => "irrelevant"
              (not-called mocked-function))
-     (is (last-type? :mock-incorrect-call-count))
-     (is (only-one-result?)))
-
+    (is (reported? 2 [{:type :mock-incorrect-call-count}
+		      {:type :mock-expected-result-failure}])))
 
   (one-case "call not from inside function"
      (expect (+ (mocked-function 12) (other-function 12)) => 12
@@ -147,18 +146,18 @@
   (one-case "call that matches none of the expected arguments"
      (expect (+ (mocked-function 12) (mocked-function 33)) => "result irrelevant because of earlier failure"
 	     (fake (mocked-function 12) => "hi"))
-     (is (last-type? :mock-argument-match-failure))
-     (is (only-one-result?)))
-
-
+    (is (reported? 2 [{:type :mock-argument-match-failure
+		       :actual '(33)}
+		      {:type :mock-expected-result-failure}])))
 
   (one-case "failure because one variant of multiply-mocked function is not called"
      (expect (+ (mocked-function 12) (mocked-function 22)) => 3
 	     (fake (mocked-function 12) => 1)
 	     (fake (mocked-function 22) => 2)
 	     (fake (mocked-function 33) => 3))
-     (is (last-type? :mock-incorrect-call-count))
-     (is (only-one-result?)))
+    (is (reported? 2 [{:type :mock-incorrect-call-count
+		       :expected-call "(mocked-function 33)" }
+		      {:type :pass}]))) ; passes for wrong reason
 
   (one-case "multiple calls to a mocked function are perfectly fine"
      (expect (+ (mocked-function 12) (mocked-function 12)) => 2

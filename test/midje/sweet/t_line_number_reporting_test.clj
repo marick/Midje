@@ -10,16 +10,14 @@
 (deftest expected-result-positions-test
   (after 
    (fact (+ 1 1) => 3)
-   (is (last-type? :mock-expected-result-failure))
-   (is (last-file? "t_line_number_reporting_test.clj"))
-   (is (last-line? (+ position-1 3))))
+   (is (reported? 1 [{:type :mock-expected-result-failure
+		      :position ["t_line_number_reporting_test.clj" (+ position-1 3)]}])))
 
   (after 
    (fact
     (+ 1 1) => 3)
-   (is (last-type? :mock-expected-result-failure))
-   (is (last-file? "t_line_number_reporting_test.clj"))
-   (is (last-line? (+ position-1 10))))
+   (is (reported? 1 [{:type :mock-expected-result-failure
+		      :position ["t_line_number_reporting_test.clj" (+ position-1 9)]}])))
 
     (after 
      (fact
@@ -27,19 +25,18 @@
      (+ 1 1) =>
 
          3)
-   (is (last-type? :mock-expected-result-failure))
-   (is (last-file? "t_line_number_reporting_test.clj"))
-   (is (last-line? (+ position-1 18)))))
+     (is (reported? 1 [{:type :mock-expected-result-failure
+			:position ["t_line_number_reporting_test.clj" (+ position-1 16)]}]))))
 
 (defn g [n] n)
-(def position-2 35)
+(def position-2 32)
 (deftest partial-call-test
   (after 
    (fact (g 1) => 1
          (provided (f 2) => 2))
-   (is (last-type? :mock-incorrect-call-count))
-   (is (last-file? "t_line_number_reporting_test.clj"))
-   (is (last-line? (+ position-2 4))))
+   (is (reported? 2 [{:type :mock-incorrect-call-count
+		      :position ["t_line_number_reporting_test.clj" (+ position-2 4)]}
+		     {:type :pass}])))
 
   (after 
    (fact (g 1) => 1
@@ -47,6 +44,59 @@
 
 	 (provided
 	    (f 2) => 2))
-   (is (last-type? :mock-incorrect-call-count))
-   (is (last-file? "t_line_number_reporting_test.clj"))
-   (is (last-line? (+ position-2 14)))))
+   (is (reported? 2 [{:type :mock-incorrect-call-count
+		      :position ["t_line_number_reporting_test.clj" (+ position-2 14)]}
+		     {:type :pass}]))))
+
+(unfinished favorite-animal)
+(defn favorite-animal-name [] (name (favorite-animal)))
+(defn favorite-animal-empty [] )
+(defn favorite-animal-only-animal [] (favorite-animal))
+(defn favorite-animal-only-name [] (name "fred"))
+
+(deftest unfolding-expectations-examples
+  (after
+   (fact
+     (favorite-animal-name) => "betsy"
+     (provided
+       (name (favorite-animal)) => "betsy"))
+   (is (no-failures?)))
+
+  (def line-number 65)
+  (after
+   (fact
+     (favorite-animal-empty) => "betsy"
+     (provided
+       (name (favorite-animal)) => "betsy"))
+   (is (reported? 3 [ {:type :mock-incorrect-call-count
+		       :expected-call "(favorite-animal)"
+		       :position ["t_line_number_reporting_test.clj" (+ line-number 5)]}
+		      {:type :mock-incorrect-call-count
+		       :position ["t_line_number_reporting_test.clj" (+ line-number 5)]
+		       :expected-call "(name ...favorite-animal-link...)" }
+		      {:type :mock-expected-result-failure
+		       :position ["t_line_number_reporting_test.clj" (+ line-number 3)]}])))
+		       
+  (after
+   (fact
+     (favorite-animal-only-animal) => "betsy"
+     (provided
+       (name (favorite-animal)) => "betsy"))
+   (is (reported? 2 [{:type :mock-incorrect-call-count}
+		     {:type :mock-expected-result-failure}])))
+
+  (after
+   (fact
+     (favorite-animal-only-name) => "betsy"
+     (provided
+       (name (favorite-animal)) => "betsy"))
+   (is (reported? 4 [{:type :mock-argument-match-failure
+		      :function #'clojure.core/name
+		      :actual '("fred")}
+		     {:type :mock-incorrect-call-count
+		      :expected-call "(favorite-animal)"}
+		     {:type :mock-incorrect-call-count
+		      :expected-call "(name ...favorite-animal-link...)"}
+		     {:type :mock-expected-result-failure}])))
+)
+

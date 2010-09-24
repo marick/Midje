@@ -52,13 +52,11 @@
     (is (no-failures?)))
   (one-case "rejects incorrectly thrown exception"
     (expect (throw-exception "throws Error") => (throws NullPointerException))
-    (is (last-type? :mock-expected-result-functional-failure)))
+    (is (reported? 1 [{:type :mock-expected-result-functional-failure}])))
   (one-case "detects correct message"
     (expect (throw-exception "hi") => (throws Error "hi"))
     (is (no-failures?)))
   (one-case "detects incorrect message"
      (expect (throw-exception "throws Error") => (throws Error "bye"))
-     (is (last-type? :mock-expected-result-functional-failure)))
-
-  ;; TODO: error-kit error
+     (is (reported? 1 [{:type :mock-expected-result-functional-failure}])))
 )
