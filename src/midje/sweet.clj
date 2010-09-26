@@ -4,7 +4,7 @@
 	clojure.contrib.error-kit)
   (:require [midje.sweet.sweet-to-semi-sweet-rewrite :as transform])
   (:require [midje.sweet.line-number-insertion :as position])
-  (:require [midje.sweet.chained-fakes :as chained])
+  (:require [midje.sweet.folded-prerequisites :as folded])
   (:use midje.sweet.metaconstants)
 )
 (immigrate 'midje.unprocessed)
@@ -13,7 +13,7 @@
 (deferror odd-test-forms [] [forms])
 
 (defmacro fact [& forms]
-  (let [runs (chained/rewrite (transform/rewrite (position/add-line-numbers forms)))]
+  (let [runs (folded/rewrite (transform/rewrite (position/add-line-numbers forms)))]
     (define-metaconstants runs)
     `(every? true? (list ~@runs)))
     )

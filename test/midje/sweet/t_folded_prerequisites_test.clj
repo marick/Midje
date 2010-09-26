@@ -1,19 +1,13 @@
-(ns midje.sweet.t-chained-fakes-test
-  (:use [midje.sweet.chained-fakes] :reload-all)
+(ns midje.sweet.t-folded-prerequisites-test
+  (:use [midje.sweet.folded-prerequisites] :reload-all)
   (:use midje.semi-sweet)
   (:use [clojure.test])
   (:require [clojure.zip :as zip])
   (:use [midje.test-util]))
 
-;; (fake (f (g 1)) => 3)
-;; (fake (f (g 1)) => 3 :line-number kdslfkj)
-;; (fake (f (quote ()))
-;; (fake (f (macro 33)))
-
-
 (defmacro some-macro [& rest] )
-(deftest discovering-chained-fake-examples
-  (let [run (fn [form] (at-chained-fake? (zip/seq-zip form)))]
+(deftest discovering-folded-prerequisite-examples
+  (let [run (fn [form] (at-folded-prerequisite? (zip/seq-zip form)))]
     (expect (run '()) => falsey)
     (expect (run '(+ 1 2)) => falsey)
     (expect (run '(midje.semi-sweet/fake (f) => 3)) => falsey)
@@ -35,7 +29,7 @@
 (deftest first-form-metaconstant-for-a-function-symbol-example
   (expect (form-metaconstant '(g)) => '...g-link...))
      
-(deftest pull-out-simple-chained-function-example
+(deftest pull-out-simple-folded-prerequisite-example
   (expect (form-to-pull-out '(fake (f (g)) => 3)) => '(g)))
 	    
 (deftest replace-with-metaconstant-example
@@ -46,9 +40,9 @@
 	    '(fake (f   (g))   => 3 :key 'val)    '(g) '...g...) =>
 	    '(fake (f ...g...) => 3 :key 'val)))
 
-(deftest trivial-example-of-unchaining-a-fake
+(deftest trivial-example-of-unfolding-a-prerequisite
   (let [input-form '(fake (f (g)) => 3)]
-    (expect (unchain input-form) =>
+    (expect (unfold input-form) =>
 	      [ '(midje.semi-sweet/fake (g) midje.semi-sweet/=> ...g-value...)
 		'(fake (f ...g-value...) => 3) ]
 	    (fake (form-to-pull-out input-form) => '(g))
@@ -56,25 +50,25 @@
 	    (fake (replace-interior-function-with-metaconstant
 		    '(fake (f (g)) => 3) '(g) '...g-value...) => '(fake (f ...g-value...) => 3)))))
 
-(deftest when-unchaining-a-fake-keyword-arguments-are-pulled-into-both-result-fakes
+(deftest when-unfolding-a-prerequisite-keyword-arguments-are-pulled-into-both-resulting-prerequisites
   (let [input-form '(fake (f (g)) => 3 :key 'value)]
-    (expect (unchain input-form) =>
+    (expect (unfold input-form) =>
 	      [ '(midje.semi-sweet/fake (g) midje.semi-sweet/=> ...g-value... :key 'value)
 		'(fake (f ...g-value...) => 3 :key 'value) ]
 	      (fake (form-metaconstant '(g)) => '...g-value...))))
 	      
-(declare ...first-fake-link... ...second-fake-link...)
-(deftest replacing-a-fake-with-two-fakes-example
+(declare ...first-unfolded... ...second-unfolded...)
+(deftest replacing-a-prerequisite-with-the-unfolded-version
   (let [input-form '(x (fake (f (g 1)) => 3 :key 'value) y)
         loc (-> input-form zip/seq-zip zip/down zip/right)]
-    (assert (at-chained-fake? loc))
+    (assert (at-folded-prerequisite? loc))
     ;; result
-    (expect (zip/root (replace-with-two-links__stay_put loc)) =>
-	    '(x (fake ...first-fake-link...) (fake ...second-fake-link...) y)
-	    (fake (unchain '(fake (f (g 1)) => 3 :key 'value)) =>
-		  '[(fake ...first-fake-link...) (fake ...second-fake-link...)]))
+    (expect (zip/root (replace-with-two-prerequisites__stay_put loc)) =>
+	    '(x (fake ...first-unfolded...) (fake ...second-unfolded...) y)
+	    (fake (unfold '(fake (f (g 1)) => 3 :key 'value)) =>
+		  '[(fake ...first-unfolded...) (fake ...second-unfolded...)]))
     ;; Location
-    (expect (zip/node (replace-with-two-links__stay_put loc)) =>
-	    '(fake ...first-fake-link...)
-	    (fake (unchain '(fake (f (g 1)) => 3 :key 'value)) =>
-		  '[(fake ...first-fake-link...) (fake ...second-fake-link...)]))))
+    (expect (zip/node (replace-with-two-prerequisites__stay_put loc)) =>
+	    '(fake ...first-unfolded...)
+	    (fake (unfold '(fake (f (g 1)) => 3 :key 'value)) =>
+		  '[(fake ...first-unfolded...) (fake ...second-unfolded...)]))))

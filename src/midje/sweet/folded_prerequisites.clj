@@ -1,10 +1,8 @@
-(ns midje.sweet.chained-fakes
+(ns midje.sweet.folded-prerequisites
   (:use midje.semi-sweet)
   (:use midje.sweet.util)
   (:require [clojure.zip :as zip])
   )
-
-(only-mocked replace-with-two-links)
 
 (defn form-metaconstant [inner-form]
   (symbol (format "...%s-link..." (first inner-form)))
@@ -21,7 +19,7 @@
     (one-level-replacement fake-form new-interior)))
 
 
-(defn unchain [ [fake call-part => result-part & keypairs :as fake-form] ]
+(defn unfold [ [fake call-part => result-part & keypairs :as fake-form] ]
   (let [interior-form (form-to-pull-out fake-form)
 	placeholder (form-metaconstant interior-form)]
     [ `(fake ~interior-form => ~placeholder ~@keypairs)
@@ -33,11 +31,7 @@
     (not (= 'quote symbol))))
 
 (defn looks-like-a-function-call? [loc first-symbol-validity-test]
-;  (println "looks-like-a-function-call?" loc)
   (when-let [tree (and loc (zip/node loc))]
-;    (println "does this look like a function call? " tree)
-;    (println (type tree))
-;    (println (list? tree))
     (and tree
 	 (or (list? tree) (= (type tree) clojure.lang.Cons))
 	 (-> tree first) 
@@ -48,11 +42,10 @@
   ([loc]
      (nested-function-like-list loc (fn [symbol] true)))
   ([loc first-symbol-validity-test]
-;     (println "Processing: " (and loc (zip/node loc)))
      (when (looks-like-a-function-call? loc first-symbol-validity-test)
        (-> loc zip/down zip/right))))
 
-(defn at-chained-fake? [loc]
+(defn at-folded-prerequisite? [loc]
   (-> loc
       ;; (fake ...) or something else
       (nested-function-like-list (fn [loc] (namespacey-match '(fake) loc)))
@@ -61,12 +54,10 @@
       ;; (g ...) or nil
       (looks-like-a-function-call? true-function-symbol?)))
 
-(defn replace-with-two-links__stay_put [fake-loc]
-;  (println "replacing" (zip/node fake-loc))
-  (let [replacements (unchain (zip/node fake-loc))
+(defn replace-with-two-prerequisites__stay_put [fake-loc]
+  (let [replacements (unfold (zip/node fake-loc))
 	replace-with-first (fn [loc] (zip/replace loc (first replacements)))
 	append-second (fn [loc] (zip/insert-right loc (second replacements)))]
-;    (println "with" (zip/node replacements))
     (-> fake-loc replace-with-first append-second)))
 
 (defn rewrite [form]
@@ -76,8 +67,7 @@
       (recur (zip/next (cond (not (zip/branch? loc))
 			     loc
 			     
-			     (at-chained-fake? loc)
-			     (replace-with-two-links__stay_put loc)
+			     (at-folded-prerequisite? loc)
+			     (replace-with-two-prerequisites__stay_put loc)
 			     
 			     :else loc))))))
-	
