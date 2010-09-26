@@ -1,12 +1,19 @@
-
 ;;; midje-mode.el --- Minor mode for Midje tests
 ;;
-;; I use these indentation settings for the two main Midje constructs:
-;;
+;; This is a minor mode designed to be used with clojure-mode.el and slime.el
+
+;; What's in my .emacs file:
 ;; (eval-after-load 'clojure-mode
 ;;   '(define-clojure-indent
 ;;      (fact 'defun)
 ;;      (provided 0)))
+
+;; (require 'clojure-mode)
+;; (add-to-list 'auto-mode-alist '("\\.clj$" . clojure-mode))
+;; (require 'midje-mode)
+;; (add-hook 'clojure-mode-hook 'midje-mode)
+;; (require 'clojure-jump-to-file)
+
 
 (require 'clojure-mode)
 (require 'slime)
@@ -40,7 +47,7 @@
   "Return text of nearest identifier."
   (when (not midje-syntax-table)
     (setq midje-syntax-table (make-syntax-table (syntax-table)))
-    (modify-syntax-entry ?- "w"))
+    (modify-syntax-entry ?- "w" midje-syntax-table))
 
   (save-excursion 
     (with-syntax-table midje-syntax-table
@@ -89,10 +96,11 @@
     (save-restriction
       (widen)
       (let ((identifier (midje-identifier)))
-	(unless (midje-at-start-of-identifier?) (backward-word))
-	(kill-word nil)
-	(midje-tidy-unfinished)
-	identifier))))
+	(with-syntax-table midje-syntax-table
+	  (unless (midje-at-start-of-identifier?) (backward-word))
+	  (kill-word nil)
+	  (midje-tidy-unfinished)
+	  identifier)))))
 
 (defun midje-add-defn-after-unfinished (identifier)
   (widen)
