@@ -17,6 +17,7 @@
 (defvar midje-comments ";.;.")
 (defvar last-checked-midje-fact nil)
 (defvar midje-fact-regexp "^(facts?\\([[:space:]]\\|$\\)")
+(defvar midje-syntax-table nil)
 
 ;; Callbacks
 (defun midje-insert-above-fact (result)
@@ -31,6 +32,82 @@
 )
 
 ;; Util
+
+(defun midje-at-start-of-identifier? ()
+  (not (string= (string (char-syntax (char-before))) "w")))
+
+(defun midje-identifier ()
+  "Return text of nearest identifier."
+  (when (not midje-syntax-table)
+    (setq midje-syntax-table (make-syntax-table (syntax-table)))
+    (modify-syntax-entry ?- "w"))
+
+  (save-excursion 
+    (with-syntax-table midje-syntax-table
+      (let ((beg (if (midje-at-start-of-identifier?)
+		     (point)
+		   (progn (backward-word) (point)))))
+	(forward-word)
+	(buffer-substring-no-properties beg (point))))))
+
+(defun midje-to-unfinished ()
+  (goto-char (point-min))
+  (search-forward "(unfinished"))
+
+(defun midje-within-unfinished? () 
+  (let ((target (point))
+	 unfinished-beg
+	 unfinished-end)
+    (save-excursion
+      (save-restriction
+	(midje-to-unfinished)
+	(beginning-of-defun)
+	(setq unfinished-beg (point))
+	(end-of-defun)
+	(setq unfinished-end (point))
+	(and (>= target unfinished-beg)
+	     (<= target unfinished-end))))))
+
+(defun midje-tidy-unfinished ()
+  (midje-to-unfinished) (let ((fill-prefix "")) (fill-paragraph nil))
+  (midje-to-unfinished)
+  (beginning-of-defun)
+  (let ((beg (point)))
+    (end-of-defun)
+    (indent-region beg (point))))
+
+(defun midje-add-identifier-to-unfinished-list (identifier)
+  (save-excursion
+    (save-restriction
+      (widen)
+      (midje-to-unfinished) (insert " ") (insert identifier)
+      (slime-compile-defun)
+      (midje-tidy-unfinished))))
+
+(defun midje-remove-identifier-from-unfinished-list ()
+  (save-excursion
+    (save-restriction
+      (widen)
+      (let ((identifier (midje-identifier)))
+	(unless (midje-at-start-of-identifier?) (backward-word))
+	(kill-word nil)
+	(midje-tidy-unfinished)
+	identifier))))
+
+(defun midje-add-defn-after-unfinished (identifier)
+  (widen)
+  (end-of-defun)
+  (newline-and-indent)
+  (insert "(defn ")
+  (insert identifier)
+  (insert " [])")
+  (newline-and-indent)
+  (newline-and-indent)
+  (insert "(fact \"\")")
+  (newline-and-indent)
+  (search-backward "[]")
+  (forward-char))
+
 (defun midje-provide-result-info (result)
   (destructuring-bind (output value) result
     (if (string= output "")
@@ -162,6 +239,12 @@ nearby Clojure form and recheck the last fact checked
   (midje-hide-all-facts)
   (hs-show-block))
 
+(defun midje-unfinished ()
+  (interactive)
+  (if (midje-within-unfinished?) 
+      (midje-add-defn-after-unfinished (midje-remove-identifier-from-unfinished-list))
+    (midje-add-identifier-to-unfinished-list (midje-identifier))))
+
 (defvar midje-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c ,") 'midje-check-fact)
@@ -175,6 +258,9 @@ nearby Clojure form and recheck the last fact checked
 
     (define-key map (kbd "C-c n") 'midje-next-fact)
     (define-key map (kbd "C-c p") 'midje-previous-fact)
+
+    (define-key map (kbd "C-c u") 'midje-unfinished)
+
     map)
   "Keymap for Midje mode.")
 
