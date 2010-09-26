@@ -81,7 +81,7 @@
     (save-restriction
       (widen)
       (midje-to-unfinished) (insert " ") (insert identifier)
-      (slime-compile-defun)
+      (slime-interactive-eval (concat "(unfinished " identifier ")"))
       (midje-tidy-unfinished))))
 
 (defun midje-remove-identifier-from-unfinished-list ()
