@@ -26,8 +26,12 @@
 
 
 
-(deftest first-form-metaconstant-for-a-function-symbol-example
-  (expect (form-metaconstant '(g)) => '...g-link...))
+(deftest metaconstants-for-a-function-symbol-example
+  (with-count-atom
+    (expect (form-metaconstant '(g)) => '...g-value-1...) ; Revenge of the English major!
+    (expect (form-metaconstant '(g)) => '...g-value-2...)
+    (expect (form-metaconstant '(h)) => '...h-value-1...)))
+
      
 (deftest pull-out-simple-folded-prerequisite-example
   (expect (form-to-pull-out '(fake (f (g)) => 3)) => '(g)))

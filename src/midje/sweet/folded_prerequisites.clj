@@ -4,9 +4,16 @@
   (:require [clojure.zip :as zip])
   )
 
+(def *unfolded-prerequisite-counts*)
+
 (defn form-metaconstant [inner-form]
-  (symbol (format "...%s-link..." (first inner-form)))
-  )
+  (let [name (first inner-form)
+	swap-fn (fn [current-value name]
+		  (if (current-value name)
+		    (assoc current-value name (inc (current-value name)))
+		    (assoc current-value name 1)))
+	number ((swap! *unfolded-prerequisite-counts* swap-fn name) name)]
+    (symbol (format "...%s-value-%s..." name number))))
 
 (defn form-to-pull-out [fake-form]
   (-> fake-form second second))
@@ -60,14 +67,20 @@
 	append-second (fn [loc] (zip/insert-right loc (second replacements)))]
     (-> fake-loc replace-with-first append-second)))
 
+(defmacro with-count-atom [& forms]
+  `(binding [*unfolded-prerequisite-counts* (atom {})]
+     ~@forms))
+
 (defn rewrite [form]
-  (loop [loc (zip/seq-zip form)]
-    (if (zip/end? loc)
-      (zip/root loc)
-      (recur (zip/next (cond (not (zip/branch? loc))
-			     loc
-			     
-			     (at-folded-prerequisite? loc)
-			     (replace-with-two-prerequisites__stay_put loc)
-			     
-			     :else loc))))))
+  (with-count-atom 
+    (loop [loc (zip/seq-zip form)]
+      (if (zip/end? loc)
+	(zip/root loc)
+	(recur (zip/next (cond (not (zip/branch? loc))
+			       loc
+			       
+			       (at-folded-prerequisite? loc)
+			       (replace-with-two-prerequisites__stay_put loc)
+			       
+			       :else loc)))))))
+  

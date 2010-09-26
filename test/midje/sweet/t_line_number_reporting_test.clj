@@ -53,6 +53,7 @@
 (defn favorite-animal-empty [] )
 (defn favorite-animal-only-animal [] (favorite-animal))
 (defn favorite-animal-only-name [] (name "fred"))
+(defn favorite-animal-one-call [] (name (favorite-animal 1)))
 
 (deftest unfolding-expectations-examples
   (after
@@ -62,7 +63,7 @@
        (name (favorite-animal)) => "betsy"))
    (is (no-failures?)))
 
-  (def line-number 65)
+  (def line-number 66)
   (after
    (fact
      (favorite-animal-empty) => "betsy"
@@ -73,7 +74,7 @@
 		       :position ["t_line_number_reporting_test.clj" (+ line-number 5)]}
 		      {:type :mock-incorrect-call-count
 		       :position ["t_line_number_reporting_test.clj" (+ line-number 5)]
-		       :expected-call "(name ...favorite-animal-link...)" }
+		       :expected-call "(name ...favorite-animal-value-1...)" }
 		      {:type :mock-expected-result-failure
 		       :position ["t_line_number_reporting_test.clj" (+ line-number 3)]}])))
 		       
@@ -96,7 +97,19 @@
 		     {:type :mock-incorrect-call-count
 		      :expected-call "(favorite-animal)"}
 		     {:type :mock-incorrect-call-count
-		      :expected-call "(name ...favorite-animal-link...)"}
+		      :expected-call "(name ...favorite-animal-value-1...)"}
 		     {:type :mock-expected-result-failure}])))
-)
 
+
+  (after
+   (fact
+     (favorite-animal-one-call) => "betsy"
+     (provided
+       (name (favorite-animal 1)) => "betsy"
+       (name (favorite-animal 2)) => "jake"))
+   (is (reported? 3 [{:type :mock-incorrect-call-count
+		      :expected-call "(favorite-animal 2)"}
+		     {:type :mock-incorrect-call-count
+		      :expected-call "(name ...favorite-animal-value-2...)"}
+		     {:type :pass}])))
+)
