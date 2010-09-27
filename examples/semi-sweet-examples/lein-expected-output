@@ -11,7 +11,7 @@ expected function: odd?
 FAIL at (core_test.clj:40)
 Actual result did not pass expected function.
 expected function: (exactly odd?)
-    actual result: #<core$even_QMARK_ clojure.core$even_QMARK_@31ca1a68>
+    actual result: #<core$even_QMARK_ clojure.core$even_QMARK_@56f052d5>
 ^^^^ The previous failure was expected ^^^^
 FAIL at (core_test.clj:51)
 Actual result did not pass expected function.
@@ -22,5 +22,5 @@ FAIL for (core_test.clj:78)
 This expectation was never satisfied:
 (first-fake 3) should be called at least once.
 ^^^^ The previous failure was expected ^^^^
-Ran 11 tests containing 13 assertions.
+Ran 11 tests containing 14 assertions.
 5 failures, 0 errors.

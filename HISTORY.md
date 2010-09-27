@@ -1,4 +1,4 @@
-= 0.6.0
+= 0.6.0 (stable)
 * Can "unfold" nested function calls in provided facts, so
   that (f (g 1)) produces two mock calls, the first of which
   returns a metaconstant that the second expects.
@@ -6,7 +6,7 @@
 * midje-mode.el provides a smooth workflow for those 
   who use slime/swank.
 
-= 0.5.0 (stable)
+= 0.5.0
 * Line numbers almost always point to the line that provoked
   the error (one of the lines with => on them).
 * The in-any-order checker should work correctly.

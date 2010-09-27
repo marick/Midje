@@ -65,7 +65,7 @@
 
 ;; There are a number of matching functions available. You can find them all with 
 ;;            (ns-publics (40 'midje.checkers))
-;; They have doc strings.
+;; They have doc strings. Or you can look at the wiki: http://github.com/marick/Midje/wiki/Checkers
 ;; Here's one of them:
 
 (fact
@@ -106,7 +106,8 @@
  (alive-in-next-generation? ...cell...) => truthy
    (provided 
     (alive? ...cell...) => false
-    (neighbor-count ...cell...) => 3))                                         (note-expected-failure)
+    (neighbor-count ...cell...) => 3))
+(println "^^^^ The previous three failures were expected ^^^^")
 
 ;; Notes:
 ;; ...cell... : I use this shorthand to represent some 
@@ -119,32 +120,34 @@
 ;;              functions. It accepts any value other than
 ;;              false or nil.
 ;;
-;; provided   : Provided gives a list of facts the original
+;; provided   : Provided gives a list of prerequisites the original
 ;;              fact depends upon. (Note that the "provided"
 ;;              form isn't within the original claim, but follows
 ;;              just after it.  
 
 ;; When the fact is checked, it will fail like this:
 
-;;     FAIL for (core_test.clj:92)
-;;     This expectation was never satisfied:
-;;     (alive? ...cell...) should be called at least once.
+;; FAIL for (core_test.clj:108)
+;; This expectation was never satisfied:
+;; (alive? ...cell...) should be called at least once.
+;;
+;; FAIL for (core_test.clj:109)
+;; This expectation was never satisfied:
+;; (neighbor-count ...cell...) should be called at least once.
+;;
+;; FAIL at (core_test.clj:106)
+;; Actual result did not pass expected function.
+;; expected function: truthy
+;; actual result: nil
 
-;; The message isn't the greatest -- it should probably say something
-;; about a fact never being used -- and it will probably change in the
-;; future.
+;; The messages aren't the greatest because they're the ones from the
+;; semi-sweet style. I haven't yet written the code to allow sweet to
+;; have different messages.
 
-;; If you rerun this test, you'll find that the line number in the 
-;; actual error will point to the line where the fact begins, not to
-;; the line line containing (alive? ...cell...). This will be improved
-;; in later versions, but it can't be made as exact as we'd wish.
+;; To use a prerequisite function in the function you're writing,
+;; you have to declare it. I usually use this macro for that:
 
-;; Notice that we didn't have to declare either alive? or
-;; neighbor-count. Midje takes care of that. However, we have to do
-;; that as soon as we fill in the body of the
-;; alive-in-next-generation? I usually use this macro for that:
-
-(only-mocked alive? neighbor-count)
+(unfinished alive? neighbor-count)
 
 ;; It defines its arguments as functions that blow up spectacularly if
 ;; they're ever called, which adds a little clarity if you forget to
@@ -154,7 +157,7 @@
 ;; You can mention a particular unimplemented function more than once,
 ;; giving it a different argument each time:
 
-(only-mocked g)
+(unfinished g)
 
 (defn g-adder [n1 n2]
   (+ (g n1) (g n2)))
@@ -170,7 +173,7 @@
 ;; result. That means you can use single-argument matching functions
 ;; and you must use (exactly) to match a functional argument.
 
-(only-mocked first-subfunction another-subfunction)
+(unfinished first-subfunction another-subfunction)
   
 (defn function-under-test []
   (+ (first-subfunction 1 2 '(a blue cow))
@@ -183,4 +186,34 @@
 
 ;; The return values of a subfunction don't follow the rules for 
 ;; arguments. They're literal constant values.
+
+;; I often find myself with one prerequisite that returns a data structure
+;; that's immediately given to another one. That would look like this:
+
+(unfinished property-of data-structure)
+(defn function-under-test []
+  (property-of (data-structure)))
+
+(fact
+  (function-under-test) => 3
+  (provided
+    (data-structure) => ...data-structure...
+    (property-of ...data-structure...) => 3))
+    
+;; I use a metaconstant for the data structure because I don't care to
+;; commit myself to an exact format yet.
+;;
+;; Because this form is so common, you're allowed to "fold" the two
+;; prerequisites together:
+
+(defn function-under-test [] 3) ; so we get failures.
+
+(fact
+  (function-under-test) => 3
+  (provided
+    (property-of (data-structure)) => 3))
+(println "^^^^ The previous two failures were expected ^^^^")
+
+;; Notice that one of the failures refers to a generated metaconstant,
+;; ...data-structure-value-1...
 

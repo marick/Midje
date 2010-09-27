@@ -13,7 +13,7 @@ expected function: odd?
 FAIL at (core_test.clj:59)
 Actual result did not pass expected function.
 expected function: (exactly odd?)
-    actual result: #<core$even_QMARK_ clojure.core$even_QMARK_@40537935>
+    actual result: #<core$even_QMARK_ clojure.core$even_QMARK_@307b37df>
 ^^^^ The previous failure was expected ^^^^
 
 FAIL at (core_test.clj:73)
@@ -25,7 +25,25 @@ expected function: (in-any-order [1 2 3])
 FAIL for (core_test.clj:108)
 This expectation was never satisfied:
 (alive? ...cell...) should be called at least once.
-^^^^ The previous failure was expected ^^^^
+
+FAIL for (core_test.clj:109)
+This expectation was never satisfied:
+(neighbor-count ...cell...) should be called at least once.
+
+FAIL at (core_test.clj:106)
+Actual result did not pass expected function.
+expected function: truthy
+    actual result: nil
+^^^^ The previous three failures were expected ^^^^
+
+FAIL for (core_test.clj:214)
+This expectation was never satisfied:
+(data-structure) should be called at least once.
+
+FAIL for (core_test.clj:214)
+This expectation was never satisfied:
+(property-of ...data-structure-value-1...) should be called at least once.
+^^^^ The previous two failures were expected ^^^^
 
 Testing basic.core-test
 

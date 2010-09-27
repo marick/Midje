@@ -10,5 +10,5 @@
      [hiccup "0.2.6"]]
   :dev-dependencies
   [[lein-run "1.0.0-SNAPSHOT"]
-   [midje "0.5.0"]
+   [midje "0.6.0"]
    ])
