@@ -33,9 +33,10 @@
       (replace-interior-function-with-metaconstant fake-form interior-form placeholder) ]))
 
 
-(defn- true-function-symbol? [loc]
+(defn- mockable-function-symbol? [loc]
   (let [symbol (zip/node loc)]
-    (not (= 'quote symbol))))
+    (not (or (= 'quote symbol)
+	     (:midje/checker (meta (resolve symbol)))))))
 
 (defn looks-like-a-function-call? [loc first-symbol-validity-test]
   (when-let [tree (and loc (zip/node loc))]
@@ -59,7 +60,7 @@
       ;; (f ...) or nil
       nested-function-like-list
       ;; (g ...) or nil
-      (looks-like-a-function-call? true-function-symbol?)))
+      (looks-like-a-function-call? mockable-function-symbol?)))
 
 (defn replace-with-two-prerequisites__stay_put [fake-loc]
   (let [replacements (unfold (zip/node fake-loc))

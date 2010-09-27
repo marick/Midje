@@ -15,6 +15,8 @@
     (expect (run '(midje.semi-sweet/fake (f '(l)) => 3)) => falsey)
     (expect (run '(midje.semi-sweet/fake (f [l]) => 3)) => falsey)
     (expect (run '(midje.semi-sweet/fake (f {a 1}) => 3)) => falsey)
+    (expect (run '(midje.semi-sweet/fake
+		   (f (midje.util.checkers/in-any-order [1 2 3])) => 33)) => falsey)
     ;; This next is surprisingly hard to get right.
     ;; Note also that (currently) symbols-in-the-function-slot don't
     ;; have to predefined to be faked, which is another case to worry about.
