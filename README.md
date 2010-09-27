@@ -94,6 +94,9 @@ function that does the actual work is `expect*`. Its
 first argument is the map in the `call-being-tested` format,
 followed by zero or more maps in the `fake` format.
 
-# Mailing list 
+# Community
 
-[Here](http://groups.google.com/group/midje)
+[The mailing list](http://groups.google.com/group/midje)
+
+The [wiki](http://github.com/marick/Midje/wiki) is growing documentation about such things as
+Emacs support and details of use.
