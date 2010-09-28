@@ -81,7 +81,7 @@ You can [download everything](http://github.com/marick/Midje/downloads) to get m
 # Documentation #
 
 * [This heavily annotated example](http://github.com/marick/Midje/blob/master/examples/sweet-examples/basic/test/basic/core_test.clj)
-  of the sweet style is the place to look.
+  of the sweet style is the place to look. Also see the [wiki](http://github.com/marick/Midje/wiki).
 
 * [Another example](http://github.com/marick/Midje/blob/master/examples/semi-sweet-examples/test/semi_sweet_simple/core_test.clj) contains
 complete descriptions of the semi-sweet style.
