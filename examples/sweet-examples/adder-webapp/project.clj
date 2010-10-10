@@ -9,6 +9,6 @@
      [compojure "0.4.0"]
      [hiccup "0.2.6"]]
   :dev-dependencies
-  [[lein-run "1.0.0-SNAPSHOT"]
-   [midje "0.6.0"]
+  [[lein-run "1.0.0"]
+   [midje "0.6.1"]
    ])
