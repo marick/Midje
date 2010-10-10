@@ -1,4 +1,7 @@
-= 0.6.0 (stable)
+= 0.6.1 (stable)
+* Midje-mode is (more) compatible with clojure-test-mode.
+
+= 0.6.0 
 * Can "unfold" nested function calls in provided facts, so
   that (f (g 1)) produces two mock calls, the first of which
   returns a metaconstant that the second expects.
