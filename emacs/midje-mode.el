@@ -256,6 +256,7 @@ nearby Clojure form and recheck the last fact checked
 (defvar midje-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c ,") 'midje-check-fact)
+    (define-key map (kbd "C-c .") 'midje-check-fact)
     (define-key map (kbd "C-c C-,") 'midje-check-fact-near-point)
     (define-key map (kbd "C-c C-.") 'midje-recheck-last-fact-checked)
     (define-key map (kbd "C-c k")   'midje-clear-comments)
