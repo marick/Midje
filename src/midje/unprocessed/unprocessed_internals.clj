@@ -4,6 +4,7 @@
         clojure.contrib.error-kit
         midje.util.report
 	)
+  (:require [clojure.zip :as zip])
 )
 
 (defn pairs [first-seq second-seq]
@@ -11,7 +12,10 @@
 
 (defn eagerly [value]
   (if (seq? value)
-    (doall value)
+    (loop [loc (zip/seq-zip value)]  ;; touch every node
+      (if (zip/end? loc)
+	(zip/root loc)
+	(recur (zip/next loc))))
     value))
 
 (defn matching-args? [actual-args matchers]

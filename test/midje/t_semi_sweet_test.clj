@@ -227,3 +227,17 @@
   (expect (set-handler 'set 'overlapping-set) => #{'intersection}
 	  (fake (intersection 'set 'overlapping-set) => #{'intersection}))
 )
+
+
+;; This test is rather indirect. The function under test returns a lazy seq
+;; embedded within a top-level list. If the whole tree isn't evaluated, the
+;; test will fail because the fake is never called. (Because fake results are
+;; checked before final results, since that results in nicer output.)
+
+(def testfun)
+(defn lazy-seq-not-at-top-level []
+  (list (map (fn [n] (testfun n)) [1])))
+
+(deftest entire-trees-are-eagerly-evaluated
+  (expect (lazy-seq-not-at-top-level) => '((32))
+	  (fake (testfun 1) => 32)))
