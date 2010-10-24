@@ -7,6 +7,7 @@
   you at the top level. As with any other identifier used in
   code, they must be defined before use. The unfinished macro
   is good for that.
+* Added a leiningen plugin to get tidy test reports.
   
 = 0.6.1 (stable)
 * Midje-mode is (more) compatible with clojure-test-mode.
