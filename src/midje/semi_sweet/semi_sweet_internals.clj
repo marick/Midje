@@ -25,7 +25,8 @@
 (defn make-expectation-map 
   [var-sym special-to-expectation-type user-override-pairs]
   `(do
-     ~(when-not (resolve var-sym) `(def ~var-sym))
+;; Trying out forcing fakes to be declared before use, not *by* use.
+;     ~(when-not (resolve var-sym) `(def ~var-sym))
      ~(merge
        (common-to-all-expectations var-sym)
        special-to-expectation-type

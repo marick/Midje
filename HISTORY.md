@@ -1,3 +1,13 @@
+= 0.6.2
+* Does a better job forcing seqs in the result to fully calculate
+  themselves.
+* Emacs midje-mode is a little smarter about what a Clojure
+  identifier is (for M-x midje-unfinished)
+* Incompatible change: Midje no longer defines fakes for 
+  you at the top level. As with any other identifier used in
+  code, they must be defined before use. The unfinished macro
+  is good for that.
+  
 = 0.6.1 (stable)
 * Midje-mode is (more) compatible with clojure-test-mode.
 

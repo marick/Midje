@@ -37,7 +37,7 @@
   (is (falsey (matching-args? ['() 1] [seq? seq?])))
 )
 
-
+(declare f g)
 (deftest unique-function-vars-test 
   (let [expectations [ (fake (f 1) => 2)
 		       (fake (f 2) => 4)

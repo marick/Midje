@@ -2,7 +2,7 @@
   (:use [midje.util.file-position] :reload-all)
   (:use [midje.semi-sweet :only [fake]])
   (:use [clojure.test])
-  (:use [midje.test-util]))
+  (:use [midje.test-util])) 
 
 (def line-marker-1 7)
 (deftest simple-user-file-position-test []
@@ -11,7 +11,7 @@
     (is (= (+ 2 line-marker-1) (second position))))
 )
 
-(def line-marker-2 (+ line-marker-1 7))
+(def line-marker-2 (+ line-marker-1 7)) (declare f)
 (deftest one-level-macro-file-position-test []
   (let [expectation (fake (f 1) => 33)
 	position (:file-position expectation)]
