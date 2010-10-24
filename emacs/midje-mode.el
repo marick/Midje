@@ -47,7 +47,9 @@
   "Return text of nearest identifier."
   (when (not midje-syntax-table)
     (setq midje-syntax-table (make-syntax-table (syntax-table)))
-    (modify-syntax-entry ?- "w" midje-syntax-table))
+    (modify-syntax-entry ?- "w" midje-syntax-table)
+    (modify-syntax-entry ?? "w" midje-syntax-table)
+    (modify-syntax-entry ?! "w" midje-syntax-table))
 
   (save-excursion 
     (with-syntax-table midje-syntax-table
