@@ -9,6 +9,7 @@
   is good for that.
 * Added a leiningen plugin to get tidy test reports.
 * Chatty checkers
+* Set midje.semi-sweet/*include-midje-checks* to false to compile tests out of production code.
   
 = 0.6.1 (stable)
 * Midje-mode is (more) compatible with clojure-test-mode.

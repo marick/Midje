@@ -7,11 +7,9 @@
 (def => "=>")   ; So every namespace uses the same qualified name.
 
 (defonce
-  #^{:doc "True by default.  If set to false, no expect compiles
-   into nothing. Do that to omit tests from production code."}
-  *check* true)
-
-
+  #^{:doc "True by default.  If set to false, Midje checks are not
+     included into production code, whether compiled or loaded."}
+  *include-midje-checks* true)
 
 (defmacro only-mocked 
   "Defines a list of names as functions that have no implementation yet. They will
@@ -49,6 +47,13 @@
 )
 
 
+(defn user-desires-checking? []
+  (cond (if-let [ns (find-ns 'clojure.test)]   ;; clojure.test might not always be loaded.
+	  (not (var-get ((ns-map ns) '*load-tests*))))
+	false
+
+	:else
+	*include-midje-checks*))
 
 (defmacro expect 
   "Run the call form, check that all the mocks defined in the expectations 

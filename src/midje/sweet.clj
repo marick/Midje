@@ -14,11 +14,10 @@
 (deferror odd-test-forms [] [forms])
 
 (defmacro fact [& forms]
-  (let [runs (folded/rewrite (transform/rewrite (position/add-line-numbers forms)))]
-    ; (pprint runs)
-    (define-metaconstants runs)
-    `(every? true? (list ~@runs)))
-    )
+  (when (user-desires-checking?)
+    (let [runs (folded/rewrite (transform/rewrite (position/add-line-numbers forms)))]
+      (define-metaconstants runs)
+      `(every? true? (list ~@runs)))))
 
 (defmacro facts [& forms]
   `(fact ~@forms))

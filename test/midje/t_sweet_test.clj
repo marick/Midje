@@ -3,7 +3,6 @@
   (:use [midje.sweet] :reload-all)
   (:use [midje.test-util]))
 
-
 (deftest simple-assertion-examples
   (after 
    (fact (+ 1 1) => 3)
@@ -101,3 +100,8 @@
 (deftest issue-2-test ; http://github.com/marick/Midje/issues/#issue/2
   (fact
    (expect (always-one 5) => 1 (not-called some-fn))))
+
+(binding [midje.semi-sweet/*include-midje-checks* false]
+  (load "sweet_compile_out"))
+
+  

@@ -271,8 +271,8 @@
 	  (fake (testfun 1) => 32)))
 
 (binding [clojure.test/*load-tests* false]
-  (load "semi_sweet/binding_source"))
+  (load "semi_sweet_compile_out"))
   
-(binding [midje.semi-sweet/*check* false]
-  (load "semi_sweet/binding_source"))
+(binding [midje.semi-sweet/*include-midje-checks* false]
+  (load "semi_sweet_compile_out"))
   
