@@ -60,3 +60,15 @@
      :expected-result-text-for-failures '~expected-result
      :file-position (user-file-position)}
     (midje-override-map ~overrides)))
+
+(defn user-desires-checking? []
+  (cond (if-let [ns (find-ns 'clojure.test)]   ;; clojure.test might not always be loaded.
+	  (not (var-get ((ns-map ns) '*load-tests*))))
+	false
+
+	:else
+	;; I don't want to screw around writing the code to immigrate a
+	;; single var from this namespace into midje.semi-sweet.
+	(var-get ((ns-map (find-ns 'midje.semi-sweet)) '*check*))))
+
+

@@ -270,6 +270,9 @@
   (expect (lazy-seq-not-at-top-level) => '((32))
 	  (fake (testfun 1) => 32)))
 
-;; (deftest obeys-clojure-test-load-tests-var
-;;   (binding [clojure.test/*load-tests* false]
-;;     (expect (+ 1 1) => 333)))
+(binding [clojure.test/*load-tests* false]
+  (load "semi_sweet/binding_source"))
+  
+(binding [midje.semi-sweet/*check* false]
+  (load "semi_sweet/binding_source"))
+  

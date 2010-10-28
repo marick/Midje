@@ -6,6 +6,13 @@
 
 (def => "=>")   ; So every namespace uses the same qualified name.
 
+(defonce
+  #^{:doc "True by default.  If set to false, no expect compiles
+   into nothing. Do that to omit tests from production code."}
+  *check* true)
+
+
+
 (defmacro only-mocked 
   "Defines a list of names as functions that have no implementation yet. They will
    throw Errors if ever called."
@@ -47,9 +54,12 @@
   "Run the call form, check that all the mocks defined in the expectations 
    (probably with 'fake') have been satisfied, and check that the actual
    results are as expected. If the expected results are a function, it
-   will be called with the actual result as its single argument."
+   will be called with the actual result as its single argument.
+
+   To strip tests from production code, set either clojure.test/*load-tests*
+   or midje.semi-sweet/*check* to false."
   [call-form => expected-result & overrides-and-expectations]
-  (let [ [overrides expectations] (separate overrides-and-expectations)]
-    `(let [call# (call-being-tested ~call-form ~expected-result ~overrides)]
-       (expect* call# (vector ~@expectations))))
-)
+  (when (user-desires-checking?)
+    (let [ [overrides expectations] (separate overrides-and-expectations)]
+      `(let [call# (call-being-tested ~call-form ~expected-result ~overrides)]
+	 (expect* call# (vector ~@expectations))))))
