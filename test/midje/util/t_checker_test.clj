@@ -83,7 +83,3 @@
     (is (chatty-checker? (actual-plus-one-greater-than 5)))
     (is (= true ((actual-plus-one-greater-than 5) 5)))
     (is (chatty-checker-falsehood? ((actual-plus-one-greater-than 5) 4)))))
-
-
-(println "===================== Checkers in mock arguments")
-    

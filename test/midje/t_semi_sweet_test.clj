@@ -227,7 +227,14 @@
 			 :actual 2
 			 :actual-processor #'inc
 			 :processed-actual 3
-			 :expected '( (chatty-checker (> (inc actual) expected)) 33)} ]))))
+			 :expected '( (chatty-checker (> (inc actual) expected)) 33)} ])))
+  (one-case "chatty checkers can be used in fakes"
+    (let [faked 'unimportant
+	  function-under-test (fn [x] (faked x))]
+      (expect (function-under-test 5) => "hello"
+	      (fake (faked (actual-plus-one-is-greater-than 5))) => "hello"))
+     (is (no-failures?))))
+
 
 (deftest fake-function-from-other-ns
   (let [myfun (fn [x] (list x))]
