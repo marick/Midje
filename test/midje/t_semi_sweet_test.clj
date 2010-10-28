@@ -210,6 +210,25 @@
      (is (no-failures?)))
   )
 
+
+
+(def actual-plus-one-is-greater-than (chatty-checker (> (inc actual) expected)))
+(deftest chatty-function-awareness-test
+  (one-case "chatty failures provide extra information"
+     (expect (+ 1 1) => (actual-plus-one-is-greater-than 33))
+     (is (reported? 1 [ {:type :mock-expected-result-functional-failure
+			 :actual 2
+			 :actual-processor #'inc
+			 :processed-actual 3
+			 :expected '(actual-plus-one-is-greater-than 33)} ])))
+  (one-case "chatty checkers can be used inline"
+     (expect (+ 1 1) => ( (chatty-checker (> (inc actual) expected)) 33))
+     (is (reported? 1 [ {:type :mock-expected-result-functional-failure
+			 :actual 2
+			 :actual-processor #'inc
+			 :processed-actual 3
+			 :expected '( (chatty-checker (> (inc actual) expected)) 33)} ]))))
+
 (deftest fake-function-from-other-ns
   (let [myfun (fn [x] (list x))]
     (expect (myfun 1) => :list-called

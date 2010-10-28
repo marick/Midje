@@ -55,3 +55,31 @@
 	    (= message (.getMessage (wrapped-throwable captured-exception-key))))))
 )
      
+
+(defn tag-as-chatty-falsehood [value]
+  (with-meta value {:midje/chatty-checker-falsehood true}))
+  
+(defn chatty-checker-falsehood? [value]
+  (:midje/chatty-checker-falsehood (meta value)))
+
+(defn chatty-checker? [fn]
+  (:midje/chatty-checker (meta fn)))
+
+(defn chatty-checker*
+  "Create a function that returns either true or a detailed description of a failure."
+  [actual-processor final-comparison]
+  (with-meta (fn [expected]
+	       (with-meta (fn [actual]
+			    (let [processed-actual (actual-processor actual)]
+			      (if (final-comparison processed-actual expected)
+				true
+				(tag-as-chatty-falsehood {:actual actual,
+							  :actual-processor actual-processor
+							  :processed-actual processed-actual}))))
+		 {:midje/chatty-checker true}))
+    {:midje/checker true}))
+
+(defmacro chatty-checker
+  [ [ final-comparison [actual-processor actual-placeholder] expected-placeholder] ]
+  "Create a function that returns either true or a detailed description of a failure."
+  `(chatty-checker* (var ~actual-processor) (var ~final-comparison)))

@@ -59,4 +59,31 @@
   (one-case "detects incorrect message"
      (expect (throw-exception "throws Error") => (throws Error "bye"))
      (is (reported? 1 [{:type :mock-expected-result-functional-failure}])))
-)
+  )
+
+(deftest chatty-utility-tests
+  (is (chatty-checker-falsehood? (tag-as-chatty-falsehood [5]))))
+
+(deftest chatty-checker-function-test
+  (let [actual-plus-one-equals (chatty-checker* #'inc #'=)]
+    (is (chatty-checker? (actual-plus-one-equals 4)))
+    (is (= true ((actual-plus-one-equals 4) 3)))
+    (let [result ((actual-plus-one-equals 4) 4)]
+      (is (chatty-checker-falsehood? result))
+      (is (= {:actual 4
+	      :actual-processor #'inc
+	      :processed-actual 5}
+	     result))))
+  (let [actual-plus-one-greater-than (chatty-checker* #'inc #'>)]
+    (is (= true ((actual-plus-one-greater-than 5) 5)))
+    (is (chatty-checker-falsehood? ((actual-plus-one-greater-than 5) 4)))))
+
+(deftest chatty-checker-macro-test
+  (let [actual-plus-one-greater-than (chatty-checker (> (inc actual) expected))]
+    (is (chatty-checker? (actual-plus-one-greater-than 5)))
+    (is (= true ((actual-plus-one-greater-than 5) 5)))
+    (is (chatty-checker-falsehood? ((actual-plus-one-greater-than 5) 4)))))
+
+
+(println "===================== Checkers in mock arguments")
+    

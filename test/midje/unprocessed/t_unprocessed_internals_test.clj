@@ -81,4 +81,6 @@
 (deftest function-aware-equality-test
   (is (falsey (function-aware-= 1 2)))
   (is (truthy (function-aware-= 1 odd?)))
+  (let [checker (chatty-checker (> (inc actual) expected))]
+    (is (falsey (function-aware-= 5 ((checker 5) 4)))))
 )

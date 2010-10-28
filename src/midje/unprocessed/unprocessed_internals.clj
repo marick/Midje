@@ -3,6 +3,7 @@
 	clojure.test
         clojure.contrib.error-kit
         midje.util.report
+	[midje.util.checkers :only [chatty-checker-falsehood? chatty-checker?]]
 	)
   (:require [clojure.zip :as zip])
 )
@@ -69,7 +70,8 @@
 
 (defn function-aware-= [actual expected]
   (if (fn? expected) 
-    (expected actual)
+    (let [function-result (expected actual)]
+      (if (chatty-checker-falsehood? function-result) false function-result))
     (= actual expected))
 )
 
@@ -102,21 +104,25 @@
 ;; (b) we figure out how to make fact() some meaningful unit of reporting.
 (defn check-result [actual call expectations]
   (cond (function-aware-= actual (call :expected-result))
-   	  (do (report {:type :pass})
-	      true)
+	(do (report {:type :pass})
+	    true)
+
 	(fn? (call :expected-result))
-	  (do (report {:type :mock-expected-result-functional-failure
-		       :position (call :file-position)
-		       :actual actual
-		       :expected (call :expected-result-text-for-failures) })
-	      false)
+	(do (report (merge {:type :mock-expected-result-functional-failure
+			    :position (call :file-position)
+			    :expected (call :expected-result-text-for-failures) }
+			   (if (chatty-checker? (call :expected-result))
+			     ((call :expected-result) actual)
+			     {:actual actual})))
+	    false)
+	
 	:else
-	  (do 
-	    (report {:type :mock-expected-result-failure
-		     :position (call :file-position)
-		     :actual actual
-		     :expected (call :expected-result) })
-	    false))
+	(do 
+	  (report {:type :mock-expected-result-failure
+		   :position (call :file-position)
+		   :actual actual
+		   :expected (call :expected-result) })
+	  false))
 )
 
 (defmacro capturing-exception [form]
