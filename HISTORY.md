@@ -1,4 +1,4 @@
-= 0.6.2
+= 0.7.0
 * Does a better job forcing seqs in the result to fully calculate
   themselves.
 * Emacs midje-mode is a little smarter about what a Clojure
