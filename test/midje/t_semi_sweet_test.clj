@@ -227,13 +227,15 @@
 			 :actual 2
 			 :actual-processor #'inc
 			 :processed-actual 3
-			 :expected '( (chatty-checker (> (inc actual) expected)) 33)} ])))
+			 :expected '( (chatty-checker (> (inc actual) expected)) 33)} ]))))
+
+(declare chatty-prerequisite)
+(defn chatty-fut [x] (chatty-prerequisite x))
+(deftest chatty-functions-can-be-used-in-fake-args
   (one-case "chatty checkers can be used in fakes"
-    (let [faked 'unimportant
-	  function-under-test (fn [x] (faked x))]
-      (expect (function-under-test 5) => "hello"
-	      (fake (faked (actual-plus-one-is-greater-than 5))) => "hello"))
-     (is (no-failures?))))
+	    (expect (chatty-fut 5) => "hello"
+		    (fake (chatty-prerequisite (actual-plus-one-is-greater-than 5)) => "hello"))
+	    (is (no-failures?))))
 
 
 (deftest fake-function-from-other-ns
@@ -267,3 +269,7 @@
 (deftest entire-trees-are-eagerly-evaluated
   (expect (lazy-seq-not-at-top-level) => '((32))
 	  (fake (testfun 1) => 32)))
+
+;; (deftest obeys-clojure-test-load-tests-var
+;;   (binding [clojure.test/*load-tests* false]
+;;     (expect (+ 1 1) => 333)))
