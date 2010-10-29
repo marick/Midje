@@ -1,0 +1,10 @@
+FAIL for (t_core.clj:10)
+You claimed the following was needed, but it was never used:
+(g 1)
+FAIL at (t_core.clj:8)
+Expected: 1
+  Actual: nil
+FAIL at (embedded_facts.clj:10)
+Expected: 2
+  Actual: 1
+FAILURE: 3 facts were not confirmed. (But 1 was.)
