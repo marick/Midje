@@ -3,34 +3,51 @@
 require 'fileutils'
 include FileUtils
 
-standard_tests = %w{examples/semi-sweet-examples examples/sweet-examples/basic}
-lein_only_tests = %w{examples/sweet-examples/adder-webapp}
+lein_test_runs = %w{examples/semi-sweet-examples
+                    examples/sweet-examples/adder-webapp
+                    examples/sweet-examples/leiningen-test}
+
+lein_midje_runs = %w{examples/sweet-examples/basic
+                     examples/sweet-examples/leiningen-midje}
+
+run_runs = %w{ examples/semi-sweet-examples examples/sweet-examples/basic }
 
 puts "= Main Tests"
 system("ls lib")
 system("lein clean")
 system("lein test | grep failure")
 
-standard_tests.each do | dir | 
+puts "= Lein test tests"
+lein_test_runs.each do | dir | 
+  puts("= " + dir)
+  Dir.chdir(dir) do
+    system("ls lib")
+    system("lein clean")
+    puts "  lein test"
+    system("lein test > ~/tmp/lein.out; diff ~/tmp/lein.out lein-expected-output")
+  end
+end
+
+puts "= Lein midje tests"
+lein_midje_runs.each do | dir | 
+  puts("= " + dir)
+  Dir.chdir(dir) do
+    system("ls lib")
+    system("lein clean")
+    puts "  lein midje"
+    system("lein midje > ~/tmp/lein.out; diff ~/tmp/lein.out lein-expected-output")
+  end
+end
+
+
+puts "= Raw running"
+run_runs.each do | dir | 
   puts("= " + dir)
   Dir.chdir(dir) do
     system("ls lib")
     system("lein clean")
     puts "  run"
     system("run > ~/tmp/run.out; diff ~/tmp/run.out run-expected-output")
-    puts "  lein"
-    system("lein test > ~/tmp/lein.out; diff ~/tmp/lein.out lein-expected-output")
   end
 end
-
-lein_only_tests.each do | dir | 
-  puts("= " + dir)
-  Dir.chdir(dir) do
-    system("ls lib")
-    system("lein clean")
-    puts "  lein"
-    system("lein test > ~/tmp/lein.out; diff ~/tmp/lein.out lein-expected-output")
-  end
-end
-
 

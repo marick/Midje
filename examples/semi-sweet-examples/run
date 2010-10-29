@@ -1,2 +1,2 @@
 cd test
-java -cp ../lib/clojure-1.2.0.jar:../lib/clojure-contrib-1.2.0.jar:../lib/midje-0.6.1.jar clojure.main -i semi_sweet_simple/core_test.clj -e '(ns semi-sweet-simple.core-test)(run-tests)'
+java -cp ../lib/clojure-1.1.0.jar:../lib/clojure-contrib-1.1.0.jar:../lib/midje-0.7.0.jar clojure.main -i semi_sweet_simple/core_test.clj -e '(ns semi-sweet-simple.core-test)(run-tests)'

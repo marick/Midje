@@ -1,40 +1,38 @@
+FAIL at (core_test.clj:34)
+Expected: 3
+  Actual: 4
+^^^^ The previous failure was expected ^^^^
 FAIL at (core_test.clj:45)
-expected: 3
-  actual: 4
+Actual result did not agree with the checking function.
+    Actual result: 4
+Checking function: odd?
 ^^^^ The previous failure was expected ^^^^
-FAIL at (core_test.clj:49)
-Actual result did not pass expected function.
-expected function: odd?
-    actual result: 4
+FAIL at (core_test.clj:56)
+Actual result did not agree with the checking function.
+    Actual result: a function named 'even?'
+Checking function: (exactly odd?)
 ^^^^ The previous failure was expected ^^^^
-FAIL at (core_test.clj:59)
-Actual result did not pass expected function.
-expected function: (exactly odd?)
-    actual result: #<core$even_QMARK_ clojure.core$even_QMARK_@15ee9cc3>
+FAIL at (core_test.clj:74)
+Actual result did not agree with the checking function.
+    Actual result: [3 3 1 2]
+Checking function: (in-any-order [1 2 3])
 ^^^^ The previous failure was expected ^^^^
-FAIL at (core_test.clj:73)
-Actual result did not pass expected function.
-expected function: (in-any-order [1 2 3])
-    actual result: [3 3 1 2]
-^^^^ The previous failure was expected ^^^^
-FAIL for (core_test.clj:108)
-This expectation was never satisfied:
-(alive? ...cell...) should be called at least once.
-FAIL for (core_test.clj:109)
-This expectation was never satisfied:
-(neighbor-count ...cell...) should be called at least once.
-FAIL at (core_test.clj:106)
-Actual result did not pass expected function.
-expected function: truthy
-    actual result: nil
+FAIL for (core_test.clj:118)
+You claimed the following was needed, but it was never used:
+(alive? ...cell...)
+FAIL for (core_test.clj:119)
+You claimed the following was needed, but it was never used:
+(neighbor-count ...cell...)
+FAIL at (core_test.clj:116)
+Actual result did not agree with the checking function.
+    Actual result: nil
+Checking function: truthy
 ^^^^ The previous three failures were expected ^^^^
-FAIL for (core_test.clj:214)
-This expectation was never satisfied:
-(data-structure) should be called at least once.
-FAIL for (core_test.clj:214)
-This expectation was never satisfied:
-(property-of ...data-structure-value-1...) should be called at least once.
+FAIL for (core_test.clj:209)
+You claimed the following was needed, but it was never used:
+(data-structure)
+FAIL for (core_test.clj:209)
+You claimed the following was needed, but it was never used:
+(property-of ...data-structure-value-1...)
 ^^^^ The previous two failures were expected ^^^^
-Testing basic.core-test
-Ran 1 tests containing 1 assertions.
-0 failures, 0 errors.
+FAILURE: 9 facts were not confirmed. (But 10 were.)

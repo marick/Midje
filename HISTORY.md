@@ -1,17 +1,23 @@
-= 0.7.0
-* Does a better job forcing seqs in the result to fully calculate
-  themselves.
-* Emacs midje-mode is a little smarter about what a Clojure
-  identifier is (for M-x midje-unfinished)
+= 0.7.0 (stable)
+* Chatty checkers
+  http://github.com/marick/Midje/wiki/Chatty-checkers
+* Added a leiningen plugin to get tidy test reports.
+  http://github.com/marick/Midje/wiki/Lein-midje
+* Set midje.semi-sweet/*include-midje-checks* to false to
+  compile tests out of production code. 
+  http://github.com/marick/Midje/wiki/Production-mode
 * Incompatible change: Midje no longer defines fakes for 
   you at the top level. As with any other identifier used in
   code, they must be defined before use. The unfinished macro
   is good for that.
-* Added a leiningen plugin to get tidy test reports.
-* Chatty checkers
-* Set midje.semi-sweet/*include-midje-checks* to false to compile tests out of production code.
+* Functions print as their names, if they have them, in case
+  of an (exactly x) failure.
+* Does a better job forcing seqs in the result to fully calculate
+  themselves.
+* Emacs midje-mode is a little smarter about what a Clojure
+  identifier is (for M-x midje-unfinished)
   
-= 0.6.1 (stable)
+= 0.6.1
 * Midje-mode is (more) compatible with clojure-test-mode.
 
 = 0.6.0 
