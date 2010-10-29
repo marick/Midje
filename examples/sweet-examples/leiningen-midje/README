@@ -1,17 +1,10 @@
-# leiningen-midje
+This shows the use of a Midje plugin for Leiningen. 
 
-FIXME: write description
+You run it like this:
 
-## Usage
+% lein midje
 
-FIXME: write
+As with `lein test`, you can give namespace arguments to
+check only particular namespaces.
 
-## Installation
-
-FIXME: write
-
-## License
-
-Copyright (C) 2010 FIXME
-
-Distributed under the Eclipse Public License, the same as Clojure.
+`lein midje` checks both the `test` and `src` directories.
