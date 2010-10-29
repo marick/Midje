@@ -7,6 +7,11 @@
 (ns midje.util.report
   (:use clojure.test))
 
+(if (re-find #"1.1" (clojure-version))
+  (use '[clojure.contrib.seq-utils :only [flatten]]))
+
+
+
 (defn- midje-position-string [position-pair]
   (format "(%s:%d)" (first position-pair) (second position-pair)))
 
@@ -40,6 +45,12 @@
 (defn flatten-and-remove-nils [seq]
   (filter identity (flatten seq)))
 
+(defn- without-nasty-looking-functions [form]
+  (if-let [name (and (fn? form)
+		      (:name (meta form)))]
+    (format "a function named '%s'" name)
+    (pr-str form)))
+
 (defmulti report-strings :type)
 
 (defmethod report-strings :mock-expected-result-functional-failure [m]
@@ -47,7 +58,7 @@
    (str "\nFAIL at " (midje-position-string (:position m)))
    (when (seq *testing-contexts*) (testing-contexts-str))
    "Actual result did not agree with the checking function."
-   (str "    Actual result: " (pr-str (:actual m)))
+   (str "    Actual result: " (without-nasty-looking-functions (:actual m)))
    (str "Checking function: " (pr-str (:expected m)))
    (if (:actual-processor m)
      (list 

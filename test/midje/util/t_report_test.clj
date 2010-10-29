@@ -4,7 +4,8 @@
   (:use [midje.test-util]))
 
 
-(testable-privates midje.util.report midje-position-string functional-failure-lines)
+(testable-privates midje.util.report midje-position-string functional-failure-lines
+		   without-nasty-looking-functions)
 
 (deftest position-string-test
   (is (= (midje-position-string ["filename.clj" 33])
@@ -40,3 +41,12 @@
     (is (re-find #"Actual.*did not agree" (nth raw-report 1)))
     (is (re-find #"Actual.*2" (nth raw-report 2)))
     (is (re-find #"Checking function.*odd?" (nth raw-report 3)))))
+
+;; In the case of the checker (exactly odd?), you want to see failures
+;; written in terms of a function name instead of some absurdly complicated
+;; #<core$even_QMARK_ clojure.core$even_QMARK_@15ee9cc3>
+
+(deftest without-nasty-looking-functions-test
+  (is (= "a function named 'even?'" (without-nasty-looking-functions even?)))
+  (is (re-find #"fn__" (str (without-nasty-looking-functions (fn [n] 1))))))
+
