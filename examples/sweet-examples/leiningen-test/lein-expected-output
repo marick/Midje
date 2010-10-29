@@ -1,0 +1,16 @@
+Testing lein-test.test.deftest
+FAIL at (deftest.clj:10)
+Expected: 4
+  Actual: 3
+FAIL at (deftest.clj:11)
+Expected: 4
+  Actual: 5
+FAIL at (deftest.clj:7)
+Expected: 3
+  Actual: 2
+Testing lein-test.test.with-test
+FAIL at (with_test.clj:8)
+Expected: 3
+  Actual: 2
+Ran 3 tests containing 4 assertions.
+4 failures, 0 errors.

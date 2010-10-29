@@ -1,0 +1,5 @@
+This shows how to use Midje so that "lein test" prints
+something useful.
+
+Look in the test directory to see how tests are set up.
+
