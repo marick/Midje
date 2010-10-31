@@ -38,7 +38,31 @@
   
   (expect ( (in-any-order [1 2 2 3]) [1 2 3 3]) => falsey)
   (expect ( (in-any-order [2 1 3 2]) [1 2 3 3]) => falsey)
-)
+  )
+
+(deftest map-containing-test
+  (expect {:a 1 :b 2} => (map-containing {:a 1 :b 2}))
+  (expect {:a 1 :b 2 :c 3} => (map-containing {:a 1 :b 2}))
+
+  (expect ( (map-containing {:a 1 :b 2})  {:a 1}) => falsey)
+  (expect ( (map-containing {:a 1 :b 2})  {:a 1 :b 3}) => falsey)
+  )
+
+(deftest only-maps-containing-test
+  (expect ( (only-maps-containing {:a 1 :b 2}) [{:a 1 :b 2} {:extra true}]) => falsey)
+  (expect ( (only-maps-containing {:a 1 :b 2}  {:extra true}) [{:a 1 :b 2}]) => falsey)
+
+  (expect [{:a 1 :b 2} {:extra 1}] => (only-maps-containing {:extra 1} {:a 1}))
+  (expect [{:a 1 :b 2} {:a 1 :b 22}] => (only-maps-containing {:b 2} {:b 22}))
+  (expect ( (only-maps-containing {:b 2} {:b 22}) [{:b 2} {:b 33}]) => falsey))
+
+(deftest maps-containing-test
+  (expect ( (maps-containing {:a 1 :b 2}  {:extra true}) [{:a 1 :b 2}]) => falsey)
+
+  (expect [{:a 1 :b 2} {:extra 1}] => (maps-containing {:extra 1} {:a 1}))
+  (expect [{:a 1 :b 2} {:a 1 :b 22}] => (maps-containing {:b 2} {:b 22}))
+  (expect [{:a 1 :b 2} {:a 1 :b 22} {:a 1 :b 33}] => (maps-containing {:b 2} {:b 22}))
+  (expect ( (maps-containing {:b 2} {:b 22}) [{:b 2} {:b 33}]) => falsey))
 
 
 (defn throw-exception

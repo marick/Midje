@@ -28,12 +28,48 @@
   {:midje/checker true}
   [actual]
   true)
+(def irrelevant anything)
 
 (defn exactly
   "Checks for equality. Use to avoid default handling of functions."
   {:midje/checker true}
   [expected]
   (fn [actual] (= expected actual)))
+
+(defn map-containing [expected]
+  "Accepts a map that contains all the keys and values in expected,
+   perhaps along with others"
+  {:midje/checker true}
+  (fn [actual] 
+    (= (merge actual expected) actual)))
+
+(defn- core-array-of-maps-checker [expected actual]
+  (every? (fn [one-expected-map] (some (map-containing one-expected-map) actual))
+	  expected))
+
+(defn only-maps-containing [& expected]
+  "Each element in the actual result matches some map in the expected
+   result, where 'match' means #'contains-map. There may be no extra
+   maps in either the actual or expected result."
+  {:midje/checker true}
+  (fn [actual]
+    (if (= (count actual) (count expected))
+      (core-array-of-maps-checker expected actual)
+      false)))
+  
+(defn maps-containing [& expected]
+  "Each element in the actual result matches some map in the expected
+   result, where 'match' means #'contains-map. There may be extra
+   maps in the actual result."
+  {:midje/checker true}
+  (fn [actual]
+    (if (>= (count actual) (count expected))
+      (core-array-of-maps-checker expected actual)
+      false)))
+  
+  
+  
+
 
 
 (def #^{:private true} captured-exception-key "this Throwable was captured by midje:")

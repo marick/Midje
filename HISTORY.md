@@ -1,3 +1,6 @@
+= 0.7.1
+* Three new checkers: map-containing, maps-containing, and only-maps-containing
+
 = 0.7.0 (stable)
 * Chatty checkers
   http://github.com/marick/Midje/wiki/Chatty-checkers
