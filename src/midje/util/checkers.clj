@@ -47,25 +47,38 @@
   (every? (fn [one-expected-map] (some (map-containing one-expected-map) actual))
 	  expected))
 
-(defn only-maps-containing [& expected]
+(defn- one-level-map-flatten [list-like-thing]
+  (if (map? (first list-like-thing))
+    list-like-thing
+    (first list-like-thing)))
+
+(defn only-maps-containing [& maps-or-maplist]
   "Each element in the actual result matches some map in the expected
    result, where 'match' means #'contains-map. There may be no extra
-   maps in either the actual or expected result."
+   maps in either the actual or expected result.
+
+   You can call this with either (only-maps-containing {..} {..}) or
+   (only-maps-containing [ {..} {..} ])."
   {:midje/checker true}
-  (fn [actual]
-    (if (= (count actual) (count expected))
-      (core-array-of-maps-checker expected actual)
-      false)))
+  (let [expected (one-level-map-flatten maps-or-maplist)]
+    (fn [actual]
+      (if (= (count actual) (count expected))
+	(core-array-of-maps-checker expected actual)
+	false))))
   
-(defn maps-containing [& expected]
+(defn maps-containing [& maps-or-maplist]
   "Each element in the actual result matches some map in the expected
    result, where 'match' means #'contains-map. There may be extra
-   maps in the actual result."
+   maps in the actual result.
+
+   You can call this with either (maps-containing {..} {..}) or
+   (maps-containing [ {..} {..} ])."
   {:midje/checker true}
-  (fn [actual]
-    (if (>= (count actual) (count expected))
-      (core-array-of-maps-checker expected actual)
-      false)))
+  (let [expected (one-level-map-flatten maps-or-maplist)]
+    (fn [actual]
+      (if (>= (count actual) (count expected))
+	(core-array-of-maps-checker expected actual)
+	false))))
   
   
   

@@ -54,6 +54,7 @@
 
   (expect [{:a 1 :b 2} {:extra 1}] => (only-maps-containing {:extra 1} {:a 1}))
   (expect [{:a 1 :b 2} {:a 1 :b 22}] => (only-maps-containing {:b 2} {:b 22}))
+  (expect [{:a 1 :b 2} {:a 1 :b 22}] => (only-maps-containing [{:b 2} {:b 22}]))
   (expect ( (only-maps-containing {:b 2} {:b 22}) [{:b 2} {:b 33}]) => falsey))
 
 (deftest maps-containing-test
@@ -62,6 +63,7 @@
   (expect [{:a 1 :b 2} {:extra 1}] => (maps-containing {:extra 1} {:a 1}))
   (expect [{:a 1 :b 2} {:a 1 :b 22}] => (maps-containing {:b 2} {:b 22}))
   (expect [{:a 1 :b 2} {:a 1 :b 22} {:a 1 :b 33}] => (maps-containing {:b 2} {:b 22}))
+  (expect [{:a 1 :b 2} {:a 1 :b 22} {:a 1 :b 33}] => (maps-containing [{:b 2} {:b 22}]))
   (expect ( (maps-containing {:b 2} {:b 22}) [{:b 2} {:b 33}]) => falsey))
 
 
