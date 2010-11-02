@@ -114,21 +114,37 @@
 (defn chatty-checker? [fn]
   (:midje/chatty-checker (meta fn)))
 
-(defn chatty-checker*
-  "Create a function that returns either true or a detailed description of a failure."
-  [actual-processor final-comparison]
-  (with-meta (fn [expected]
-	       (with-meta (fn [actual]
-			    (let [processed-actual (actual-processor actual)]
-			      (if (final-comparison processed-actual expected)
-				true
-				(tag-as-chatty-falsehood {:actual actual,
-							  :actual-processor actual-processor
-							  :processed-actual processed-actual}))))
-		 {:midje/chatty-checker true}))
-    {:midje/checker true}))
+(defn chatty-worth-reporting-on? [arg]
+  (and (list? arg)
+       (> (count arg) 0)
+       (not (= (first arg) 'clojure.core/quote))))
 
+(defn chatty-untease [result-symbol arglist]
+  (loop [ [current-arg & remainder :as arglist] arglist
+	  complex-forms []
+	  substituted-arglist []]
+    (cond (empty? arglist)
+	  [complex-forms substituted-arglist]
+
+	  (chatty-worth-reporting-on? current-arg)
+	  (recur remainder (conj complex-forms current-arg)
+		 (conj substituted-arglist `(~result-symbol ~(count complex-forms))))
+
+	  :else
+	  (recur remainder complex-forms (conj substituted-arglist current-arg)))))
+	  
 (defmacro chatty-checker
-  [ [ final-comparison [actual-processor actual-placeholder] expected-placeholder] ]
   "Create a function that returns either true or a detailed description of a failure."
-  `(chatty-checker* (var ~actual-processor) (var ~final-comparison)))
+  [ [binding-var] [function & arglist] ]
+  (let [result-symbol (gensym "chatty-intermediate-results-")
+	[complex-forms substituted-arglist] (chatty-untease result-symbol arglist)]
+    `(with-meta (fn [~binding-var]
+		  (let [~result-symbol (vector ~@complex-forms)]
+		    (if (~function ~@substituted-arglist)
+		      true
+		      (let [pairs# (map vector '~complex-forms ~result-symbol)]
+			(tag-as-chatty-falsehood {:actual ~binding-var,
+						  :intermediate-results pairs#})))))
+       {:midje/chatty-checker true, :midje/checker true})))
+
+

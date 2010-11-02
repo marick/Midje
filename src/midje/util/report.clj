@@ -60,10 +60,10 @@
    "Actual result did not agree with the checking function."
    (str "    Actual result: " (without-nasty-looking-functions (:actual m)))
    (str "Checking function: " (pr-str (:expected m)))
-   (if (:actual-processor m)
-     (list 
-      (str "During checking, the function applied #'" (:name (meta (:actual-processor m))) " to the result.")
-      (str "It was surprised to see " (pr-str (:processed-actual m)) ".")))))
+   (if (:intermediate-results m)
+     (cons "During checking, these intermediate values were seen:"
+	   (map (fn [[form value]] (str "   " form " => " value))
+		(:intermediate-results m))))))
   
 (defn render [m]
   (doall (map *renderer* (flatten-and-remove-nils (report-strings m)))))

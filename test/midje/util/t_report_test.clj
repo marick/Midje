@@ -20,8 +20,7 @@
 (deftest functional-failure-renderer-test
   (let [failure-map {:type :mock-expected-result-functional-failure
 		     :actual 2
-		     :actual-processor #'inc
-		     :processed-actual 3
+		     :intermediate-results [ ['(f 1) 33] ]
 		     :position ["foo.clj" 3]
 		     :expected '(test-checker 33)}
 	raw-report (with-identity-renderer (render failure-map))]
@@ -29,8 +28,8 @@
     (is (re-find #"Actual.*did not agree" (nth raw-report 1)))
     (is (re-find #"Actual.*2" (nth raw-report 2)))
     (is (re-find #"Checking function.*test-checker 33" (nth raw-report 3)))
-    (is (re-find #"applied.*#'inc" (nth raw-report 4)))
-    (is (re-find #"surprised.*3" (nth raw-report 5))))
+    (is (re-find #"intermediate values" (nth raw-report 4)))
+    (is (re-find #"\(f 1\) => 33" (nth raw-report 5))))
     
   (let [failure-map {:type :mock-expected-result-functional-failure
 		     :actual 2

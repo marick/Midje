@@ -212,22 +212,22 @@
 
 
 
-(def actual-plus-one-is-greater-than (chatty-checker (> (inc actual) expected)))
+(defn actual-plus-one-is-greater-than [expected]
+  (chatty-checker [actual] (> (inc actual) expected)))
+
 (deftest chatty-function-awareness-test
   (one-case "chatty failures provide extra information"
      (expect (+ 1 1) => (actual-plus-one-is-greater-than 33))
      (is (reported? 1 [ {:type :mock-expected-result-functional-failure
 			 :actual 2
-			 :actual-processor #'inc
-			 :processed-actual 3
+			 :intermediate-results [ [ '(inc actual) 3 ] ]
 			 :expected '(actual-plus-one-is-greater-than 33)} ])))
   (one-case "chatty checkers can be used inline"
-     (expect (+ 1 1) => ( (chatty-checker (> (inc actual) expected)) 33))
+     (expect (+ 1 1) => (chatty-checker [actual] (> (inc actual) 33)))
      (is (reported? 1 [ {:type :mock-expected-result-functional-failure
 			 :actual 2
-			 :actual-processor #'inc
-			 :processed-actual 3
-			 :expected '( (chatty-checker (> (inc actual) expected)) 33)} ]))))
+			 :intermediate-results [ [ '(inc actual) 3 ] ]
+			 :expected '(chatty-checker [actual] (> (inc actual) 33))} ]))))
 
 (declare chatty-prerequisite)
 (defn chatty-fut [x] (chatty-prerequisite x))

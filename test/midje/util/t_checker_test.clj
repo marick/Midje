@@ -88,24 +88,37 @@
   )
 
 (deftest chatty-utility-tests
-  (is (chatty-checker-falsehood? (tag-as-chatty-falsehood [5]))))
+  (is (chatty-checker-falsehood? (tag-as-chatty-falsehood [5])))
 
-(deftest chatty-checker-function-test
-  (let [actual-plus-one-equals (chatty-checker* #'inc #'=)]
-    (is (chatty-checker? (actual-plus-one-equals 4)))
-    (is (= true ((actual-plus-one-equals 4) 3)))
-    (let [result ((actual-plus-one-equals 4) 4)]
+  (is (not (chatty-worth-reporting-on? 1)))
+  (is (not (chatty-worth-reporting-on? '())))
+  (is (chatty-worth-reporting-on? '(f)))
+  (is (chatty-worth-reporting-on? ''(f)))
+  (is (not (chatty-worth-reporting-on? '[f]))))
+
+(deftest unteasing-multi-level-arglist-into-var-references
+  (is (= (chatty-untease 'g-101 '()) [[] []]))
+  (is (= (chatty-untease 'g-101 '(1 (f) 33 (+ 1 2)))
+	 [ '( (f) (+ 1 2))  '(1 (g-101 0) 33 (g-101 1))  ]))
+  )
+  
+
+(deftest chatty-checker-test
+  (let [actual-plus-one-equals-4 (chatty-checker [actual] (= (inc actual) 4))]
+    (is (chatty-checker? actual-plus-one-equals-4))
+    (is (= true (actual-plus-one-equals-4 3)))
+    (let [result (actual-plus-one-equals-4 4)]
       (is (chatty-checker-falsehood? result))
       (is (= {:actual 4
-	      :actual-processor #'inc
-	      :processed-actual 5}
-	     result))))
-  (let [actual-plus-one-greater-than (chatty-checker* #'inc #'>)]
-    (is (= true ((actual-plus-one-greater-than 5) 5)))
-    (is (chatty-checker-falsehood? ((actual-plus-one-greater-than 5) 4)))))
+  	      :intermediate-results [ ['(inc actual) 5] ] }
+  	     result))))
 
-(deftest chatty-checker-macro-test
-  (let [actual-plus-one-greater-than (chatty-checker (> (inc actual) expected))]
-    (is (chatty-checker? (actual-plus-one-greater-than 5)))
-    (is (= true ((actual-plus-one-greater-than 5) 5)))
-    (is (chatty-checker-falsehood? ((actual-plus-one-greater-than 5) 4)))))
+  (let [no-longer-limited-form (chatty-checker [actual] (= (inc actual) 4 (+ 2 actual)))]
+    (is (chatty-checker? no-longer-limited-form))
+    (let [result (no-longer-limited-form 4)]
+      (is (chatty-checker-falsehood? result))
+      (is (= {:actual 4
+  	      :intermediate-results [ ['(inc actual) 5] ['(+ 2 actual) 6] ]}
+  	     result)))))
+
+    
