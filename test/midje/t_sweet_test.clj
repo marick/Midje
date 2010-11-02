@@ -105,3 +105,10 @@
   (load "sweet_compile_out"))
 
   
+(deftest the-arrows-namespace-doesnt-matter
+  (after 
+   (fact (+ 1 1) midje.semi-sweet/=> 3)
+   (is (reported? 1 [{:type :mock-expected-result-failure}])))
+  (after 
+   (fact (+ 1 1) midje.sweet/=> 3)
+   (is (reported? 1 [{:type :mock-expected-result-failure}]))))
