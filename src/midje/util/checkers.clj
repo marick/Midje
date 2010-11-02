@@ -4,11 +4,33 @@
   (use '[clojure.contrib.seq-utils :only [frequencies]]))
 
 
+(def #^{:private true} captured-exception-key "this Throwable was captured by midje:")
+(defn captured-exception [e] {captured-exception-key e})
+(defn captured-exception? [value] (and (map? value) (value captured-exception-key)))
+			       
+(defn- throwable-with-class? [wrapped-throwable expected-class]
+  (and (map? wrapped-throwable)
+       (= expected-class (class (wrapped-throwable captured-exception-key)))))
+
+(defn throws
+  "Checks that Throwable of named class was thrown and, optionally, that
+   the message is as desired."
+  {:midje/checker true}
+  ([expected-exception-class]
+     (fn [wrapped-throwable] (throwable-with-class? wrapped-throwable expected-exception-class)))
+  ([expected-exception-class message]
+     (fn [wrapped-throwable]
+       (and (throwable-with-class? wrapped-throwable expected-exception-class)
+	    (= message (.getMessage (wrapped-throwable captured-exception-key))))))
+)
+
+
 (defn truthy 
   "Returns precisely true if actual is not nil and not false."
   {:midje/checker true}
   [actual] 
-  (not (not actual)))
+  (and (not (captured-exception? actual))
+       (not (not actual))))
 
 (defn falsey 
   "Returns precisely true if actual is nil or false."
@@ -27,7 +49,7 @@
   "Accepts any value"
   {:midje/checker true}
   [actual]
-  true)
+  (not (captured-exception? actual)))
 (def irrelevant anything)
 
 (defn exactly
@@ -85,24 +107,6 @@
 
 
 
-(def #^{:private true} captured-exception-key "this Throwable was captured by midje:")
-(defn captured-exception [e] {captured-exception-key e})
-
-(defn- throwable-with-class? [wrapped-throwable expected-class]
-  (and (map? wrapped-throwable)
-       (= expected-class (class (wrapped-throwable captured-exception-key)))))
-
-(defn throws
-  "Checks that Throwable of named class was thrown and, optionally, that
-   the message is as desired."
-  {:midje/checker true}
-  ([expected-exception-class]
-     (fn [wrapped-throwable] (throwable-with-class? wrapped-throwable expected-exception-class)))
-  ([expected-exception-class message]
-     (fn [wrapped-throwable]
-       (and (throwable-with-class? wrapped-throwable expected-exception-class)
-	    (= message (.getMessage (wrapped-throwable captured-exception-key))))))
-)
      
 
 (defn tag-as-chatty-falsehood [value]

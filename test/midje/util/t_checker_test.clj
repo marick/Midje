@@ -87,6 +87,18 @@
      (is (reported? 1 [{:type :mock-expected-result-functional-failure}])))
   )
 
+(deftest throwing-an-exception-is-an-error-for-checkers
+  (one-case "anything"
+    (expect (throw-exception "throws Error") => anything)
+    (is (reported? 1 [{:type :mock-expected-result-functional-failure}])))
+  (one-case "falsey"
+    (expect (throw-exception "throws Error") => falsey)
+    (is (reported? 1 [{:type :mock-expected-result-functional-failure}])))
+  (one-case "truthy"
+    (expect (throw-exception "throws Error") => truthy)
+    (is (reported? 1 [{:type :mock-expected-result-functional-failure}])))
+  )
+
 (deftest chatty-utility-tests
   (is (chatty-checker-falsehood? (tag-as-chatty-falsehood [5])))
 
