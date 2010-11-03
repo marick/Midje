@@ -1,10 +1,11 @@
-= 0.7.1
+= 0.7.1 (stable)
 * Three new checkers: map-containing, maps-containing, and
   only-maps-containing. 
 * Chatty checkers are much improved.
   http://github.com/marick/Midje/wiki/Chatty-checkers
+* Some bug fixes
 
-= 0.7.0 (stable)
+= 0.7.0
 * Chatty checkers
   http://github.com/marick/Midje/wiki/Chatty-checkers
 * Added a leiningen plugin to get tidy test reports.

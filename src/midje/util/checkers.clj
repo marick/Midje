@@ -75,9 +75,8 @@
     (first list-like-thing)))
 
 (defn only-maps-containing [& maps-or-maplist]
-  "Each element in the actual result matches some map in the expected
-   result, where 'match' means #'contains-map. There may be no extra
-   maps in either the actual or expected result.
+  "Each map in the argument(s) contains some map in the expected
+   result. There may be no extra maps in either the argument(s) or expected result.
 
    You can call this with either (only-maps-containing {..} {..}) or
    (only-maps-containing [ {..} {..} ])."
@@ -89,9 +88,8 @@
 	false))))
   
 (defn maps-containing [& maps-or-maplist]
-  "Each element in the actual result matches some map in the expected
-   result, where 'match' means #'contains-map. There may be extra
-   maps in the actual result.
+  "Each map in the argument(s) contains contains some map in the expected
+   result. There may be extra maps in the actual result.
 
    You can call this with either (maps-containing {..} {..}) or
    (maps-containing [ {..} {..} ])."
