@@ -1,7 +1,9 @@
 (ns midje.t-sweet-test
   (:use clojure.test)
   (:use [midje.sweet] :reload-all)
-  (:use [midje.test-util]))
+  (:use [midje.test-util])
+  (:use [clojure.contrib.pprint]))
+	
 
 (deftest simple-assertion-examples
   (after 
@@ -112,3 +114,22 @@
   (after 
    (fact (+ 1 1) midje.sweet/=> 3)
    (is (reported? 1 [{:type :mock-expected-result-failure}]))))
+
+
+;; Backgrounds
+(unfinished check-f check-g check-h)
+(defn ander [n]
+  (and (check-f n) (check-g n) (check-h n)))
+
+(deftest background-case-test
+  (after
+   (against-background
+    (check-f 1) => true, (check-g 1) => true, (check-h 1) => true
+    (facts
+     (ander 1) => truthy
+     (ander 1) => falsey (provided (check-f 1) => false)
+     (ander 1) => falsey (provided (check-g 1) => false)
+     (ander 1) => falsey (provided (check-h 1) => false)))
+    
+   (is (reported? 4 [{:type :pass} {:type :pass} {:type :pass} {:type :pass}]))))
+
