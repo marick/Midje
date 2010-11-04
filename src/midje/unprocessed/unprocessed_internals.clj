@@ -130,7 +130,7 @@
 ;; TODO: I'm not wild about signalling failure in two ways: by report() and by
 ;; return value. Fix this when (a) we move away from clojure.test.report and
 ;; (b) we figure out how to make fact() some meaningful unit of reporting.
-(defn check-result [actual call expectations]
+(defn check-result [actual call]
   (cond (function-aware-= actual (call :expected-result))
 	(do (report {:type :pass})
 	    true)
