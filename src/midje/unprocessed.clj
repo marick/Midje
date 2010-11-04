@@ -22,3 +22,11 @@
 	(check-result code-under-test-result call-map)))))
       
 
+(defmacro with-background-fakes [fakes & forms]
+  "Check forms with fakes established as a 'background' -- they will
+   be used if needed, but it's not a failure if they're unused."
+  `(try
+     (push-background-fakes ~fakes)
+     ~@forms
+     (finally (pop-background-fakes))))
+  
