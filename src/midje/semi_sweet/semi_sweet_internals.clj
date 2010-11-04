@@ -7,7 +7,7 @@
 (defn only-mocked* [names]
   (let [declarations (map (fn [name] 
 			      `(defn ~name [& args#] 
-				 (throw (Error. (str '~name " has no implementation. It's used in mock tests.")))))
+				 (throw (Error. (str "#'" '~name " has no implementation. It's used as a prerequisite in Midje tests.")))))
 			  names)]
     `(do ~@declarations)))
 
