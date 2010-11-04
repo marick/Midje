@@ -275,4 +275,11 @@
   
 (binding [midje.semi-sweet/*include-midje-checks* false]
   (load "semi_sweet_compile_out"))
-  
+
+
+(unfinished t2)
+(defn t1 [] )
+
+(deftest background-fakes-need-not-be-called
+  (expect (t1) => nil
+	  (fake (t2) => 3 :type :background)))

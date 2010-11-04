@@ -113,7 +113,7 @@
   [expectation]
   (not (zero? @(expectation :count-atom))))
 
-(defmethod call-count-incorrect? :default
+(defmethod call-count-incorrect? :background
   [expectation]
   false)
 
