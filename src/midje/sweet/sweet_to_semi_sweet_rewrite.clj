@@ -29,17 +29,23 @@
 (defn overrides [possibles]
   (apply concat (take-while (comp keyword? first) (partition 2 possibles))))
 
+(defn one-fake-body-content [forms]
+  (let [constant-part (take 3 forms)
+	overrides (overrides (nthnext forms 3))]
+    (concat constant-part overrides)))
+
 (defn partition-fake-bodies
   ([expectations]
      (partition-fake-bodies [] expectations))
   ([so-far remainder]
     (if (empty? remainder)
       so-far
-      (let [constant-part (take 3 remainder)
-	    overrides (overrides (nthnext remainder 3))
-	    whole-body (concat constant-part overrides)]
+      (let [whole-body (one-fake-body-content remainder)]
 	(recur (conj so-far whole-body)
 	       (nthnext remainder (count whole-body)))))))
+
+(defn make-fake [fake-body]
+  `(midje.semi-sweet/fake ~@fake-body))
 
 ;; Simple movement
 
@@ -93,11 +99,11 @@
 
 
 ;; The meat of it.
+
 (defn expand-following-into-fake-calls [provided-loc]
   (let [expectations (rest (zip/node (zip/up provided-loc)))
 	fake-bodies (partition-fake-bodies expectations)]
-    (map (fn [fake-body] `(midje.semi-sweet/fake ~@fake-body))
-	 fake-bodies)))
+    (map make-fake fake-bodies)))
 
 (defn rewrite [multi-form]
   (loop [loc (zip/seq-zip multi-form)]
