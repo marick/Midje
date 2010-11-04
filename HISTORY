@@ -1,8 +1,10 @@
-= 0.7.2
+= 0.7.2 (stable)
 * Use alter-var-root instead of with-binding in preparation
   for Clojure 1.3 (and use with threads).
+* against-background
+   https://github.com/marick/Midje/wiki/Background-prerequisites
 
-= 0.7.1 (stable)
+= 0.7.1 
 * Three new checkers: map-containing, maps-containing, and
   only-maps-containing. 
 * Chatty checkers are much improved.
