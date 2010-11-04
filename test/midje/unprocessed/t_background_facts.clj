@@ -36,3 +36,19 @@
   (expect (calls-used) => "hi mom"
 	  (fake (local) => "mom"))
   (pop-background-fakes))
+
+(deftest background-wrapper
+  (with-background-fakes [(fake (unused) => 3 :type :background)
+			  (fake (used) => "hi" :type :background)]
+    (expect (calls-used) => "hi mom"
+	    (fake (local) => "mom")))
+  (is (= [] *background-fakes*)))
+
+(deftest background-wrapper-unwind-protects
+  (try
+    (with-background-fakes [(fake (unused) => 3 :type :background)
+			    (fake (used) => "hi" :type :background)]
+      (is (not (= [] *background-fakes*)))
+      (throw (Exception.)))
+    (catch Exception ex (is (= [] *background-fakes*)))))
+

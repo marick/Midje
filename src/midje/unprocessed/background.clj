@@ -12,3 +12,9 @@
 (defn adding-background [fakes]
   (flatten (cons fakes *background-fakes*)))
 
+(defmacro with-background-fakes [fakes & forms]
+  `(try
+     (push-background-fakes ~fakes)
+     ~@forms
+     (finally (pop-background-fakes))))
+  
