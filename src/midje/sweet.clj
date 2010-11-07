@@ -6,6 +6,7 @@
   (:require [midje.sweet.sweet-to-semi-sweet-rewrite :as transform])
   (:require [midje.sweet.line-number-insertion :as position])
   (:require [midje.sweet.folded-prerequisites :as folded])
+  (:require [me.fogus.unifycle :as unify])
   (:require [midje.sweet.background :as background])
   (:use midje.sweet.metaconstants)
 )
@@ -24,6 +25,7 @@
   `(fact ~@forms))
 
 (defmacro against-background [& forms]
-  (let [ [default-prerequisites facts-to-check] (background/separate forms) ]
+  (let [ [default-prerequisites once-state each-state facts-to-check]
+	 (background/separate forms) ]
     `(with-background-fakes ~default-prerequisites ~@facts-to-check)))
     
