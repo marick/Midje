@@ -1,11 +1,15 @@
-(ns midje.unprocessed.background
-  (:use [midje.util.thread-safe-var-nesting])
-)
+(ns midje.unprocessed.background)
 
-(def *background-fakes* '())
+(defn background-fakes [] (:midje/background-fakes (meta *ns*)))
+(defn set-background-fakes [newval] 
+  (alter-meta! *ns* merge {:midje/background-fakes newval}))
 
-(defn push-background-fakes [fakes] (push-safely #'*background-fakes* fakes))
-(defn pop-background-fakes [] (pop-safely #'*background-fakes*))
-(defn adding-background-fakes [fakes]
-  (flatten (cons fakes *background-fakes*)))
+(defn push-background-fakes [fakes]
+  (set-background-fakes (cons fakes (background-fakes))))
+
+(defn pop-background-fakes [] 
+  (set-background-fakes (rest (background-fakes))))
+
+(defn background-fakes-plus [fakes]
+  (flatten (cons fakes (background-fakes))))
 

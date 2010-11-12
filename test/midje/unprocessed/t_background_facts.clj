@@ -13,17 +13,17 @@
 	  (fake (unused) => 3 :type :background)))
 
 (deftest pushing-and-popping
-  (is (= '() *background-fakes*))
+  (is (empty? (background-fakes)))
   (let [fakes [(fake (unused) => 3) (fake (used) => 4)]
 	more-fakes [ (fake (calls-nothing) => 5) ]]
     (push-background-fakes fakes)
-    (is (= [ fakes ] *background-fakes*))
+    (is (= [ fakes ] (background-fakes)))
     (push-background-fakes more-fakes)
-    (is (= [more-fakes fakes] *background-fakes*))
+    (is (= [more-fakes fakes] (background-fakes)))
     (pop-background-fakes)
-    (is (= [fakes] *background-fakes*))
+    (is (= [fakes] (background-fakes)))
     (pop-background-fakes)
-    (is (= [] *background-fakes*))))
+    (is (empty? (background-fakes)))))
 
 
 
@@ -42,13 +42,13 @@
 			  (fake (used) => "hi" :type :background)]
     (expect (calls-used) => "hi mom"
 	    (fake (local) => "mom")))
-  (is (= [] *background-fakes*)))
+  (is (empty? (background-fakes))))
 
 (deftest background-wrapper-unwind-protects
   (try
     (with-background-fakes [(fake (unused) => 3 :type :background)
 			    (fake (used) => "hi" :type :background)]
-      (is (not (= [] *background-fakes*)))
+      (is (not (empty? (background-fakes))))
       (throw (Exception.)))
-    (catch Exception ex (is (= [] *background-fakes*)))))
+    (catch Exception ex (is (empty? (background-fakes))))))
 

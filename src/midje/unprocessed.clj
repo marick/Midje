@@ -13,7 +13,7 @@
   "The core function in unprocessed Midje. Takes a map describing a call and a 
    list of maps, each of which describes a secondary call the first call is supposed to 
    make. See the documentation at http://github.com/marick/Midje."
-  (let [expectations (adding-background-fakes local-expectations)]
+  (let [expectations (background-fakes-plus local-expectations)]
     (with-altered-roots (binding-map expectations)
       (let [code-under-test-result (capturing-exception
 				    (eagerly
