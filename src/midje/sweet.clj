@@ -2,6 +2,7 @@
   (:use clojure.test
         [clojure.contrib.ns-utils :only [immigrate]]
 	clojure.contrib.error-kit
+	[midje.unprocessed.background :only [set-background-fakes]]
 	[clojure.contrib.pprint :only [pprint]])
   (:require [midje.sweet.sweet-to-semi-sweet-rewrite :as transform])
   (:require [midje.sweet.line-number-insertion :as position])
@@ -28,3 +29,5 @@
   (let [background (background/expand description)]
     `(with-background-fakes ~background ~@forms)))
     
+(defmacro background [& description]
+  `(set-background-fakes ~(background/expand description)))
