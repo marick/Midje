@@ -1,4 +1,4 @@
-(ns midje.unprocessed.t-unprocessed-internals-test
+(ns midje.unprocessed.t-unprocessed-internals
   (:use clojure.test)
   (:use [midje.unprocessed.unprocessed-internals] :reload-all)
   (:use [midje.semi-sweet :only [fake]])

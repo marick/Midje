@@ -1,4 +1,4 @@
-(ns midje.unprocessed.t-background-facts
+(ns midje.unprocessed.t-unprocessed-background-fakes
   (:use clojure.test)
   (:use [midje.unprocessed.background])
   (:use [midje.semi-sweet] :reload-all) ;; test indirectly
