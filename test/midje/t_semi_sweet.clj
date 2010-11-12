@@ -1,4 +1,4 @@
-(ns midje.t-semi-sweet-test
+(ns midje.t-semi-sweet
   (:use clojure.test)
   (:use [midje.semi-sweet] :reload-all)
   (:use [midje.test-util]))
@@ -19,7 +19,7 @@
 	expectation-2 (fake (faked-function 1 some-variable) => [1 some-variable])]
 
     (is (= (:function expectation-0)
-	   #'midje.t-semi-sweet-test/faked-function))
+	   #'midje.t-semi-sweet/faked-function))
     (is (= (:call-text-for-failures expectation-1)
 	   "(faked-function some-variable)"))
     (is (= (deref (:count-atom expectation-0))
@@ -65,7 +65,7 @@
   (let [expectation-0 (not-called faked-function)]
 
     (is (= (:function expectation-0)
-           #'midje.t-semi-sweet-test/faked-function))
+           #'midje.t-semi-sweet/faked-function))
     (is (= (:call-text-for-failures expectation-0)
            "faked-function was called."))
     (is (= (deref (:count-atom expectation-0))

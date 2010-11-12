@@ -1,4 +1,4 @@
-(ns midje.t-unprocessed-test
+(ns midje.t-unprocessed
   (:use clojure.test)
   (:use [midje.unprocessed] :reload-all)
   (:use [midje.test-util]))
