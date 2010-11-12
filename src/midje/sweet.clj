@@ -17,9 +17,11 @@
 (deferror odd-test-forms [] [forms])
 
 (defmacro background [& description]
+  (define-metaconstants description)
   `(set-background-fakes ~(background/expand description)))
 
 (defmacro against-background [description & forms]
+  (define-metaconstants description)
   (let [background (background/expand description)]
     `(with-background-fakes ~background ~@forms)))
     

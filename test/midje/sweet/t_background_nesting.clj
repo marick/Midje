@@ -15,10 +15,10 @@
 
 (deftest background-command-slams-new-background-in-place
   (in-separate-namespace
-   (background (outermost) => 2)
-   (fact (+ 1 (outermost)) => 3)
-   (background (outermost) => -2)
-   (fact (+ 1 (outermost)) => -1)))
+   (background (outermost ...o...) => 1)
+   (fact (+ 1 (outermost ...o...)) => 2)
+   (background (outermost ...o...) => -1)
+   (fact (+ 1 (outermost ...o...)) => 0)))
 
 (deftest background-command-is-shadowed-by-against-background
   (in-separate-namespace

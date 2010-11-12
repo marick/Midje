@@ -25,6 +25,14 @@
 			     (f 1) => 3
 			     (against-background (h) => 3)]))))
 
+(declare middlemost innermost)
+(deftest against-background-defines-metaconstants
+  (against-background [ (middlemost ...m...) => 33 ]
+		      (fact
+			(against-background (innermost ...i...) => 8)
+			(+ (middlemost ...m...) (innermost ...i...)) => 41)))
+
+
 ;; (def *soothing* 2)
 
 ;; (println "and the answer IS!" (against-background
