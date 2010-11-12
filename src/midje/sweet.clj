@@ -7,7 +7,7 @@
   (:require [midje.sweet.line-number-insertion :as position])
   (:require [midje.sweet.folded-prerequisites :as folded])
   (:require [me.fogus.unifycle :as unify])
-  (:require [midje.sweet.background :as background])
+  (:require [midje.sweet.sweet-background :as background])
   (:use midje.sweet.metaconstants)
 )
 (immigrate 'midje.unprocessed)
@@ -24,8 +24,7 @@
 (defmacro facts [& forms]
   `(fact ~@forms))
 
-(defmacro against-background [& forms]
-  (let [ [default-prerequisites once-state each-state facts-to-check]
-	 (background/separate forms) ]
-    `(with-background-fakes ~default-prerequisites ~@facts-to-check)))
+(defmacro against-background [description & forms]
+  (let [background (background/expand description)]
+    `(with-background-fakes ~background ~@forms)))
     

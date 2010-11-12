@@ -123,8 +123,7 @@
 
 (deftest background-case-test
   (after
-   (against-background
-    (check-f 1) => true, (check-g 1) => true, (check-h 1) => true
+   (against-background [(check-f 1) => true, (check-g 1) => true, (check-h 1) => true]
     (facts
      (ander 1) => truthy
      (ander 1) => falsey (provided (check-f 1) => false)
