@@ -16,18 +16,21 @@
 
 (deferror odd-test-forms [] [forms])
 
-(defmacro fact [& forms]
-  (when (user-desires-checking?)
-    (let [runs (folded/rewrite (transform/rewrite (position/add-line-numbers forms)))]
-      (define-metaconstants runs)
-      `(every? true? (list ~@runs)))))
-
-(defmacro facts [& forms]
-  `(fact ~@forms))
+(defmacro background [& description]
+  `(set-background-fakes ~(background/expand description)))
 
 (defmacro against-background [description & forms]
   (let [background (background/expand description)]
     `(with-background-fakes ~background ~@forms)))
     
-(defmacro background [& description]
-  `(set-background-fakes ~(background/expand description)))
+(defmacro fact [& forms]
+  (when (user-desires-checking?)
+    (let [[background remainder] (background/separate-fact forms)
+	  runs (folded/rewrite (transform/rewrite (position/add-line-numbers remainder)))]
+      (define-metaconstants runs)
+      `(against-background ~background
+			  (every? true? (list ~@runs))))))
+
+(defmacro facts [& forms]
+  `(fact ~@forms))
+

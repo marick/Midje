@@ -23,3 +23,16 @@
 	  
 	  :else
 	  (throw (Error. "This doesn't look like part of a background:" in-progress)))))
+
+(defn form-first? [form desired]
+  (and (list? form)
+       (symbol? (first form))
+       (= (name (first form)) desired)))
+
+(defn background-form? [form]
+  (form-first? form "against-background"))
+
+(defn separate-fact [fact-forms]
+  [ (apply concat (map rest (filter background-form? fact-forms)))
+    (filter (comp not background-form?) fact-forms) ])
+  

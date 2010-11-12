@@ -23,7 +23,17 @@
 (deftest background-command-is-shadowed-by-against-background
   (in-separate-namespace
    (background (outermost) => 2
-	       (middlemost) => 1)
-   (against-background [ (middlemost) => 33 ]
+	       (middlemost) => 'a)
+   (against-background [ (middlemost) => 33]
 		       (fact (+ (middlemost) (outermost)) => 35))))
   
+
+(deftest three-levels-of-nesting
+  (in-separate-namespace
+   (background (outermost) => 2
+	       (middlemost) => 'a)
+   (against-background [ (middlemost) => 33
+			 (innermost) => 'c]
+		       (fact
+			 (against-background (innermost) => 8)
+			 (+ (middlemost) (outermost) (innermost)) => 43))))

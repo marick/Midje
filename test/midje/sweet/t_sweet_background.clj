@@ -13,6 +13,18 @@
 	   (midje.semi-sweet/fake (f 2) => 33 :type :background) ]
 	 (expand '[   (f 1) => 2 :foo 'bar (f 2) => 33 ]))))
 
+
+(deftest separating-background-from-facts-test
+  (is (= [ [] [] ] (separate-fact [])))
+  (is (= [ [] '[ (f 1) => 3 ] ] (separate-fact '[ (f 1) => 3 ])))
+  (is (= [ [] '[ (f 1) => 3 ] ] (separate-fact '[ (against-background) (f 1) => 3 ])))
+  (is (= [ '[(g) => 22] '[ (f 1) => 3 ] ]
+	   (separate-fact '[ (against-background (g) => 22) (f 1) => 3 ])))
+  (is (= [ '[(g) => 22 (h) => 3] '[ (f 1) => 3 ] ]
+	   (separate-fact '[ (against-background (g) => 22)
+			     (f 1) => 3
+			     (against-background (h) => 3)]))))
+
 ;; (def *soothing* 2)
 
 ;; (println "and the answer IS!" (against-background
