@@ -17,13 +17,19 @@
 (deferror odd-test-forms [] [forms])
 
 (defmacro background [& description]
-  (define-metaconstants description)
-  `(set-background-fakes ~(background/expand description)))
+  (when (user-desires-checking?)
+    (define-metaconstants description)
+    `(set-background-fakes ~(background/expand description))))
 
 (defmacro against-background [description & forms]
-  (define-metaconstants description)
-  (let [background (background/expand description)]
-    `(with-background-fakes ~background ~@forms)))
+  (cond (user-desires-checking?)
+	(do 
+	  (define-metaconstants description)
+	  (let [background (background/expand description)]
+	    `(with-background-fakes ~background ~@forms)))
+
+	:else
+	`(do ~@forms)))
     
 (defmacro fact [& forms]
   (when (user-desires-checking?)

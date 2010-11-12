@@ -46,14 +46,16 @@
 			overrides)
 )
 
+(defn- value-within [namespace-symbol variable-symbol]
+  (let [namespace (find-ns namespace-symbol)]
+    (if namespace
+      (var-get ((ns-map namespace) variable-symbol))
+      true)))
 
 (defn user-desires-checking? []
-  (cond (if-let [ns (find-ns 'clojure.test)]   ;; clojure.test might not always be loaded.
-	  (not (var-get ((ns-map ns) '*load-tests*))))
-	false
-
-	:else
-	*include-midje-checks*))
+  (and (value-within 'clojure.test '*load-tests*)
+       (value-within 'midje.sweet '*include-midje-checks*)
+       (value-within 'midje.semi-sweet '*include-midje-checks*)))
 
 (defmacro expect 
   "Run the call form, check that all the mocks defined in the expectations 
