@@ -3,7 +3,7 @@
   (:use clojure.test
 	[midje.semi-sweet :only [=>]]
 	[midje.util.file-position :only [line-number-known]]
-	midje.sweet.util)
+	midje.util.forms)
 )
 
 ;; Yeah, it's not tail-recursive. So sue me.

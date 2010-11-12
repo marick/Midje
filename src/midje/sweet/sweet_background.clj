@@ -1,8 +1,7 @@
 (ns midje.sweet.sweet-background
-  (use [midje.sweet.sweet-to-semi-sweet-rewrite
-	:only [one-fake-body-content
-	       make-fake
-	       ]]))
+  (:use midje.util.forms)
+  (:use [midje.sweet.sweet-to-semi-sweet-rewrite
+	:only [one-fake-body-content make-fake]]))
 
 (defn is-arrow-form? [forms]
   (= (str (second forms)) "=>"))
@@ -23,11 +22,6 @@
 	  
 	  :else
 	  (throw (Error. "This doesn't look like part of a background:" in-progress)))))
-
-(defn form-first? [form desired]
-  (and (list? form)
-       (symbol? (first form))
-       (= (name (first form)) desired)))
 
 (defn background-form? [form]
   (form-first? form "against-background"))

@@ -1,5 +1,5 @@
 (ns midje.sweet.t-sweet-to-semi-sweet-rewrite-test
-  (:use [midje.sweet.util] :reload-all)
+  (:use [midje.util.forms] :reload-all)
   (:use clojure.test)
   (:use midje.test-util)
 )
