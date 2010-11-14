@@ -113,3 +113,18 @@
 		      :expected-call "(name ...favorite-animal-value-2...)"}
 		     {:type :pass}])))
 )
+
+(unfinished outermost middlemost innermost)
+(deftest line-numbers-for-background-facts
+  (in-separate-namespace
+   (background (outermost) => 2)
+   (against-background [ (middlemost) => 33]
+     (after
+      (fact
+	(against-background (innermost) => 8)
+	(+ (middlemost)
+	   (outermost)
+	   (innermost)) => 44
+	   (+ 1 (middlemost)) => 2)
+      (is (reported? 2 [{ :position ["t_line_number_reporting_test.clj" 125]}
+  		        { :position ["t_line_number_reporting_test.clj" 128]}] ))))))
