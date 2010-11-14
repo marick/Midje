@@ -79,3 +79,9 @@
   (every? #(= (:type %) :pass) @reported))
 
 (defn raw-report [] (println @reported) true)
+
+(defmacro in-separate-namespace [& forms]
+  `(let [old-ns# *ns*]
+    (try (in-ns (gensym)) ~@forms
+    (finally (in-ns (ns-name old-ns#))))))
+

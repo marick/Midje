@@ -8,11 +8,6 @@
 
 (unfinished outermost middlemost innermost)
 
-(defmacro in-separate-namespace [& forms]
-  `(let [old-ns# *ns*]
-    (try (in-ns (gensym)) ~@forms
-    (finally (in-ns (ns-name old-ns#))))))
-
 (deftest background-command-slams-new-background-in-place
   (in-separate-namespace
    (background (outermost ...o...) => 1)
@@ -37,3 +32,11 @@
 		       (fact
 			 (against-background (innermost) => 8)
 			 (+ (middlemost) (outermost) (innermost)) => 43))))
+
+(against-background [ (middlemost) => 33 ]
+  (deftest spanning-deftest-does-not-work
+      (fact
+      (against-background (innermost) => 8)
+      (+ (middlemost) (innermost)) => (throws java.lang.Error))))
+     
+		      
