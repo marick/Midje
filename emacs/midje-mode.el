@@ -6,6 +6,8 @@
 ;; (eval-after-load 'clojure-mode
 ;;   '(define-clojure-indent
 ;;      (fact 'defun)
+;;      (facts 'defun)
+;;      (against-background 'defun)
 ;;      (provided 0)))
 
 ;; (require 'clojure-mode)
