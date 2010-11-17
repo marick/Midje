@@ -2,13 +2,9 @@ The process for pushing a new version is too complicated and
 manual. 
 
 * Update HISTORY
-* Touch the new version number whenever its used. 
-   (Should only be in the project files.)
+* bin/update-project-files <midje-version>
 * Rake fresh
 * bin/version 1.2.0 <midje-version>
-* bin/run-tests
-* Rake fresh
-* bin/version 1.1.0 <midje-version>
 * bin/run-tests
 
 * Rake fresh

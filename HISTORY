@@ -1,11 +1,13 @@
-= 0.7.3
+= 0.8.0 (stable)
+* Dropping support for Clojure 1.1.
 * Incompatible syntax change for #'against-background
 * Backgrounds can now be set for a namespace or within a
   #'fact body.
 * Background-setting functions obey *include-midje-checks*
-* Compiling out test code from production code actually works.
+* Compiling out test code from production code actually
+   works.
 
-= 0.7.2 (stable)
+= 0.7.2
 * Use alter-var-root instead of with-binding in preparation
   for Clojure 1.3 (and use with threads).
 * against-background

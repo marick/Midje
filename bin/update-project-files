@@ -1,0 +1,28 @@
+#!/usr/bin/env ruby
+
+MIDJE_VERSION=ARGV[0]
+unless MIDJE_VERSION
+  puts "need version"
+  exit 1
+end
+
+PATTERN = /([\[\s]midje\s+)".*"/
+SUBST = '\1'+%Q{"#{MIDJE_VERSION}"}
+
+Dir["**/project.clj"].each do | file | 
+  puts file
+  lines = File.readlines(file)
+  new_lines = lines.collect do | line |
+    if PATTERN =~ line
+      puts "   " + line
+      puts "   " + line.gsub(PATTERN, SUBST)
+      line.gsub(PATTERN, SUBST)
+    else
+      line
+    end
+  end
+  File.open(file, "w") do | io | 
+    io.puts new_lines.join
+  end
+end
+

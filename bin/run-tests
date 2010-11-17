@@ -13,7 +13,7 @@ lein_midje_runs = %w{examples/sweet-examples/basic
 run_runs = %w{ examples/semi-sweet-examples examples/sweet-examples/basic }
 
 puts "= Main Tests"
-system("ls lib")
+# system("ls lib")
 system("lein clean")
 system("lein test | grep failure")
 
@@ -21,7 +21,7 @@ puts "= Lein test tests"
 lein_test_runs.each do | dir | 
   puts("= " + dir)
   Dir.chdir(dir) do
-    system("ls lib")
+    # system("ls lib")
     system("lein clean")
     puts "  lein test"
     system("lein test > ~/tmp/lein.out; diff ~/tmp/lein.out lein-expected-output")
@@ -32,7 +32,7 @@ puts "= Lein midje tests"
 lein_midje_runs.each do | dir | 
   puts("= " + dir)
   Dir.chdir(dir) do
-    system("ls lib")
+    # system("ls lib")
     system("lein clean")
     puts "  lein midje"
     system("lein midje > ~/tmp/lein.out; diff ~/tmp/lein.out lein-expected-output")
@@ -44,7 +44,7 @@ puts "= Raw running"
 run_runs.each do | dir | 
   puts("= " + dir)
   Dir.chdir(dir) do
-    system("ls lib")
+    # system("ls lib")
     system("lein clean")
     puts "  run"
     system("run > ~/tmp/run.out; diff ~/tmp/run.out run-expected-output")
