@@ -7,11 +7,6 @@
 (ns midje.util.report
   (:use clojure.test))
 
-(if (re-find #"1.1" (clojure-version))
-  (use '[clojure.contrib.seq-utils :only [flatten]]))
-
-
-
 (defn- midje-position-string [position-pair]
   (format "(%s:%d)" (first position-pair) (second position-pair)))
 

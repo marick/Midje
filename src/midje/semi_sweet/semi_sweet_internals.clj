@@ -1,8 +1,6 @@
 (ns midje.semi-sweet.semi-sweet-internals
   (:use midje.util.file-position)
 )
-(if (re-find #"1.1" (clojure-version))
-  (use '[clojure.contrib.seq-utils :only [group-by]]))
 
 (defn only-mocked* [names]
   (let [declarations (map (fn [name] 

@@ -1,9 +1,5 @@
 (ns midje.util.checkers)
 
-(if (re-find #"1.1" (clojure-version))
-  (use '[clojure.contrib.seq-utils :only [frequencies]]))
-
-
 (def #^{:private true} captured-exception-key "this Throwable was captured by midje:")
 (defn captured-exception [e] {captured-exception-key e})
 (defn captured-exception? [value] (and (map? value) (value captured-exception-key)))
