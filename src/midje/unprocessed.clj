@@ -1,6 +1,7 @@
 (ns midje.unprocessed
   (:use clojure.test
-	[midje.unprocessed unprocessed-internals background]
+	[midje.background]
+	[midje.unprocessed unprocessed-internals]
         midje.util.report
         clojure.contrib.error-kit
         [clojure.contrib.ns-utils :only [immigrate]]))
@@ -22,11 +23,3 @@
 	(check-result code-under-test-result call-map)))))
       
 
-(defmacro with-background-fakes [fakes & forms]
-  "Check forms with fakes established as a 'background' -- they will
-   be used if needed, but it's not a failure if they're unused."
-  `(try
-     (push-background-fakes ~fakes)
-     ~@forms
-     (finally (pop-background-fakes))))
-  
