@@ -42,3 +42,7 @@
       (+ (middlemost) (innermost)) => (throws java.lang.Error))))
      
 		      
+(deftest left-to-right-shadowing
+   (against-background [ (middlemost) => 33 (middlemost) => 12]
+		       (fact (* 2 (middlemost)) => 24)))
+  
