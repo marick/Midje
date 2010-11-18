@@ -17,11 +17,11 @@
   (let [fakes [(fake (unused) => 3) (fake (used) => 4)]
 	more-fakes [ (fake (calls-nothing) => 5) ]]
     (push-background-fakes fakes)
-    (is (= [ fakes ] (background-fakes)))
+    (is (= [ (reverse fakes) ] (background-fakes)))
     (push-background-fakes more-fakes)
-    (is (= [more-fakes fakes] (background-fakes)))
+    (is (= [(reverse more-fakes) (reverse fakes)] (background-fakes)))
     (pop-background-fakes)
-    (is (= [fakes] (background-fakes)))
+    (is (= [(reverse fakes)] (background-fakes)))
     (pop-background-fakes)
     (is (empty? (background-fakes)))))
 

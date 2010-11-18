@@ -47,7 +47,7 @@
 )
 
 (defn call-faker [faked-function args expectations]
-  "This is the function that handles all mocked calls. Don't use it."
+  "This is the function that handles all mocked calls."
   (let [found (find-matching-call faked-function args expectations)]
     (if-not found 
       (do 

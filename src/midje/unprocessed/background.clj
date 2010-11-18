@@ -5,7 +5,7 @@
   (alter-meta! *ns* merge {:midje/background-fakes newval}))
 
 (defn push-background-fakes [fakes]
-  (set-background-fakes (cons fakes (background-fakes))))
+  (set-background-fakes (cons (reverse fakes) (background-fakes))))
 
 (defn pop-background-fakes [] 
   (set-background-fakes (rest (background-fakes))))

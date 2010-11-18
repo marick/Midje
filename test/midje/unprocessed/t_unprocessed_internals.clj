@@ -78,6 +78,16 @@
     )
 )
 
+(deftest earlier-binding-map-expectations-override-later
+  ;; So, if you want stack-like behavior, push them in reverse order.
+  (let [expectations [(fake (f 1) => 3 :type :background)
+		      (fake (f 1) => 4 :type :background)]
+	result-map (binding-map expectations)]
+
+   (call-faker (var f) [1] expectations)
+    (is (= 1 (deref (:count-atom (first expectations)))))
+    (is (= 0 (deref (:count-atom (second expectations)))))))
+
 (deftest function-aware-equality-test
   (is (falsey (function-aware-= 1 2)))
   (is (truthy (function-aware-= 1 odd?)))
