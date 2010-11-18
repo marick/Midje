@@ -5,3 +5,6 @@
 
 (defn pop-safely [the-var]
   (alter-var-root the-var rest))
+
+(defn set-namespace-pseudovariable [key-name newval] 
+  (alter-meta! *ns* merge {key-name newval}))
