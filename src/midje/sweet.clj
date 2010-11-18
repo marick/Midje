@@ -2,14 +2,14 @@
   (:use clojure.test
         [clojure.contrib.ns-utils :only [immigrate]]
 	clojure.contrib.error-kit
-	[midje.unprocessed.background :only [set-background-fakes]]
 	[clojure.contrib.pprint :only [pprint]])
   (:require [midje.sweet.sweet-to-semi-sweet-rewrite :as transform])
   (:require [midje.sweet.line-number-insertion :as position])
   (:require [midje.sweet.folded-prerequisites :as folded])
   (:require [me.fogus.unifycle :as unify])
-  (:require [midje.sweet.sweet-background :as background])
+  (:require [midje.background :as background])
   (:use midje.sweet.metaconstants)
+  (:use [clojure.walk :only [macroexpand-all]])
 )
 (immigrate 'midje.unprocessed)
 (immigrate 'midje.semi-sweet)
@@ -19,14 +19,14 @@
 (defmacro background [& description]
   (when (user-desires-checking?)
     (define-metaconstants description)
-    `(set-background-fakes ~(background/expand description))))
+    `(background/set-background-fakes ~(background/expand description))))
 
 (defmacro against-background [description & forms]
   (cond (user-desires-checking?)
 	(do 
 	  (define-metaconstants description)
 	  (let [background (background/expand description)]
-	    `(with-background-fakes ~background ~@forms)))
+	    (macroexpand-all `(background/with-background-fakes ~background ~@forms))))
 
 	:else
 	`(do ~@forms)))
