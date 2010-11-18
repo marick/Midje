@@ -23,15 +23,17 @@
 		       (fact (+ (middlemost) (outermost)) => 35))))
   
 
-(deftest three-levels-of-nesting
+(deftest three-levels-of-nesting-one-duplicated
   (in-separate-namespace
    (background (outermost) => 2
 	       (middlemost) => 'a)
-   (against-background [ (middlemost) => 33
+   (against-background [ (middlemost 2) => 33
 			 (innermost) => 'c]
-		       (fact
-			 (against-background (innermost) => 8)
-			 (+ (middlemost) (outermost) (innermost)) => 43))))
+
+     (against-background [ (middlemost 1) => -43 ]
+       (fact
+	 (against-background (innermost) => 8)
+	 (+ (middlemost 2) (middlemost 1) (outermost) (innermost)) => 0)))))
 
 (against-background [ (middlemost) => 33 ]
   (deftest spanning-deftest-does-not-work
