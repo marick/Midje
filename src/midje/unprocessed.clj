@@ -4,11 +4,13 @@
 	[midje.unprocessed unprocessed-internals]
         midje.util.report
         clojure.contrib.error-kit
-        [clojure.contrib.ns-utils :only [immigrate]]))
+        [clojure.contrib.ns-utils :only [immigrate]])
+  (:require [midje.background :as background]))
 (immigrate 'midje.util.checkers)
 
 
-
+(defn- background-fakes-plus [fakes]
+  (flatten (cons fakes (background/background-fakes))))
 
 (defn expect* [call-map local-expectations]
   "The core function in unprocessed Midje. Takes a map describing a call and a 

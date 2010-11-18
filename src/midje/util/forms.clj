@@ -15,3 +15,6 @@
        (symbol? (first form))
        (= (name (first form)) desired)))
 
+(defn is-arrow-form? [forms]
+  (= (str (second forms)) "=>"))
+
