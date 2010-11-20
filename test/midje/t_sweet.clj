@@ -3,7 +3,7 @@
   (:use [midje.sweet] :reload-all)
   (:use [midje.test-util])
   (:use [clojure.contrib.pprint]))
-	
+(testable-privates midje.sweet expand)	
 
 (deftest simple-assertion-examples
   (after 
@@ -131,4 +131,13 @@
      (ander 1) => falsey (provided (check-h 1) => false)))
     
    (is (reported? 4 [{:type :pass} {:type :pass} {:type :pass} {:type :pass}]))))
+
+(deftest expanding-background-forms
+  (is (= []  (expand [])))
+  (is (= '[(midje.semi-sweet/fake (f 1) => 2 :type :background)]
+	 (expand '[(f 1) => 2])))
+  (is (= '[(midje.semi-sweet/fake (f 1) => 2 :foo 'bar :type :background)
+	   (midje.semi-sweet/fake (f 2) => 33 :type :background) ]
+	 (expand '[   (f 1) => 2 :foo 'bar (f 2) => 33 ]))))
+
 
