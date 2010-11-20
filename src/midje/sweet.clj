@@ -43,7 +43,7 @@
 	(do 
 	  (define-metaconstants description)
 	  (let [background (expand description)]
-	    (macroexpand-all `(background/with-background-fakes ~background ~@forms))))
+	    `(background/with-background-fakes ~background ~@forms)))
 
 	:else
 	`(do ~@forms)))
