@@ -32,3 +32,18 @@
       (.getMessage ex) => "override"))
   root => "root")
 
+
+(facts "namespace values..."
+  "... can be set"
+  (namespace-value :testval) => nil
+  (set-namespace-value :testval '( ( (1) ) ))
+  (namespace-value :testval) => '( ( (1) ) )
+
+  "... are accessed by a peculiar function"
+  (namespace-values-inside-out :peculiar) => '()
+
+  "are usually used in a stack-oriented way"
+  (with-pushed-namespace-values :stacky '(1 2)
+    (with-pushed-namespace-values :stacky '(3 4)
+      (namespace-values-inside-out :stacky) => '(4 3 2 1))))
+  

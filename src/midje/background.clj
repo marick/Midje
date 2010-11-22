@@ -1,5 +1,5 @@
 (ns midje.background
-  (:use [midje.util.thread-safe-var-nesting :only [set-namespace-pseudovariable]])
+  (:use [midje.util.thread-safe-var-nesting :only [set-namespace-value]])
   (:use midje.util.recognizing-forms)
   (:require [me.fogus.unifycle :as unify]))
 
@@ -7,7 +7,7 @@
 (defn background-fakes [] (:midje/background-fakes (meta *ns*)))
 
 (defn set-background-fakes [newval]
-  (set-namespace-pseudovariable :midje/background-fakes newval))
+  (set-namespace-value :midje/background-fakes newval))
 
 (defn push-background-fakes [fakes]
   (set-background-fakes (cons (reverse fakes) (background-fakes))))

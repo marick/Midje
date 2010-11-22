@@ -1,6 +1,7 @@
 (ns midje.util.thread-safe-var-nesting)
 
 ;; Variables that are expected to already be bound
+
 (defn push-safely [the-var some-sequence]
   (alter-var-root the-var (partial cons some-sequence)))
 
@@ -38,6 +39,25 @@
   `(with-altered-roots* ~binding-map (fn [] ~@rest)))
 
 
-;; "Variables" associated with namespaces
-(defn set-namespace-pseudovariable [key-name newval] 
+;; Values associated with namespaces
+(defn set-namespace-value [key-name newval] 
   (alter-meta! *ns* merge {key-name newval}))
+
+(defn namespace-value [key-name]
+  (key-name (meta *ns*)))
+
+(defn push-into-namespace [key-name newvals]
+  (set-namespace-value key-name (cons (reverse newvals)
+				      (namespace-value key-name))))
+
+(defn pop-from-namespace [key-name]
+  (set-namespace-value key-name (rest (namespace-value key-name))))
+
+(defmacro with-pushed-namespace-values [key-name values & forms]
+  `(try
+     (push-into-namespace ~key-name ~values)
+     ~@forms
+     (finally (pop-from-namespace ~key-name))))
+
+(defn namespace-values-inside-out [key-name]
+  (apply concat (namespace-value key-name)))

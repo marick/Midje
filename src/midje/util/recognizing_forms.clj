@@ -10,8 +10,9 @@
     ( (set (concat base-names qualified-names)) (str (zip/node loc)))))
 
 
+;; TODO: had to change list? to sequential? because unification produces lazyseqs.
 (defn form-first? [form desired]
-  (and (list? form)
+  (and (sequential? form)
        (symbol? (first form))
        (= (name (first form)) desired)))
 
