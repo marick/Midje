@@ -60,34 +60,6 @@
         ((found :result-supplier)))))
   )
 
-(def unbound-marker :midje/special-midje-unbound-marker)
-
-(defn restore-one-root [[variable new-value]]
-  (if (= new-value unbound-marker)
-    (.unbindRoot variable)
-    (alter-var-root variable (fn [current-value] new-value))))
-
-(defn alter-one-root [[variable new-value]]
-   (if (bound? variable) 
-     (let [old-value (deref variable)]
-       (alter-var-root variable (fn [current-value] new-value))
-       [variable old-value])
-     (do
-       (.bindRoot variable new-value)
-       [variable unbound-marker])))
-
-(defn with-altered-roots* [binding-map function]
-  (let [old-bindings (into {} (for [pair binding-map] (alter-one-root pair)))]
-    (try (function)
-	 ;; Can't use doseq inside a finally clause.
-	 (finally (dorun (map restore-one-root old-bindings))))))
-
-(defmacro with-altered-roots
-  "Used instead of with-bindings because bindings are thread-local
-   and will require specially declared vars in Clojure 1.3"
-  [binding-map & rest]
-  `(with-altered-roots* ~binding-map (fn [] ~@rest)))
-
 (defn binding-map [expectations]
   (reduce (fn [accumulator function-var] 
 	      (let [faker (fn [& actual-args] (call-faker function-var actual-args expectations))]

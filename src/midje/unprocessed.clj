@@ -3,6 +3,7 @@
 	[midje.background]
 	[midje.unprocessed unprocessed-internals]
         midje.util.report
+	[midje.util.thread-safe-var-nesting :only [with-altered-roots]]
         clojure.contrib.error-kit
         [clojure.contrib.ns-utils :only [immigrate]])
   (:require [midje.background :as background]))

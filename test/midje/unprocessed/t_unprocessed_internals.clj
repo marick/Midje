@@ -95,28 +95,3 @@
     (is (falsey (function-aware-= 5 ((checker 5) 4)))))
 )
 
-(def root "root")
-(def unbound!)
-
-(deftest with-altered-roots-test
-  (is (= "root" root))
-  (is (= "override" (with-altered-roots {(var root) "override"} root)))
-  (is (= "root" root))
-
-  ;; works with lexical scope
-  (let [appendage " ROOT!"]
-    (is (= "override ROOT!" (with-altered-roots {#'root "override"} (str root appendage)))))
-  (is (= "root" root))
-
-  ;; works with unbound variables
-  (is (not (bound? #'unbound!)))
-  (is (= "override" (with-altered-roots {#'unbound! "override"} unbound!)))
-  (is (not (bound? #'unbound!)))
-
-  ;; works with throwables
-  (try
-    (with-altered-roots {#'root "override"} (throw (Throwable. root)))
-    (catch Throwable ex
-      (is (= "override" (.getMessage ex)))))
-  (is (= "root" root)))
-
