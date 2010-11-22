@@ -1,6 +1,6 @@
 (ns midje.background
   (:use [midje.util.thread-safe-var-nesting :only [set-namespace-pseudovariable]])
-  (:use midje.util.forms)
+  (:use midje.util.recognizing-forms)
   (:require [me.fogus.unifycle :as unify]))
 
 

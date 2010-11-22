@@ -1,4 +1,4 @@
-(ns midje.util.forms
+(ns midje.util.recognizing-forms
   (:require [clojure.zip :as zip]))
 
 ;; TODO: Replace with form-first-like strategy?

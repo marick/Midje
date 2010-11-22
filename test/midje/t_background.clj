@@ -67,6 +67,7 @@
       (is (not (empty? (background-fakes))))
       (throw (Exception.)))
     (catch Exception ex (is (empty? (background-fakes))))))
+(background-wrapper-unwind-protects)
 
 (expect (separate-fact '[ (against-background) (f 1) => 3 ]) => [ [] '[ (f 1) => 3 ] ])
 

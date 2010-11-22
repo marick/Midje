@@ -1,6 +1,6 @@
 (ns midje.sweet.folded-prerequisites
   (:use midje.semi-sweet)
-  (:use midje.util.forms)
+  (:use midje.util.recognizing-forms)
   (:require [clojure.zip :as zip])
   )
 
