@@ -23,5 +23,8 @@
 (simulated-wrapper (expect (+ x y) => 43))
 (pop-from-namespace :midje/wrappers)
 
-;(fact "facts are expanded"
-;  (simulated-wrapper (fact x => 1)))
+(fact "nested expect forms are wrapped"
+  (simulated-wrapper (do (expect x => 1))))
+
+(fact "facts are expanded"
+  (simulated-wrapper (fact x => 1)))

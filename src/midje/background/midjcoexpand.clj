@@ -13,10 +13,21 @@
 	       (rest wrappers))))
 
 (defn to-be-expanded? [form]
+  (form-first? form "fact"))
+
+(defn wrappable? [form]
   (form-first? form "expect"))
 
 (defn midjcoexpand [form]
-  (if (to-be-expanded? form)
-    (multiwrap form (namespace-values-inside-out :midje/wrappers))
-    form))
+  (cond (wrappable? form)
+	(multiwrap form (namespace-values-inside-out :midje/wrappers))
+
+	(to-be-expanded? form)
+	(midjcoexpand (macroexpand form))
+
+	(sequential? form)
+	(map midjcoexpand form)
+	
+	:else
+	form))
 
