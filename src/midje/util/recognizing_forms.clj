@@ -19,3 +19,9 @@
 (defn is-arrow-form? [forms]
   (= (str (second forms)) "=>"))
 
+
+
+
+(defn background-form? [form]
+  (form-first? form "against-background"))
+

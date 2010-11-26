@@ -2,7 +2,7 @@
   (:require [me.fogus.unifycle :as unify])
   (:use [midje.util thread-safe-var-nesting recognizing-forms])
   (:use [midje.unprocessed.unprocessed-internals :only [eagerly]])
-  (:require [midje.background :as background])
+  (:use [midje.util.transforming-midje-forms :only [make-background]])
   (:use midje.sweet.metaconstants)
   (:require [midje.sweet.sweet-to-semi-sweet-rewrite :as transform])
   )
@@ -40,7 +40,7 @@
 
 	  (is-arrow-form? in-progress)
 	  (let [content (transform/one-fake-body-content in-progress)]
-	    (recur (conj expanded (-> content transform/make-fake background/make-background))
+	    (recur (conj expanded (-> content transform/make-fake make-background))
 		   (nthnext in-progress (count content))))
 	  
 	  :else
