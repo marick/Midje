@@ -12,7 +12,7 @@
   (println val)
   val)
 
-(defn- ?form [] (symbol (name (ns-name *ns*)) "?form")) ; this cannot be right
+(defn ?form [] (symbol (name (ns-name *ns*)) "?form")) ; this cannot be right
 
 (defn wrap [outer-form inner-form]
 ;  (println "wrapping" inner-form "with" outer-form)
@@ -76,9 +76,9 @@
     contents))
 
 (defn midjcoexpand [form]
-  ;; (println "== midjcoexpanding" form)
-  ;; (println "== with" (namespace-values-inside-out :midje/wrappers))
-  (cond (already-wrapped? form)
+;   (println "== midjcoexpanding" form)
+;   (println "== with" (namespace-values-inside-out :midje/wrappers))
+  (nopret (cond (already-wrapped? form)
 	form
 
 	(form-first? form "quote")
@@ -102,4 +102,4 @@
 		 (eagerly (map midjcoexpand form)))
 
 	:else
-	form))
+	form)))
