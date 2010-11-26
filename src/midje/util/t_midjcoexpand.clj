@@ -1,7 +1,7 @@
-(ns midje.background.t-midjcoexpand
+(ns midje.util.t-midjcoexpand
   (:use midje.sweet)
   (:use [midje.util.thread-safe-var-nesting])
-  (:use midje.background.midjcoexpand))
+  (:use midje.util.midjcoexpand))
 
 
 

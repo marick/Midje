@@ -1,4 +1,4 @@
-(ns midje.background.midjcoexpand
+(ns midje.util.midjcoexpand
   (:require [me.fogus.unifycle :as unify])
   (:use [midje.util thread-safe-var-nesting recognizing-forms])
   (:use [midje.unprocessed.unprocessed-internals :only [eagerly]])

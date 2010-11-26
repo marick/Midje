@@ -4,7 +4,7 @@
 	clojure.contrib.error-kit
 	[clojure.contrib.pprint :only [pprint]])
   (:use midje.util.recognizing-forms)
-  (:use [midje.background.midjcoexpand :only [midjcoexpand replace-wrappers]])
+  (:use [midje.util.midjcoexpand :only [midjcoexpand replace-wrappers]])
   (:use [midje.util.transforming-midje-forms :only [separate-fact]])
   (:require [midje.sweet.sweet-to-semi-sweet-rewrite :as transform])
   (:require [midje.sweet.line-number-insertion :as position])
