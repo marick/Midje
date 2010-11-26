@@ -1,4 +1,4 @@
-(ns midje.sweet.t-background-nesting
+(ns behaviors.t-background-nesting
   (:use clojure.test)
   (:use [midje.sweet] :reload-all)
   (:use [midje.test-util])
