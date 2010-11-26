@@ -71,7 +71,6 @@
 
 
 
-
 (deftest binding-examples
   (let [outer-value 2]
     (fact
@@ -79,6 +78,7 @@
        (call2 outer-value inner-value) => 23
        (provided (g outer-value) => (* 10 outer-value)
 		 (g inner-value) => inner-value)))))
+
 
 (defn always-one [x] 1)
 (defn g-caller [x] (g x))
@@ -131,13 +131,4 @@
      (ander 1) => falsey (provided (check-h 1) => false)))
     
    (is (reported? 4 [{:type :pass} {:type :pass} {:type :pass} {:type :pass}]))))
-
-(deftest expanding-background-forms
-  (is (= []  (expand [])))
-  (is (= '[(midje.semi-sweet/fake (f 1) => 2 :type :background)]
-	 (expand '[(f 1) => 2])))
-  (is (= '[(midje.semi-sweet/fake (f 1) => 2 :foo 'bar :type :background)
-	   (midje.semi-sweet/fake (f 2) => 33 :type :background) ]
-	 (expand '[   (f 1) => 2 :foo 'bar (f 2) => 33 ]))))
-
 

@@ -2,7 +2,8 @@
   (:use clojure.test)
   (:use [midje.sweet] :reload-all)
   (:use [midje.test-util])
-  (:use clojure.contrib.pprint))
+  (:use clojure.contrib.pprint)
+)
 
 ;; This is a separate file because we're making namespace-wide changes
 
@@ -35,14 +36,37 @@
 	 (against-background (innermost) => 8)
 	 (+ (middlemost 2) (middlemost 1) (outermost) (innermost)) => 0)))))
 
+
 (against-background [ (middlemost) => 33 ]
-  (deftest spanning-deftest-does-not-work
-      (fact
+  (deftest backgrounds-span-deftests
+    (fact
       (against-background (innermost) => 8)
-      (+ (middlemost) (innermost)) => (throws java.lang.Error))))
+      (+ (middlemost) (innermost)) => 41)))
      
 		      
 (deftest left-to-right-shadowing
-   (against-background [ (middlemost) => 33 (middlemost) => 12]
-		       (fact (* 2 (middlemost)) => 24)))
+  (against-background [ (middlemost) => 33 (middlemost) => 12]
+    (fact (* 2 (middlemost)) => 24)))
   
+(in-separate-namespace
+ (against-background [ (middlemost) => "FOO!" ]
+   (try 
+     (against-background [ (middlemost) => 33 ]
+       (fact (middlemost) => 33)
+       (throw (Throwable.)))
+     (catch Throwable ex))
+   (fact (middlemost) => "FOO!")))
+
+
+(in-separate-namespace
+ (fact (map? {1 'do}) => truthy)
+ (fact (first (second '(midje.semi-sweet.expect (midje.sweet.fact 1 => 2)))) => 'midje.sweet.fact)
+ (fact (set? #{1 'do}) => truthy)
+
+
+ (against-background [ (middlemost ...one...) => 1 ]
+   (let [two 2]
+     (facts
+       (vector? [1 two]) => truthy
+       (let [three 3]
+	 (+ (middlemost ...one...) two three) => 6)))))

@@ -12,4 +12,3 @@
     (expect (namespacey-match '(m) m-node) => truthy)
     (expect (namespacey-match '(expect) expect-node) => truthy)
     (expect (namespacey-match '(n) m-node) => falsey)))
-

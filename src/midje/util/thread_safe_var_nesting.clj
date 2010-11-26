@@ -47,10 +47,12 @@
   (key-name (meta *ns*)))
 
 (defn push-into-namespace [key-name newvals]
+;  (println "push onto" key-name "these" newvals)
   (set-namespace-value key-name (cons (reverse newvals)
 				      (namespace-value key-name))))
 
 (defn pop-from-namespace [key-name]
+;  (println "popping" key-name)
   (set-namespace-value key-name (rest (namespace-value key-name))))
 
 (defmacro with-pushed-namespace-values [key-name values & forms]

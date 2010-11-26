@@ -11,6 +11,7 @@
 (defn pairs [first-seq second-seq]
   (partition 2 (interleave first-seq second-seq)))
 
+; Move this to own file.
 (defn eagerly [value]
   (if (seq? value)
     (loop [loc (zip/seq-zip value)]  ;; touch every node

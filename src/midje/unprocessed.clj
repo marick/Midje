@@ -1,17 +1,17 @@
 (ns midje.unprocessed
   (:use clojure.test
-	[midje.background]
 	[midje.unprocessed unprocessed-internals]
         midje.util.report
-	[midje.util.thread-safe-var-nesting :only [with-altered-roots]]
+	[midje.util.thread-safe-var-nesting]
         clojure.contrib.error-kit
-        [clojure.contrib.ns-utils :only [immigrate]])
-  (:require [midje.background :as background]))
+        [clojure.contrib.ns-utils :only [immigrate]]))
 (immigrate 'midje.util.checkers)
 
 
 (defn- background-fakes-plus [fakes]
-  (flatten (cons fakes (background/background-fakes))))
+  (concat fakes (namespace-values-inside-out :midje/background-fakes)))
+;  (if (not (empty? (background/background-fakes))) (println (background/background-fakes)))
+;  (flatten (cons fakes (background/background-fakes))))
 
 (defn expect* [call-map local-expectations]
   "The core function in unprocessed Midje. Takes a map describing a call and a 
