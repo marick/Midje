@@ -1,16 +1,12 @@
-(ns midje.util.t-transforming-midje-forms
-  (:use [midje.util.transforming-midje-forms] :reload-all)
-  (:use [midje.sweet])
-  (:use [midje.test-util])
-  (:use clojure.contrib.pprint))
-
+(ns midje.util.t-dissecting-midje-forms
+  (:use [midje.util.dissecting-midje-forms] :reload-all)
+  (:use midje.sweet)
+  (:require [clojure.zip :as zip])
+  (:use midje.test-util)
+)
 
 (unfinished unused used)
 (defn calls-nothing [] )
-
-(fact "background prerequisites don't have to be used"
-  (expect (calls-nothing) => nil
-	  (fake (unused) => 3 :type :background)))
 
 (unfinished local)
 (defn calls-used [] (str (used) " " (local)))

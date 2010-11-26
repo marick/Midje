@@ -1,4 +1,4 @@
-(ns midje.util.debugging-support)
+(ns midje.util.debugging)
 
 (defn nopret [val] val)
 (defn pret [val]

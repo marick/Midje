@@ -3,7 +3,6 @@
   (:use [midje.sweet] :reload-all)
   (:use [midje.test-util])
   (:use [clojure.contrib.pprint]))
-(testable-privates midje.sweet expand)	
 
 (deftest simple-assertion-examples
   (after 

@@ -1,4 +1,4 @@
-(ns midje.util.recognizing-forms
+(ns midje.util.recognizing-midje-forms
   (:require [clojure.zip :as zip]))
 
 ;; TODO: Replace with form-first-like strategy?
@@ -25,3 +25,9 @@
 (defn background-form? [form]
   (form-first? form "against-background"))
 
+(defn already-wrapped? [form] (form-first? form "midje-wrapped"))
+(defn wrappable? [form] (form-first? form "expect"))
+(defn expansion-has-wrappables? [form]
+  (or (form-first? form "fact")
+      (form-first? form "facts")))
+(defn provides-wrappers? [form] (form-first? form "against-background"))

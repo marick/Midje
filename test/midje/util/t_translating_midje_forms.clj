@@ -1,16 +1,17 @@
-(ns midje.util.t-midjcoexpand
-  (:use midje.sweet)
+(ns midje.util.t-translating-midje-forms
+  (:use [midje.util.translating-midje-forms] :reload-all)
+  (:use [midje.sweet])
+  (:use [midje.test-util])
   (:use [midje.util.thread-safe-var-nesting])
-  (:use midje.util.midjcoexpand))
-
-
+  (:use [midje.util.building-midje-forms])
+  (:use clojure.contrib.pprint))
 
 (fact "human-friendly background forms can be expanded appropriately"
   (expand []) => []
   (expand '[(f 1) => 2]) => '[(midje.semi-sweet/fake (f 1) => 2 :type :background)]
   (expand '[   (f 1) => 2 :foo 'bar (f 2) => 33 ]) => 
-              '[(midje.semi-sweet/fake (f 1) => 2 :foo 'bar :type :background)
-		(midje.semi-sweet/fake (f 2) => 33 :type :background) ])
+  '[(midje.semi-sweet/fake (f 1) => 2 :foo 'bar :type :background)
+    (midje.semi-sweet/fake (f 2) => 33 :type :background) ])
 
 (push-into-namespace :midje/wrappers '[ (let [x 1] (?form)) ] )
 

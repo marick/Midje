@@ -3,9 +3,9 @@
         [clojure.contrib.ns-utils :only [immigrate]]
 	clojure.contrib.error-kit
 	[clojure.contrib.pprint :only [pprint]])
-  (:use midje.util.recognizing-forms)
-  (:use [midje.util.midjcoexpand :only [midjcoexpand replace-wrappers]])
-  (:use [midje.util.transforming-midje-forms :only [separate-fact]])
+  (:use midje.util.recognizing-midje-forms)
+  (:use [midje.util.translating-midje-forms :only [midjcoexpand replace-wrappers]])
+  (:use [midje.util.dissecting-midje-forms :only [separate-fact]])
   (:require [midje.sweet.sweet-to-semi-sweet-rewrite :as transform])
   (:require [midje.sweet.line-number-insertion :as position])
   (:require [midje.sweet.folded-prerequisites :as folded])

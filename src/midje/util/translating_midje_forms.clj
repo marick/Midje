@@ -1,18 +1,13 @@
-(ns midje.util.midjcoexpand
+(ns midje.util.translating-midje-forms
   (:require [me.fogus.unifycle :as unify])
-  (:use [midje.util thread-safe-var-nesting recognizing-forms])
+  (:use [midje.util thread-safe-var-nesting])
   (:use [midje.unprocessed.unprocessed-internals :only [eagerly]])
-  (:use [midje.util.transforming-midje-forms :only [make-background]])
   (:use midje.sweet.metaconstants)
   (:require [midje.sweet.sweet-to-semi-sweet-rewrite :as transform])
-  )
+  (:use [midje.util building-midje-forms recognizing-midje-forms])
+  (:use [midje.util.debugging]))
 
-(defn nopret [val] val)
-(defn pret [val]
-  (println val)
-  val)
-
-(defn ?form [] (symbol (name (ns-name *ns*)) "?form")) ; this cannot be right
+(defn midje-wrapped [value] value)
 
 (defn wrap [outer-form inner-form]
 ;  (println "wrapping" inner-form "with" outer-form)
@@ -23,14 +18,6 @@
     `(midje-wrapped ~form)
     (multiwrap (wrap (first wrappers) form)
 	       (rest wrappers))))
-
-(defn midje-wrapped [value] value)
-(defn already-wrapped? [form] (form-first? form "midje-wrapped"))
-(defn wrappable? [form] (form-first? form "expect"))
-(defn expansion-has-wrappables? [form]
-  (or (form-first? form "fact")
-      (form-first? form "facts")))
-(defn provides-wrappers? [form] (form-first? form "against-background"))
 
 (defn expand [forms]
   (loop [expanded []
@@ -45,7 +32,6 @@
 	  
 	  :else
 	  (throw (Error. "This doesn't look like part of a background:" in-progress)))))
-
 
 (declare midjcoexpand)
 
@@ -103,3 +89,4 @@
 
 	:else
 	form)))
+
