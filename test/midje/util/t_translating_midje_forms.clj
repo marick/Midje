@@ -7,11 +7,12 @@
   (:use clojure.contrib.pprint))
 
 (fact "human-friendly background forms can be expanded appropriately"
-  (expand []) => []
-  (expand '[(f 1) => 2]) => '[(midje.semi-sweet/fake (f 1) => 2 :type :background)]
-  (expand '[   (f 1) => 2 :foo 'bar (f 2) => 33 ]) => 
-  '[(midje.semi-sweet/fake (f 1) => 2 :foo 'bar :type :background)
-    (midje.semi-sweet/fake (f 2) => 33 :type :background) ])
+  (expand-background-shorthand-forms []) => []
+  (expand-background-shorthand-forms '[(f 1) => 2]) =>
+                                      '[(midje.semi-sweet/fake (f 1) => 2 :type :background)]
+  (expand-background-shorthand-forms '[   (f 1) => 2 :foo 'bar (f 2) => 33 ]) => 
+                              '[(midje.semi-sweet/fake (f 1) => 2 :foo 'bar :type :background)
+                              (midje.semi-sweet/fake (f 2) => 33 :type :background) ])
 
 (push-into-namespace :midje/wrappers '[ (let [x 1] (?form)) ] )
 

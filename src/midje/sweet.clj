@@ -5,7 +5,7 @@
 	[clojure.contrib.pprint :only [pprint]])
   (:use midje.util.recognizing-midje-forms)
   (:use [midje.util.translating-midje-forms :only [midjcoexpand replace-wrappers]])
-  (:use [midje.util.dissecting-midje-forms :only [separate-fact]])
+  (:use [midje.util.dissecting-midje-forms :only [separate-background-forms]])
   (:require [midje.sweet.sweet-to-semi-sweet-rewrite :as transform])
   (:require [midje.sweet.line-number-insertion :as position])
   (:require [midje.sweet.folded-prerequisites :as folded])
@@ -30,7 +30,7 @@
     
 (defmacro fact [& forms]
   (when (user-desires-checking?)
-    (let [[background remainder] (separate-fact forms)
+    (let [[background remainder] (separate-background-forms forms)
 	  runs (folded/rewrite (transform/rewrite (position/add-line-numbers remainder)))]
       (define-metaconstants runs)
       `(against-background ~background

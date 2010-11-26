@@ -20,14 +20,17 @@
   (= (str (second forms)) "=>"))
 
 
-
-
-(defn background-form? [form]
-  (form-first? form "against-background"))
+;;; Wrapping
 
 (defn already-wrapped? [form] (form-first? form "midje-wrapped"))
-(defn wrappable? [form] (form-first? form "expect"))
-(defn expansion-has-wrappables? [form]
+
+(defn expect? [form] (form-first? form "expect"))
+(def wrappable? expect?)
+
+(defn fact-claim [form]
   (or (form-first? form "fact")
       (form-first? form "facts")))
-(defn provides-wrappers? [form] (form-first? form "against-background"))
+(def expansion-has-wrappables? fact-claim)
+
+(defn background-form? [form] (form-first? form "against-background"))
+(def provides-wrappers? background-form?)

@@ -19,7 +19,7 @@
     (multiwrap (wrap (first wrappers) form)
 	       (rest wrappers))))
 
-(defn expand [forms]
+(defn expand-background-shorthand-forms [forms]
   (loop [expanded []
 	 in-progress forms]
     (cond (empty? in-progress)
@@ -37,7 +37,7 @@
 
 (defn background-fake-wrapper [raw-wrappers]
   (define-metaconstants raw-wrappers)
-  (let [background (expand raw-wrappers)]
+  (let [background (expand-background-shorthand-forms raw-wrappers)]
     `[ (with-pushed-namespace-values :midje/background-fakes ~background ~(?form)) ]))
 
 (defn replace-wrappers [raw-wrappers]
