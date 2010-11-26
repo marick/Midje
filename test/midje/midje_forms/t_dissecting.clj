@@ -1,5 +1,5 @@
-(ns midje.util.t-dissecting-midje-forms
-  (:use [midje.util.dissecting-midje-forms] :reload-all)
+(ns midje.midje-forms.t-dissecting
+  (:use [midje.midje-forms.dissecting] :reload-all)
   (:use midje.sweet)
   (:use midje.test-util)
 )

@@ -1,7 +1,7 @@
 (ns midje.sweet.t-sweet-to-semi-sweet-rewrite-test
   (:use [midje.sweet.sweet-to-semi-sweet-rewrite] :reload-all)
   (:use midje.semi-sweet)
-  (:use midje.util.recognizing-midje-forms)
+  (:use midje.midje-forms.recognizing)
   (:use clojure.test)
   (:require [clojure.zip :as zip])
   (:use midje.test-util)

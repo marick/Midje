@@ -1,9 +1,9 @@
-(ns midje.util.translating-midje-forms
+(ns midje.midje-forms.translating
   (:use [midje.util thread-safe-var-nesting wrapping form-utils])
   (:use [midje.unprocessed.unprocessed-internals :only [eagerly]])
   (:use midje.sweet.metaconstants)
   (:require [midje.sweet.sweet-to-semi-sweet-rewrite :as transform])
-  (:use [midje.util building-midje-forms recognizing-midje-forms])
+  (:use [midje.midje-forms building recognizing])
   (:use [midje.util.debugging]))
 
 (defn expand-background-shorthand-forms [forms]

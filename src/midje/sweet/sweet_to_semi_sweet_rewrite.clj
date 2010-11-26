@@ -1,7 +1,7 @@
 (ns midje.sweet.sweet-to-semi-sweet-rewrite
   (:use clojure.test
 	midje.semi-sweet
-	midje.util.recognizing-midje-forms
+	midje.midje-forms.recognizing
         [clojure.contrib.ns-utils :only [immigrate]])
   (:require [clojure.zip :as zip])
 )

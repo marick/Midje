@@ -1,4 +1,4 @@
-(ns midje.util.recognizing-midje-forms
+(ns midje.midje-forms.recognizing
   (:use midje.util.form-utils)
   (:require [midje.util.wrapping :as wrapping])
   (:require [clojure.zip :as zip]))

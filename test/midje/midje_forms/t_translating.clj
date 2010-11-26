@@ -1,10 +1,10 @@
-(ns midje.util.t-translating-midje-forms
-  (:use [midje.util.translating-midje-forms] :reload-all)
+(ns midje.midje-forms.t-translating
+  (:use [midje.midje-forms.translating] :reload-all)
   (:use [midje.sweet])
   (:use [midje.test-util])
   (:use [midje.util.thread-safe-var-nesting]
 	[midje.util.wrapping :only [?form]])
-  (:use [midje.util.building-midje-forms])
+  (:use [midje.midje-forms.building])
   (:use clojure.contrib.pprint))
 
 (fact "human-friendly background forms can be expanded appropriately"
