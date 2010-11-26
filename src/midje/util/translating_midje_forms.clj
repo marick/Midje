@@ -1,23 +1,10 @@
 (ns midje.util.translating-midje-forms
-  (:require [me.fogus.unifycle :as unify])
-  (:use [midje.util thread-safe-var-nesting])
+  (:use [midje.util thread-safe-var-nesting wrapping form-utils])
   (:use [midje.unprocessed.unprocessed-internals :only [eagerly]])
   (:use midje.sweet.metaconstants)
   (:require [midje.sweet.sweet-to-semi-sweet-rewrite :as transform])
   (:use [midje.util building-midje-forms recognizing-midje-forms])
   (:use [midje.util.debugging]))
-
-(defn midje-wrapped [value] value)
-
-(defn wrap [outer-form inner-form]
-;  (println "wrapping" inner-form "with" outer-form)
-  (unify/subst outer-form {(?form) inner-form}))
-
-(defn multiwrap [form wrappers]
-  (if (empty? wrappers)
-    `(midje-wrapped ~form)
-    (multiwrap (wrap (first wrappers) form)
-	       (rest wrappers))))
 
 (defn expand-background-shorthand-forms [forms]
   (loop [expanded []

@@ -1,7 +1,6 @@
 (ns midje.util.t-dissecting-midje-forms
   (:use [midje.util.dissecting-midje-forms] :reload-all)
   (:use midje.sweet)
-  (:require [clojure.zip :as zip])
   (:use midje.test-util)
 )
 

@@ -2,7 +2,8 @@
   (:use [midje.util.translating-midje-forms] :reload-all)
   (:use [midje.sweet])
   (:use [midje.test-util])
-  (:use [midje.util.thread-safe-var-nesting])
+  (:use [midje.util.thread-safe-var-nesting]
+	[midje.util.wrapping :only [?form]])
   (:use [midje.util.building-midje-forms])
   (:use clojure.contrib.pprint))
 
@@ -14,6 +15,10 @@
                               '[(midje.semi-sweet/fake (f 1) => 2 :foo 'bar :type :background)
                               (midje.semi-sweet/fake (f 2) => 33 :type :background) ])
 
+
+;; Note: the explicit stack discipline is because "midjcoexpansion" happens before
+;; macroexpansion (mostly) and so a with-pushed-namespace-values would not perform the
+;; push at the right moment.
 (push-into-namespace :midje/wrappers '[ (let [x 1] (?form)) ] )
 
 (defmacro simulated-wrapper [form]
@@ -39,3 +44,5 @@
 
 (fact "facts are expanded"
   (simulated-wrapper (fact x => 1)))
+
+(pop-from-namespace :midje/wrappers)

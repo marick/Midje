@@ -1,4 +1,6 @@
 (ns midje.util.recognizing-midje-forms
+  (:use midje.util.form-utils)
+  (:require [midje.util.wrapping :as wrapping])
   (:require [clojure.zip :as zip]))
 
 ;; TODO: Replace with form-first-like strategy?
@@ -10,19 +12,13 @@
     ( (set (concat base-names qualified-names)) (str (zip/node loc)))))
 
 
-;; TODO: had to change list? to sequential? because unification produces lazyseqs.
-(defn form-first? [form desired]
-  (and (sequential? form)
-       (symbol? (first form))
-       (= (name (first form)) desired)))
-
 (defn is-arrow-form? [forms]
   (= (str (second forms)) "=>"))
 
 
 ;;; Wrapping
 
-(defn already-wrapped? [form] (form-first? form "midje-wrapped"))
+(def already-wrapped? wrapping/wrapped?)
 
 (defn expect? [form] (form-first? form "expect"))
 (def wrappable? expect?)
