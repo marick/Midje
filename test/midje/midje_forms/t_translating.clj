@@ -6,6 +6,7 @@
 	[midje.util.wrapping :only [?form]])
   (:use [midje.midje-forms.building])
   (:use clojure.contrib.pprint))
+(testable-privates midje.midje-forms.translating canonicalize-background-forms)
 
 (fact "human-friendly background forms can be canonicalized appropriately"
   "fakes"

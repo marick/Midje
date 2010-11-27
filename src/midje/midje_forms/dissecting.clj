@@ -6,4 +6,9 @@
 	other-forms (filter (comp not background-form?) fact-forms)]
     [ background-forms other-forms ]))
 
+(defn raw-wrappers [background-form]  (second background-form))
+
+(defn interior-forms [form]
+  `(do ~@(rest (rest form)))
+  )
 

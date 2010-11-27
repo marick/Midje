@@ -2,10 +2,12 @@
   (:use [midje.util thread-safe-var-nesting wrapping form-utils laziness])
   (:use midje.sweet.metaconstants)
   (:require [midje.sweet.sweet-to-semi-sweet-rewrite :as transform])
-  (:use [midje.midje-forms building recognizing])
+  (:use [midje.midje-forms building recognizing dissecting])
   (:use [midje.util.debugging]))
 
-(defn canonicalize-background-forms [forms]
+(declare midjcoexpand)
+
+(defn- canonicalize-background-forms [forms]
   (loop [expanded []
 	 in-progress forms]
     (cond (empty? in-progress)
@@ -23,8 +25,6 @@
 	  :else
 	  (throw (Error. (str "This doesn't look like part of a background:" in-progress))))))
 
-(declare midjcoexpand)
-
 (defn background-fake-wrapper [raw-wrappers]
   (define-metaconstants raw-wrappers)
   (let [background (canonicalize-background-forms raw-wrappers)]
@@ -36,20 +36,6 @@
 (defmacro with-additional-wrappers [raw-wrappers form]
   `(with-pushed-namespace-values :midje/wrappers (background-fake-wrapper ~raw-wrappers)
     (midjcoexpand ~form)))
-
-(defn gather-wrappers [form]
-;  (println "Wrappers: " (second form))
-  (second form)
-  )
-
-(defn without-wrapper-providers [form]
-  `(do ~@(rest (rest form)))
-  )
-
-(defn my-into [empty-container contents]
-  (if (vector? empty-container)
-    (vec contents)
-    contents))
 
 (defn midjcoexpand [form]
 ;   (println "== midjcoexpanding" form)
@@ -68,14 +54,13 @@
 
 	(provides-wrappers? form)
 	(do
-;;	  (println "use these wrappers" (gather-wrappers form))
-;;	  (println "for this form" (without-wrapper-providers form))
-	  (with-additional-wrappers (gather-wrappers form)
-	    (midjcoexpand (without-wrapper-providers form))))
+;;	  (println "use these wrappers" (raw-wrappers form))
+;;	  (println "for this form" (interior-forms form))
+	  (with-additional-wrappers (raw-wrappers form)
+	    (midjcoexpand (interior-forms form))))
 	
 	(sequential? form)
-	(my-into (empty form)
-		 (eagerly (map midjcoexpand form)))
+	(as-type form (eagerly (map midjcoexpand form)))
 
 	:else
 	form)))
