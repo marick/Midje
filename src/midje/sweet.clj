@@ -39,3 +39,5 @@
 (defmacro facts [& forms]
   `(fact ~@forms))
 
+(defmacro pending-fact [& forms] nil)
+(defmacro future-fact [& forms] nil)

@@ -131,3 +131,7 @@
     
    (is (reported? 4 [{:type :pass} {:type :pass} {:type :pass} {:type :pass}]))))
 
+
+(future-fact 1 => 2)
+(pending-fact 2 => 3)
+ 
