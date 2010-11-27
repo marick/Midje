@@ -5,7 +5,7 @@
   (:use [midje.midje-forms building recognizing])
   (:use [midje.util.debugging]))
 
-(defn expand-background-shorthand-forms [forms]
+(defn canonicalize-background-forms [forms]
   (loop [expanded []
 	 in-progress forms]
     (cond (empty? in-progress)
@@ -15,15 +15,19 @@
 	  (let [content (transform/one-fake-body-content in-progress)]
 	    (recur (conj expanded (-> content transform/make-fake make-background))
 		   (nthnext in-progress (count content))))
+
+	  (seq-headed-by-setup-teardown-form? in-progress)
+	  (recur (conj expanded (first in-progress))
+		 (rest in-progress))
 	  
 	  :else
-	  (throw (Error. "This doesn't look like part of a background:" in-progress)))))
+	  (throw (Error. (str "This doesn't look like part of a background:" in-progress))))))
 
 (declare midjcoexpand)
 
 (defn background-fake-wrapper [raw-wrappers]
   (define-metaconstants raw-wrappers)
-  (let [background (expand-background-shorthand-forms raw-wrappers)]
+  (let [background (canonicalize-background-forms raw-wrappers)]
     `[ (with-pushed-namespace-values :midje/background-fakes ~background ~(?form)) ]))
 
 (defn replace-wrappers [raw-wrappers]

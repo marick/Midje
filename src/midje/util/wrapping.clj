@@ -1,6 +1,6 @@
 (ns midje.util.wrapping
   (:use midje.util.form-utils)
-  (:require [me.fogus.unifycle :as unify]))
+  (:require [midje.util.unify :as unify]))
 
 (defn ?form [] (symbol (name (ns-name *ns*)) "?form")) ; this cannot be right
 

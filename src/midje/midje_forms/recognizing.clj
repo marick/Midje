@@ -1,6 +1,7 @@
 (ns midje.midje-forms.recognizing
   (:use midje.util.form-utils)
   (:require [midje.util.wrapping :as wrapping])
+  (:require [midje.util.unify :as unify])
   (:require [clojure.zip :as zip]))
 
 ;; TODO: Replace with form-first-like strategy?
@@ -30,3 +31,8 @@
 
 (defn background-form? [form] (form-first? form "against-background"))
 (def provides-wrappers? background-form?)
+
+;;; background forms
+
+(defn seq-headed-by-setup-teardown-form? [forms]
+  (unify/bindings-map-or-nil (first forms) '(before :checking ?form)))
