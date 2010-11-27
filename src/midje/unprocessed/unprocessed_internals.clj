@@ -11,15 +11,6 @@
 (defn pairs [first-seq second-seq]
   (partition 2 (interleave first-seq second-seq)))
 
-; Move this to own file.
-(defn eagerly [value]
-  (if (seq? value)
-    (loop [loc (zip/seq-zip value)]  ;; touch every node
-      (if (zip/end? loc)
-	(zip/root loc)
-	(recur (zip/next loc))))
-    value))
-
 (defn matching-args? [actual-args matchers]
   (every? (fn [ [actual matcher] ] (matcher actual))
    	  (pairs actual-args matchers))

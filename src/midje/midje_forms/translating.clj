@@ -1,6 +1,5 @@
 (ns midje.midje-forms.translating
-  (:use [midje.util thread-safe-var-nesting wrapping form-utils])
-  (:use [midje.unprocessed.unprocessed-internals :only [eagerly]])
+  (:use [midje.util thread-safe-var-nesting wrapping form-utils laziness])
   (:use midje.sweet.metaconstants)
   (:require [midje.sweet.sweet-to-semi-sweet-rewrite :as transform])
   (:use [midje.midje-forms building recognizing])

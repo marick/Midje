@@ -1,6 +1,7 @@
 (ns midje.unprocessed
   (:use clojure.test
 	[midje.unprocessed unprocessed-internals]
+	midje.util.laziness
         midje.util.report
 	[midje.util.thread-safe-var-nesting]
         clojure.contrib.error-kit

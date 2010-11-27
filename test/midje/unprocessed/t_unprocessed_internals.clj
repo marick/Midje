@@ -2,7 +2,7 @@
   (:use clojure.test)
   (:use [midje.unprocessed.unprocessed-internals] :reload-all)
   (:use [midje.semi-sweet :only [fake]])
-  (:use [midje.util.checkers])
+  (:use [midje.util checkers laziness])
   (:use [midje.test-util]))
 
 (deftest pairs-test
