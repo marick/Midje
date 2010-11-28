@@ -47,7 +47,7 @@
   (let [bindings (unify '(try (do-something) ?form (finally (finish)))
 			(make-final '(before :checking (do-something) :after (finish))))]
     (guard-special-form bindings) => { '?form "midje.midje-forms.t-translating/?form" })
-  
+ 
   (let [bindings (unify '(try ?form (finally (do-something)))
 			(make-final '(after :checking (do-something))))]
     (guard-special-form bindings) => { '?form "midje.midje-forms.t-translating/?form" }))
@@ -58,30 +58,32 @@
 ;; Note: the explicit stack discipline is because "midjcoexpansion" happens before
 ;; macroexpansion (mostly) and so a with-pushed-namespace-values would not perform the
 ;; push at the right moment.
-(push-into-namespace :midje/wrappers '[ (let [x 1] (?form)) ] )
+(do 
+  (push-into-namespace :midje/wrappers '[ (let [x 1] (?form)) ] )
 
-(defmacro simulated-wrapper [form]
-  (let [f (midjcoexpand form)]
-;    (println f)
+  (defmacro simulated-wrapper [form]
+    (let [f (midjcoexpand form)]
+      ; (println f)
     f))
 
-(fact "expect forms are wrapped"
-  (simulated-wrapper (expect 1 => 1))
-  (simulated-wrapper (expect x => 1)))
+  (fact "expect forms are wrapped"
+    (simulated-wrapper (expect 1 => 1))
+    (simulated-wrapper (expect x => 1)))
 
-(fact "not all forms are wrapped"
-  (let [x "not shadowed"]
-    (expect (simulated-wrapper (str "is " x)) => "is not shadowed")))
+  (fact "not all forms are wrapped"
+    (let [x "not shadowed"]
+      (expect (simulated-wrapper (str "is " x)) => "is not shadowed")))
 
-(push-into-namespace :midje/wrappers '[ (let [x 33 y 12] ?form)
-					(let [y 10] ?form) ])
-(simulated-wrapper (expect (+ x y) => 43))
-(pop-from-namespace :midje/wrappers)
+  (push-into-namespace :midje/wrappers '[ (let [x 33 y 12] ?form)
+					  (let [y 10] ?form) ])
+  (simulated-wrapper (expect (+ x y) => 43))
+  (pop-from-namespace :midje/wrappers)
 
-(fact "nested expect forms are wrapped"
-  (simulated-wrapper (do (expect x => 1))))
+  (fact "nested expect forms are wrapped"
+    (simulated-wrapper (do (expect x => 1))))
 
-(fact "facts are expanded"
-  (simulated-wrapper (fact x => 1)))
-
-(pop-from-namespace :midje/wrappers)
+  (fact "facts are expanded"
+    (simulated-wrapper (fact x => 1)))
+  
+  (pop-from-namespace :midje/wrappers)
+)

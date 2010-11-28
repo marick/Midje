@@ -37,20 +37,17 @@
   (let [bindings (setup-teardown-bindings canonicalized-non-fake)]
     ;; (println "== Makefinal for " canonicalized-non-fake)
     ;; (println bindings)
-    ;; (println (bindings '?form))
-    ;; (println "key" (bindings '?key))
-    ;; (println "test" (= (name (bindings '?key)) "before"))
     (cond (= (name (bindings '?key)) "before")
 	  (do ; (println "before")
-	      `(try ; (println "BEFORE: " '~(bindings '?form))
-		    ~(bindings '?form)
+	      `(try ; (println "BEFORE: " '~(bindings '?first-form))
+		    ~(bindings '?first-form)
 		    ~(?form)
-   	       (finally ; (println "AFTER:" '~(bindings '?teardown))
-			~(bindings '?teardown))))
+   	       (finally ; (println "AFTER:" '~(bindings '?second-form))
+			~(bindings '?second-form))))
 	  
 	  (= (name (bindings '?key)) "after")	  
 	  (do ; (println "after")
-	      `(try  ~(?form) (finally ~(bindings '?form))))
+	      `(try  ~(?form) (finally ~(bindings '?first-form))))
 
 	  :else
 	  (throw (Error. (str "Could make nothing of " canonicalized-non-fake))))))

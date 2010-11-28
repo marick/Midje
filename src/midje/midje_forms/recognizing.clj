@@ -39,9 +39,9 @@
 ;; circularity. Feh.
 (defn setup-teardown-bindings [form]
   (unify/bindings-map-or-nil form
-			     '(?key ?when ?form ?after ?teardown)))
+			     '(?key ?when ?first-form ?after ?second-form)))
 
 (defn seq-headed-by-setup-teardown-form? [forms]
   (if-let [bindings (setup-teardown-bindings (first forms))]
-    (do (and (bindings '?form)
-	     (or (not (bindings '?after)) (bindings '?teardown))))))
+    (do (and (bindings '?first-form)
+	     (or (not (bindings '?after)) (bindings '?second-form))))))

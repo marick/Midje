@@ -22,16 +22,23 @@
   (seq-headed-by-setup-teardown-form? '[ (before :checking (+ 1 1) :after ) ... ]) => falsey
 
   (seq-headed-by-setup-teardown-form? '[ (after :checking (+ 1 1)) ... ]) => truthy
+
+  (seq-headed-by-setup-teardown-form? '[ (around :checking (let [x 1] ?form)) ... ]) => truthy
+
 )
 
 (facts "dissecting setup/teardown forms"  ;; here to avoid circular dependencies
   (setup-teardown-bindings '(before :checking (+ 1 1))) =>
-    (map-containing '{?key before, ?when :checking, ?form (+ 1 1), ?after nil})
+    (map-containing '{?key before, ?when :checking, ?first-form (+ 1 1), ?after nil})
 
   (setup-teardown-bindings '(before :checking (+ 1 1) :after (- 2 2))) =>
-    (map-containing '{?key before, ?when :checking, ?form (+ 1 1),
-		      ?after :after, ?teardown (- 2 2)})
+    (map-containing '{?key before, ?when :checking, ?first-form (+ 1 1),
+		      ?after :after, ?second-form (- 2 2)})
 
   (setup-teardown-bindings '(after :checking (+ 1 1))) =>
-    (map-containing '{?key after, ?when :checking, ?form (+ 1 1)})
+    (map-containing '{?key after, ?when :checking, ?first-form (+ 1 1)})
+
+  (setup-teardown-bindings '(around :checking (let [x 1] ?form))) =>
+    (map-containing '{?key around, ?when :checking,
+		      ?first-form (let [x 1] ?form) })
 )
