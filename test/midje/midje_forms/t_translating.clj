@@ -7,7 +7,7 @@
   (:use [midje.midje-forms.building])
   (:use clojure.contrib.pprint))
 (testable-privates midje.midje-forms.translating
-		   canonicalize-raw-wrappers make-final)
+		   canonicalize-raw-wrappers make-final replace-with-magic-form)
 
 (fact "human-friendly background forms can be canonicalized appropriately"
   "fakes"
@@ -32,29 +32,30 @@
  
  "error cases"
  (canonicalize-raw-wrappers '[ (after anything) ]) => (throws Error)
-)
+ )
 
 ;; You can't refer to the magical symbol that's used in wrapper substitution because
 ;; it will then be substituted. So this turns it into a string.
 (defn guard-special-form [bindings]
-  (assoc (dissoc bindings ?form) '?form (str (bindings '?form))))
+  (assoc (dissoc bindings '?danger) '?danger (str (bindings '?danger))))
 
 (fact "canonicalized setup/teardown wrappers can be put into final form"
-  (let [bindings (unify '(try (do-something) ?form (finally nil))
+  (let [bindings (unify '(try (do-something) ?danger (finally nil))
 			(make-final '(before :checking (do-something))))]
-    (guard-special-form bindings) => { '?form "midje.midje-forms.t-translating/?form" })
+    (guard-special-form bindings) => { '?danger "midje.midje-forms.t-translating/?form" })
   
-  (let [bindings (unify '(try (do-something) ?form (finally (finish)))
+  (let [bindings (unify '(try (do-something) ?danger (finally (finish)))
 			(make-final '(before :checking (do-something) :after (finish))))]
-    (guard-special-form bindings) => { '?form "midje.midje-forms.t-translating/?form" })
+    (guard-special-form bindings) => { '?danger "midje.midje-forms.t-translating/?form" })
  
-  (let [bindings (unify '(try ?form (finally (do-something)))
+  (let [bindings (unify '(try ?danger (finally (do-something)))
 			(make-final '(after :checking (do-something))))]
-    (guard-special-form bindings) => { '?form "midje.midje-forms.t-translating/?form" }))
-  
-  
+    (guard-special-form bindings) => { '?danger "midje.midje-forms.t-translating/?form" })
 
-
+  (let [bindings (unify '(let [x 1] ?danger)
+			(make-final '(around :checking (let [x 1] ?form))))]
+    (guard-special-form bindings) => { '?danger "midje.midje-forms.t-translating/?form" })
+)
 ;; Note: the explicit stack discipline is because "midjcoexpansion" happens before
 ;; macroexpansion (mostly) and so a with-pushed-namespace-values would not perform the
 ;; push at the right moment.

@@ -2,10 +2,13 @@
    (:use [midje.util laziness]))
 
 ;; TODO: had to change list? to sequential? because unification produces lazyseqs.
+
+(defn symbol-named? [form desired]
+  (and (symbol? form)
+       (= (name form) desired)))
+
 (defn form-first? [form desired]
-  (and (sequential? form)
-       (symbol? (first form))
-       (= (name (first form)) desired)))
+  (and (sequential? form) (symbol-named? (first form) desired)))
 
 (defn as-type [typed-sequential contents]
   (if (vector? typed-sequential)

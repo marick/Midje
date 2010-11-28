@@ -3,6 +3,7 @@
   (:use [midje.util thread-safe-var-nesting wrapping form-utils laziness form-utils])
   (:use midje.sweet.metaconstants)
   (:require [midje.sweet.sweet-to-semi-sweet-rewrite :as transform])
+  (:require [clojure.zip :as zip])
   (:use [midje.midje-forms building recognizing dissecting])
   (:use [midje.util.debugging]))
 
@@ -32,22 +33,30 @@
 	  (throw (Error. (str "This doesn't look like part of a background: %s"
 			      (vec in-progress)))))))
 
+(defn- replace-with-magic-form [form]
+  (loop [loc (zip/seq-zip form)]
+    (if (zip/end? loc)
+      (zip/root loc)
+      (recur (zip/next (if (symbol-named? (zip/node loc) "?form")
+			 (zip/replace loc (?form))
+			 loc))))))
 
 (defn- make-final [canonicalized-non-fake]
-  (let [bindings (setup-teardown-bindings canonicalized-non-fake)]
+  (let [bindings (setup-teardown-bindings canonicalized-non-fake)
+	key-is? #(= (name (bindings '?key)) %)]
     ;; (println "== Makefinal for " canonicalized-non-fake)
     ;; (println bindings)
-    (cond (= (name (bindings '?key)) "before")
-	  (do ; (println "before")
-	      `(try ; (println "BEFORE: " '~(bindings '?first-form))
-		    ~(bindings '?first-form)
-		    ~(?form)
-   	       (finally ; (println "AFTER:" '~(bindings '?second-form))
-			~(bindings '?second-form))))
+    (cond (key-is? "before")
+	  `(try
+	     ~(bindings '?first-form)
+	     ~(?form)
+	     (finally ~(bindings '?second-form)))
 	  
-	  (= (name (bindings '?key)) "after")	  
-	  (do ; (println "after")
-	      `(try  ~(?form) (finally ~(bindings '?first-form))))
+	  (key-is? "after")
+	  `(try  ~(?form) (finally ~(bindings '?first-form)))
+
+	  (key-is? "around")
+	  (replace-with-magic-form (bindings '?first-form))
 
 	  :else
 	  (throw (Error. (str "Could make nothing of " canonicalized-non-fake))))))

@@ -38,10 +38,45 @@
 
 (unfinished f)
 
-(future-fact
- (against-background (around :checking (let [x 1] ?form)
-			     (f x) => 2)
-  (+ (f x) 2) => 4))
+(against-background [ (around :checking (let [x 1] ?form)) ]
+  (after 
+   (fact "arbitrary forms can be wrapped around a check"
+     (+ x 2) => 3)
+   (fact (only-passes? 1) => truthy)))
+
+(after 
+ (fact "background wrapping establishes a lexical binding"
+   (against-background (around :checking (let [x 1] ?form))
+                       (f x) => 2 )
+   (+ (f x) 2) => 4)
+ (fact (only-passes? 1) => truthy))
+
+(after 
+ (fact "prerequisites are scoped within all setup/teardown"
+   (against-background (f x) => 2
+                       (around :checking (let [x 1] ?form)))
+   (+ (f x) 2) => 4)
+ (fact (only-passes? 1) => truthy))
+
+
+;; Separate scoping of prerequisites and setup/teardown
+;; doesn't fully work yet. Consider this case:
+;(against-background [ (f x) => 2 ]
+;  (after 
+;   (fact "prerequisites are scoped within all setup/teardown"
+;     (against-background (around :checking (let [x 1] ?form)))
+;     (+ (f x) 2) => 4)
+;   (fact (only-passes? 1) => truthy)))
+;; I'm not sure if prerequisite scoping makes sense, so deferring
+;; thinking about this.
   
+    
+;; Here's a possibly more sensible case
+(against-background [ (f 1) => 2 ]
+  (after 
+   (fact "prerequisites are scoped within all setup/teardown"
+     (against-background (around :checking (let [x 1] ?form)))
+     (+ (f x) 2) => 4)
+   (fact (only-passes? 1) => truthy)))
   
     
