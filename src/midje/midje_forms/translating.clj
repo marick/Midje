@@ -1,5 +1,6 @@
 (ns midje.midje-forms.translating
-  (:use [midje.util thread-safe-var-nesting wrapping form-utils laziness])
+  (:use clojure.contrib.def)
+  (:use [midje.util thread-safe-var-nesting wrapping form-utils laziness form-utils])
   (:use midje.sweet.metaconstants)
   (:require [midje.sweet.sweet-to-semi-sweet-rewrite :as transform])
   (:use [midje.midje-forms building recognizing dissecting])
@@ -7,7 +8,12 @@
 
 (declare midjcoexpand)
 
-(defn- canonicalize-background-forms [forms]
+;; There are three variants of background forms, here referred to as "wrappers":
+;; 1. RAW - wrappers mixed up, like [ (f 1) => 3 (before ...) (f 2) => 3) ]. Needs parsing.
+;; 2. CANONICALIZED - one form per wrapper, perhaps some transformation.
+;; 3. FINAL - a nesting form that can be unified with included forms.
+
+(defn- canonicalize-raw-wrappers [forms]
   (loop [expanded []
 	 in-progress forms]
     (cond (empty? in-progress)
@@ -25,17 +31,31 @@
 	  :else
 	  (throw (Error. (str "This doesn't look like part of a background:" in-progress))))))
 
-(defn background-fake-wrapper [raw-wrappers]
+
+(defn- fake? [x] (form-first? x "fake"))
+
+(defn- partition-wrapper-types [canonicalized-wrappers]
+  (let [group (group-by fake? canonicalized-wrappers)]
+    [ (group true) (group false) ]))
+
+(defn make-final [canonicalized-non-fake]
+  `(do ~(nth canonicalized-non-fake 2) ~(?form)))
+
+;; Collecting all the background fakes is here for historical reasons:
+;; it made it easier to eyeball expanded forms and see what was going on.
+(defn- final-wrappers [raw-wrappers]
   (define-metaconstants raw-wrappers)
-  (let [background (canonicalize-background-forms raw-wrappers)]
-    `[ (with-pushed-namespace-values :midje/background-fakes ~background ~(?form)) ]))
+  (let [canonicalized (canonicalize-raw-wrappers raw-wrappers)
+	[fakes others] (partition-wrapper-types canonicalized)]
+    `[    ~@(map make-final others)
+      (with-pushed-namespace-values :midje/background-fakes ~fakes ~(?form)) ]))
+
+(defmacro- with-additional-wrappers [raw-wrappers form]
+  `(with-pushed-namespace-values :midje/wrappers (final-wrappers ~raw-wrappers)
+    ~form))
 
 (defn replace-wrappers [raw-wrappers]
-  (set-namespace-value :midje/wrappers (list (background-fake-wrapper raw-wrappers))))
-
-(defmacro with-additional-wrappers [raw-wrappers form]
-  `(with-pushed-namespace-values :midje/wrappers (background-fake-wrapper ~raw-wrappers)
-    (midjcoexpand ~form)))
+  (set-namespace-value :midje/wrappers (list (final-wrappers raw-wrappers))))
 
 (defn midjcoexpand [form]
 ;   (println "== midjcoexpanding" form)

@@ -6,31 +6,31 @@
 	[midje.util.wrapping :only [?form]])
   (:use [midje.midje-forms.building])
   (:use clojure.contrib.pprint))
-(testable-privates midje.midje-forms.translating canonicalize-background-forms)
+(testable-privates midje.midje-forms.translating canonicalize-raw-wrappers)
 
 (fact "human-friendly background forms can be canonicalized appropriately"
   "fakes"
-  (canonicalize-background-forms []) => []
-  (canonicalize-background-forms '[(f 1) => 2]) =>
+  (canonicalize-raw-wrappers []) => []
+  (canonicalize-raw-wrappers '[(f 1) => 2]) =>
                                  '[(midje.semi-sweet/fake (f 1) => 2 :type :background)]
-  (canonicalize-background-forms '[   (f 1) => 2 :foo 'bar (f 2) => 33 ]) => 
+  (canonicalize-raw-wrappers '[   (f 1) => 2 :foo 'bar (f 2) => 33 ]) => 
                               '[(midje.semi-sweet/fake (f 1) => 2 :foo 'bar :type :background)
 				(midje.semi-sweet/fake (f 2) => 33 :type :background) ]
 
   "other types are left alone"
-  (canonicalize-background-forms
+  (canonicalize-raw-wrappers
    '[ (before :checking (swap! test-atom (constantly 0))) ]) =>
    '[ (before :checking (swap! test-atom (constantly 0))) ]
 
  "mixtures"
- (canonicalize-background-forms
+ (canonicalize-raw-wrappers
    '[ (f 1) => 2 (before :checking (swap! test-atom (constantly 0))) (f 2) => 3 ]) =>
    '[ (midje.semi-sweet/fake (f 1) => 2 :type :background)
       (before :checking (swap! test-atom (constantly 0)))
       (midje.semi-sweet/fake (f 2) => 3 :type :background) ]
  
  "error cases"
- (canonicalize-background-forms '[ (after anything) ]) => (throws Error)
+ (canonicalize-raw-wrappers '[ (after anything) ]) => (throws Error)
 )			      
 
 ;; Note: the explicit stack discipline is because "midjcoexpansion" happens before

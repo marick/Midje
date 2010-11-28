@@ -56,6 +56,10 @@
   (set-namespace-value key-name (rest (namespace-value key-name))))
 
 (defmacro with-pushed-namespace-values [key-name values & forms]
+  ;; (println "== with-pushed-namespace-values")
+  ;; (println "== " key-name)
+  ;; (println "== " values)
+  ;; (println "== " forms)
   `(try
      (push-into-namespace ~key-name ~values)
      ~@forms
