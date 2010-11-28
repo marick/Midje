@@ -32,12 +32,6 @@
 	  (throw (Error. (str "This doesn't look like part of a background:" in-progress))))))
 
 
-(defn- fake? [x] (form-first? x "fake"))
-
-(defn- partition-wrapper-types [canonicalized-wrappers]
-  (let [group (group-by fake? canonicalized-wrappers)]
-    [ (group true) (group false) ]))
-
 (defn make-final [canonicalized-non-fake]
   `(do ~(nth canonicalized-non-fake 2) ~(?form)))
 
@@ -46,7 +40,7 @@
 (defn- final-wrappers [raw-wrappers]
   (define-metaconstants raw-wrappers)
   (let [canonicalized (canonicalize-raw-wrappers raw-wrappers)
-	[fakes others] (partition-wrapper-types canonicalized)]
+	[fakes others] (separate-by fake? canonicalized)]
     `[    ~@(map make-final others)
       (with-pushed-namespace-values :midje/background-fakes ~fakes ~(?form)) ]))
 

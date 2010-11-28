@@ -12,3 +12,7 @@
     (vec contents)
     contents))
 
+(defn separate-by [predicate forms]
+  (let [group (group-by predicate forms)]
+    [ (group true) (group false) ]))
+

@@ -16,6 +16,7 @@
 (defn is-arrow-form? [forms]
   (= (str (second forms)) "=>"))
 
+(defn fake? [form] (form-first? form "fake"))
 
 ;;; Wrapping
 
