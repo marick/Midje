@@ -35,5 +35,13 @@
 
 ;;; background forms
 
+;; this actually should be in dissecting, but needs to be here to avoid
+;; circularity. Feh.
+(defn setup-teardown-bindings [form]
+  (unify/bindings-map-or-nil form
+			     '(?key ?when ?form ?after ?teardown)))
+
 (defn seq-headed-by-setup-teardown-form? [forms]
-  (unify/bindings-map-or-nil (first forms) '(before :checking ?form)))
+  (if-let [bindings (setup-teardown-bindings (first forms))]
+    (do (and (bindings '?form)
+	     (or (not (bindings '?after)) (bindings '?teardown))))))

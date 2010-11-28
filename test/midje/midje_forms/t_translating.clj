@@ -2,11 +2,12 @@
   (:use [midje.midje-forms.translating] :reload-all)
   (:use [midje.sweet])
   (:use [midje.test-util])
-  (:use [midje.util.thread-safe-var-nesting]
+  (:use [midje.util thread-safe-var-nesting unify]
 	[midje.util.wrapping :only [?form]])
   (:use [midje.midje-forms.building])
   (:use clojure.contrib.pprint))
-(testable-privates midje.midje-forms.translating canonicalize-raw-wrappers)
+(testable-privates midje.midje-forms.translating
+		   canonicalize-raw-wrappers make-final)
 
 (fact "human-friendly background forms can be canonicalized appropriately"
   "fakes"
@@ -31,7 +32,28 @@
  
  "error cases"
  (canonicalize-raw-wrappers '[ (after anything) ]) => (throws Error)
-)			      
+)
+
+;; You can't refer to the magical symbol that's used in wrapper substitution because
+;; it will then be substituted. So this turns it into a string.
+(defn guard-special-form [bindings]
+  (assoc (dissoc bindings ?form) '?form (str (bindings '?form))))
+
+(fact "canonicalized setup/teardown wrappers can be put into final form"
+  (let [bindings (unify '(try (do-something) ?form (finally nil))
+			(make-final '(before :checking (do-something))))]
+    (guard-special-form bindings) => { '?form "midje.midje-forms.t-translating/?form" })
+  
+  (let [bindings (unify '(try (do-something) ?form (finally (finish)))
+			(make-final '(before :checking (do-something) :after (finish))))]
+    (guard-special-form bindings) => { '?form "midje.midje-forms.t-translating/?form" })
+  
+  (let [bindings (unify '(try ?form (finally (do-something)))
+			(make-final '(after :checking (do-something))))]
+    (guard-special-form bindings) => { '?form "midje.midje-forms.t-translating/?form" }))
+  
+  
+
 
 ;; Note: the explicit stack discipline is because "midjcoexpansion" happens before
 ;; macroexpansion (mostly) and so a with-pushed-namespace-values would not perform the

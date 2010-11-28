@@ -29,11 +29,31 @@
 		 (rest in-progress))
 	  
 	  :else
-	  (throw (Error. (str "This doesn't look like part of a background:" in-progress))))))
+	  (throw (Error. (str "This doesn't look like part of a background: %s"
+			      (vec in-progress)))))))
 
 
-(defn make-final [canonicalized-non-fake]
-  `(do ~(nth canonicalized-non-fake 2) ~(?form)))
+(defn- make-final [canonicalized-non-fake]
+  (let [bindings (setup-teardown-bindings canonicalized-non-fake)]
+    ;; (println "== Makefinal for " canonicalized-non-fake)
+    ;; (println bindings)
+    ;; (println (bindings '?form))
+    ;; (println "key" (bindings '?key))
+    ;; (println "test" (= (name (bindings '?key)) "before"))
+    (cond (= (name (bindings '?key)) "before")
+	  (do ; (println "before")
+	      `(try ; (println "BEFORE: " '~(bindings '?form))
+		    ~(bindings '?form)
+		    ~(?form)
+   	       (finally ; (println "AFTER:" '~(bindings '?teardown))
+			~(bindings '?teardown))))
+	  
+	  (= (name (bindings '?key)) "after")	  
+	  (do ; (println "after")
+	      `(try  ~(?form) (finally ~(bindings '?form))))
+
+	  :else
+	  (throw (Error. (str "Could make nothing of " canonicalized-non-fake))))))
 
 ;; Collecting all the background fakes is here for historical reasons:
 ;; it made it easier to eyeball expanded forms and see what was going on.
@@ -41,7 +61,8 @@
   (define-metaconstants raw-wrappers)
   (let [canonicalized (canonicalize-raw-wrappers raw-wrappers)
 	[fakes others] (separate-by fake? canonicalized)]
-    `[    ~@(map make-final others)
+    ;; (println "the binding map" (map make-final others)) 
+    `[    ~@(eagerly (map make-final others))
       (with-pushed-namespace-values :midje/background-fakes ~fakes ~(?form)) ]))
 
 (defmacro- with-additional-wrappers [raw-wrappers form]
