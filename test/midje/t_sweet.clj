@@ -134,4 +134,4 @@
 
 (future-fact 1 => 2)
 (pending-fact 2 => 3)
- 
+(incipient-fact 3 => 4) 

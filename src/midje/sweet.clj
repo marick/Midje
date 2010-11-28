@@ -41,3 +41,4 @@
 
 (defmacro pending-fact [& forms] nil)
 (defmacro future-fact [& forms] nil)
+(defmacro incipient-fact [& forms] nil)
