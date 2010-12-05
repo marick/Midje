@@ -1,3 +1,7 @@
+= 0.8.1
+* background facts work within deftests
+* before/after/around work with :checks
+
 = 0.8.0 (stable)
 * Dropping support for Clojure 1.1.
 * Incompatible syntax change for #'against-background
