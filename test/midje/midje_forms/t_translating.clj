@@ -20,14 +20,14 @@
 
   "other types are left alone"
   (canonicalize-raw-wrappers
-   '[ (before :checking (swap! test-atom (constantly 0))) ]) =>
-   '[ (before :checking (swap! test-atom (constantly 0))) ]
+   '[ (before :checks (swap! test-atom (constantly 0))) ]) =>
+   '[ (before :checks (swap! test-atom (constantly 0))) ]
 
  "mixtures"
  (canonicalize-raw-wrappers
-   '[ (f 1) => 2 (before :checking (swap! test-atom (constantly 0))) (f 2) => 3 ]) =>
+   '[ (f 1) => 2 (before :checks (swap! test-atom (constantly 0))) (f 2) => 3 ]) =>
    '[ (midje.semi-sweet/fake (f 1) => 2 :type :background)
-      (before :checking (swap! test-atom (constantly 0)))
+      (before :checks (swap! test-atom (constantly 0)))
       (midje.semi-sweet/fake (f 2) => 3 :type :background) ]
  
  "error cases"
@@ -41,19 +41,19 @@
 
 (fact "canonicalized setup/teardown wrappers can be put into final form"
   (let [bindings (unify '(try (do-something) ?danger (finally nil))
-			(make-final '(before :checking (do-something))))]
+			(make-final '(before :checks (do-something))))]
     (guard-special-form bindings) => { '?danger "midje.midje-forms.t-translating/?form" })
   
   (let [bindings (unify '(try (do-something) ?danger (finally (finish)))
-			(make-final '(before :checking (do-something) :after (finish))))]
+			(make-final '(before :checks (do-something) :after (finish))))]
     (guard-special-form bindings) => { '?danger "midje.midje-forms.t-translating/?form" })
  
   (let [bindings (unify '(try ?danger (finally (do-something)))
-			(make-final '(after :checking (do-something))))]
+			(make-final '(after :checks (do-something))))]
     (guard-special-form bindings) => { '?danger "midje.midje-forms.t-translating/?form" })
 
   (let [bindings (unify '(let [x 1] ?danger)
-			(make-final '(around :checking (let [x 1] ?form))))]
+			(make-final '(around :checks (let [x 1] ?form))))]
     (guard-special-form bindings) => { '?danger "midje.midje-forms.t-translating/?form" })
 )
 ;; Note: the explicit stack discipline is because "midjcoexpansion" happens before

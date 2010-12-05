@@ -14,31 +14,31 @@
     (expect (namespacey-match '(n) m-node) => falsey)))
 
 (facts "recognizing setup/teardown forms"
-  (seq-headed-by-setup-teardown-form? '[ (before :checking (+ 1 1)) ... ]) => truthy
-  (seq-headed-by-setup-teardown-form? '[ (before :checking) ... ]) => falsey
+  (seq-headed-by-setup-teardown-form? '[ (before :checks (+ 1 1)) ... ]) => truthy
+  (seq-headed-by-setup-teardown-form? '[ (before :checks) ... ]) => falsey
 
   
-  (seq-headed-by-setup-teardown-form? '[ (before :checking (+ 1 1) :after (- 2 2)) ... ]) => truthy
-  (seq-headed-by-setup-teardown-form? '[ (before :checking (+ 1 1) :after ) ... ]) => falsey
+  (seq-headed-by-setup-teardown-form? '[ (before :checks (+ 1 1) :after (- 2 2)) ... ]) => truthy
+  (seq-headed-by-setup-teardown-form? '[ (before :checks (+ 1 1) :after ) ... ]) => falsey
 
-  (seq-headed-by-setup-teardown-form? '[ (after :checking (+ 1 1)) ... ]) => truthy
+  (seq-headed-by-setup-teardown-form? '[ (after :checks (+ 1 1)) ... ]) => truthy
 
-  (seq-headed-by-setup-teardown-form? '[ (around :checking (let [x 1] ?form)) ... ]) => truthy
+  (seq-headed-by-setup-teardown-form? '[ (around :checks (let [x 1] ?form)) ... ]) => truthy
 
 )
 
 (facts "dissecting setup/teardown forms"  ;; here to avoid circular dependencies
-  (setup-teardown-bindings '(before :checking (+ 1 1))) =>
-    (map-containing '{?key before, ?when :checking, ?first-form (+ 1 1), ?after nil})
+  (setup-teardown-bindings '(before :checks (+ 1 1))) =>
+    (map-containing '{?key before, ?when :checks, ?first-form (+ 1 1), ?after nil})
 
-  (setup-teardown-bindings '(before :checking (+ 1 1) :after (- 2 2))) =>
-    (map-containing '{?key before, ?when :checking, ?first-form (+ 1 1),
+  (setup-teardown-bindings '(before :checks (+ 1 1) :after (- 2 2))) =>
+    (map-containing '{?key before, ?when :checks, ?first-form (+ 1 1),
 		      ?after :after, ?second-form (- 2 2)})
 
-  (setup-teardown-bindings '(after :checking (+ 1 1))) =>
-    (map-containing '{?key after, ?when :checking, ?first-form (+ 1 1)})
+  (setup-teardown-bindings '(after :checks (+ 1 1))) =>
+    (map-containing '{?key after, ?when :checks, ?first-form (+ 1 1)})
 
-  (setup-teardown-bindings '(around :checking (let [x 1] ?form))) =>
-    (map-containing '{?key around, ?when :checking,
+  (setup-teardown-bindings '(around :checks (let [x 1] ?form))) =>
+    (map-containing '{?key around, ?when :checks,
 		      ?first-form (let [x 1] ?form) })
 )

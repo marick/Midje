@@ -7,13 +7,13 @@
 (def test-atom (atom 0))
 (after 
  (fact
-   (against-background (before :checking (swap! test-atom (constantly 0))))
+   (against-background (before :checks (swap! test-atom (constantly 0))))
    (swap! test-atom inc) => 1
    (swap! test-atom dec) => -1)
  (fact (only-passes? 2) => truthy))
     
 (def test-atom (atom 0))
-(against-background [ (after :checking (swap! test-atom (constantly 0))) ]
+(against-background [ (after :checks (swap! test-atom (constantly 0))) ]
   (after 
    (fact
      (swap! test-atom inc) => 1
@@ -24,7 +24,7 @@
 (def after-atom (atom 33))
 (after 
  (fact
-   (against-background (before :checking (swap! before-atom (constantly 0))
+   (against-background (before :checks (swap! before-atom (constantly 0))
 			       :after    (swap! after-atom (constantly 10))))
    ;; [10 33]
    [(swap! before-atom inc) (swap! after-atom inc)] => [1 34]
@@ -38,7 +38,7 @@
 
 (unfinished f)
 
-(against-background [ (around :checking (let [x 1] ?form)) ]
+(against-background [ (around :checks (let [x 1] ?form)) ]
   (after 
    (fact "arbitrary forms can be wrapped around a check"
      (+ x 2) => 3)
@@ -46,7 +46,7 @@
 
 (after 
  (fact "background wrapping establishes a lexical binding"
-   (against-background (around :checking (let [x 1] ?form))
+   (against-background (around :checks (let [x 1] ?form))
                        (f x) => 2 )
    (+ (f x) 2) => 4)
  (fact (only-passes? 1) => truthy))
@@ -54,7 +54,7 @@
 (after 
  (fact "prerequisites are scoped within all setup/teardown"
    (against-background (f x) => 2
-                       (around :checking (let [x 1] ?form)))
+                       (around :checks (let [x 1] ?form)))
    (+ (f x) 2) => 4)
  (fact (only-passes? 1) => truthy))
 
@@ -64,7 +64,7 @@
 ;(against-background [ (f x) => 2 ]
 ;  (after 
 ;   (fact "prerequisites are scoped within all setup/teardown"
-;     (against-background (around :checking (let [x 1] ?form)))
+;     (against-background (around :checks (let [x 1] ?form)))
 ;     (+ (f x) 2) => 4)
 ;   (fact (only-passes? 1) => truthy)))
 ;; I'm not sure if prerequisite scoping makes sense, so deferring
@@ -75,7 +75,7 @@
 (against-background [ (f 1) => 2 ]
   (after 
    (fact "prerequisites are scoped within all setup/teardown"
-     (against-background (around :checking (let [x 1] ?form)))
+     (against-background (around :checks (let [x 1] ?form)))
      (+ (f x) 2) => 4)
    (fact (only-passes? 1) => truthy)))
   
