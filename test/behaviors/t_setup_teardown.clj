@@ -1,10 +1,11 @@
 (ns behaviors.t-setup-teardown
   (:use [midje.sweet] :reload-all)
   (:use [midje.test-util])
+  (:use midje.util.form-utils)
   (:use clojure.contrib.pprint)
 )
 
-(def test-atom (atom 0))
+(def test-atom (atom 33))
 (after 
  (fact
    (against-background (before :checks (swap! test-atom (constantly 0))))
@@ -78,5 +79,19 @@
      (against-background (around :checks (let [x 1] ?form)))
      (+ (f x) 2) => 4)
    (fact (only-passes? 1) => truthy)))
-  
+
+(future-fact "users can make functions that return environments"
+  (against-background (x-1-wrapper))
+  x => 1)
     
+					; ========
+
+(fact (= @test-atom 18) => falsey)
+(against-background [ (before :facts (swap! test-atom (constantly 18))) ]
+  (after 
+   (future-fact
+     (swap! test-atom inc) => 19
+     (swap! test-atom dec) => 18)
+   (future-fact (only-passes? 2) => truthy)))
+
+

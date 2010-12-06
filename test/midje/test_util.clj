@@ -78,8 +78,21 @@
 (defn no-failures? []
   (every? #(= (:type %) :pass) @reported))
 
-(defn only-passes? [count]
-  (reported? count (repeat count {:type :pass})))
+(defn only-passes? [expected-count]
+  (cond (not (= (count @reported) expected-count))
+	(do 
+	  (println "Count" (count @reported) "when" expected-count "expected")
+	  (println @reported)
+	  false)
+
+	(not (= (count (filter #(= (:type %) :pass) @reported)) expected-count))
+	(do
+	  (println "Not everything passed.")
+	  (println "Actual" @reported)
+	  false)
+
+	:else
+	true))
 
 (defn raw-report [] (println @reported) true)
 

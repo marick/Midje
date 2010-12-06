@@ -11,6 +11,9 @@
   (:require [midje.sweet.folded-prerequisites :as folded])
   (:use midje.sweet.metaconstants)
   (:use midje.util.thread-safe-var-nesting)
+  (:use midje.util.report)
+  (:use [midje.util.form-utils :only [reader-line-number]])
+  (:use [midje.util.file-position :only [user-file-position]])
 )
 (immigrate 'midje.unprocessed)
 (immigrate 'midje.semi-sweet)
@@ -39,7 +42,16 @@
 (defmacro facts [& forms]
   `(fact ~@forms))
 
-(defmacro pending-fact [& forms] nil)
-(defmacro future-fact [& forms] nil)
-(defmacro incipient-fact [& forms] nil)
-(defmacro antiterminologicaldisintactitudinarian-fact [& forms] nil)
+(defn- future-fact-1 [forms]
+  (let [lineno (reader-line-number forms)
+	description (if (string? (second forms))
+		      (str (second forms) " ")
+		      "")]
+    `(clojure.test/report {:type :future-fact
+			   :description ~description
+			   :position (midje.util.file-position/line-number-known ~lineno)})))
+
+(defmacro future-fact [& forms] (future-fact-1 &form))
+(defmacro pending-fact [& forms] (future-fact-1 &form))
+(defmacro incipient-fact [& forms] (future-fact-1 &form))
+(defmacro antiterminologicaldisintactitudinarian-fact [& forms] (future-fact-1 &form))

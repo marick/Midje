@@ -1,6 +1,7 @@
 = 0.8.1
 * background facts work within deftests
 * before/after/around work with :checks
+* future-fact, pending-fact 
 
 = 0.8.0 (stable)
 * Dropping support for Clojure 1.1.

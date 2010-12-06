@@ -8,8 +8,9 @@
   (:use clojure.test))
 
 (defn- midje-position-string [position-pair]
-  (format "(%s:%d)" (first position-pair) (second position-pair)))
+  (format "(%s:%s)" (first position-pair) (second position-pair)))
 
+;; NOTE: Gradually moving this behavior down to use render. See bottom of file.
 (defmethod clojure.test/old-report :mock-argument-match-failure [m]
    (inc-report-counter :fail)
    (println "\nFAIL at" (midje-position-string (:position m)))
@@ -59,10 +60,19 @@
      (cons "During checking, these intermediate values were seen:"
 	   (map (fn [[form value]] (str "   " form " => " value))
 		(:intermediate-results m))))))
+
+(defmethod report-strings :future-fact [m]
+  (list
+   (str "\nWORK TO DO: "
+	(:description m)
+	(midje-position-string (:position m)))))
   
 (defn render [m]
   (doall (map *renderer* (flatten-and-remove-nils (report-strings m)))))
 
 (defmethod clojure.test/old-report :mock-expected-result-functional-failure [m]
    (inc-report-counter :fail)
+   (render m))
+
+(defmethod clojure.test/old-report :future-fact [m]
    (render m))

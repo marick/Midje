@@ -19,3 +19,9 @@
   (let [group (group-by predicate forms)]
     [ (group true) (group false) ]))
 
+(defn reader-line-number [form]
+  (or (:line (meta form))
+      (some (comp :line meta) form)
+      "0 (no line info)"))
+  
+  

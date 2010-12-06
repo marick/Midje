@@ -128,3 +128,15 @@
 	   (+ 1 (middlemost)) => 2)
       (is (reported? 2 [{ :position ["t_line_number_reporting_test.clj" 125]}
   		        { :position ["t_line_number_reporting_test.clj" 128]}] ))))))
+
+
+(deftest line-numbers-for-future-facts
+  (after
+   (future-fact "text")
+   (is (reported? 1 [ {:position '("t_line_number_reporting_test.clj" 135)
+		       :description "text " } ])))
+
+  (after
+   (pending-fact (+ 1 1) => 2)
+   (is (reported? 1 [ {:position '("t_line_number_reporting_test.clj" 140)
+		       :description "" } ]))))
