@@ -52,6 +52,10 @@
 			   :position (midje.util.file-position/line-number-known ~lineno)})))
 
 (defmacro future-fact [& forms] (future-fact-1 &form))
+(defmacro future-facts [& forms] (future-fact-1 &form))
 (defmacro pending-fact [& forms] (future-fact-1 &form))
+(defmacro pending-facts [& forms] (future-fact-1 &form))
 (defmacro incipient-fact [& forms] (future-fact-1 &form))
+(defmacro incipient-facts [& forms] (future-fact-1 &form))
 (defmacro antiterminologicaldisintactitudinarian-fact [& forms] (future-fact-1 &form))
+(defmacro antiterminologicaldisintactitudinarian-facts [& forms] (future-fact-1 &form))
