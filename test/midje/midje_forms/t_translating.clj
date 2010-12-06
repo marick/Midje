@@ -1,7 +1,7 @@
 (ns midje.midje-forms.t-translating
   (:use [midje.midje-forms.translating] :reload-all)
   (:use [midje.sweet])
-  (:use [midje.test-util])
+  (:use [midje.test-util :exclude [after]])
   (:use [midje.util thread-safe-var-nesting unify]
 	[midje.util.wrapping :only [?form]])
   (:use [midje.midje-forms.building])
@@ -34,27 +34,31 @@
  (canonicalize-raw-wrappers '[ (after anything) ]) => (throws Error)
  )
 
-;; You can't refer to the magical symbol that's used in wrapper substitution because
-;; it will then be substituted. So this turns it into a string.
 (defn guard-special-form [bindings]
   (assoc (dissoc bindings '?danger) '?danger (str (bindings '?danger))))
 
-(fact "canonicalized setup/teardown wrappers can be put into final form"
-  (let [bindings (unify '(try (do-something) ?danger (finally nil))
-			(make-final '(before :checks (do-something))))]
-    (guard-special-form bindings) => { '?danger "midje.midje-forms.t-translating/?form" })
-  
-  (let [bindings (unify '(try (do-something) ?danger (finally (finish)))
-			(make-final '(before :checks (do-something) :after (finish))))]
-    (guard-special-form bindings) => { '?danger "midje.midje-forms.t-translating/?form" })
- 
-  (let [bindings (unify '(try ?danger (finally (do-something)))
-			(make-final '(after :checks (do-something))))]
-    (guard-special-form bindings) => { '?danger "midje.midje-forms.t-translating/?form" })
+(defmacro wrapping-form-is [ original expected ]
+  (let [bindings (unify expected (make-final original)) ]
+    (guard-special-form bindings) => { '?danger "midje.midje-forms.t-translating/?form" }))
 
-  (let [bindings (unify '(let [x 1] ?danger)
-			(make-final '(around :checks (let [x 1] ?form))))]
-    (guard-special-form bindings) => { '?danger "midje.midje-forms.t-translating/?form" })
+;; The magical symbol that's used in wrapper substitution can't be used in
+;; a fact because it gets substituted. So we let the caller use "danger" instead.
+(defn this-form [expected]
+  (fn [actual] (= actual
+		  (subst expected {'?danger 'midje.midje-forms.t-translating/?form}))))
+
+(fact "canonicalized setup/teardown wrappers can be put into final form"
+  (make-final '(before :checks (do-something))) =>
+  (this-form '(try (do-something) ?danger (finally nil)))
+
+  (make-final '(before :checks (do-something) :after (finish))) =>
+  (this-form '(try (do-something) ?danger (finally (finish))))
+
+  (make-final '(after :checks (do-something))) =>
+  (this-form '(try ?danger (finally (do-something))))
+
+  (make-final '(around :checks (let [x 1] ?form))) =>
+  (this-form '(let [x 1] ?danger))
 )
 ;; Note: the explicit stack discipline is because "midjcoexpansion" happens before
 ;; macroexpansion (mostly) and so a with-pushed-namespace-values would not perform the

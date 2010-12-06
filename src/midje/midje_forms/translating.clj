@@ -41,25 +41,26 @@
 			 (zip/replace loc (?form))
 			 loc))))))
 
+(defmacro before [when before-form & extras ]
+  (let [after-form (second extras)]
+    `(try
+       ~before-form
+       ~(?form)
+       (finally ~after-form))))
+
+(defmacro after [when after-form]
+  `(try ~(?form) (finally ~after-form)))
+
+(defmacro around [when around-form]
+  (replace-with-magic-form around-form))
+
 (defn- make-final [canonicalized-non-fake]
-  (let [bindings (setup-teardown-bindings canonicalized-non-fake)
-	key-is? #(= (name (bindings '?key)) %)]
-    ;; (println "== Makefinal for " canonicalized-non-fake)
-    ;; (println bindings)
-    (cond (key-is? "before")
-	  `(try
-	     ~(bindings '?first-form)
-	     ~(?form)
-	     (finally ~(bindings '?second-form)))
-	  
-	  (key-is? "after")
-	  `(try  ~(?form) (finally ~(bindings '?first-form)))
-
-	  (key-is? "around")
-	  (replace-with-magic-form (bindings '?first-form))
-
-	  :else
-	  (throw (Error. (str "Could make nothing of " canonicalized-non-fake))))))
+;  (println canonicalized-non-fake)
+  (if (some #{(name (first canonicalized-non-fake))} '("before" "after" "around"))
+    (macroexpand-1 (cons (symbol "midje.midje-forms.translating"
+			       (name (first canonicalized-non-fake)))
+		       (rest canonicalized-non-fake)))
+    (throw (Error. (str "Could make nothing of " canonicalized-non-fake)))))
 
 ;; Collecting all the background fakes is here for historical reasons:
 ;; it made it easier to eyeball expanded forms and see what was going on.
