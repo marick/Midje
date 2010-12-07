@@ -112,14 +112,33 @@
      @per-fact-atom => 18
      @per-check-atom => 3)))
 
-(against-background [ (before :facts (swap! per-fact-atom (constantly 18)))
+(pending-fact "around facts work within the fact body"
+  (against-background (before :facts (swap! per-fact-atom (constantly 18)))
 		      (before :checks (swap! per-check-atom (constantly 3)))
-		      (around :facts (let [x 1] ?form))]
-  (fact
-    @per-fact-atom => 18
-    @per-check-atom => 3
-    (+ x 33) => 34
+		      (around :facts (let [x 1] ?form)))
+  @per-fact-atom => 18
+  @per-check-atom => 3
+  (+ x 33) => 34
 
-    (swap! per-fact-atom inc)       @per-fact-atom => 19
-    (swap! per-check-atom inc)      @per-check-atom => 3)) ;; before swap wipes out inc
+  (swap! per-fact-atom inc)       @per-fact-atom => 19
+  (swap! per-check-atom inc)      @per-check-atom => 3) ;; before swap wipes out inc
 
+(against-background [ (around :checks (let [x 1] ?form)) ]
+  (facts "about shadowing"
+    1 => 1
+    x => 1
+    (let [x "a shadowing value"] (str "within a let, we see " x)) =>
+    "within a let, we see a shadowing value")
+
+  (against-background [ (around :checks (let [x 33 y 12] ?form))
+			(around :checks (let [y 10] ?form))]
+    (fact "Later values shadow"
+      (+ x y) => 43))
+
+  (fact x => 1))
+
+
+
+  
+  
+    
