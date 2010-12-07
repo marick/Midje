@@ -43,28 +43,36 @@
 
 ;; The magical symbol that's used in wrapper substitution can't be used in
 ;; a fact because it gets substituted. So we let the caller use "danger" instead.
-(defn this-form [expected]
-  (fn [actual] (= actual
+(defn what-is [expected]
+  (fn [actual] (= (:what actual)
 		  (subst expected {'?danger 'midje.midje-forms.t-translating/?form}))))
 
+(defn when-is [expected]
+  (fn [actual] (= (:when actual) expected)))
+
 (fact "canonicalized setup/teardown wrappers can be put into final form"
-  (make-final '(before :checks (do-something))) =>
-  (this-form '(try (do-something) ?danger (finally nil)))
+  (let [final (make-final '(before :checks (do-something)))]
+    final => (what-is '(try (do-something) ?danger (finally nil)))
+    final => (when-is :checks))
 
-  (make-final '(before :checks (do-something) :after (finish))) =>
-  (this-form '(try (do-something) ?danger (finally (finish))))
+  (let [final (make-final '(before :facts (do-something) :after (finish)))]
+    final => (what-is '(try (do-something) ?danger (finally (finish))))
+    final => (when-is :facts))
 
-  (make-final '(after :checks (do-something))) =>
-  (this-form '(try ?danger (finally (do-something))))
+  (let [final (make-final '(after :all (do-something)))]
+    final => (what-is '(try ?danger (finally (do-something))))
+    final => (when-is :all))
 
-  (make-final '(around :checks (let [x 1] ?form))) =>
-  (this-form '(let [x 1] ?danger))
+  (let [final (make-final '(around :checks (let [x 1] ?form)))]
+    final => (what-is '(let [x 1] ?danger))
+    final => (when-is :checks))
 )
 ;; Note: the explicit stack discipline is because "midjcoexpansion" happens before
 ;; macroexpansion (mostly) and so a with-pushed-namespace-values would not perform the
 ;; push at the right moment.
 (do 
-  (push-into-namespace :midje/wrappers '[ (let [x 1] (?form)) ] )
+  (push-into-namespace :midje/wrappers '[ {:when :checks
+					   :what (let [x 1] (?form)) } ] )
 
   (defmacro simulated-wrapper [form]
     (let [f (midjcoexpand form)]
@@ -79,8 +87,8 @@
     (let [x "not shadowed"]
       (expect (simulated-wrapper (str "is " x)) => "is not shadowed")))
 
-  (push-into-namespace :midje/wrappers '[ (let [x 33 y 12] ?form)
-					  (let [y 10] ?form) ])
+  (push-into-namespace :midje/wrappers '[ {:when :checks :what (let [x 33 y 12] ?form)}
+					  {:when :checks :what (let [y 10] ?form) } ])
   (simulated-wrapper (expect (+ x y) => 43))
   (pop-from-namespace :midje/wrappers)
 

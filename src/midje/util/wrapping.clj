@@ -8,7 +8,6 @@
 (defn wrapped? [form] (form-first? form "midje-wrapped"))
 
 (defn wrap [outer-form inner-form]
-;  (println "wrapping" inner-form "with" outer-form)
   (unify/subst outer-form {(?form) inner-form}))
 
 (defn multiwrap [form wrappers]

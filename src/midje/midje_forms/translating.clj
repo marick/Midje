@@ -57,9 +57,11 @@
 (defn- make-final [canonicalized-non-fake]
 ;  (println canonicalized-non-fake)
   (if (some #{(name (first canonicalized-non-fake))} '("before" "after" "around"))
-    (macroexpand-1 (cons (symbol "midje.midje-forms.translating"
-			       (name (first canonicalized-non-fake)))
-		       (rest canonicalized-non-fake)))
+    { :when (second canonicalized-non-fake)
+      :what (macroexpand-1 (cons (symbol "midje.midje-forms.translating"
+					 (name (first canonicalized-non-fake)))
+				 (rest canonicalized-non-fake)))
+    }
     (throw (Error. (str "Could make nothing of " canonicalized-non-fake)))))
 
 ;; Collecting all the background fakes is here for historical reasons:
@@ -68,9 +70,11 @@
   (define-metaconstants raw-wrappers)
   (let [canonicalized (canonicalize-raw-wrappers raw-wrappers)
 	[fakes others] (separate-by fake? canonicalized)]
-    ;; (println "the binding map" (map make-final others)) 
+    ;;    (println "the binding map" (map make-final others)) 
     `[    ~@(eagerly (map make-final others))
-      (with-pushed-namespace-values :midje/background-fakes ~fakes ~(?form)) ]))
+      { :when :checks
+       :what (with-pushed-namespace-values :midje/background-fakes ~fakes ~(?form))
+       }]))
 
 (defmacro- with-additional-wrappers [raw-wrappers form]
   `(with-pushed-namespace-values :midje/wrappers (final-wrappers ~raw-wrappers)
@@ -78,6 +82,13 @@
 
 (defn replace-wrappers [raw-wrappers]
   (set-namespace-value :midje/wrappers (list (final-wrappers raw-wrappers))))
+
+(defn forms-to-wrap-around-each-check []
+  (let [wrapper-maps (namespace-values-inside-out :midje/wrappers)
+	per-check-wrapper-maps (filter #(= (:when %) :checks) wrapper-maps)
+	wrappers (map :what per-check-wrapper-maps)]
+    wrappers))
+	
 
 (defn midjcoexpand [form]
 ;   (println "== midjcoexpanding" form)
@@ -88,8 +99,8 @@
 	(form-first? form "quote")
 	form
 
-	(wrappable? form)
-	(multiwrap form (namespace-values-inside-out :midje/wrappers))
+	(check-wrappable? form)
+	(multiwrap form (forms-to-wrap-around-each-check))
 
 	(expansion-has-wrappables? form)
 	(midjcoexpand (macroexpand form))
@@ -98,8 +109,9 @@
 	(do
 ;;	  (println "use these wrappers" (raw-wrappers form))
 ;;	  (println "for this form" (interior-forms form))
+;;	  (println (namespace-values-inside-out :midje/wrappers))
 	  (with-additional-wrappers (raw-wrappers form)
-	    (midjcoexpand (interior-forms form))))
+	      (midjcoexpand (interior-forms form))))
 	
 	(sequential? form)
 	(as-type form (eagerly (map midjcoexpand form)))

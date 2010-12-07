@@ -23,7 +23,7 @@
 (def already-wrapped? wrapping/wrapped?)
 
 (defn expect? [form] (form-first? form "expect"))
-(def wrappable? expect?)
+(def check-wrappable? expect?)
 
 (defn fact-claim [form]
   (or (form-first? form "fact")
