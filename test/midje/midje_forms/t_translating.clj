@@ -64,3 +64,9 @@
     final => (form-matching? '(let [x 1] ?danger))
     final => (for-wrapping-target? :checks))
 )
+
+(facts "about safe expansion of weird forms"
+  (map? {1 'do}) => truthy
+  (first (second '(midje.semi-sweet.expect (midje.sweet.fact 1 => 2)))) => 'midje.sweet.fact
+  (set? #{1 'do}) => truthy)
+

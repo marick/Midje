@@ -194,3 +194,4 @@
 		    (midje.semi-sweet/expect (f 5) midje.semi-sweet/=> truthy))]
     (expect (rewrite form) => expected)))
 
+

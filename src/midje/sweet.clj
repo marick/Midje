@@ -33,11 +33,15 @@
     
 (defmacro fact [& forms]
   (when (user-desires-checking?)
-    (let [[background remainder] (separate-background-forms forms)
-	  runs (folded/rewrite (transform/rewrite (position/add-line-numbers remainder)))]
-      (define-metaconstants runs)
-      `(against-background ~background
-			  (every? true? (list ~@runs))))))
+    (let [[background remainder] (separate-background-forms forms)]
+      (if (empty? background)
+	(let [things-to-run (folded/rewrite
+			     (transform/rewrite
+			      (position/add-line-numbers remainder)))]
+	  (define-metaconstants things-to-run)
+	  (midjcoexpand `(every? true? (list ~@things-to-run))))
+	`(against-background ~background (midje.sweet/fact ~@remainder))))))
+
 
 (defmacro facts [& forms]
   `(fact ~@forms))
