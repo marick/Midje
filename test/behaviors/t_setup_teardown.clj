@@ -86,12 +86,40 @@
     
 					; ========
 
+
 (fact (= @test-atom 18) => falsey)
 (against-background [ (before :facts (swap! test-atom (constantly 18))) ]
   (after 
-   (future-fact
+   (fact
      (swap! test-atom inc) => 19
      (swap! test-atom dec) => 18)
-   (future-fact (only-passes? 2) => truthy)))
+   (fact (only-passes? 2) => truthy)))
 
+(def per-fact-atom (atom 0))
+(def per-check-atom (atom 0))
+(against-background [ (before :facts (swap! per-fact-atom (constantly 18)))
+		      (before :checks (swap! per-check-atom (constantly 3))) ]
+  (after 
+   (fact
+     @per-fact-atom => 18
+     @per-check-atom => 3
+     (+ (swap! per-fact-atom inc) (swap! per-check-atom inc)) => 23
+     (+ (swap! per-fact-atom inc) (swap! per-check-atom inc)) => 24
+     @per-fact-atom => 20
+     @per-check-atom => 3)
+   (fact
+     (only-passes? 6) => truthy
+     @per-fact-atom => 18
+     @per-check-atom => 3)))
+
+(against-background [ (before :facts (swap! per-fact-atom (constantly 18)))
+		      (before :checks (swap! per-check-atom (constantly 3)))
+		      (around :facts (let [x 1] ?form))]
+  (fact
+    @per-fact-atom => 18
+    @per-check-atom => 3
+    (+ x 33) => 34
+
+    (swap! per-fact-atom inc)       @per-fact-atom => 19
+    (swap! per-check-atom inc)      @per-check-atom => 3)) ;; before swap wipes out inc
 

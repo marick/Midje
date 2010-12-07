@@ -54,14 +54,16 @@
 (defmacro around [when around-form]
   (replace-with-magic-form around-form))
 
+(defn timestamp [what when]
+  { :when when, :what what })
+
 (defn- make-final [canonicalized-non-fake]
 ;  (println canonicalized-non-fake)
   (if (some #{(name (first canonicalized-non-fake))} '("before" "after" "around"))
-    { :when (second canonicalized-non-fake)
-      :what (macroexpand-1 (cons (symbol "midje.midje-forms.translating"
-					 (name (first canonicalized-non-fake)))
-				 (rest canonicalized-non-fake)))
-    }
+    (timestamp (macroexpand-1 (cons (symbol "midje.midje-forms.translating"
+					    (name (first canonicalized-non-fake)))
+				    (rest canonicalized-non-fake)))
+	       (second canonicalized-non-fake))
     (throw (Error. (str "Could make nothing of " canonicalized-non-fake)))))
 
 ;; Collecting all the background fakes is here for historical reasons:
@@ -69,12 +71,10 @@
 (defn- final-wrappers [raw-wrappers]
   (define-metaconstants raw-wrappers)
   (let [canonicalized (canonicalize-raw-wrappers raw-wrappers)
-	[fakes others] (separate-by fake? canonicalized)]
-    ;;    (println "the binding map" (map make-final others)) 
-    `[    ~@(eagerly (map make-final others))
-      { :when :checks
-       :what (with-pushed-namespace-values :midje/background-fakes ~fakes ~(?form))
-       }]))
+	[fakes others] (separate-by fake? canonicalized)
+	final-fakes (timestamp `(with-pushed-namespace-values :midje/background-fakes ~fakes ~(?form))
+				:checks)]
+    `[    ~@(eagerly (map make-final others)) ~final-fakes ]))
 
 (defmacro- with-additional-wrappers [raw-wrappers form]
   `(with-pushed-namespace-values :midje/wrappers (final-wrappers ~raw-wrappers)
@@ -83,16 +83,16 @@
 (defn replace-wrappers [raw-wrappers]
   (set-namespace-value :midje/wrappers (list (final-wrappers raw-wrappers))))
 
-(defn forms-to-wrap-around-each-check []
+
+(defn forms-to-wrap-at-time [when]
   (let [wrapper-maps (namespace-values-inside-out :midje/wrappers)
-	per-check-wrapper-maps (filter #(= (:when %) :checks) wrapper-maps)
-	wrappers (map :what per-check-wrapper-maps)]
+	per-time-wrapper-maps (filter #(= (:when %) when) wrapper-maps)
+	wrappers (map :what per-time-wrapper-maps)]
     wrappers))
-	
 
 (defn midjcoexpand [form]
-;   (println "== midjcoexpanding" form)
-;   (println "== with" (namespace-values-inside-out :midje/wrappers))
+  ;; (p+ "== midjcoexpanding" form)
+  ;; (p "== with" (namespace-values-inside-out :midje/wrappers))
   (nopret (cond (already-wrapped? form)
 	form
 
@@ -100,10 +100,11 @@
 	form
 
 	(check-wrappable? form)
-	(multiwrap form (forms-to-wrap-around-each-check))
+	(multiwrap form (forms-to-wrap-at-time :checks))
 
 	(expansion-has-wrappables? form)
-	(midjcoexpand (macroexpand form))
+	(multiwrap (midjcoexpand (macroexpand form))
+		   (forms-to-wrap-at-time :facts))
 
 	(provides-wrappers? form)
 	(do
