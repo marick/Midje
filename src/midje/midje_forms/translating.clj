@@ -30,7 +30,7 @@
 		 (rest in-progress))
 	  
 	  :else
-	  (throw (Error. (str "This doesn't look like part of a background: %s"
+	  (throw (Error. (str "This doesn't look like part of a background: "
 			      (vec in-progress)))))))
 
 (defn- replace-with-magic-form [form]
