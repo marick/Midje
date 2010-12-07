@@ -70,16 +70,21 @@
       (second canonicalized-non-fake))
     (throw (Error. (str "Could make nothing of " canonicalized-non-fake)))))
 
+(defn- final-fake-wrapper [fakes]
+  (with-wrapping-target
+    `(with-pushed-namespace-values :midje/background-fakes ~fakes ~(?form))
+    :checks))
+
 ;; Collecting all the background fakes is here for historical reasons:
 ;; it made it easier to eyeball expanded forms and see what was going on.
 (defn- final-wrappers [raw-wrappers]
   (define-metaconstants raw-wrappers)
   (let [canonicalized (canonicalize-raw-wrappers raw-wrappers)
-	[fakes others] (separate-by fake? canonicalized)
-	final-fakes (with-wrapping-target
-		      `(with-pushed-namespace-values :midje/background-fakes ~fakes ~(?form))
-		      :checks)]
-    `[    ~@(eagerly (map make-final others)) ~final-fakes ]))
+	[fakes state-wrappers] (separate-by fake? canonicalized)
+	final-state-wrappers (eagerly (map make-final state-wrappers))]
+    (if (empty? fakes)
+      final-state-wrappers
+      (concat final-state-wrappers (list (final-fake-wrapper fakes))))))
 
 (defmacro- with-additional-wrappers [raw-wrappers form]
   `(with-pushed-namespace-values :midje/wrappers (final-wrappers ~raw-wrappers)
