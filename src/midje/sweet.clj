@@ -6,6 +6,7 @@
   (:use midje.midje-forms.recognizing)
   (:use [midje.midje-forms.translating :only [midjcoexpand replace-wrappers]])
   (:use [midje.midje-forms.dissecting :only [separate-background-forms]])
+  (:require [midje.midje-forms.building :as building])
   (:require [midje.sweet.sweet-to-semi-sweet-rewrite :as transform])
   (:require [midje.sweet.line-number-insertion :as position])
   (:require [midje.sweet.folded-prerequisites :as folded])
@@ -17,6 +18,9 @@
 )
 (immigrate 'midje.unprocessed)
 (immigrate 'midje.semi-sweet)
+(intern *ns* 'before #'building/before)
+(intern *ns* 'after #'building/after)
+(intern *ns* 'around #'building/around)
 
 (deferror odd-test-forms [] [forms])
 

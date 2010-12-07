@@ -36,11 +36,9 @@
      (run-and-check expect-form check-forms))))
 
 
-(defmacro after
-  ([description]
-   `(println "PENDING:"  ~description))
-  ([example-form & check-forms]
-   (run-and-check example-form check-forms)))
+(defmacro after-silently
+  [example-form & check-forms]
+  (run-and-check example-form check-forms))
 
 
 (defn reported?

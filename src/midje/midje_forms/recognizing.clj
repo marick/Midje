@@ -21,17 +21,11 @@
 ;;; Wrapping
 
 (def already-wrapped? wrapping/wrapped?)
-
 (defn expect? [form] (form-first? form "expect"))
-(def check-wrappable? expect?)
-
-(defn fact-claim [form]
+(defn background-form? [form] (form-first? form "against-background"))
+(defn fact? [form]
   (or (form-first? form "fact")
       (form-first? form "facts")))
-(def expansion-has-wrappables? fact-claim)
-
-(defn background-form? [form] (form-first? form "against-background"))
-(def provides-wrappers? background-form?)
 
 ;;; background forms
 

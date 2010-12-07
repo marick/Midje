@@ -5,11 +5,11 @@
   (:use [clojure.contrib.pprint]))
 
 (deftest simple-assertion-examples
-  (after 
+  (after-silently 
    (fact (+ 1 1) => 3)
    (is (reported? 1 [{:type :mock-expected-result-failure}])))
 
-  (after 
+  (after-silently 
    (facts (+ 10 10) => 20
 	  (+ 20 20) => 40)
    (is (no-failures?)))
@@ -37,13 +37,13 @@
   
 
 (deftest simple-mocking-examples
-  (after
+  (after-silently
    (fact (f 1) => 33
       (provided (g 1) => 33))
    (is (no-failures?)))
 
 
-  (after
+  (after-silently
    (facts 
 
     (f 1) => 313
@@ -57,7 +57,7 @@
    (is (no-failures?)))
 
 
-  (after 
+  (after-silently 
    (facts 
     (call2 1 2) => 30
       (provided 
@@ -107,10 +107,10 @@
 
   
 (deftest the-arrows-namespace-doesnt-matter
-  (after 
+  (after-silently 
    (fact (+ 1 1) midje.semi-sweet/=> 3)
    (is (reported? 1 [{:type :mock-expected-result-failure}])))
-  (after 
+  (after-silently 
    (fact (+ 1 1) midje.sweet/=> 3)
    (is (reported? 1 [{:type :mock-expected-result-failure}]))))
 
@@ -121,7 +121,7 @@
   (and (check-f n) (check-g n) (check-h n)))
 
 (deftest background-case-test
-  (after
+  (after-silently
    (against-background [(check-f 1) => true, (check-g 1) => true, (check-h 1) => true]
     (facts
      (ander 1) => truthy

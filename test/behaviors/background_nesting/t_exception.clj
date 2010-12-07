@@ -1,7 +1,6 @@
 (ns behaviors.background-nesting.t-exception
   (:use clojure.test)
   (:use [midje.sweet] :reload-all)
-  (:use [midje.test-util])
   (:use clojure.contrib.pprint)
 )
 

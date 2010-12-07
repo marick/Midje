@@ -1,12 +1,11 @@
 (ns behaviors.t-setup-teardown
   (:use [midje.sweet] :reload-all)
   (:use [midje.test-util])
-  (:use midje.util.form-utils)
   (:use clojure.contrib.pprint)
 )
 
 (def test-atom (atom 33))
-(after 
+(after-silently 
  (fact
    (against-background (before :checks (swap! test-atom (constantly 0))))
    (swap! test-atom inc) => 1
@@ -15,7 +14,7 @@
     
 (def test-atom (atom 0))
 (against-background [ (after :checks (swap! test-atom (constantly 0))) ]
-  (after 
+  (after-silently 
    (fact
      (swap! test-atom inc) => 1
      (swap! test-atom dec) => -1)
@@ -23,7 +22,7 @@
     
 (def before-atom (atom 10))
 (def after-atom (atom 33))
-(after 
+(after-silently 
  (fact
    (against-background (before :checks (swap! before-atom (constantly 0))
 			       :after    (swap! after-atom (constantly 10))))
@@ -40,19 +39,19 @@
 (unfinished f)
 
 (against-background [ (around :checks (let [x 1] ?form)) ]
-  (after 
+  (after-silently 
    (fact "arbitrary forms can be wrapped around a check"
      (+ x 2) => 3)
    (fact (only-passes? 1) => truthy)))
 
-(after 
+(after-silently 
  (fact "background wrapping establishes a lexical binding"
    (against-background (around :checks (let [x 1] ?form))
                        (f x) => 2 )
    (+ (f x) 2) => 4)
  (fact (only-passes? 1) => truthy))
 
-(after 
+(after-silently 
  (fact "prerequisites are scoped within all setup/teardown"
    (against-background (f x) => 2
                        (around :checks (let [x 1] ?form)))
@@ -74,7 +73,7 @@
     
 ;; Here's a possibly more sensible case
 (against-background [ (f 1) => 2 ]
-  (after 
+  (after-silently 
    (fact "prerequisites are scoped within all setup/teardown"
      (against-background (around :checks (let [x 1] ?form)))
      (+ (f x) 2) => 4)
@@ -89,7 +88,7 @@
 
 (fact (= @test-atom 18) => falsey)
 (against-background [ (before :facts (swap! test-atom (constantly 18))) ]
-  (after 
+  (after-silently 
    (fact
      (swap! test-atom inc) => 19
      (swap! test-atom dec) => 18)
@@ -99,7 +98,7 @@
 (def per-check-atom (atom 0))
 (against-background [ (before :facts (swap! per-fact-atom (constantly 18)))
 		      (before :checks (swap! per-check-atom (constantly 3))) ]
-  (after 
+  (after-silently 
    (fact
      @per-fact-atom => 18
      @per-check-atom => 3
@@ -112,7 +111,7 @@
      @per-fact-atom => 18
      @per-check-atom => 3)))
 
-(pending-fact "around facts work within the fact body"
+(fact "around facts work within the fact body"
   (against-background (before :facts (swap! per-fact-atom (constantly 18)))
 		      (before :checks (swap! per-check-atom (constantly 3)))
 		      (around :facts (let [x 1] ?form)))

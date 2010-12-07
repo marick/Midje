@@ -1,13 +1,11 @@
 (ns midje.midje-forms.t-translating
   (:use [midje.midje-forms.translating] :reload-all)
   (:use [midje.sweet])
-  (:use [midje.test-util :exclude [after]])
-  (:use [midje.util thread-safe-var-nesting unify]
-	[midje.util.wrapping :only [?form]])
-  (:use [midje.midje-forms.building])
+  (:use midje.test-util)
+  (:use [midje.util thread-safe-var-nesting unify])
   (:use clojure.contrib.pprint))
 (testable-privates midje.midje-forms.translating
-		   canonicalize-raw-wrappers make-final replace-with-magic-form)
+		   canonicalize-raw-wrappers final-state-wrapper replace-with-magic-form)
 
 (fact "human-friendly background forms can be canonicalized appropriately"
   "fakes"
@@ -38,7 +36,7 @@
   (assoc (dissoc bindings '?danger) '?danger (str (bindings '?danger))))
 
 (defmacro wrapping-form-is [ original expected ]
-  (let [bindings (unify expected (make-final original)) ]
+  (let [bindings (unify expected (final-state-wrapper original)) ]
     (guard-special-form bindings) => { '?danger "midje.midje-forms.t-translating/?form" }))
 
 ;; The magical symbol that's used in wrapper substitution can't be used in
@@ -48,19 +46,19 @@
 		  (subst expected {'?danger 'midje.midje-forms.t-translating/?form}))))
 
 (fact "canonicalized setup/teardown wrappers can be put into final form"
-  (let [final (make-final '(before :checks (do-something)))]
+  (let [final (final-state-wrapper '(before :checks (do-something)))]
     final => (form-matching? '(try (do-something) ?danger (finally nil)))
     final => (for-wrapping-target? :checks))
 
-  (let [final (make-final '(before :facts (do-something) :after (finish)))]
+  (let [final (final-state-wrapper '(before :facts (do-something) :after (finish)))]
     final => (form-matching? '(try (do-something) ?danger (finally (finish))))
     final => (for-wrapping-target? :facts))
 
-  (let [final (make-final '(after :all (do-something)))]
+  (let [final (final-state-wrapper '(after :all (do-something)))]
     final => (form-matching? '(try ?danger (finally (do-something))))
     final => (for-wrapping-target? :all))
 
-  (let [final (make-final '(around :checks (let [x 1] ?form)))]
+  (let [final (final-state-wrapper '(around :checks (let [x 1] ?form)))]
     final => (form-matching? '(let [x 1] ?danger))
     final => (for-wrapping-target? :checks))
 )

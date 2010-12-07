@@ -1,6 +1,6 @@
 (ns midje.midje-forms.t-building
-  (:use [midje.midje-forms.building] :reload-all)
   (:use midje.sweet)
+  (:require [midje.midje-forms.building :as building])
   (:require [clojure.zip :as zip])
   (:use midje.test-util)
 )

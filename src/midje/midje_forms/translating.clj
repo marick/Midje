@@ -33,38 +33,17 @@
 	  (throw (Error. (str "This doesn't look like part of a background: "
 			      (vec in-progress)))))))
 
-(defn- replace-with-magic-form [form]
-  (loop [loc (zip/seq-zip form)]
-    (if (zip/end? loc)
-      (zip/root loc)
-      (recur (zip/next (if (symbol-named? (zip/node loc) "?form")
-			 (zip/replace loc (?form))
-			 loc))))))
-
-(defmacro before [wrapping-target before-form & extras ]
-  (let [after-form (second extras)]
-    `(try
-       ~before-form
-       ~(?form)
-       (finally ~after-form))))
-
-(defmacro after [wrapping-target after-form]
-  `(try ~(?form) (finally ~after-form)))
-
-(defmacro around [wrapping-target around-form]
-  (replace-with-magic-form around-form))
-
 (defn with-wrapping-target [what target]
   (with-meta what (merge (meta what) {:midje/wrapping-target target})))
 
 (defn for-wrapping-target? [target]
   (fn [actual] (= (:midje/wrapping-target (meta actual)) target)))
 
-(defn- make-final [canonicalized-non-fake]
+(defn- final-state-wrapper [canonicalized-non-fake]
 ;  (println canonicalized-non-fake)
   (if (some #{(name (first canonicalized-non-fake))} '("before" "after" "around"))
     (with-wrapping-target
-      (macroexpand-1 (cons (symbol "midje.midje-forms.translating"
+      (macroexpand-1 (cons (symbol "midje.midje-forms.building"
 				   (name (first canonicalized-non-fake)))
 			   (rest canonicalized-non-fake)))
       (second canonicalized-non-fake))
@@ -81,7 +60,7 @@
   (define-metaconstants raw-wrappers)
   (let [canonicalized (canonicalize-raw-wrappers raw-wrappers)
 	[fakes state-wrappers] (separate-by fake? canonicalized)
-	final-state-wrappers (eagerly (map make-final state-wrappers))]
+	final-state-wrappers (eagerly (map final-state-wrapper state-wrappers))]
     (if (empty? fakes)
       final-state-wrappers
       (concat final-state-wrappers (list (final-fake-wrapper fakes))))))
@@ -108,14 +87,14 @@
 	(form-first? form "quote")
 	form
 
-	(check-wrappable? form)
+	(expect? form)
 	(multiwrap form (forms-to-wrap-around :checks))
 
-	(expansion-has-wrappables? form)
+	(fact? form)
 	(multiwrap (midjcoexpand (macroexpand form))
 		   (forms-to-wrap-around :facts))
 
-	(provides-wrappers? form)
+	(background-form? form)
 	(do
 ;;	  (println "use these wrappers" (raw-wrappers form))
 ;;	  (println "for this form" (interior-forms form))
@@ -128,4 +107,3 @@
 
 	:else
 	form)))
-

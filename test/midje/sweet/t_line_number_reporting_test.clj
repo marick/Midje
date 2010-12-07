@@ -8,18 +8,18 @@
 
 (def position-1 9)
 (deftest expected-result-positions-test
-  (after 
+  (after-silently 
    (fact (+ 1 1) => 3)
    (is (reported? 1 [{:type :mock-expected-result-failure
 		      :position ["t_line_number_reporting_test.clj" (+ position-1 3)]}])))
 
-  (after 
+  (after-silently 
    (fact
     (+ 1 1) => 3)
    (is (reported? 1 [{:type :mock-expected-result-failure
 		      :position ["t_line_number_reporting_test.clj" (+ position-1 9)]}])))
 
-    (after 
+    (after-silently 
      (fact
       
      (+ 1 1) =>
@@ -31,14 +31,14 @@
 (defn g [n] n)
 (def position-2 32)
 (deftest partial-call-test
-  (after 
+  (after-silently 
    (fact (g 1) => 1
          (provided (f 2) => 2))
    (is (reported? 2 [{:type :mock-incorrect-call-count
 		      :position ["t_line_number_reporting_test.clj" (+ position-2 4)]}
 		     {:type :pass}])))
 
-  (after 
+  (after-silently 
    (fact (g 1) => 1
 
 
@@ -56,7 +56,7 @@
 (defn favorite-animal-one-call [] (name (favorite-animal 1)))
 
 (deftest unfolding-expectations-examples
-  (after
+  (after-silently
    (fact
      (favorite-animal-name) => "betsy"
      (provided
@@ -64,7 +64,7 @@
    (is (no-failures?)))
 
   (def line-number 66)
-  (after
+  (after-silently
    (fact
      (favorite-animal-empty) => "betsy"
      (provided
@@ -78,7 +78,7 @@
 		      {:type :mock-expected-result-failure
 		       :position ["t_line_number_reporting_test.clj" (+ line-number 3)]}])))
 		       
-  (after
+  (after-silently
    (fact
      (favorite-animal-only-animal) => "betsy"
      (provided
@@ -86,7 +86,7 @@
    (is (reported? 2 [{:type :mock-incorrect-call-count}
 		     {:type :mock-expected-result-failure}])))
 
-  (after
+  (after-silently
    (fact
      (favorite-animal-only-name) => "betsy"
      (provided
@@ -101,7 +101,7 @@
 		     {:type :mock-expected-result-failure}])))
 
 
-  (after
+  (after-silently
    (fact
      (favorite-animal-one-call) => "betsy"
      (provided
@@ -119,7 +119,7 @@
   (in-separate-namespace
    (background (outermost) => 2)
    (against-background [ (middlemost) => 33]
-     (after
+     (after-silently
       (fact
 	(against-background (innermost) => 8)
 	(+ (middlemost)
@@ -131,12 +131,12 @@
 
 
 (deftest line-numbers-for-future-facts
-  (after
+  (after-silently
    (future-fact "text")
    (is (reported? 1 [ {:position '("t_line_number_reporting_test.clj" 135)
 		       :description "text " } ])))
 
-  (after
+  (after-silently
    (pending-fact (+ 1 1) => 2)
    (is (reported? 1 [ {:position '("t_line_number_reporting_test.clj" 140)
 		       :description "" } ]))))
