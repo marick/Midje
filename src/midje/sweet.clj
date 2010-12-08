@@ -59,6 +59,8 @@
 			   :description ~description
 			   :position (midje.util.file-position/line-number-known ~lineno)})))
 
+;; Wanna add more to these? See also midje-forms.recognizing.
+;; Such is the penalty for whimsy.
 (defmacro future-fact [& forms] (future-fact-1 &form))
 (defmacro future-facts [& forms] (future-fact-1 &form))
 (defmacro pending-fact [& forms] (future-fact-1 &form))

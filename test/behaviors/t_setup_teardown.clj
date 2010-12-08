@@ -136,8 +136,27 @@
 
   (fact x => 1))
 
+(def immediate-atom (atom 0))
+(against-background [ (before :contents (swap! immediate-atom (constantly 33))
+			      :after (swap! immediate-atom (constantly 110)))
+		      (around :contents (let [x 1] ?form))
+		      (before :facts (swap! per-fact-atom (constantly 18))) ]
 
+  (future-fact "one set of facts"
+    (against-background (before :checks (swap! per-check-atom (constantly 3))
+  				:after (swap! per-check-atom (constantly 888))))
+      
+    @per-fact-atom => 18
+    @per-check-atom => 3
+    (+ x 33) => 34
 
-  
-  
-    
+    (swap! @immediate-atom inc) => 34
+    (swap! per-fact-atom inc) => 19
+    (swap! per-check-atom inc) => 3)
+
+  (future-fact
+    @immediate-atom => 34
+    @per-fact-atom => 18
+    @per-check-atom => 888
+    x => 1))
+

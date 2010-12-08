@@ -87,6 +87,9 @@
 	(form-first? form "quote")
 	form
 
+	(future-fact? form)
+	(macroexpand form)
+
 	(expect? form)
 	(multiwrap form (forms-to-wrap-around :checks))
 
