@@ -58,17 +58,17 @@
    (+ (f x) 2) => 4)
  (fact (only-passes? 1) => truthy))
 
-
-;; Separate scoping of prerequisites and setup/teardown
-;; doesn't fully work yet. Consider this case:
-;(against-background [ (f x) => 2 ]
-;  (after 
-;   (fact "prerequisites are scoped within all setup/teardown"
-;     (against-background (around :checks (let [x 1] ?form)))
-;     (+ (f x) 2) => 4)
-;   (fact (only-passes? 1) => truthy)))
-;; I'm not sure if prerequisite scoping makes sense, so deferring
-;; thinking about this.
+;; This case doesn't work. The problem is that background facts are scoped the
+;; same as :check state setters. So they can be intermixed with state setters
+;; in left-to-right order. As a result (f x) is outside the 'let. If anyone cares,
+;; the solution would be to make :fact be a tighter scope than :check. Right now,
+;; I don't care.
+;; (against-background [ (f x) => 2 ]
+;;   (after-silently
+;;    (fact "prerequisites are scoped within all setup/teardown"
+;;      (against-background (around :checks (let [x 1] ?form)))
+;;      (+ (f x) 2) => 4)
+;;    (fact (only-passes? 1) => truthy)))
   
     
 ;; Here's a possibly more sensible case
@@ -136,27 +136,44 @@
 
   (fact x => 1))
 
+
 (def immediate-atom (atom 0))
 (against-background [ (before :contents (swap! immediate-atom (constantly 33))
 			      :after (swap! immediate-atom (constantly 110)))
+		      (f ...arg...) => 300
 		      (around :contents (let [x 1] ?form))
 		      (before :facts (swap! per-fact-atom (constantly 18))) ]
 
-  (future-fact "one set of facts"
+  (fact "one set of facts"
     (against-background (before :checks (swap! per-check-atom (constantly 3))
   				:after (swap! per-check-atom (constantly 888))))
       
-    @per-fact-atom => 18
-    @per-check-atom => 3
-    (+ x 33) => 34
+    @immediate-atom => 33  ;; content wrapper applies
+    @per-fact-atom => 18   ;; fact wrapper applies
+    @per-check-atom => 3   ;; per-check wrapper applies
+    (+ x 33) => 34         ;; content wrapper applies
 
-    (swap! @immediate-atom inc) => 34
+    (swap! immediate-atom inc) => 34   ;; content wrapper inapplicable.
+    (swap! per-fact-atom inc) => 19    ;; fact wrapper inapplicable.
+    (swap! per-check-atom inc) => 4    ;; per-check wrapper applies
+    (swap! per-check-atom inc) => 4   ;; See?
+
+    (+ (f ...arg...) x) => 301)
+  
+  (fact
+    @immediate-atom => 34	;; immediate wrapper doesn't apply.
+    @per-fact-atom => 18	;; per-fact wrapper resets.
+    @per-check-atom => 888	;; old per-check atom applied once, applies no more
+    x => 1
+    (+ (f ...arg...) x @per-fact-atom) => 319
+
     (swap! per-fact-atom inc) => 19
-    (swap! per-check-atom inc) => 3)
+    (swap! per-check-atom inc) => 889))
 
-  (future-fact
-    @immediate-atom => 34
-    @per-fact-atom => 18
-    @per-check-atom => 888
-    x => 1))
+(fact "everything left with final value"
+  @immediate-atom => 110	;; content wrapper set parting value.
+  @per-fact-atom => 19
+  @per-check-atom => 889
 
+  (swap! per-check-atom inc) => 890
+  @per-check-atom => 890)

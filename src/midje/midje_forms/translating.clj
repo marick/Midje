@@ -1,5 +1,6 @@
 (ns midje.midje-forms.translating
   (:use clojure.contrib.def)
+  (:use [clojure.contrib.seq :only [separate]])
   (:use [midje.util thread-safe-var-nesting wrapping form-utils laziness form-utils])
   (:use midje.sweet.metaconstants)
   (:require [midje.sweet.sweet-to-semi-sweet-rewrite :as transform])
@@ -65,8 +66,8 @@
       final-state-wrappers
       (concat final-state-wrappers (list (final-fake-wrapper fakes))))))
 
-(defmacro- with-additional-wrappers [raw-wrappers form]
-  `(with-pushed-namespace-values :midje/wrappers (final-wrappers ~raw-wrappers)
+(defmacro- with-additional-wrappers [final-wrappers form]
+  `(with-pushed-namespace-values :midje/wrappers ~final-wrappers
     ~form))
 
 (defn replace-wrappers [raw-wrappers]
@@ -99,11 +100,20 @@
 
 	(background-form? form)
 	(do
-;;	  (println "use these wrappers" (raw-wrappers form))
-;;	  (println "for this form" (interior-forms form))
-;;	  (println (namespace-values-inside-out :midje/wrappers))
-	  (with-additional-wrappers (raw-wrappers form)
-	      (midjcoexpand (interior-forms form))))
+	  ;; (p+ "use these wrappers" (raw-wrappers form))
+	  ;; (p "for this form" (interior-forms form))
+	  ;; (p (namespace-values-inside-out :midje/wrappers))
+	  (nopret (let [wrappers (final-wrappers (raw-wrappers form))
+		      [now-wrappers later-wrappers] (separate (for-wrapping-target? :contents)
+							      wrappers)]
+	    ;; "Now wrappers" have to be separated out and discarded here, because
+	    ;; if they were left in, they'd be reapplied in any nested background
+	    ;; forms.
+	    ;; (p "now-wrappers" now-wrappers)
+	    ;; (p "later-wrappers" later-wrappers)
+	    (multiwrap (with-additional-wrappers later-wrappers
+			  (midjcoexpand (interior-forms form)))
+		       now-wrappers))))
 	
 	(sequential? form)
 	(as-type form (eagerly (map midjcoexpand form)))
