@@ -1,10 +1,10 @@
-= 0.8.1
+= 0.8.1 (stable)
 * before/after/around
   http://bit.ly/hgw1CU
 * background facts work within deftests
 * future-fact, pending-fact 
 
-= 0.8.0 (stable)
+= 0.8.0
 * Dropping support for Clojure 1.1.
 * Incompatible syntax change for #'against-background
 * Backgrounds can now be set for a namespace or within a
