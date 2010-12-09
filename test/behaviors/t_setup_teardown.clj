@@ -80,10 +80,6 @@
      (+ (f x) 2) => 4)
    (fact (only-passes? 1) => truthy)))
 
-(future-fact "users can make functions that return before/after/around descriptions"
-  (against-background (x-is-available-with-value-1))
-  x => 1)
-    
 					; ========
 
 
