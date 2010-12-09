@@ -44,6 +44,7 @@
      (+ x 2) => 3)
    (fact (only-passes? 1) => truthy)))
 
+
 (after-silently 
  (fact "background wrapping establishes a lexical binding"
    (against-background (around :checks (let [x 1] ?form))
@@ -177,3 +178,17 @@
 
   (swap! per-check-atom inc) => 890
   @per-check-atom => 890)
+
+(pending-fact "behavior of (background :contents)")
+
+(background (around :facts (let [one 111] ?form)))
+(fact (+ one 222) => 333)
+
+(against-background [(around :facts (let [two 222] ?form))]
+  (fact (+ one two) => 333))
+
+
+; ----
+(against-background [ (around :facts (let [x 1] ?form) )]
+  (let [y 2]
+    (fact (+ x y) => 3)))

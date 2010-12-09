@@ -4,7 +4,7 @@
 	clojure.contrib.error-kit
 	[clojure.contrib.pprint :only [pprint]])
   (:use midje.midje-forms.recognizing)
-  (:use [midje.midje-forms.translating :only [midjcoexpand replace-wrappers]])
+  (:use [midje.midje-forms.translating :only [midjcoexpand replace-wrappers forms-to-wrap-around]])
   (:use [midje.midje-forms.dissecting :only [separate-background-forms]])
   (:require [midje.midje-forms.building :as building])
   (:require [midje.sweet.sweet-to-semi-sweet-rewrite :as transform])
@@ -13,6 +13,7 @@
   (:use midje.sweet.metaconstants)
   (:use midje.util.thread-safe-var-nesting)
   (:use midje.util.report)
+  (:use [midje.util.wrapping :only [multiwrap]])
   (:use [midje.util.form-utils :only [reader-line-number]])
   (:use [midje.util.file-position :only [user-file-position]])
 )
@@ -43,7 +44,8 @@
 			     (transform/rewrite
 			      (position/add-line-numbers remainder)))]
 	  (define-metaconstants things-to-run)
-	  (midjcoexpand `(every? true? (list ~@things-to-run))))
+	  (multiwrap (midjcoexpand `(every? true? (list ~@things-to-run)))
+		     (forms-to-wrap-around :facts)))
 	`(against-background ~background (midje.sweet/fact ~@remainder))))))
 
 
