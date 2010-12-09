@@ -133,6 +133,8 @@
 
   (fact x => 1))
 
+					; ========
+
 
 (def immediate-atom (atom 0))
 (against-background [ (before :contents (swap! immediate-atom (constantly 33))
@@ -157,7 +159,7 @@
 
     (+ (f ...arg...) x) => 301)
   
-  (fact
+  (fact "the other"
     @immediate-atom => 34	;; immediate wrapper doesn't apply.
     @per-fact-atom => 18	;; per-fact wrapper resets.
     @per-check-atom => 888	;; old per-check atom applied once, applies no more
@@ -175,16 +177,30 @@
   (swap! per-check-atom inc) => 890
   @per-check-atom => 890)
 
+					; ========
 (pending-fact "behavior of (background :contents)")
 
+					; ========
+
 (background (around :facts (let [one 111] ?form)))
-(fact (+ one 222) => 333)
+(fact  "Background facts are visible even when they don't wrap a fact (old bug)"
+  (+ one 222) => 333)
 
 (against-background [(around :facts (let [two 222] ?form))]
   (fact (+ one two) => 333))
 
+					; ========
 
-; ----
+
 (against-background [ (around :facts (let [x 1] ?form) )]
   (let [y 2]
-    (fact (+ x y) => 3)))
+    (fact "a let in background plays well with let in regular code"
+      (+ x y) => 3)
+
+    (fact "including things like scoping"
+      (against-background (around :checks (let [z (* 3 x)
+						a (* 4 y)] ?form)))
+      (do       (println (+ x y z a))
+(+ x y z a)) => 14)))
+
+  
