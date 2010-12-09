@@ -1,6 +1,7 @@
 = 0.8.1
+* before/after/around
+  http://bit.ly/hgw1CU
 * background facts work within deftests
-* before/after/around work with :checks
 * future-fact, pending-fact 
 
 = 0.8.0 (stable)
