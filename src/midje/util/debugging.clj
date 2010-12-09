@@ -15,7 +15,8 @@
 (defn nopret [val] val)
 (defn pret [val]
   (p val)
-  (swap! indent-count dec)
-  (swap! indent #(str (str/butlast 2 %) ">"))
+  (when (> @indent-count 0)
+    (swap! indent-count dec)
+    (swap! indent #(str (str/butlast 2 %) ">")))
   val)
 

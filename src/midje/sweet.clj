@@ -4,15 +4,16 @@
 	clojure.contrib.error-kit
 	[clojure.contrib.pprint :only [pprint]])
   (:use midje.midje-forms.recognizing)
-  (:use [midje.midje-forms.translating :only [midjcoexpand replace-wrappers forms-to-wrap-around]])
+  (:use [midje.midje-forms.translating :only [midjcoexpand replace-wrappers-returning-immediate
+					      forms-to-wrap-around]])
   (:use [midje.midje-forms.dissecting :only [separate-background-forms]])
   (:require [midje.midje-forms.building :as building])
   (:require [midje.sweet.sweet-to-semi-sweet-rewrite :as transform])
   (:require [midje.sweet.line-number-insertion :as position])
   (:require [midje.sweet.folded-prerequisites :as folded])
+  (:use [clojure.contrib.seq :only [separate]])
   (:use midje.sweet.metaconstants)
-  (:use midje.util.thread-safe-var-nesting)
-  (:use midje.util.report)
+  (:use [midje.util report debugging thread-safe-var-nesting])
   (:use [midje.util.wrapping :only [multiwrap]])
   (:use [midje.util.form-utils :only [reader-line-number]])
   (:use [midje.util.file-position :only [user-file-position]])
@@ -26,10 +27,9 @@
 (deferror odd-test-forms [] [forms])
 
 
-(defmacro background [& wrappers]
+(defmacro background [& raw-wrappers]
   (when (user-desires-checking?)
-    (replace-wrappers wrappers)
-    nil)) ; no-op
+    (replace-wrappers-returning-immediate raw-wrappers)))
 
 (defmacro against-background [wrappers & forms]
   (if (user-desires-checking?)

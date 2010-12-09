@@ -178,8 +178,16 @@
   @per-check-atom => 890)
 
 					; ========
-(pending-fact "behavior of (background :contents)")
+;; How backgrounds that apply to :contents work.
 
+(def per-contents-atom (atom 999))
+(background (before :contents (swap! per-contents-atom (constantly 3))))
+
+(fact @per-contents-atom => 3)
+(fact
+  (swap! per-contents-atom inc) => 4
+  @per-contents-atom => 4)
+(fact @per-contents-atom => 4)
 					; ========
 
 (background (around :facts (let [one 111] ?form)))
@@ -200,7 +208,6 @@
     (fact "including things like scoping"
       (against-background (around :checks (let [z (* 3 x)
 						a (* 4 y)] ?form)))
-      (do       (println (+ x y z a))
-(+ x y z a)) => 14)))
+      (+ x y z a) => 14)))
 
   

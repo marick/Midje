@@ -57,7 +57,7 @@
 
 ;; Collecting all the background fakes is here for historical reasons:
 ;; it made it easier to eyeball expanded forms and see what was going on.
-(defn- final-wrappers [raw-wrappers]
+(defn final-wrappers [raw-wrappers]
   (define-metaconstants raw-wrappers)
   (let [canonicalized (canonicalize-raw-wrappers raw-wrappers)
 	[fakes state-wrappers] (separate-by fake? canonicalized)
@@ -70,8 +70,11 @@
   `(with-pushed-namespace-values :midje/wrappers ~final-wrappers
     ~form))
 
-(defn replace-wrappers [raw-wrappers]
-  (set-namespace-value :midje/wrappers (list (final-wrappers raw-wrappers))))
+(defn replace-wrappers-returning-immediate [raw-wrappers]
+  (let [[immediates finals] (separate (for-wrapping-target? :contents)
+				      (final-wrappers raw-wrappers))]
+    (set-namespace-value :midje/wrappers (list finals))
+    (multiwrap "unimportant-value" immediates)))
 
 
 (defn forms-to-wrap-around [wrapping-target]
