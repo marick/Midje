@@ -1,70 +1,67 @@
 (ns midje.util.t-checker-test
-  (:use clojure.test)
-  (:use [midje.semi-sweet] :reload-all)
+  (:use [midje.sweet])
   (:use [midje.test-util]))
 
-(deftest truthy-test
-  (expect true => truthy)
-  (expect 1 => truthy)
-  (expect (truthy false) => false)
-  (expect (truthy nil) => false))
+(facts "about truthy"
+  true => truthy
+  1 => truthy
+  (truthy false) => false
+  (truthy nil) => false)
 
-(deftest falsey-test
-  (expect false => falsey)
-  (expect nil => falsey)
-  (expect (falsey true) => false)
-  (expect (falsey 1) => false))
+(facts "about falsey"
+  false => falsey
+  nil => falsey
+  (falsey true) => false
+  (falsey 1) => false)
 
-(deftest anything-test
-  (expect true => anything)
-  (expect false => anything)
-  (expect even? => anything))
+(facts "about anything"
+  true => anything
+  false => anything
+  even? => anything)
 
-(deftest exactly-test
-  (expect true => (exactly true))
-  (expect ( (exactly 2) 2) => truthy)
-  (expect ( (exactly 1) 2) => falsey)
-  (expect even? => (exactly even?)))
+(facts "about exactly"
+  true => (exactly true)
+  ( (exactly 2) 2) => truthy
+  ( (exactly 1) 2) => falsey
+  even? => (exactly even?))
 
-(deftest in-any-order-test
-  (expect [] => (in-any-order []))
-  (expect [1] => (in-any-order [1]))
-  (expect '(2 1) => (in-any-order [1 2]))
-  (expect [ {:a 1} {:b 2} ] => (in-any-order [{:b 2} {:a 1}]))
+(facts "about in-any-order"
+  [] => (in-any-order [])
+  [1] => (in-any-order [1])
+  '(2 1) => (in-any-order [1 2])
+  [ {:a 1} {:b 2} ] => (in-any-order [{:b 2} {:a 1}])
 
-  (expect ( (in-any-order [1 2]) [1 2 3]) => falsey)
-  (expect ( (in-any-order [1 2]) [1]) => falsey)
-  (expect ( (in-any-order [1 2]) [1 3]) => falsey)
+  ( (in-any-order [1 2]) [1 2 3]) => falsey
+  ( (in-any-order [1 2]) [1]) => falsey
+  ( (in-any-order [1 2]) [1 3]) => falsey
   
-  (expect ( (in-any-order [1 2 2 3]) [1 2 3 3]) => falsey)
-  (expect ( (in-any-order [2 1 3 2]) [1 2 3 3]) => falsey)
-  )
+  ( (in-any-order [1 2 2 3]) [1 2 3 3]) => falsey
+  ( (in-any-order [2 1 3 2]) [1 2 3 3]) => falsey)
 
-(deftest map-containing-test
-  (expect {:a 1 :b 2} => (map-containing {:a 1 :b 2}))
-  (expect {:a 1 :b 2 :c 3} => (map-containing {:a 1 :b 2}))
+(facts "about map-containing"
+  {:a 1 :b 2} => (map-containing {:a 1 :b 2})
+  {:a 1 :b 2 :c 3} => (map-containing {:a 1 :b 2})
 
-  (expect ( (map-containing {:a 1 :b 2})  {:a 1}) => falsey)
-  (expect ( (map-containing {:a 1 :b 2})  {:a 1 :b 3}) => falsey)
-  )
+  ( (map-containing {:a 1 :b 2})  {:a 1}) => falsey
+  ( (map-containing {:a 1 :b 2})  {:a 1 :b 3}) => falsey)
 
-(deftest only-maps-containing-test
-  (expect ( (only-maps-containing {:a 1 :b 2}) [{:a 1 :b 2} {:extra true}]) => falsey)
-  (expect ( (only-maps-containing {:a 1 :b 2}  {:extra true}) [{:a 1 :b 2}]) => falsey)
+(facts "about only-maps-containing-test"
+  ( (only-maps-containing {:a 1 :b 2}) [{:a 1 :b 2} {:extra true}]) => falsey
+  ( (only-maps-containing {:a 1 :b 2}  {:extra true}) [{:a 1 :b 2}]) => falsey
 
-  (expect [{:a 1 :b 2} {:extra 1}] => (only-maps-containing {:extra 1} {:a 1}))
-  (expect [{:a 1 :b 2} {:a 1 :b 22}] => (only-maps-containing {:b 2} {:b 22}))
-  (expect [{:a 1 :b 2} {:a 1 :b 22}] => (only-maps-containing [{:b 2} {:b 22}]))
-  (expect ( (only-maps-containing {:b 2} {:b 22}) [{:b 2} {:b 33}]) => falsey))
+  [{:a 1 :b 2} {:extra 1}] => (only-maps-containing {:extra 1} {:a 1})
+  [{:a 1 :b 2} {:a 1 :b 22}] => (only-maps-containing {:b 2} {:b 22})
+  [{:a 1 :b 2} {:a 1 :b 22}] => (only-maps-containing [{:b 2} {:b 22}])
+  ( (only-maps-containing {:b 2} {:b 22}) [{:b 2} {:b 33}]) => falsey)
 
-(deftest maps-containing-test
-  (expect ( (maps-containing {:a 1 :b 2}  {:extra true}) [{:a 1 :b 2}]) => falsey)
+(facts "about maps-containing"
+  ( (maps-containing {:a 1 :b 2}  {:extra true}) [{:a 1 :b 2}]) => falsey
 
-  (expect [{:a 1 :b 2} {:extra 1}] => (maps-containing {:extra 1} {:a 1}))
-  (expect [{:a 1 :b 2} {:a 1 :b 22}] => (maps-containing {:b 2} {:b 22}))
-  (expect [{:a 1 :b 2} {:a 1 :b 22} {:a 1 :b 33}] => (maps-containing {:b 2} {:b 22}))
-  (expect [{:a 1 :b 2} {:a 1 :b 22} {:a 1 :b 33}] => (maps-containing [{:b 2} {:b 22}]))
-  (expect ( (maps-containing {:b 2} {:b 22}) [{:b 2} {:b 33}]) => falsey))
+  [{:a 1 :b 2} {:extra 1}] => (maps-containing {:extra 1} {:a 1})
+  [{:a 1 :b 2} {:a 1 :b 22}] => (maps-containing {:b 2} {:b 22})
+  [{:a 1 :b 2} {:a 1 :b 22} {:a 1 :b 33}] => (maps-containing {:b 2} {:b 22})
+  [{:a 1 :b 2} {:a 1 :b 22} {:a 1 :b 33}] => (maps-containing [{:b 2} {:b 22}])
+  ( (maps-containing {:b 2} {:b 22}) [{:b 2} {:b 33}]) => falsey)
 
 
 (defn throw-exception
@@ -72,65 +69,61 @@
   ([message] (throw (Error. message)))
 )
 
-(deftest throwing-exceptions-test
-  (one-case "detects correctly thrown exception"
-    (expect (throw-exception) => (throws NullPointerException))
-    (is (no-failures?)))
-  (one-case "rejects incorrectly thrown exception"
-    (expect (throw-exception "throws Error") => (throws NullPointerException))
-    (is (reported? 1 [{:type :mock-expected-result-functional-failure}])))
-  (one-case "detects correct message"
-    (expect (throw-exception "hi") => (throws Error "hi"))
-    (is (no-failures?)))
-  (one-case "detects incorrect message"
-     (expect (throw-exception "throws Error") => (throws Error "bye"))
-     (is (reported? 1 [{:type :mock-expected-result-functional-failure}])))
-  )
+(facts "about throws"
+  (throw-exception) => (throws NullPointerException)
+  (throw-exception "hi") => (throws Error "hi"))
+(after-silently 
+ (fact 
+   (throw-exception "throws Error") => (throws NullPointerException)
+   (throw-exception "throws Error") => (throws Error "bye"))
+ (fact 
+   @reported => (two-of checker-fails)))
 
-(deftest throwing-an-exception-is-an-error-for-checkers
-  (one-case "anything"
-    (expect (throw-exception "throws Error") => anything)
-    (is (reported? 1 [{:type :mock-expected-result-functional-failure}])))
-  (one-case "falsey"
-    (expect (throw-exception "throws Error") => falsey)
-    (is (reported? 1 [{:type :mock-expected-result-functional-failure}])))
-  (one-case "truthy"
-    (expect (throw-exception "throws Error") => truthy)
-    (is (reported? 1 [{:type :mock-expected-result-functional-failure}])))
-  )
+;; Unexpected exceptions
+(after-silently
+ (facts
+   (throw-exception "throws Error") => anything
+   (throw-exception "throws Error") => falsey
+   (throw-exception "throws Error") => truthy)
+ (fact
+   @reported => (three-of checker-fails)))
 
-(deftest chatty-utility-tests
-  (is (chatty-checker-falsehood? (tag-as-chatty-falsehood [5])))
+(facts "about chatty-checking utility functions"
+  (tag-as-chatty-falsehood [5]) => chatty-checker-falsehood?
 
-  (is (not (chatty-worth-reporting-on? 1)))
-  (is (not (chatty-worth-reporting-on? '())))
-  (is (chatty-worth-reporting-on? '(f)))
-  (is (chatty-worth-reporting-on? ''(f)))
-  (is (not (chatty-worth-reporting-on? '[f]))))
+  (chatty-worth-reporting-on? 1) => falsey 
+  (chatty-worth-reporting-on? '()) => falsey
+  (chatty-worth-reporting-on? '(f)) => truthy
+  (chatty-worth-reporting-on? ''(f)) => truthy
+  (chatty-worth-reporting-on? '[f]) => falsey
 
-(deftest unteasing-multi-level-arglist-into-var-references
-  (is (= (chatty-untease 'g-101 '()) [[] []]))
-  (is (= (chatty-untease 'g-101 '(1 (f) 33 (+ 1 2)))
-	 [ '( (f) (+ 1 2))  '(1 (g-101 0) 33 (g-101 1))  ]))
-  )
+  (chatty-untease 'g-101 '()) => [[] []]
+  
+  (chatty-untease 'g-101 '(1 (f) 33 (+ 1 2))) =>
+                [ '( (f) (+ 1 2))  '(1 (g-101 0) 33 (g-101 1))  ])
   
 
-(deftest chatty-checker-test
-  (let [actual-plus-one-equals-4 (chatty-checker [actual] (= (inc actual) 4))]
-    (is (chatty-checker? actual-plus-one-equals-4))
-    (is (= true (actual-plus-one-equals-4 3)))
-    (let [result (actual-plus-one-equals-4 4)]
-      (is (chatty-checker-falsehood? result))
-      (is (= {:actual 4
-  	      :intermediate-results [ ['(inc actual) 5] ] }
-  	     result))))
+;; The form of chatty checkers
 
-  (let [no-longer-limited-form (chatty-checker [actual] (= (inc actual) 4 (+ 2 actual)))]
-    (is (chatty-checker? no-longer-limited-form))
-    (let [result (no-longer-limited-form 4)]
-      (is (chatty-checker-falsehood? result))
-      (is (= {:actual 4
-  	      :intermediate-results [ ['(inc actual) 5] ['(+ 2 actual) 6] ]}
-  	     result)))))
+(def actual-plus-one-equals-4 (chatty-checker [actual] (= (inc actual) 4)))
+(def no-longer-limited-form (chatty-checker [actual] (= (inc actual) 4 (+ 2 actual))))
 
+(facts "about the form of chatty-checkers"
+  actual-plus-one-equals-4 => chatty-checker?
+  no-longer-limited-form => chatty-checker?)
+
+(facts "about what chatty-checkers return"
+  (actual-plus-one-equals-4 3) => true
+   
+  (let [result (actual-plus-one-equals-4 4)]
+    result => chatty-checker-falsehood?
+    result => {:actual 4
+  	      :intermediate-results [ ['(inc actual) 5] ] })
+
+  (let [result (no-longer-limited-form 4)]
+    result => chatty-checker-falsehood?
+    result => {:actual 4
+  	      :intermediate-results [ ['(inc actual) 5] ['(+ 2 actual) 6] ]}))
     
+(facts "about at-least"
+  {} => (at-least {}))

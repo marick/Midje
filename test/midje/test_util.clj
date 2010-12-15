@@ -1,5 +1,6 @@
 (ns midje.test-util
   (:use [clojure.test])
+  (:use midje.util.checkers)
   (:use [clojure.contrib.string :only [substring?]])
   (:use [clojure.set :only [subset?]])
 )
@@ -98,4 +99,9 @@
   `(let [old-ns# *ns*]
     (try (in-ns (gensym)) ~@forms
     (finally (in-ns (ns-name old-ns#))))))
+
+;; Kinds of result maps
+(def bad-result (at-least {:type :mock-expected-result-failure}))
+(def pass (at-least {:type :pass}))
+(def checker-fails (at-least {:type :mock-expected-result-functional-failure}))
 
