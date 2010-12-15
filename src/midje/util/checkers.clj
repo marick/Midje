@@ -146,3 +146,31 @@
        {:midje/chatty-checker true, :midje/checker true})))
 
 
+
+;; Work in progress
+(defn at-least [expected-map]
+  {:midje/checker true}
+  (fn [actual-map]
+    (every? (fn [key]
+	      (and (find actual-map key)
+		   (= (get actual-map key) (get expected-map key))))
+	    (keys expected-map))))
+
+
+(defn n-of [expected-checker expected-count]
+  {:midje/checker true}
+  (chatty-checker [actual]
+    (and (= (count actual) expected-count)
+	 (every? expected-checker actual))))
+
+
+(defmacro of-functions []
+  (let [names {1 "one", 2 "two", 3 "three", 4 "four", 5 "five", 6 "six", 7 "seven",
+	       8 "eight", 9 "nine", 10 "ten"}
+	defns (map (fn [key] `(defn ~(symbol (str (get names key) "-of")) [expected-checker#]
+				{:midje/checker true}
+				(n-of expected-checker# ~key)))
+		   (keys names))]
+    `(do ~@defns)))
+(of-functions)
+  
