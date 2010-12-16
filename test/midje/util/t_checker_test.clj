@@ -125,5 +125,44 @@
     result => {:actual 4
   	      :intermediate-results [ ['(inc actual) 5] ['(+ 2 actual) 6] ]}))
     
+(facts "about of-functions"
+  [ 33 33 ] => (two-of 33)
+  
+  [ 1 3 ] => (n-of odd? 2)
+  ( (n-of odd? 1) [1 3]) => chatty-checker-falsehood?
+  ( (n-of odd? 3) [1 2 3]) => chatty-checker-falsehood?
+
+  [1 1 3 3 5 5 7 7 9 9] => (ten-of odd?)
+  [1 1 3 3 5 5 7 7 9] => (nine-of odd?)
+  [1 1 3 3 5 5 7 7] => (eight-of odd?)
+  [1 1 3 3 5 5 7] => (seven-of odd?)
+  [1 1 3 3 5 5] => (six-of odd?)
+  [1 1 3 3 5] => (five-of odd?)
+  [1 1 3 3] => (four-of odd?)
+  [1 1 3] => (three-of odd?)
+  [1 1] => (two-of odd?)
+  [1] => (one-of odd?))
+
 (facts "about at-least"
-  {} => (at-least {}))
+  "maps"
+  {} => (at-least {})
+  {:k :v} => (at-least {})
+  {:k :v, 1 2} => (at-least {:k :v})
+  ( (at-least {:k :v}) {}) => falsey
+
+  "lists"
+   '() => (at-least '())
+   '(1) => (at-least '())
+   '(1 2 3) => (at-least '(1))
+   '(3 2 1) => (at-least '(1))
+   ( (at-least '(1 2)) '(1)) => falsey
+
+   "vectors"
+   [3 2 1] => (at-least [1])
+
+   "mixtures"
+   [3 2 1] => (at-least '(1))
+
+   "sets"
+   #{3 2 1} => (at-least '(1)))
+

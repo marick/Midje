@@ -1,4 +1,5 @@
-(ns midje.util.checkers)
+(ns midje.util.checkers
+  (:use [clojure.set :only [subset?]]))
 
 (def #^{:private true} captured-exception-key "this Throwable was captured by midje:")
 (defn captured-exception [e] {captured-exception-key e})
@@ -148,20 +149,24 @@
 
 
 ;; Work in progress
-(defn at-least [expected-map]
+(defn at-least [expected]
   {:midje/checker true}
-  (fn [actual-map]
-    (every? (fn [key]
-	      (and (find actual-map key)
-		   (= (get actual-map key) (get expected-map key))))
-	    (keys expected-map))))
+  (fn [actual]
+    (if (map? expected)
+      (every? (fn [key]
+		(and (find actual key)
+		     (= (get actual key) (get expected key))))
+	      (keys expected))
+      (subset? (set expected) (set actual)))))
 
 
-(defn n-of [expected-checker expected-count]
+(defn n-of [expected expected-count]
   {:midje/checker true}
   (chatty-checker [actual]
     (and (= (count actual) expected-count)
-	 (every? expected-checker actual))))
+	 (if (fn? expected)
+	   (every? expected actual)
+	   (every? (partial = expected) actual)))))
 
 
 (defmacro of-functions []
