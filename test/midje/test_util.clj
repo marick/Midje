@@ -101,7 +101,7 @@
     (finally (in-ns (ns-name old-ns#))))))
 
 ;; Kinds of result maps
-(def bad-result (at-least {:type :mock-expected-result-failure}))
-(def pass (at-least {:type :pass}))
-(def checker-fails (at-least {:type :mock-expected-result-functional-failure}))
+(def bad-result (contains {:type :mock-expected-result-failure}))
+(def pass (contains {:type :pass}))
+(def checker-fails (contains {:type :mock-expected-result-functional-failure}))
 

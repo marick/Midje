@@ -1,4 +1,4 @@
-(ns midje.util.t-file-position-test
+(ns midje.util.t-file-position
   (:use [midje.util.file-position] :reload-all)
   (:use [midje.semi-sweet :only [fake]])
   (:use [clojure.test])
@@ -7,7 +7,7 @@
 (def line-marker-1 7)
 (deftest simple-user-file-position-test []
   (let [position (user-file-position)]
-    (is (= "t_file_position_test.clj" (first position)))
+    (is (= "t_file_position.clj" (first position)))
     (is (= (+ 2 line-marker-1) (second position))))
 )
 
@@ -15,7 +15,7 @@
 (deftest one-level-macro-file-position-test []
   (let [expectation (fake (f 1) => 33)
 	position (:file-position expectation)]
-    (is (= "t_file_position_test.clj" (first position)))
+    (is (= "t_file_position.clj" (first position)))
     (is (= (+ 2 line-marker-2) (second position))))
 )
 
@@ -30,7 +30,7 @@
 		      (fake (f 1) => 33)
 		      "more garbage")
 	position (:file-position expectation)]
-    (is (= "t_file_position_test.clj" (first position)))
+    (is (= "t_file_position.clj" (first position)))
     (is (= (+ 4 line-marker-3) (second position))))
 )
 
@@ -46,12 +46,12 @@
 		      "random garbage"
 		      (f 1) => 33)
 	position (:file-position expectation)]
-    (is (= "t_file_position_test.clj" (first position)))
+    (is (= "t_file_position.clj" (first position)))
     (is (= (+ 2 line-marker-4) (second position))))
 )
 
 (deftest simple-user-file-position-test
   (let [position (line-number-known 33)]
-    (is (= "t_file_position_test.clj" (first position)))
+    (is (= "t_file_position.clj" (first position)))
     (is (= 33 (second position)))))
 

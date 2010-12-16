@@ -1,4 +1,4 @@
-(ns midje.util.t-report-test
+(ns midje.util.t-report
   (:use [midje.util.report] :reload-all)
   (:use [midje.sweet])
   (:use [clojure.test])

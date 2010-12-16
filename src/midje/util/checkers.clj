@@ -1,6 +1,8 @@
 (ns midje.util.checkers
   (:use [clojure.set :only [subset?]]))
 
+
+
 (def #^{:private true} captured-exception-key "this Throwable was captured by midje:")
 (defn captured-exception [e] {captured-exception-key e})
 (defn captured-exception? [value] (and (map? value) (value captured-exception-key)))
@@ -146,19 +148,63 @@
 						  :intermediate-results pairs#})))))
        {:midje/chatty-checker true, :midje/checker true})))
 
+(defn function-aware-= [actual expected]
+  (if (fn? expected) 
+    (let [function-result (expected actual)]
+      (if (chatty-checker-falsehood? function-result) false function-result))
+    (= actual expected)))
+
+(defn- prefix? [smaller bigger]
+  (cond (empty? smaller)
+	true
+
+	(function-aware-= (first bigger) (first smaller))
+	(prefix? (rest smaller) (rest bigger))
+
+	:else
+	false))
+			  
+
+(defn- sequential-contains [bigger smaller]
+;  (println 'seq=-contains bigger smaller)
+  (cond (< (count bigger) (count smaller))
+	false
+
+	(prefix? smaller bigger)
+	true
+	
+	:else
+	(recur (rest bigger) smaller)))
+
+(defn- contains-guts [bigger smaller]
+  (cond (map? smaller)
+	(every? (fn [key]
+		  (and (find bigger key)
+		       (function-aware-= (get bigger key) (get smaller key))))
+		(keys smaller))
+
+	(sequential? smaller)
+	(sequential-contains bigger smaller)
+
+	(and (string? smaller) (string? bigger))
+	(.contains bigger smaller)
+
+	(= (class smaller) java.util.regex.Pattern)
+	(re-find smaller bigger)
+
+	(set? smaller)
+	false
+
+	:else
+	(some #(function-aware-= % smaller) bigger)))
+	
 
 
 ;; Work in progress
-(defn at-least [expected]
+(defn contains [expected]
   {:midje/checker true}
-  (fn [actual]
-    (if (map? expected)
-      (every? (fn [key]
-		(and (find actual key)
-		     (= (get actual key) (get expected key))))
-	      (keys expected))
-      (subset? (set expected) (set actual)))))
-
+  (fn [actual] (contains-guts actual expected)))
+    
 
 (defn n-of [expected expected-count]
   {:midje/checker true}

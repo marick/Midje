@@ -1,6 +1,13 @@
-(ns midje.util.t-checker-test
+(ns midje.util.t-checker
   (:use [midje.sweet])
   (:use [midje.test-util]))
+
+(facts "about function-aware equality"
+  (function-aware-= 1 2) => falsey
+  (function-aware-= 1 odd?) => truthy
+
+  (let [checker (fn [expected] (chatty-checker [actual] (> (inc actual) expected)))]
+    (function-aware-= 5 ((checker 5) 4)) => falsey))
 
 (facts "about truthy"
   true => truthy
@@ -143,26 +150,71 @@
   [1 1] => (two-of odd?)
   [1] => (one-of odd?))
 
-(facts "about at-least"
+(facts "about contains"
   "maps"
-  {} => (at-least {})
-  {:k :v} => (at-least {})
-  {:k :v, 1 2} => (at-least {:k :v})
-  ( (at-least {:k :v}) {}) => falsey
+  {} => (contains {})
+  {:k :v} => (contains {})
+  {:k :v, 1 2} => (contains {:k :v})
+  {:k :v, 1 2} => (contains {1 even?})
+  ( (contains {:k :v}) {}) => falsey
 
   "lists"
-   '() => (at-least '())
-   '(1) => (at-least '())
-   '(1 2 3) => (at-least '(1))
-   '(3 2 1) => (at-least '(1))
-   ( (at-least '(1 2)) '(1)) => falsey
+  '() => (contains '())
+  '(1) => (contains '()) 
+  '(1) => (contains '(1)) 
+  '(1 2 3) => (contains '(1))
+  '(1 2 3) => (contains '(2))
+  '(1 2 3) => (contains '(3))
+  '(1 2 3) => (contains '(2 3))
+  '(3 2 1) => (contains '(1))
+  '(1 3 1 2) => (contains '(1 2))
+  '(1 3 2 3 1 2) => (contains '(1 2))
+  ( (contains '(1 2)) '(1 3 2 3)) => falsey
+  ( (contains '(1)) '()) => falsey
+  ( (contains '(1 2)) '(1)) => falsey
+  ( (contains '(1)) '(2)) => falsey
 
-   "vectors"
-   [3 2 1] => (at-least [1])
+  '(1 2 3) => (contains (list odd? even? odd?))
+  ( (contains '(1 2)) '(3 2 1)) => falsey ; order matters
+  ( (contains '(1 2 2 1)) '(1 2 1)) => falsey ; duplicates matter
+  ( (contains '(1 2 1)) '(1 2 2 1)) => falsey ; duplicates matter
 
-   "mixtures"
-   [3 2 1] => (at-least '(1))
+  "vectors"
+  [3 2 1] => (contains [1])
+  ( (contains [1 2]) [3 2 1]) => falsey ; order matters
+  ( (contains [2 2]) [2]) => falsey ; duplicates matter
 
-   "sets"
-   #{3 2 1} => (at-least '(1)))
+  "mixtures"
+  [3 2 1] => (contains '(1))
+  [3 2 1] => (contains '(1))
+
+  "strings"
+  "abc" => (contains "bc")
+  "ab" => (contains "ab")
+  ( (contains "ab") "ba") => falsey
+  ( (contains "ab") "a") => falsey
+
+  "strings can match expressions"
+  ["a" "bc" "c"] => (contains "bc")
+
+  "regexp"
+  "abc" => (contains #"bc")
+  "ab" => (contains #"ab")
+  "ab" => (contains #"..")
+  "ab" => (contains #".")
+  ( (contains #"ab") "ba") => falsey
+  ( (contains #"ab") "a") => falsey
+
+  ;; Since #"regexp" is not = to #"regexp", no point in following:
+  ;; [#"a" #"bc" #"c"] => (contains #"bc")
+
+  ;; "sets"
+  ;; #{3 2 1} => (contains #{1})
+  ;; #{3 2 1} => (contains [1])   ; expected needn't be set
+  ;; #{3 2 1} => (contains [odd?])
+
+  "individual elements"
+  [1 2 3] => (contains 2)
+  [1 2 3] => (contains even?)
+  )
 
