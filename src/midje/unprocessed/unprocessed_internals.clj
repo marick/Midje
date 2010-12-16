@@ -3,7 +3,7 @@
 	clojure.test
         clojure.contrib.error-kit
         midje.util.report
-	[midje.util.checkers :only [chatty-checker-falsehood? chatty-checker?]]
+	[midje.util.checkers :only [chatty-checker-falsehood? chatty-checker? function-aware-=]]
 	)
   (:require [clojure.zip :as zip])
 )
@@ -58,13 +58,6 @@
 		(assoc accumulator function-var faker)))
 	  {}
 	  (unique-function-vars expectations))
-)
-
-(defn function-aware-= [actual expected]
-  (if (fn? expected) 
-    (let [function-result (expected actual)]
-      (if (chatty-checker-falsehood? function-result) false function-result))
-    (= actual expected))
 )
 
 (defmulti call-count-incorrect? :type)

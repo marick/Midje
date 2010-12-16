@@ -88,10 +88,3 @@
     (is (= 1 (deref (:count-atom (first expectations)))))
     (is (= 0 (deref (:count-atom (second expectations)))))))
 
-(deftest function-aware-equality-test
-  (is (falsey (function-aware-= 1 2)))
-  (is (truthy (function-aware-= 1 odd?)))
-  (let [checker (fn [expected] (chatty-checker [actual] (> (inc actual) expected)))]
-    (is (falsey (function-aware-= 5 ((checker 5) 4)))))
-)
-
