@@ -24,4 +24,7 @@
       (some (comp :line meta) form)
       "0 (no line info)"))
   
+(defn flatten-and-remove-nils [seq]
+  (filter identity (flatten seq)))
+
   

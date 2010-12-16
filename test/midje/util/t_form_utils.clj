@@ -14,3 +14,6 @@
   "or a default value"
   (reader-line-number (with-meta '(fact "text") {})) => "0 (no line info)")
 
+(facts "sometimes it's useful to flatten and remove nils"
+  (flatten-and-remove-nils '()) => []
+  (flatten-and-remove-nils '(nil "foo" ("bar" nil "baz"))) => ["foo" "bar" "baz"])
