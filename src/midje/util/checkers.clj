@@ -148,11 +148,19 @@
 						  :intermediate-results pairs#})))))
        {:midje/chatty-checker true, :midje/checker true})))
 
+(defn regex? [thing]
+  (= (class thing) java.util.regex.Pattern))
+
 (defn function-aware-= [actual expected]
-  (if (fn? expected) 
-    (let [function-result (expected actual)]
-      (if (chatty-checker-falsehood? function-result) false function-result))
-    (= actual expected)))
+  (cond (fn? expected)
+	(let [function-result (expected actual)]
+	  (if (chatty-checker-falsehood? function-result) false function-result))
+	
+	(regex? expected)
+	(re-find expected actual)
+
+	:else
+	(= actual expected)))
 
 (defn- prefix? [smaller bigger]
   (cond (empty? smaller)
@@ -163,11 +171,21 @@
 
 	:else
 	false))
-			  
 
-(defn- sequential-contains [bigger smaller]
+(defn- collection-compared-to-singleton? [bigger smaller]
+  (and (coll? bigger)
+       (not (coll? smaller))))
+
+(defn- bigger-sequential-contains [bigger smaller]
 ;  (println 'seq=-contains bigger smaller)
-  (cond (< (count bigger) (count smaller))
+  (cond (set? smaller)
+	(every? (fn [set-element] (some #{set-element} bigger))
+		smaller)
+
+	(map? smaller)
+	(recur bigger [smaller])
+
+        (< (count bigger) (count smaller))
 	false
 
 	(prefix? smaller bigger)
@@ -176,27 +194,49 @@
 	:else
 	(recur (rest bigger) smaller)))
 
-(defn- contains-guts [bigger smaller]
-  (cond (map? smaller)
+(defn- bigger-map-contains [bigger smaller]
+  (cond (and (sequential? smaller) (= 2 (count smaller)))
+	(recur bigger (apply hash-map smaller))
+
+	(map? smaller)
 	(every? (fn [key]
 		  (and (find bigger key)
 		       (function-aware-= (get bigger key) (get smaller key))))
 		(keys smaller))
 
-	(sequential? smaller)
-	(sequential-contains bigger smaller)
+	:else
+	(throw (Error. (str "If " (pr-str bigger) " is a map, " (pr-str smaller) " should be too."))))) 
 
-	(and (string? smaller) (string? bigger))
-	(.contains bigger smaller)
+(defn- smaller-string-contained-by [bigger smaller]
+  (.contains bigger smaller))
 
-	(= (class smaller) java.util.regex.Pattern)
-	(re-find smaller bigger)
+(defn- smaller-regex-contains [bigger smaller]
+  (re-find smaller bigger))
 
-	(set? smaller)
-	false
+(defn- contains-guts [bigger smaller]
+  (cond (collection-compared-to-singleton? bigger smaller)
+	(recur bigger [smaller])
+
+	(sequential? bigger)
+	(bigger-sequential-contains bigger smaller)
+
+	(set? bigger)
+	(every? (fn [required-elt] 
+		  (some #(function-aware-= % required-elt) bigger))
+		smaller)
+
+        (map? bigger)
+	(bigger-map-contains bigger smaller)
+
+	(string? smaller)
+	(smaller-string-contained-by bigger smaller)
+
+	(regex? smaller)
+	(smaller-regex-contains bigger smaller)
 
 	:else
-	(some #(function-aware-= % smaller) bigger)))
+	false))
+;	(some #(function-aware-= % smaller) bigger)))
 	
 
 

@@ -158,6 +158,15 @@
   {:k :v, 1 2} => (contains {1 even?})
   ( (contains {:k :v}) {}) => falsey
 
+  "works for sorted-maps in same way as for maps"
+  (sorted-map "b" 1, "a" 2) => (contains {"b" 1})
+  (sorted-map "b" 1, "a" 2) => (contains (sorted-map "a" 2))
+
+  "maps can contain individual entries"
+  {:k :v} => (contains [:k :v])
+  {:k :v} => (contains (find {:k :v} :k))
+  ((contains :k) {:k :v}) => (throws Error)
+
   "lists"
   '() => (contains '())
   '(1) => (contains '()) 
@@ -179,14 +188,33 @@
   ( (contains '(1 2 2 1)) '(1 2 1)) => falsey ; duplicates matter
   ( (contains '(1 2 1)) '(1 2 2 1)) => falsey ; duplicates matter
 
+  "can contain single elements"
+  '(1 2 3) => (contains 3)
+
   "vectors"
   [3 2 1] => (contains [1])
   ( (contains [1 2]) [3 2 1]) => falsey ; order matters
   ( (contains [2 2]) [2]) => falsey ; duplicates matter
 
+  "seqs"
+  (range 33) => (contains [16 17 18])
+  (range 33) => (contains (range 16 3))
+
+  "When sets are contained by sequentials, order is irrelevant"
+  [3 2 1] => (contains #{2 1})
+  ( (contains #{2 1 5}) [3 2 1]) => falsey
+
   "mixtures"
   [3 2 1] => (contains '(1))
-  [3 2 1] => (contains '(1))
+  '(3 2 1) => (contains [1])
+
+  [ {:a 1} {:b 1}      ] => (contains [ {:a 1} ])
+  [ {:a 1} "irrelevant"] => (contains   {:a 1})
+
+  ( (contains [ {:a 1} ])  [ {:a 1, :b 1} ]) => falsey  
+  ( (contains {:a 1}) [ {:a 2} ]) => falsey
+  ( (contains {:a 1}) [ 1 2 3 ]) => falsey
+  ( (contains {:a 1}) [ [:a 1] ]) => falsey ; I suppose could arguably be true.
 
   "strings"
   "abc" => (contains "bc")
@@ -194,8 +222,12 @@
   ( (contains "ab") "ba") => falsey
   ( (contains "ab") "a") => falsey
 
-  "strings can match expressions"
+  "strings can match collections, either singly or a a collection of strings"
   ["a" "bc" "c"] => (contains "bc")
+  '("a" "bc" "c") => (contains "bc")
+  ["1" "1 2" "1 2 3"]  => (contains ["1" "1 2"])
+  #{"a" "bc" "c"} => (contains "bc")
+  ( (contains "bc") {"a" 1, "bc" 2, "c" 3}) => (throws Error)
 
   "regexp"
   "abc" => (contains #"bc")
@@ -205,16 +237,26 @@
   ( (contains #"ab") "ba") => falsey
   ( (contains #"ab") "a") => falsey
 
+  "regexps can match expressions"
+  ["a" "bc" "c"] => (contains #".c")
+  #{"a" "bc" "c"} => (contains #"b5*c")
+  '("a" "bc" "c") => (contains #"..")
+  '("a" "bc" "c") => (contains [#"." #".."])
+  ( (contains #"bc") {"a" 1, "bc" 2, "c" 3}) => (throws Error)
+
   ;; Since #"regexp" is not = to #"regexp", no point in following:
   ;; [#"a" #"bc" #"c"] => (contains #"bc")
 
   ;; "sets"
-  ;; #{3 2 1} => (contains #{1})
-  ;; #{3 2 1} => (contains [1])   ; expected needn't be set
-  ;; #{3 2 1} => (contains [odd?])
+  #{3 2 1} => (contains #{1})
+  #{3 2 1} => (contains #{1 2})
+  #{3 2 1} => (contains [1])   ; expected needn't be a set
+  #{3 2 1} => (contains [odd?])
 
   "individual elements"
   [1 2 3] => (contains 2)
   [1 2 3] => (contains even?)
+  #{3 2 1} => (contains even?)
   )
 
+(future-fact "throws should allow the message argument to be (contains ...)")
