@@ -183,7 +183,7 @@
   ( (contains '(1 2)) '(1)) => falsey
   ( (contains '(1)) '(2)) => falsey
 
-  '(1 2 3) => (contains (list odd? even? odd?))
+  '(1 nil 2 3 nil) => (contains (list odd? nil even? odd? nil?))
   ( (contains '(1 2)) '(3 2 1)) => falsey ; order matters
   ( (contains '(1 2 2 1)) '(1 2 1)) => falsey ; duplicates matter
   ( (contains '(1 2 1)) '(1 2 2 1)) => falsey ; duplicates matter
@@ -193,6 +193,7 @@
 
   "vectors"
   [3 2 1] => (contains [1])
+  [1 nil 2 3 nil] => (contains [odd? nil even? odd? nil?])
   ( (contains [1 2]) [3 2 1]) => falsey ; order matters
   ( (contains [2 2]) [2]) => falsey ; duplicates matter
 
@@ -251,12 +252,34 @@
   #{3 2 1} => (contains #{1})
   #{3 2 1} => (contains #{1 2})
   #{3 2 1} => (contains [1])   ; expected needn't be a set
-  #{3 2 1} => (contains [odd?])
+  #{3 2 1} => (contains [1 3])   ; expected needn't be a set
+  ( (contains [1 3]) #{1 2 4}) => falsey
+  ( (contains #{1 3}) #{1 2 4}) => falsey
+  ( (contains [1 1]) #{1 2 4}) => falsey
+  #{3 2 1} => (contains odd?)
+  #{3 2 1} => (contains #(= % 1))
+  #{3 2 1} => (contains #{#(= % 1)})
+  ( (contains #{#(= % 1) odd?}) #{2 1}) => falsey
+
+  "nils"
+  [nil] => (contains [nil])
+  [nil nil nil] => (contains [nil nil])
+  {:a nil, nil :a, :b 1} => (contains {:a nil, nil :a})
+  #{nil 1} => (contains nil)
+  #{nil 1} => (contains #{nil})
+  #{nil 1} => (contains [1 nil])
+  [nil "foo"] => (contains "foo")
+
+  ( (contains [nil]) []) => falsey
+  ( (contains [nil]) {}) => (throws Error)
+  ( (contains [nil]) #{}) => falsey
 
   "individual elements"
   [1 2 3] => (contains 2)
   [1 2 3] => (contains even?)
   #{3 2 1} => (contains even?)
+  [nil nil] => (contains nil)
+  #{nil 1} => (contains nil)
   )
 
 (future-fact "throws should allow the message argument to be (contains ...)")

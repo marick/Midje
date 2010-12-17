@@ -1,5 +1,5 @@
 (ns midje.util.checkers
-  (:use [clojure.set :only [subset?]]))
+  (:use [clojure.set :only [difference subset?]]))
 
 
 
@@ -205,7 +205,23 @@
 		(keys smaller))
 
 	:else
-	(throw (Error. (str "If " (pr-str bigger) " is a map, " (pr-str smaller) " should be too."))))) 
+	(throw (Error. (str "If " (pr-str bigger) " is a map, " (pr-str smaller) " should be too.")))))
+
+(defn- bigger-set-contains [bigger smaller]
+  (let [candidate-matcher (fn [to-be-matched]
+			    (fn [candidate]
+			      (function-aware-= candidate to-be-matched)))
+	all-matches (filter (candidate-matcher (first smaller))
+			    bigger)]
+    (cond (empty? smaller)
+	  true
+
+	  (empty? all-matches)
+	  false
+
+	  :else
+	  (recur (difference bigger #{(first all-matches)})
+		 (rest smaller)))))
 
 (defn- smaller-string-contained-by [bigger smaller]
   (.contains bigger smaller))
@@ -221,9 +237,7 @@
 	(bigger-sequential-contains bigger smaller)
 
 	(set? bigger)
-	(every? (fn [required-elt] 
-		  (some #(function-aware-= % required-elt) bigger))
-		smaller)
+	(bigger-set-contains bigger smaller)
 
         (map? bigger)
 	(bigger-map-contains bigger smaller)
