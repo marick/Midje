@@ -84,7 +84,9 @@
 
 (facts "about throws"
   (throw-exception) => (throws NullPointerException)
-  (throw-exception "hi") => (throws Error "hi"))
+  (throw-exception "hi") => (throws Error "hi")
+  (throw-exception "hi") => (throws Error #"h."))
+
 (after-silently 
  (fact 
    (throw-exception "throws Error") => (throws NullPointerException)
@@ -142,6 +144,7 @@
   [ 33 33 ] => (two-of 33)
   
   [ 1 3 ] => (n-of odd? 2)
+  [ "ab" "aab" "aaab"] => (n-of #"a+b" 3)
   ( (n-of odd? 1) [1 3]) => chatty-checker-falsehood?
   ( (n-of odd? 3) [1 2 3]) => chatty-checker-falsehood?
 
@@ -287,5 +290,3 @@
   [nil nil] => (contains nil)
   #{nil 1} => (contains nil)
   )
-
-(future-fact "throws should allow the message argument to be (contains ...)")

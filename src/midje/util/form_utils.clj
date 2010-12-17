@@ -1,7 +1,8 @@
 (ns midje.util.form-utils
    (:use [midje.util laziness]))
 
-;; TODO: had to change list? to sequential? because unification produces lazyseqs.
+(defn regex? [thing]
+  (= (class thing) java.util.regex.Pattern))
 
 (defn symbol-named? [form desired]
   (and (symbol? form)

@@ -1,28 +1,25 @@
 (ns midje.util.checkers
-  (:use [clojure.set :only [difference subset?]]))
+  (:use [clojure.set :only [difference subset?]]
+	[midje.util.form-utils :only [regex?]]))
 
+(declare chatty-checker-falsehood? captured-exception?)
 
+;; Midje has its own peculiar idea of equality
 
-(def #^{:private true} captured-exception-key "this Throwable was captured by midje:")
-(defn captured-exception [e] {captured-exception-key e})
-(defn captured-exception? [value] (and (map? value) (value captured-exception-key)))
-			       
-(defn- throwable-with-class? [wrapped-throwable expected-class]
-  (and (map? wrapped-throwable)
-       (= expected-class (class (wrapped-throwable captured-exception-key)))))
+(defn extended-= [actual expected]
+  (cond (fn? expected)
+	(let [function-result (expected actual)]
+	  (if (chatty-checker-falsehood? function-result) false function-result))
+	
+	(regex? expected)
+	(if (regex? actual)
+	  (= (.toString actual) (.toString expected))
+	  (re-find expected actual))
 
-(defn throws
-  "Checks that Throwable of named class was thrown and, optionally, that
-   the message is as desired."
-  {:midje/checker true}
-  ([expected-exception-class]
-     (fn [wrapped-throwable] (throwable-with-class? wrapped-throwable expected-exception-class)))
-  ([expected-exception-class message]
-     (fn [wrapped-throwable]
-       (and (throwable-with-class? wrapped-throwable expected-exception-class)
-	    (= message (.getMessage (wrapped-throwable captured-exception-key))))))
-)
+	:else
+	(= actual expected)))
 
+;; Simple checkers
 
 (defn truthy 
   "Returns precisely true if actual is not nil and not false."
@@ -57,54 +54,8 @@
   [expected]
   (fn [actual] (= expected actual)))
 
-(defn map-containing [expected]
-  "Accepts a map that contains all the keys and values in expected,
-   perhaps along with others"
-  {:midje/checker true}
-  (fn [actual] 
-    (= (merge actual expected) actual)))
 
-(defn- core-array-of-maps-checker [expected actual]
-  (every? (fn [one-expected-map] (some (map-containing one-expected-map) actual))
-	  expected))
-
-(defn- one-level-map-flatten [list-like-thing]
-  (if (map? (first list-like-thing))
-    list-like-thing
-    (first list-like-thing)))
-
-(defn only-maps-containing [& maps-or-maplist]
-  "Each map in the argument(s) contains some map in the expected
-   result. There may be no extra maps in either the argument(s) or expected result.
-
-   You can call this with either (only-maps-containing {..} {..}) or
-   (only-maps-containing [ {..} {..} ])."
-  {:midje/checker true}
-  (let [expected (one-level-map-flatten maps-or-maplist)]
-    (fn [actual]
-      (if (= (count actual) (count expected))
-	(core-array-of-maps-checker expected actual)
-	false))))
-  
-(defn maps-containing [& maps-or-maplist]
-  "Each map in the argument(s) contains contains some map in the expected
-   result. There may be extra maps in the actual result.
-
-   You can call this with either (maps-containing {..} {..}) or
-   (maps-containing [ {..} {..} ])."
-  {:midje/checker true}
-  (let [expected (one-level-map-flatten maps-or-maplist)]
-    (fn [actual]
-      (if (>= (count actual) (count expected))
-	(core-array-of-maps-checker expected actual)
-	false))))
-  
-  
-  
-
-
-
-     
+;; Chatty checkers
 
 (defn tag-as-chatty-falsehood [value]
   (with-meta value {:midje/chatty-checker-falsehood true}))
@@ -148,21 +99,29 @@
 						  :intermediate-results pairs#})))))
        {:midje/chatty-checker true, :midje/checker true})))
 
-(defn regex? [thing]
-  (= (class thing) java.util.regex.Pattern))
+;;Concerning Throwables
 
-(defn extended-= [actual expected]
-  (cond (fn? expected)
-	(let [function-result (expected actual)]
-	  (if (chatty-checker-falsehood? function-result) false function-result))
-	
-	(regex? expected)
-	(if (regex? actual)
-	  (= (.toString actual) (.toString expected))
-	  (re-find expected actual))
+(def #^{:private true} captured-exception-key "this Throwable was captured by midje:")
+(defn captured-exception [e] {captured-exception-key e})
+(defn captured-exception? [value] (and (map? value) (value captured-exception-key)))
 
-	:else
-	(= actual expected)))
+(defn- throwable-with-class? [wrapped-throwable expected-class]
+  (and (map? wrapped-throwable)
+       (= expected-class (class (wrapped-throwable captured-exception-key)))))
+
+(defn throws
+  "Checks that Throwable of named class was thrown and, optionally, that
+   the message is as desired."
+  {:midje/checker true}
+  ([expected-exception-class]
+     (fn [wrapped-throwable] (throwable-with-class? wrapped-throwable expected-exception-class)))
+  ([expected-exception-class message]
+     (fn [wrapped-throwable]
+       (and (throwable-with-class? wrapped-throwable expected-exception-class)
+	    (extended-= (.getMessage (wrapped-throwable captured-exception-key))
+			message)))))
+
+;;Checkers that work with collections.
 
 (defn- prefix? [smaller bigger]
   (cond (empty? smaller)
@@ -253,19 +212,15 @@
 	:else
 	false))
 
-;; Work in progress
 (defn contains [expected]
   {:midje/checker true}
   (fn [actual] (contains-guts actual expected)))
-    
 
 (defn n-of [expected expected-count]
   {:midje/checker true}
   (chatty-checker [actual]
     (and (= (count actual) expected-count)
-	 (if (fn? expected)
-	   (every? expected actual)
-	   (every? (partial = expected) actual)))))
+	 (every? #(extended-= % expected) actual))))
 
 
 (defmacro of-functions []
@@ -278,3 +233,50 @@
     `(do ~@defns)))
 (of-functions)
   
+;; Deprecated checkers
+
+(defn map-containing [expected]
+  "Accepts a map that contains all the keys and values in expected,
+   perhaps along with others"
+  {:midje/checker true}
+  (fn [actual] 
+    (= (merge actual expected) actual)))
+
+(defn- core-array-of-maps-checker [expected actual]
+  (every? (fn [one-expected-map] (some (map-containing one-expected-map) actual))
+	  expected))
+
+(defn- one-level-map-flatten [list-like-thing]
+  (if (map? (first list-like-thing))
+    list-like-thing
+    (first list-like-thing)))
+
+(defn only-maps-containing [& maps-or-maplist]
+  "Each map in the argument(s) contains some map in the expected
+   result. There may be no extra maps in either the argument(s) or expected result.
+
+   You can call this with either (only-maps-containing {..} {..}) or
+   (only-maps-containing [ {..} {..} ])."
+  {:midje/checker true}
+  (let [expected (one-level-map-flatten maps-or-maplist)]
+    (fn [actual]
+      (if (= (count actual) (count expected))
+	(core-array-of-maps-checker expected actual)
+	false))))
+  
+(defn maps-containing [& maps-or-maplist]
+  "Each map in the argument(s) contains contains some map in the expected
+   result. There may be extra maps in the actual result.
+
+   You can call this with either (maps-containing {..} {..}) or
+   (maps-containing [ {..} {..} ])."
+  {:midje/checker true}
+  (let [expected (one-level-map-flatten maps-or-maplist)]
+    (fn [actual]
+      (if (>= (count actual) (count expected))
+	(core-array-of-maps-checker expected actual)
+	false))))
+  
+  
+  
+
