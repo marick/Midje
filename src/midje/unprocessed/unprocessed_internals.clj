@@ -3,7 +3,7 @@
 	clojure.test
         clojure.contrib.error-kit
         midje.util.report
-	[midje.util.checkers :only [chatty-checker-falsehood? chatty-checker? function-aware-=]]
+	[midje.util.checkers :only [chatty-checker-falsehood? chatty-checker? extended-=]]
 	)
   (:require [clojure.zip :as zip])
 )
@@ -88,7 +88,7 @@
 ;; return value. Fix this when (a) we move away from clojure.test.report and
 ;; (b) we figure out how to make fact() some meaningful unit of reporting.
 (defn check-result [actual call]
-  (cond (function-aware-= actual (call :expected-result))
+  (cond (extended-= actual (call :expected-result))
 	(do (report {:type :pass})
 	    true)
 
@@ -118,5 +118,5 @@
 (defn arg-matcher-maker [expected]
   "Based on an expected value, generates a function that returns true if the 
    actual value matches it."
-  (fn [actual] (function-aware-= actual expected)))
+  (fn [actual] (extended-= actual expected)))
 

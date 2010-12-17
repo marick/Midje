@@ -151,13 +151,15 @@
 (defn regex? [thing]
   (= (class thing) java.util.regex.Pattern))
 
-(defn function-aware-= [actual expected]
+(defn extended-= [actual expected]
   (cond (fn? expected)
 	(let [function-result (expected actual)]
 	  (if (chatty-checker-falsehood? function-result) false function-result))
 	
 	(regex? expected)
-	(re-find expected actual)
+	(if (regex? actual)
+	  (= (.toString actual) (.toString expected))
+	  (re-find expected actual))
 
 	:else
 	(= actual expected)))
@@ -166,7 +168,7 @@
   (cond (empty? smaller)
 	true
 
-	(function-aware-= (first bigger) (first smaller))
+	(extended-= (first bigger) (first smaller))
 	(prefix? (rest smaller) (rest bigger))
 
 	:else
@@ -201,7 +203,7 @@
 	(map? smaller)
 	(every? (fn [key]
 		  (and (find bigger key)
-		       (function-aware-= (get bigger key) (get smaller key))))
+		       (extended-= (get bigger key) (get smaller key))))
 		(keys smaller))
 
 	:else
@@ -210,7 +212,7 @@
 (defn- bigger-set-contains [bigger smaller]
   (let [candidate-matcher (fn [to-be-matched]
 			    (fn [candidate]
-			      (function-aware-= candidate to-be-matched)))
+			      (extended-= candidate to-be-matched)))
 	all-matches (filter (candidate-matcher (first smaller))
 			    bigger)]
     (cond (empty? smaller)
@@ -250,9 +252,6 @@
 
 	:else
 	false))
-;	(some #(function-aware-= % smaller) bigger)))
-	
-
 
 ;; Work in progress
 (defn contains [expected]

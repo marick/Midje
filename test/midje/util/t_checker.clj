@@ -2,12 +2,18 @@
   (:use [midje.sweet])
   (:use [midje.test-util]))
 
-(facts "about function-aware equality"
-  (function-aware-= 1 2) => falsey
-  (function-aware-= 1 odd?) => truthy
+(facts "about extended equality"
+  (extended-= 1 2) => falsey
+  (extended-= 1 odd?) => truthy
 
   (let [checker (fn [expected] (chatty-checker [actual] (> (inc actual) expected)))]
-    (function-aware-= 5 ((checker 5) 4)) => falsey))
+    (extended-= 5 ((checker 5) 4)) => falsey)
+
+  "regexps"
+  (extended-= #"a*b+" #"a*b+") => truthy
+  (extended-= #"a*b+" #"a*b") => falsey
+  (extended-= "BEGIN aab END" #"a*b+") => truthy
+  (extended-= "BEGIN bb END" #"ab+") => falsey)
 
 (facts "about truthy"
   true => truthy
