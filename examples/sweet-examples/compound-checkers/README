@@ -1,0 +1,4 @@
+Different ways of creating checkers that check more than one
+thing.
+
+The tests are with the source in src/compound/two_finder.clj
