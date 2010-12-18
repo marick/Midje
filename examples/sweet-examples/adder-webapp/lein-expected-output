@@ -1,13 +1,1 @@
-FAIL at (core_test.clj:32)
-Actual result did not agree with the checking function.
-    Actual result: nil
-Checking function: truthy
-^^^^ Failure expected. (The test was changed to test the wrong thing.) ^^^^
-FAIL at (core_test.clj:45)
-Actual result did not agree with the checking function.
-    Actual result: "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n<html lang=\"en\" xml:lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\"><head><meta content=\"text/html; charset=utf-8\" http-equiv=\"Content-type\" /><title>adder</title><link href=\"/adder.css\" rel=\"stylesheet\" type=\"text/css\" /></head><body><h2>two numbers added</h2><p class=\"math\">2 + 3 = 5</p><a class=\"action\" href=\"/\">add more numbers</a></body></html>"
-Checking function: (contains regexp)
-^^^^ Failure expected. (The test was changed to test the wrong thing.) ^^^^
-Testing adder.core-test
-Ran 0 tests containing 0 assertions.
-0 failures, 0 errors.
+All claimed facts (14) have been confirmed. 

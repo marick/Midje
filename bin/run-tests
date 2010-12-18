@@ -4,10 +4,11 @@ require 'fileutils'
 include FileUtils
 
 lein_test_runs = %w{examples/semi-sweet-examples
-                    examples/sweet-examples/adder-webapp
                     examples/sweet-examples/leiningen-test}
 
 lein_midje_runs = %w{examples/sweet-examples/basic
+                    examples/sweet-examples/adder-webapp
+                    examples/sweet-examples/compound-checkers
                      examples/sweet-examples/leiningen-midje}
 
 run_runs = %w{ examples/semi-sweet-examples examples/sweet-examples/basic }
