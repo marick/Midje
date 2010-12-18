@@ -3,3 +3,7 @@ McGranaghan's "Developing and Deploying a Simple Clojure Web
 Application" to use Midje. I'm including them with his permission.
 
 http://mmcgrana.github.com/2010/07/develop-deploy-clojure-web-applications.html
+
+To run the tests, type:
+
+% lein midje
