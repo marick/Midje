@@ -123,12 +123,15 @@
 
 ;;Checkers that work with collections.
 
-(defn- prefix? [smaller bigger]
+(defn- prefix-of-sequential? [smaller bigger]
   (cond (empty? smaller)
 	true
 
+        (< (count bigger) (count smaller))
+	false
+
 	(extended-= (first bigger) (first smaller))
-	(prefix? (rest smaller) (rest bigger))
+	(recur (rest smaller) (rest bigger))
 
 	:else
 	false))
@@ -149,7 +152,7 @@
         (< (count bigger) (count smaller))
 	false
 
-	(prefix? smaller bigger)
+	(prefix-of-sequential? smaller bigger)
 	true
 	
 	:else
@@ -212,9 +215,30 @@
 	:else
 	false))
 
+(defn- prefix-guts [bigger smaller]
+  (cond (or (collection-compared-to-singleton? bigger smaller)
+	    (map? smaller))
+	(recur bigger [smaller])
+
+	(sequential? bigger)
+	(prefix-of-sequential? smaller bigger)
+
+	(string? smaller)
+	(.startsWith bigger smaller)
+
+	(regex? smaller)
+	(re-find (re-pattern (str "^" (.toString smaller)))
+		 bigger)
+	:else
+	false))
+
 (defn contains [expected]
   {:midje/checker true}
   (fn [actual] (contains-guts actual expected)))
+
+(defn has-prefix [expected]
+  {:midje/checker true}
+  (fn [actual] (prefix-guts actual expected)))
 
 (defn n-of [expected expected-count]
   {:midje/checker true}

@@ -159,6 +159,113 @@
   [1 1] => (two-of odd?)
   [1] => (one-of odd?))
 
+(facts "about has-prefix"
+  "lists"
+  '() => (has-prefix '())
+  '(1) => (has-prefix '()) 
+  '(1) => (has-prefix '(1)) 
+  '(1 2 3) => (has-prefix '(1))
+  ((has-prefix '(2)) '(1 2 3)) => falsey
+  '(1 2 3) => (has-prefix '(1 2))
+  ((has-prefix '(1 3)) '(1 2 3)) => falsey
+  ( (has-prefix '(1 2)) '(1 3 2 2)) => falsey
+  ( (has-prefix '(1 2)) '(1 3 2 3 1 2)) => falsey
+  ( (has-prefix '(1)) '()) => falsey
+  ( (has-prefix '(1 2)) '(1)) => falsey
+  ( (has-prefix '(1)) '(2)) => falsey
+
+  '(1 nil 2 3 nil) => (has-prefix (list odd? nil even? odd? nil?))
+  ( (has-prefix '(1 2)) '(2 1)) => falsey ; order matters
+  ( (has-prefix '(1 2 1)) '(1 2 2 1)) => falsey ; duplicates matter
+
+;;   "can contain single elements"
+  '("1" 2 3) => (has-prefix "1")
+
+;;   "vectors"
+  [1 2] => (has-prefix [1])
+  [1 nil 2 3 nil 5] => (has-prefix [odd? nil even? odd? nil?])
+  ( (has-prefix [1 2]) [1 3]) => falsey
+  ( (has-prefix [2 2]) [2]) => falsey ; duplicates matter
+
+;;   "seqs"
+  (range 33) => (has-prefix [0 1])
+  (range 33) => (has-prefix (range 3))
+
+;;   "When sets prefix sequentials, order is irrelevant"
+   [1 2 3 5] => (has-prefix #{2 1 3})
+   ( (has-prefix #{2 1 5}) [1 2 3]) => falsey
+
+   ;; "maps"
+   ((has-prefix :a) { :a 1 }) => falsey
+   ((has-prefix :a) [{ :a 1 }]) => falsey
+   ((has-prefix [:a]) {:a 1 }) => falsey
+
+   ;; "sets"
+   ((has-prefix :a) #{:a}) => falsey
+   ((has-prefix #{:a}) #{:a 1}) => falsey
+   ((has-prefix [:a]) #{:a 1}) => falsey
+
+;;   "mixtures"
+   [1 2 4] => (has-prefix '(1))
+   '(3 b 1) => (has-prefix [3 'b])
+
+   [ {:a 1} {:b 1}      ] => (has-prefix [ {:a 1} ])
+   [ {:a 1} "irrelevant"] => (has-prefix   {:a 1})
+
+   ( (has-prefix [ {:a 1} ])  [ {:a 1, :b 1} ]) => falsey  
+   ( (has-prefix {:a 1}) [ {:a 2} ]) => falsey
+   ( (has-prefix {:a 1}) [ 1 2 3 ]) => falsey
+   ( (has-prefix {:a 1}) [ [:a 1] ]) => falsey ; I suppose could arguably be true.
+
+;;   "strings"
+   "ab" => (has-prefix "ab")
+   "ab" => (has-prefix "a")
+   ( (has-prefix "bc") "abc") => falsey
+   ( (has-prefix "ab") "b") => falsey
+   ( (has-prefix "ab") "a") => falsey
+
+;;   "strings can match collections, either singly or a a collection of strings"
+   ["a" "bc" "c"] => (has-prefix "a")
+   ["1" "1 2" "1 2 3"]  => (has-prefix ["1" "1 2"])
+
+   ;;   "regexp"
+   "abc" => (has-prefix #"ab")
+   "ab" => (has-prefix #"ab")
+   "ab" => (has-prefix #"..")
+   "ab" => (has-prefix #".")
+   ( (has-prefix #"b.") "ab") => falsey
+   ( (has-prefix #"ab") "ba") => falsey
+   ( (has-prefix #"ab") "a") => falsey
+
+   ;;   "regexps can match expressions"
+   ["ac" "bd" "c"] => (has-prefix #".c")
+   ( (has-prefix #".c") ["bd" "ac" "c"]) => falsey
+   '("a" "bc" "cccc") => (has-prefix #".")
+   '("a" "bc" "c") => (has-prefix [#"." #".."])
+   ( (has-prefix [#"." #".."]) '("ab" "b" "cd")) => falsey
+
+   "abc" => (has-prefix #"^ab")
+  ( (has-prefix #"^ab") "xabc") => falsey
+  "abc" => (has-prefix #"^abc$")
+  ( (has-prefix #"^ab$") "abc") => falsey
+
+   ;; Since #"regexp" is not = to #"regexp", no point in following:
+   [#"bc" #"c"] => (has-prefix #"bc")
+
+   ;; "nils"
+   [nil] => (has-prefix [nil])
+   [nil nil nil] => (has-prefix [nil nil])
+   [nil "foo"] => (has-prefix nil)
+
+   ( (has-prefix [nil]) []) => falsey
+
+   ;;   "individual elements"
+   [1 2 3] => (has-prefix 1)
+   [1 2 3] => (has-prefix odd?)
+   [nil nil] => (has-prefix nil)
+  )
+
+
 (facts "about contains"
   "maps"
   {} => (contains {})
@@ -246,6 +353,10 @@
   "ab" => (contains #".")
   ( (contains #"ab") "ba") => falsey
   ( (contains #"ab") "a") => falsey
+  "abc" => (contains #"^ab")
+  ( (contains #"^ab") "xabc") => falsey
+  "abc" => (contains #"^abc$")
+  ( (contains #"^ab$") "abc") => falsey
 
   "regexps can match expressions"
   ["a" "bc" "c"] => (contains #".c")
@@ -255,7 +366,7 @@
   ( (contains #"bc") {"a" 1, "bc" 2, "c" 3}) => (throws Error)
 
   ;; Since #"regexp" is not = to #"regexp", no point in following:
-  ;; [#"a" #"bc" #"c"] => (contains #"bc")
+  [#"a" #"bc" #"c"] => (contains #"bc")
 
   ;; "sets"
   #{3 2 1} => (contains #{1})
