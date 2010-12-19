@@ -178,9 +178,28 @@
 	:else
 	false))
 
-(defn- collection-compared-to-singleton? [actual expected]
-  (and (coll? actual)
-       (not (coll? expected))))
+(defn- like-a-map-entry? [elt]
+  (or (and (sequential? elt) (= (count elt) 2))
+      (= (class elt) clojure.lang.MapEntry)))
+
+(defn singleton-to-be-wrapped? [actual expected]
+  (cond (map? actual)
+	(like-a-map-entry? expected)
+
+	(string? actual)
+	false
+
+	(regex? actual)
+	false
+
+	(set? expected)
+	false
+	
+	(coll? actual)
+	(not (sequential? expected))
+
+	:else
+	true))
 
 (defn- actual-sequential-contains [actual expected]
 ;  (println 'seq=-contains actual expected)
@@ -201,14 +220,16 @@
 	(recur (rest actual) expected)))
 
 (defn- actual-map-contains [actual expected]
-  (cond (and (sequential? expected) (= 2 (count expected)))
-	(recur actual (apply hash-map expected))
-
-	(map? expected)
+  ;; (println actual expected)
+  (cond (map? expected)
 	(every? (fn [key]
 		  (and (find actual key)
 		       (extended-= (get actual key) (get expected key))))
 		(keys expected))
+
+	(and (sequential? expected)
+	     (every? like-a-map-entry? expected))
+	(actual-map-contains actual (apply hash-map (apply concat expected)))
 
 	:else
 	(throw (Error. (str "If " (pr-str actual) " is a map, " (pr-str expected) " should be too.")))))
@@ -241,7 +262,7 @@
   (re-find expected actual))
 
 (defn- contains-guts [actual expected]
-  (cond (collection-compared-to-singleton? actual expected)
+  (cond (singleton-to-be-wrapped? actual expected)
 	(recur actual [expected])
 
 	(sequential? actual)
@@ -263,7 +284,7 @@
 	false))
 
 (defn- contains-guts-in-any-order [actual expected]
-  (cond (collection-compared-to-singleton? actual expected)
+  (cond (singleton-to-be-wrapped? actual expected)
 	(recur actual [expected])
 
         (map? actual)
@@ -285,8 +306,7 @@
 	false))
 
 (defn- prefix-guts [actual expected]
-  (cond (or (collection-compared-to-singleton? actual expected)
-	    (map? expected))
+  (cond (singleton-to-be-wrapped? actual expected)
 	(recur actual [expected])
 
 	(sequential? actual)

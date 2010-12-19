@@ -22,6 +22,46 @@
   ;; Count those as false.
   (extended-= nil odd?) => falsey)
 
+(facts "wrapping singletons"
+  "maps"
+  (singleton-to-be-wrapped? {} {}) => falsey
+  (singleton-to-be-wrapped? {} #{}) => falsey
+  (singleton-to-be-wrapped? {} []) => falsey
+  (singleton-to-be-wrapped? {} [:a 2]) => truthy
+  (singleton-to-be-wrapped? {} (find {:k :v} :k)) => truthy
+  (singleton-to-be-wrapped? {} #{}) => falsey
+  (singleton-to-be-wrapped? {} (seq [:a 2]) => truthy)
+
+  "sequentials"
+  (singleton-to-be-wrapped? [] 1) => truthy
+  (singleton-to-be-wrapped? '() 1) => truthy
+  (singleton-to-be-wrapped? {} 1) => falsey
+  (singleton-to-be-wrapped? (seq []) 1) => truthy 
+  (singleton-to-be-wrapped? #{} 1) => truthy
+
+  (singleton-to-be-wrapped? [] []) => falsey
+  (singleton-to-be-wrapped? [] {}) => truthy
+  (singleton-to-be-wrapped? [] #{}) => falsey
+
+  "sets"
+  (singleton-to-be-wrapped? #{} 1) => truthy
+  (singleton-to-be-wrapped? #{} []) => falsey
+  (singleton-to-be-wrapped? #{} #{}) => falsey
+  (singleton-to-be-wrapped? #{} {}) => truthy
+
+  "strings"
+  (singleton-to-be-wrapped? "" "") => falsey
+  (singleton-to-be-wrapped? [] "") => truthy
+  (singleton-to-be-wrapped? "" []) => falsey
+  (singleton-to-be-wrapped? #{} "") => truthy
+
+  "regexps"
+  (singleton-to-be-wrapped? "" #"") => falsey
+  (singleton-to-be-wrapped? [] #"") => truthy
+  (singleton-to-be-wrapped? #"" []) => falsey
+  (singleton-to-be-wrapped? #{} #"") => truthy
+)  
+
 (facts "actual-index-of"
   (actual-index-of 5 []) => false
   (actual-index-of 5 [5]) => 0
@@ -380,7 +420,7 @@
   ( (contains '(1 2 1)) '(1 2 2 1)) => falsey ; duplicates matter
 
   "can contain single elements"
-  '(1 2 3) => (contains 3)
+  '(1 2 3) => (contains 3) 
 
   "vectors"
   [3 2 1] => (contains [1])
@@ -408,7 +448,7 @@
   ( (contains {:a 1}) [ 1 2 3 ]) => falsey
   ( (contains {:a 1}) [ [:a 1] ]) => falsey ; I suppose could arguably be true.
 
-  "strings"
+  ;; "strings"
   "abc" => (contains "bc")
   "ab" => (contains "ab")
   ( (contains "ab") "ba") => falsey
@@ -465,7 +505,7 @@
   [nil "foo"] => (contains "foo")
 
   ( (contains [nil]) []) => falsey
-  ( (contains [nil]) {}) => (throws Error)
+;;  ( (contains [nil]) {}) => falsey
   ( (contains [nil]) #{}) => falsey
 
   "individual elements"
@@ -477,7 +517,6 @@
   )
 
 
-;.;. When someone asks you if you're a god, you say 'YES'! -- Zeddemore
 (facts "about contains - in any order"
   "maps"
   {} => (contains {} :in-any-order)
