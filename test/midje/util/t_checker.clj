@@ -1,6 +1,9 @@
 (ns midje.util.t-checker
   (:use [midje.sweet])
   (:use [midje.test-util]))
+(testable-privates midje.util.checkers unordered-seq-comparison actual-index-of
+		   without-element-at-index)
+
 
 (facts "about extended equality"
   (extended-= 1 2) => falsey
@@ -13,7 +16,80 @@
   (extended-= #"a*b+" #"a*b+") => truthy
   (extended-= #"a*b+" #"a*b") => falsey
   (extended-= "BEGIN aab END" #"a*b+") => truthy
-  (extended-= "BEGIN bb END" #"ab+") => falsey)
+  (extended-= "BEGIN bb END" #"ab+") => falsey
+
+  ;; When searching for unordered comparisons, you might get exceptions.
+  ;; Count those as false.
+  (extended-= nil odd?) => falsey)
+
+(facts "actual-index-of"
+  (actual-index-of 5 []) => false
+  (actual-index-of 5 [5]) => 0
+  (actual-index-of 5 [1 5]) => 1
+  (actual-index-of 5 [2 3]) => false
+  (actual-index-of 5 [1 2 5 5]) => 2 ; not 3
+  (actual-index-of odd? [1 3 3]) => 0)
+
+(facts "extract elements from vectors and return remainder"
+  (without-element-at-index 0 [0 1 2]) => vector?
+  (without-element-at-index 0 [0 1 2]) => [1 2]
+  (without-element-at-index 1 [0 1 2]) => [0 2]
+  (without-element-at-index 2 [0 1 2]) => [0 1])
+
+
+(facts "unordered comparisons"
+  (unordered-seq-comparison [] []) => {:actual-found []
+				       :actual-missed []
+				       :expected-found []
+				       :expected-missed [] }
+  (unordered-seq-comparison [1] []) => {:actual-found []
+					:actual-missed [1]
+					:expected-found []
+					:expected-missed [] }
+  (unordered-seq-comparison [] [1]) => {:actual-found []
+					:actual-missed []
+					:expected-found []
+					:expected-missed [1] }
+  (unordered-seq-comparison [1] [1]) => {:actual-found [1]
+					 :actual-missed []
+					 :expected-found [1]
+					 :expected-missed [] }
+  (unordered-seq-comparison [1 2] [1]) => {:actual-found [1]
+					   :actual-missed [2]
+					   :expected-found [1]
+					   :expected-missed [] }
+  (unordered-seq-comparison [] [1]) => {:actual-found []
+					:actual-missed []
+					:expected-found []
+					:expected-missed [1] }
+  (unordered-seq-comparison [1 2 3] [odd?]) => {:actual-found [1]
+						:actual-missed [2 3]
+						:expected-found [odd?]
+						:expected-missed [] }
+  (unordered-seq-comparison [1 2 3] [odd? even?]) => {:actual-found [1 2]
+						      :actual-missed [3]
+						      :expected-found [odd? even?]
+						      :expected-missed [] }
+  (unordered-seq-comparison [1 2 3] [even? odd?]) => {:actual-found [2 1]
+  						      :actual-missed [3]
+  						      :expected-found [even? odd?]
+  						      :expected-missed [] }
+  (unordered-seq-comparison [1 2 3] [odd? even? even?]) => {:actual-found [1 2]
+							    :actual-missed [3]
+							    :expected-found [odd? even?]
+							    :expected-missed [even?] }
+  (unordered-seq-comparison [nil] []) => {:actual-found []
+					  :actual-missed [nil]
+					  :expected-found []
+					  :expected-missed [] }
+  (unordered-seq-comparison [] [nil]) => {:actual-found []
+					  :actual-missed []
+					  :expected-found []
+					  :expected-missed [nil] }
+  (unordered-seq-comparison [1 2 3 nil] [odd? nil even?]) => {:actual-found [1 nil 2]
+							      :actual-missed [3]
+							      :expected-found [odd? nil even?]
+							      :expected-missed [] })
 
 (facts "about truthy"
   true => truthy
@@ -249,7 +325,6 @@
   "abc" => (has-prefix #"^abc$")
   ( (has-prefix #"^ab$") "abc") => falsey
 
-   ;; Since #"regexp" is not = to #"regexp", no point in following:
    [#"bc" #"c"] => (has-prefix #"bc")
 
    ;; "nils"
@@ -365,7 +440,6 @@
   '("a" "bc" "c") => (contains [#"." #".."])
   ( (contains #"bc") {"a" 1, "bc" 2, "c" 3}) => (throws Error)
 
-  ;; Since #"regexp" is not = to #"regexp", no point in following:
   [#"a" #"bc" #"c"] => (contains #"bc")
 
   ;; "sets"
@@ -400,4 +474,141 @@
   #{3 2 1} => (contains even?)
   [nil nil] => (contains nil)
   #{nil 1} => (contains nil)
+  )
+
+
+;.;. When someone asks you if you're a god, you say 'YES'! -- Zeddemore
+(facts "about contains - in any order"
+  "maps"
+  {} => (contains {} :in-any-order)
+  {:k :v} => (contains {} :in-any-order)
+  {:k :v, 1 2} => (contains {:k :v} :in-any-order)
+  {:k :v, 1 2} => (contains {1 even?} :in-any-order)
+  ( (contains {:k :v} :in-any-order) {}) => falsey
+
+  "works for sorted-maps in same way as for maps"
+  (sorted-map "b" 1, "a" 2) => (contains {"b" 1} :in-any-order)
+  (sorted-map "b" 1, "a" 2) => (contains (sorted-map "a" 2) :in-any-order)
+
+  ;; "maps can contain individual entries"
+  {:k :v} => (contains [:k :v] :in-any-order)
+  {:k :v} => (contains (find {:k :v} :k) :in-any-order)
+  ((contains :k :in-any-order) {:k :v}) => (throws Error)
+
+  ;; "lists"
+  '() => (contains '() :in-any-order)
+  '(1) => (contains '() :in-any-order) 
+  '(1) => (contains '(1) :in-any-order) 
+  '(1 2 3) => (contains '(1) :in-any-order)
+  '(1 2 3) => (contains '(2) :in-any-order)
+  '(1 2 2 3) => (contains '(2 3 2) :in-any-order)
+  ( (contains '(3 2 2) :in-any-order) '(1 2 3) ) => falsey
+  '(1 2 3) => (contains '(3 2) :in-any-order) 
+
+  '(1 2 3) => (contains '(2 3) :in-any-order)
+  '(3 2 1) => (contains '(1) :in-any-order)
+  '(1 3 1 2) => (contains '(1 2) :in-any-order)
+  '(1 3 2 3 1 2) => (contains '(1 2) :in-any-order)
+  '(1 3 2 3) =>  (contains '(1 2) :in-any-order)
+  ( (contains '(1) :in-any-order) '()) => falsey
+  ( (contains '(1 2) :in-any-order) '(1)) => falsey
+  ( (contains '(1) :in-any-order) '(2)) => falsey
+
+  '(1 nil 2 3 nil) => (contains (list odd? nil even? odd? nil?) :in-any-order)
+  '(1 nil 2 3 nil) => (contains (list even? odd? odd? nil nil?) :in-any-order)
+  '(3 2 1) => (contains '(1 2) :in-any-order)
+  ( (contains '(1 2 2 1) :in-any-order) '(1 2 1)) => falsey ; duplicates matter
+  '(1 2 2 1) => (contains '(1 2 1) :in-any-order)
+
+  ;; "can contain single elements"
+  '(1 2 3) => (contains 3 :in-any-order)
+
+  ;; "vectors"
+  [3 2 1] => (contains [1] :in-any-order)
+  [1 nil 2 3 nil] => (contains [odd? even? odd? nil? nil] :in-any-order)
+  [3 2 1] => (contains [1 2] :in-any-order) 
+  ( (contains [2 2] :in-any-order) [2]) => falsey ; duplicates matter
+
+  ;; "seqs"
+  (range 33) => (contains (reverse [16 17 18]) :in-any-order)
+  (range 33) => (contains (reverse (range 16 3)) :in-any-order)
+  (reverse (range 33)) => (contains (range 16 3) :in-any-order)
+
+  [3 2 1] => (contains #{2 1} :in-any-order)
+  ( (contains #{2 1 5} :in-any-order) [3 2 1]) => falsey
+
+  ;; "mixtures"
+  [3 2 1] => (contains '(1) :in-any-order)
+  '(3 2 1) => (contains [1 2] :in-any-order)
+
+  [ {:a 1} {:b 1}      ] => (contains [ {:a 1} ] :in-any-order)
+  [ {:a 1} {:b 1}      ] => (contains [ {:b 1} {:a 1} ] :in-any-order)
+  [ {:a 1} "irrelevant"] => (contains   "irrelevant" :in-any-order)
+
+  ( (contains [ {:a 1} ] :in-any-order)  [ {:a 1, :b 1} ]) => falsey  
+  ( (contains {:a 1} :in-any-order) [ {:a 2} ]) => falsey
+  ( (contains {:a 1} :in-any-order) [ 1 2 3 ]) => falsey
+  ;; ( (contains {:a 1} :in-any-order) [ [:a 1] ]) => falsey ; I suppose could arguably be true.
+
+  "strings"
+  "abc" => (contains "bc" :in-any-order)
+  ;; "abc" => (contains "ac" :in-any-order)
+  "ab" => (contains "ab" :in-any-order)
+  ;; "ab" => (contains "ba" :in-any-order)
+  ( (contains "ab" :in-any-order) "a") => falsey
+
+  "strings can match collections, either singly or a a collection of strings"
+  ["a" "bc" "c"] => (contains "bc" :in-any-order)
+  ;; ["a" "bc" "c"]) => (contains "cb" :in-any-order)
+  '("a" "bc" "c") => (contains "bc" :in-any-order)
+  ;; ["1" "1 2" "1 2 3"]  => (contains ["1 2" "1" ] :in-any-order)
+  ( (contains ["1" "2 1"] :in-any-order) ["1" "1 2" "1 2 3"])  => falsey
+  #{"a" "bc" "c"} => (contains "bc" :in-any-order)
+  ( (contains "bc" :in-any-order) {"a" 1, "bc" 2, "c" 3}) => (throws Error)
+
+  ;; "regexp"
+  ;; ( (contains #"bc" :in-any-order) "abc") => (throws Error)
+
+  ;; "regexps can match expressions"
+  ["a" "bc" "c"] => (contains #".c" :in-any-order)
+  #{"a" "bc" "c"} => (contains #"b5*c" :in-any-order)
+  '("a" "bc" "c") => (contains #".." :in-any-order)
+  '("a" "bc" "c") => (contains [#".." #"."] :in-any-order)
+  ( (contains #"bc" :in-any-order) {"a" 1, "bc" 2, "c" 3}) => (throws Error)
+
+  [#"a" #"bc" #"c"] => (contains #"bc" :in-any-order)
+  ;; [#"a" #"bc" #"c"] => (contains [#"bc" #"a"] :in-any-order)
+
+  ;; ;; "sets"
+  #{3 2 1} => (contains #{1} :in-any-order)
+  #{3 2 1} => (contains #{1 2} :in-any-order)
+  #{3 2 1} => (contains [1] :in-any-order)   ; expected needn't be a set
+  #{3 2 1} => (contains [1 3] :in-any-order)   ; expected needn't be a set
+  ( (contains [1 3] :in-any-order) #{1 2 4}) => falsey
+  ( (contains #{1 3} :in-any-order) #{1 2 4}) => falsey
+  ;; ( (contains [1 1]) #{1 2 4} :in-any-order) => falsey
+  #{3 2 1} => (contains odd? :in-any-order)
+  #{3 2 1} => (contains #(= % 1) :in-any-order)
+  #{3 2 1} => (contains #{#(= % 1)} :in-any-order)
+  ( (contains #{#(= % 1) odd?} :in-any-order) #{2 1}) => falsey
+
+  ;; "nils"
+  [nil] => (contains [nil] :in-any-order)
+  [nil nil nil] => (contains [nil nil] :in-any-order)
+  {:a nil, nil :a, :b 1} => (contains {:a nil, nil :a} :in-any-order)
+  #{nil 1} => (contains nil :in-any-order)
+  #{nil 1} => (contains #{nil} :in-any-order)
+  #{nil 1} => (contains [1 nil] :in-any-order)
+  [nil "foo"] => (contains "foo" :in-any-order)
+
+  ( (contains [nil] :in-any-order) []) => falsey
+  ( (contains [nil] :in-any-order) {}) => (throws Error)
+  ( (contains [nil] :in-any-order) #{}) => falsey
+
+  ;; "individual elements"
+  [1 2 3] => (contains 2 :in-any-order)
+  [1 2 3] => (contains even? :in-any-order)
+  #{3 2 1} => (contains even? :in-any-order)
+  [nil nil] => (contains nil :in-any-order)
+  #{nil 1} => (contains nil :in-any-order)
   )

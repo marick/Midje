@@ -8,8 +8,10 @@
 
 (defn extended-= [actual expected]
   (cond (fn? expected)
-	(let [function-result (expected actual)]
-	  (if (chatty-checker-falsehood? function-result) false function-result))
+	(try
+	  (let [function-result (expected actual)]
+	    (if (chatty-checker-falsehood? function-result) false function-result))
+	  (catch Exception ex false))
 	
 	(regex? expected)
 	(if (regex? actual)
@@ -18,6 +20,46 @@
 
 	:else
 	(= actual expected)))
+
+
+(defn- actual-index-of [expected-elt actual-vector]
+  (loop [index 0]
+;    (println expected-elt actual-vector index)
+    (cond (= index (count actual-vector))
+	  false
+
+	  (extended-= (actual-vector index) expected-elt)
+	  index
+
+	  :else
+	  (recur (inc index)))))
+
+(defn- without-element-at-index [index v]
+  (vec (concat (subvec v 0 index) (subvec v (inc index)))))
+
+(defn- unordered-seq-comparison [actual expected]
+  (loop [actual (vec actual)
+	 expected (list* expected)
+	 actual-found []
+	 expected-found []
+	 expected-missed []]
+;    (prn expected actual-found actual expected-found expected-missed)
+    (if (empty? expected)
+      {:actual-found actual-found
+       :actual-missed actual,
+       :expected-found expected-found,
+       :expected-missed, expected-missed}
+      (if-let [index (actual-index-of (first expected) actual)]
+	(recur (without-element-at-index index actual)
+	       (rest expected)
+	       (conj actual-found (actual index))
+	       (conj expected-found (first expected))
+	       expected-missed)
+	(recur actual
+	       (rest expected)
+	       actual-found
+	       expected-found
+	       (conj expected-missed (first expected)))))))
 
 ;; Simple checkers
 
@@ -123,118 +165,149 @@
 
 ;;Checkers that work with collections.
 
-(defn- prefix-of-sequential? [smaller bigger]
-  (cond (empty? smaller)
+(defn- prefix-of-sequential? [expected actual]
+  (cond (empty? expected)
 	true
 
-        (< (count bigger) (count smaller))
+        (< (count actual) (count expected))
 	false
 
-	(extended-= (first bigger) (first smaller))
-	(recur (rest smaller) (rest bigger))
+	(extended-= (first actual) (first expected))
+	(recur (rest expected) (rest actual))
 
 	:else
 	false))
 
-(defn- collection-compared-to-singleton? [bigger smaller]
-  (and (coll? bigger)
-       (not (coll? smaller))))
+(defn- collection-compared-to-singleton? [actual expected]
+  (and (coll? actual)
+       (not (coll? expected))))
 
-(defn- bigger-sequential-contains [bigger smaller]
-;  (println 'seq=-contains bigger smaller)
-  (cond (set? smaller)
-	(every? (fn [set-element] (some #{set-element} bigger))
-		smaller)
+(defn- actual-sequential-contains [actual expected]
+;  (println 'seq=-contains actual expected)
+  (cond (set? expected)
+	(every? (fn [set-element] (some #{set-element} actual))
+		expected)
 
-	(map? smaller)
-	(recur bigger [smaller])
+	(map? expected)
+	(recur actual [expected])
 
-        (< (count bigger) (count smaller))
+        (< (count actual) (count expected))
 	false
 
-	(prefix-of-sequential? smaller bigger)
+	(prefix-of-sequential? expected actual)
 	true
 	
 	:else
-	(recur (rest bigger) smaller)))
+	(recur (rest actual) expected)))
 
-(defn- bigger-map-contains [bigger smaller]
-  (cond (and (sequential? smaller) (= 2 (count smaller)))
-	(recur bigger (apply hash-map smaller))
+(defn- actual-map-contains [actual expected]
+  (cond (and (sequential? expected) (= 2 (count expected)))
+	(recur actual (apply hash-map expected))
 
-	(map? smaller)
+	(map? expected)
 	(every? (fn [key]
-		  (and (find bigger key)
-		       (extended-= (get bigger key) (get smaller key))))
-		(keys smaller))
+		  (and (find actual key)
+		       (extended-= (get actual key) (get expected key))))
+		(keys expected))
 
 	:else
-	(throw (Error. (str "If " (pr-str bigger) " is a map, " (pr-str smaller) " should be too.")))))
+	(throw (Error. (str "If " (pr-str actual) " is a map, " (pr-str expected) " should be too.")))))
 
-(defn- bigger-set-contains [bigger smaller]
+(defn- actual-set-contains [actual expected]
   (let [candidate-matcher (fn [to-be-matched]
 			    (fn [candidate]
 			      (extended-= candidate to-be-matched)))
-	all-matches (filter (candidate-matcher (first smaller))
-			    bigger)]
-    (cond (empty? smaller)
+	all-matches (filter (candidate-matcher (first expected))
+			    actual)]
+    (cond (empty? expected)
 	  true
 
 	  (empty? all-matches)
 	  false
 
 	  :else
-	  (recur (difference bigger #{(first all-matches)})
-		 (rest smaller)))))
+	  (recur (difference actual #{(first all-matches)})
+		 (rest expected)))))
 
-(defn- smaller-string-contained-by [bigger smaller]
-  (.contains bigger smaller))
+(defn- actual-sequential-contains-expected-in-any-order [actual expected]
+  (let [result (unordered-seq-comparison actual expected)]
+					;   –– (println actual)    (println expected)    (println result)
+    (empty? (:expected-missed result))))
 
-(defn- smaller-regex-contains [bigger smaller]
-  (re-find smaller bigger))
+(defn- expected-string-contained-by [actual expected]
+  (.contains actual expected))
 
-(defn- contains-guts [bigger smaller]
-  (cond (collection-compared-to-singleton? bigger smaller)
-	(recur bigger [smaller])
+(defn- expected-regex-contains [actual expected]
+  (re-find expected actual))
 
-	(sequential? bigger)
-	(bigger-sequential-contains bigger smaller)
+(defn- contains-guts [actual expected]
+  (cond (collection-compared-to-singleton? actual expected)
+	(recur actual [expected])
 
-	(set? bigger)
-	(bigger-set-contains bigger smaller)
+	(sequential? actual)
+	(actual-sequential-contains actual expected)
 
-        (map? bigger)
-	(bigger-map-contains bigger smaller)
+	(set? actual)
+	(actual-set-contains actual expected)
 
-	(string? smaller)
-	(smaller-string-contained-by bigger smaller)
+        (map? actual)
+	(actual-map-contains actual expected)
 
-	(regex? smaller)
-	(smaller-regex-contains bigger smaller)
+	(string? expected)
+	(expected-string-contained-by actual expected)
+
+	(regex? expected)
+	(expected-regex-contains actual expected)
 
 	:else
 	false))
 
-(defn- prefix-guts [bigger smaller]
-  (cond (or (collection-compared-to-singleton? bigger smaller)
-	    (map? smaller))
-	(recur bigger [smaller])
+(defn- contains-guts-in-any-order [actual expected]
+  (cond (collection-compared-to-singleton? actual expected)
+	(recur actual [expected])
 
-	(sequential? bigger)
-	(prefix-of-sequential? smaller bigger)
+        (map? actual)
+	(actual-map-contains actual expected)
 
-	(string? smaller)
-	(.startsWith bigger smaller)
+	(sequential? actual)
+	(actual-sequential-contains-expected-in-any-order actual expected)
 
-	(regex? smaller)
-	(re-find (re-pattern (str "^" (.toString smaller)))
-		 bigger)
+	(set? actual)
+	(actual-set-contains actual expected)
+
+	(string? expected)
+	(expected-string-contained-by actual expected)
+
+	(regex? expected)
+	(expected-regex-contains actual expected)
+
 	:else
 	false))
 
-(defn contains [expected]
+(defn- prefix-guts [actual expected]
+  (cond (or (collection-compared-to-singleton? actual expected)
+	    (map? expected))
+	(recur actual [expected])
+
+	(sequential? actual)
+	(prefix-of-sequential? expected actual)
+
+	(string? expected)
+	(.startsWith actual expected)
+
+	(regex? expected)
+	(re-find (re-pattern (str "^" (.toString expected)))
+		 actual)
+	:else
+	false))
+
+(defn contains 
   {:midje/checker true}
-  (fn [actual] (contains-guts actual expected)))
+  ([expected]
+     (fn [actual] (contains-guts actual expected)))
+  ([expected _in_any-order]
+     (fn [actual] (contains-guts-in-any-order actual expected))))
+  
 
 (defn has-prefix [expected]
   {:midje/checker true}
@@ -300,7 +373,3 @@
       (if (>= (count actual) (count expected))
 	(core-array-of-maps-checker expected actual)
 	false))))
-  
-  
-  
-
