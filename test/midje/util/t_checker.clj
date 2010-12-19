@@ -1,8 +1,7 @@
 (ns midje.util.t-checker
   (:use [midje.sweet])
   (:use [midje.test-util]))
-(testable-privates midje.util.checkers unordered-seq-comparison actual-index-of
-		   without-element-at-index)
+(testable-privates midje.util.checkers unordered-seq-comparison actual-index-of)
 
 
 (facts "about extended equality"
@@ -69,13 +68,6 @@
   (actual-index-of 5 [2 3]) => false
   (actual-index-of 5 [1 2 5 5]) => 2 ; not 3
   (actual-index-of odd? [1 3 3]) => 0)
-
-(facts "extract elements from vectors and return remainder"
-  (without-element-at-index 0 [0 1 2]) => vector?
-  (without-element-at-index 0 [0 1 2]) => [1 2]
-  (without-element-at-index 1 [0 1 2]) => [0 2]
-  (without-element-at-index 2 [0 1 2]) => [0 1])
-
 
 (facts "unordered comparisons"
   (unordered-seq-comparison [] []) => {:actual-found []

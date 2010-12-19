@@ -1,6 +1,6 @@
 (ns midje.util.checkers
   (:use [clojure.set :only [difference subset?]]
-	[midje.util.form-utils :only [regex?]]))
+	[midje.util.form-utils :only [regex? vector-without-element-at-index]]))
 
 (declare chatty-checker-falsehood? captured-exception?)
 
@@ -34,9 +34,6 @@
 	  :else
 	  (recur (inc index)))))
 
-(defn- without-element-at-index [index v]
-  (vec (concat (subvec v 0 index) (subvec v (inc index)))))
-
 (defn- unordered-seq-comparison [actual expected]
   (loop [actual (vec actual)
 	 expected (list* expected)
@@ -50,7 +47,7 @@
        :expected-found expected-found,
        :expected-missed, expected-missed}
       (if-let [index (actual-index-of (first expected) actual)]
-	(recur (without-element-at-index index actual)
+	(recur (vector-without-element-at-index index actual)
 	       (rest expected)
 	       (conj actual-found (actual index))
 	       (conj expected-found (first expected))

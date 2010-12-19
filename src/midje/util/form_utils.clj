@@ -28,4 +28,6 @@
 (defn flatten-and-remove-nils [seq]
   (filter identity (flatten seq)))
 
-  
+(defn vector-without-element-at-index [index v]
+  (vec (concat (subvec v 0 index) (subvec v (inc index)))))
+
