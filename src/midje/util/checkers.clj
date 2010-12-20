@@ -22,42 +22,6 @@
 	(= actual expected)))
 
 
-(defn- actual-index-of [expected-elt actual-vector]
-  (loop [index 0]
-;    (println expected-elt actual-vector index)
-    (cond (= index (count actual-vector))
-	  false
-
-	  (extended-= (actual-vector index) expected-elt)
-	  index
-
-	  :else
-	  (recur (inc index)))))
-
-(defn- unordered-seq-comparison [actual expected]
-  (loop [actual (vec actual)
-	 expected (list* expected)
-	 actual-found []
-	 expected-found []
-	 expected-missed []]
-;    (prn expected actual-found actual expected-found expected-missed)
-    (if (empty? expected)
-      {:actual-found actual-found
-       :actual-missed actual,
-       :expected-found expected-found,
-       :expected-missed, expected-missed}
-      (if-let [index (actual-index-of (first expected) actual)]
-	(recur (vector-without-element-at-index index actual)
-	       (rest expected)
-	       (conj actual-found (actual index))
-	       (conj expected-found (first expected))
-	       expected-missed)
-	(recur actual
-	       (rest expected)
-	       actual-found
-	       expected-found
-	       (conj expected-missed (first expected)))))))
-
 ;; Simple checkers
 
 (defn truthy 
@@ -162,19 +126,7 @@
 
 ;;Checkers that work with collections.
 
-(defn- prefix-of-sequential? [expected actual]
-  (cond (empty? expected)
-	true
-
-        (< (count actual) (count expected))
-	false
-
-	(extended-= (first actual) (first expected))
-	(recur (rest expected) (rest actual))
-
-	:else
-	false))
-
+; non-loops
 (defn- like-a-map-entry? [elt]
   (or (and (sequential? elt) (= (count elt) 2))
       (= (class elt) clojure.lang.MapEntry)))
@@ -198,116 +150,121 @@
 	:else
 	true))
 
-(defn- actual-sequential-contains [actual expected]
-;  (println 'seq=-contains actual expected)
-  (cond (set? expected)
-	(every? (fn [set-element] (some #{set-element} actual))
-		expected)
+; Loops that look for something according to extended-equals
 
-	(map? expected)
-	(recur actual [expected])
+(defn- index-of-actual [expected-elt actual-vector]
+  (loop [index 0]
+;    (println expected-elt actual-vector index)
+    (cond (= index (count actual-vector))
+	  false
+
+	  (extended-= (actual-vector index) expected-elt)
+	  index
+
+	  :else
+	  (recur (inc index)))))
+
+(defn- unordered-seq-comparison [actual expected]
+  (loop [actual (vec actual)
+	 expected (list* expected)
+	 actual-found []
+	 expected-found []
+	 expected-missed []]
+;    (prn expected actual-found actual expected-found expected-missed)
+    (if (empty? expected)
+      {:actual-found actual-found
+       :actual-missed actual,
+       :expected-found expected-found,
+       :expected-missed, expected-missed}
+      (if-let [index (index-of-actual (first expected) actual)]
+	(recur (vector-without-element-at-index index actual)
+	       (rest expected)
+	       (conj actual-found (actual index))
+	       (conj expected-found (first expected))
+	       expected-missed)
+	(recur actual
+	       (rest expected)
+	       actual-found
+	       expected-found
+	       (conj expected-missed (first expected)))))))
+
+(defn- actual-sequential-has-prefix? [actual expected]
+  (cond (empty? expected)
+	true
 
         (< (count actual) (count expected))
 	false
 
-	(prefix-of-sequential? expected actual)
+	(extended-= (first actual) (first expected))
+	(recur (rest actual) (rest expected))
+
+	:else
+	false))
+
+; Searches through particular types of actual results
+
+(defn- actual-sequential-contains? [actual expected order]
+  (cond (= order :in-any-order)
+	(empty? (:expected-missed (unordered-seq-comparison actual expected)))
+
+	(set? expected)
+	(recur actual (vec expected) :in-any-order)
+
+        (< (count actual) (count expected))
+	false
+
+	(actual-sequential-has-prefix? actual expected)
 	true
 	
 	:else
-	(recur (rest actual) expected)))
+	(recur (rest actual) expected order)))
 
-(defn- actual-map-contains [actual expected]
-  ;; (println actual expected)
+(defn- actual-map-contains? [actual expected]
   (cond (map? expected)
 	(every? (fn [key]
-		  (and (find actual key)
-		       (extended-= (get actual key) (get expected key))))
-		(keys expected))
+	 	  (and (find actual key)
+	 	       (extended-= (get actual key) (get expected key))))
+	 	(keys expected))
 
 	(and (sequential? expected)
 	     (every? like-a-map-entry? expected))
-	(actual-map-contains actual (apply hash-map (apply concat expected)))
+	(actual-map-contains? actual (apply hash-map (apply concat expected)))
 
 	:else
-	(throw (Error. (str "If " (pr-str actual) " is a map, " (pr-str expected) " should be too.")))))
+	(throw (Error. (str "If " (pr-str actual) " is a map, " (pr-str expected) " should look like map entries.")))))
 
-(defn- actual-set-contains [actual expected]
-  (let [candidate-matcher (fn [to-be-matched]
-			    (fn [candidate]
-			      (extended-= candidate to-be-matched)))
-	all-matches (filter (candidate-matcher (first expected))
-			    actual)]
-    (cond (empty? expected)
-	  true
-
-	  (empty? all-matches)
-	  false
-
-	  :else
-	  (recur (difference actual #{(first all-matches)})
-		 (rest expected)))))
-
-(defn- actual-sequential-contains-expected-in-any-order [actual expected]
-  (let [result (unordered-seq-comparison actual expected)]
-    ;; (println actual)    (println expected)    (println result)
-    (empty? (:expected-missed result))))
-
-(defn- expected-string-contained-by [actual expected]
-  (.contains actual expected))
-
-(defn- expected-regex-contains [actual expected]
-  (re-find expected actual))
-
-(defn- contains-guts [actual expected]
+(defn- actual-x-contains? [actual expected order]
   (cond (singleton-to-be-wrapped? actual expected)
-	(recur actual [expected])
+	(recur actual [expected] order)
 
 	(sequential? actual)
-	(actual-sequential-contains actual expected)
+	(actual-sequential-contains? actual expected order)
 
 	(set? actual)
-	(actual-set-contains actual expected)
+	(recur (vec actual) expected :in-any-order)
 
         (map? actual)
-	(actual-map-contains actual expected)
+	(actual-map-contains? actual expected)
 
 	(string? expected)
-	(expected-string-contained-by actual expected)
+	(if (= order :in-any-order)
+	  (recur (vec actual) (vec expected) :in-any-order)
+	  (.contains actual expected))
 
 	(regex? expected)
-	(expected-regex-contains actual expected)
+	(if (= order :in-any-order)
+	  (throw (Error. "I don't know how to make sense of a regular expression applied :in-any-order."))
+	  (re-find expected actual))
 
 	:else
 	false))
 
-(defn- contains-guts-in-any-order [actual expected]
-  (cond (singleton-to-be-wrapped? actual expected)
-	(recur actual [expected])
-
-        (map? actual)
-	(actual-map-contains actual expected)
-
-	(sequential? actual)
-	(actual-sequential-contains-expected-in-any-order actual expected)
-
-	(set? actual)
-	(actual-set-contains actual expected)
-
-	(string? expected)
-	(actual-sequential-contains-expected-in-any-order (vec actual) (vec expected))
-
-	(regex? expected)
-	(throw (Error. "I don't know how to make sense of a regular expression applied :in-any-order."))
-
-	:else
-	false))
-
-(defn- prefix-guts [actual expected]
+(defn- x-has-prefix? [actual expected]
   (cond (singleton-to-be-wrapped? actual expected)
 	(recur actual [expected])
 
 	(sequential? actual)
-	(prefix-of-sequential? expected actual)
+	(actual-sequential-has-prefix? actual expected)
 
 	(string? expected)
 	(.startsWith actual expected)
@@ -318,17 +275,19 @@
 	:else
 	false))
 
+;; The interface
+
 (defn contains 
   {:midje/checker true}
   ([expected]
-     (fn [actual] (contains-guts actual expected)))
-  ([expected _in_any-order]
-     (fn [actual] (contains-guts-in-any-order actual expected))))
+     (fn [actual] (actual-x-contains? actual expected :ordered)))
+  ([expected order]
+     (fn [actual] (actual-x-contains? actual expected order))))
   
 
 (defn has-prefix [expected]
   {:midje/checker true}
-  (fn [actual] (prefix-guts actual expected)))
+  (fn [actual] (x-has-prefix? actual expected)))
 
 (defn n-of [expected expected-count]
   {:midje/checker true}

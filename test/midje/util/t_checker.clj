@@ -1,7 +1,7 @@
 (ns midje.util.t-checker
   (:use [midje.sweet])
   (:use [midje.test-util]))
-(testable-privates midje.util.checkers unordered-seq-comparison actual-index-of)
+(testable-privates midje.util.checkers unordered-seq-comparison index-of-actual)
 
 
 (facts "about extended equality"
@@ -61,13 +61,13 @@
   (singleton-to-be-wrapped? #{} #"") => truthy
 )  
 
-(facts "actual-index-of"
-  (actual-index-of 5 []) => false
-  (actual-index-of 5 [5]) => 0
-  (actual-index-of 5 [1 5]) => 1
-  (actual-index-of 5 [2 3]) => false
-  (actual-index-of 5 [1 2 5 5]) => 2 ; not 3
-  (actual-index-of odd? [1 3 3]) => 0)
+(facts "index-of-actual"
+  (index-of-actual 5 []) => false
+  (index-of-actual 5 [5]) => 0
+  (index-of-actual 5 [1 5]) => 1
+  (index-of-actual 5 [2 3]) => false
+  (index-of-actual 5 [1 2 5 5]) => 2 ; not 3
+  (index-of-actual odd? [1 3 3]) => 0)
 
 (facts "unordered comparisons"
   (unordered-seq-comparison [] []) => {:actual-found []
@@ -146,6 +146,7 @@
 	:expected-found [contains-unordered-21 contains-2]
 	:expected-missed [] })
   )
+
 
 
 
