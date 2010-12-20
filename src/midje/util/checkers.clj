@@ -249,7 +249,7 @@
 
 (defn- actual-sequential-contains-expected-in-any-order [actual expected]
   (let [result (unordered-seq-comparison actual expected)]
-					;   –– (println actual)    (println expected)    (println result)
+    ;; (println actual)    (println expected)    (println result)
     (empty? (:expected-missed result))))
 
 (defn- expected-string-contained-by [actual expected]
@@ -294,10 +294,10 @@
 	(actual-set-contains actual expected)
 
 	(string? expected)
-	(expected-string-contained-by actual expected)
+	(actual-sequential-contains-expected-in-any-order (vec actual) (vec expected))
 
 	(regex? expected)
-	(expected-regex-contains actual expected)
+	(throw (Error. "I don't know how to make sense of a regular expression applied :in-any-order."))
 
 	:else
 	false))

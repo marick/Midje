@@ -121,7 +121,33 @@
   (unordered-seq-comparison [1 2 3 nil] [odd? nil even?]) => {:actual-found [1 nil 2]
 							      :actual-missed [3]
 							      :expected-found [odd? nil even?]
-							      :expected-missed [] })
+							      :expected-missed [] }
+  (unordered-seq-comparison ["1" "12"] ["12"]) => {:actual-found ["12"]
+						  :actual-missed ["1"]
+						  :expected-found ["12"]
+						  :expected-missed [] }
+  (unordered-seq-comparison ["23" "12"] [21 2]) => {:actual-found []
+						      :actual-missed ["23" "12"]
+						      :expected-found []
+						      :expected-missed [21 2] }
+
+  ;; :unorderedness is not inherited by individual strings. If you
+  ;; want that, you have to use a nested comparison, as shown.
+  (unordered-seq-comparison ["23" "12"] ["21" "2"]) => {:actual-found []
+  						      :actual-missed ["23" "12"]
+  						      :expected-found []
+  						      :expected-missed ["21", "2"] }
+
+  (let [contains-unordered-21 (contains "21" :in-any-order)
+	contains-2 (contains "2")]
+    (unordered-seq-comparison ["23" "12"] [contains-unordered-21 contains-2])
+    => {:actual-found ["12", "23"],
+	:actual-missed []
+	:expected-found [contains-unordered-21 contains-2]
+	:expected-missed [] })
+  )
+
+
 
 (facts "about truthy"
   true => truthy
@@ -286,90 +312,90 @@
   ( (has-prefix '(1 2)) '(2 1)) => falsey ; order matters
   ( (has-prefix '(1 2 1)) '(1 2 2 1)) => falsey ; duplicates matter
 
-;;   "can contain single elements"
+  "can contain single elements"
   '("1" 2 3) => (has-prefix "1")
 
-;;   "vectors"
+  "vectors"
   [1 2] => (has-prefix [1])
   [1 nil 2 3 nil 5] => (has-prefix [odd? nil even? odd? nil?])
   ( (has-prefix [1 2]) [1 3]) => falsey
   ( (has-prefix [2 2]) [2]) => falsey ; duplicates matter
 
-;;   "seqs"
+  "seqs"
   (range 33) => (has-prefix [0 1])
   (range 33) => (has-prefix (range 3))
 
-;;   "When sets prefix sequentials, order is irrelevant"
-   [1 2 3 5] => (has-prefix #{2 1 3})
-   ( (has-prefix #{2 1 5}) [1 2 3]) => falsey
+  "When sets prefix sequentials, order is irrelevant"
+  [1 2 3 5] => (has-prefix #{2 1 3})
+  ( (has-prefix #{2 1 5}) [1 2 3]) => falsey
 
-   ;; "maps"
-   ((has-prefix :a) { :a 1 }) => falsey
-   ((has-prefix :a) [{ :a 1 }]) => falsey
-   ((has-prefix [:a]) {:a 1 }) => falsey
+  "maps"
+  ((has-prefix :a) { :a 1 }) => falsey
+  ((has-prefix :a) [{ :a 1 }]) => falsey
+  ((has-prefix [:a]) {:a 1 }) => falsey
 
-   ;; "sets"
-   ((has-prefix :a) #{:a}) => falsey
-   ((has-prefix #{:a}) #{:a 1}) => falsey
-   ((has-prefix [:a]) #{:a 1}) => falsey
+  "sets"
+  ((has-prefix :a) #{:a}) => falsey
+  ((has-prefix #{:a}) #{:a 1}) => falsey
+  ((has-prefix [:a]) #{:a 1}) => falsey
 
-;;   "mixtures"
-   [1 2 4] => (has-prefix '(1))
-   '(3 b 1) => (has-prefix [3 'b])
+  "mixtures"
+  [1 2 4] => (has-prefix '(1))
+  '(3 b 1) => (has-prefix [3 'b])
 
-   [ {:a 1} {:b 1}      ] => (has-prefix [ {:a 1} ])
-   [ {:a 1} "irrelevant"] => (has-prefix   {:a 1})
+  [ {:a 1} {:b 1}      ] => (has-prefix [ {:a 1} ])
+  [ {:a 1} "irrelevant"] => (has-prefix   {:a 1})
 
-   ( (has-prefix [ {:a 1} ])  [ {:a 1, :b 1} ]) => falsey  
-   ( (has-prefix {:a 1}) [ {:a 2} ]) => falsey
-   ( (has-prefix {:a 1}) [ 1 2 3 ]) => falsey
-   ( (has-prefix {:a 1}) [ [:a 1] ]) => falsey ; I suppose could arguably be true.
+  ( (has-prefix [ {:a 1} ])  [ {:a 1, :b 1} ]) => falsey  
+  ( (has-prefix {:a 1}) [ {:a 2} ]) => falsey
+  ( (has-prefix {:a 1}) [ 1 2 3 ]) => falsey
+  ( (has-prefix {:a 1}) [ [:a 1] ]) => falsey ; I suppose could arguably be true.
 
-;;   "strings"
-   "ab" => (has-prefix "ab")
-   "ab" => (has-prefix "a")
-   ( (has-prefix "bc") "abc") => falsey
-   ( (has-prefix "ab") "b") => falsey
-   ( (has-prefix "ab") "a") => falsey
+  "strings"
+  "ab" => (has-prefix "ab")
+  "ab" => (has-prefix "a")
+  ( (has-prefix "bc") "abc") => falsey
+  ( (has-prefix "ab") "b") => falsey
+  ( (has-prefix "ab") "a") => falsey
 
-;;   "strings can match collections, either singly or a a collection of strings"
-   ["a" "bc" "c"] => (has-prefix "a")
-   ["1" "1 2" "1 2 3"]  => (has-prefix ["1" "1 2"])
+  "strings can match collections, either singly or a a collection of strings"
+  ["a" "bc" "c"] => (has-prefix "a")
+  ["1" "1 2" "1 2 3"]  => (has-prefix ["1" "1 2"])
 
-   ;;   "regexp"
-   "abc" => (has-prefix #"ab")
-   "ab" => (has-prefix #"ab")
-   "ab" => (has-prefix #"..")
-   "ab" => (has-prefix #".")
-   ( (has-prefix #"b.") "ab") => falsey
-   ( (has-prefix #"ab") "ba") => falsey
-   ( (has-prefix #"ab") "a") => falsey
+  "regexp"
+  "abc" => (has-prefix #"ab")
+  "ab" => (has-prefix #"ab")
+  "ab" => (has-prefix #"..")
+  "ab" => (has-prefix #".")
+  ( (has-prefix #"b.") "ab") => falsey
+  ( (has-prefix #"ab") "ba") => falsey
+  ( (has-prefix #"ab") "a") => falsey
 
-   ;;   "regexps can match expressions"
-   ["ac" "bd" "c"] => (has-prefix #".c")
-   ( (has-prefix #".c") ["bd" "ac" "c"]) => falsey
-   '("a" "bc" "cccc") => (has-prefix #".")
-   '("a" "bc" "c") => (has-prefix [#"." #".."])
-   ( (has-prefix [#"." #".."]) '("ab" "b" "cd")) => falsey
+  "regexps can match expressions"
+  ["ac" "bd" "c"] => (has-prefix #".c")
+  ( (has-prefix #".c") ["bd" "ac" "c"]) => falsey
+  '("a" "bc" "cccc") => (has-prefix #".")
+  '("a" "bc" "c") => (has-prefix [#"." #".."])
+  ( (has-prefix [#"." #".."]) '("ab" "b" "cd")) => falsey
 
-   "abc" => (has-prefix #"^ab")
+  "abc" => (has-prefix #"^ab")
   ( (has-prefix #"^ab") "xabc") => falsey
   "abc" => (has-prefix #"^abc$")
   ( (has-prefix #"^ab$") "abc") => falsey
 
-   [#"bc" #"c"] => (has-prefix #"bc")
+  [#"bc" #"c"] => (has-prefix #"bc")
 
-   ;; "nils"
-   [nil] => (has-prefix [nil])
-   [nil nil nil] => (has-prefix [nil nil])
-   [nil "foo"] => (has-prefix nil)
+  "nils"
+  [nil] => (has-prefix [nil])
+  [nil nil nil] => (has-prefix [nil nil])
+  [nil "foo"] => (has-prefix nil)
 
-   ( (has-prefix [nil]) []) => falsey
-
-   ;;   "individual elements"
-   [1 2 3] => (has-prefix 1)
-   [1 2 3] => (has-prefix odd?)
-   [nil nil] => (has-prefix nil)
+  ( (has-prefix [nil]) []) => falsey
+  
+  "individual elements"
+  [1 2 3] => (has-prefix 1)
+  [1 2 3] => (has-prefix odd?)
+  [nil nil] => (has-prefix nil)
   )
 
 
@@ -440,7 +466,7 @@
   ( (contains {:a 1}) [ 1 2 3 ]) => falsey
   ( (contains {:a 1}) [ [:a 1] ]) => falsey ; I suppose could arguably be true.
 
-  ;; "strings"
+  "strings"
   "abc" => (contains "bc")
   "ab" => (contains "ab")
   ( (contains "ab") "ba") => falsey
@@ -474,7 +500,7 @@
 
   [#"a" #"bc" #"c"] => (contains #"bc")
 
-  ;; "sets"
+  "sets"
   #{3 2 1} => (contains #{1})
   #{3 2 1} => (contains #{1 2})
   #{3 2 1} => (contains [1])   ; expected needn't be a set
@@ -497,7 +523,7 @@
   [nil "foo"] => (contains "foo")
 
   ( (contains [nil]) []) => falsey
-;;  ( (contains [nil]) {}) => falsey
+  ( (contains [nil]) {}) => (throws Error)
   ( (contains [nil]) #{}) => falsey
 
   "individual elements"
@@ -521,12 +547,12 @@
   (sorted-map "b" 1, "a" 2) => (contains {"b" 1} :in-any-order)
   (sorted-map "b" 1, "a" 2) => (contains (sorted-map "a" 2) :in-any-order)
 
-  ;; "maps can contain individual entries"
+  "maps can contain individual entries"
   {:k :v} => (contains [:k :v] :in-any-order)
   {:k :v} => (contains (find {:k :v} :k) :in-any-order)
   ((contains :k :in-any-order) {:k :v}) => (throws Error)
 
-  ;; "lists"
+  "lists"
   '() => (contains '() :in-any-order)
   '(1) => (contains '() :in-any-order) 
   '(1) => (contains '(1) :in-any-order) 
@@ -551,16 +577,16 @@
   ( (contains '(1 2 2 1) :in-any-order) '(1 2 1)) => falsey ; duplicates matter
   '(1 2 2 1) => (contains '(1 2 1) :in-any-order)
 
-  ;; "can contain single elements"
+  "can contain single elements"
   '(1 2 3) => (contains 3 :in-any-order)
 
-  ;; "vectors"
+  "vectors"
   [3 2 1] => (contains [1] :in-any-order)
   [1 nil 2 3 nil] => (contains [odd? even? odd? nil? nil] :in-any-order)
   [3 2 1] => (contains [1 2] :in-any-order) 
   ( (contains [2 2] :in-any-order) [2]) => falsey ; duplicates matter
 
-  ;; "seqs"
+  "seqs"
   (range 33) => (contains (reverse [16 17 18]) :in-any-order)
   (range 33) => (contains (reverse (range 16 3)) :in-any-order)
   (reverse (range 33)) => (contains (range 16 3) :in-any-order)
@@ -568,7 +594,7 @@
   [3 2 1] => (contains #{2 1} :in-any-order)
   ( (contains #{2 1 5} :in-any-order) [3 2 1]) => falsey
 
-  ;; "mixtures"
+  "mixtures"
   [3 2 1] => (contains '(1) :in-any-order)
   '(3 2 1) => (contains [1 2] :in-any-order)
 
@@ -583,24 +609,24 @@
 
   "strings"
   "abc" => (contains "bc" :in-any-order)
-  ;; "abc" => (contains "ac" :in-any-order)
+  "abc" => (contains "ac" :in-any-order)
   "ab" => (contains "ab" :in-any-order)
-  ;; "ab" => (contains "ba" :in-any-order)
+  "ab" => (contains "ba" :in-any-order)
   ( (contains "ab" :in-any-order) "a") => falsey
 
   "strings can match collections, either singly or a a collection of strings"
   ["a" "bc" "c"] => (contains "bc" :in-any-order)
-  ;; ["a" "bc" "c"]) => (contains "cb" :in-any-order)
+  ["a" "bc" "c"] => (contains (contains "cb" :in-any-order))
   '("a" "bc" "c") => (contains "bc" :in-any-order)
-  ;; ["1" "1 2" "1 2 3"]  => (contains ["1 2" "1" ] :in-any-order)
+  ["1" "1 2" "1 2 3"]  => (contains ["1 2" "1" ] :in-any-order)
   ( (contains ["1" "2 1"] :in-any-order) ["1" "1 2" "1 2 3"])  => falsey
   #{"a" "bc" "c"} => (contains "bc" :in-any-order)
   ( (contains "bc" :in-any-order) {"a" 1, "bc" 2, "c" 3}) => (throws Error)
 
-  ;; "regexp"
-  ;; ( (contains #"bc" :in-any-order) "abc") => (throws Error)
+  "regexp"
+  ( (contains #"bc" :in-any-order) "abc") => (throws Error)
 
-  ;; "regexps can match expressions"
+  "regexps can match expressions"
   ["a" "bc" "c"] => (contains #".c" :in-any-order)
   #{"a" "bc" "c"} => (contains #"b5*c" :in-any-order)
   '("a" "bc" "c") => (contains #".." :in-any-order)
@@ -608,22 +634,22 @@
   ( (contains #"bc" :in-any-order) {"a" 1, "bc" 2, "c" 3}) => (throws Error)
 
   [#"a" #"bc" #"c"] => (contains #"bc" :in-any-order)
-  ;; [#"a" #"bc" #"c"] => (contains [#"bc" #"a"] :in-any-order)
+  [#"a" #"bc" #"c"] => (contains [#"bc" #"a"] :in-any-order)
 
-  ;; ;; "sets"
+  "sets"
   #{3 2 1} => (contains #{1} :in-any-order)
   #{3 2 1} => (contains #{1 2} :in-any-order)
   #{3 2 1} => (contains [1] :in-any-order)   ; expected needn't be a set
   #{3 2 1} => (contains [1 3] :in-any-order)   ; expected needn't be a set
   ( (contains [1 3] :in-any-order) #{1 2 4}) => falsey
   ( (contains #{1 3} :in-any-order) #{1 2 4}) => falsey
-  ;; ( (contains [1 1]) #{1 2 4} :in-any-order) => falsey
+  ( (contains [1 1] :in-any-order) #{1 2 4}) => falsey
   #{3 2 1} => (contains odd? :in-any-order)
   #{3 2 1} => (contains #(= % 1) :in-any-order)
   #{3 2 1} => (contains #{#(= % 1)} :in-any-order)
   ( (contains #{#(= % 1) odd?} :in-any-order) #{2 1}) => falsey
 
-  ;; "nils"
+  "nils"
   [nil] => (contains [nil] :in-any-order)
   [nil nil nil] => (contains [nil nil] :in-any-order)
   {:a nil, nil :a, :b 1} => (contains {:a nil, nil :a} :in-any-order)
@@ -636,7 +662,7 @@
   ( (contains [nil] :in-any-order) {}) => (throws Error)
   ( (contains [nil] :in-any-order) #{}) => falsey
 
-  ;; "individual elements"
+  "individual elements"
   [1 2 3] => (contains 2 :in-any-order)
   [1 2 3] => (contains even? :in-any-order)
   #{3 2 1} => (contains even? :in-any-order)
