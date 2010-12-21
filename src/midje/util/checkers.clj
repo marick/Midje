@@ -188,15 +188,19 @@
 	       expected-found
 	       (conj expected-missed (first expected)))))))
 
-(defn- actual-sequential-has-prefix? [actual expected]
-  (cond (empty? expected)
+(defn- actual-sequential-has-prefix? [actual expected order]
+  (cond (= order :in-any-order)
+	(let [possible-prefix (take (count expected) actual)]
+	  (empty? (:expected-missed (unordered-seq-comparison possible-prefix expected))))
+
+	(empty? expected)
 	true
 
         (< (count actual) (count expected))
 	false
 
 	(extended-= (first actual) (first expected))
-	(recur (rest actual) (rest expected))
+	(recur (rest actual) (rest expected) order)
 
 	:else
 	false))
@@ -213,7 +217,7 @@
         (< (count actual) (count expected))
 	false
 
-	(actual-sequential-has-prefix? actual expected)
+	(actual-sequential-has-prefix? actual expected order)
 	true
 	
 	:else
@@ -259,19 +263,23 @@
 	:else
 	false))
 
-(defn- x-has-prefix? [actual expected]
+(defn- actual-x-has-prefix? [actual expected order]
   (cond (singleton-to-be-wrapped? actual expected)
-	(recur actual [expected])
+	(recur actual [expected] order)
 
 	(sequential? actual)
-	(actual-sequential-has-prefix? actual expected)
+	(actual-sequential-has-prefix? actual expected order)
 
 	(string? expected)
-	(.startsWith actual expected)
+	(if (= order :in-any-order)
+	  (recur (vec actual) (vec expected) :in-any-order)
+	  (.startsWith actual expected))
 
 	(regex? expected)
-	(re-find (re-pattern (str "^" (.toString expected)))
-		 actual)
+	(if (= order :in-any-order)
+	  (throw (Error. "I don't know how to make sense of a regular expression applied :in-any-order."))
+	  (re-find (re-pattern (str "^" (.toString expected)))
+		   actual))
 	:else
 	false))
 
@@ -285,9 +293,12 @@
      (fn [actual] (actual-x-contains? actual expected order))))
   
 
-(defn has-prefix [expected]
+(defn has-prefix 
   {:midje/checker true}
-  (fn [actual] (x-has-prefix? actual expected)))
+  ([expected]
+     (fn [actual] (actual-x-has-prefix? actual expected :ordered)))
+  ([expected order]
+     (fn [actual] (actual-x-has-prefix? actual expected order))))
 
 (defn n-of [expected expected-count]
   {:midje/checker true}
