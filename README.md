@@ -14,7 +14,7 @@ Here's a simple Midje test:
     
 I call this a "fact" because, in a world without mutability,
 it just *is* a fact that the `numerical-reverser` of 103 is
-301. I like to think of programming as making false claims
+301. Since I work [test-first](http://en.wikipedia.org/wiki/Test-driven_development), I like to think of programming as making false claims
 about the world of the program, then changing that world to
 make the claims true.
 
@@ -24,8 +24,8 @@ people show snippets of code as examples, they often use an
 arrow to separate what you type from what you should expect
 to  see.
 
-The object on the right-hand-side of the arrow can be a
-function, in which case the value of the left-hand-side is
+The object on the right-hand side of the arrow can be a
+function, in which case the value of the left-hand side is
 passed to it. So this is also a fact:
 
      (fact
