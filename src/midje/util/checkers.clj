@@ -137,7 +137,7 @@
   (or (and (sequential? elt) (= (count elt) 2))
       (= (class elt) clojure.lang.MapEntry)))
 
-(defn singleton-to-be-wrapped? [actual expected]
+(defn singleton-to-be-wrapped? [actual expected]     ;;; To be destroyed.
   (cond (map? actual)
         (like-a-map-entry? expected)
 
@@ -155,6 +155,14 @@
 
         :else
         true))
+
+(defn desingularize [expected _ actual]
+  (cond (and (coll? actual)
+	     (not (coll? expected)))
+	[expected]
+
+	:else
+	expected))
 
 ; Loops that look for something according to extended-equals
 
@@ -202,11 +210,11 @@
   (merge-with conj hashmap (apply (partial assoc {}) kvs)))
 
 
-(defmulti seq-comparison (fn [actual expected & kind]
+(defmulti seq-comparison (fn [actual expected kind]
 			   (or (some #{:in-any-order} kind) :strict-order)))
 
 (defmethod seq-comparison :in-any-order
-  [actual expected & kind]
+  [actual expected kind]
   (let [starting-candidate  {:actual-found [], :expected-found [],
 			     :expected-skipped-over [], :expected expected }
 	starting-expected-permutations (all-expected-permutations expected)
@@ -271,7 +279,7 @@
 	    (better-of candidate best-so-far)))))
 
 (defmethod seq-comparison :strict-order
-  [actual expected & kind]
+  [actual expected kind]
   (let [starting-candidate  {:actual-found [], :expected-found [], :expected expected }
 	gaps-ok? (some #{:gaps-ok} kind)]
     
@@ -313,10 +321,10 @@
 ; Searches through particular types of actual results
 
 
-(defn- actual-sequential-has-prefix? [expected actual order]
-  (cond (= order :in-any-order)
+(defn- actual-sequential-has-prefix? [expected actual kind]
+  (cond (some #{:in-any-order} kind)
         (let [possible-prefix (take (count expected) actual)]
-          (empty? (:expected-missed (seq-comparison possible-prefix expected order))))
+          (empty? (:expected-missed (seq-comparison possible-prefix expected kind))))
           
         (empty? expected)
         true
@@ -325,26 +333,23 @@
         false
 
         (extended-= (first actual) (first expected))
-        (recur (rest expected) (rest actual) order)
+        (recur (rest expected) (rest actual) kind)
 
         :else
         false))
 
-(defn- actual-sequential-contains? [actual expected order]
-  (cond (= order :in-any-order)
-        (empty? (:expected-missed (seq-comparison actual expected order)))
 
-        (set? expected)
-        (recur actual (vec expected) :in-any-order)
+(defn full-sequence-match? [actual expected kind]
+  (let [comparison (seq-comparison actual expected kind)]
+    (= (count (:expected-found comparison))
+       (count (:expected comparison)))))
+   
+(defn- actual-sequential-contains? [actual expected kind]
+  (cond (set? expected)
+	(recur actual (vec expected) (conj kind :in-any-order))
 
-        (< (count actual) (count expected))
-        false
-
-        (actual-sequential-has-prefix? actual expected order)
-        true
-        
-        :else
-        (recur (rest actual) expected order)))
+	:else
+	(full-sequence-match? actual expected kind)))
 
 (defn- actual-map-contains? [actual expected]
   (cond (map? expected)
@@ -360,68 +365,95 @@
         :else
         (throw (Error. (str "If " (pr-str actual) " is a map, " (pr-str expected) " should look like map entries.")))))
 
-(defn- actual-x-contains? [actual expected order]
+(defn- actual-x-contains? [actual expected kind]
   (cond (singleton-to-be-wrapped? actual expected)
-        (recur actual [expected] order)
+        (recur actual [expected] kind)
 
         (sequential? actual)
-        (actual-sequential-contains? actual expected order)
+        (actual-sequential-contains? actual expected kind)
 
         (set? actual)
-        (recur (vec actual) expected :in-any-order)
+        (recur (vec actual) expected [:in-any-order])
 
         (map? actual)
         (actual-map-contains? actual expected)
 
         (string? expected)
-        (if (= order :in-any-order)
-          (recur (vec actual) (vec expected) :in-any-order)
-          (.contains actual expected))
+        (if (empty? kind)
+          (.contains actual expected)
+          (recur (vec actual) (vec expected) kind))
 
         (regex? expected)
-        (if (= order :in-any-order)
-          (throw (Error. "I don't know how to make sense of a regular expression applied :in-any-order."))
-          (re-find expected actual))
+        (if (empty? kind)
+          (re-find expected actual)
+          (throw (Error. (str "I don't know how to make sense of a "
+                              "regular expression applied "
+			      kind "."))))
 
         :else
         false))
 
-(defn- actual-x-has-prefix? [actual expected order]
+(defn- actual-x-has-prefix? [actual expected kind]
   (cond (singleton-to-be-wrapped? actual expected)
-        (recur actual [expected] order)
+        (recur actual [expected] kind)
 
         (sequential? actual)
-        (actual-sequential-has-prefix? actual expected order)
+        (actual-sequential-has-prefix? actual expected kind)
 
         (string? expected)
-        (if (= order :in-any-order)
-          (recur (vec actual) (vec expected) :in-any-order)
-          (.startsWith actual expected))
+        (if (empty? kind)
+          (.startsWith actual expected)
+          (recur (vec actual) (vec expected) kind))
 
         (regex? expected)
-        (if (= order :in-any-order)
-          (throw (Error. "I don't know how to make sense of a regular expression applied :in-any-order."))
-          (re-find (re-pattern (str "^" (.toString expected)))
-                   actual))
+        (if (empty? kind)
+          (re-find (re-pattern (str "^" (.toString expected))) actual)
+          (throw (Error. (str "I don't know how to make sense of a regular expression "
+			      "applied " kind "."))))
         :else
         false))
+
+  
 
 ;; The interface
 
 (defn contains 
   {:midje/checker true}
-  ([expected]
-     (fn [actual] (actual-x-contains? actual expected :ordered)))
-  ([expected order]
-     (fn [actual] (actual-x-contains? actual expected order))))
-  
+  [expected & kind]
+  (fn [actual]
+    (let [expected (desingularize expected :against actual)]
+      (actual-x-contains? actual expected kind))))
+
+(defn just
+  {:midje/checker true}
+  [expected & kind]
+  (fn [actual]
+    (let [expected (desingularize expected :against actual)]
+      (and (= (count expected) (count actual))
+	   (actual-x-contains? actual expected kind)))))
 
 (defn has-prefix 
   {:midje/checker true}
-  ([expected]
-     (fn [actual] (actual-x-has-prefix? actual expected :ordered)))
-  ([expected order]
-     (fn [actual] (actual-x-has-prefix? actual expected order))))
+  [expected & kind]
+  (fn [actual]
+    (let [expected (desingularize expected :against actual)
+	  actual (take (count expected) actual)]
+      (and (= (count expected) (count actual))
+	   (actual-x-contains? actual expected kind)))))
+
+(defn has-suffix
+  {:midje/checker true}
+  [expected & kind]
+  (fn [actual]
+    (let [expected (desingularize expected :against actual)
+	  actual (take-last (count expected) actual)]
+      (and (= (count expected) (count actual))
+	   (actual-x-contains? actual expected kind)))))
+
+
+(defn has [quantifier predicate]
+  (fn [actual]
+    (quantifier predicate actual)))
 
 (defn n-of [expected expected-count]
   {:midje/checker true}
