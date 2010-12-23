@@ -56,6 +56,10 @@
 
   ;; Some special cases that let us skip boundary conditions
 
+(defmulti multimethod-version-of-odd? (fn [x] true))
+(defmethod multimethod-version-of-odd? true [x]
+   (odd? x))   
+  
 (facts "unordered comparisons that allow gaps"
   (seq-comparison [] [] :in-any-order :gaps-ok) => {:actual-found []
   						    :actual-missed []
@@ -265,6 +269,10 @@
 
   (seq-comparison [1 3] [odd? 1] :in-any-order) =>
   (contains {:actual-found [1 3] :expected-found [1 odd?] :expected [odd? 1] })
+
+  (seq-comparison [1 3] [multimethod-version-of-odd? 1] :in-any-order) =>
+  (contains {:actual-found [1 3] :expected-found [1 multimethod-version-of-odd?]
+	     :expected [multimethod-version-of-odd? 1] })
 
   (defn lt2 [x] (< x 2))  ;; Used because (!= #(fn) #(fn) )
   (defn lt3 [x] (< x 3))

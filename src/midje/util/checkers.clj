@@ -8,8 +8,12 @@
 
 ;; Midje has its own peculiar idea of equality
 
+(defn extended-fn? [x]
+  (or (fn? x)
+      (= (class x) clojure.lang.MultiFn)))
+
 (defn extended-= [actual expected]
-  (cond (fn? expected)
+  (cond (extended-fn? expected)
         (try
           (let [function-result (expected actual)]
             (if (chatty-checker-falsehood? function-result) false function-result))
@@ -199,9 +203,8 @@
 	argmap `(hash-map ~@first-kvs)]
     `(merge-with conj ~hashmap ~argmap)))
 
-(println 'MULTIMETHODS)
 (defn- all-expected-variants [expected]
-  (cond (not-any? fn? expected)
+  (cond (not-any? extended-fn? expected)
 	[expected]
 
 	(<= (count expected) 4)
@@ -229,18 +232,16 @@
     
     ;; working on (1) a sliding window within the actual, which is compared
     ;; (2) to the current expected variant.
-
     (if (or (empty? actual) (empty? expected))
       starting-candidate
-      
     
     (loop [walking-actual   actual
            walking-expected (first starting-expected-variants)
 	   expected-variants starting-expected-variants
            best-so-far      starting-candidate
            candidate        starting-candidate]
-;      (println "walking " walking-actual "of" walking-expected)
-;      (println "remainder " expected-variants)
+      ;; (println "walking " walking-actual "of" walking-expected)
+      ;; (println "remainder " expected-variants)
 
       (cond (or (empty? walking-actual) (empty? walking-expected))
             (better-of candidate best-so-far)
