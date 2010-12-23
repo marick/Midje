@@ -420,12 +420,12 @@
  		:expected ["21", "2"] })
 
   (println "======= TEST NEEDS UNCOMMENTING")
-  ;; (let [contains-gappy-21 (contains "12" :gaps-ok)
+  ;; (let [contains-gappy-12 (contains "12" :gaps-ok)
   ;; 	contains-2 (contains "2")]
-  ;;   (seq-comparison ["1gap2" "12"] [contains-gappy-21 contains-2] :gaps-ok)
+  ;;   (seq-comparison ["1gap2" "12"] [contains-gappy-12 contains-2] :gaps-ok)
   ;;   => (contains {:actual-found ["1gap2", "12"],
-  ;; 	:expected-found [contains-gappy-21 contains-2]
-  ;; 		  :expected [contains-gappy-21 contains-2] }))
+  ;; 	:expected-found [contains-gappy-12 contains-2]
+  ;; 		  :expected [contains-gappy-12 contains-2] }))
 
   (seq-comparison [1 3] [odd? 1] :gaps-ok) =>
   (contains {:actual-found [1] :expected-found [odd?] :expected [odd? 1] })
@@ -435,6 +435,132 @@
  	     :expected [multimethod-version-of-odd? 1] })
 
   (seq-comparison [3 1] [multimethod-version-of-odd? 1] :gaps-ok) =>
+  (contains {:actual-found [3 1] :expected-found [multimethod-version-of-odd? 1]
+ 	     :expected [multimethod-version-of-odd? 1] })
+  )
+
+
+(facts "ordered comparisons that do not allow gaps"
+  (seq-comparison []  [])
+  => (contains {:actual-found [] :expected-found [] :expected []})
+  (seq-comparison [1] [])
+  => (contains {:actual-found [] :expected-found [] :expected []})
+  (seq-comparison [] [1])
+  => (contains {:actual-found [] :expected-found [] :expected [1]})
+  (seq-comparison [1] [1])
+  => (contains {:actual-found [1] :expected-found [1] :expected [1] })
+  (seq-comparison [1 2] [1])
+  => (contains {:actual-found [1] :expected-found [1] :expected [1] })
+  (seq-comparison [1 2] [1 2])
+  => (contains {:actual-found [1 2] :expected-found [1 2] :expected [1 2] })
+  (seq-comparison [1 'gap] [1 2])
+  => (contains {:actual-found [1] :expected-found [1] :expected [1 2] })
+  (seq-comparison ['gap 1] [1 2])
+  => (contains {:actual-found [1] :expected-found [1] :expected [1 2] })
+  (seq-comparison [1 'gap 2] [1 2])
+  => (contains {:actual-found [1] :expected-found [1] :expected [1 2] })
+
+  (seq-comparison [1 2] [2 1])
+  => (contains {:actual-found [2] :expected-found [2] :expected [2 1] })
+
+  ;; Gets the best match, even though a complete match can immediately
+  ;; be seen to be impossible.
+  (seq-comparison ['x 'y 1 2 'y 2 3] [2 3 4])
+  => (contains {:actual-found [2 3] :expected-found [2 3] :expected [2 3 4]})
+
+  (seq-comparison [1 2 3] [1 3])
+  => (contains {:actual-found [1] :expected-found [1], :expected [1 3] })
+
+  (seq-comparison [1 2 3] [3 1])
+  => (contains {:actual-found [3] :expected-found [3], :expected [3 1] })
+
+  ;; Note that there's no requirement that a particular minimal gap be found.
+  (seq-comparison [1 3 2 3 1 2 1] [3 1])
+  => (contains {:actual-found [3 1] :expected-found [3 1], :expected [3 1] })
+
+  (seq-comparison [1 2 3] [odd?])
+  => (contains {:actual-found [1] :expected-found [odd?] :expected [odd?] })
+
+  (seq-comparison [1 2 3] [odd? even?])
+  => (contains {:actual-found [1 2] :expected-found [odd? even?] :expected [odd? even?]})
+
+  (seq-comparison [1 2 3] [even? odd?])
+  => (contains {:actual-found [2 3] :expected-found [even? odd? ] :expected [even? odd?]})
+
+  (seq-comparison [1 2 3] [odd? odd?])
+  => (contains {:actual-found [1] :expected-found [odd?] :expected [odd? odd?]})
+
+  (seq-comparison [1 2 3] [even? even?])
+  => (contains {:actual-found [2] :expected-found [even?] :expected [even? even?]})
+
+  (seq-comparison [1 2 3 5 4 4 3] [odd? even? even?])
+  => (contains {:actual-found [5 4 4] :expected-found [odd? even? even?] :expected [odd? even? even?] })
+
+  (seq-comparison [3 5 7] [even? odd? odd? 3])
+  => (contains {:actual-found []
+ 		:expected-found []
+ 		:expected [even? odd? odd? 3]})
+
+  (seq-comparison [1 'h nil 3 4 5] [even? odd? 3 odd? nil nil odd? even? 3]) ; shorter actual
+  => (contains {:actual-found [4 5]
+ 		:expected-found [even? odd?]
+ 		:expected [even? odd? 3 odd? nil nil odd? even? 3]})
+
+  (seq-comparison [3 1 'h 2 3 'j nil 3 4 5 nil] [even? odd? 3 odd? nil nil odd? even? 3]
+  		 )
+  => (contains {:actual-found [2 3]
+ 		:expected-found [even? odd?]
+ 		:expected [even? odd? 3 odd? nil nil odd? even? 3]})
+
+
+ (seq-comparison [1 2 3] [odd? even? even?])
+ => (contains {:actual-found [1 2] :expected-found [odd? even?] :expected [odd? even? even?]})
+
+ (seq-comparison [nil] [])
+ => (contains {:actual-found [] :expected-found [] :expected [] })
+
+ (seq-comparison [] [nil])
+ => (contains {:actual-found [] :expected-found [] :expected [nil] })
+
+ (seq-comparison [1 2 3 nil] [odd? nil even?])
+ => (contains {:actual-found [3 nil]
+ 	       :expected-found [odd? nil]
+ 	       :expected [odd? nil even?] })
+
+ (seq-comparison [1 2 3 nil] [even? odd? nil])
+ => (contains {:actual-found [2 3 nil]
+ 	       :expected-found [even? odd? nil]
+ 	       :expected [even? odd? nil] })
+
+  (seq-comparison ["1" "12"] ["12"])
+  => (contains {:actual-found ["12"] :expected-found ["12"] :expected ["12"] })
+
+  (seq-comparison ["23" "12"] [21 2])
+  => (contains {:actual-found [] :expected-found [] :expected [21 2] })
+
+  ;; :gappiness is not inherited by individual strings. If you
+  ;; want that, you have to use a nested comparison, as shown below.
+  (seq-comparison ["1gap2" "12"] ["21" "2"])
+  => (contains {:actual-found []
+ 		:expected-found []
+ 		:expected ["21", "2"] })
+
+  (println "======= TEST NEEDS UNCOMMENTING")
+  ;; (let [contains-gappy-21 (contains "12")
+  ;; 	contains-2 (contains "2")]
+  ;;   (seq-comparison ["1gap2" "12"] [contains-gappy-21 contains-2])
+  ;;   => (contains {:actual-found ["1gap2", "12"],
+  ;; 	:expected-found [contains-gappy-21 contains-2]
+  ;; 		  :expected [contains-gappy-21 contains-2] }))
+
+  (seq-comparison [1 3] [odd? 1]) =>
+  (contains {:actual-found [1] :expected-found [odd?] :expected [odd? 1] })
+
+  (seq-comparison [1] [multimethod-version-of-odd? 1]) =>
+  (contains {:actual-found [1] :expected-found [multimethod-version-of-odd?]
+ 	     :expected [multimethod-version-of-odd? 1] })
+
+  (seq-comparison [3 1 {}] [multimethod-version-of-odd? 1]) =>
   (contains {:actual-found [3 1] :expected-found [multimethod-version-of-odd? 1]
  	     :expected [multimethod-version-of-odd? 1] })
   )
