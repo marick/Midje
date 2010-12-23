@@ -175,27 +175,27 @@
    :expected-found expected-found, :expected-missed expected-missed})
   
 (defmulti seq-comparison (fn [actual expected & kind] (set kind)))
-(defmethod seq-comparison #{:in-any-order :gaps-ok}
-  [actual expected & kind]
-  (loop [actual (vec actual)
-         expected (list* expected)
-         actual-found []
-         expected-found []
-         expected-missed []]
-;    (prn expected actual-found actual expected-found expected-missed)
-    (if (empty? expected)
-      (retval actual-found actual expected-found expected-missed)
-      (if-let [index (index-in (first expected) actual)]
-        (recur (vector-without-element-at-index index actual)
-               (rest expected)
-               (conj actual-found (actual index))
-               (conj expected-found (first expected))
-               expected-missed)
-        (recur actual
-               (rest expected)
-               actual-found
-               expected-found
-               (conj expected-missed (first expected)))))))
+;; (defmethod seq-comparison #{:in-any-order :gaps-ok}
+;;   [actual expected & kind]
+;;   (loop [actual (vec actual)
+;;          expected (list* expected)
+;;          actual-found []
+;;          expected-found []
+;;          expected-missed []]
+;; ;    (prn expected actual-found actual expected-found expected-missed)
+;;     (if (empty? expected)
+;;       (retval actual-found actual expected-found expected-missed)
+;;       (if-let [index (index-in (first expected) actual)]
+;;         (recur (vector-without-element-at-index index actual)
+;;                (rest expected)
+;;                (conj actual-found (actual index))
+;;                (conj expected-found (first expected))
+;;                expected-missed)
+;;         (recur actual
+;;                (rest expected)
+;;                actual-found
+;;                expected-found
+;;                (conj expected-missed (first expected)))))))
 
 (defmacro transfer-firsts-to [hashmap & kvs]
   (let [first-kvs (map (fn [ [key val] ] `[~key (first ~val)])
@@ -213,18 +213,22 @@
 	:else
 	(rotations expected)))
 
+(defn closer-match? [candidate best-so-far]
+  (> (count (:actual-found candidate))
+     (count (:actual-found best-so-far))))
+
+(defn better-of [candidate best-so-far]
+  (if (closer-match? candidate best-so-far) candidate best-so-far))
+
+
+(defn tack-on-to [hashmap & kvs]
+  (merge-with conj hashmap (apply (partial assoc {}) kvs)))
+
+
 (defmethod seq-comparison #{:in-any-order}
   [actual expected & kind]
-  (let [closer-match? (fn [candidate best-so-far]
-			(> (count (:actual-found candidate))
-			   (count (:actual-found best-so-far))))
-	better-of (fn [candidate best-so-far]
-		    (if (closer-match? candidate best-so-far) candidate best-so-far))
-	tack-on-to (fn [hashmap & kvs]
-		     (merge-with conj hashmap (apply (partial assoc {}) kvs)))
-        starting-candidate {:actual-found [], :expected-found [],
-			    :expected-skipped-over [],
-			    :expected expected }
+  (let [starting-candidate  {:actual-found [], :expected-found [],
+			     :expected-skipped-over [], :expected expected }
 	starting-expected-variants (all-expected-variants expected)]
     ;; (println "=============")
     ;; (println actual expected)
@@ -232,9 +236,6 @@
     
     ;; working on (1) a sliding window within the actual, which is compared
     ;; (2) to the current expected variant.
-    (if (or (empty? actual) (empty? expected))
-      starting-candidate
-    
     (loop [walking-actual   actual
            walking-expected (first starting-expected-variants)
 	   expected-variants starting-expected-variants
@@ -282,7 +283,109 @@
                    starting-candidate)
 
 	    :else ; no variant left, window used up. give up.
-	    (better-of candidate best-so-far))))))
+	    (better-of candidate best-so-far)))))
+
+
+(defmethod seq-comparison #{:in-any-order :gaps-ok}
+  [actual expected & kind]
+  (let [starting-candidate  {:actual-found [], :expected-found [],
+			     :expected-skipped-over [], :expected expected }
+	starting-expected-variants (all-expected-variants expected)]
+    ;; (println "=============")
+    ;; (println actual expected)
+    ;; (println starting-expected-variants)
+    
+    (loop [walking-actual   actual
+           walking-expected (first starting-expected-variants)
+	   expected-variants starting-expected-variants
+           best-so-far      starting-candidate
+           candidate        starting-candidate]
+      ;; (println "walking " walking-actual "of" walking-expected)
+      ;; (println "remainder " expected-variants)
+
+      (cond (or (empty? walking-actual) (empty? walking-expected))
+            (better-of candidate best-so-far)
+
+	    (extended-= (first walking-actual) (first walking-expected))
+	    ;; actual good so far, keep working on it
+	    (recur (rest walking-actual)
+		   (concat (:expected-skipped-over candidate) (rest walking-expected))
+		   expected-variants
+		   best-so-far
+		   (tack-on-to candidate
+			       :actual-found (first walking-actual)
+			       :expected-found (first walking-expected)))
+
+	    (not (empty? (rest walking-expected)))
+	    ;; Perhaps another value in the current expected variant will work.
+	    (recur walking-actual
+		   (rest walking-expected)
+		   expected-variants
+		   best-so-far
+		   (tack-on-to candidate
+			       :expected-skipped-over (first walking-expected)))
+
+	    (not (empty? (rest walking-actual)))
+	    ;; Current actual doesn't match anything expected. Lose it and
+	    ;; try other actuals on same expected variant.
+            (recur (rest walking-actual)
+		   (first expected-variants)
+		   expected-variants
+		   (better-of candidate best-so-far)
+                   candidate)
+	    
+	    (not (empty? (rest expected-variants)))
+	    ;; Can't slide window any further, so let's try another variant
+            (recur actual
+                   (second expected-variants)
+		   (rest expected-variants)
+		   (better-of candidate best-so-far)
+                   starting-candidate)
+
+	    :else ; no variant left, window used up. give up.
+	    (better-of candidate best-so-far)))))
+
+(defmethod seq-comparison #{:gaps-ok}
+  [actual expected & kind]
+  (let [starting-candidate  {:actual-found [], :expected-found [], :expected expected }]
+    ;; (println "=============")
+    ;; (println actual expected)
+    
+    (loop [actual           actual
+	   walking-actual   actual
+           walking-expected expected
+           best-so-far      starting-candidate
+           candidate        starting-candidate]
+      ;; (println "walking " walking-actual "of" walking-expected)
+
+      (cond (or (empty? walking-actual) (empty? walking-expected))
+            (better-of candidate best-so-far)
+
+	    (extended-= (first walking-actual) (first walking-expected))
+	    ;; actual good so far, keep working on it
+	    (recur actual
+	           (rest walking-actual)
+		   (rest walking-expected)
+		   best-so-far
+		   (tack-on-to candidate
+			       :actual-found (first walking-actual)
+			       :expected-found (first walking-expected)))
+
+	    (not (empty? (rest walking-actual)))
+	    ;; This is a gap in the walking actual. Skip it.
+            (recur actual
+	           (rest walking-actual)
+		   walking-expected
+		   best-so-far
+                   candidate)
+
+	    (not (empty? actual))
+	    ;; See if we can find something better later on.
+	    (recur (rest actual)
+		   (rest actual)
+		   expected
+		   (better-of candidate best-so-far)
+		   starting-candidate)))))
 
 ; Searches through particular types of actual results
 

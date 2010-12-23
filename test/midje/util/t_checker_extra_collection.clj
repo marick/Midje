@@ -425,6 +425,7 @@
   "ab" => (contains "ab" :in-any-order)
   "ab" => (contains "ba" :in-any-order)
   ( (contains "ab" :in-any-order) "a") => falsey
+  ( (contains "ab" :in-any-order) 1) => falsey
 
   "strings can match collections, either singly or a a collection of strings"
   ["a" "bc" "c"] => (contains "bc" :in-any-order)
