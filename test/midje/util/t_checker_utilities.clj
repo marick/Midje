@@ -3,45 +3,46 @@
   (:use [midje.test-util]))
 (testable-privates midje.util.checkers index-in)
 
-(facts "wrapping singletons"
-  "maps"
-  (singleton-to-be-wrapped? {} {}) => falsey
-  (singleton-to-be-wrapped? {} #{}) => falsey
-  (singleton-to-be-wrapped? {} []) => falsey
-  (singleton-to-be-wrapped? {} [:a 2]) => truthy
-  (singleton-to-be-wrapped? {} (find {:k :v} :k)) => truthy
-  (singleton-to-be-wrapped? {} #{}) => falsey
-  (singleton-to-be-wrapped? {} (seq [:a 2]) => truthy)
+;; (facts "wrapping singletons"
+;;   "maps"
+;;   (singleton-to-be-wrapped? {} {}) => falsey
+;;   (singleton-to-be-wrapped? {} #{}) => falsey
+;;   (singleton-to-be-wrapped? {} []) => falsey
+;;   (singleton-to-be-wrapped? {} [:a 2]) => truthy
+;;   (singleton-to-be-wrapped? {} (find {:k :v} :k)) => truthy
+;;   (singleton-to-be-wrapped? {} #{}) => falsey
+;;   (singleton-to-be-wrapped? {} (seq [:a 2]) => truthy)
 
-  "sequentials"
-  (singleton-to-be-wrapped? [] 1) => truthy
-  (singleton-to-be-wrapped? '() 1) => truthy
-  (singleton-to-be-wrapped? {} 1) => falsey
-  (singleton-to-be-wrapped? (seq []) 1) => truthy 
-  (singleton-to-be-wrapped? #{} 1) => truthy
+;;   "sequentials"
+;;   (singleton-to-be-wrapped? [] 1) => truthy
+;;   (singleton-to-be-wrapped? '() 1) => truthy
+;;   (singleton-to-be-wrapped? {} 1) => falsey
+;;   (singleton-to-be-wrapped? (seq []) 1) => truthy 
+;;   (singleton-to-be-wrapped? #{} 1) => truthy
 
-  (singleton-to-be-wrapped? [] []) => falsey
-  (singleton-to-be-wrapped? [] {}) => truthy
-  (singleton-to-be-wrapped? [] #{}) => falsey
+;;   (singleton-to-be-wrapped? [] []) => falsey
+;;   (singleton-to-be-wrapped? [] {}) => truthy
+;;   (singleton-to-be-wrapped? [] #{}) => falsey
 
-  "sets"
-  (singleton-to-be-wrapped? #{} 1) => truthy
-  (singleton-to-be-wrapped? #{} []) => falsey
-  (singleton-to-be-wrapped? #{} #{}) => falsey
-  (singleton-to-be-wrapped? #{} {}) => truthy
+;;   "sets"
+;;   (singleton-to-be-wrapped? #{} 1) => truthy
+;;   (singleton-to-be-wrapped? #{} []) => falsey
+;;   (singleton-to-be-wrapped? #{} #{}) => falsey
+;;   (singleton-to-be-wrapped? #{} {}) => truthy
 
-  "strings"
-  (singleton-to-be-wrapped? "" "") => falsey
-  (singleton-to-be-wrapped? [] "") => truthy
-  (singleton-to-be-wrapped? "" []) => falsey
-  (singleton-to-be-wrapped? #{} "") => truthy
+;;   "strings"
+;;   (singleton-to-be-wrapped? "" "") => falsey
+;;   (singleton-to-be-wrapped? [] "") => truthy
+;;   (singleton-to-be-wrapped? "" []) => falsey
+;;   (singleton-to-be-wrapped? #{} "") => truthy
 
-  "regexps"
-  (singleton-to-be-wrapped? "" #"") => falsey
-  (singleton-to-be-wrapped? [] #"") => truthy
-  (singleton-to-be-wrapped? #"" []) => falsey
-  (singleton-to-be-wrapped? #{} #"") => truthy
-)  
+;;   "regexps"
+;;   (singleton-to-be-wrapped? "" #"") => falsey
+;;   (singleton-to-be-wrapped? [] #"") => truthy
+;;   (singleton-to-be-wrapped? #"" []) => falsey
+;;   (singleton-to-be-wrapped? #{} #"") => truthy
+;; )
+
 
 (facts "index-in"
   (index-in 5 []) => false
@@ -172,7 +173,7 @@
   	contains-2 (contains "2")]
     (seq-comparison ["23" "12"] [contains-unordered-21 contains-2] [:in-any-order :gaps-ok])
     => (contains {:actual-found ["23", "12"],
-  	:expected-found [contains-unordered-21 contains-2]
+  	:expected-found [contains-2 contains-unordered-21]
  		  :expected [contains-unordered-21 contains-2] }))
 
   (seq-comparison [1 3] [odd? 1] [:in-any-order :gaps-ok]) =>
@@ -192,6 +193,10 @@
   => (contains {:actual-found [1 2 3]
 		:expected-found [lt2 lt3 lt4]
 		:expected [lt2 lt4 lt3] })
+
+  (seq-comparison ["12" "1" "123"] [#"3" #"2" #"1"] #{:in-any-order :gaps-ok})
+  => {:actual-found ["12" "1" "123"] :expected-found [#"1" #"2" #"123"]
+      :expected [#"3" #"2" #"1"] }
   )
 
 
@@ -287,7 +292,7 @@
   	contains-2 (contains "2")]
     (seq-comparison ["23" "12"] [contains-unordered-21 contains-2] [:in-any-order])
     => (contains {:actual-found ["23", "12"],
-		  :expected-found [contains-unordered-21 contains-2]
+		  :expected-found [contains-2 contains-unordered-21]
  		  :expected [contains-unordered-21 contains-2] }))
 
   (seq-comparison [1 3] [odd? 1] [:in-any-order]) =>
