@@ -133,7 +133,7 @@
   (seq-comparison [3 1 'h 2 3 'j nil 3 4 5] [even? odd? 3 odd? nil nil odd? even? 3]
   		  [:gaps-ok :in-any-order])
   => (contains {:actual-found [3 1 2 3 nil 3 4 5]
- 		:expected-found [odd? odd? even? 3 nil 3 even? odd?]
+ 		:expected-found [3 odd? even? odd? nil 3 even? odd?]
  		:expected [even? odd? 3 odd? nil nil odd? even? 3]})
 
 
@@ -195,8 +195,9 @@
 		:expected [lt2 lt4 lt3] })
 
   (seq-comparison ["12" "1" "123"] [#"3" #"2" #"1"] #{:in-any-order :gaps-ok})
-  => {:actual-found ["12" "1" "123"] :expected-found [#"1" #"2" #"123"]
-      :expected [#"3" #"2" #"1"] }
+  => (contains {:actual-found ["12" "1" "123"]
+		:expected-found (just [#"2" #"1" #"3"])
+		:expected (just [#"3" #"2" #"1"]) })
   )
 
 
@@ -424,13 +425,12 @@
  		:expected-found []
  		:expected ["21", "2"] })
 
-  (println "======= TEST NEEDS UNCOMMENTING")
-  ;; (let [contains-gappy-12 (contains "12" [:gaps-ok])
-  ;; 	contains-2 (contains "2")]
-  ;;   (seq-comparison ["1gap2" "12"] [contains-gappy-12 contains-2] [:gaps-ok])
-  ;;   => (contains {:actual-found ["1gap2", "12"],
-  ;; 	:expected-found [contains-gappy-12 contains-2]
-  ;; 		  :expected [contains-gappy-12 contains-2] }))
+  (let [contains-gappy-12 (contains "12" :gaps-ok)
+  	contains-2 (contains "2")]
+    (seq-comparison ["1gap2" "12"] [contains-gappy-12 contains-2] [:gaps-ok])
+    => (contains {:actual-found ["1gap2", "12"],
+		  :expected-found [contains-gappy-12 contains-2]
+  		  :expected [contains-gappy-12 contains-2] }))
 
   (seq-comparison [1 3] [odd? 1] [:gaps-ok]) =>
   (contains {:actual-found [1] :expected-found [odd?] :expected [odd? 1] })
@@ -549,14 +549,6 @@
   => (contains {:actual-found []
  		:expected-found []
  		:expected ["21", "2"] })
-
-  (println "======= TEST NEEDS UNCOMMENTING")
-  ;; (let [contains-gappy-21 (contains "12")
-  ;; 	contains-2 (contains "2")]
-  ;;   (seq-comparison ["1gap2" "12"] [contains-gappy-21 contains-2] [])
-  ;;   => (contains {:actual-found ["1gap2", "12"],
-  ;; 	:expected-found [contains-gappy-21 contains-2]
-  ;; 		  :expected [contains-gappy-21 contains-2] }))
 
   (seq-comparison [1 3] [odd? 1] []) =>
   (contains {:actual-found [1] :expected-found [odd?] :expected [odd? 1] })

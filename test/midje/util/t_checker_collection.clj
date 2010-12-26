@@ -56,11 +56,6 @@
   [4] => (has-prefix 4)
   [4] => (has-suffix 4)
 
-  ;; A few oddity cases
-  (println "MAKE THESE WORK")
-;  ( (contains [:k :v]) {:k :v}) => falsey
-;  ( (contains 1) [1 2]) => falsey
-
   [4 4 1] => (has some odd?)
   [1 3 5] => (has every? odd?)
   ( (has some odd?) [34 34 88]) => falsey
@@ -175,12 +170,13 @@
 
 (fact "maps"
  {:a 1, :b 2} => (contains {:a 1, :b 2})
- {:a 1, :b 2, :c 3} => (contains {:a 1, :b 2})
+ {:a "1", :b "2", :c "3"} => (contains {:a "1", :b "2"})
  ( (contains {:a 1, :b 2, :c 2}) {:a 1, :b 2}) => falsey
  ( (contains {:a 1, :c 2}) {:a 1, :b 2}) => falsey
  ( (contains {:a 1, :b 'not-2}) {:a 1, :b 2}) => falsey
 
  {:a 1, :b 2} => (contains {:a odd?, :b even?})
+ {:a "1", :b "2"} => (contains {:a #"1", :b #"2"})
  {:a 1, :b 2} => (contains {:a odd?})
  (  (contains {:a even?}) {:a 1, :b 2}) => falsey
 
@@ -189,6 +185,13 @@
  (  (just {:a even?}) {:a 1}) => falsey
  (  (just {:a even?}) {nil 1}) => falsey
 
+ ;; extended-equality isn't recursive, so...
+ ;; ... while this works without lower-level annotation
+ {:actual-found ["12" "1" "123"] } => (contains {:actual-found ["12" "1" "123"] })
+ ;; ... this requires it:
+ {:expected-found [#"2" #"1" #"3"] }
+ => (contains {:expected-found (just [#"2" #"1" #"3"]) })
+ 
  {} => (contains {})
  {nil nil} => (contains {})
  {nil nil} => (contains {nil nil})
@@ -211,5 +214,8 @@
  {:a 1, :b 5, :c 3} => (has every? odd?)
  )
 
-(future-fact "all the right-hand-side things")
+(future-fact "all the right-hand-side things"
+	     ( (contains [1 2]) 1) => (throws Error)
+)
+
   

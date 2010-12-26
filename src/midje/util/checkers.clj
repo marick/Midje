@@ -214,14 +214,14 @@
 			     :expected-skipped-over [], :expected expected }
 	starting-expected-permutations (all-expected-permutations expected)
 	gaps-ok? (some #{:gaps-ok} kind)]
-;    (prn starting-expected-permutations)
+    ;;    (prn starting-expected-permutations)
     (loop [walking-actual   actual
 	   walking-expected (first starting-expected-permutations)
 	   expected-permutations starting-expected-permutations
 	   best-so-far      starting-candidate
 	   candidate        starting-candidate]
 
-;      (prn "walking actual" walking-actual "walking expected" walking-expected)
+      ;; (prn "walking actual" walking-actual "walking expected" walking-expected)
       (cond (or (empty? walking-actual) (empty? walking-expected))
 	    (better-of candidate best-so-far)
 
@@ -231,9 +231,11 @@
 		   (concat (:expected-skipped-over candidate) (rest walking-expected))
 		   expected-permutations
 		   best-so-far
-		   (tack-on-to candidate
-			       :actual-found (first walking-actual)
-			       :expected-found (first walking-expected)))
+		   (merge 
+		    (tack-on-to candidate
+				:actual-found (first walking-actual)
+				:expected-found (first walking-expected))
+		    {:expected-skipped-over []}))
 
 	    (not (empty? (rest walking-expected)))
 	    ;; Perhaps another value in the current expected permutation will work.
@@ -250,10 +252,10 @@
 	    (if gaps-ok?
 	      ;; Since gaps are OK, we can drop the bad actual element and look for next one.
 	      (recur (rest walking-actual)
-		     (first expected-permutations)
+		     (concat (:expected-skipped-over candidate) walking-expected)
 		     expected-permutations
 		     (better-of candidate best-so-far)
-		     candidate)
+		     (merge candidate {:expected-skipped-over []}))
 
 	      ;; Start again with a new actual: the tail of what we started with.
 	      (recur (rest (concat (:actual-found candidate) walking-actual))
@@ -264,7 +266,7 @@
 	    
 	    (not (empty? (rest expected-permutations)))
 	    (do
-;	      (prn "Try " (second expected-permutations))
+	      ;; (prn "Try " (second expected-permutations)) 
 	    ;; No more actual elements, and we still have no match. So try a
 	    ;; different permutation of the expected list. (This is required
 	    ;; because of matching functions.
