@@ -149,7 +149,10 @@
   ( (has-suffix #"a") [1]) => falsey
 )
 
-(pending-fact "sets to contain things"
+(fact "sets to contain things"
+  #{1 2 3} => (contains #{1 2 3})
+  #{1 2 3} => (contains [1 2 3])
+			
   #{"1" "12" "123"} => (contains [#"1" #"2" #"3"])
   #{"1" "12" "123"} => (contains [#"1" #"2" #"3"])
   #{"1" "12" "123"} => (contains #{#"1" #"2"})

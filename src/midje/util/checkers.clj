@@ -208,16 +208,21 @@
 (defmulti seq-comparison (fn [actual expected kind]
 			   (or (some #{:in-any-order} kind) :strict-order)))
 
-(defmethod seq-comparison :in-any-order
-  [actual expected kind]
+
+(defn sequence-success? [comparison]
+  (= (count (:expected-found comparison))
+     (count (:expected comparison))))
+
+(defn full-sequence-match? [actual expected kind]
+  (let [comparison (seq-comparison actual expected kind)]
+    (sequence-success? comparison)))
+
+(defn in-any-order--one-permutation [actual expected kind]
   (let [starting-candidate  {:actual-found [], :expected-found [],
 			     :expected-skipped-over [], :expected expected }
-	starting-expected-permutations (all-expected-permutations expected)
 	gaps-ok? (some #{:gaps-ok} kind)]
-    ;;    (prn starting-expected-permutations)
     (loop [walking-actual   actual
-	   walking-expected (first starting-expected-permutations)
-	   expected-permutations starting-expected-permutations
+	   walking-expected expected
 	   best-so-far      starting-candidate
 	   candidate        starting-candidate]
 
@@ -229,7 +234,6 @@
 	    ;; window good so far, keep working on it
 	    (recur (rest walking-actual)
 		   (concat (:expected-skipped-over candidate) (rest walking-expected))
-		   expected-permutations
 		   best-so-far
 		   (merge 
 		    (tack-on-to candidate
@@ -242,7 +246,6 @@
 	    ;; We can, after all, be in any order.
 	    (recur walking-actual
 		   (rest walking-expected)
-		   expected-permutations
 		   best-so-far
 		   (tack-on-to candidate
 			       :expected-skipped-over (first walking-expected)))
@@ -253,32 +256,33 @@
 	      ;; Since gaps are OK, we can drop the bad actual element and look for next one.
 	      (recur (rest walking-actual)
 		     (concat (:expected-skipped-over candidate) walking-expected)
-		     expected-permutations
 		     (better-of candidate best-so-far)
 		     (merge candidate {:expected-skipped-over []}))
 
 	      ;; Start again with a new actual: the tail of what we started with.
 	      (recur (rest (concat (:actual-found candidate) walking-actual))
-		   (first expected-permutations)
-		   expected-permutations
+		   expected
 		   (better-of candidate best-so-far)
                    starting-candidate))
-	    
-	    (not (empty? (rest expected-permutations)))
-	    (do
-	      ;; (prn "Try " (second expected-permutations)) 
-	    ;; No more actual elements, and we still have no match. So try a
-	    ;; different permutation of the expected list. (This is required
-	    ;; because of matching functions.
-            (recur actual
-                   (second expected-permutations)
-		   (rest expected-permutations)
-		   (better-of candidate best-so-far)
-                   starting-candidate)
-	    )
 
-	    :else ; no permutation left, no smaller actuals to try. give up.
+	    :else 
 	    (better-of candidate best-so-far)))))
+    
+(defmethod seq-comparison :in-any-order
+  [actual expected kind]
+
+  (loop [expected-permutations (all-expected-permutations expected)
+	 best-so-far {:actual-found [], :expected-found [],
+		      :expected-skipped-over [], :expected expected }]
+    (if (empty? expected-permutations)
+      best-so-far
+      (let [comparison (in-any-order--one-permutation actual
+						      (first expected-permutations)
+						      kind)]
+	(if (sequence-success? comparison)
+	  comparison
+	  (recur (rest expected-permutations)
+		 (better-of comparison best-so-far)))))))
 
 (defmethod seq-comparison :strict-order
   [actual expected kind]
@@ -455,15 +459,10 @@
 				(pr-str expected) " should look like map entries.")))))
 
 	(set? actual)
-	(recur (vec actual) expected #{:in-any-order :gaps-ok})
+	[ (vec actual) (vec expected) #{:in-any-order :gaps-ok} ]
 	     
 	:else
 	[actual expected kind]))
-
-(defn full-sequence-match? [actual expected kind]
-  (let [comparison (seq-comparison actual expected kind)]
-    (= (count (:expected-found comparison))
-       (count (:expected comparison)))))
 
 (defn actual-map-contains? [actual expected kind]
   ;;  (prn "actual-map-contains" actual expected)
