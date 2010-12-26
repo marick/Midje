@@ -459,7 +459,9 @@
 				(pr-str expected) " should look like map entries.")))))
 
 	(set? actual)
-	[ (vec actual) (vec expected) #{:in-any-order :gaps-ok} ]
+	[ (vec actual)
+	  (if (not (coll? expected)) [expected] (vec expected))
+	  #{:in-any-order :gaps-ok} ]
 	     
 	:else
 	[actual expected kind]))

@@ -5,7 +5,6 @@
 
 ;; These are still potentially useful test from a misguided organization.
 
-(future-facts "all the extra collections")
 ;; (facts "about has-prefix"
 ;;   "lists"
 ;;   '() => (has-prefix '())
@@ -483,36 +482,3 @@
 ;;   [nil nil] => (contains nil :in-any-order)
 ;;   #{nil 1} => (contains nil :in-any-order)
 ;;   )
-
-;; (def ^{:private true} patches- (ref []))
-;; (defmulti undo-fn :fn)
-
-
-;; (defn patches []
-;;  (seq @patches-))
-
-;; (defn do-patch! [fn & args]
-;;  (dosync
-;;    (apply fn args)
-;;    (let [patch {:fn fn
-;;                 :args (vec args)}]
-;;      (alter patches- conj patch)
-;;      patch)))
-
-;; (defn remove-patch [patch]
-;;   (alter patches- #(remove (fn [p] (= patch p)) %)))
-
-;; (defn undo-patch [patch]
-;;  (let [fn (undo-fn patch)]
-;;    (dosync
-;;      (fn)
-;;      (remove-patch patch))))
-
-;; (fact "The patch's undo-fn is called for its side effect and the patch is forgotten"
-;;   (let [visible-evidence-of-a-side-effect (atom nil)]
-;;     (undo-patch ...patch...) => anything
-;;     (provided
-;;       (undo-fn ...patch...) => (fn [] (reset! visible-evidence-of-a-side-effect :happened!))
-;;       (remove-patch ...patch...) => :nothing-of-interest)
-;;     @visible-evidence-of-a-side-effect => :happened!))
-	    

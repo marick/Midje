@@ -169,6 +169,9 @@
 
   #{"1" "12" "123"} => (just [#"1" #"2" #"3"] :in-any-order) ; silly
   #{"1" "12" "123"} => (just #{#"1" #"2" #"3"} :gaps-ok) ; silly
+
+  #{1} => (contains 1)
+  #{1} => (just 1)
   )
 
 (fact "maps"
@@ -216,6 +219,25 @@
  ;; Quantifiers
  {:a 1, :b 5, :c 3} => (has every? odd?)
  )
+
+
+(facts "about atoms on right-hand side"
+  (seq [1]) => (just 1)
+  ( (just "hi") '(1)) => falsey
+
+  "string" => (just "string")
+;  ( (just "string") 1) => falsey     ;; blows up. Maybe produce better error someday.
+;  ( (contains \s) "s") => falsey
+  (vec "s") => (contains \s)
+
+;  ( (contains \s) 1) => falsey)
+
+;  ( (contains (atom 0)) #{1}) => (throws Exception)
+
+  ( (contains :a) {:a 1}) => (throws Error)
+  ( (contains 1) {:a 1}) => (throws Error)
+  )
+
 
 (future-fact "all the right-hand-side things"
 	     ( (contains [1 2]) 1) => (throws Error)
