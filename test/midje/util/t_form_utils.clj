@@ -25,3 +25,5 @@
   (vector-without-element-at-index 2 [0 1 2]) => [0 1])
 
 
+(facts "map keys to produce a new map"
+  (map-keys inc {:a 1, :b 2}) => {:a 2 :b 3})

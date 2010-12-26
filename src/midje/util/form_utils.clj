@@ -31,3 +31,9 @@
 (defn vector-without-element-at-index [index v]
   (vec (concat (subvec v 0 index) (subvec v (inc index)))))
 
+(defn map-keys [function hashmap]
+  "Return new map whose values are the the values
+   of function applied to existing values."
+
+  (into {} (map (fn [ [k v] ] [k (function v)])
+		hashmap)))
