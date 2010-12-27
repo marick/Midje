@@ -531,24 +531,33 @@
 
 ;; The interface
 
-(defn contains 
-  {:midje/checker true}
-  [expected & kind]
-  (fn [actual]
-    (let [[actual expected kind] (standardized-arguments actual expected kind)]
-      ;;      (prn "contains" actual expected)
+(defmacro container-checker [checker-fn]
+  `(with-meta
+     (fn [expected# & kind#]
+       (with-meta
+	 (fn [actual#]
+;	   (prn "checking" actual# expected# kind#)
+	   (try ( ~checker-fn (standardized-arguments actual# expected# kind#))
+		(catch Error ex#
+;		  (prn "got error" actual# expected# kind#)
+;		  (prn 		  (tag-as-chatty-falsehood {:actual actual#
+;					    :notes [(.getMessage ex#)]}))
+
+		  (tag-as-chatty-falsehood {:actual actual#
+					    :notes [(.getMessage ex#)]}))))
+	 {:midje/chatty-checker true, :midje/checker true}))
+     {:midje/checker true}))
+
+(def contains (container-checker
+    (fn [[actual expected kind]]
       (cond (regex? expected)
 	    (midje-re-find expected actual)
-
+	    
 	    :else
 	    (apply actual-x-contains? [actual expected kind])))))
 
-(defn just
-  {:midje/checker true}
-  [expected & kind]
-  (fn [actual]
-    (let [[actual expected kind] (standardized-arguments actual expected kind)]
-;      (prn 'just (same-lengths? actual expected) actual expected)
+(def just (container-checker
+    (fn [[actual expected kind]]
       (cond (regex? expected)
 	    (midje-re-matches expected actual)
 	    
@@ -558,11 +567,8 @@
 	    :else
 	    false))))
   
-(defn has-prefix 
-  {:midje/checker true}
-  [expected & kind]
-  (fn [actual]
-    (let [[actual expected kind] (standardized-arguments actual expected kind)]
+(def has-prefix (container-checker
+    (fn [[actual expected kind]]
       (cond (regex? expected)
 	    (midje-re-find (re-pattern (str "^" (.toString expected))) actual)
 	    
@@ -573,11 +579,8 @@
 	    :else
 	    false))))
 
-(defn has-suffix
-  {:midje/checker true}
-  [expected & kind]
-  (fn [actual]
-    (let [[actual expected kind] (standardized-arguments actual expected kind)]
+(def has-suffix (container-checker
+    (fn [[actual expected kind]]
       (cond (regex? expected)
 	    (midje-re-find (re-pattern (str (.toString expected) "$" )) actual)
       

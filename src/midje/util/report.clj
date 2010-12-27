@@ -55,7 +55,11 @@
    (if (:intermediate-results m)
      (cons "During checking, these intermediate values were seen:"
 	   (map (fn [[form value]] (str "   " (pr-str form) " => " (pr-str value)))
-		(:intermediate-results m))))))
+		(:intermediate-results m))))
+   (if (:notes m)
+     (cons "The checker said this about the reason:"
+	   (map (fn [note] (str "   " note))
+ 		(:notes m))))))
 
 (defmethod report-strings :future-fact [m]
   (list

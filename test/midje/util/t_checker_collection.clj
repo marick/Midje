@@ -2,7 +2,11 @@
   (:use [midje.sweet])
   (:use [midje.test-util]))
 
-
+(defmacro failure-with-note [expected]
+   `(fn [actual#]
+       (and (expect (:type actual#) => :mock-expected-result-functional-failure)
+	    (expect (:notes actual#) => ~expected))
+       true))
 (fact "left-hand-side: sequentials that are to contain things"
   [3 4 5 700] => (contains [4 5 700])
   ( (contains [4 5 700]) [4 700 5]) => falsey
@@ -60,6 +64,10 @@
   [1 3 5] => (has every? odd?)
   ( (has some odd?) [34 34 88]) => falsey
   ( (has every? odd?) [1 3 44]) => falsey
+
+  ;; old bugs
+  ( (contains [true]) [1 2]) => falsey
+  ( (contains ['a]) [1 2]) => falsey
 )
 
 (fact "left-hand-side: actual return values that are strings"
@@ -101,8 +109,10 @@
   ( (has-suffix #"\d+") "12x") => falsey
   ( (has-prefix #"\d+") "x12") => falsey
 
-  ( (contains #"a" :in-any-order) "a") => (throws Error) 
-  ( (contains #"a" :gaps-ok) "a") => (throws Error)
+  ( (contains #"a" :in-any-order) "a")
+  => (contains {:actual "a", :notes (just #"regular expression.*:in-any-order")})
+  ( (contains #"a" :gaps-ok) "a")
+  => (contains {:actual "a", :notes (just #"regular expression.*:gaps-ok")})
 
   ;; collections compared to strings or regular expressions
   ["a" "b" "c"] => (contains "b")
@@ -228,29 +238,48 @@
  {:a 1} => (just [ [:a 1] ])
  ( (just [ [:a 1] ]) {:a 1, :b 1}) => falsey
 
- ( (contains [:a 1]) {:a 1}) => (throws Error)
- ( (contains [1]) {:a 1}) => (throws Error)
- ( (contains 1) {:a 1}) => (throws Error)
+ ( (contains [:a 1]) {:a 1}) => (contains {:actual {:a 1}
+					   :notes (just #"\{:a 1\} is a map.*\[:a 1\]")})
+ ;; By the way, that means it'll be counted as false:
+ ( (contains [:a 1]) {:a 1}) => chatty-checker-falsehood?
+
+ ( (contains [1]) {:a 1}) => (contains {:actual {:a 1}
+				      :notes (just #"\{:a 1\} is a map.*\[1\]")})
+ ( (contains 1) {:a 1}) => (contains {:actual {:a 1}
+				      :notes (just #"\{:a 1\} is a map.*1")})
 
  ;; Quantifiers
  {:a 1, :b 5, :c 3} => (has every? odd?)
  )
 
 (facts "where actual values are of wrong type for legitimate expected"
-  ( (just "string")        1) => (throws Error)
-  ( (just {:a 1})          1) => (throws Error)
-  ( (contains \s)          1) => (throws Error)
-  ( (contains [1 2])       1) => (throws Error)
-  ( (contains #"ab")       1) => falsey
-  ( (just #{1})            [1 1]) => falsey
+
+  ( (just "string")        1) => (contains {:actual 1})
+  ( (just {:a 1})          1) => (contains {:actual 1
+					    :notes (just #"compare 1.*to \{:a 1\}")})
+  ( (contains \s)          1) => (contains {:actual 1
+					    :notes (just #"compare 1.*to \\s")})
+  ( (contains [1 2])       1) => (contains {:actual 1
+					    :notes (just #"compare 1.*to \[1 2\]")})
+  ( (contains #"ab")       1) => (exactly false)
+  ( (just #{1})            [1 1]) => (exactly false)
+  ( (contains {:a {:b 1}}) {:a 1}) => (exactly false)
   )
 
+(future-fact "weird bug"
+  ( (contains :a)        {:a 1}) => (contains {:actual [1 2]
+					       :notes (just #"\{:a 1\}.*:a.*map entries")}))
+  
+
 (facts "where expected values are of wrong type for legitimate actual"
-  ( (just "hi")          '(1)) => falsey
-  ( (just (atom 0))      '(0)) => falsey
-  ( (contains :a)        {:a 1}) => (throws Error)
-  ( (contains 1)         {:a 1}) => (throws Error)
-  ( (contains (atom 0))  #{1}) => falsey
+  ( (just "hi")          '(1)) => (exactly false)
+  ( (just (atom 0))      '(0)) => (exactly false)
+  ( (contains :a)        {:a 1}) => (contains {:actual {:a 1}
+					       :notes (just #"\{:a 1\}.*:a.*map entries")})
+  ( (contains 1)         {:a 1}) => (contains {:actual {:a 1}
+					       :notes (just #"\{:a 1\}.*1.*map entries")})
+
+  ( (contains (atom 0))  #{1}) => (exactly false)
   )
 
   

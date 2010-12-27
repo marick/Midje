@@ -56,7 +56,23 @@
 	raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
     (nth raw-report 2) => (re #"result: nil")
     (nth raw-report 3) => (re #"function: \(sloobom \"forp\"")
-    (nth raw-report 5) => (re #"\(\+ 1 \"ate\"\) => nil")))
+    (nth raw-report 5) => (re #"\(\+ 1 \"ate\"\) => nil"))
+
+  (let [failure-map {:type :mock-expected-result-functional-failure
+		     :actual 2
+		     :notes ["NOTE ME!" "ME TOO"]
+		     :position ["foo.clj" 3]
+		     :expected '(test-checker 33)}
+	raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
+    (nth raw-report 0) => #"FAIL.*foo.clj:3"
+    (nth raw-report 1) => #"Actual.*did not agree"
+    (nth raw-report 2) => #"Actual.*2"
+    (nth raw-report 3) => #"Checking function.*test-checker 33"
+    (nth raw-report 4) => #"(?i)checker.*reason"
+    (nth raw-report 5) => (contains "NOTE ME!")
+    (nth raw-report 6) => (contains "ME TOO")))
+
+  
 
 
 (fact "excess matches"
