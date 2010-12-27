@@ -537,7 +537,7 @@
        (with-meta
 	 (fn [actual#]
 ;	   (prn "checking" actual# expected# kind#)
-	   (try ( ~checker-fn (standardized-arguments actual# expected# kind#))
+	   (try (~checker-fn actual# expected# kind#)
 		(catch Error ex#
 ;		  (prn "got error" actual# expected# kind#)
 ;		  (prn 		  (tag-as-chatty-falsehood {:actual actual#
@@ -549,47 +549,80 @@
      {:midje/checker true}))
 
 (def contains (container-checker
-    (fn [[actual expected kind]]
-      (cond (regex? expected)
-	    (midje-re-find expected actual)
-	    
-	    :else
-	    (apply actual-x-contains? [actual expected kind])))))
+    (fn [actual expected kind]
+      (let [ [actual expected kind] (standardized-arguments actual expected kind)]
+	(cond (regex? expected)
+	      (midje-re-find expected actual)
+		 
+	      :else
+	      (apply actual-x-contains? [actual expected kind]))))))
 
 (def just (container-checker
-    (fn [[actual expected kind]]
-      (cond (regex? expected)
-	    (midje-re-matches expected actual)
+    (fn [actual expected kind]
+      (let [ [actual expected kind] (standardized-arguments actual expected kind)]
+	(cond (regex? expected)
+	      (midje-re-matches expected actual)
 	    
-	    (same-lengths? actual expected)
-	    (apply actual-x-contains? [actual expected kind])
+	      (same-lengths? actual expected)
+	      (apply actual-x-contains? [actual expected kind])
 
-	    :else
-	    false))))
-  
-(def has-prefix (container-checker
-    (fn [[actual expected kind]]
-      (cond (regex? expected)
-	    (midje-re-find (re-pattern (str "^" (.toString expected))) actual)
+	      :else
+	      false)))))
+
+(defn has-xfix [x-name pattern-fn take-fn]
+  (fn [actual expected kind]
+    (cond (set? actual)
+	  (tag-as-chatty-falsehood {:actual actual
+				    :notes [(str "Sets don't have " x-name "es.")]})
+
+	  :else
+	  (let [ [actual expected kind] (standardized-arguments actual expected kind)]
+	    (cond (regex? expected)
+		  (midje-re-find (pattern-fn expected) actual)
+		  
+		  (expected-fits? actual expected)
+		  (apply actual-x-contains?
+			 [(take-fn (count expected) actual) expected kind])
+
+		  :else
+		  false)))))
+
+(def has-prefix
+     (container-checker
+      (has-xfix "prefix" #(re-pattern (str "^" (.toString %))) midje-take)))
+(def has-suffix
+     (container-checker
+      (has-xfix "suffix" #(re-pattern (str (.toString %) "$" )) midje-take-last)))
+			    
+;; (def has-prefix (container-checker
+;;    (fn [actual expected kind]
+;;      (cond (set? actual)
+;; 	   (tag-as-chatty-falsehood {:actual actual
+;; 				     :notes ["Sets don't have prefixes."]})
+
+;; 	   :else
+;; 	   (let [ [actual expected kind] (standardized-arguments actual expected kind)]
+;; 	     (cond (regex? expected)
+;; 		   (midje-re-find ) actual)
 	    
-	    (expected-fits? actual expected)
-	    (apply actual-x-contains?
-		   [(midje-take (count expected) actual) expected kind])
+;; 		   (expected-fits? actual expected)
+;; 		   (apply actual-x-contains?
+;; 			  [(midje-take (count expected) actual) expected kind])
 
-	    :else
-	    false))))
+;; 		   :else
+;; 		   false))))))
 
-(def has-suffix (container-checker
-    (fn [[actual expected kind]]
-      (cond (regex? expected)
-	    (midje-re-find (re-pattern (str (.toString expected) "$" )) actual)
+;; (def has-suffix (container-checker
+;;     (fn [[actual expected kind]]
+;;       (cond (regex? expected)
+;; 	    (midje-re-find ) actual)
       
-	    (expected-fits? actual expected)
-	    (apply actual-x-contains?
-		   [(midje-take-last (count expected) actual) expected kind])
+;; 	    (expected-fits? actual expected)
+;; 	    (apply actual-x-contains?
+;; 		   [(midje-take-last (count expected) actual) expected kind])
 
-	    :else
-	    false))))
+;; 	    :else
+;; 	    false))))
 
 (defn has [quantifier predicate]
   (fn [actual]
