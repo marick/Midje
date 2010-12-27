@@ -439,6 +439,9 @@
   (or (coll? thing)
       (string? thing)))
 
+(defn right-hand-singleton? [thing]
+  (or (not (coll? thing)) (map? thing)))
+
 (defn standardized-arguments [actual expected kind]
   ;; The choice to make these (throw Error) rather than be falsey is purely
   ;; one of implementation convenience.
@@ -458,7 +461,7 @@
 	(cond (set? expected)
 	      [actual (vec expected) (union kind #{:in-any-order})]
 	      
-	      (not (coll? expected))
+	      (right-hand-singleton? expected)
 	      [actual [expected] (union kind #{:in-any-order})]
 
 	      :else
@@ -477,9 +480,7 @@
 				      " should look like map entries."))))))
 
 	(set? actual)
-	[ (vec actual)
-	  (if (not (coll? expected)) [expected] (vec expected))
-	  #{:in-any-order :gaps-ok} ]
+	(recur (vec actual) expected #{:in-any-order :gaps-ok})
 
 	(string? actual)
 	(cond (and (not (string? expected))

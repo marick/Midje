@@ -2,11 +2,6 @@
   (:use [midje.sweet])
   (:use [midje.test-util]))
 
-(defmacro failure-with-note [expected]
-   `(fn [actual#]
-       (and (expect (:type actual#) => :mock-expected-result-functional-failure)
-	    (expect (:notes actual#) => ~expected))
-       true))
 (fact "left-hand-side: sequentials that are to contain things"
   [3 4 5 700] => (contains [4 5 700])
   ( (contains [4 5 700]) [4 700 5]) => falsey
@@ -28,6 +23,8 @@
   [700 [] 4 5] => (contains #{4 5 700} :gaps-ok)
   [700 [] 4 5] => (contains #{4 5 700} :gaps-ok :in-any-order) ; redundant
 
+  ;; containing maps
+  [ {:a 1} "irrelevant"] => (contains {:a 1})
 
   ;; Just
   [1 2 3] => (just [1 2 3]) 
@@ -195,6 +192,9 @@
 
   #{"1" "12" "123"} => (just [#"1" #"2" #"3"] :in-any-order) ; silly
   #{"1" "12" "123"} => (just #{#"1" #"2" #"3"} :gaps-ok) ; silly
+
+  ;; containing maps
+  #{ {:a 1} "irrelevant"} => (contains {:a 1})
 
   #{1} => (contains 1)
   #{1} => (just 1)
