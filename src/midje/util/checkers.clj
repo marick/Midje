@@ -576,6 +576,10 @@
 	  (tag-as-chatty-falsehood {:actual actual
 				    :notes [(str "Sets don't have " x-name "es.")]})
 
+	  (map? actual)
+	  (tag-as-chatty-falsehood {:actual actual
+				    :notes [(str "Maps don't have " x-name "es.")]})
+	  
 	  :else
 	  (let [ [actual expected kind] (standardized-arguments actual expected kind)]
 	    (cond (regex? expected)

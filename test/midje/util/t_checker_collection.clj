@@ -203,6 +203,10 @@
 				       :notes ["Sets don't have prefixes."]})
   ( (has-suffix 1) #{1}) => (contains {:actual #{1}
 				       :notes ["Sets don't have suffixes."]})
+  ( (has-prefix 1) {:a 1}) => (contains {:actual {:a 1}
+				       :notes ["Maps don't have prefixes."]})
+  ( (has-suffix 1) {:a 1}) => (contains {:actual {:a 1}
+				       :notes ["Maps don't have suffixes."]})
   )
 
 (fact "left-hand-side: maps"
