@@ -108,8 +108,11 @@
 
   ( (contains #"a" :in-any-order) "a")
   => (contains {:actual "a", :notes (just #"regular expression.*:in-any-order")})
+  ["a"] =>  (contains #"a" :in-any-order) ; this is OK because the singleton becomes a vector
+
   ( (contains #"a" :gaps-ok) "a")
   => (contains {:actual "a", :notes (just #"regular expression.*:gaps-ok")})
+  ["a"] =>  (contains #"a" :gaps-ok) ; this is OK because the singleton becomes a vector
 
   ;; collections compared to strings or regular expressions
   ["a" "b" "c"] => (contains "b")

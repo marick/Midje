@@ -446,7 +446,8 @@
   ;; The choice to make these (throw Error) rather than be falsey is purely
   ;; one of implementation convenience.
   (cond (regex? expected)
-	(cond (not (empty? kind))
+	(cond (and (not (sequential? actual))
+		   (not (empty? kind)))
 	      (throw (Error. (str "I don't know how to make sense of a "
 				  "regular expression applied "
 				  kind "."))))
