@@ -3,7 +3,7 @@
   (:use [midje.test-util]))
 
 
-(fact "sequentials that are to contain things"
+(fact "left-hand-side: sequentials that are to contain things"
   [3 4 5 700] => (contains [4 5 700])
   ( (contains [4 5 700]) [4 700 5]) => falsey
   ( (contains [4 5 700]) [4 5 'hi 700]) => falsey
@@ -62,7 +62,7 @@
   ( (has every? odd?) [1 3 44]) => falsey
 )
 
-(fact "actual return values that are strings"
+(fact "left-hand-side: actual return values that are strings"
   "abc" => (contains "bc")
   ( (contains "bc") "bd") => falsey
   
@@ -138,6 +138,22 @@
   ( (has-suffix #"b+") ["b" "c"]) => falsey
   ["a" "b"] => (has-suffix [#"b+"])
 
+  ;; Strings and characters
+  "s" => (just \s)
+  ( (just \s) "as") => falsey
+  "s" => (contains \s)
+  ( (contains \s) "family") => falsey
+  "as" => (contains [\s \a] :in-any-order)
+  ( (contains [\s \a] :in-any-order) "af") => falsey
+  "afs" => (contains [\s \a] :in-any-order :gaps-ok)
+  ( (contains [\s \a] :in-any-order :gaps-ok) "af     S") => falsey
+
+  ( (just "ab") [\a \b]) => falsey
+  [\a \b] => (just (vec "ab"))
+
+  ( (just "ab") "AB") => falsey
+  "AB" => #"(?i)ab"
+  
   ;; Just to check
   ( (contains "a") [1]) => falsey
   ( (contains #"a") [1]) => falsey
@@ -149,7 +165,7 @@
   ( (has-suffix #"a") [1]) => falsey
 )
 
-(fact "sets to contain things"
+(fact "left-hand-side: sets to contain things"
   #{1 2 3} => (contains #{1 2 3})
   #{1 2 3} => (contains [1 2 3])
 			
@@ -174,7 +190,7 @@
   #{1} => (just 1)
   )
 
-(fact "maps"
+(fact "left-hand-side: maps"
  {:a 1, :b 2} => (contains {:a 1, :b 2})
  {:a "1", :b "2", :c "3"} => (contains {:a "1", :b "2"})
  ( (contains {:a 1, :b 2, :c 2}) {:a 1, :b 2}) => falsey
@@ -220,27 +236,21 @@
  {:a 1, :b 5, :c 3} => (has every? odd?)
  )
 
-
-(facts "about atoms on right-hand side"
-  (seq [1]) => (just 1)
-  ( (just "hi") '(1)) => falsey
-
-  "string" => (just "string")
-;  ( (just "string") 1) => falsey     ;; blows up. Maybe produce better error someday.
-;  ( (contains \s) "s") => falsey
-  (vec "s") => (contains \s)
-
-;  ( (contains \s) 1) => falsey)
-
-;  ( (contains (atom 0)) #{1}) => (throws Exception)
-
-  ( (contains :a) {:a 1}) => (throws Error)
-  ( (contains 1) {:a 1}) => (throws Error)
+(facts "where actual values are of wrong type for legitimate expected"
+  ( (just "string")        1) => (throws Error)
+  ( (just {:a 1})          1) => (throws Error)
+  ( (contains \s)          1) => (throws Error)
+  ( (contains [1 2])       1) => (throws Error)
+  ( (contains #"ab")       1) => falsey
+  ( (just #{1})            [1 1]) => falsey
   )
 
-
-(future-fact "all the right-hand-side things"
-	     ( (contains [1 2]) 1) => (throws Error)
-)
+(facts "where expected values are of wrong type for legitimate actual"
+  ( (just "hi")          '(1)) => falsey
+  ( (just (atom 0))      '(0)) => falsey
+  ( (contains :a)        {:a 1}) => (throws Error)
+  ( (contains 1)         {:a 1}) => (throws Error)
+  ( (contains (atom 0))  #{1}) => falsey
+  )
 
   

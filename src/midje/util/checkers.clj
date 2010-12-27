@@ -435,34 +435,59 @@
 ;;         :else
 ;;         false))
 
+(defn collection-like? [thing]
+  (or (coll? thing)
+      (string? thing)))
+
 (defn standardized-arguments [actual expected kind]
-  (if (and (regex? expected)
-	   (not (empty? kind)))
-    (throw (Error. (str "I don't know how to make sense of a "
-			"regular expression applied "
-			kind "."))))
-    
-  (cond (and (sequential? actual)
-	     (set? expected))
-	[actual (vec expected) (union kind #{:in-any-order})]
+  ;; The choice to make these (throw Error) rather than be falsey is purely
+  ;; one of implementation convenience.
+  (cond (regex? expected)
+	(cond (not (empty? kind))
+	      (throw (Error. (str "I don't know how to make sense of a "
+				  "regular expression applied "
+				  kind "."))))
 
-	(and (sequential? actual)
-	     (not (coll? expected)))
-	[actual [expected] (union kind #{:in-any-order})]
+	(not (collection-like? actual))
+	(throw (Error. (str "You can't compare " (pr-str actual) " (" (type actual) 
+			    ") to " (pr-str expected) " (" (type expected) ").")))
+	)
+  
 
-	(and (map? actual)
-	     (not (map? expected)))
-	(try 
-	  [actual (apply hash-map (apply concat expected)) kind]
-	  (catch Throwable ex
-	    (throw (Error. (str "If " (pr-str actual) " is a map, "
-				(pr-str expected) " should look like map entries.")))))
+  (cond (sequential? actual)
+	(cond (set? expected)
+	      [actual (vec expected) (union kind #{:in-any-order})]
+	      
+	      (not (coll? expected))
+	      [actual [expected] (union kind #{:in-any-order})]
+
+	      :else
+	      [actual expected kind])
+
+	(map? actual)
+	(cond (map? expected)
+	      [actual expected kind]
+
+	      :else
+	      (try 
+		[actual (apply hash-map (apply concat expected)) kind]
+		(catch Throwable ex
+		  (throw (Error. (str "If " (pr-str actual) " is a map, "
+				      (pr-str expected)
+				      " should look like map entries."))))))
 
 	(set? actual)
 	[ (vec actual)
 	  (if (not (coll? expected)) [expected] (vec expected))
 	  #{:in-any-order :gaps-ok} ]
-	     
+
+	(string? actual)
+	(cond (and (not (string? expected))
+		   (not (regex? expected)))
+	      (recur (vec actual) expected kind)
+	      :else
+	      [ actual expected kind])
+
 	:else
 	[actual expected kind]))
 
