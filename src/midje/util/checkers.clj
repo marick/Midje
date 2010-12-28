@@ -138,55 +138,6 @@
 
 ;;Checkers that work with collections.
 
-; non-loops
-(defn- like-a-map-entry? [elt]
-  (or (and (sequential? elt) (= (count elt) 2))
-      (= (class elt) clojure.lang.MapEntry)))
-
-;; (defn singleton-to-be-wrapped? [actual expected]     ;;; To be destroyed.
-;;   (cond (map? actual)
-;;         (like-a-map-entry? expected)
-
-;;         (string? actual)
-;;         false
-
-;;         (regex? actual)
-;;         false
-
-;;         (set? expected)
-;;         false
-        
-;;         (coll? actual)
-;;         (not (sequential? expected))
-
-;;         :else
-;;         true))
-
-
-
-; Loops that look for something according to extended-equals
-
-(defn- index-in [expected-elt actual-vector]
-  (loop [index 0]
-;    (println expected-elt actual-vector index)
-    (cond (= index (count actual-vector))
-          false
-
-          (extended-= (actual-vector index) expected-elt)
-          index
-
-          :else
-          (recur (inc index)))))
-
-(defn- retval [actual-found actual-missed expected-found expected-missed]
-  {:actual-found actual-found, :actual-missed actual-missed
-   :expected-found expected-found, :expected-missed expected-missed})
-  
-(defmacro transfer-firsts-to [hashmap & kvs]
-  (let [first-kvs (map (fn [ [key val] ] `[~key (first ~val)])
-		       (partition 2 kvs))
-	argmap `(hash-map ~@first-kvs)]
-    `(merge-with conj ~hashmap ~argmap)))
 
 (defn- all-expected-permutations [expected]
   (cond (and (not-any? extended-fn? expected)
@@ -199,30 +150,44 @@
 	:else
 	(rotations expected)))
 
-(defn closer-match? [candidate best-so-far]
+(defn- closer-match? [candidate best-so-far]
   (> (count (:actual-found candidate))
      (count (:actual-found best-so-far))))
 
-(defn better-of [candidate best-so-far]
+(defn- better-of [candidate best-so-far]
   (if (closer-match? candidate best-so-far) candidate best-so-far))
 
-
-(defn tack-on-to [hashmap & kvs]
+(defn- tack-on-to [hashmap & kvs]
   (merge-with conj hashmap (apply (partial assoc {}) kvs)))
 
-
-(defmulti seq-comparison (fn [actual expected kind]
-			   (or (some #{:in-any-order} kind) :strict-order)))
-
-
-(defn sequence-success? [comparison]
+(defn- sequence-success? [comparison]
   (= (count (:expected-found comparison))
      (count (:expected comparison))))
 
-(defn full-sequence-match? [actual expected kind]
-  (let [comparison (seq-comparison actual expected kind)]
-    (sequence-success? comparison)))
+(defn- collection-like? [thing]
+  (or (coll? thing)
+      (string? thing)))
 
+(defn- right-hand-singleton? [thing]
+  (or (not (coll? thing)) (map? thing)))
+
+(defn- same-lengths? [actual expected]
+  (= (count actual) (count expected)))
+
+(defn- expected-fits? [actual expected]
+  (>= (count actual) (count expected)))
+
+(defn- midje-re-find [re string]
+  (try
+    (re-find re string)
+    (catch Exception ex false)))
+
+(defn- midje-re-matches [re string]
+  (try
+    (re-matches re string)
+    (catch Exception ex false)))
+
+
 (defn in-any-order--one-permutation [actual expected kind]
   (let [starting-candidate  {:actual-found [], :expected-found [],
 			     :expected-skipped-over [], :expected expected }
@@ -273,7 +238,10 @@
 
 	    :else 
 	    (better-of candidate best-so-far)))))
-    
+
+(defmulti seq-comparison (fn [actual expected kind]
+			   (or (some #{:in-any-order} kind) :strict-order)))
+
 (defmethod seq-comparison :in-any-order
   [actual expected kind]
 
@@ -332,122 +300,6 @@
 
 ; Searches through particular types of actual results
 
-
-;; (defn- actual-sequential-has-prefix? [expected actual kind]
-;;   (cond (some #{:in-any-order} kind)
-;;         (let [possible-prefix (take (count expected) actual)]
-;;           (empty? (:expected-missed (seq-comparison possible-prefix expected kind))))
-          
-;;         (empty? expected)
-;;         true
-
-;;         (< (count actual) (count expected))
-;;         false
-
-;;         (extended-= (first actual) (first expected))
-;;         (recur (rest expected) (rest actual) kind)
-
-;;         :else
-;;         false))
-
-
-;; (defn- actual-sequential-contains? [actual expected kind]
-;;   (cond (set? expected)
-;; 	(recur actual (vec expected) (conj kind :in-any-order))
-
-;; 	:else
-;; 	(full-sequence-match? actual expected kind)))
-
-;; (defn- actual-map-contains? [actual expected]
-;;   (cond (map? expected)
-;;         (every? (fn [key]
-;;                   (and (find actual key)
-;;                        (extended-= (get actual key) (get expected key))))
-;;                 (keys expected))
-
-;;         (and (sequential? expected)
-;;              (every? like-a-map-entry? expected))
-;;         (actual-map-contains? actual (apply hash-map (apply concat expected)))
-
-;;         :else
-;;         (throw (Error. (str "If " (pr-str actual) " is a map, " (pr-str expected) " should look like map entries.")))))
-
-;; (defn- actual-x-contains? [actual expected kind]
-;;   (cond (singleton-to-be-wrapped? actual expected)
-;;         (recur actual [expected] kind)
-
-;;         (sequential? actual)
-;;         (actual-sequential-contains? actual expected kind)
-
-;;         (set? actual)
-;;         (recur (vec actual) expected [:in-any-order])
-
-;;         (map? actual)
-;;         (actual-map-contains? actual expected)
-
-;;         (string? expected)
-;;         (if (empty? kind)
-;;           (.contains actual expected)
-;;           (recur (vec actual) (vec expected) kind))
-
-;;         (regex? expected)
-;;         (if (empty? kind)
-;;           (re-find expected actual)
-;;           (throw (Error. (str "I don't know how to make sense of a "
-;;                               "regular expression applied "
-;; 			      kind "."))))
-
-;;         :else
-;;         false))
-
-;; (defn- actual-x-has-prefix? [actual expected kind]
-;;   (cond (singleton-to-be-wrapped? actual expected)
-;;         (recur actual [expected] kind)
-
-;;         (sequential? actual)
-;;         (actual-sequential-has-prefix? actual expected kind)
-
-;;         (string? expected)
-;;         (if (empty? kind)
-;;           (.startsWith actual expected)
-;;           (recur (vec actual) (vec expected) kind))
-
-;;         (regex? expected)
-;;         (if (empty? kind)
-;;           (re-find (re-pattern (str "^" (.toString expected))) actual)
-;;           (throw (Error. (str "I don't know how to make sense of a regular expression "
-;; 			      "applied " kind "."))))
-;;         :else
-;;         false))
-
-  
-;; (defn- actual-x-has-suffix? [actual expected kind]
-;;   (cond (singleton-to-be-wrapped? actual expected)
-;;         (recur actual [expected] kind)
-
-;;         (sequential? actual)
-;;         (actual-sequential-has-prefix? actual expected kind)
-
-;;         (string? expected)
-;;         (if (empty? kind)
-;;           (.startsWith actual expected)
-;;           (recur (vec actual) (vec expected) kind))
-
-;;         (regex? expected)
-;;         (if (empty? kind)
-;;           (re-find (re-pattern (str "^" (.toString expected))) actual)
-;;           (throw (Error. (str "I don't know how to make sense of a regular expression "
-;; 			      "applied " kind "."))))
-;;         :else
-;;         false))
-
-(defn collection-like? [thing]
-  (or (coll? thing)
-      (string? thing)))
-
-(defn right-hand-singleton? [thing]
-  (or (not (coll? thing)) (map? thing)))
-
 (defn standardized-arguments [actual expected kind]
   ;; The choice to make these (throw Error) rather than be falsey is purely
   ;; one of implementation convenience.
@@ -499,6 +351,10 @@
 	:else
 	[actual expected kind]))
 
+(defn full-sequence-match? [actual expected kind]
+  (let [comparison (seq-comparison actual expected kind)]
+    (sequence-success? comparison)))
+
 (defn actual-map-contains? [actual expected kind]
   ;;  (prn "actual-map-contains" actual expected)
   (every? (fn [key]
@@ -514,28 +370,6 @@
 	:else
 	(full-sequence-match? actual expected kind))
   )
-
-(defn same-lengths? [actual expected]
-  (= (count actual) (count expected)))
-
-(defn expected-fits? [actual expected]
-  (>= (count actual) (count expected)))
-
-(defn midje-take [n thing]
-  (take n thing))
-
-(defn midje-take-last [n thing]
-  (take-last n thing))
-
-(defn midje-re-find [re string]
-  (try
-    (re-find re string)
-    (catch Exception ex false)))
-
-(defn midje-re-matches [re string]
-  (try
-    (re-matches re string)
-    (catch Exception ex false)))
 
 ;; The interface
 
@@ -601,47 +435,19 @@
 
 (def has-prefix
      (container-checker
-      (has-xfix "prefix" #(re-pattern (str "^" (.toString %))) midje-take)))
+      (has-xfix "prefix" #(re-pattern (str "^" (.toString %))) take)))
 (def has-suffix
      (container-checker
-      (has-xfix "suffix" #(re-pattern (str (.toString %) "$" )) midje-take-last)))
+      (has-xfix "suffix" #(re-pattern (str (.toString %) "$" )) take-last)))
 			    
-;; (def has-prefix (container-checker
-;;    (fn [actual expected kind]
-;;      (cond (set? actual)
-;; 	   (tag-as-chatty-falsehood {:actual actual
-;; 				     :notes ["Sets don't have prefixes."]})
-
-;; 	   :else
-;; 	   (let [ [actual expected kind] (standardized-arguments actual expected kind)]
-;; 	     (cond (regex? expected)
-;; 		   (midje-re-find ) actual)
-	    
-;; 		   (expected-fits? actual expected)
-;; 		   (apply actual-x-contains?
-;; 			  [(midje-take (count expected) actual) expected kind])
-
-;; 		   :else
-;; 		   false))))))
-
-;; (def has-suffix (container-checker
-;;     (fn [[actual expected kind]]
-;;       (cond (regex? expected)
-;; 	    (midje-re-find ) actual)
-      
-;; 	    (expected-fits? actual expected)
-;; 	    (apply actual-x-contains?
-;; 		   [(midje-take-last (count expected) actual) expected kind])
-
-;; 	    :else
-;; 	    false))))
-
 (defn has [quantifier predicate]
   (fn [actual]
     (quantifier predicate
 		(if (map? actual)
 		  (vals actual)
 		  actual))))
+
+;; These are used in some internal tests. Worth publicizing?
 
 (defn n-of [expected expected-count]
   {:midje/checker true}
@@ -660,7 +466,7 @@
     `(do ~@defns)))
 (of-functions)
   
-;; Deprecated checkers
+;; deprecated checkers
 
 (defn map-containing [expected]
   "Accepts a map that contains all the keys and values in expected,
