@@ -97,7 +97,10 @@
 			    :position (call :file-position)
 			    :expected (call :expected-result-text-for-failures) }
 			   (if (chatty-checker? (call :expected-result))
-			     ((call :expected-result) actual)
+			     (do
+;			       (prn call)
+;			       (prn actual)
+			       ((call :expected-result) actual))
 			     {:actual actual})))
 	    false)
 	

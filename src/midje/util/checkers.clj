@@ -14,7 +14,13 @@
 
 (defn extended-= [actual expected]
   (try
-    (cond (extended-fn? expected)
+    (cond (chatty-checker-falsehood? actual)
+	  actual
+
+	  (chatty-checker-falsehood? expected)
+	  expected
+	  
+	  (extended-fn? expected)
           (let [function-result (expected actual)]
             (if (chatty-checker-falsehood? function-result) false function-result))
         

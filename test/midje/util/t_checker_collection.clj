@@ -259,7 +259,9 @@
 				      :notes (just #"\{:a 1\} is a map.*\[1\]")})
  ( (contains 1) {:a 1}) => (contains {:actual {:a 1}
 				      :notes (just #"\{:a 1\} is a map.*1")})
- ((contains [:k :v]) {:k :v}) => falsey
+ ((contains [:k :v]) {:k :v}) => (contains {:actual {:k :v}
+					    :notes (just #"should look like map entries")})
+
  ;; Quantifiers
  {:a 1, :b 5, :c 3} => (has every? odd?)
  )
@@ -278,9 +280,10 @@
   ( (contains {:a {:b 1}}) {:a 1}) => (exactly false)
   )
 
-(future-fact "weird bug"
-  ( (contains :a)        {:a 1}) => (contains {:actual [1 2]
-					       :notes (just #"\{:a 1\}.*:a.*map entries")}))
+(fact "propagation of chatty failures"
+  ( (contains :a)        {:a 1})
+  => (contains {:actual [1 2], :notes (just #"\{:a 1\}.*:a.*map entries")}))
+  
   
 
 (facts "where expected values are of wrong type for legitimate actual"
