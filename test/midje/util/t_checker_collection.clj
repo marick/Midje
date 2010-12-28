@@ -106,11 +106,11 @@
   ( (has-suffix #"\d+") "12x") => falsey
   ( (has-prefix #"\d+") "x12") => falsey
 
-  ( (contains #"a" :in-any-order) "a")
+  (chatty-falsehood-to-map ( (contains #"a" :in-any-order) "a"))
   => (contains {:actual "a", :notes (just #"regular expression.*:in-any-order")})
   ["a"] =>  (contains #"a" :in-any-order) ; this is OK because the singleton becomes a vector
 
-  ( (contains #"a" :gaps-ok) "a")
+  (chatty-falsehood-to-map ( (contains #"a" :gaps-ok) "a"))
   => (contains {:actual "a", :notes (just #"regular expression.*:gaps-ok")})
   ["a"] =>  (contains #"a" :gaps-ok) ; this is OK because the singleton becomes a vector
 
@@ -202,14 +202,14 @@
   #{1} => (contains 1)
   #{1} => (just 1)
 
-  ( (has-prefix 1) #{1}) => (contains {:actual #{1}
-				       :notes ["Sets don't have prefixes."]})
-  ( (has-suffix 1) #{1}) => (contains {:actual #{1}
-				       :notes ["Sets don't have suffixes."]})
-  ( (has-prefix 1) {:a 1}) => (contains {:actual {:a 1}
-				       :notes ["Maps don't have prefixes."]})
-  ( (has-suffix 1) {:a 1}) => (contains {:actual {:a 1}
-				       :notes ["Maps don't have suffixes."]})
+  (chatty-falsehood-to-map ( (has-prefix 1) #{1}))
+  => (contains {:actual #{1} :notes ["Sets don't have prefixes."]})
+  (chatty-falsehood-to-map ( (has-suffix 1) #{1}))
+  => (contains {:actual #{1} :notes ["Sets don't have suffixes."]})
+  (chatty-falsehood-to-map ( (has-prefix 1) {:a 1}))
+  => (contains {:actual {:a 1} :notes ["Maps don't have prefixes."]})
+  (chatty-falsehood-to-map ( (has-suffix 1) {:a 1}))
+  => (contains {:actual {:a 1} :notes ["Maps don't have suffixes."]})
   )
 
 (fact "left-hand-side: maps"
@@ -250,8 +250,8 @@
  {:a 1} => (just [ [:a 1] ])
  ( (just [ [:a 1] ]) {:a 1, :b 1}) => falsey
 
- ( (contains [:a 1]) {:a 1}) => (contains {:actual {:a 1}
-					   :notes (just #"\{:a 1\} is a map.*\[:a 1\]")})
+ (chatty-falsehood-to-map ( (contains [:a 1]) {:a 1}))
+ => (contains {:actual {:a 1} :notes (just #"\{:a 1\} is a map.*\[:a 1\]")})
  ;; By the way, that means it'll be counted as false:
  ( (contains [:a 1]) {:a 1}) => chatty-checker-falsehood?
 
@@ -268,32 +268,77 @@
 
 (facts "where actual values are of wrong type for legitimate expected"
 
-  ( (just "string")        1) => (contains {:actual 1})
-  ( (just {:a 1})          1) => (contains {:actual 1
-					    :notes (just #"compare 1.*to \{:a 1\}")})
-  ( (contains \s)          1) => (contains {:actual 1
-					    :notes (just #"compare 1.*to \\s")})
-  ( (contains [1 2])       1) => (contains {:actual 1
-					    :notes (just #"compare 1.*to \[1 2\]")})
+  (chatty-falsehood-to-map ( (just "string")        1))
+  => (contains {:actual 1})
+  (chatty-falsehood-to-map ( (just {:a 1})        1))
+  => (contains {:actual 1 :notes (just #"compare 1.*to \{:a 1\}")})
+  (chatty-falsehood-to-map ( (contains \s)          1))
+  => (contains {:actual 1 :notes (just #"compare 1.*to \\s")})
+  ( (contains [1 2])       1)
+  => (contains {:actual 1 :notes (just #"compare 1.*to \[1 2\]")})
+  (println 'FIX)
   ( (contains #"ab")       1) => (exactly false)
   ( (just #{1})            [1 1]) => (exactly false)
   ( (contains {:a {:b 1}}) {:a 1}) => (exactly false)
   )
 
 (fact "propagation of chatty failures"
-  ( (contains :a)        {:a 1})
-  => (contains {:actual [1 2], :notes (just #"\{:a 1\}.*:a.*map entries")}))
+  (println 'fix)
+;  (chatty-falsehood-to-map ( (contains :a)        {:a 1}))
+;  => (contains {:actual [1 2], :notes (just #"\{:a 1\}.*:a.*map entries")})
+  )
   
+(facts "about the notes given to reporting functions"
+  "functions and such are printed nicely in the actual match section"
+  (chatty-falsehood-to-map ( (contains [#"1" #"1+" #"1+2"]) [#"1" #"1+"]))
+  => (contains {:notes (contains #"Best match.*\[#\"1\" #\"1\+\"\]")})
+
+  ; It'd be nice to make all kinds of recursive function printing work nicely.
+  ; [odd? even?] => (contains [(exactly odd?) (exactly odd?)])
   
+  "checkers are printed nicely in the expected matched: section"
+  (chatty-falsehood-to-map ( (contains [5 (exactly 4)] :in-any-order) [1 2 4]))
+  => (contains {:notes (contains #"It matched.*\[\(exactly 4\)\]")})
+
+  (chatty-falsehood-to-map ( (contains [(just 3) 6]) [[3] 5]))
+  => (contains {:notes (contains #"It matched.*\[\(just 3\)\]")})
+
+  (chatty-falsehood-to-map ( (contains [(contains 3) 6]) [[3] 5]))
+  => (contains {:notes (contains #"It matched.*\[\(contains 3\)\]")})
+
+  (chatty-falsehood-to-map ( (contains [(has-prefix 3) 6]) [[3] 5]))
+  => (contains {:notes (contains #"It matched.*\[\(has-prefix 3\)\]")})
+
+  (chatty-falsehood-to-map ( (contains [(has-suffix 3) 6]) [[3] 5]))
+  => (contains {:notes (contains #"It matched.*\[\(has-suffix 3\)\]")})
+
+  (chatty-falsehood-to-map ( (contains [#"fo+\[" "ba"]) ["foo[" "bar"]))
+  => (contains {:notes (contains #"It matched.*\[#\"fo\+\\\[\"\]")})
+
+  (chatty-falsehood-to-map ( (contains [1 "1\"2" [even?] odd?]) [1 "1\"2" [3]]))
+  => (contains {:notes (contains #"It matched.*\[1 \"1\\\"2\"\]")})
+
+  "Proper grammar for just errors"
+  (chatty-falsehood-to-map ( (just 1) [1 2]))
+  => (contains {:notes ["Expected one element. There were two."]})
+  (chatty-falsehood-to-map ( (just 1) []))
+  => (contains {:notes ["Expected one element. There were zero."]})
+  (chatty-falsehood-to-map ( (just []) [1]))
+  => (contains {:notes ["Expected zero elements. There was one."]})
+  (chatty-falsehood-to-map ( (just [1 2]) [1]))
+  => (contains {:notes ["Expected two elements. There was one."]})
+)
 
 (facts "where expected values are of wrong type for legitimate actual"
+  (println 'fix)
   ( (just "hi")          '(1)) => (exactly false)
   ( (just (atom 0))      '(0)) => (exactly false)
-  ( (contains :a)        {:a 1}) => (contains {:actual {:a 1}
-					       :notes (just #"\{:a 1\}.*:a.*map entries")})
-  ( (contains 1)         {:a 1}) => (contains {:actual {:a 1}
-					       :notes (just #"\{:a 1\}.*1.*map entries")})
+  (chatty-falsehood-to-map ( (contains :a)        {:a 1}))
+  => (contains {:actual {:a 1} :notes (just #"\{:a 1\}.*:a.*map entries")})
+  (chatty-falsehood-to-map ( (contains 1)         {:a 1}))
+  => (contains {:actual {:a 1} :notes (just #"\{:a 1\}.*1.*map entries")})
 
+  (println 'fix)
   ( (contains (atom 0))  #{1}) => (exactly false)
   )
 

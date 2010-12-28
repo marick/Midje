@@ -1,6 +1,8 @@
 (ns midje.util.checkers
   (:use [clojure.set :only [difference union subset?]]
         [clojure.contrib.seq :only [rotations]]
+	[clojure.contrib.def :only [defmacro-]]
+	[clojure.contrib.pprint :only [cl-format]]
 	[clojure.contrib.combinatorics :only [permutations]]
         [midje.util.form-utils :only [regex? vector-without-element-at-index]]))
 
@@ -8,7 +10,7 @@
 
 ;; Midje has its own peculiar idea of equality
 
-(defn extended-fn? [x]
+(defn- extended-fn? [x]
   (or (fn? x)
       (= (class x) clojure.lang.MultiFn)))
 
@@ -36,6 +38,11 @@
 
 ;; Simple checkers
 
+(defn- named [name expected function]
+  (with-meta function
+	{:name (format "(%s %s)" name expected)}))
+  
+
 (defn truthy 
   "Returns precisely true if actual is not nil and not false."
   {:midje/checker true}
@@ -49,13 +56,6 @@
   [actual] 
   (not actual))
 
-(defn in-any-order
-  "Produces matcher that matches sequences without regard to order"
-  {:midje/checker true}
-  [expected]
-  (fn [actual]
-    (= (frequencies expected) (frequencies actual))))
-
 (defn anything
   "Accepts any value"
   {:midje/checker true}
@@ -67,7 +67,8 @@
   "Checks for equality. Use to avoid default handling of functions."
   {:midje/checker true}
   [expected]
-  (fn [actual] (= expected actual)))
+    (named 'exactly expected
+	   (fn [actual] (= expected actual))))
 
 
 ;; Chatty checkers
@@ -75,6 +76,9 @@
 (defn tag-as-chatty-falsehood [value]
   (with-meta value {:midje/chatty-checker-falsehood true}))
   
+(defn chatty-falsehood-to-map [value]
+  (with-meta value {}))
+
 (defn chatty-checker-falsehood? [value]
   (:midje/chatty-checker-falsehood (meta value)))
 
@@ -351,9 +355,35 @@
 	:else
 	[actual expected kind]))
 
+(defn- best-match-actual [comparison]
+  (str "Best match found: " (pr-str (:actual-found comparison))))
+
+(defn- best-match-expected [comparison expected]
+  (if (or (some extended-fn? expected)
+	  (some regex? expected))
+    (str "      It matched: ["
+	 (apply str
+		(interpose " "
+			   (map #(cond (and (fn? %) (:name (meta %)))
+				       (:name (meta %))
+
+				       :else
+				       (pr-str %))
+				(:expected-found comparison))))
+	 "] (in that order)")))
+    
+
+(defn- mismatch-description [comparison expected]
+  (remove nil? [ (best-match-actual comparison)
+		 (best-match-expected comparison expected) ]))
+
 (defn full-sequence-match? [actual expected kind]
   (let [comparison (seq-comparison actual expected kind)]
-    (sequence-success? comparison)))
+    
+    (or (sequence-success? comparison)
+	(tag-as-chatty-falsehood
+	 {:actual actual
+	  :notes (mismatch-description comparison expected) }))))
 
 (defn actual-map-contains? [actual expected kind]
   ;;  (prn "actual-map-contains" actual expected)
@@ -373,24 +403,22 @@
 
 ;; The interface
 
-(defmacro container-checker [checker-fn]
+(defmacro- container-checker [name checker-fn]
   `(with-meta
      (fn [expected# & kind#]
-       (with-meta
-	 (fn [actual#]
-;	   (prn "checking" actual# expected# kind#)
-	   (try (~checker-fn actual# expected# kind#)
-		(catch Error ex#
-;		  (prn "got error" actual# expected# kind#)
-;		  (prn 		  (tag-as-chatty-falsehood {:actual actual#
-;					    :notes [(.getMessage ex#)]}))
-
-		  (tag-as-chatty-falsehood {:actual actual#
-					    :notes [(.getMessage ex#)]}))))
+       (vary-meta
+	 (named '~name expected#
+		(fn [actual#]
+		  ;; (prn "checking" actual# expected# kind#)
+		  (try (~checker-fn actual# expected# kind#)
+		       (catch Error ex#
+			 (tag-as-chatty-falsehood {:actual actual#
+						   :notes [(.getMessage ex#)]})))))
+	 merge
 	 {:midje/chatty-checker true, :midje/checker true}))
-     {:midje/checker true}))
+       {:midje/checker true}))
 
-(def contains (container-checker
+(def contains (container-checker contains
     (fn [actual expected kind]
       (let [ [actual expected kind] (standardized-arguments actual expected kind)]
 	(cond (regex? expected)
@@ -399,7 +427,7 @@
 	      :else
 	      (apply actual-x-contains? [actual expected kind]))))))
 
-(def just (container-checker
+(def just (container-checker just
     (fn [actual expected kind]
       (let [ [actual expected kind] (standardized-arguments actual expected kind)]
 	(cond (regex? expected)
@@ -409,9 +437,14 @@
 	      (apply actual-x-contains? [actual expected kind])
 
 	      :else
-	      false)))))
+	      (tag-as-chatty-falsehood
+	       {:actual actual
+		:notes [(cl-format nil
+				   "Expected ~R element~:P. There ~[were~;was~:;were~]~:* ~R."
+				   (count expected)
+				   (count actual))]}))))))
 
-(defn has-xfix [x-name pattern-fn take-fn]
+(defn- has-xfix [x-name pattern-fn take-fn]
   (fn [actual expected kind]
     (cond (set? actual)
 	  (tag-as-chatty-falsehood {:actual actual
@@ -434,10 +467,10 @@
 		  false)))))
 
 (def has-prefix
-     (container-checker
+     (container-checker has-prefix
       (has-xfix "prefix" #(re-pattern (str "^" (.toString %))) take)))
 (def has-suffix
-     (container-checker
+     (container-checker has-suffix
       (has-xfix "suffix" #(re-pattern (str (.toString %) "$" )) take-last)))
 			    
 (defn has [quantifier predicate]
@@ -456,7 +489,7 @@
          (every? #(extended-= % expected) actual))))
 
 
-(defmacro of-functions []
+(defmacro- of-functions []
   (let [names {1 "one", 2 "two", 3 "three", 4 "four", 5 "five", 6 "six", 7 "seven",
                8 "eight", 9 "nine", 10 "ten"}
         defns (map (fn [key] `(defn ~(symbol (str (get names key) "-of")) [expected-checker#]
@@ -509,3 +542,11 @@
       (if (>= (count actual) (count expected))
         (core-array-of-maps-checker expected actual)
         false))))
+
+(defn in-any-order
+  "Produces matcher that matches sequences without regard to order"
+  {:midje/checker true}
+  [expected]
+  (fn [actual]
+    (= (frequencies expected) (frequencies actual))))
+
