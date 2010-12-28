@@ -100,7 +100,14 @@
 			     (do
 ;			       (prn call)
 ;			       (prn actual)
-			       ((call :expected-result) actual))
+			       (let [chatty-result ((call :expected-result) actual)]
+				 (if (map? chatty-result)
+				   chatty-result
+				   {:actual actual
+				    :notes ["Midje program error. Please report."
+					    (str "A chatty checker returned "
+						 (pr-str chatty-result)
+						 " instead of a map.")]})))
 			     {:actual actual})))
 	    false)
 	
