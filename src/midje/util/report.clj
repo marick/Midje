@@ -32,33 +32,33 @@
    (list
     (fail-at m)
     (str "You never said " (:name (meta (:function m))) " would be needed with these arguments:")
-    (str (pr-str (:actual m)))))
+    (str "    " (pr-str (:actual m)))))
 
 (defmethod report-strings :mock-incorrect-call-count [m]
    (list
     (fail-at m)
     (str "You claimed the following was needed, but it was never used:")
-    (str (:expected m))))
+    (str "    " (:expected m))))
 
 (defmethod report-strings :mock-expected-result-failure [m]
    (list
     (fail-at m)
-    (str "Expected: " (pr-str (:expected m)))
-    (str "  Actual: " (pr-str (:actual m)))))
+    (str "    Expected: " (pr-str (:expected m)))
+    (str "      Actual: " (pr-str (:actual m)))))
 
 (defmethod report-strings :mock-expected-result-functional-failure [m]
   (list
    (fail-at m)
    "Actual result did not agree with the checking function."
-   (str "    Actual result: " (without-nasty-looking-functions (:actual m)))
-   (str "Checking function: " (pr-str (:expected m)))
+   (str "        Actual result: " (without-nasty-looking-functions (:actual m)))
+   (str "    Checking function: " (pr-str (:expected m)))
    (if (:intermediate-results m)
-     (cons "During checking, these intermediate values were seen:"
-	   (map (fn [[form value]] (str "   " (pr-str form) " => " (pr-str value)))
+     (cons "    During checking, these intermediate values were seen:"
+	   (map (fn [[form value]] (str "       " (pr-str form) " => " (pr-str value)))
 		(:intermediate-results m))))
    (if (:notes m)
-     (cons "The checker said this about the reason:"
-	   (map (fn [note] (str "   " note))
+     (cons "    The checker said this about the reason:"
+	   (map (fn [note] (str "       " note))
  		(:notes m))))))
 
 (defmethod report-strings :future-fact [m]
