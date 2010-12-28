@@ -81,18 +81,18 @@
 		     :position ["foo.clj" 3]
 		     :function odd?}
 	raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
-    (nth raw-report 0) => (re #"FAIL at .*foo.clj:3")
-    (nth raw-report 1) => (re #"never said odd\? would be needed")
-    (nth raw-report 2) => "(nil)"))
+    (nth raw-report 0) => #"FAIL at .*foo.clj:3"
+    (nth raw-report 1) => #"never said odd\? would be needed"
+    (nth raw-report 2) => #"\(nil\)"))
 
 (fact "mock called an incorrect number of times"
   (let [failure-map {:type :mock-incorrect-call-count
 		     :position ["foo.clj" 3]
 		     :expected "(f a)"}
 	raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
-    (nth raw-report 0) => (re #"FAIL at .*foo.clj:3")
-    (nth raw-report 1) => (re #"claimed the following was needed")
-    (nth raw-report 2) => "(f a)"))
+    (nth raw-report 0) => #"FAIL at .*foo.clj:3"
+    (nth raw-report 1) => #"claimed the following was needed"
+    (nth raw-report 2) => #"\(f a\)"))
 
 (fact "ordinary bad result from equality"
   (let [failure-map {:type :mock-expected-result-failure
