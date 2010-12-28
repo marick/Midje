@@ -259,7 +259,7 @@
 				      :notes (just #"\{:a 1\} is a map.*\[1\]")})
  ( (contains 1) {:a 1}) => (contains {:actual {:a 1}
 				      :notes (just #"\{:a 1\} is a map.*1")})
-
+ ((contains [:k :v]) {:k :v}) => falsey
  ;; Quantifiers
  {:a 1, :b 5, :c 3} => (has every? odd?)
  )
