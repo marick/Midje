@@ -215,6 +215,7 @@
 (fact "left-hand-side: maps"
  {:a 1, :b 2} => (contains {:a 1, :b 2})
  {:a "1", :b "2", :c "3"} => (contains {:a "1", :b "2"})
+
  ( (contains {:a 1, :b 2, :c 2}) {:a 1, :b 2}) => falsey
  ( (contains {:a 1, :c 2}) {:a 1, :b 2}) => falsey
  ( (contains {:a 1, :b 'not-2}) {:a 1, :b 2}) => falsey
@@ -276,18 +277,30 @@
   => (contains {:actual 1 :notes (just #"compare 1.*to \\s")})
   ( (contains [1 2])       1)
   => (contains {:actual 1 :notes (just #"compare 1.*to \[1 2\]")})
-  (println 'FIX)
-  ( (contains #"ab")       1) => (exactly false)
-  ( (just #{1})            [1 1]) => (exactly false)
-  ( (contains {:a {:b 1}}) {:a 1}) => (exactly false)
+
+  (chatty-falsehood-to-map ( (just #"ab")       1))
+  => (contains {:actual 1 :notes (just #"#\"ab\" can't be used on 1")})
+  (chatty-falsehood-to-map ( (contains #"ab")       1))
+  => (contains {:actual 1 :notes (just #"#\"ab\" can't be used on 1")})
+  (chatty-falsehood-to-map ( (has-prefix #"ab")       1))
+  => (contains {:actual 1 :notes (just #"#\"\^ab\" can't be used on 1")})
+  (chatty-falsehood-to-map ( (has-suffix #"ab")       1))
+  => (contains {:actual 1 :notes (just #"#\"ab\$\" can't be used on 1")})
+
+  (chatty-falsehood-to-map ( (contains {:a 1, :b 2}) {:a 1}))
+  => (contains {:actual {:a 1} :notes (just "Best match found: {:a 1}.")})
+  (chatty-falsehood-to-map ( (just {:a 1, :b 2}) {:a 1}))
+  => (contains {:actual {:a 1} :notes (just #"Expected two elements.*one")})
+  (chatty-falsehood-to-map ( (contains {:a {:b 1}}) {:a 1}) )
+  => (contains {:actual {:a 1} :notes (just "Best match found: {}.")})
+  (chatty-falsehood-to-map ( (contains {:a odd?, :f odd? :g odd?}) {:f 3, :g 6, :a 1}) )
+  => (contains {:actual {:f 3, :g 6, :a 1}
+		:notes (just [#"Best match found: \{:a 1, :f 3\}\."
+			      #"It matched: \{:a odd\?, :f odd\?\}\."])})
+  (chatty-falsehood-to-map ( (contains :a)        {:a 1}))
+  => (contains {:actual {:a 1}, :notes (just #"\{:a 1\}.*:a.*map entries")})
   )
 
-(fact "propagation of chatty failures"
-  (println 'fix)
-;  (chatty-falsehood-to-map ( (contains :a)        {:a 1}))
-;  => (contains {:actual [1 2], :notes (just #"\{:a 1\}.*:a.*map entries")})
-  )
-  
 (facts "about the notes given to reporting functions"
   "functions and such are printed nicely in the actual match section"
   (chatty-falsehood-to-map ( (contains [#"1" #"1+" #"1+2"]) [#"1" #"1+"]))
@@ -327,19 +340,34 @@
   => (contains {:notes ["Expected zero elements. There was one."]})
   (chatty-falsehood-to-map ( (just [1 2]) [1]))
   => (contains {:notes ["Expected two elements. There was one."]})
+  (chatty-falsehood-to-map ( (just #{1}) [1 1]))
+  => (contains {:notes ["Expected one element. There were two."]})
+
+
+  (chatty-falsehood-to-map ((has-prefix '(a b c)) '(a)))
+  => (contains {:notes ["A collection with one element cannot match a prefix of size three."]})
+
+  (chatty-falsehood-to-map ((has-suffix '(1)) '()))
+  => (contains {:notes ["A collection with zero elements cannot match a suffix of size one."]})
 )
 
 (facts "where expected values are of wrong type for legitimate actual"
-  (println 'fix)
-  ( (just "hi")          '(1)) => (exactly false)
-  ( (just (atom 0))      '(0)) => (exactly false)
+  (chatty-falsehood-to-map ( (just "hi")          '(1)))
+  => (contains {:actual (list 1) :notes (just #"\[\]")})
+  (chatty-falsehood-to-map ( (just (atom 0))      '(0)))
+  => (contains {:actual '(0) :notes (just #"\[\]")})
   (chatty-falsehood-to-map ( (contains :a)        {:a 1}))
   => (contains {:actual {:a 1} :notes (just #"\{:a 1\}.*:a.*map entries")})
   (chatty-falsehood-to-map ( (contains 1)         {:a 1}))
   => (contains {:actual {:a 1} :notes (just #"\{:a 1\}.*1.*map entries")})
-
-  (println 'fix)
-  ( (contains (atom 0))  #{1}) => (exactly false)
   )
 
-  
+(future-fact "It'd be good if error messages about sets used the original set representation."  
+	     ;; This prints like this: {:actual [1], :notes (Best match found: [])}
+	     (println ( (contains (atom 0))  #{1})))
+
+(unfinished load-from-disk)
+(defn make [count] (load-from-disk count))
+
+(against-background [ (load-from-disk anything) => 3 ]
+  (fact (make "long description") => 3))

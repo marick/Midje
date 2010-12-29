@@ -154,6 +154,10 @@
 	:else
 	(rotations expected)))
 
+(defn- total-match? [comparison]
+  (= (count (:expected-found comparison))
+     (count (:expected comparison))))
+
 (defn- closer-match? [candidate best-so-far]
   (> (count (:actual-found candidate))
      (count (:actual-found best-so-far))))
@@ -163,10 +167,6 @@
 
 (defn- tack-on-to [hashmap & kvs]
   (merge-with conj hashmap (apply (partial assoc {}) kvs)))
-
-(defn- sequence-success? [comparison]
-  (= (count (:expected-found comparison))
-     (count (:expected comparison))))
 
 (defn- collection-like? [thing]
   (or (coll? thing)
@@ -181,15 +181,17 @@
 (defn- expected-fits? [actual expected]
   (>= (count actual) (count expected)))
 
-(defn- midje-re-find [re string]
-  (try
-    (re-find re string)
-    (catch Exception ex false)))
 
-(defn- midje-re-matches [re string]
+(defn- midje-try-re [re string function]
   (try
-    (re-matches re string)
-    (catch Exception ex false)))
+    (function re string)
+    (catch Exception ex
+      (tag-as-chatty-falsehood {:actual string
+				:notes [(str (pr-str re)
+					     " can't be used on "
+					     (pr-str string)
+					     ", a " (type string) ".")]}))))
+  
 
 
 (defn in-any-order--one-permutation [actual expected kind]
@@ -257,7 +259,7 @@
       (let [comparison (in-any-order--one-permutation actual
 						      (first expected-permutations)
 						      kind)]
-	(if (sequence-success? comparison)
+	(if (total-match? comparison)
 	  comparison
 	  (recur (rest expected-permutations)
 		 (better-of comparison best-so-far)))))))
@@ -355,10 +357,10 @@
 	:else
 	[actual expected kind]))
 
-(defn- best-match-actual [comparison]
+(defn- best-seq-match-actual [comparison]
   (str "Best match found: " (pr-str (:actual-found comparison))))
 
-(defn- best-match-expected [comparison expected]
+(defn- best-seq-match-expected [comparison expected]
   (if (or (some extended-fn? expected)
 	  (some regex? expected))
     (str "      It matched: ["
@@ -372,30 +374,83 @@
 				(:expected-found comparison))))
 	 "] (in that order)")))
     
+(defn- best-map-match-actual [comparison]
+  (str "Best match found: {"
+       (apply str
+	      (interpose ", "
+			 (sort (map (fn [[k v]] (str (pr-str k) " " (pr-str v)))
+				    (:actual-found comparison)))))
+       "}."))
 
-(defn- mismatch-description [comparison expected]
-  (remove nil? [ (best-match-actual comparison)
-		 (best-match-expected comparison expected) ]))
+(defn- best-map-match-expected [comparison expected]
+  (if (or (some extended-fn? (vals expected))
+	  (some regex? (vals expected)))
+    (str "      It matched: {"
+	 (apply str
+		(interpose ", "
+			   (sort (map (fn [[k v]]
+					(cond (and (fn? v) (:name (meta v)))
+					      (str (pr-str k) " " (:name (meta v)))
+					      
+					      :else
+					      (str (pr-str k) " " (pr-str v))))
+				      (:expected-found comparison)))))
+	 "}.")))
+    
+
+;; TODO: try different combinations?
+(defn map-comparison--one-permutation [actual expected keys]
+  ;;  (prn "map-comparison" actual expected)
+  (reduce (fn [so-far key]
+	    ;; (println so-far key)
+	    (if (and (find actual key)
+		     (extended-= (get actual key) (get expected key)))
+	      (merge-with merge so-far {:actual-found {key (get actual key)}
+					:expected-found {key (get expected key)} })
+	      so-far))
+	  {:actual-found {} :expected-found {} :expected expected}
+	  keys))
+
+(defn map-comparison [actual expected kind]
+  (loop [expected-permutations (all-expected-permutations (keys expected))
+	 best-so-far {:actual-found [], :expected-found [],
+		      :expected expected }]
+    (if (empty? expected-permutations)
+      best-so-far
+      (let [comparison (map-comparison--one-permutation actual
+							expected
+							(first expected-permutations))]
+	(if (total-match? comparison)
+	  comparison
+	  (recur (rest expected-permutations)
+		 (better-of comparison best-so-far)))))))
+
+
+(defn map-match? [actual expected kind]
+;  (println 'map-match actual expected kind)
+  (let [comparison (map-comparison actual expected kind)
+	mismatch-description (fn [comparison expected]
+			       (remove nil? [ (best-map-match-actual comparison)
+					      (best-map-match-expected comparison expected) ]))]
+    (or (total-match? comparison)
+	(tag-as-chatty-falsehood
+	 {:actual actual
+	  :notes (mismatch-description comparison expected)}))))
 
 (defn full-sequence-match? [actual expected kind]
-  (let [comparison (seq-comparison actual expected kind)]
-    
-    (or (sequence-success? comparison)
+  (let [comparison (seq-comparison actual expected kind)
+	mismatch-description (fn [comparison expected]
+			       (remove nil? [ (best-seq-match-actual comparison)
+					      (best-seq-match-expected comparison expected) ]))]
+    (or (total-match? comparison)
 	(tag-as-chatty-falsehood
 	 {:actual actual
 	  :notes (mismatch-description comparison expected) }))))
 
-(defn actual-map-contains? [actual expected kind]
-  ;;  (prn "actual-map-contains" actual expected)
-  (every? (fn [key]
-	    (and (find actual key)
-		 (extended-= (get actual key) (get expected key))))
-	  (keys expected)))
-
 (defn- actual-x-contains? [actual expected kind]
   ;;  (prn 'actual-x-contains? actual expected kind)
   (cond (map? actual)
-	(actual-map-contains? actual expected kind)
+	(map-match? actual expected kind)
 
 	:else
 	(full-sequence-match? actual expected kind))
@@ -422,7 +477,7 @@
     (fn [actual expected kind]
       (let [ [actual expected kind] (standardized-arguments actual expected kind)]
 	(cond (regex? expected)
-	      (midje-re-find expected actual)
+	      (midje-try-re expected actual re-find)
 		 
 	      :else
 	      (apply actual-x-contains? [actual expected kind]))))))
@@ -431,7 +486,7 @@
     (fn [actual expected kind]
       (let [ [actual expected kind] (standardized-arguments actual expected kind)]
 	(cond (regex? expected)
-	      (midje-re-matches expected actual)
+	      (midje-try-re expected actual re-matches)
 	    
 	      (same-lengths? actual expected)
 	      (apply actual-x-contains? [actual expected kind])
@@ -457,14 +512,20 @@
 	  :else
 	  (let [ [actual expected kind] (standardized-arguments actual expected kind)]
 	    (cond (regex? expected)
-		  (midje-re-find (pattern-fn expected) actual)
+		  (midje-try-re (pattern-fn expected) actual re-find)
 		  
 		  (expected-fits? actual expected)
 		  (apply actual-x-contains?
 			 [(take-fn (count expected) actual) expected kind])
 
 		  :else
-		  false)))))
+		  (tag-as-chatty-falsehood
+		   {:actual actual
+		    :notes [(str (cl-format nil
+					    "A collection with ~R element~:P cannot match a "
+					    (count actual))
+				 x-name
+				 (cl-format nil " of size ~R." (count expected)))]}))))))
 
 (def has-prefix
      (container-checker has-prefix
@@ -549,4 +610,3 @@
   [expected]
   (fn [actual]
     (= (frequencies expected) (frequencies actual))))
-
