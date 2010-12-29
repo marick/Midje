@@ -503,8 +503,10 @@
 ;  (println 'map-match actual expected looseness)
   (let [comparison (compare-results midje-classification actual expected looseness)
         mismatch-description (fn [comparison expected]
-                               (remove nil? [ (best-actual-match midje-classification comparison)
-                                              (best-expected-match midje-classification comparison expected) ]))]
+                               (cons (best-actual-match midje-classification comparison)
+                                     (when (some inexact-checker?)
+                                       (best-expected-match midje-classification
+                                                            comparison expected))))]
     (or (total-match? comparison)
         (apply noted-falsehood (mismatch-description comparison expected)))))
 
