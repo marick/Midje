@@ -240,6 +240,19 @@
   "Describe the best actuals found in the comparison."
   (fn [midje-classification comparison] midje-classification))
 
+(defmethod best-actual-match ::not-map [midje-classification comparison]
+  (str "Best match found: " (pr-str (:actual-found comparison))))
+
+(defmethod best-actual-match ::map [midje-classification comparison]
+  (str "Best match found: {"
+       (apply str
+              (interpose ", "
+                         (sort (map (fn [[k v]] (str (pr-str k) " " (pr-str v)))
+                                    (:actual-found comparison)))))
+       "}."))
+
+
+
 (defmulti best-expected-match
   "Describe the best list of expected values found in the comparison."
   (fn [midje-classification comparison expected] midje-classification))
@@ -424,16 +437,6 @@
 	[actual expected looseness]))
 
 ;;
-
-(defmethod best-actual-match ::not-map [midje-classification comparison]
-  (str "Best match found: " (pr-str (:actual-found comparison))))
-(defmethod best-actual-match ::map [midje-classification comparison]
-  (str "Best match found: {"
-       (apply str
-              (interpose ", "
-                         (sort (map (fn [[k v]] (str (pr-str k) " " (pr-str v)))
-                                    (:actual-found comparison)))))
-       "}."))
 
 
   
