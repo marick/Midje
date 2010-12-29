@@ -33,10 +33,10 @@ passed to it. So this is also a fact:
 
 Midje comes with a selection of predefined
 [checkers](https://github.com/marick/Midje/wiki/Checkers)
-that are more generally useful in testing than `odd?` is.
+that are more useful for testing than `odd?` is.
 
 Midje's other useful features are described in the [user
-guide](https://github.com/marick/Midje/wiki/Checkers). If
+guide](https://github.com/marick/Midje/wiki). If
 anything there is unclear, ask in the [mailing
 list](http://groups.google.com/group/midje). If
 you like looking straight at code, [this heavily annotated
