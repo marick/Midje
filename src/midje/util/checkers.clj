@@ -80,7 +80,13 @@
 
 (defn tag-as-chatty-falsehood [value]
   (with-meta value {:midje/chatty-checker-falsehood true}))
+
+(defn- tag-as-checker [function]
+  (vary-meta function merge {:midje/checker true}))
   
+(defn tag-as-chatty-checker [function]
+  (tag-as-checker (vary-meta function merge {:midje/chatty-checker true})))
+
 (defn chatty-falsehood-to-map [value]
   (with-meta value {}))
 
@@ -114,14 +120,14 @@
   [ [binding-var] [function & arglist] ]
   (let [result-symbol (gensym "chatty-intermediate-results-")
         [complex-forms substituted-arglist] (chatty-untease result-symbol arglist)]
-    `(with-meta (fn [~binding-var]
-                  (let [~result-symbol (vector ~@complex-forms)]
-                    (if (~function ~@substituted-arglist)
-                      true
-                      (let [pairs# (map vector '~complex-forms ~result-symbol)]
-                        (tag-as-chatty-falsehood {:actual ~binding-var,
-                                                  :intermediate-results pairs#})))))
-       {:midje/chatty-checker true, :midje/checker true})))
+    `(tag-as-chatty-checker
+      (fn [~binding-var]
+        (let [~result-symbol (vector ~@complex-forms)]
+          (if (~function ~@substituted-arglist)
+            true
+            (let [pairs# (map vector '~complex-forms ~result-symbol)]
+              (tag-as-chatty-falsehood {:actual ~binding-var,
+                                        :intermediate-results pairs#}))))))))
 
 ;;Concerning Throwables
 
@@ -341,32 +347,36 @@
                    (better-of candidate best-so-far)
                    starting-candidate)))))
 
-;; 
+;; Initial argument processing
 
-(defn compatibility-failure [actual expected kind]
+(defn compatibility-check [actual expected kind]
+  "Fling an error of the combination of actual, expected, and kind won't work."
+  ;; Throwing Errors is just an implementation convenience.
   (cond (regex? expected)
-	(and (not (sequential? actual))
-	     (not (empty? kind))
-	     (noted-falsehood (str "I don't know how to make sense of a "
-				   "regular expression applied "
-				   kind ".")))
+	(cond (and (not (sequential? actual))
+		   (not (empty? kind)))
+	      (throw (Error. (str "I don't know how to make sense of a "
+				  "regular expression applied "
+				  kind "."))))
 
 	(not (collection-like? actual))
-	(noted-falsehood (format "You can't compare %s (%s) to %s (%s)."
-				 (pr-str actual) (type actual)
-				 (pr-str expected) (type expected)))
+	(throw (Error. (str "You can't compare " (pr-str actual) " (" (type actual) 
+			    ") to " (pr-str expected) " (" (type expected) ").")))
 	
 	(and (map? actual)
 	     (not (map? expected)))
-	(try (into {} expected) nil
+	(try (into {} expected)
 	     (catch Throwable ex
-	       (format "If %s is a map, %s should look like map entries."
-		       (pr-str actual) (pr-str expected))))))
+	       (throw (Error. (str "If " (pr-str actual) " is a map, "
+				   (pr-str expected)
+				   " should look like map entries.")))))))
+
   
 (defn- standardized-arguments [actual expected kind]
   "Reduce arguments to standard forms so there are fewer combinations to
-   consider."
+   consider. Also blow up for some incompatible forms."
 
+  (compatibility-check actual expected kind)
   (cond (sequential? actual)
 	(cond (set? expected)
 	      [actual (vec expected) (union kind #{:in-any-order})]
@@ -505,26 +515,18 @@
 
 ;; The interface
 
-(defmacro- container-checker [name checker-fn]
-  `(with-meta
-     (fn [expected# & kind#]
-       (vary-meta
-         (named '~name expected#
-                (fn [actual#]
-                  ;; (prn "checking" actual# expected# kind#)
-                  (add-actual actual#
-			      (if (chatty-checker-falsehood?
-				   (compatibility-failure actual# expected# kind#))
-				(compatibility-failure actual# expected# kind#)
-				(try (~checker-fn actual# expected# kind#)
-				     (catch Error ex#
-				       (tag-as-chatty-falsehood {
-								 :notes [(.getMessage ex#)]}))))))
-		merge
-		{:midje/chatty-checker true, :midje/checker true}))
-       {:midje/checker true})))
+(defn- container-checker-maker [name checker-fn]
+  (tag-as-checker
+   (fn [expected & kind]
+      (tag-as-chatty-checker
+       (named name expected
+              (fn [actual]
+                (add-actual actual
+                            (try (checker-fn actual expected kind)
+                                 (catch Error ex
+                                   (noted-falsehood (.getMessage ex)))))))))))
 
-(def contains (container-checker contains
+(def contains (container-checker-maker 'contains
     (fn [actual expected kind]
       (let [ [actual expected kind] (standardized-arguments actual expected kind)]
         (cond (regex? expected)
@@ -533,7 +535,7 @@
               :else
               (apply actual-x-contains? [actual expected kind]))))))
 
-(def just (container-checker just
+(def just (container-checker-maker 'just
     (fn [actual expected kind]
       (let [ [actual expected kind] (standardized-arguments actual expected kind)]
         (cond (regex? expected)
@@ -579,10 +581,10 @@
                                  (cl-format nil " of size ~R." (count expected)))]}))))))
 
 (def has-prefix
-     (container-checker has-prefix
+     (container-checker-maker 'has-prefix
       (has-xfix "prefix" #(re-pattern (str "^" (.toString %))) take)))
 (def has-suffix
-     (container-checker has-suffix
+     (container-checker-maker 'has-suffix
       (has-xfix "suffix" #(re-pattern (str (.toString %) "$" )) take-last)))
                             
 (defn has [quantifier predicate]
