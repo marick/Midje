@@ -186,7 +186,7 @@
   (try
     (function re string)
     (catch Exception ex
-      (tag-as-chatty-falsehood {:actual string
+      (tag-as-chatty-falsehood {
 				:notes [(str (pr-str re)
 					     " can't be used on "
 					     (pr-str string)
@@ -434,7 +434,7 @@
 					      (best-map-match-expected comparison expected) ]))]
     (or (total-match? comparison)
 	(tag-as-chatty-falsehood
-	 {:actual actual
+	 {
 	  :notes (mismatch-description comparison expected)}))))
 
 (defn full-sequence-match? [actual expected kind]
@@ -444,7 +444,7 @@
 					      (best-seq-match-expected comparison expected) ]))]
     (or (total-match? comparison)
 	(tag-as-chatty-falsehood
-	 {:actual actual
+	 {
 	  :notes (mismatch-description comparison expected) }))))
 
 (defn- actual-x-contains? [actual expected kind]
@@ -456,6 +456,12 @@
 	(full-sequence-match? actual expected kind))
   )
 
+(defn- add-actual [actual result]
+  (if (chatty-checker-falsehood? result)
+    (merge result {:actual actual})
+    result))
+  
+
 ;; The interface
 
 (defmacro- container-checker [name checker-fn]
@@ -465,10 +471,11 @@
 	 (named '~name expected#
 		(fn [actual#]
 		  ;; (prn "checking" actual# expected# kind#)
-		  (try (~checker-fn actual# expected# kind#)
-		       (catch Error ex#
-			 (tag-as-chatty-falsehood {:actual actual#
-						   :notes [(.getMessage ex#)]})))))
+		  (add-actual actual#
+			      (try (~checker-fn actual# expected# kind#)
+				   (catch Error ex#
+				     (tag-as-chatty-falsehood {
+							       :notes [(.getMessage ex#)]}))))))
 	 merge
 	 {:midje/chatty-checker true, :midje/checker true}))
        {:midje/checker true}))
@@ -493,7 +500,7 @@
 
 	      :else
 	      (tag-as-chatty-falsehood
-	       {:actual actual
+	       {
 		:notes [(cl-format nil
 				   "Expected ~R element~:P. There ~[were~;was~:;were~]~:* ~R."
 				   (count expected)
@@ -502,11 +509,11 @@
 (defn- has-xfix [x-name pattern-fn take-fn]
   (fn [actual expected kind]
     (cond (set? actual)
-	  (tag-as-chatty-falsehood {:actual actual
+	  (tag-as-chatty-falsehood {
 				    :notes [(str "Sets don't have " x-name "es.")]})
 
 	  (map? actual)
-	  (tag-as-chatty-falsehood {:actual actual
+	  (tag-as-chatty-falsehood {
 				    :notes [(str "Maps don't have " x-name "es.")]})
 	  
 	  :else
@@ -520,7 +527,7 @@
 
 		  :else
 		  (tag-as-chatty-falsehood
-		   {:actual actual
+		   {
 		    :notes [(str (cl-format nil
 					    "A collection with ~R element~:P cannot match a "
 					    (count actual))

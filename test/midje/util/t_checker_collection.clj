@@ -362,12 +362,11 @@
   => (contains {:actual {:a 1} :notes (just #"\{:a 1\}.*1.*map entries")})
   )
 
-(future-fact "It'd be good if error messages about sets used the original set representation."  
+(fact "Actual result shown is the original collection"
 	     ;; This prints like this: {:actual [1], :notes (Best match found: [])}
-	     (println ( (contains (atom 0))  #{1})))
+  (str (:actual ( (contains (atom 0))  #{1}))) => "#{1}"
+  (str (:actual ( (just (atom 0)) #{1}))) => "#{1}"
+  (str (:actual ( (has-suffix [\a \b \c]) "many"))) => "many"
+  (str (:actual ( (has-prefix 5) [#{{1 2}} 2 3 4]))) => "[#{{1 2}} 2 3 4]"
+  )
 
-(unfinished load-from-disk)
-(defn make [count] (load-from-disk count))
-
-(against-background [ (load-from-disk anything) => 3 ]
-  (fact (make "long description") => 3))
