@@ -343,32 +343,30 @@
 
 ;; 
 
-(defn compatibility-check [actual expected kind]
+(defn compatibility-failure [actual expected kind]
   (cond (regex? expected)
-	(cond (and (not (sequential? actual))
-		   (not (empty? kind)))
-	      (throw (Error. (str "I don't know how to make sense of a "
-				  "regular expression applied "
-				  kind "."))))
+	(and (not (sequential? actual))
+	     (not (empty? kind))
+	     (noted-falsehood (str "I don't know how to make sense of a "
+				   "regular expression applied "
+				   kind ".")))
 
 	(not (collection-like? actual))
-	(throw (Error. (str "You can't compare " (pr-str actual) " (" (type actual) 
-			    ") to " (pr-str expected) " (" (type expected) ").")))
+	(noted-falsehood (format "You can't compare %s (%s) to %s (%s)."
+				 (pr-str actual) (type actual)
+				 (pr-str expected) (type expected)))
 	
 	(and (map? actual)
 	     (not (map? expected)))
-	(try (into {} expected)
+	(try (into {} expected) nil
 	     (catch Throwable ex
-	       (throw (Error. (str "If " (pr-str actual) " is a map, "
-				   (pr-str expected)
-				   " should look like map entries.")))))))
-
+	       (format "If %s is a map, %s should look like map entries."
+		       (pr-str actual) (pr-str expected))))))
   
 (defn- standardized-arguments [actual expected kind]
   "Reduce arguments to standard forms so there are fewer combinations to
-   consider. Also blow up for some incompatible forms."
+   consider."
 
-  (compatibility-check actual expected kind)
   (cond (sequential? actual)
 	(cond (set? expected)
 	      [actual (vec expected) (union kind #{:in-any-order})]
@@ -515,13 +513,16 @@
                 (fn [actual#]
                   ;; (prn "checking" actual# expected# kind#)
                   (add-actual actual#
-                              (try (~checker-fn actual# expected# kind#)
-                                   (catch Error ex#
-                                     (tag-as-chatty-falsehood {
-                                                               :notes [(.getMessage ex#)]}))))))
-         merge
-         {:midje/chatty-checker true, :midje/checker true}))
-       {:midje/checker true}))
+			      (if (chatty-checker-falsehood?
+				   (compatibility-failure actual# expected# kind#))
+				(compatibility-failure actual# expected# kind#)
+				(try (~checker-fn actual# expected# kind#)
+				     (catch Error ex#
+				       (tag-as-chatty-falsehood {
+								 :notes [(.getMessage ex#)]}))))))
+		merge
+		{:midje/chatty-checker true, :midje/checker true}))
+       {:midje/checker true})))
 
 (def contains (container-checker contains
     (fn [actual expected kind]
