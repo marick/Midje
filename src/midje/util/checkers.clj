@@ -236,6 +236,18 @@
 
 (defn- midje-classification [thing] (if (map? thing) ::map ::not-map))
 
+(defmulti collection-string
+  "Given a list of stringified elements, convert them into appropriate
+   collection text."
+  (fn [midje-classification elements] midje-classification))
+
+(defmethod collection-string ::map [midje-classification elements]
+   (str "{" (apply str (interpose ", " (sort elements))) "}"))
+
+(defmethod collection-string ::not-map [midje-classification elements]
+   (str "[" (apply str (interpose " " elements)) "]"))
+;;-
+
 (defmulti best-actual-match
   "Describe the best actuals found in the comparison."
   (fn [midje-classification comparison] midje-classification))
@@ -250,12 +262,46 @@
                          (sort (map (fn [[k v]] (str (pr-str k) " " (pr-str v)))
                                     (:actual-found comparison)))))
        "}."))
-
+;;-
 
 
 (defmulti best-expected-match
   "Describe the best list of expected values found in the comparison."
   (fn [midje-classification comparison expected] midje-classification))
+
+(defn- best-expected-match-wrapper
+  [midje-classification comparison expected element-maker suffix]
+  (if (not-any? inexact-checker? expected)
+    nil
+    [(str "      It matched: "
+          (collection-string midje-classification
+                             (map element-maker
+                                  (:expected-found comparison)))
+          suffix
+          ".")]))
+
+(defmethod best-expected-match ::not-map [midje-classification comparison expected]
+   (best-expected-match-wrapper midje-classification
+                                comparison
+                                expected
+                                #(cond (and (fn? %) (:name (meta %)))
+                                       (:name (meta %))
+
+                                       :else
+                                       (pr-str %))
+                                " (in that order)"))
+    
+(defmethod best-expected-match ::map [midje-classification comparison expected]
+   (best-expected-match-wrapper midje-classification
+                                comparison
+                                (vals expected)
+                                (fn [[k v]]
+                                  (if (and (fn? v) (:name (meta v)))
+                                    (str (pr-str k) " " (:name (meta v)))
+                                    (str (pr-str k) " " (pr-str v))))
+                                ""))
+
+;;-
 
 (defmulti compare-results
   (fn [midje-classification actual expected looseness]
@@ -438,37 +484,7 @@
 
 ;;
 
-
   
-(defmethod best-expected-match ::not-map [midje-classification comparison expected]
-  (if (or (some extended-fn? expected)
-          (some regex? expected))
-    (str "      It matched: ["
-         (apply str
-                (interpose " "
-                           (map #(cond (and (fn? %) (:name (meta %)))
-                                       (:name (meta %))
-
-                                       :else
-                                       (pr-str %))
-                                (:expected-found comparison))))
-         "] (in that order)")))
-    
-(defmethod best-expected-match ::map [midje-classification comparison expected]
-  (if (or (some extended-fn? (vals expected))
-          (some regex? (vals expected)))
-    (str "      It matched: {"
-         (apply str
-                (interpose ", "
-                           (sort (map (fn [[k v]]
-                                        (cond (and (fn? v) (:name (meta v)))
-                                              (str (pr-str k) " " (:name (meta v)))
-                                              
-                                              :else
-                                              (str (pr-str k) " " (pr-str v))))
-                                      (:expected-found comparison)))))
-         "}.")))
-    
 
 ;; TODO: try different combinations?
 (defn map-comparison--one-permutation [midje-classification actual expected keys]
@@ -500,15 +516,11 @@
 
 
 (defn match? [midje-classification actual expected looseness]
-;  (println 'map-match actual expected looseness)
-  (let [comparison (compare-results midje-classification actual expected looseness)
-        mismatch-description (fn [comparison expected]
-                               (cons (best-actual-match midje-classification comparison)
-                                     (when (some inexact-checker?)
-                                       (best-expected-match midje-classification
-                                                            comparison expected))))]
+  (let [comparison (compare-results midje-classification actual expected looseness)]
     (or (total-match? comparison)
-        (apply noted-falsehood (mismatch-description comparison expected)))))
+        (apply noted-falsehood
+               (cons (best-actual-match midje-classification comparison)
+                     (best-expected-match midje-classification comparison expected))))))
 
 
 (defn- actual-x-contains? [actual expected looseness]
