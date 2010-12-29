@@ -407,9 +407,20 @@
 	:else
 	[actual expected kind]))
 
+;;
 
-(defn- best-seq-match-actual [comparison]
+(defn- map-or-not [thing] (if (map? thing) :map :not-map))
+
+(defmulti best-match-actual map-or-not)
+(defmethod best-match-actual :not-map [comparison]
   (str "Best match found: " (pr-str (:actual-found comparison))))
+(defmethod best-match-actual :map [comparison]
+  (str "Best match found: {"
+       (apply str
+              (interpose ", "
+                         (sort (map (fn [[k v]] (str (pr-str k) " " (pr-str v)))
+                                    (:actual-found comparison)))))
+       "}."))
 
 (defn- best-seq-match-expected [comparison expected]
   (if (or (some extended-fn? expected)
@@ -425,14 +436,6 @@
                                 (:expected-found comparison))))
          "] (in that order)")))
     
-(defn- best-map-match-actual [comparison]
-  (str "Best match found: {"
-       (apply str
-              (interpose ", "
-                         (sort (map (fn [[k v]] (str (pr-str k) " " (pr-str v)))
-                                    (:actual-found comparison)))))
-       "}."))
-
 (defn- best-map-match-expected [comparison expected]
   (if (or (some extended-fn? (vals expected))
           (some regex? (vals expected)))
@@ -481,7 +484,7 @@
 ;  (println 'map-match actual expected kind)
   (let [comparison (map-comparison actual expected kind)
         mismatch-description (fn [comparison expected]
-                               (remove nil? [ (best-map-match-actual comparison)
+                               (remove nil? [ (best-match-actual comparison)
                                               (best-map-match-expected comparison expected) ]))]
     (or (total-match? comparison)
         (tag-as-chatty-falsehood
@@ -491,7 +494,7 @@
 (defn full-sequence-match? [actual expected kind]
   (let [comparison (seq-comparison actual expected kind)
         mismatch-description (fn [comparison expected]
-                               (remove nil? [ (best-seq-match-actual comparison)
+                               (remove nil? [ (best-match-actual comparison)
                                               (best-seq-match-expected comparison expected) ]))]
     (or (total-match? comparison)
         (tag-as-chatty-falsehood
