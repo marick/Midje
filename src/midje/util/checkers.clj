@@ -230,15 +230,32 @@
   [expected]
   {:actual-found [], :expected-found [], :expected expected })
 
-;; The code that compares two sequentials.
+
+;; There is an annoying only-semi-similarity between maps and sequences.
+;; These are the generic functions.
+
+(defn- midje-classification [thing] (if (map? thing) ::map ::not-map))
+
+(defmulti best-actual-match
+  "Describe the best actuals found in the comparison."
+  (fn [midje-classification comparison] midje-classification))
+
+(defmulti best-expected-match
+  "Describe the best list of expected values found in the comparison."
+  (fn [midje-classification comparison expected] midje-classification))
+
+(defmulti comparison
+  (fn [midje-classification actual expected looseness] midje-classification))
+
+;; The code that works with two sequentials.
 
 (defn in-any-order--one-permutation
   "Compare actual elements to expected, which is one of perhaps many
-   permutations of the original expected list. kind is a subset of
+   permutations of the original expected list. looseness is a subset of
    #{:gaps-ok :in-any-order}."
-  [actual expected kind]
+  [midje-classification actual expected looseness]
   (let [starting-candidate (assoc (base-starting-candidate expected) :expected-skipped-over [])
-        gaps-ok? (some #{:gaps-ok} kind)]
+        gaps-ok? (some #{:gaps-ok} looseness)]
     (loop [walking-actual   actual
            walking-expected expected
            best-so-far      starting-candidate
@@ -286,28 +303,29 @@
             (better-of candidate best-so-far)))))
 
 (defmulti seq-comparison
-  "Compare an actual seq to an expected seq, governed by kind."
-  (fn [actual expected kind]
-    (or (some #{:in-any-order} kind) :strict-order)))
+  "Compare an actual seq to an expected seq, governed by looseness."
+  (fn [midje-classification actual expected looseness]
+    (or (some #{:in-any-order} looseness) :strict-order)))
 
 (defmethod seq-comparison :in-any-order
-  [actual expected kind]
+  [midje-classification actual expected looseness]
   (loop [expected-permutations (feasible-permutations expected)
          best-so-far (base-starting-candidate expected)]
     (if (empty? expected-permutations)
       best-so-far
-      (let [comparison (in-any-order--one-permutation actual
+      (let [comparison (in-any-order--one-permutation midje-classification
+                                                      actual
                                                       (first expected-permutations)
-                                                      kind)]
+                                                      looseness)]
         (if (total-match? comparison)
           comparison
           (recur (rest expected-permutations)
                  (better-of comparison best-so-far)))))))
 
 (defmethod seq-comparison :strict-order
-  [actual expected kind]
+  [midje-classification actual expected looseness]
   (let [starting-candidate (base-starting-candidate expected)
-        gaps-ok? (some #{:gaps-ok} kind)]
+        gaps-ok? (some #{:gaps-ok} looseness)]
 
     ;; This embeds two loops. walking-actual controls the inner loop. It walks
     ;; until success or it hits a mismatch. actual controls the outer loop.
@@ -349,15 +367,15 @@
 
 ;; Initial argument processing
 
-(defn compatibility-check [actual expected kind]
-  "Fling an error of the combination of actual, expected, and kind won't work."
+(defn compatibility-check [actual expected looseness]
+  "Fling an error of the combination of actual, expected, and looseness won't work."
   ;; Throwing Errors is just an implementation convenience.
   (cond (regex? expected)
 	(cond (and (not (sequential? actual))
-		   (not (empty? kind)))
+		   (not (empty? looseness)))
 	      (throw (Error. (str "I don't know how to make sense of a "
 				  "regular expression applied "
-				  kind "."))))
+				  looseness "."))))
 
 	(not (collection-like? actual))
 	(throw (Error. (str "You can't compare " (pr-str actual) " (" (type actual) 
@@ -372,27 +390,27 @@
 				   " should look like map entries.")))))))
 
   
-(defn- standardized-arguments [actual expected kind]
+(defn- standardized-arguments [actual expected looseness]
   "Reduce arguments to standard forms so there are fewer combinations to
    consider. Also blow up for some incompatible forms."
 
-  (compatibility-check actual expected kind)
+  (compatibility-check actual expected looseness)
   (cond (sequential? actual)
 	(cond (set? expected)
-	      [actual (vec expected) (union kind #{:in-any-order})]
+	      [actual (vec expected) (union looseness #{:in-any-order})]
 	      
 	      (right-hand-singleton? expected)
-	      [actual [expected] (union kind #{:in-any-order})]
+	      [actual [expected] (union looseness #{:in-any-order})]
 
 	      :else
-	      [actual expected kind])
+	      [actual expected looseness])
 
 	(map? actual)
 	(cond (map? expected)
-	      [actual expected kind]
+	      [actual expected looseness]
 
 	      :else
-	      [actual (into {} expected) kind])
+	      [actual (into {} expected) looseness])
 	
 	(set? actual)
 	(recur (vec actual) expected #{:in-any-order :gaps-ok})
@@ -400,21 +418,18 @@
 	(string? actual)
 	(cond (and (not (string? expected))
 		   (not (regex? expected)))
-	      (recur (vec actual) expected kind)
+	      (recur (vec actual) expected looseness)
 	      :else
-	      [ actual expected kind])
+	      [ actual expected looseness])
 
 	:else
-	[actual expected kind]))
+	[actual expected looseness]))
 
 ;;
 
-(defn- map-or-not [thing] (if (map? thing) :map :not-map))
-
-(defmulti best-match-actual map-or-not)
-(defmethod best-match-actual :not-map [comparison]
+(defmethod best-actual-match ::not-map [midje-classification comparison]
   (str "Best match found: " (pr-str (:actual-found comparison))))
-(defmethod best-match-actual :map [comparison]
+(defmethod best-actual-match ::map [midje-classification comparison]
   (str "Best match found: {"
        (apply str
               (interpose ", "
@@ -422,7 +437,9 @@
                                     (:actual-found comparison)))))
        "}."))
 
-(defn- best-seq-match-expected [comparison expected]
+
+  
+(defmethod best-expected-match ::not-map [midje-classification comparison expected]
   (if (or (some extended-fn? expected)
           (some regex? expected))
     (str "      It matched: ["
@@ -436,7 +453,7 @@
                                 (:expected-found comparison))))
          "] (in that order)")))
     
-(defn- best-map-match-expected [comparison expected]
+(defmethod best-expected-match ::map [midje-classification comparison expected]
   (if (or (some extended-fn? (vals expected))
           (some regex? (vals expected)))
     (str "      It matched: {"
@@ -453,7 +470,7 @@
     
 
 ;; TODO: try different combinations?
-(defn map-comparison--one-permutation [actual expected keys]
+(defn map-comparison--one-permutation [midje-classification actual expected keys]
   ;;  (prn "map-comparison" actual expected)
   (reduce (fn [so-far key]
             ;; (println so-far key)
@@ -465,13 +482,14 @@
           {:actual-found {} :expected-found {} :expected expected}
           keys))
 
-(defn map-comparison [actual expected kind]
+(defn map-comparison [midje-classification actual expected looseness]
   (loop [expected-permutations (feasible-permutations (keys expected))
          best-so-far {:actual-found [], :expected-found [],
                       :expected expected }]
     (if (empty? expected-permutations)
       best-so-far
-      (let [comparison (map-comparison--one-permutation actual
+      (let [comparison (map-comparison--one-permutation midje-classification
+                                                        actual
                                                         expected
                                                         (first expected-permutations))]
         (if (total-match? comparison)
@@ -479,36 +497,26 @@
           (recur (rest expected-permutations)
                  (better-of comparison best-so-far)))))))
 
+(defmethod comparison ::map [midje-classification actual expected looseness]
+   (map-comparison midje-classification actual expected looseness))
 
-(defn map-match? [actual expected kind]
-;  (println 'map-match actual expected kind)
-  (let [comparison (map-comparison actual expected kind)
+(defmethod comparison ::not-map [midje-classification actual expected looseness]
+   (seq-comparison midje-classification actual expected looseness))
+
+
+
+(defn match? [midje-classification actual expected looseness]
+;  (println 'map-match actual expected looseness)
+  (let [comparison (comparison midje-classification actual expected looseness)
         mismatch-description (fn [comparison expected]
-                               (remove nil? [ (best-match-actual comparison)
-                                              (best-map-match-expected comparison expected) ]))]
+                               (remove nil? [ (best-actual-match midje-classification comparison)
+                                              (best-expected-match midje-classification comparison expected) ]))]
     (or (total-match? comparison)
-        (tag-as-chatty-falsehood
-         {
-          :notes (mismatch-description comparison expected)}))))
+        (apply noted-falsehood (mismatch-description comparison expected)))))
 
-(defn full-sequence-match? [actual expected kind]
-  (let [comparison (seq-comparison actual expected kind)
-        mismatch-description (fn [comparison expected]
-                               (remove nil? [ (best-match-actual comparison)
-                                              (best-seq-match-expected comparison expected) ]))]
-    (or (total-match? comparison)
-        (tag-as-chatty-falsehood
-         {
-          :notes (mismatch-description comparison expected) }))))
 
-(defn- actual-x-contains? [actual expected kind]
-  ;;  (prn 'actual-x-contains? actual expected kind)
-  (cond (map? actual)
-        (map-match? actual expected kind)
-
-        :else
-        (full-sequence-match? actual expected kind))
-  )
+(defn- actual-x-contains? [actual expected looseness]
+  (match? (midje-classification actual) actual expected looseness))
 
 (defn- add-actual [actual result]
   (if (chatty-checker-falsehood? result)
@@ -520,32 +528,32 @@
 
 (defn- container-checker-maker [name checker-fn]
   (tag-as-checker
-   (fn [expected & kind]
+   (fn [expected & looseness]
       (tag-as-chatty-checker
        (named name expected
               (fn [actual]
                 (add-actual actual
-                            (try (checker-fn actual expected kind)
+                            (try (checker-fn actual expected looseness)
                                  (catch Error ex
                                    (noted-falsehood (.getMessage ex)))))))))))
 
 (def contains (container-checker-maker 'contains
-    (fn [actual expected kind]
-      (let [ [actual expected kind] (standardized-arguments actual expected kind)]
+    (fn [actual expected looseness]
+      (let [ [actual expected looseness] (standardized-arguments actual expected looseness)]
         (cond (regex? expected)
               (try-re expected actual re-find)
                  
               :else
-              (apply actual-x-contains? [actual expected kind]))))))
+              (apply actual-x-contains? [actual expected looseness]))))))
 
 (def just (container-checker-maker 'just
-    (fn [actual expected kind]
-      (let [ [actual expected kind] (standardized-arguments actual expected kind)]
+    (fn [actual expected looseness]
+      (let [ [actual expected looseness] (standardized-arguments actual expected looseness)]
         (cond (regex? expected)
               (try-re expected actual re-matches)
             
               (same-lengths? actual expected)
-              (apply actual-x-contains? [actual expected kind])
+              (apply actual-x-contains? [actual expected looseness])
 
               :else
               (tag-as-chatty-falsehood
@@ -556,7 +564,7 @@
                                    (count actual))]}))))))
 
 (defn- has-xfix [x-name pattern-fn take-fn]
-  (fn [actual expected kind]
+  (fn [actual expected looseness]
     (cond (set? actual)
           (tag-as-chatty-falsehood {
                                     :notes [(str "Sets don't have " x-name "es.")]})
@@ -566,13 +574,13 @@
                                     :notes [(str "Maps don't have " x-name "es.")]})
           
           :else
-          (let [ [actual expected kind] (standardized-arguments actual expected kind)]
+          (let [ [actual expected looseness] (standardized-arguments actual expected looseness)]
             (cond (regex? expected)
                   (try-re (pattern-fn expected) actual re-find)
                   
                   (expected-fits? actual expected)
                   (apply actual-x-contains?
-                         [(take-fn (count expected) actual) expected kind])
+                         [(take-fn (count expected) actual) expected looseness])
 
                   :else
                   (tag-as-chatty-falsehood
