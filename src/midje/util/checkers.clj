@@ -244,8 +244,11 @@
   "Describe the best list of expected values found in the comparison."
   (fn [midje-classification comparison expected] midje-classification))
 
-(defmulti comparison
-  (fn [midje-classification actual expected looseness] midje-classification))
+(defmulti compare-results
+  (fn [midje-classification actual expected looseness]
+    (if (= ::map midje-classification)
+      midje-classification
+      [::not-map (or (some #{:in-any-order} looseness) :strict-order)])))
 
 ;; The code that works with two sequentials.
 
@@ -302,12 +305,7 @@
             :else 
             (better-of candidate best-so-far)))))
 
-(defmulti seq-comparison
-  "Compare an actual seq to an expected seq, governed by looseness."
-  (fn [midje-classification actual expected looseness]
-    (or (some #{:in-any-order} looseness) :strict-order)))
-
-(defmethod seq-comparison :in-any-order
+(defmethod compare-results [::not-map :in-any-order]
   [midje-classification actual expected looseness]
   (loop [expected-permutations (feasible-permutations expected)
          best-so-far (base-starting-candidate expected)]
@@ -322,7 +320,7 @@
           (recur (rest expected-permutations)
                  (better-of comparison best-so-far)))))))
 
-(defmethod seq-comparison :strict-order
+(defmethod compare-results [::not-map :strict-order]
   [midje-classification actual expected looseness]
   (let [starting-candidate (base-starting-candidate expected)
         gaps-ok? (some #{:gaps-ok} looseness)]
@@ -482,7 +480,7 @@
           {:actual-found {} :expected-found {} :expected expected}
           keys))
 
-(defn map-comparison [midje-classification actual expected looseness]
+(defmethod compare-results ::map [midje-classification actual expected looseness]
   (loop [expected-permutations (feasible-permutations (keys expected))
          best-so-far {:actual-found [], :expected-found [],
                       :expected expected }]
@@ -497,17 +495,10 @@
           (recur (rest expected-permutations)
                  (better-of comparison best-so-far)))))))
 
-(defmethod comparison ::map [midje-classification actual expected looseness]
-   (map-comparison midje-classification actual expected looseness))
-
-(defmethod comparison ::not-map [midje-classification actual expected looseness]
-   (seq-comparison midje-classification actual expected looseness))
-
-
 
 (defn match? [midje-classification actual expected looseness]
 ;  (println 'map-match actual expected looseness)
-  (let [comparison (comparison midje-classification actual expected looseness)
+  (let [comparison (compare-results midje-classification actual expected looseness)
         mismatch-description (fn [comparison expected]
                                (remove nil? [ (best-actual-match midje-classification comparison)
                                               (best-expected-match midje-classification comparison expected) ]))]
