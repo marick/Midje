@@ -37,3 +37,9 @@
 
   (into {} (map (fn [ [k v] ] [k (function v)])
 		hashmap)))
+
+(defn tack-on-to [hashmap & kvs]
+  "conj new values onto appropriate keys of a map"
+  (merge-with conj hashmap (apply (partial assoc {}) kvs)))
+
+
