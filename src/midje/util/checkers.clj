@@ -311,11 +311,11 @@
 (defmulti compare-results
   (fn [actual expected looseness]
     (if (= ::map (midje-classification actual))
-      midje-classification
+      (midje-classification actual)
       [::not-map (or (some #{:in-any-order} looseness) :strict-order)])))
 
 ;; There are some incommensurable utility behaviors
-(defn compare-one-map-permutation [midje-classification actual expected keys]
+(defn compare-one-map-permutation [actual expected keys]
   ;;  (prn "map-comparison" actual expected)
   (reduce (fn [so-far key]
             (if (and (find actual key)
@@ -331,7 +331,7 @@
   "Compare actual elements to expected, which is one of perhaps many
    permutations of the original expected list. looseness is a subset of
    #{:gaps-ok :in-any-order}."
-  [midje-classification actual expected looseness]
+  [actual expected looseness]
   (let [starting-candidate (assoc (base-starting-candidate expected) :expected-skipped-over [])
         gaps-ok? (some #{:gaps-ok} looseness)]
     (loop [walking-actual   actual
@@ -395,8 +395,7 @@
   (order-free-compare-results expected 
                               (feasible-permutations (keys expected))
                               (fn [permutation]
-                                (compare-one-map-permutation (midje-classification actual)
-                                                             actual
+                                (compare-one-map-permutation actual
                                                              expected
                                                              permutation))))
 
@@ -405,8 +404,7 @@
   (order-free-compare-results expected 
                               (feasible-permutations expected)
                               (fn [permutation]
-                                (compare-one-seq-permutation (midje-classification actual)
-                                                             actual
+                                (compare-one-seq-permutation actual
                                                              permutation
                                                              looseness))))
 
