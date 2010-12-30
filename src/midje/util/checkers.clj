@@ -309,8 +309,8 @@
 ;;-
 
 (defmulti compare-results
-  (fn [midje-classification actual expected looseness]
-    (if (= ::map midje-classification)
+  (fn [actual expected looseness]
+    (if (= ::map (midje-classification actual))
       midje-classification
       [::not-map (or (some #{:in-any-order} looseness) :strict-order)])))
 
@@ -391,27 +391,27 @@
           (recur (rest expected-permutations)
                  (better-of comparison best-so-far)))))))
 
-(defmethod compare-results ::map [midje-classification actual expected looseness]
+(defmethod compare-results ::map [actual expected looseness]
   (order-free-compare-results expected 
                               (feasible-permutations (keys expected))
                               (fn [permutation]
-                                (compare-one-map-permutation midje-classification
+                                (compare-one-map-permutation (midje-classification actual)
                                                              actual
                                                              expected
                                                              permutation))))
 
 (defmethod compare-results [::not-map :in-any-order]
-  [midje-classification actual expected looseness]
+  [actual expected looseness]
   (order-free-compare-results expected 
                               (feasible-permutations expected)
                               (fn [permutation]
-                                (compare-one-seq-permutation midje-classification
+                                (compare-one-seq-permutation (midje-classification actual)
                                                              actual
                                                              permutation
                                                              looseness))))
 
 (defmethod compare-results [::not-map :strict-order]
-  [midje-classification actual expected looseness]
+  [actual expected looseness]
   (let [starting-candidate (base-starting-candidate expected)
         gaps-ok? (some #{:gaps-ok} looseness)]
 
@@ -517,7 +517,7 @@
 
 
 (defn match? [actual expected looseness]
-  (let [comparison (compare-results (midje-classification actual) actual expected looseness)]
+  (let [comparison (compare-results  actual expected looseness)]
     (or (total-match? comparison)
         (apply noted-falsehood
                (cons (best-actual-match (midje-classification actual) comparison)
