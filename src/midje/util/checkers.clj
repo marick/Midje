@@ -309,9 +309,20 @@
       midje-classification
       [::not-map (or (some #{:in-any-order} looseness) :strict-order)])))
 
-;; The code that works with two sequentials.
+;; There are some incommensurable utility behaviors
+(defn compare-one-map-permutation [midje-classification actual expected keys]
+  ;;  (prn "map-comparison" actual expected)
+  (reduce (fn [so-far key]
+            (if (and (find actual key)
+                     (extended-= (get actual key) (get expected key)))
+              (merge-with merge so-far {:actual-found {key (get actual key)}
+                                        :expected-found {key (get expected key)} })
+              so-far))
+          {:actual-found {} :expected-found {} :expected expected}
+          keys))
 
-(defn in-any-order--one-permutation
+
+(defn compare-one-seq-permutation
   "Compare actual elements to expected, which is one of perhaps many
    permutations of the original expected list. looseness is a subset of
    #{:gaps-ok :in-any-order}."
@@ -364,20 +375,35 @@
             :else 
             (better-of candidate best-so-far)))))
 
-(defmethod compare-results [::not-map :in-any-order]
-  [midje-classification actual expected looseness]
-  (loop [expected-permutations (feasible-permutations expected)
+(defn- order-free-compare-results [expected expected-permutations try-permutation]
+  (loop [expected-permutations expected-permutations
          best-so-far (base-starting-candidate expected)]
     (if (empty? expected-permutations)
       best-so-far
-      (let [comparison (in-any-order--one-permutation midje-classification
-                                                      actual
-                                                      (first expected-permutations)
-                                                      looseness)]
+      (let [comparison (try-permutation (first expected-permutations))]
         (if (total-match? comparison)
           comparison
           (recur (rest expected-permutations)
                  (better-of comparison best-so-far)))))))
+
+(defmethod compare-results ::map [midje-classification actual expected looseness]
+  (order-free-compare-results expected 
+                              (feasible-permutations (keys expected))
+                              (fn [permutation]
+                                (compare-one-map-permutation midje-classification
+                                                             actual
+                                                             expected
+                                                             permutation))))
+
+(defmethod compare-results [::not-map :in-any-order]
+  [midje-classification actual expected looseness]
+  (order-free-compare-results expected 
+                              (feasible-permutations expected)
+                              (fn [permutation]
+                                (compare-one-seq-permutation midje-classification
+                                                             actual
+                                                             permutation
+                                                             looseness))))
 
 (defmethod compare-results [::not-map :strict-order]
   [midje-classification actual expected looseness]
@@ -483,36 +509,6 @@
 	[actual expected looseness]))
 
 ;;
-
-  
-
-;; TODO: try different combinations?
-(defn map-comparison--one-permutation [midje-classification actual expected keys]
-  ;;  (prn "map-comparison" actual expected)
-  (reduce (fn [so-far key]
-            ;; (println so-far key)
-            (if (and (find actual key)
-                     (extended-= (get actual key) (get expected key)))
-              (merge-with merge so-far {:actual-found {key (get actual key)}
-                                        :expected-found {key (get expected key)} })
-              so-far))
-          {:actual-found {} :expected-found {} :expected expected}
-          keys))
-
-(defmethod compare-results ::map [midje-classification actual expected looseness]
-  (loop [expected-permutations (feasible-permutations (keys expected))
-         best-so-far {:actual-found [], :expected-found [],
-                      :expected expected }]
-    (if (empty? expected-permutations)
-      best-so-far
-      (let [comparison (map-comparison--one-permutation midje-classification
-                                                        actual
-                                                        expected
-                                                        (first expected-permutations))]
-        (if (total-match? comparison)
-          comparison
-          (recur (rest expected-permutations)
-                 (better-of comparison best-so-far)))))))
 
 
 (defn match? [midje-classification actual expected looseness]
