@@ -1,26 +1,26 @@
 Testing semi-sweet-simple.core-test
 FAIL at (core_test.clj:25)
-Expected: 3
-  Actual: 4
+    Expected: 3
+      Actual: 4
 ^^^^ The previous failure was expected ^^^^
 FAIL at (core_test.clj:30)
 Actual result did not agree with the checking function.
-    Actual result: 4
-Checking function: odd?
+        Actual result: 4
+    Checking function: odd?
 ^^^^ The previous failure was expected ^^^^
 FAIL at (core_test.clj:40)
 Actual result did not agree with the checking function.
-    Actual result: a function named 'even?'
-Checking function: (exactly odd?)
+        Actual result: a function named 'even?'
+    Checking function: (exactly odd?)
 ^^^^ The previous failure was expected ^^^^
 FAIL at (core_test.clj:51)
 Actual result did not agree with the checking function.
-    Actual result: [3 3 1 2]
-Checking function: (in-any-order [1 2 3])
+        Actual result: [3 3 1 2]
+    Checking function: (in-any-order [1 2 3])
 ^^^^ The previous failure was expected ^^^^
-FAIL for (core_test.clj:78)
+FAIL at (core_test.clj:78)
 You claimed the following was needed, but it was never used:
-(first-fake 3)
+    (first-fake 3)
 ^^^^ The previous failure was expected ^^^^
 Ran 11 tests containing 14 assertions.
 5 failures, 0 errors.

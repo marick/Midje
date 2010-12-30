@@ -1,3 +1,11 @@
+= 0.9.0 (release candidate)
+* Regexps can be placed on the right-hand-side of an
+  expression: "foo" => #"fo+"
+* Throws and other checkers are "checker-aware", so 
+  you can write:  (f) => (throws Error (contains #"part of a message"))
+* Containment checkers
+  https://github.com/marick/Midje/wiki/Checkers-for-collections-and-strings
+
 = 0.8.1 (stable)
 * before/after/around
   http://bit.ly/hgw1CU
