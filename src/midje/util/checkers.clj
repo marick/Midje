@@ -93,6 +93,11 @@
 (defn chatty-checker-falsehood? [value]
   (:midje/chatty-checker-falsehood (meta value)))
 
+(defn- add-actual [actual result]
+  (if (chatty-checker-falsehood? result)
+    (merge result {:actual actual})
+    result))
+  
 (defn chatty-checker? [fn]
   (:midje/chatty-checker (meta fn)))
 
@@ -511,24 +516,14 @@
 ;;
 
 
-(defn match? [midje-classification actual expected looseness]
-  (let [comparison (compare-results midje-classification actual expected looseness)]
+(defn match? [actual expected looseness]
+  (let [comparison (compare-results (midje-classification actual) actual expected looseness)]
     (or (total-match? comparison)
         (apply noted-falsehood
-               (cons (best-actual-match midje-classification comparison)
-                     (best-expected-match midje-classification comparison expected))))))
+               (cons (best-actual-match (midje-classification actual) comparison)
+                     (best-expected-match (midje-classification actual) comparison expected))))))
 
-
-(defn- actual-x-contains? [actual expected looseness]
-  (match? (midje-classification actual) actual expected looseness))
-
-(defn- add-actual [actual result]
-  (if (chatty-checker-falsehood? result)
-    (merge result {:actual actual})
-    result))
-  
-
-;; The interface
+;; The interface
 
 (defn- container-checker-maker [name checker-fn]
   (tag-as-checker
@@ -548,7 +543,7 @@
               (try-re expected actual re-find)
                  
               :else
-              (apply actual-x-contains? [actual expected looseness]))))))
+              (match? actual expected looseness))))))
 
 (def just (container-checker-maker 'just
     (fn [actual expected looseness]
@@ -557,7 +552,7 @@
               (try-re expected actual re-matches)
             
               (same-lengths? actual expected)
-              (apply actual-x-contains? [actual expected looseness])
+              (match? actual expected looseness)
 
               :else
               (tag-as-chatty-falsehood
@@ -583,8 +578,7 @@
                   (try-re (pattern-fn expected) actual re-find)
                   
                   (expected-fits? actual expected)
-                  (apply actual-x-contains?
-                         [(take-fn (count expected) actual) expected looseness])
+                  (match?(take-fn (count expected) actual) expected looseness)
 
                   :else
                   (tag-as-chatty-falsehood
