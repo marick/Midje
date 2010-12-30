@@ -553,22 +553,18 @@
               (match? actual expected looseness)
 
               :else
-              (tag-as-chatty-falsehood
-               {
-                :notes [(cl-format nil
-                                   "Expected ~R element~:P. There ~[were~;was~:;were~]~:* ~R."
-                                   (count expected)
-                                   (count actual))]}))))))
+              (noted-falsehood
+               (cl-format nil "Expected ~R element~:P. There ~[were~;was~:;were~]~:* ~R."
+                          (count expected)
+                          (count actual))))))))
 
 (defn- has-xfix [x-name pattern-fn take-fn]
   (fn [actual expected looseness]
     (cond (set? actual)
-          (tag-as-chatty-falsehood {
-                                    :notes [(str "Sets don't have " x-name "es.")]})
+          (noted-falsehood (format "Sets don't have %ses." x-name))
 
           (map? actual)
-          (tag-as-chatty-falsehood {
-                                    :notes [(str "Maps don't have " x-name "es.")]})
+          (noted-falsehood (format "Maps don't have %ses." x-name))
           
           :else
           (let [ [actual expected looseness] (standardized-arguments actual expected looseness)]
@@ -579,13 +575,10 @@
                   (match?(take-fn (count expected) actual) expected looseness)
 
                   :else
-                  (tag-as-chatty-falsehood
-                   {
-                    :notes [(str (cl-format nil
-                                            "A collection with ~R element~:P cannot match a "
-                                            (count actual))
-                                 x-name
-                                 (cl-format nil " of size ~R." (count expected)))]}))))))
+                  (noted-falsehood
+                   (cl-format nil
+                              "A collection with ~R element~:P cannot match a ~A of size ~R."
+                              (count actual) x-name (count expected))))))))
 
 (def has-prefix
      (container-checker-maker 'has-prefix
