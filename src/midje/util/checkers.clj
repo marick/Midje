@@ -3,7 +3,7 @@
 (ns midje.util.checkers
   (:use [clojure.set :only [difference union subset?]]
         [clojure.contrib.seq :only [rotations]]
-        [clojure.contrib.def :only [defmacro-]]
+        [clojure.contrib.def :only [defmacro- defvar-]]
         [clojure.contrib.pprint :only [cl-format]]
         [clojure.contrib.combinatorics :only [permutations]]
         [midje.util.form-utils :only [regex? vector-without-element-at-index
@@ -136,9 +136,9 @@
 
 ;;Concerning Throwables
 
-(def #^{:private true} captured-exception-key "this Throwable was captured by midje:")
+(def captured-exception-key "this Throwable was captured by midje:")
 (defn captured-exception [e] {captured-exception-key e})
-(defn captured-exception? [value] (and (map? value) (value captured-exception-key)))
+(defn- captured-exception? [value] (and (map? value) (value captured-exception-key)))
 
 (defn- throwable-with-class? [wrapped-throwable expected-class]
   (and (map? wrapped-throwable)
@@ -241,7 +241,7 @@
 
 (defn- midje-classification [thing] (if (map? thing) ::map ::not-map))
 
-(defmulti collection-string
+(defmulti #^{:private true} collection-string
   "Given a list of stringified elements, convert them into appropriate
    collection text."
   (fn [midje-classification elements] midje-classification))
@@ -253,7 +253,7 @@
    (str "[" (apply str (interpose " " elements)) "]"))
 ;;-
 
-(defmulti best-actual-match
+(defmulti #^{:private true} best-actual-match
   "Describe the best actuals found in the comparison."
   (fn [midje-classification comparison] midje-classification))
 
@@ -270,7 +270,7 @@
 ;;-
 
 
-(defmulti best-expected-match
+(defmulti #^{:private true} best-expected-match
   "Describe the best list of expected values found in the comparison."
   (fn [midje-classification comparison expected] midje-classification))
 
@@ -308,14 +308,14 @@
 
 ;;-
 
-(defmulti compare-results
+(defmulti #^{:private true} compare-results
   (fn [actual expected looseness]
     (if (= ::map (midje-classification actual))
       (midje-classification actual)
       [::not-map (or (some #{:in-any-order} looseness) :strict-order)])))
 
 ;; There are some incommensurable utility behaviors
-(defn compare-one-map-permutation [actual expected keys]
+(defn- compare-one-map-permutation [actual expected keys]
   ;;  (prn "map-comparison" actual expected)
   (reduce (fn [so-far key]
             (if (and (find actual key)
@@ -327,7 +327,7 @@
           keys))
 
 
-(defn compare-one-seq-permutation
+(defn- compare-one-seq-permutation
   "Compare actual elements to expected, which is one of perhaps many
    permutations of the original expected list. looseness is a subset of
    #{:gaps-ok :in-any-order}."
@@ -453,7 +453,7 @@
 
 ;; Initial argument processing
 
-(defn compatibility-check [actual expected looseness]
+(defn- compatibility-check [actual expected looseness]
   "Fling an error of the combination of actual, expected, and looseness won't work."
   ;; Throwing Errors is just an implementation convenience.
   (cond (regex? expected)
@@ -514,7 +514,7 @@
 ;;
 
 
-(defn match? [actual expected looseness]
+(defn- match? [actual expected looseness]
   (let [comparison (compare-results  actual expected looseness)]
     (or (total-match? comparison)
         (apply noted-falsehood
