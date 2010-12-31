@@ -619,12 +619,7 @@
   "Accepts a map that contains all the keys and values in expected,
    perhaps along with others"
   {:midje/checker true}
-  (fn [actual] 
-    (= (merge actual expected) actual)))
-
-(defn- core-array-of-maps-checker [expected actual]
-  (every? (fn [one-expected-map] (some (map-containing one-expected-map) actual))
-          expected))
+  (contains expected))
 
 (defn- one-level-map-flatten [list-like-thing]
   (if (map? (first list-like-thing))
@@ -638,11 +633,9 @@
    You can call this with either (only-maps-containing {..} {..}) or
    (only-maps-containing [ {..} {..} ])."
   {:midje/checker true}
-  (let [expected (one-level-map-flatten maps-or-maplist)]
-    (fn [actual]
-      (if (= (count actual) (count expected))
-        (core-array-of-maps-checker expected actual)
-        false))))
+  (let [expected (one-level-map-flatten maps-or-maplist)
+        subfunctions (map contains expected)]
+    (just subfunctions :in-any-order)))
   
 (defn maps-containing [& maps-or-maplist]
   "Each map in the argument(s) contains contains some map in the expected
@@ -651,15 +644,13 @@
    You can call this with either (maps-containing {..} {..}) or
    (maps-containing [ {..} {..} ])."
   {:midje/checker true}
-  (let [expected (one-level-map-flatten maps-or-maplist)]
-    (fn [actual]
-      (if (>= (count actual) (count expected))
-        (core-array-of-maps-checker expected actual)
-        false))))
+  (let [expected (one-level-map-flatten maps-or-maplist)
+        subfunctions (map contains expected)]
+    (contains subfunctions :in-any-order :gaps-ok)))
 
 (defn in-any-order
-  "Produces matcher that matches sequences without regard to order"
+  "Produces matcher that matches sequences without regard to order.
+   Prefer (just x :in-any-order)."
   {:midje/checker true}
   [expected]
-  (fn [actual]
-    (= (frequencies expected) (frequencies actual))))
+  (just expected :in-any-order))
