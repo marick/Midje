@@ -1,4 +1,4 @@
-(ns midje.unprocessed.unprocessed-internals
+(ns midje.fakes
   (:use [clojure.contrib.seq-utils :only [find-first]]
 	clojure.test
         clojure.contrib.error-kit
@@ -16,72 +16,74 @@
    	  (pairs actual-args matchers))
 )
 
-(defn unique-function-vars [expectations]
-  (distinct (map #(:function %) expectations))
+(defn unique-function-vars [fakes]
+  (distinct (map #(:function %) fakes))
 )
 
-(defmulti matches-call? (fn [expectation faked-function args]
-                          (:type expectation)))
+(defmulti matches-call? (fn [fake faked-function args]
+                          (:type fake)))
 
 (defmethod matches-call? :not-called
-  [expectation faked-function args]
-  (= faked-function (expectation :function)))
+  [fake faked-function args]
+  (= faked-function (fake :function)))
 
 (defmethod matches-call? :default
-  [expectation faked-function args]
-  (and (= faked-function (expectation :function))
-       (= (count args) (count (expectation :arg-matchers)))
-       (matching-args? args (expectation :arg-matchers))))
+  [fake faked-function args]
+  (and (= faked-function (fake :function))
+       (= (count args) (count (fake :arg-matchers)))
+       (matching-args? args (fake :arg-matchers))))
 
 
-(defn find-matching-call [faked-function args expectations]
-  (find-first #(matches-call? % faked-function args) expectations)
+(defn find-matching-call [faked-function args fakes]
+  (find-first #(matches-call? % faked-function args) fakes)
 )
 
-(defn call-faker [faked-function args expectations]
+(defn call-faker [faked-function args fakes]
   "This is the function that handles all mocked calls."
-  (let [found (find-matching-call faked-function args expectations)]
+  (let [found (find-matching-call faked-function args fakes)]
     (if-not found 
       (do 
         (clojure.test/report {:type :mock-argument-match-failure
                  :function faked-function
                  :actual args
-                 :position (:file-position (first expectations))}))
+                 :position (:file-position (first fakes))}))
       (do 
         (swap! (found :count-atom) inc)
         ((found :result-supplier)))))
   )
 
-(defn binding-map [expectations]
+(defn binding-map [fakes]
   (reduce (fn [accumulator function-var] 
-	      (let [faker (fn [& actual-args] (call-faker function-var actual-args expectations))]
+	      (let [faker (fn [& actual-args] (call-faker function-var actual-args fakes))]
 		(assoc accumulator function-var faker)))
 	  {}
-	  (unique-function-vars expectations))
+	  (unique-function-vars fakes))
 )
+
+(defn fake-count [fake] (deref (:count-atom fake)))
 
 (defmulti call-count-incorrect? :type)
 
 (defmethod call-count-incorrect? :fake
-  [expectation]
-  (zero? @(expectation :count-atom)))
+  [fake]
+  (zero? @(fake :count-atom)))
 
 (defmethod call-count-incorrect? :not-called
-  [expectation]
-  (not (zero? @(expectation :count-atom))))
+  [fake]
+  (not (zero? @(fake :count-atom))))
 
 (defmethod call-count-incorrect? :background
-  [expectation]
+  [fake]
   false)
 
-(defn check-call-counts [expectations]
-  (doseq [expectation expectations]
-    (if (call-count-incorrect? expectation)
+(defn check-call-counts [fakes]
+  (doseq [fake fakes]
+    (if (call-count-incorrect? fake)
       (do
         (report {:type :mock-incorrect-call-count
-                 :expected-call (expectation :call-text-for-failures)
-                 :position (:file-position expectation)
-                 :expected (expectation :call-text-for-failures)}))))
+                 :expected-call (fake :call-text-for-failures)
+                 :position (:file-position fake)
+                 :expected (fake :call-text-for-failures)}))))
 )
 
 ;; TODO: I'm not wild about signalling failure in two ways: by report() and by
