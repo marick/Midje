@@ -3,18 +3,10 @@
 	clojure.test
         clojure.contrib.error-kit
         midje.util.report
-	[midje.util.checkers :only [chatty-checker-falsehood? chatty-checker? extended-=]]
+	[midje.util.checkers :only [chatty-checker-falsehood? chatty-checker?
+				    extended-= extended-list-=]]
 	)
-  (:require [clojure.zip :as zip])
-)
-
-(defn pairs [first-seq second-seq]
-  (partition 2 (interleave first-seq second-seq)))
-
-(defn matching-args? [actual-args matchers]
-  (every? (fn [ [actual matcher] ] (matcher actual))
-   	  (pairs actual-args matchers))
-)
+  (:require [clojure.zip :as zip]))
 
 (defn unique-function-vars [fakes]
   (distinct (map #(:function %) fakes))
@@ -31,7 +23,7 @@
   [fake faked-function args]
   (and (= faked-function (fake :function))
        (= (count args) (count (fake :arg-matchers)))
-       (matching-args? args (fake :arg-matchers))))
+       (extended-list-= args (fake :arg-matchers))))
 
 
 (defn find-matching-call [faked-function args fakes]

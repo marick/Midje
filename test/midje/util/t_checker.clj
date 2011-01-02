@@ -21,6 +21,11 @@
   ;; Count those as false.
   (extended-= nil odd?) => falsey)
 
+(fact "extended equality can be applied to lists"
+  (extended-list-= [] []) => truthy
+  (extended-list-= ['()] [seq?]) => truthy
+  (extended-list-= ['() 1] [seq? seq?]) => falsey)
+
 
 
 (facts "about truthy"

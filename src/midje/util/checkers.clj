@@ -7,7 +7,7 @@
         [clojure.contrib.pprint :only [cl-format]]
         [clojure.contrib.combinatorics :only [permutations]]
         [midje.util.form-utils :only [regex? vector-without-element-at-index
-                                      tack-on-to]]))
+                                      tack-on-to pairs]]))
 
 (declare chatty-checker-falsehood? captured-exception?)
 
@@ -37,6 +37,11 @@
           :else
           (= actual expected))
     (catch Exception ex false)))
+
+(defn extended-list-= [actual-args checkers]
+  "Element-by-element comparison, using extended-= for the right-hand-side values."
+  (every? (fn [ [actual checker] ] (extended-= actual checker))
+   	  (pairs actual-args checkers)))
 
 
 ;; Simple checkers

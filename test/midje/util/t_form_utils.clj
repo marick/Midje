@@ -30,3 +30,7 @@
 
 (facts "you can tack new keys onto a hashmap"
   (tack-on-to {:a [1], :b [55] :c 'blah} :a 2 :b 56) => {:a [1 2], :b [55 56], :c 'blah})
+
+(fact "pairs are exciting"
+  (pairs [:a :b :c] [1 2 3]) => [ [:a 1] [:b 2] [:c 3] ])
+

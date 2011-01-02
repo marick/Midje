@@ -1,14 +1,6 @@
 (ns midje.t-fakes
   (:use [midje fakes sweet test-util]))
 
-(fact "pairs are exciting"
-  (pairs [:a :b :c] [1 2 3]) => [ [:a 1] [:b 2] [:c 3] ])
-
-(fact "matching args uses inexact equality"
-  (matching-args? [] []) => truthy
-  (matching-args? ['()] [seq?]) => truthy
-  (matching-args? ['() 1] [seq? seq?]) => falsey)
-
 (declare f g)
 (fact "unique variables can be found in fakes"
   (let [fakes [ (fake (f 1) => 2)

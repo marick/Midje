@@ -42,4 +42,6 @@
   "conj new values onto appropriate keys of a map"
   (merge-with conj hashmap (apply (partial assoc {}) kvs)))
 
+(defn pairs [first-seq second-seq]
+  (partition 2 (interleave first-seq second-seq)))
 
