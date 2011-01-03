@@ -104,4 +104,4 @@
 (def bad-result (contains {:type :mock-expected-result-failure}))
 (def pass (contains {:type :pass}))
 (def checker-fails (contains {:type :mock-expected-result-functional-failure}))
-
+(def wrong-call-count (contains {:type :mock-incorrect-call-count}))
