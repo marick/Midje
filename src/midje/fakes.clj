@@ -81,6 +81,10 @@
 ;; TODO: I'm not wild about signalling failure in two ways: by report() and by
 ;; return value. Fix this when (a) we move away from clojure.test.report and
 ;; (b) we figure out how to make fact() some meaningful unit of reporting.
+;;
+;; Later note: this doesn't actually work well anyway when facts are nested within
+;; larger structures. Probably fact should return true/false based on interior failure
+;; counts.
 (defn check-result [actual call]
   (cond (extended-= actual (call :expected-result))
 	(do (report {:type :pass})
@@ -119,8 +123,11 @@
 	(catch Throwable e#
 	  (midje.util.checkers/captured-exception e#))))
 
+;; TODO: Making everything into a function is a bit silly, given that
+;; extended-= already knows how to deal with functions on the right-hand-side.
 (defn arg-matcher-maker [expected]
   "Based on an expected value, generates a function that returns true if the 
    actual value matches it."
+;  (prn "arg matcher:" expected)
   (fn [actual] (extended-= actual expected)))
 

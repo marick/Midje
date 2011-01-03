@@ -23,6 +23,7 @@
 
 (fact "extended equality can be applied to lists"
   (extended-list-= [] []) => truthy
+  (extended-list-= [1] [1]) => truthy
   (extended-list-= ['()] [seq?]) => truthy
   (extended-list-= ['() 1] [seq? seq?]) => falsey)
 

@@ -1,6 +1,6 @@
 (ns midje.semi-sweet.semi-sweet-internals
-  (:use midje.util.file-position)
-)
+  (:use [midje.util file-position debugging]
+	clojure.pprint))
 
 (defn only-mocked* [names]
   (let [declarations (map (fn [name] 
@@ -22,14 +22,10 @@
 
 (defn make-expectation-map 
   [var-sym special-to-expectation-type user-override-pairs]
-  `(do
-;; Trying out forcing fakes to be declared before use, not *by* use.
-;     ~(when-not (resolve var-sym) `(def ~var-sym))
-     ~(merge
-       (common-to-all-expectations var-sym)
-       special-to-expectation-type
-       (midje-override-map user-override-pairs)))
-)
+  (merge
+   (common-to-all-expectations var-sym)
+   special-to-expectation-type
+   (midje-override-map user-override-pairs)))
 
 ;; I want to use resolve() to compare calls to fake, rather than the string
 ;; value of the symbol, but for some reason when the tests run, *ns* is User,

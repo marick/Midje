@@ -27,8 +27,11 @@
    Example: (let [a 5] (fake (f a) => a))"
   [call-form => result & overrides]
   (let [[var-sym & args] call-form & overrides]
+    ;; The (vec args) keeps something like (...o...) from being evaluated as a
+    ;; function call later on. Right approach would seem to be '~args. That causes
+    ;; spurious failures. Debug someday.
     (make-expectation-map var-sym
-                          `{:arg-matchers (map midje.fakes/arg-matcher-maker [~@args])
+                          `{:arg-matchers (map midje.fakes/arg-matcher-maker ~(vec args))
                             :call-text-for-failures (str '~call-form)
                             :result-supplier (fn [] ~result)
 			    :type :fake}
