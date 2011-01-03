@@ -1,5 +1,5 @@
-(ns midje.sweet.t-metaconstants-test
-  (:use [midje.sweet.metaconstants :only [metaconstant? define-metaconstants]])
+(ns midje.t-metaconstants
+  (:use [midje.metaconstants :only [metaconstant? define-metaconstants]])
   (:use midje.sweet)
   (:use midje.test-util)
 )

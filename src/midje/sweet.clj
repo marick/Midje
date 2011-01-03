@@ -12,7 +12,7 @@
   (:require [midje.sweet.line-number-insertion :as position])
   (:require [midje.sweet.folded-prerequisites :as folded])
   (:use [clojure.contrib.seq :only [separate]])
-  (:use midje.sweet.metaconstants)
+  (:use midje.metaconstants)
   (:use [midje.util report debugging thread-safe-var-nesting])
   (:use [midje.util.wrapping :only [multiwrap]])
   (:use [midje.util.form-utils :only [reader-line-number]])

@@ -2,7 +2,7 @@
   (:use clojure.contrib.def)
   (:use [clojure.contrib.seq :only [separate]])
   (:use [midje.util thread-safe-var-nesting wrapping form-utils laziness form-utils])
-  (:use midje.sweet.metaconstants)
+  (:use midje.metaconstants)
   (:require [midje.sweet.sweet-to-semi-sweet-rewrite :as transform])
   (:require [clojure.zip :as zip])
   (:use [midje.midje-forms building recognizing dissecting])
