@@ -55,7 +55,7 @@
 (defn favorite-animal-only-name [] (name "fred"))
 (defn favorite-animal-one-call [] (name (favorite-animal 1)))
 
-(deftest unfolding-expectations-examples
+(deftest unfolding-fakes-examples
   (after-silently
    (fact
      (favorite-animal-name) => "betsy"

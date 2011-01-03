@@ -146,7 +146,7 @@
       (expect (zip/root resulting-loc) =>
 	      '( (midje.semi-sweet/expect (f 1) midje.semi-sweet/=> (+ 2 3) :key "value") "next")))))
 
-(deftest expectations-at-end-of-form-are-successfully-wrapped
+(deftest fakes-at-end-of-form-are-successfully-wrapped
   (let [z (zip/seq-zip '( (f 1) => (+ 2 3) :key "value"))
 	loc (-> z zip/down)]
     (expect (zip/node loc) => '(f 1))

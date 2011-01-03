@@ -35,8 +35,8 @@
     (concat constant-part overrides)))
 
 (defn partition-fake-bodies
-  ([expectations]
-     (partition-fake-bodies [] expectations))
+  ([fakes]
+     (partition-fake-bodies [] fakes))
   ([so-far remainder]
     (if (empty? remainder)
       so-far
@@ -101,8 +101,8 @@
 ;; The meat of it.
 
 (defn expand-following-into-fake-calls [provided-loc]
-  (let [expectations (rest (zip/node (zip/up provided-loc)))
-	fake-bodies (partition-fake-bodies expectations)]
+  (let [fakes (rest (zip/node (zip/up provided-loc)))
+	fake-bodies (partition-fake-bodies fakes)]
     (map make-fake fake-bodies)))
 
 (defn rewrite [multi-form]

@@ -9,7 +9,7 @@
 			  names)]
     `(do ~@declarations)))
 
-(defn common-to-all-expectations [var-sym] 
+(defn common-to-all-fakes [var-sym] 
   `{:function (var ~var-sym)
     :count-atom (atom 0)
     :file-position (user-file-position)})
@@ -20,11 +20,11 @@
     {}
     (apply assoc (cons {} keys-and-vals))))
 
-(defn make-expectation-map 
-  [var-sym special-to-expectation-type user-override-pairs]
+(defn make-fake-map 
+  [var-sym special-to-fake-type user-override-pairs]
   (merge
-   (common-to-all-expectations var-sym)
-   special-to-expectation-type
+   (common-to-all-fakes var-sym)
+   special-to-fake-type
    (midje-override-map user-override-pairs)))
 
 ;; I want to use resolve() to compare calls to fake, rather than the string
@@ -34,11 +34,11 @@
 ;;
 ;; FURTHERMORE, I wanted to use set operations to check for fake and not-called,
 ;; but those fail for reasons I don't understand. Bah.
-(defn separate [overrides-and-expectations]
-  (let [expectation? #(and (seq? %)
+(defn separate [overrides-and-fakes]
+  (let [fake? #(and (seq? %)
 			   (or (= "fake" (name (first %)))
 			       (= "not-called" (name (first %)))))
-	grouped (group-by expectation? overrides-and-expectations)
+	grouped (group-by fake? overrides-and-fakes)
 	default-values {false '() true '()}
 	separated (merge default-values grouped)]
     [(separated false) (separated true)])

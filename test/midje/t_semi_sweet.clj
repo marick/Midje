@@ -14,27 +14,27 @@
 (deftest basic-fake-test
   (let [some-variable 5
 	previous-line-position (file-position 1)
-	expectation-0 (fake (faked-function) => 2)
-	expectation-1 (fake (faked-function some-variable) => (+ 2 some-variable))
-	expectation-2 (fake (faked-function 1 some-variable) => [1 some-variable])]
+	fake-0 (fake (faked-function) => 2)
+	fake-1 (fake (faked-function some-variable) => (+ 2 some-variable))
+	fake-2 (fake (faked-function 1 some-variable) => [1 some-variable])]
 
-    (is (= (:function expectation-0)
+    (is (= (:function fake-0)
 	   #'midje.t-semi-sweet/faked-function))
-    (is (= (:call-text-for-failures expectation-1)
+    (is (= (:call-text-for-failures fake-1)
 	   "(faked-function some-variable)"))
-    (is (= (deref (:count-atom expectation-0))
+    (is (= (deref (:count-atom fake-0))
 	   0))
 
     (testing "argument matching" 
-	     (let [matchers (:arg-matchers expectation-0)]
+	     (let [matchers (:arg-matchers fake-0)]
 	       (is (= (count matchers) 0)))
 
-	     (let [matchers (:arg-matchers expectation-1)]
+	     (let [matchers (:arg-matchers fake-1)]
 	       (is (= (count matchers) 1))
 	       (is (truthy ((first matchers) 5)))
 	       (is (falsey ((first matchers) nil))))
 
-	     (let [matchers (:arg-matchers expectation-2)]
+	     (let [matchers (:arg-matchers fake-2)]
 	       (is (= (count matchers) 2))
 	       (is (falsey ((first matchers) 5)))
 	       (is (truthy ((first matchers) 1)))
@@ -42,42 +42,42 @@
 	       (is (falsey ((second matchers) 1))))
     )
     (testing "result supplied" 
-	     (is (= ((:result-supplier expectation-0))
+	     (is (= ((:result-supplier fake-0))
 		    2))
-	     (is (= ((:result-supplier expectation-1))
+	     (is (= ((:result-supplier fake-1))
 		    (+ 2 some-variable)))
-	     (is (= ((:result-supplier expectation-2))
+	     (is (= ((:result-supplier fake-2))
 		    [1 some-variable]))
     )
     )
 )
 
 (deftest fakes-with-overrides-test
-  (let [expectation (fake (faked-function) => 2 :file-position 33)]
-    (is (= 33 (expectation :file-position))))
+  (let [fake (fake (faked-function) => 2 :file-position 33)]
+    (is (= 33 (fake :file-position))))
 
   (let [filepos 33
-	expectation (fake (faked-function) => 2 :file-position filepos)]
-    (is (= 33 (expectation :file-position))))
+	fake (fake (faked-function) => 2 :file-position filepos)]
+    (is (= 33 (fake :file-position))))
   )
 
 (deftest basic-not-called-test
-  (let [expectation-0 (not-called faked-function)]
+  (let [fake-0 (not-called faked-function)]
 
-    (is (= (:function expectation-0)
+    (is (= (:function fake-0)
            #'midje.t-semi-sweet/faked-function))
-    (is (= (:call-text-for-failures expectation-0)
+    (is (= (:call-text-for-failures fake-0)
            "faked-function was called."))
-    (is (= (deref (:count-atom expectation-0))
+    (is (= (deref (:count-atom fake-0))
            0))
 
     (testing "arg-matchers are not needed" 
-      (let [matchers (:arg-matchers expectation-0)]
+      (let [matchers (:arg-matchers fake-0)]
         (is (nil? matchers)))
     )
 
     (testing "result supplied" 
-	     (is (= ((:result-supplier expectation-0))
+	     (is (= ((:result-supplier fake-0))
 		    nil)))
     )
  )
@@ -88,7 +88,7 @@
 (defn no-caller [])
 
 (deftest simple-examples
-  (one-case "Without expectations, this is like 'is'."
+  (one-case "Without fakes, this is like 'is'."
     (expect (+ 1 3) => nil)
     (is (reported? 1 [{:type :mock-expected-result-failure
 		      :actual 4

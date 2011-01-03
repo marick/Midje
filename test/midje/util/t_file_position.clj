@@ -13,8 +13,8 @@
 
 (def line-marker-2 (+ line-marker-1 7)) (declare f)
 (deftest one-level-macro-file-position-test []
-  (let [expectation (fake (f 1) => 33)
-	position (:file-position expectation)]
+  (let [fake (fake (f 1) => 33)
+	position (:file-position fake)]
     (is (= "t_file_position.clj" (first position)))
     (is (= (+ 2 line-marker-2) (second position))))
 )
@@ -25,11 +25,11 @@
 
 (def line-marker-3 (+ line-marker-2 12))
 (deftest one-level-simple-macro-file-position-test []
-  (let [expectation (expander
+  (let [fake (expander
 		      "random garbage"
 		      (fake (f 1) => 33)
 		      "more garbage")
-	position (:file-position expectation)]
+	position (:file-position fake)]
     (is (= "t_file_position.clj" (first position)))
     (is (= (+ 4 line-marker-3) (second position))))
 )
@@ -42,10 +42,10 @@
 
 (def line-marker-4 (+ line-marker-3 17))
 (deftest one-level-substitutable-macro-file-position-test []
-  (let [expectation (substitutor        ; this is the expected line number
+  (let [fake (substitutor        ; this is the expected line number
 		      "random garbage"
 		      (f 1) => 33)
-	position (:file-position expectation)]
+	position (:file-position fake)]
     (is (= "t_file_position.clj" (first position)))
     (is (= (+ 2 line-marker-4) (second position))))
 )
