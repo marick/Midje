@@ -1,36 +1,34 @@
 (ns midje.sweet.t-metaconstants-test
-  (:use [midje.sweet.metaconstants] :reload-all)
-  (:use clojure.test)
+  (:use [midje.sweet.metaconstants :only [metaconstant? define-metaconstants]])
   (:use midje.sweet)
   (:use midje.test-util)
 )
 
-(deftest metaconstants-begin-and-end-with-dots
-  (is (metaconstant? '...foo...))
-  (is (metaconstant? '.foo.))
-  (is (not (metaconstant? 'foo)))
-  (is (not (metaconstant? '.foo)))
-  (is (not (metaconstant? 'foo.)))
-  )
+(fact "metaconstants begin and end with dots"
+  (metaconstant? '...foo...) => truthy
+  (metaconstant? '.foo.) => truthy
+  (metaconstant? 'foo) => falsey
+  (metaconstant? '.foo) => falsey
+  (metaconstant? 'foo.) => falsey)
 
 (defn claim-symbols [symbols]
   (doseq [metaconstant-symbol symbols]
-    (is ((ns-interns *ns*) metaconstant-symbol))
-    (is (= (var-get ((ns-interns *ns*) metaconstant-symbol))
-	   metaconstant-symbol))))
+    (find (ns-interns *ns*) metaconstant-symbol) => truthy
+    (var-get ((ns-interns *ns*) metaconstant-symbol)) => metaconstant-symbol))
 
-(deftest metaconstants-are-automatically-defined
+(fact "metaconstants are automatically defined"
   (define-metaconstants '(fact (f ...form...) => 1
-			  [:in ...vec...]
-			  {:in ...map...}
-			  #{:in ...set...}))
+			   [:in ...vec...]
+			   {:in ...map...}
+			   #{:in ...set...}))
   (claim-symbols '(...form... ...vec... ...map... ...set...)))
 
 
+"Metaconstants can be declared in backgrounds"
 (declare f)
 (background (f ...one...) => 1 )
 (against-background [ (f ...two...) => 2 ]
-  (fact
+  (fact 
     (+ (f ...one...) (f ...two...) (f ...three...))  => 6
     (against-background (f ...three...) => 3)))
 (claim-symbols '(...one... ...two... ...three...))

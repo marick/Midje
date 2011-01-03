@@ -13,7 +13,7 @@
        (re-matches #"^\.+.+\.+" (name symbol-or-form))))
 
 (defn define-metaconstants [form]
-  (let [metaconstants (filter metaconstant? (tree-seq form-branch? seq form))]
+  (let [metaconstants (filter metaconstant? (tree-seq coll? seq form))]
     (doseq [metaconstant metaconstants]
       (intern *ns* metaconstant (symbol metaconstant)))
     metaconstants))
