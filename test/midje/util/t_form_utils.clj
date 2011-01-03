@@ -34,3 +34,8 @@
 (fact "pairs are exciting"
   (pairs [:a :b :c] [1 2 3]) => [ [:a 1] [:b 2] [:c 3] ])
 
+(fact "it can be useful to get hash-map to allow duplicates"
+  (hash-map-duplicates-ok) => {} 
+  (hash-map-duplicates-ok :a 1 :b 2) => {:a 1 :b 2}
+  (hash-map-duplicates-ok :a 1 :b 2 :b 33333) => {:a 1 :b 33333})
+

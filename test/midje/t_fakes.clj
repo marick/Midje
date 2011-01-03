@@ -32,3 +32,4 @@
 
     (call-faker (var f) [1] fakes)
     (map fake-count fakes) => [1 0]))
+

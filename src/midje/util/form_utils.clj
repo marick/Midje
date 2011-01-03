@@ -17,6 +17,7 @@
     contents))
 
 (defn separate-by [predicate forms]
+  "Note that this is different than clojure.contrib.seq/separate." ;;HOW?
   (let [group (group-by predicate forms)]
     [ (group true) (group false) ]))
 
@@ -45,3 +46,16 @@
 (defn pairs [first-seq second-seq]
   (partition 2 (interleave first-seq second-seq)))
 
+(defn hash-map-duplicates-ok [& keys-and-vals]
+  "Like hash-map, except duplicate keys are OK. Last one takes precedence."
+  (if (empty? keys-and-vals)
+    {}
+    (apply (partial assoc {}) keys-and-vals)))
+
+(defn apply-pairwise [ functions & arglists ]
+  "(apply-pairwise [inc dec] [1 1] [2 2]) => [ [2 0] [3 1] ]
+   Note that the functions must take only a single argument."
+  (map (fn [arglist]
+	 (map (fn [function arg] (apply function [arg]))
+	      functions arglist))
+       arglists))

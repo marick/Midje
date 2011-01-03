@@ -2,11 +2,24 @@
   (:use [clojure.contrib.seq-utils :only [find-first]]
 	clojure.test
         clojure.contrib.error-kit
-        midje.util.report
+        [midje.util report file-position form-utils]
 	[midje.util.checkers :only [chatty-checker-falsehood? chatty-checker?
 				    extended-= extended-list-=]]
 	)
   (:require [clojure.zip :as zip]))
+
+
+(defn common-to-all-fakes [var-sym] 
+  `{:function (var ~var-sym)
+    :count-atom (atom 0)
+    :file-position (user-file-position)})
+
+(defn make-fake-map 
+  [var-sym special-to-fake-type user-override-pairs]
+  (merge
+   (common-to-all-fakes var-sym)
+   special-to-fake-type
+   (apply hash-map-duplicates-ok user-override-pairs)))
 
 (defn unique-function-vars [fakes]
   (distinct (map #(:function %) fakes))

@@ -1,56 +1,60 @@
 (ns midje.t-semi-sweet
   (:use clojure.test)
-  (:use [midje.semi-sweet] :reload-all)
+  (:use [midje.sweet]
+	[midje.util form-utils])
   (:use [midje.test-util]))
+(testable-privates midje.semi-sweet fakes-and-overrides)
 
-(only-mocked faked-function mocked-function other-function)
+(unfinished faked-function mocked-function other-function)
 
-(deftest only-mocked-test
-  (try
-     (faked-function)
-     (is false "Function didn't raise.")
-     (catch Error e)))
+(fact "separating overrides of an #expect from fakes"
+  ;; The lets are because fact isn't smart enough not to add overrides to fake call otherwise.
+  (let [actual (fakes-and-overrides '( (fake (f 1) => 2) :key 'value))]
+    actual => [  '[(fake (f 1) => 2)]
+		 '[:key 'value] ])
 
-(deftest basic-fake-test
+  (let [actual (fakes-and-overrides '( (not-called some-function) :key 'value))]
+    actual => [ '[(not-called some-function)]
+		'[:key 'value] ])
+
+  ;; often passed a seq.
+  (let [actual (fakes-and-overrides (seq '( (fake (f 1) => 2) :key 'value)))]
+    actual => [  '[(fake (f 1) => 2)]
+		 '[:key 'value] ])
+
+  (let [actual (fakes-and-overrides '())]
+    actual => (just [empty? empty?])))
+
+(fact "calling a faked function raises an error"
+  (faked-function) => (throws Error))
+
+(facts "about the creation of fake maps"
   (let [some-variable 5
 	previous-line-position (file-position 1)
 	fake-0 (fake (faked-function) => 2)
 	fake-1 (fake (faked-function some-variable) => (+ 2 some-variable))
 	fake-2 (fake (faked-function 1 some-variable) => [1 some-variable])]
 
-    (is (= (:function fake-0)
-	   #'midje.t-semi-sweet/faked-function))
-    (is (= (:call-text-for-failures fake-1)
-	   "(faked-function some-variable)"))
-    (is (= (deref (:count-atom fake-0))
-	   0))
+    "The basic parts"
+    (:function fake-0) => #'midje.t-semi-sweet/faked-function
+    (:call-text-for-failures fake-1) => "(faked-function some-variable)"
+    (deref (:count-atom fake-0)) => 0
 
-    (testing "argument matching" 
-	     (let [matchers (:arg-matchers fake-0)]
-	       (is (= (count matchers) 0)))
+    "argument matching"
+    (count (:arg-matchers fake-0)) => 0
 
-	     (let [matchers (:arg-matchers fake-1)]
-	       (is (= (count matchers) 1))
-	       (is (truthy ((first matchers) 5)))
-	       (is (falsey ((first matchers) nil))))
+    "Note that lexical scoping is obeyed"
+    (count (:arg-matchers fake-1)) => 1
+    (apply-pairwise (:arg-matchers fake-1) [5] [nil]) => [[true] [false]]
+    (count (:arg-matchers fake-2)) => 2
+    (apply-pairwise (:arg-matchers fake-2) [5 5] [1 1]) => [  [false true]
+							      [true false] ]
 
-	     (let [matchers (:arg-matchers fake-2)]
-	       (is (= (count matchers) 2))
-	       (is (falsey ((first matchers) 5)))
-	       (is (truthy ((first matchers) 1)))
-	       (is (truthy ((second matchers) 5)))
-	       (is (falsey ((second matchers) 1))))
-    )
-    (testing "result supplied" 
-	     (is (= ((:result-supplier fake-0))
-		    2))
-	     (is (= ((:result-supplier fake-1))
-		    (+ 2 some-variable)))
-	     (is (= ((:result-supplier fake-2))
-		    [1 some-variable]))
-    )
-    )
-)
+    "Result supplied"
+    ((:result-supplier fake-0)) => 2
+    ((:result-supplier fake-1)) => (+ 2 some-variable)
+    ((:result-supplier fake-2)) => [1 some-variable]
+))
 
 (deftest fakes-with-overrides-test
   (let [fake (fake (faked-function) => 2 :file-position 33)]
