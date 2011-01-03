@@ -4,9 +4,8 @@
 ;;; to annoy.
 
 
-(ns midje.sweet.t-canary-tests
-  (:use clojure.test)
-  (:use [midje.sweet] :reload-all)
+(ns behaviors.t-canary
+  (:use [midje.sweet])
   (:use [midje.test-util]))
 
 
