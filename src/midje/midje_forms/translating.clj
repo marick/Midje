@@ -7,7 +7,22 @@
   (:use [midje.midje-forms building recognizing dissecting moving-around editing])
   (:use [midje.util.debugging]))
 
-;; Translating sweet forms into their semi-sweet equivalent
+;; Translating a form into an equivalent form with all arrow sequences given
+;; line numbers. 
+
+(defn add-line-numbers [form]
+  (loop [loc (zip/seq-zip form)]
+    (if (zip/end? loc)
+      (zip/root loc)
+      (recur (zip/next (cond (namespacey-match '(=>) loc)
+			     (add-line-number-to-end-of-arrow-sequence__then__no-movement
+  			       (arrow-line-number loc) loc)
+			     
+			     :else loc))))))
+
+
+
+;; Translating sweet forms into their semi-sweet equivalent
 
 (defn expand-prerequisites-into-fake-calls [provided-loc]
   (let [fakes (rest (zip/node (zip/up provided-loc)))

@@ -5,7 +5,8 @@
 					      loc-is-at-full-expect-form?]]
 	[midje.midje-forms.moving-around :only [up-to-full-expect-form
 						skip-to-rightmost-leaf]]
-	[midje.midje-forms.dissecting :only [arrow-form-overrides]])
+	[midje.midje-forms.dissecting :only [arrow-form-overrides]]
+	[midje.util.file-position :only [line-number-known]])
   (:require [clojure.zip :as zip]))
 
 (defn- n-times [n zip-fn loc]
@@ -43,3 +44,11 @@
 	 zip/right
 	 (n-times (+ 1 (count additions)) remove-moving-right)
 	 zip/remove)))
+
+(defn add-line-number-to-end-of-arrow-sequence__then__no-movement [number loc]
+  (-> loc
+      zip/right
+      (zip/insert-right `(line-number-known ~number))
+      (zip/insert-right :file-position)
+      zip/left))
+

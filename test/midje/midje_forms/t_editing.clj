@@ -73,3 +73,13 @@
     (zip/root resulting-loc) => edited
     (zip/next resulting-loc) => zip/end?))
 
+
+(fact "one can add a line number to an arrow sequence"
+  (let [original '( (f n) => 2  )
+	expected '( (f n) => 2 :file-position (midje.util.file-position/line-number-known 10))
+	z            (zip/seq-zip original)
+	original-loc (-> z zip/down zip/right)
+	new-loc      (add-line-number-to-end-of-arrow-sequence__then__no-movement
+		        10 original-loc)]
+    (name (zip/node new-loc)) => "=>"
+    (zip/root new-loc) => expected))

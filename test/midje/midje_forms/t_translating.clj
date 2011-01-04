@@ -9,6 +9,21 @@
 		   canonicalize-raw-wrappers final-state-wrapper replace-with-magic-form)
 
 
+
+
+(fact "a whole form can have line numbers added to its arrow sequences"
+  (let [original `(let ~(with-meta '[a 1] {:line 33})
+		    a => 2
+		    ~(with-meta '(f 2) {:line 35}) => a)
+	actual (add-line-numbers original)
+	expected '(clojure.core/let [a 1]
+				    midje.midje-forms.t-translating/a midje.sweet/=> 2 :file-position (midje.util.file-position/line-number-known 34)
+				    (f 2) midje.sweet/=> midje.midje-forms.t-translating/a :file-position (midje.util.file-position/line-number-known 35))]
+    actual => expected))
+
+
+
+
 ;; Translating sweet forms into their semi-sweet equivalent
 
 (fact "can convert prerequisites into fake calls"
