@@ -1,8 +1,8 @@
-(ns midje.sweet.t-user-desires-checking
-  (:use [midje.sweet] :reload-all)
+(ns midje.midje-forms.t-translating--production-mode
+  (:use [midje.sweet])
   (:use clojure.contrib.pprint))
 
-(alter-var-root #'*include-midje-checks* (fn [old] false))
+(alter-var-root #'*include-midje-checks* (constantly false))
 
 (fact (/ 1 0) => 33)
 (facts (/ 1 0) => 33)
@@ -15,4 +15,4 @@
 
 (str *localvar*)  ;; Non-fact forms are still processed.
 
-(alter-var-root #'*include-midje-checks* (fn [old] true))
+(alter-var-root #'*include-midje-checks* (constantly true))

@@ -2,6 +2,7 @@
   (:use clojure.test
 	midje.fakes
 	[midje.util debugging form-utils file-position]
+	[midje.midje-forms.damn-you-namespaces]
         [clojure.contrib.ns-utils :only [immigrate]]))
 (immigrate 'midje.unprocessed)
 
@@ -56,17 +57,6 @@
                           :type :not-called}
 			overrides)
 )
-
-(defn- value-within [namespace-symbol variable-symbol]
-  (let [namespace (find-ns namespace-symbol)]
-    (if namespace
-      (var-get ((ns-map namespace) variable-symbol))
-      true)))
-
-(defn user-desires-checking? []
-  (and (value-within 'clojure.test '*load-tests*)
-       (value-within 'midje.sweet '*include-midje-checks*)
-       (value-within 'midje.semi-sweet '*include-midje-checks*)))
 
 ;; I want to use resolve() to compare calls to fake, rather than the string
 ;; value of the symbol, but for some reason when the tests run, *ns* is User,

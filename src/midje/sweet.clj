@@ -3,6 +3,7 @@
         [clojure.contrib.ns-utils :only [immigrate]]
 	clojure.contrib.error-kit
 	[clojure.contrib.pprint :only [pprint]])
+  (:use	[midje.midje-forms.damn-you-namespaces])
   (:use midje.midje-forms.recognizing)
   (:use [midje.midje-forms.translating :only [midjcoexpand replace-wrappers-returning-immediate
 					      forms-to-wrap-around]])
