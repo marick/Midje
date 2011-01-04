@@ -1,11 +1,58 @@
 (ns midje.midje-forms.t-translating
-  (:use [midje.midje-forms.translating] :reload-all)
+  (:use [midje.midje-forms.translating])
   (:use [midje.sweet])
   (:use midje.test-util)
   (:use [midje.util thread-safe-var-nesting unify])
+  (:require [clojure.zip :as zip])
   (:use clojure.contrib.pprint))
 (testable-privates midje.midje-forms.translating
 		   canonicalize-raw-wrappers final-state-wrapper replace-with-magic-form)
+
+
+;; Translating sweet forms into their semi-sweet equivalent
+
+(fact "can convert prerequisites into fake calls"
+  (let [original '( provided                        (f 1) => 3	                       (f 2) => (+ 1 1))
+	translated '(        (midje.semi-sweet/fake (f 1) => 3) (midje.semi-sweet/fake (f 2) => (+ 1 1)))
+	z (zip/seq-zip original)
+	loc (zip/down z)]
+    (expand-prerequisites-into-fake-calls loc) => translated))
+
+
+(fact "translating entire fact forms"
+  "some parts of a fact are to be left alone"
+  (let [form '(a-form-would-go-here another-would-go-here)]
+    (translate-fact-body form) => form)
+
+  (let [form '( (nested (form) form ) [ 1 2 3])]
+    (translate-fact-body form) => form)
+
+  "arrow sequences are wrapped with expect"
+  (let [form '(                              (f 1)                  => [2]	                     (f 2)                  => (+ 1 2) )
+	expected '( (midje.semi-sweet/expect (f 1) midje.semi-sweet/=> [2]) (midje.semi-sweet/expect (f 2) midje.semi-sweet/=> (+ 1 2)))]
+    (expect (translate-fact-body form) => expected))
+
+  "the wrapping can include prerequisites turned into fake forms."
+  (let [form '( (f 1) => [1] :ekey "evalue"
+		(f 2) => (+ 2 2)
+		(provided (g 3) => 3
+			  (g 4) => 4 :pkey "pvalue")
+		(f 5) => truthy)
+	expected '( (midje.semi-sweet/expect (f 1) midje.semi-sweet/=> [1] :ekey "evalue")
+		    (midje.semi-sweet/expect (f 2) midje.semi-sweet/=> (+ 2 2)
+					     (midje.semi-sweet/fake (g 3) => 3)
+					     (midje.semi-sweet/fake (g 4) => 4 :pkey "pvalue"))
+		    (midje.semi-sweet/expect (f 5) midje.semi-sweet/=> truthy))]
+    (translate-fact-body form) => expected)
+
+  "It's useful to embed expect clauses with notcalled prerequisites, so they're skipped"
+  (let [form '(    (expect (f 1) => 2 (fake (g 1) => 2))
+		                      (fake (m 1) => 33))]
+    (translate-fact-body form) => form))
+
+;; wrapping
+
+
 
 (fact "human-friendly background forms can be canonicalized appropriately"
   "fakes"

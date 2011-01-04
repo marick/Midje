@@ -1,4 +1,4 @@
-(ns midje.midje-forms.damn-you-namespaces)
+(ns midje.production-mode)
 
 (defn- value-within [namespace-symbol variable-symbol]
   (let [namespace (find-ns namespace-symbol)]

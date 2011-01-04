@@ -4,7 +4,9 @@
   (:require [midje.util.unify :as unify])
   (:require [clojure.zip :as zip]))
 
-;; TODO: Replace with form-first-like strategy?
+;; TODO: Make many of these multimethods, dispatching on whether "here"
+;; is a clojure.zip loc?
+;; TODO: Replace namespacey-match with form-first-like strategy?
 
 (defn namespacey-match [symbols loc]
   (let [base-names (map name symbols)
@@ -18,7 +20,25 @@
 
 (defn fake? [form] (form-first? form "fake"))
 
-;;; Wrapping
+;; Clojure.zip trees
+
+(defn loc-is-semi-sweet-keyword? [loc]
+  (namespacey-match '(expect fake) loc))
+
+(defn loc-is-head-of-form-providing-prerequisites? [loc]
+  (namespacey-match '(provided) loc))
+
+(defn loc-is-at-full-expect-form? [loc]
+  (and (zip/branch? loc)
+       (namespacey-match '(expect) (zip/down loc))))
+
+(defn loc-is-start-of-arrow-sequence? [loc]
+  (and (zip/right loc)
+       (namespacey-match '(=>) (zip/right loc))))
+
+
+
+;; Wrapping
 
 (def already-wrapped? wrapping/wrapped?)
 (defn expect? [form] (form-first? form "expect"))
@@ -36,7 +56,7 @@
       (form-first? form "antiterminologicaldisintactitudinarian-fact")
       (form-first? form "antiterminologicaldisintactitudinarian-facts")))
 
-;;; background forms
+;;; background forms
 
 ;; this actually should be in dissecting, but needs to be here to avoid
 ;; circularity. Feh.

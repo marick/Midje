@@ -1,6 +1,9 @@
 (ns midje.midje-forms.building
   (:use [midje.util.wrapping :only [ensure-correct-form-variable]]))
 
+(defn make-fake [fake-body]
+  `(midje.semi-sweet/fake ~@fake-body))
+
 (defn make-background [fake]
   (concat fake '(:type :background)))
 

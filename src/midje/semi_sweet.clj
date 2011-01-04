@@ -2,7 +2,7 @@
   (:use clojure.test
 	midje.fakes
 	[midje.util debugging form-utils file-position]
-	[midje.midje-forms.damn-you-namespaces]
+	[midje.production-mode]
         [clojure.contrib.ns-utils :only [immigrate]]))
 (immigrate 'midje.unprocessed)
 

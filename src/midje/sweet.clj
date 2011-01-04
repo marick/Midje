@@ -3,13 +3,12 @@
         [clojure.contrib.ns-utils :only [immigrate]]
 	clojure.contrib.error-kit
 	[clojure.contrib.pprint :only [pprint]])
-  (:use	[midje.midje-forms.damn-you-namespaces])
+  (:use	[midje.production-mode])
   (:use midje.midje-forms.recognizing)
   (:use [midje.midje-forms.translating :only [midjcoexpand replace-wrappers-returning-immediate
-					      forms-to-wrap-around]])
+					      forms-to-wrap-around translate-fact-body]])
   (:use [midje.midje-forms.dissecting :only [separate-background-forms]])
   (:require [midje.midje-forms.building :as building])
-  (:require [midje.sweet.sweet-to-semi-sweet-rewrite :as transform])
   (:require [midje.sweet.line-number-insertion :as position])
   (:require [midje.sweet.folded-prerequisites :as folded])
   (:use [clojure.contrib.seq :only [separate]])
@@ -42,7 +41,7 @@
     (let [[background remainder] (separate-background-forms forms)]
       (if (empty? background)
 	(let [things-to-run (folded/rewrite
-			     (transform/rewrite
+			     (translate-fact-body
 			      (position/add-line-numbers remainder)))]
 	  (define-metaconstants things-to-run)
 	  (multiwrap (midjcoexpand `(every? true? (list ~@things-to-run)))

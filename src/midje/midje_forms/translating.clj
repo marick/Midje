@@ -3,10 +3,37 @@
   (:use [clojure.contrib.seq :only [separate]])
   (:use [midje.util thread-safe-var-nesting wrapping form-utils laziness form-utils])
   (:use midje.metaconstants)
-  (:require [midje.sweet.sweet-to-semi-sweet-rewrite :as transform])
   (:require [clojure.zip :as zip])
-  (:use [midje.midje-forms building recognizing dissecting])
+  (:use [midje.midje-forms building recognizing dissecting moving-around editing])
   (:use [midje.util.debugging]))
+
+;; Translating sweet forms into their semi-sweet equivalent
+
+(defn expand-prerequisites-into-fake-calls [provided-loc]
+  (let [fakes (rest (zip/node (zip/up provided-loc)))
+	fake-bodies (partition-arrow-forms fakes)]
+    (map make-fake fake-bodies)))
+
+(defn translate-fact-body [multi-form]
+  (loop [loc (zip/seq-zip multi-form)]
+    (if (zip/end? loc)
+      (zip/root loc)
+      (recur
+       (zip/next
+	(cond (loc-is-start-of-arrow-sequence? loc)
+	      (wrap-with-expect__then__at-rightmost-expect-leaf loc)
+
+	      (loc-is-head-of-form-providing-prerequisites? loc)
+	      (let [fake-calls (expand-prerequisites-into-fake-calls loc)
+		    full-expect-form (delete_prerequisite_form__then__at-previous-full-expect-form loc)]
+		(tack-on__then__at-rightmost-expect-leaf fake-calls full-expect-form))
+
+	      (loc-is-semi-sweet-keyword? loc)
+	      (skip-to-rightmost-leaf loc)
+
+	      :else loc))))))
+
+
 
 (declare midjcoexpand)
 
@@ -22,8 +49,8 @@
 	  expanded
 
 	  (is-arrow-form? in-progress)
-	  (let [content (transform/one-fake-body-content in-progress)]
-	    (recur (conj expanded (-> content transform/make-fake make-background))
+	  (let [content (take-arrow-form in-progress)]
+	    (recur (conj expanded (-> content make-fake make-background))
 		   (nthnext in-progress (count content))))
 
 	  (seq-headed-by-setup-teardown-form? in-progress)

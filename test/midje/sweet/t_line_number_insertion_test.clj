@@ -1,7 +1,7 @@
 (ns midje.sweet.t-line-number-insertion-test
   (:use [midje.semi-sweet :only [=> expect]])
-  (:use [midje.sweet.sweet-to-semi-sweet-rewrite :only [start-of-arrow-sequence?]])
-  (:use [midje.sweet.line-number-insertion] :reload-all)
+  (:use [midje.midje-forms.recognizing :only [loc-is-start-of-arrow-sequence?]])
+  (:use [midje.sweet.line-number-insertion])
   (:require [clojure.zip :as zip])
   (:use [clojure.test])
   (:use [midje.test-util]))
@@ -10,7 +10,7 @@
   (let [at-line (fn [line-no form] (with-meta form {:line line-no}))
 	assume-position (fn [test-form]
 			  (loop [loc (zip/seq-zip test-form)]
-			    (if (start-of-arrow-sequence? loc)
+			    (if (loc-is-start-of-arrow-sequence? loc)
 			      (zip/right loc)
 			      (recur (zip/next loc)))))
 	finds (fn [form] (arrow-line-number (assume-position form)))]
