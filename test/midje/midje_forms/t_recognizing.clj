@@ -1,5 +1,5 @@
 (ns midje.midje-forms.t-recognizing
-  (:use [midje.midje-forms.recognizing] :reload-all)
+  (:use [midje.midje-forms.recognizing])
   (:use midje.sweet)
   (:require [clojure.zip :as zip])
   (:use midje.test-util)

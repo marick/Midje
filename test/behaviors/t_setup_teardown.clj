@@ -1,5 +1,5 @@
 (ns behaviors.t-setup-teardown
-  (:use [midje.sweet] :reload-all)
+  (:use [midje.sweet])
   (:use [midje.test-util])
   (:use clojure.contrib.pprint)
 )

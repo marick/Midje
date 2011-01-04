@@ -1,5 +1,5 @@
 (ns midje.util.t-file-position
-  (:use [midje.util.file-position] :reload-all)
+  (:use [midje.util.file-position])
   (:use [midje.semi-sweet :only [fake]])
   (:use [clojure.test])
   (:use [midje.test-util])) 

@@ -1,5 +1,5 @@
 (ns midje.util.t-form-utils
-  (:use [midje.util.form-utils] :reload-all)
+  (:use [midje.util.form-utils])
   (:use [midje.sweet])
   (:use [midje.test-util]))
 

@@ -1,5 +1,5 @@
 (ns midje.sweet.t-folded-prerequisites-test
-  (:use [midje.sweet.folded-prerequisites] :reload-all)
+  (:use [midje.sweet.folded-prerequisites])
   (:use midje.semi-sweet)
   (:use [clojure.test])
   (:require [clojure.zip :as zip])

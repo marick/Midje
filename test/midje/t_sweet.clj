@@ -1,5 +1,5 @@
 (ns midje.t-sweet
-  (:use [midje.sweet] :reload-all)
+  (:use [midje.sweet])
   (:use [midje.test-util]))
 
 (after-silently ; failing

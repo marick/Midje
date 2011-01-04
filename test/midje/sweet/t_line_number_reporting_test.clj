@@ -1,5 +1,5 @@
 (ns midje.sweet.t-line-number-reporting-test
-  (:use [midje.sweet] :reload-all)
+  (:use [midje.sweet])
   (:use [clojure.test])
   (:use [midje.test-util]))
 

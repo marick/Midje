@@ -1,6 +1,6 @@
 (ns behaviors.background_nesting.t-background-command-no-deftest
   (:use clojure.test)
-  (:use [midje.sweet] :reload-all)
+  (:use [midje.sweet])
   (:use [midje.test-util])
   (:use clojure.contrib.pprint)
 )
