@@ -1,8 +1,10 @@
+;; -*- indent-tabs-mode: nil -*-
+
 (ns midje.t-semi-sweet
   (:use [clojure.test]  ;; This is used to check production mode with deftest.
-	[midje.sweet]
-	[midje.util form-utils]
-	[midje.test-util]))
+        [midje.sweet]
+        [midje.util form-utils]
+        [midje.test-util]))
 (testable-privates midje.semi-sweet fakes-and-overrides)
 
 (unfinished faked-function mocked-function other-function)
@@ -11,16 +13,16 @@
   ;; The lets are because fact isn't smart enough not to add overrides to fake call otherwise.
   (let [actual (fakes-and-overrides '( (fake (f 1) => 2) :key 'value))]
     actual => [  '[(fake (f 1) => 2)]
-		 '[:key 'value] ])
+                 '[:key 'value] ])
 
   (let [actual (fakes-and-overrides '( (not-called some-function) :key 'value))]
     actual => [ '[(not-called some-function)]
-		'[:key 'value] ])
+                '[:key 'value] ])
 
   ;; often passed a seq.
   (let [actual (fakes-and-overrides (seq '( (fake (f 1) => 2) :key 'value)))]
     actual => [  '[(fake (f 1) => 2)]
-		 '[:key 'value] ])
+                 '[:key 'value] ])
 
   (let [actual (fakes-and-overrides '())]
     actual => (just [empty? empty?])))
@@ -30,10 +32,10 @@
 
 (facts "about the creation of fake maps"
   (let [some-variable 5
-	previous-line-position (file-position 1)
-	fake-0 (fake (faked-function) => 2)
-	fake-1 (fake (faked-function some-variable) => (+ 2 some-variable))
-	fake-2 (fake (faked-function 1 some-variable) => [1 some-variable])]
+        previous-line-position (file-position 1)
+        fake-0 (fake (faked-function) => 2)
+        fake-1 (fake (faked-function some-variable) => (+ 2 some-variable))
+        fake-2 (fake (faked-function 1 some-variable) => [1 some-variable])]
 
     "The basic parts"
     (:function fake-0) => #'midje.t-semi-sweet/faked-function
@@ -48,7 +50,7 @@
     (apply-pairwise (:arg-matchers fake-1) [5] [nil]) => [[true] [false]]
     (count (:arg-matchers fake-2)) => 2
     (apply-pairwise (:arg-matchers fake-2) [5 5] [1 1]) => [  [false true]
-							      [true false] ]
+                                                              [true false] ]
 
     "Result supplied"
     ((:result-supplier fake-0)) => 2
@@ -61,7 +63,7 @@
     (fake :file-position) => 33)
 
   (let [filepos 33
-	fake (fake (faked-function) => 2 :file-position filepos)]
+        fake (fake (faked-function) => 2 :file-position filepos)]
     (:file-position fake) => 33))
 
 (facts "about not-called"
@@ -87,99 +89,99 @@
   (after-silently 
    (expect (+ 1 3) => nil)
    @reported => (just (contains {:type :mock-expected-result-failure
-				 :actual 4
-				 :expected nil})))
+                                 :actual 4
+                                 :expected nil})))
 
   "not-called in the first position"
   (after-silently 
    (expect (function-under-test) => 33
-	   (not-called no-caller)
-	   (fake (mocked-function) => 33))
+           (not-called no-caller)
+           (fake (mocked-function) => 33))
    @reported => (one-of pass))
 
   "not-called in last position"
   (after-silently 
    (expect (function-under-test) => 33
-	   (fake (mocked-function) => 33)
-	   (not-called no-caller))
+           (fake (mocked-function) => 33)
+           (not-called no-caller))
    @reported => (one-of pass))
 
   "mocked calls go fine, but function under test produces the wrong result"
   (after-silently
    (expect (function-under-test 33) => 12
-	   (fake (mocked-function 33) => (not 12) ))
+           (fake (mocked-function 33) => (not 12) ))
    @reported => (just (contains {:actual false
-				 :expected 12})))
+                                 :expected 12})))
 
   "mock call supposed to be made, but wasn't (zero call count)"
   (after-silently
    (expect (no-caller) => "irrelevant"
-	   (fake (mocked-function) => 33))
+           (fake (mocked-function) => 33))
    @reported => (just [wrong-call-count bad-result]))
 
   "mock call was not supposed to be made, but was (non-zero call count)"
   (after-silently
    (expect (function-under-test 33) => "irrelevant"
-	   (not-called mocked-function))
+           (not-called mocked-function))
    @reported => (just [wrong-call-count bad-result]))
 
   "call not from inside function"
   (after-silently 
    (expect (+ (mocked-function 12) (other-function 12)) => 12
-	   (fake (mocked-function 12) => 11)
-	   (fake (other-function 12) => 1))
+           (fake (mocked-function 12) => 11)
+           (fake (other-function 12) => 1))
    @reported => (just pass))
 
   "call that matches none of the expected arguments"
   (after-silently
    (expect (+ (mocked-function 12) (mocked-function 33)) => "result irrelevant because of earlier failure"
-	   (fake (mocked-function 12) => "hi"))
+           (fake (mocked-function 12) => "hi"))
    @reported => (just [(contains {:type :mock-argument-match-failure :actual '(33)})
-		      bad-result]))
+                      bad-result]))
 
   "failure because one variant of multiply-mocked function is not called"
   (after-silently 
    (expect (+ (mocked-function 12) (mocked-function 22)) => 3
-	   (fake (mocked-function 12) => 1)
-	   (fake (mocked-function 22) => 2)
-	   (fake (mocked-function 33) => 3))
+           (fake (mocked-function 12) => 1)
+           (fake (mocked-function 22) => 2)
+           (fake (mocked-function 33) => 3))
    @reported => (just [(contains {:type :mock-incorrect-call-count
-				 :expected-call "(mocked-function 33)" })
-		       pass])) ; Right result, but wrong reason.
+                                 :expected-call "(mocked-function 33)" })
+                       pass])) ; Right result, but wrong reason.
 
   "multiple calls to a mocked function are perfectly fine"
   (expect (+ (mocked-function 12) (mocked-function 12)) => 2
-	  (fake (mocked-function 12) => 1) )
+          (fake (mocked-function 12) => 1) )
   )
 
 
 (facts "about overriding values in an expect"
   (after-silently
    (expect (function-under-test 1) => 33 :expected-result "not 33"
-	   (fake (mocked-function 1) => "not 33"))
+           (fake (mocked-function 1) => "not 33"))
    @reported => (just pass))
 
   (let [expected "not 33"]
     (expect (function-under-test 1) => 33 :expected-result expected
-	    (fake (mocked-function 1) => "not 33"))))
+            (fake (mocked-function 1) => "not 33"))))
 
 (fact "if there are duplicate overrides, the last one takes precedence"
   (let [expected "not 33"]
     (expect (function-under-test 1) => 33 :expected-result "to be overridden"
-	    :expected-result expected
-	    (fake (mocked-function 1) => "not 33"))
+            :expected-result expected
+            (fake (mocked-function 1) => "not 33"))
     (expect (function-under-test 1) => 33 :expected-result "to be overridden"
-	    :expected-result expected
-	    (fake (mocked-function 1) => 5 :result-supplier "IGNORED"
-		  :result-supplier (fn [] expected)))))
+            :expected-result expected
+            (fake (mocked-function 1) => 5 :result-supplier "IGNORED"
+                  :result-supplier (fn [] expected)))))
     
 
 (fact "expect returns an appropriate truth value"
   (run-silently (expect (function-under-test 1) => 33
-			(fake (mocked-function 1) => 33))) => true
-			
+                        (fake (mocked-function 1) => 33))) => true
+                        
   (run-silently (expect (function-under-test 1) => 33
-			 (fake (mocked-function 2) => 33))) => false ; mock failure
+                         (fake (mocked-function 2) => 33))) => false ; mock failure
   (run-silently (expect (+ 1 1) => 33)) => false)
 
 (facts "about checkers"
@@ -188,12 +190,12 @@
 
   "exact function matches can be checked with exactly"
   (let [myfun (fn [] 33)
-	funs [myfun]]
+        funs [myfun]]
     (expect (first funs) => (exactly myfun)))
 
   "mocked function argument matching uses function-aware equality"
   (expect (function-under-test 1 "floob" even?) => even?
-	  (fake (mocked-function odd? anything (exactly even?)) => 44)))
+          (fake (mocked-function odd? anything (exactly even?)) => 44)))
 
 (defn actual-plus-one-is-greater-than [expected]
   (chatty-checker [actual] (> (inc actual) expected)))
@@ -203,24 +205,24 @@
   (after-silently
    (expect (+ 1 1) => (actual-plus-one-is-greater-than 33))
    @reported => (just (contains {:type :mock-expected-result-functional-failure
-				 :actual 2
-				 :intermediate-results [ [ '(inc actual) 3 ] ]
-				 :expected '(actual-plus-one-is-greater-than 33)})))
+                                 :actual 2
+                                 :intermediate-results [ [ '(inc actual) 3 ] ]
+                                 :expected '(actual-plus-one-is-greater-than 33)})))
 
   "chatty checkers can be used anonymously, like functions"
   (after-silently 
    (expect (+ 1 1) => (chatty-checker [actual] (> (inc actual) 33)))
    @reported => (just (contains {:type :mock-expected-result-functional-failure
-				 :actual 2
-				 :intermediate-results [ [ '(inc actual) 3 ] ]
-				 :expected '(chatty-checker [actual] (> (inc actual) 33))}))))
+                                 :actual 2
+                                 :intermediate-results [ [ '(inc actual) 3 ] ]
+                                 :expected '(chatty-checker [actual] (> (inc actual) 33))}))))
 
 (declare chatty-prerequisite)
 (defn chatty-fut [x] (chatty-prerequisite x))
 
 (fact "chatty functions can be used for argument matching"
   (expect (chatty-fut 5) => "hello"
-	  (fake (chatty-prerequisite (actual-plus-one-is-greater-than 5)) => "hello")))
+          (fake (chatty-prerequisite (actual-plus-one-is-greater-than 5)) => "hello")))
 
 (fact "you can fake a function from another namespace"
   (let [myfun (fn [x] (list x))]
@@ -235,9 +237,9 @@
 
 (fact "a more indirect use of a function can still be faked"
   (expect (set-handler 'set 'disjoint-set) => 'set
-	  (fake (intersection 'set 'disjoint-set) => #{}))
+          (fake (intersection 'set 'disjoint-set) => #{}))
   (expect (set-handler 'set 'overlapping-set) => #{'intersection}
-	  (fake (intersection 'set 'overlapping-set) => #{'intersection})))
+          (fake (intersection 'set 'overlapping-set) => #{'intersection})))
 
 
 ;; This test is rather indirect. The function under test returns a lazy seq
@@ -251,7 +253,7 @@
 
 (fact "entire trees are eagerly evaluated"
   (expect (lazy-seq-not-at-top-level) => '((32))
-	  (fake (testfun 1) => 32)))
+          (fake (testfun 1) => 32)))
 
 
 ;; The files to be loaded will blow up unless we're in production-mode.

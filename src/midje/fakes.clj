@@ -1,11 +1,13 @@
+;; -*- indent-tabs-mode: nil -*-
+
 (ns midje.fakes
   (:use [clojure.contrib.seq-utils :only [find-first]]
-	clojure.test
+        clojure.test
         clojure.contrib.error-kit
         [midje.util report file-position form-utils]
-	[midje.util.checkers :only [chatty-checker-falsehood? chatty-checker?
-				    extended-= extended-list-=]]
-	)
+        [midje.util.checkers :only [chatty-checker-falsehood? chatty-checker?
+                                    extended-= extended-list-=]]
+        )
   (:require [clojure.zip :as zip]))
 
 
@@ -59,10 +61,10 @@
 
 (defn binding-map [fakes]
   (reduce (fn [accumulator function-var] 
-	      (let [faker (fn [& actual-args] (call-faker function-var actual-args fakes))]
-		(assoc accumulator function-var faker)))
-	  {}
-	  (unique-function-vars fakes))
+              (let [faker (fn [& actual-args] (call-faker function-var actual-args fakes))]
+                (assoc accumulator function-var faker)))
+          {}
+          (unique-function-vars fakes))
 )
 
 (defn fake-count [fake] (deref (:count-atom fake)))
@@ -100,41 +102,41 @@
 ;; counts.
 (defn check-result [actual call]
   (cond (extended-= actual (call :expected-result))
-	(do (report {:type :pass})
-	    true)
+        (do (report {:type :pass})
+            true)
 
-	(fn? (call :expected-result))
-	(do (report (merge {:type :mock-expected-result-functional-failure
-			    :position (call :file-position)
-			    :expected (call :expected-result-text-for-failures) }
-			   (if (chatty-checker? (call :expected-result))
-			     (do
-;			       (prn call)
-;			       (prn actual)
-			       (let [chatty-result ((call :expected-result) actual)]
-				 (if (map? chatty-result)
-				   chatty-result
-				   {:actual actual
-				    :notes ["Midje program error. Please report."
-					    (str "A chatty checker returned "
-						 (pr-str chatty-result)
-						 " instead of a map.")]})))
-			     {:actual actual})))
-	    false)
-	
-	:else
-	(do 
-	  (report {:type :mock-expected-result-failure
-		   :position (call :file-position)
-		   :actual actual
-		   :expected (call :expected-result) })
-	  false))
+        (fn? (call :expected-result))
+        (do (report (merge {:type :mock-expected-result-functional-failure
+                            :position (call :file-position)
+                            :expected (call :expected-result-text-for-failures) }
+                           (if (chatty-checker? (call :expected-result))
+                             (do
+;                              (prn call)
+;                              (prn actual)
+                               (let [chatty-result ((call :expected-result) actual)]
+                                 (if (map? chatty-result)
+                                   chatty-result
+                                   {:actual actual
+                                    :notes ["Midje program error. Please report."
+                                            (str "A chatty checker returned "
+                                                 (pr-str chatty-result)
+                                                 " instead of a map.")]})))
+                             {:actual actual})))
+            false)
+        
+        :else
+        (do 
+          (report {:type :mock-expected-result-failure
+                   :position (call :file-position)
+                   :actual actual
+                   :expected (call :expected-result) })
+          false))
 )
 
 (defmacro capturing-exception [form]
   `(try ~form
-	(catch Throwable e#
-	  (midje.util.checkers/captured-exception e#))))
+        (catch Throwable e#
+          (midje.util.checkers/captured-exception e#))))
 
 ;; TODO: Making everything into a function is a bit silly, given that
 ;; extended-= already knows how to deal with functions on the right-hand-side.

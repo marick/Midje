@@ -1,3 +1,5 @@
+;; -*- indent-tabs-mode: nil -*-
+
 (ns midje.t-metaconstants
   (:use [midje.metaconstants :only [metaconstant? define-metaconstants]])
   (:use midje.sweet)
@@ -18,9 +20,9 @@
 
 (fact "metaconstants are automatically defined"
   (define-metaconstants '(fact (f ...form...) => 1
-			   [:in ...vec...]
-			   {:in ...map...}
-			   #{:in ...set...}))
+                           [:in ...vec...]
+                           {:in ...map...}
+                           #{:in ...set...}))
   (claim-symbols '(...form... ...vec... ...map... ...set...)))
 
 

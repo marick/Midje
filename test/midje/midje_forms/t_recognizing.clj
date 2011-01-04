@@ -1,3 +1,5 @@
+;; -*- indent-tabs-mode: nil -*-
+
 (ns midje.midje-forms.t-recognizing
   (:use [midje.midje-forms.recognizing])
   (:use midje.sweet)
@@ -7,8 +9,8 @@
 
 (fact "namespacey-match accepts symbols from different midje namespaces"
   (let [values (zip/seq-zip '(m midje.semi-sweet/expect))
-	m-node (zip/down values)
-	expect-node (-> values zip/down zip/right)]
+        m-node (zip/down values)
+        expect-node (-> values zip/down zip/right)]
     (expect (namespacey-match '(m) m-node) => truthy)
     (expect (namespacey-match '(expect) expect-node) => truthy)
     (expect (namespacey-match '(n) m-node) => falsey)))
@@ -28,7 +30,7 @@
 (fact "can identify and skip over semi-sweet keywords (currently 'expect' and 'fake')"
   (doseq [skippable '(expect fake midje.semi-sweet/expect midje.semi-sweet/fake)]
     (let [z (zip/seq-zip `(111 (~skippable 1 2 '(3)) "next"))
-	  skippable (-> z zip/down zip/next zip/down)]
+          skippable (-> z zip/down zip/next zip/down)]
       skippable => loc-is-semi-sweet-keyword?)))
 
 (fact "can ask if at first element of X => Y :possible :keywords"
@@ -55,11 +57,11 @@
 
   (setup-teardown-bindings '(before :checks (+ 1 1) :after (- 2 2))) =>
     (contains '{?key before, ?when :checks, ?first-form (+ 1 1),
-		?after :after, ?second-form (- 2 2)})
+                ?after :after, ?second-form (- 2 2)})
 
   (setup-teardown-bindings '(after :checks (+ 1 1))) =>
     (contains '{?key after, ?when :checks, ?first-form (+ 1 1)})
 
   (setup-teardown-bindings '(around :checks (let [x 1] ?form))) =>
     (contains '{?key around, ?when :checks,
-		?first-form (let [x 1] ?form) }))
+                ?first-form (let [x 1] ?form) }))

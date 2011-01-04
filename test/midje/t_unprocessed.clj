@@ -1,3 +1,5 @@
+;; -*- indent-tabs-mode: nil -*-
+
 (ns midje.t-unprocessed
   (:use clojure.test)
   (:use [midje.unprocessed])

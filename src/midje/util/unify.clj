@@ -1,3 +1,5 @@
+;; -*- indent-tabs-mode: nil -*-
+
 (ns midje.util.unify
   (:require [me.fogus.unifycle :as unify]))
 

@@ -1,3 +1,5 @@
+;; -*- indent-tabs-mode: nil -*-
+
 (ns midje.midje-forms.translating
   (:use clojure.contrib.def)
   (:use [clojure.contrib.seq :only [separate]])
@@ -15,10 +17,10 @@
     (if (zip/end? loc)
       (zip/root loc)
       (recur (zip/next (cond (namespacey-match '(=>) loc)
-			     (add-line-number-to-end-of-arrow-sequence__then__no-movement
-  			       (arrow-line-number loc) loc)
-			     
-			     :else loc))))))
+                             (add-line-number-to-end-of-arrow-sequence__then__no-movement
+                               (arrow-line-number loc) loc)
+                             
+                             :else loc))))))
 
 
 
@@ -26,7 +28,7 @@
 
 (defn expand-prerequisites-into-fake-calls [provided-loc]
   (let [fakes (rest (zip/node (zip/up provided-loc)))
-	fake-bodies (partition-arrow-forms fakes)]
+        fake-bodies (partition-arrow-forms fakes)]
     (map make-fake fake-bodies)))
 
 (defn translate-fact-body [multi-form]
@@ -35,18 +37,18 @@
       (zip/root loc)
       (recur
        (zip/next
-	(cond (loc-is-start-of-arrow-sequence? loc)
-	      (wrap-with-expect__then__at-rightmost-expect-leaf loc)
+        (cond (loc-is-start-of-arrow-sequence? loc)
+              (wrap-with-expect__then__at-rightmost-expect-leaf loc)
 
-	      (loc-is-head-of-form-providing-prerequisites? loc)
-	      (let [fake-calls (expand-prerequisites-into-fake-calls loc)
-		    full-expect-form (delete_prerequisite_form__then__at-previous-full-expect-form loc)]
-		(tack-on__then__at-rightmost-expect-leaf fake-calls full-expect-form))
+              (loc-is-head-of-form-providing-prerequisites? loc)
+              (let [fake-calls (expand-prerequisites-into-fake-calls loc)
+                    full-expect-form (delete_prerequisite_form__then__at-previous-full-expect-form loc)]
+                (tack-on__then__at-rightmost-expect-leaf fake-calls full-expect-form))
 
-	      (loc-is-semi-sweet-keyword? loc)
-	      (skip-to-rightmost-leaf loc)
+              (loc-is-semi-sweet-keyword? loc)
+              (skip-to-rightmost-leaf loc)
 
-	      :else loc))))))
+              :else loc))))))
 
 
 
@@ -59,22 +61,22 @@
 
 (defn- canonicalize-raw-wrappers [forms]
   (loop [expanded []
-	 in-progress forms]
+         in-progress forms]
     (cond (empty? in-progress)
-	  expanded
+          expanded
 
-	  (is-arrow-form? in-progress)
-	  (let [content (take-arrow-form in-progress)]
-	    (recur (conj expanded (-> content make-fake make-background))
-		   (nthnext in-progress (count content))))
+          (is-arrow-form? in-progress)
+          (let [content (take-arrow-form in-progress)]
+            (recur (conj expanded (-> content make-fake make-background))
+                   (nthnext in-progress (count content))))
 
-	  (seq-headed-by-setup-teardown-form? in-progress)
-	  (recur (conj expanded (first in-progress))
-		 (rest in-progress))
-	  
-	  :else
-	  (throw (Error. (str "This doesn't look like part of a background: "
-			      (vec in-progress)))))))
+          (seq-headed-by-setup-teardown-form? in-progress)
+          (recur (conj expanded (first in-progress))
+                 (rest in-progress))
+          
+          :else
+          (throw (Error. (str "This doesn't look like part of a background: "
+                              (vec in-progress)))))))
 
 (defn with-wrapping-target [what target]
   (with-meta what (merge (meta what) {:midje/wrapping-target target})))
@@ -87,8 +89,8 @@
   (if (some #{(name (first canonicalized-non-fake))} '("before" "after" "around"))
     (with-wrapping-target
       (macroexpand-1 (cons (symbol "midje.midje-forms.building"
-				   (name (first canonicalized-non-fake)))
-			   (rest canonicalized-non-fake)))
+                                   (name (first canonicalized-non-fake)))
+                           (rest canonicalized-non-fake)))
       (second canonicalized-non-fake))
     (throw (Error. (str "Could make nothing of " canonicalized-non-fake)))))
 
@@ -102,8 +104,8 @@
 (defn final-wrappers [raw-wrappers]
   (define-metaconstants raw-wrappers)
   (let [canonicalized (canonicalize-raw-wrappers raw-wrappers)
-	[fakes state-wrappers] (separate-by fake? canonicalized)
-	final-state-wrappers (eagerly (map final-state-wrapper state-wrappers))]
+        [fakes state-wrappers] (separate-by fake? canonicalized)
+        final-state-wrappers (eagerly (map final-state-wrapper state-wrappers))]
     (if (empty? fakes)
       final-state-wrappers
       (concat final-state-wrappers (list (final-fake-wrapper fakes))))))
@@ -114,54 +116,54 @@
 
 (defn replace-wrappers-returning-immediate [raw-wrappers]
   (let [[immediates finals] (separate (for-wrapping-target? :contents)
-				      (final-wrappers raw-wrappers))]
+                                      (final-wrappers raw-wrappers))]
     (set-namespace-value :midje/wrappers (list finals))
     (multiwrap "unimportant-value" immediates)))
 
 
 (defn forms-to-wrap-around [wrapping-target]
   (let [wrappers (namespace-values-inside-out :midje/wrappers)
-	per-target-wrappers (filter (for-wrapping-target? wrapping-target) wrappers)]
+        per-target-wrappers (filter (for-wrapping-target? wrapping-target) wrappers)]
     per-target-wrappers))
 
 (defn midjcoexpand [form]
   ;; (p+ "== midjcoexpanding" form)
   ;; (p "== with" (namespace-values-inside-out :midje/wrappers))
   (nopret (cond (already-wrapped? form)
-	form
+        form
 
-	(form-first? form "quote")
-	form
+        (form-first? form "quote")
+        form
 
-	(future-fact? form)
-	(macroexpand form)
+        (future-fact? form)
+        (macroexpand form)
 
-	(expect? form)
-	(multiwrap form (forms-to-wrap-around :checks))
+        (expect? form)
+        (multiwrap form (forms-to-wrap-around :checks))
 
-	(fact? form)
-	(multiwrap (midjcoexpand (macroexpand form))
-		   (forms-to-wrap-around :facts))
+        (fact? form)
+        (multiwrap (midjcoexpand (macroexpand form))
+                   (forms-to-wrap-around :facts))
 
-	(background-form? form)
-	(do
-	  ;; (p+ "use these wrappers" (raw-wrappers form))
-	  ;; (p "for this form" (interior-forms form))
-	  ;; (p (namespace-values-inside-out :midje/wrappers))
-	  (nopret (let [wrappers (final-wrappers (raw-wrappers form))
-		      [now-wrappers later-wrappers] (separate (for-wrapping-target? :contents)
-							      wrappers)]
-	    ;; "Now wrappers" have to be separated out and discarded here, because
-	    ;; if they were left in, they'd be reapplied in any nested background
-	    ;; forms.
-	    ;; (p "now-wrappers" now-wrappers)
-	    ;; (p "later-wrappers" later-wrappers)
-	    (multiwrap (with-additional-wrappers later-wrappers
-			  (midjcoexpand (interior-forms form)))
-		       now-wrappers))))
-	
-	(sequential? form)
-	(as-type form (eagerly (map midjcoexpand form)))
+        (background-form? form)
+        (do
+          ;; (p+ "use these wrappers" (raw-wrappers form))
+          ;; (p "for this form" (interior-forms form))
+          ;; (p (namespace-values-inside-out :midje/wrappers))
+          (nopret (let [wrappers (final-wrappers (raw-wrappers form))
+                      [now-wrappers later-wrappers] (separate (for-wrapping-target? :contents)
+                                                              wrappers)]
+            ;; "Now wrappers" have to be separated out and discarded here, because
+            ;; if they were left in, they'd be reapplied in any nested background
+            ;; forms.
+            ;; (p "now-wrappers" now-wrappers)
+            ;; (p "later-wrappers" later-wrappers)
+            (multiwrap (with-additional-wrappers later-wrappers
+                          (midjcoexpand (interior-forms form)))
+                       now-wrappers))))
+        
+        (sequential? form)
+        (as-type form (eagerly (map midjcoexpand form)))
 
-	:else
-	form)))
+        :else
+        form)))

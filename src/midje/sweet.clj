@@ -1,13 +1,15 @@
+;; -*- indent-tabs-mode: nil -*-
+
 (ns midje.sweet
   (:use clojure.test
         [clojure.contrib.ns-utils :only [immigrate]]
-	clojure.contrib.error-kit
-	[clojure.contrib.pprint :only [pprint]])
-  (:use	[midje.production-mode])
+        clojure.contrib.error-kit
+        [clojure.contrib.pprint :only [pprint]])
+  (:use [midje.production-mode])
   (:use midje.midje-forms.recognizing)
   (:use [midje.midje-forms.translating :only [midjcoexpand replace-wrappers-returning-immediate
-					      forms-to-wrap-around translate-fact-body
-					      add-line-numbers]])
+                                              forms-to-wrap-around translate-fact-body
+                                              add-line-numbers]])
   (:use [midje.midje-forms.dissecting :only [separate-background-forms]])
   (:require [midje.midje-forms.building :as building])
   (:require [midje.sweet.folded-prerequisites :as folded])
@@ -40,13 +42,13 @@
   (when (user-desires-checking?)
     (let [[background remainder] (separate-background-forms forms)]
       (if (empty? background)
-	(let [things-to-run (folded/rewrite
-			     (translate-fact-body
-			      (add-line-numbers remainder)))]
-	  (define-metaconstants things-to-run)
-	  (multiwrap (midjcoexpand `(every? true? (list ~@things-to-run)))
-		     (forms-to-wrap-around :facts)))
-	`(against-background ~background (midje.sweet/fact ~@remainder))))))
+        (let [things-to-run (folded/rewrite
+                             (translate-fact-body
+                              (add-line-numbers remainder)))]
+          (define-metaconstants things-to-run)
+          (multiwrap (midjcoexpand `(every? true? (list ~@things-to-run)))
+                     (forms-to-wrap-around :facts)))
+        `(against-background ~background (midje.sweet/fact ~@remainder))))))
 
 
 (defmacro facts [& forms]
@@ -54,12 +56,12 @@
 
 (defn- future-fact-1 [forms]
   (let [lineno (reader-line-number forms)
-	description (if (string? (second forms))
-		      (str (second forms) " ")
-		      "")]
+        description (if (string? (second forms))
+                      (str (second forms) " ")
+                      "")]
     `(clojure.test/report {:type :future-fact
-			   :description ~description
-			   :position (midje.util.file-position/line-number-known ~lineno)})))
+                           :description ~description
+                           :position (midje.util.file-position/line-number-known ~lineno)})))
 
 ;; Wanna add more to these? See also midje-forms.recognizing.
 ;; Such is the penalty for whimsy.

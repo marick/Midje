@@ -1,3 +1,5 @@
+;; -*- indent-tabs-mode: nil -*-
+
 (ns behaviors.background-nesting.t-shadowing-outside-background
   (:use clojure.test)
   (:use [midje.sweet])
@@ -10,7 +12,7 @@
 (unfinished outermost middlemost innermost)
 
 (background (outermost) => 2
-	    (middlemost) => 'a)
+            (middlemost) => 'a)
 
 (deftest background-command-is-shadowed-by-against-background
   (against-background [ (middlemost) => 33]

@@ -1,3 +1,5 @@
+;; -*- indent-tabs-mode: nil -*-
+
 (ns behaviors.background_nesting.t-without-deftest
   (:use clojure.test)
   (:use [midje.sweet])
@@ -14,4 +16,4 @@
     (facts
       (vector? [1 two]) => truthy
       (let [three 3]
-	(+ (middlemost ...one...) two three) => 6))))
+        (+ (middlemost ...one...) two three) => 6))))

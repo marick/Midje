@@ -1,3 +1,5 @@
+;; -*- indent-tabs-mode: nil -*-
+
 (ns midje.midje-forms.t-moving-around
   (:use [midje.midje-forms.moving-around]
 	midje.sweet

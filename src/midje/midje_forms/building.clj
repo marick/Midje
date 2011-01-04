@@ -1,3 +1,5 @@
+;; -*- indent-tabs-mode: nil -*-
+
 (ns midje.midje-forms.building
   (:use [midje.util.wrapping :only [ensure-correct-form-variable]]))
 
@@ -10,9 +12,9 @@
 (defmacro before [wrapping-target before-form & extras ]
   (let [after-form (second extras)]
     (ensure-correct-form-variable `(try
-				    ~before-form
-				    ?form
-				    (finally ~after-form)))))
+                                    ~before-form
+                                    ?form
+                                    (finally ~after-form)))))
 
 (defmacro after [wrapping-target after-form]
   (ensure-correct-form-variable `(try ?form (finally ~after-form))))

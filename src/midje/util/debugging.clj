@@ -1,3 +1,5 @@
+;; -*- indent-tabs-mode: nil -*-
+
 (ns midje.util.debugging
   (:require [clojure.contrib.string :as str]))
 

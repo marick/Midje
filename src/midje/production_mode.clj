@@ -1,3 +1,5 @@
+;; -*- indent-tabs-mode: nil -*-
+
 (ns midje.production-mode)
 
 (defn- value-within [namespace-symbol variable-symbol]

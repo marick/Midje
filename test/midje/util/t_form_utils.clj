@@ -1,3 +1,5 @@
+;; -*- indent-tabs-mode: nil -*-
+
 (ns midje.util.t-form-utils
   (:use [midje.util.form-utils])
   (:use [midje.sweet])
@@ -8,9 +10,9 @@
   (reader-line-number (with-meta '(fact (this that)) {:line 23})) => 23
   "or, failing that: try top-level subforms"
   (reader-line-number `(fact
-			 (+ 1 2)
-			 ~(with-meta '(this that) {:line 23})
-			 ~(with-meta '(this that) {:line 22223}))) => 23
+                         (+ 1 2)
+                         ~(with-meta '(this that) {:line 23})
+                         ~(with-meta '(this that) {:line 22223}))) => 23
   "or a default value"
   (reader-line-number (with-meta '(fact "text") {})) => "0 (no line info)")
 

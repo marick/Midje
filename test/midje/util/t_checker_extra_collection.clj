@@ -1,3 +1,5 @@
+;; -*- indent-tabs-mode: nil -*-
+
 (ns midje.util.t-checker-extra-collection
   (:use [midje.sweet])
   (:use [midje.test-util]))

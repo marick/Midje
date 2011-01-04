@@ -1,3 +1,5 @@
+;; -*- indent-tabs-mode: nil -*-
+
 (ns midje.midje-forms.moving-around
   (:use [midje.midje-forms.recognizing :only [loc-is-at-full-expect-form?]])
   (:require [clojure.zip :as zip]))

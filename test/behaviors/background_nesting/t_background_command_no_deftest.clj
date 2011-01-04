@@ -1,3 +1,5 @@
+;; -*- indent-tabs-mode: nil -*-
+
 (ns behaviors.background_nesting.t-background-command-no-deftest
   (:use clojure.test)
   (:use [midje.sweet])

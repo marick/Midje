@@ -1,3 +1,5 @@
+;; -*- indent-tabs-mode: nil -*-
+
 (ns midje.util.laziness
   (:require [clojure.zip :as zip]))
 
@@ -8,7 +10,7 @@
   (if (seq? value)
     (loop [loc (zip/seq-zip value)]  ;; touch every node
       (if (zip/end? loc)
-	(zip/root loc)
-	(recur (zip/next loc))))
+        (zip/root loc)
+        (recur (zip/next loc))))
     value))
 

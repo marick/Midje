@@ -1,3 +1,5 @@
+;; -*- indent-tabs-mode: nil -*-
+
 (ns behaviors.t-setup-teardown
   (:use [midje.sweet])
   (:use [midje.test-util])
@@ -25,7 +27,7 @@
 (after-silently 
  (fact
    (against-background (before :checks (swap! before-atom (constantly 0))
-			       :after    (swap! after-atom (constantly 10))))
+                               :after    (swap! after-atom (constantly 10))))
    ;; [10 33]
    [(swap! before-atom inc) (swap! after-atom inc)] => [1 34]
    ;; [1 10]
@@ -80,7 +82,7 @@
      (+ (f x) 2) => 4)
    (fact (only-passes? 1) => truthy)))
 
-					; ========
+                                        ; ========
 
 
 (fact (= @test-atom 18) => falsey)
@@ -94,7 +96,7 @@
 (def per-fact-atom (atom 0))
 (def per-check-atom (atom 0))
 (against-background [ (before :facts (swap! per-fact-atom (constantly 18)))
-		      (before :checks (swap! per-check-atom (constantly 3))) ]
+                      (before :checks (swap! per-check-atom (constantly 3))) ]
   (after-silently 
    (fact
      @per-fact-atom => 18
@@ -110,8 +112,8 @@
 
 (fact "around facts work within the fact body"
   (against-background (before :facts (swap! per-fact-atom (constantly 18)))
-		      (before :checks (swap! per-check-atom (constantly 3)))
-		      (around :facts (let [x 1] ?form)))
+                      (before :checks (swap! per-check-atom (constantly 3)))
+                      (around :facts (let [x 1] ?form)))
   @per-fact-atom => 18
   @per-check-atom => 3
   (+ x 33) => 34
@@ -127,25 +129,25 @@
     "within a let, we see a shadowing value")
 
   (against-background [ (around :checks (let [x 33 y 12] ?form))
-			(around :checks (let [y 10] ?form))]
+                        (around :checks (let [y 10] ?form))]
     (fact "Later values shadow"
       (+ x y) => 43))
 
   (fact x => 1))
 
-					; ========
+                                        ; ========
 
 
 (def immediate-atom (atom 0))
 (against-background [ (before :contents (swap! immediate-atom (constantly 33))
-			      :after (swap! immediate-atom (constantly 110)))
-		      (f ...arg...) => 300
-		      (around :contents (let [x 1] ?form))
-		      (before :facts (swap! per-fact-atom (constantly 18))) ]
+                              :after (swap! immediate-atom (constantly 110)))
+                      (f ...arg...) => 300
+                      (around :contents (let [x 1] ?form))
+                      (before :facts (swap! per-fact-atom (constantly 18))) ]
 
   (fact "one set of facts"
     (against-background (before :checks (swap! per-check-atom (constantly 3))
-  				:after (swap! per-check-atom (constantly 888))))
+                                :after (swap! per-check-atom (constantly 888))))
       
     @immediate-atom => 33  ;; content wrapper applies
     @per-fact-atom => 18   ;; fact wrapper applies
@@ -160,9 +162,9 @@
     (+ (f ...arg...) x) => 301)
   
   (fact "the other"
-    @immediate-atom => 34	;; immediate wrapper doesn't apply.
-    @per-fact-atom => 18	;; per-fact wrapper resets.
-    @per-check-atom => 888	;; old per-check atom applied once, applies no more
+    @immediate-atom => 34       ;; immediate wrapper doesn't apply.
+    @per-fact-atom => 18        ;; per-fact wrapper resets.
+    @per-check-atom => 888      ;; old per-check atom applied once, applies no more
     x => 1
     (+ (f ...arg...) x @per-fact-atom) => 319
 
@@ -170,14 +172,14 @@
     (swap! per-check-atom inc) => 889))
 
 (fact "everything left with final value"
-  @immediate-atom => 110	;; content wrapper set parting value.
+  @immediate-atom => 110        ;; content wrapper set parting value.
   @per-fact-atom => 19
   @per-check-atom => 889
 
   (swap! per-check-atom inc) => 890
   @per-check-atom => 890)
 
-					; ========
+                                        ; ========
 ;; How backgrounds that apply to :contents work.
 
 (def per-contents-atom (atom 999))
@@ -188,7 +190,7 @@
   (swap! per-contents-atom inc) => 4
   @per-contents-atom => 4)
 (fact @per-contents-atom => 4)
-					; ========
+                                        ; ========
 
 (background (around :facts (let [one 111] ?form)))
 (fact  "Background facts are visible even when they don't wrap a fact (old bug)"
@@ -197,7 +199,7 @@
 (against-background [(around :facts (let [two 222] ?form))]
   (fact (+ one two) => 333))
 
-					; ========
+                                        ; ========
 
 
 (against-background [ (around :facts (let [x 1] ?form) )]
@@ -207,7 +209,7 @@
 
     (fact "including things like scoping"
       (against-background (around :checks (let [z (* 3 x)
-						a (* 4 y)] ?form)))
+                                                a (* 4 y)] ?form)))
       (+ x y z a) => 14)))
 
   

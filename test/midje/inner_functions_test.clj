@@ -1,3 +1,5 @@
+;; -*- indent-tabs-mode: nil -*-
+
 (ns midje.inner-functions-test
   (:use clojure.test)
   (:use [midje.semi-sweet])
@@ -6,7 +8,7 @@
 
 (testable-defn outer [a b]
   (let [summer (fn [arg] (+ a arg))
-	multiplier (fn [] (* (summer b) (summer b)))]
+        multiplier (fn [] (* (summer b) (summer b)))]
     (multiplier)))
 
 (deftest main-example

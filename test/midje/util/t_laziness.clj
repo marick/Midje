@@ -1,7 +1,9 @@
+;; -*- indent-tabs-mode: nil -*-
+
 (ns midje.util.t-laziness
   (:use [midje.sweet]
-	[midje.util laziness]
-	[midje.test-util]))
+        [midje.util laziness]
+        [midje.test-util]))
 
 ;; Justification for use of eagerly
 (def counter (atom 1))

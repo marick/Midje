@@ -1,3 +1,5 @@
+;; -*- indent-tabs-mode: nil -*-
+
 (ns midje.midje-forms.recognizing
   (:use midje.util.form-utils)
   (:require [midje.util.wrapping :as wrapping])
@@ -10,8 +12,8 @@
 
 (defn namespacey-match [symbols loc]
   (let [base-names (map name symbols)
-	qualified-names (concat (map #(str "midje.semi-sweet/" %) base-names)
-				(map #(str "midje.sweet/" %) base-names))]
+        qualified-names (concat (map #(str "midje.semi-sweet/" %) base-names)
+                                (map #(str "midje.sweet/" %) base-names))]
     ( (set (concat base-names qualified-names)) (str (zip/node loc)))))
 
 
@@ -62,9 +64,9 @@
 ;; circularity. Feh.
 (defn setup-teardown-bindings [form]
   (unify/bindings-map-or-nil form
-			     '(?key ?when ?first-form ?after ?second-form)))
+                             '(?key ?when ?first-form ?after ?second-form)))
 
 (defn seq-headed-by-setup-teardown-form? [forms]
   (when-let [bindings (setup-teardown-bindings (first forms))]
     (and (bindings '?first-form)
-	 (or (not (bindings '?after)) (bindings '?second-form)))))
+         (or (not (bindings '?after)) (bindings '?second-form)))))

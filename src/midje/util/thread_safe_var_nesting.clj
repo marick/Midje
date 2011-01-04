@@ -1,3 +1,5 @@
+;; -*- indent-tabs-mode: nil -*-
+
 (ns midje.util.thread-safe-var-nesting)
 
 ;; Variables that are expected to already be bound
@@ -29,8 +31,8 @@
 (defn with-altered-roots* [binding-map function]
   (let [old-bindings (into {} (for [pair binding-map] (alter-one-root pair)))]
     (try (function)
-	 ;; Can't use doseq inside a finally clause.
-	 (finally (dorun (map restore-one-root old-bindings))))))
+         ;; Can't use doseq inside a finally clause.
+         (finally (dorun (map restore-one-root old-bindings))))))
 
 (defmacro with-altered-roots
   "Used instead of with-bindings because bindings are thread-local
@@ -49,7 +51,7 @@
 (defn push-into-namespace [key-name newvals]
 ;  (println "push onto" key-name "these" newvals)
   (set-namespace-value key-name (cons (reverse newvals)
-				      (namespace-value key-name))))
+                                      (namespace-value key-name))))
 
 (defn pop-from-namespace [key-name]
 ;  (println "popping" key-name)

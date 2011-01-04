@@ -1,3 +1,5 @@
+;; -*- indent-tabs-mode: nil -*-
+
 (ns midje.util.t-checker
   (:use [midje.sweet])
   (:use [midje.test-util]))
@@ -147,12 +149,12 @@
   (let [result (actual-plus-one-equals-4 4)]
     result => chatty-checker-falsehood?
     result => {:actual 4
-  	      :intermediate-results [ ['(inc actual) 5] ] })
+              :intermediate-results [ ['(inc actual) 5] ] })
 
   (let [result (no-longer-limited-form 4)]
     result => chatty-checker-falsehood?
     result => {:actual 4
-  	      :intermediate-results [ ['(inc actual) 5] ['(+ 2 actual) 6] ]}))
+              :intermediate-results [ ['(inc actual) 5] ['(+ 2 actual) 6] ]}))
     
 (facts "about of-functions"
   [ 33 33 ] => (two-of 33)

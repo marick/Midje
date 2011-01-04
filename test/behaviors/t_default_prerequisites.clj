@@ -1,3 +1,5 @@
+;; -*- indent-tabs-mode: nil -*-
+
 (ns behaviors.t-default-prerequisites
   (:use midje.sweet)
   (:require [clojure.zip :as zip])
@@ -9,5 +11,5 @@
 
 (fact "background prerequisites don't have to be used"
   (expect (calls-nothing) => nil
-	  (fake (unused) => 3 :type :background)))
+          (fake (unused) => 3 :type :background)))
 

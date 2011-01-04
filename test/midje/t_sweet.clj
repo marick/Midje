@@ -1,3 +1,5 @@
+;; -*- indent-tabs-mode: nil -*-
+
 (ns midje.t-sweet
   (:use [midje.sweet])
   (:use [midje.test-util]))
@@ -19,10 +21,10 @@
 
 ;; Results of facts are truth values.
 (let [truth-values (list (run-silently (fact (+ 1 1) => 2))
-			 (run-silently (fact (+ 1 2) => 2))
-			 (run-silently (fact
-					 (+ 1 2) => 2
-					 (+ 1 2) => 3)))]
+                         (run-silently (fact (+ 1 2) => 2))
+                         (run-silently (fact
+                                         (+ 1 2) => 2
+                                         (+ 1 2) => 3)))]
   (fact truth-values => [true false false]))
 
 (unfinished g)
@@ -61,7 +63,7 @@
     (let [inner-value 3]
       (call2 outer-value inner-value) => 23
       (provided (g outer-value) => (* 10 outer-value)
-		(g inner-value) => inner-value))))
+                (g inner-value) => inner-value))))
 
 
 (defn always-one [x] 1)
@@ -85,7 +87,7 @@
 ; http://github.com/marick/Midje/issues/#issue/2
 (fact
   (expect (always-one 5) => 1
-	  (not-called some-fn)))
+          (not-called some-fn)))
 
 (binding [midje.semi-sweet/*include-midje-checks* false]
   (load "sweet_compile_out"))

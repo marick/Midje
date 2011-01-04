@@ -1,3 +1,5 @@
+;; -*- indent-tabs-mode: nil -*-
+
 (ns behaviors.background-nesting.t-shadowing
   (:use clojure.test)
   (:use [midje.sweet])
@@ -12,7 +14,7 @@
 
 (deftest background-command-is-shadowed-by-against-background
   (background (outermost) => 2
-	      (middlemost) => 'a)
+              (middlemost) => 'a)
   (against-background [ (middlemost) => 33]
     (fact (+ (middlemost) (outermost)) => 35)))
   

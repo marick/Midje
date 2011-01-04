@@ -1,3 +1,5 @@
+;; -*- indent-tabs-mode: nil -*-
+
 (when (= (class clojure.test/report) clojure.lang.MultiFn)
   (eval
    '(do (require 'clojure.test)
@@ -6,7 +8,7 @@
 
 (ns midje.util.report
   (:use clojure.test
-	[midje.util.form-utils :only [flatten-and-remove-nils]]))
+        [midje.util.form-utils :only [flatten-and-remove-nils]]))
 
 (def *renderer* println)
 
@@ -18,7 +20,7 @@
 
 (defn- without-nasty-looking-functions [form]
   (if-let [name (and (fn? form)
-		      (:name (meta form)))]
+                      (:name (meta form)))]
     (format "a function named '%s'" name)
     (pr-str form)))
 
@@ -54,18 +56,18 @@
    (str "    Checking function: " (pr-str (:expected m)))
    (if (:intermediate-results m)
      (cons "    During checking, these intermediate values were seen:"
-	   (map (fn [[form value]] (str "       " (pr-str form) " => " (pr-str value)))
-		(:intermediate-results m))))
+           (map (fn [[form value]] (str "       " (pr-str form) " => " (pr-str value)))
+                (:intermediate-results m))))
    (if (:notes m)
      (cons "    The checker said this about the reason:"
-	   (map (fn [note] (str "       " note))
- 		(:notes m))))))
+           (map (fn [note] (str "       " note))
+                (:notes m))))))
 
 (defmethod report-strings :future-fact [m]
   (list
    (str "\nWORK TO DO: "
-	(:description m)
-	(midje-position-string (:position m)))))
+        (:description m)
+        (midje-position-string (:position m)))))
   
 (defn render [m]
   (doall (map *renderer* (flatten-and-remove-nils (report-strings m)))))

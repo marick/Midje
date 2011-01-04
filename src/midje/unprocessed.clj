@@ -1,7 +1,9 @@
+;; -*- indent-tabs-mode: nil -*-
+
 (ns midje.unprocessed
   (:use clojure.test
-	[midje.fakes]
-	[midje.util laziness report thread-safe-var-nesting]
+        [midje.fakes]
+        [midje.util laziness report thread-safe-var-nesting]
         clojure.contrib.error-kit
         [clojure.contrib.ns-utils :only [immigrate]]))
 (immigrate 'midje.util.checkers)
@@ -17,7 +19,7 @@
   (let [fakes (background-fakes-plus local-fakes)]
     (with-altered-roots (binding-map fakes)
       (let [code-under-test-result (capturing-exception
-				    (eagerly
-				     ((call-map :function-under-test))))]
-	(check-call-counts fakes)
-	(check-result code-under-test-result call-map)))))
+                                    (eagerly
+                                     ((call-map :function-under-test))))]
+        (check-call-counts fakes)
+        (check-result code-under-test-result call-map)))))

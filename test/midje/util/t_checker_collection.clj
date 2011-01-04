@@ -1,3 +1,5 @@
+;; -*- indent-tabs-mode: nil -*-
+
 (ns midje.util.t-checker-collection
   (:use [midje.sweet])
   (:use [midje.test-util]))
@@ -178,7 +180,7 @@
 (fact "left-hand-side: sets to contain things"
   #{1 2 3} => (contains #{1 2 3})
   #{1 2 3} => (contains [1 2 3])
-			
+                        
   #{"1" "12" "123"} => (contains [#"1" #"2" #"3"])
   #{"1" "12" "123"} => (contains [#"1" #"2" #"3"])
   #{"1" "12" "123"} => (contains #{#"1" #"2"})
@@ -257,11 +259,11 @@
  ( (contains [:a 1]) {:a 1}) => chatty-checker-falsehood?
 
  ( (contains [1]) {:a 1}) => (contains {:actual {:a 1}
-				      :notes (just #"\{:a 1\} is a map.*\[1\]")})
+                                      :notes (just #"\{:a 1\} is a map.*\[1\]")})
  ( (contains 1) {:a 1}) => (contains {:actual {:a 1}
-				      :notes (just #"\{:a 1\} is a map.*1")})
+                                      :notes (just #"\{:a 1\} is a map.*1")})
  ((contains [:k :v]) {:k :v}) => (contains {:actual {:k :v}
-					    :notes (just #"should look like map entries")})
+                                            :notes (just #"should look like map entries")})
 
  ;; Quantifiers
  {:a 1, :b 5, :c 3} => (has every? odd?)
@@ -295,8 +297,8 @@
   => (contains {:actual {:a 1} :notes (just "Best match found: {}.")})
   (chatty-falsehood-to-map ( (contains {:a odd?, :f odd? :g odd?}) {:f 3, :g 6, :a 1}) )
   => (contains {:actual {:f 3, :g 6, :a 1}
-		:notes (just [#"Best match found: \{:a 1, :f 3\}\."
-			      #"It matched: \{:a odd\?, :f odd\?\}\."])})
+                :notes (just [#"Best match found: \{:a 1, :f 3\}\."
+                              #"It matched: \{:a odd\?, :f odd\?\}\."])})
   (chatty-falsehood-to-map ( (contains :a)        {:a 1}))
   => (contains {:actual {:a 1}, :notes (just #"\{:a 1\}.*:a.*map entries")})
   )
@@ -363,7 +365,7 @@
   )
 
 (fact "Actual result shown is the original collection"
-	     ;; This prints like this: {:actual [1], :notes (Best match found: [])}
+             ;; This prints like this: {:actual [1], :notes (Best match found: [])}
   (str (:actual ( (contains (atom 0))  #{1}))) => "#{1}"
   (str (:actual ( (just (atom 0)) #{1}))) => "#{1}"
   (str (:actual ( (has-suffix [\a \b \c]) "many"))) => "many"

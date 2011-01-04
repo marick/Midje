@@ -1,8 +1,10 @@
+;; -*- indent-tabs-mode: nil -*-
+
 (ns midje.semi-sweet
   (:use clojure.test
-	midje.fakes
-	[midje.util debugging form-utils file-position]
-	[midje.production-mode]
+        midje.fakes
+        [midje.util debugging form-utils file-position]
+        [midje.production-mode]
         [clojure.contrib.ns-utils :only [immigrate]]))
 (immigrate 'midje.unprocessed)
 
@@ -15,9 +17,9 @@
 
 (defn- only-mocked* [names]
   (let [declarations (map (fn [name] 
-			      `(defn ~name [& args#] 
-				 (throw (Error. (str "#'" '~name " has no implementation. It's used as a prerequisite in Midje tests.")))))
-			  names)]
+                              `(defn ~name [& args#] 
+                                 (throw (Error. (str "#'" '~name " has no implementation. It's used as a prerequisite in Midje tests.")))))
+                          names)]
     `(do ~@declarations)))
 
 (defmacro only-mocked 
@@ -43,8 +45,8 @@
                           `{:arg-matchers (map midje.fakes/arg-matcher-maker ~(vec args))
                             :call-text-for-failures (str '~call-form)
                             :result-supplier (fn [] ~result)
-			    :type :fake}
-			  overrides))
+                            :type :fake}
+                          overrides))
 )
 
 (defmacro not-called
@@ -55,7 +57,7 @@
                         `{:call-text-for-failures (str '~var-sym " was called.")
                           :result-supplier (fn [] nil)
                           :type :not-called}
-			overrides)
+                        overrides)
 )
 
 ;; I want to use resolve() to compare calls to fake, rather than the string
@@ -67,10 +69,10 @@
 ;; but those fail for reasons I don't understand. Bah.
 (defn- fakes-and-overrides [form]
   (let [fake? #(and (seq? %)
-		    (or (= "fake" (name (first %)))
-			(= "not-called" (name (first %)))))]
+                    (or (= "fake" (name (first %)))
+                        (= "not-called" (name (first %)))))]
     (separate-by fake? form)))
-	
+        
 
 (defmacro call-being-tested [call-form expected-result overrides]
   "Creates a map that contains a function-ized version of the form being 
@@ -96,4 +98,4 @@
   (when (user-desires-checking?)
     (let [ [fakes overrides] (fakes-and-overrides other-stuff)]
       `(let [call# (call-being-tested ~call-form ~expected-result ~overrides)]
-	 (expect* call# (vector ~@fakes))))))
+         (expect* call# (vector ~@fakes))))))

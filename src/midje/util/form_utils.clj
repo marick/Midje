@@ -1,3 +1,5 @@
+;; -*- indent-tabs-mode: nil -*-
+
 (ns midje.util.form-utils
    (:use [midje.util laziness]))
 
@@ -37,7 +39,7 @@
    of function applied to existing values."
 
   (into {} (map (fn [ [k v] ] [k (function v)])
-		hashmap)))
+                hashmap)))
 
 (defn tack-on-to [hashmap & kvs]
   "conj new values onto appropriate keys of a map"
@@ -56,6 +58,6 @@
   "(apply-pairwise [inc dec] [1 1] [2 2]) => [ [2 0] [3 1] ]
    Note that the functions must take only a single argument."
   (map (fn [arglist]
-	 (map (fn [function arg] (apply function [arg]))
-	      functions arglist))
+         (map (fn [function arg] (apply function [arg]))
+              functions arglist))
        arglists))
