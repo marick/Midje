@@ -3,3 +3,4 @@ pom.xml
 lib
 classes
 test/midje/scratch
+.cake
