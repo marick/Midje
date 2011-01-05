@@ -5,9 +5,9 @@
         clojure.test
         clojure.contrib.error-kit
         [midje.util report file-position form-utils]
-        [midje.util.checkers :only [chatty-checker-falsehood? chatty-checker?
-                                    extended-= extended-list-=]]
-        )
+        [midje.checkers.util :only [captured-exception]]
+        [midje.checkers.chatty :only [chatty-checker-falsehood? chatty-checker?]]
+        [midje.checkers.extended-equality :only [extended-= extended-list-=]])
   (:require [clojure.zip :as zip]))
 
 
@@ -136,7 +136,7 @@
 (defmacro capturing-exception [form]
   `(try ~form
         (catch Throwable e#
-          (midje.util.checkers/captured-exception e#))))
+          (captured-exception e#))))
 
 ;; TODO: Making everything into a function is a bit silly, given that
 ;; extended-= already knows how to deal with functions on the right-hand-side.

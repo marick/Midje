@@ -1,167 +1,14 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.util.checkers
-  (:use [clojure.set :only [difference union subset?]]
+(ns midje.checkers.collection
+  (:use [clojure.set :only [union]]
         [clojure.contrib.seq :only [rotations]]
         [clojure.contrib.def :only [defmacro- defvar-]]
         [clojure.contrib.pprint :only [cl-format]]
         [clojure.contrib.combinatorics :only [permutations]]
-        [midje.util.form-utils :only [regex? vector-without-element-at-index
-                                      tack-on-to pairs]]))
-
-(declare chatty-checker-falsehood? captured-exception?)
-
-;; Midje has its own peculiar idea of equality
-
-(defn- extended-fn? [x]
-  (or (fn? x)
-      (= (class x) clojure.lang.MultiFn)))
-
-(defn extended-= [actual expected]
-  (try
-    (cond (chatty-checker-falsehood? actual)
-          actual
-
-          (chatty-checker-falsehood? expected)
-          expected
-          
-          (extended-fn? expected)
-          (let [function-result (expected actual)]
-            (if (chatty-checker-falsehood? function-result) false function-result))
-        
-          (regex? expected)
-          (if (regex? actual)
-            (= (.toString actual) (.toString expected))
-            (re-find expected actual))
-
-          :else
-          (= actual expected))
-    (catch Exception ex false)))
-
-(defn extended-list-= [actual-args checkers]
-  "Element-by-element comparison, using extended-= for the right-hand-side values."
-  (every? (fn [ [actual checker] ] (extended-= actual checker))
-   	  (pairs actual-args checkers)))
-
-
-;; Simple checkers
-
-(defn- named [name expected function]
-  "Adds a string name that looks like a function call to
-   a functions metadata under :name"
-  (with-meta function
-        {:name (format "(%s %s)" name expected)}))
-  
-
-(defn truthy 
-  "Returns precisely true if actual is not nil and not false."
-  {:midje/checker true}
-  [actual] 
-  (and (not (captured-exception? actual))
-       (not (not actual))))
-
-(defn falsey 
-  "Returns precisely true if actual is nil or false."
-  {:midje/checker true}
-  [actual] 
-  (not actual))
-
-(defn anything
-  "Accepts any value"
-  {:midje/checker true}
-  [actual]
-  (not (captured-exception? actual)))
-(def irrelevant anything)
-
-(defn exactly
-  "Checks for equality. Use to avoid default handling of functions."
-  {:midje/checker true}
-  [expected]
-    (named 'exactly expected
-           (fn [actual] (= expected actual))))
-
-
-;; Chatty checkers
-
-(defn tag-as-chatty-falsehood [value]
-  (with-meta value {:midje/chatty-checker-falsehood true}))
-
-(defn- tag-as-checker [function]
-  (vary-meta function merge {:midje/checker true}))
-  
-(defn tag-as-chatty-checker [function]
-  (tag-as-checker (vary-meta function merge {:midje/chatty-checker true})))
-
-(defn chatty-falsehood-to-map [value]
-  (with-meta value {}))
-
-(defn chatty-checker-falsehood? [value]
-  (:midje/chatty-checker-falsehood (meta value)))
-
-(defn- add-actual [actual result]
-  (if (chatty-checker-falsehood? result)
-    (merge result {:actual actual})
-    result))
-  
-(defn chatty-checker? [fn]
-  (:midje/chatty-checker (meta fn)))
-
-(defn chatty-worth-reporting-on? [arg]
-  (and (list? arg)
-       (> (count arg) 0)
-       (not (= (first arg) 'clojure.core/quote))))
-
-(defn chatty-untease [result-symbol arglist]
-  (loop [ [current-arg & remainder :as arglist] arglist
-          complex-forms []
-          substituted-arglist []]
-    (cond (empty? arglist)
-          [complex-forms substituted-arglist]
-
-          (chatty-worth-reporting-on? current-arg)
-          (recur remainder (conj complex-forms current-arg)
-                 (conj substituted-arglist `(~result-symbol ~(count complex-forms))))
-
-          :else
-          (recur remainder complex-forms (conj substituted-arglist current-arg)))))
-          
-(defmacro chatty-checker
-  "Create a function that returns either true or a detailed description of a failure."
-  [ [binding-var] [function & arglist] ]
-  (let [result-symbol (gensym "chatty-intermediate-results-")
-        [complex-forms substituted-arglist] (chatty-untease result-symbol arglist)]
-    `(tag-as-chatty-checker
-      (fn [~binding-var]
-        (let [~result-symbol (vector ~@complex-forms)]
-          (if (~function ~@substituted-arglist)
-            true
-            (let [pairs# (map vector '~complex-forms ~result-symbol)]
-              (tag-as-chatty-falsehood {:actual ~binding-var,
-                                        :intermediate-results pairs#}))))))))
-
-;;Concerning Throwables
-
-(def captured-exception-key "this Throwable was captured by midje:")
-(defn captured-exception [e] {captured-exception-key e})
-(defn- captured-exception? [value] (and (map? value) (value captured-exception-key)))
-
-(defn- throwable-with-class? [wrapped-throwable expected-class]
-  (and (map? wrapped-throwable)
-       (= expected-class (class (wrapped-throwable captured-exception-key)))))
-
-(defn throws
-  "Checks that Throwable of named class was thrown and, optionally, that
-   the message is as desired."
-  {:midje/checker true}
-  ([expected-exception-class]
-     (fn [wrapped-throwable] (throwable-with-class? wrapped-throwable expected-exception-class)))
-  ([expected-exception-class message]
-     (fn [wrapped-throwable]
-       (and (throwable-with-class? wrapped-throwable expected-exception-class)
-            (extended-= (.getMessage (wrapped-throwable captured-exception-key))
-                        message)))))
-
-;;Checkers that work with collections.
+        [midje.util.form-utils :only [regex? tack-on-to]]
+	[midje.checkers util extended-equality chatty]
+	))
 
 (defn- inexact-checker? 
   "Can the checker potentially match non-unique elements
@@ -617,45 +464,3 @@
                    (keys names))]
     `(do ~@defns)))
 (of-functions)
-  
-;; deprecated checkers
-
-(defn map-containing [expected]
-  "Accepts a map that contains all the keys and values in expected,
-   perhaps along with others"
-  {:midje/checker true}
-  (contains expected))
-
-(defn- one-level-map-flatten [list-like-thing]
-  (if (map? (first list-like-thing))
-    list-like-thing
-    (first list-like-thing)))
-
-(defn only-maps-containing [& maps-or-maplist]
-  "Each map in the argument(s) contains some map in the expected
-   result. There may be no extra maps in either the argument(s) or expected result.
-
-   You can call this with either (only-maps-containing {..} {..}) or
-   (only-maps-containing [ {..} {..} ])."
-  {:midje/checker true}
-  (let [expected (one-level-map-flatten maps-or-maplist)
-        subfunctions (map contains expected)]
-    (just subfunctions :in-any-order)))
-  
-(defn maps-containing [& maps-or-maplist]
-  "Each map in the argument(s) contains contains some map in the expected
-   result. There may be extra maps in the actual result.
-
-   You can call this with either (maps-containing {..} {..}) or
-   (maps-containing [ {..} {..} ])."
-  {:midje/checker true}
-  (let [expected (one-level-map-flatten maps-or-maplist)
-        subfunctions (map contains expected)]
-    (contains subfunctions :in-any-order :gaps-ok)))
-
-(defn in-any-order
-  "Produces matcher that matches sequences without regard to order.
-   Prefer (just x :in-any-order)."
-  {:midje/checker true}
-  [expected]
-  (just expected :in-any-order))

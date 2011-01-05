@@ -18,6 +18,7 @@
   (:use [midje.util.wrapping :only [multiwrap]])
   (:use [midje.util.form-utils :only [reader-line-number]])
   (:use [midje.util.file-position :only [user-file-position]])
+  (:require midje.checkers)
 )
 (immigrate 'midje.unprocessed)
 (immigrate 'midje.semi-sweet)

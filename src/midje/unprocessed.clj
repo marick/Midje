@@ -6,7 +6,7 @@
         [midje.util laziness report thread-safe-var-nesting]
         clojure.contrib.error-kit
         [clojure.contrib.ns-utils :only [immigrate]]))
-(immigrate 'midje.util.checkers)
+(immigrate 'midje.checkers)
 
 
 (defn- background-fakes-plus [fakes]

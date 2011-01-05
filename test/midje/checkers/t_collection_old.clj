@@ -1,12 +1,12 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.util.t-checker-extra-collection
-  (:use [midje.sweet])
-  (:use [midje.test-util]))
-(testable-privates midje.util.checkers unordered-seq-comparison index-of-actual)
+(ns midje.checkers.t-collection-old
+  (:use [midje sweet test-util]
+        [midje.checkers.chatty :only [chatty-falsehood-to-map
+                                      chatty-checker-falsehood?]]))
 
 ;; These are still potentially useful tests from a misguided code organization.
-;; Delete them as they fail (after moving better tests to t-checker-collection.
+;; Delete them as they fail (after moving better tests to t-collection.
 
 (facts "about has-prefix"
   "lists"

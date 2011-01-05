@@ -1,8 +1,9 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.util.t-checker-collection
-  (:use [midje.sweet])
-  (:use [midje.test-util]))
+(ns midje.checkers.t-collection
+  (:use [midje sweet test-util]
+        [midje.checkers.chatty :only [chatty-falsehood-to-map
+                                      chatty-checker-falsehood?]]))
 
 (fact "left-hand-side: sequentials that are to contain things"
   [3 4 5 700] => (contains [4 5 700])
@@ -371,4 +372,23 @@
   (str (:actual ( (has-suffix [\a \b \c]) "many"))) => "many"
   (str (:actual ( (has-prefix 5) [#{{1 2}} 2 3 4]))) => "[#{{1 2}} 2 3 4]"
   )
+
+(facts "about of-functions"
+  [ 33 33 ] => (two-of 33)
+  
+  [ 1 3 ] => (n-of odd? 2)
+  [ "ab" "aab" "aaab"] => (n-of #"a+b" 3)
+  ( (n-of odd? 1) [1 3]) => chatty-checker-falsehood?
+  ( (n-of odd? 3) [1 2 3]) => chatty-checker-falsehood?
+
+  [1 1 3 3 5 5 7 7 9 9] => (ten-of odd?)
+  [1 1 3 3 5 5 7 7 9] => (nine-of odd?)
+  [1 1 3 3 5 5 7 7] => (eight-of odd?)
+  [1 1 3 3 5 5 7] => (seven-of odd?)
+  [1 1 3 3 5 5] => (six-of odd?)
+  [1 1 3 3 5] => (five-of odd?)
+  [1 1 3 3] => (four-of odd?)
+  [1 1 3] => (three-of odd?)
+  [1 1] => (two-of odd?)
+  [1] => (one-of odd?))
 

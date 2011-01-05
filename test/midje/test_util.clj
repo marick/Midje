@@ -2,7 +2,7 @@
 
 (ns midje.test-util
   (:use [clojure.test])
-  (:use midje.util.checkers)
+  (:use midje.checkers)
   (:use [clojure.contrib.string :only [substring?]])
   (:use [clojure.set :only [subset?]])
 )

@@ -86,7 +86,7 @@
     (run '(midje.semi-sweet/fake (f [l]) => 3)) => falsey
     (run '(midje.semi-sweet/fake (f {a 1}) => 3)) => falsey
     (run '(midje.semi-sweet/fake
-		   (f (midje.util.checkers/in-any-order [1 2 3])) => 33)) => falsey
+		   (f (in-any-order [1 2 3])) => 33)) => falsey
     ;; This next is surprisingly hard to get right.
 ;    (run '(midje.semi-sweet/fake (f (some-macro 33)) => 3)) => falsey)
     (run '(midje.semi-sweet/fake (f (g 3)) => 33)) => truthy
