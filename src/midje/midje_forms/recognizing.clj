@@ -70,3 +70,40 @@
   (when-let [bindings (setup-teardown-bindings (first forms))]
     (and (bindings '?first-form)
          (or (not (bindings '?after)) (bindings '?second-form)))))
+
+;; Folded prerequisites
+
+;; Note that folded prerequisites are in semi-sweet-style. (That is, they can only
+;; be recognized after sweet style has been converted to semi-sweet.)
+
+
+(defn- mockable-function-symbol? [loc]
+  (let [symbol (zip/node loc)]
+    (not (or (= 'quote symbol)
+             (:midje/checker (meta (resolve symbol)))))))
+
+(defn looks-like-a-function-call? [loc first-symbol-validity-test]
+  (when-let [tree (and loc (zip/node loc))]
+    (and tree
+         (or (list? tree) (= (type tree) clojure.lang.Cons))
+         (-> tree first) 
+         (-> tree first symbol?) 
+         (-> loc zip/down first-symbol-validity-test))))
+
+(defn- nested-function-like-list
+  ([loc]
+     (nested-function-like-list loc (fn [symbol] true)))
+  ([loc first-symbol-validity-test]
+     (when (looks-like-a-function-call? loc first-symbol-validity-test)
+       (-> loc zip/down zip/right))))
+
+
+(defn at-folded-prerequisite? [loc]
+  (-> loc
+      ;; (fake ...) or something else
+      (nested-function-like-list (fn [loc] (namespacey-match '(fake) loc)))
+      ;; (f ...) or nil
+      nested-function-like-list
+      ;; (g ...) or nil
+      (looks-like-a-function-call? mockable-function-symbol?)))
+

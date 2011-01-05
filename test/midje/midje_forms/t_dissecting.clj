@@ -95,3 +95,7 @@
     loc => loc-is-start-of-arrow-sequence?
     (arrow-line-number (zip/right loc)) => nil))
 
+
+(facts "about extracting nested prerequisites"
+  (extract-nested-prerequisite '(fake (f (g)) => 3)) => '(g))
+	    

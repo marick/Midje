@@ -9,10 +9,9 @@
   (:use midje.midje-forms.recognizing)
   (:use [midje.midje-forms.translating :only [midjcoexpand replace-wrappers-returning-immediate
                                               forms-to-wrap-around translate-fact-body
-                                              add-line-numbers]])
+                                              add-line-numbers unfold-prerequisites]])
   (:use [midje.midje-forms.dissecting :only [separate-background-forms]])
   (:require [midje.midje-forms.building :as building])
-  (:require [midje.sweet.folded-prerequisites :as folded])
   (:use [clojure.contrib.seq :only [separate]])
   (:use midje.metaconstants)
   (:use [midje.util report debugging thread-safe-var-nesting])
@@ -42,9 +41,10 @@
   (when (user-desires-checking?)
     (let [[background remainder] (separate-background-forms forms)]
       (if (empty? background)
-        (let [things-to-run (folded/rewrite
-                             (translate-fact-body
-                              (add-line-numbers remainder)))]
+        (let [things-to-run (-> remainder
+                                add-line-numbers
+                                translate-fact-body
+                                unfold-prerequisites)]
           (define-metaconstants things-to-run)
           (multiwrap (midjcoexpand `(every? true? (list ~@things-to-run)))
                      (forms-to-wrap-around :facts)))

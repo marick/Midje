@@ -43,3 +43,6 @@
             (inc (arrow-line-number (zip/prev arrow-loc))))
        (catch Throwable ex nil)))
 
+(defn extract-nested-prerequisite [fake-form]
+  (-> fake-form second second))
+

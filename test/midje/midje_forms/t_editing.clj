@@ -85,3 +85,13 @@
                         10 original-loc)]
     (name (zip/node new-loc)) => "=>"
     (zip/root new-loc) => expected))
+
+(fact "one fake can be replaced with two"
+  (let [original '(expect (f 1) => 2 (fake (f (g)) => 3))
+        loc (-> original zip/seq-zip zip/down zip/right zip/right zip/right zip/right)
+        new-loc (replace-one-fake-with-two__then__stay_put
+                  loc '[(fake FAKE1) (fake FAKE2)])
+        expected '(expect (f 1) => 2 (fake FAKE1) (fake FAKE2))]
+    (zip/root new-loc) => expected
+    (zip/node new-loc) => '(fake FAKE1)))
+  

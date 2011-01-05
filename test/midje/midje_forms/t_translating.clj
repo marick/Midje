@@ -4,6 +4,7 @@
   (:use [midje.midje-forms.translating])
   (:use [midje.sweet])
   (:use midje.test-util)
+  (:use [midje.midje-forms.building :only [forgetting-unfolded-prerequisites]])
   (:use [midje.util thread-safe-var-nesting unify])
   (:require [clojure.zip :as zip])
   (:use clojure.contrib.pprint))
@@ -132,3 +133,47 @@
   (first (second '(midje.semi-sweet.expect (midje.sweet.fact 1 => 2)))) => 'midje.sweet.fact
   (set? #{1 'do}) => truthy)
 
+
+(facts "about replacing a nested prerequisite with some metaconstant"
+  (let [original '(fake (f   (g))   => 3)
+        expected '(fake (f ...g...) => 3)]
+    (replace-nested-prerequisite-with-metaconstant original '(g) '...g...) => expected)
+
+  (let [original '(fake (f   (g))   => 3 :key 'val)
+        expected '(fake (f ...g...) => 3 :key 'val)]
+    (replace-nested-prerequisite-with-metaconstant original '(g) '...g...) => expected))
+
+(facts "about unfolding a prerequisite"
+
+  "simple form"
+  (forgetting-unfolded-prerequisites
+    (let [input-form '(fake (f (g)) => 3)
+          expected [ '(midje.semi-sweet/fake (g) midje.semi-sweet/=> ...g-value-1...)
+                     '(fake (f ...g-value-1...) => 3) ]]
+      (unfold-prerequisite input-form) => expected))
+
+  "When unfolding a prerequisite, keyword arguments are pulled into both results."
+  (forgetting-unfolded-prerequisites
+    (let [input-form '(fake (f (g)) => 3 :key 'value)
+          expected [ '(midje.semi-sweet/fake (g) midje.semi-sweet/=> ...g-value-1... :key 'value)
+                     '(fake (f ...g-value-1...) => 3 :key 'value) ] ]
+      (unfold-prerequisite input-form) => expected))
+
+  )
+
+	      
+;; (declare ...first-unfolded... ...second-unfolded...)
+;; (deftest replacing-a-prerequisite-with-the-unfolded-version
+;;   (let [input-form '(x (fake (f (g 1)) => 3 :key 'value) y)
+;;         loc (-> input-form zip/seq-zip zip/down zip/right)]
+;;     (assert (at-folded-prerequisite? loc))
+;;     ;; result
+;;     (expect (zip/root (replace-with-two-prerequisites__stay_put loc)) =>
+;; 	    '(x (fake ...first-unfolded...) (fake ...second-unfolded...) y)
+;; 	    (fake (unfold-prerequisite '(fake (f (g 1)) => 3 :key 'value)) =>
+;; 		  '[(fake ...first-unfolded...) (fake ...second-unfolded...)]))
+;;     ;; Location
+;;     (expect (zip/node (replace-with-two-prerequisites__stay_put loc)) =>
+;; 	    '(fake ...first-unfolded...)
+;; 	    (fake (unfold-prerequisite '(fake (f (g 1)) => 3 :key 'value)) =>
+;; 		  '[(fake ...first-unfolded...) (fake ...second-unfolded...)]))))

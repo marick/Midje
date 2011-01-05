@@ -22,3 +22,19 @@
 (defmacro around [wrapping-target around-form]
   (ensure-correct-form-variable around-form))
 
+
+(def *unfolded-prerequisite-counts*)
+
+(defmacro forgetting-unfolded-prerequisites [& forms]
+  `(binding [*unfolded-prerequisite-counts* (atom {})]
+     ~@forms))
+
+(defn metaconstant-for-form [inner-form]
+  (let [name (first inner-form)
+        swap-fn (fn [current-value name]
+                  (if (current-value name)
+                    (assoc current-value name (inc (current-value name)))
+                    (assoc current-value name 1)))
+        number ((swap! *unfolded-prerequisite-counts* swap-fn name) name)]
+    (symbol (format "...%s-value-%s..." name number))))
+
