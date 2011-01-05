@@ -1,18 +1,16 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns behaviors.background-nesting.t-shadowing
-  (:use clojure.test)
-  (:use [midje.sweet])
-  (:use [midje.test-util])
-  (:use clojure.contrib.pprint)
-)
+  (:use clojure.test
+        [midje sweet test-util]
+        clojure.contrib.pprint))
 
 ;; This is a separate file because we're making namespace-wide changes
 
 (unfinished outermost middlemost innermost)
 
 
-(deftest background-command-is-shadowed-by-against-background
+(deftest background-command-is-shadowed-by-against-background  ; deftest intentional
   (background (outermost) => 2
               (middlemost) => 'a)
   (against-background [ (middlemost) => 33]

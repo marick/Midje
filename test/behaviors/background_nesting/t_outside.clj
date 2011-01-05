@@ -12,7 +12,7 @@
 (unfinished outermost middlemost innermost)
 
 (against-background [ (middlemost) => 33 ]
-  (deftest backgrounds-span-deftests
+  (deftest backgrounds-span-deftests            ; deftest intentional
     (fact
       (against-background (innermost) => 8)
       (+ (middlemost) (innermost)) => 41)))

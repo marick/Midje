@@ -12,7 +12,7 @@
 (unfinished outermost middlemost innermost)
 
 
-(deftest three-levels-of-nesting-one-duplicated
+(deftest three-levels-of-nesting-one-duplicated ; deftest intentional
   (background (outermost) => 2
               (middlemost) => 'a)
   (against-background [ (middlemost 2) => 33

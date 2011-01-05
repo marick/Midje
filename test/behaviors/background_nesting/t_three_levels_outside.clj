@@ -14,7 +14,7 @@
 (background (outermost) => 2
             (middlemost) => 'a)
 
-(deftest three-levels-of-nesting-one-duplicated
+(deftest three-levels-of-nesting-one-duplicated         ; deftest intentional
   (against-background [ (middlemost 2) => 33
                         (innermost) => 'c]
 

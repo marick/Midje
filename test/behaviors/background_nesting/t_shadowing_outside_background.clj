@@ -14,7 +14,7 @@
 (background (outermost) => 2
             (middlemost) => 'a)
 
-(deftest background-command-is-shadowed-by-against-background
+(deftest background-command-is-shadowed-by-against-background   ; deftest intentional
   (against-background [ (middlemost) => 33]
     (fact (+ (middlemost) (outermost)) => 35)))
   

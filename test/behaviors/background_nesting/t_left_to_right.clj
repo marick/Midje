@@ -11,7 +11,7 @@
 
 (unfinished outermost middlemost innermost)
       
-(deftest left-to-right-shadowing
+(deftest left-to-right-shadowing        ; deftest intentional
   (against-background [ (middlemost) => 33 (middlemost) => 12]
     (fact (* 2 (middlemost)) => 24)))
 

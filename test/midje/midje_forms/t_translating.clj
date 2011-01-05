@@ -160,20 +160,3 @@
       (unfold-prerequisite input-form) => expected))
 
   )
-
-	      
-;; (declare ...first-unfolded... ...second-unfolded...)
-;; (deftest replacing-a-prerequisite-with-the-unfolded-version
-;;   (let [input-form '(x (fake (f (g 1)) => 3 :key 'value) y)
-;;         loc (-> input-form zip/seq-zip zip/down zip/right)]
-;;     (assert (at-folded-prerequisite? loc))
-;;     ;; result
-;;     (expect (zip/root (replace-with-two-prerequisites__stay_put loc)) =>
-;; 	    '(x (fake ...first-unfolded...) (fake ...second-unfolded...) y)
-;; 	    (fake (unfold-prerequisite '(fake (f (g 1)) => 3 :key 'value)) =>
-;; 		  '[(fake ...first-unfolded...) (fake ...second-unfolded...)]))
-;;     ;; Location
-;;     (expect (zip/node (replace-with-two-prerequisites__stay_put loc)) =>
-;; 	    '(fake ...first-unfolded...)
-;; 	    (fake (unfold-prerequisite '(fake (f (g 1)) => 3 :key 'value)) =>
-;; 		  '[(fake ...first-unfolded...) (fake ...second-unfolded...)]))))
