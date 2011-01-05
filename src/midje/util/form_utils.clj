@@ -1,29 +1,41 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.util.form-utils
-   (:use [midje.util laziness]))
+  (:use [midje.util laziness]))
 
 (defn regex? [thing]
   (= (class thing) java.util.regex.Pattern))
 
-(defn symbol-named? [form desired]
-  (and (symbol? form)
-       (= (name form) desired)))
+(defn symbol-named?
+  "Is the thing a symbol with the name given by the string?"
+  [thing string]
+  (and (symbol? thing)
+       (= (name thing) string)))
 
-(defn form-first? [form desired]
+(defn form-first?
+  "Is the form's first element a symbol whose name is the desired string?"
+  [form desired]
   (and (sequential? form) (symbol-named? (first form) desired)))
 
-(defn as-type [typed-sequential contents]
-  (if (vector? typed-sequential)
-    (vec contents)
-    contents))
+(defn preserve-type
+  "If the original form was a vector, make the transformed form a vector too."
+  [original-form transformed-form]
+  (if (vector? original-form)
+    (vec transformed-form)
+    transformed-form))
 
-(defn separate-by [predicate forms]
-  "Note that this is different than clojure.contrib.seq/separate." ;;HOW?
+(defn separate-by
+  "Like clojure.core/separate, but not lazy, returns nil for empy list."
+  ;; TODO: One of those two differences is the difference between
+  ;; a blowup in PersistentArrayMap and no blowup. Should investigate.
+  [predicate forms]
   (let [group (group-by predicate forms)]
     [ (group true) (group false) ]))
 
-(defn reader-line-number [form]
+(defn reader-line-number 
+  "Find what line number the reader put on the given form or on
+   one of its elements. If no line numbers, a warning string."
+  [form]
   (or (:line (meta form))
       (some (comp :line meta) form)
       "0 (no line info)"))
@@ -34,18 +46,12 @@
 (defn vector-without-element-at-index [index v]
   (vec (concat (subvec v 0 index) (subvec v (inc index)))))
 
-(defn map-keys [function hashmap]
-  "Return new map whose values are the the values
-   of function applied to existing values."
-
-  (into {} (map (fn [ [k v] ] [k (function v)])
-                hashmap)))
-
 (defn tack-on-to [hashmap & kvs]
   "conj new values onto appropriate keys of a map"
   (merge-with conj hashmap (apply (partial assoc {}) kvs)))
 
 (defn pairs [first-seq second-seq]
+  "Return [ (first first-seq) (first second-seq)] ..."
   (partition 2 (interleave first-seq second-seq)))
 
 (defn hash-map-duplicates-ok [& keys-and-vals]

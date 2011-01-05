@@ -163,7 +163,7 @@
                        now-wrappers))))
         
         (sequential? form)
-        (as-type form (eagerly (map midjcoexpand form)))
+        (preserve-type form (eagerly (map midjcoexpand form)))
 
         :else
         form)))
