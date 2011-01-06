@@ -10,6 +10,16 @@
 (testable-privates midje.util.report midje-position-string functional-failure-lines
                    without-nasty-looking-functions)
 
+
+;; This code generates failures. The following code prevents them from
+;; being counted as failures when the final summary is printed. The
+;; disadvantage is that legitimate failures won't appear in the final
+;; summary. They will, however, produce failure output, so that's an
+;; acceptable compromise.
+(background (around :facts (let [report-counters @clojure.test/*report-counters*]
+                             ?form
+                             (dosync (commute clojure.test/*report-counters* (constantly report-counters)))) ))
+
 (fact "string positions have filenames and line numbers"
   (midje-position-string ["filename.clj" 33]) => "(filename.clj:33)")
 
@@ -105,3 +115,6 @@
     (nth raw-report 0) => (re #"FAIL at .*foo.clj:3")
     (nth raw-report 1) => (re #"Expected: \"s\"")
     (nth raw-report 2) => (re #"Actual: nil")))
+
+
+
