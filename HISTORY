@@ -1,4 +1,4 @@
-= 0.9.0 (release candidate)
+= 0.9.0 
 * Regexps can be placed on the right-hand-side of an
   expression: "foo" => #"fo+"
 * Throws and other checkers are "checker-aware", so 
