@@ -10,6 +10,10 @@
 (defn tag-as-chatty-falsehood [value]
   (with-meta value {:midje/chatty-checker-falsehood true}))
 
+(defn chattily-false? [value]
+  (or (not value)
+      (:midje/chatty-checker-falsehood (meta value))))
+
 (defn tag-as-chatty-checker [function]
   (tag-as-checker (vary-meta function merge {:midje/chatty-checker true})))
 
@@ -54,9 +58,9 @@
     `(tag-as-chatty-checker
       (fn [~binding-var]
         (let [~result-symbol (vector ~@complex-forms)]
-          (if (~function ~@substituted-arglist)
-            true
+          (if (chattily-false? (~function ~@substituted-arglist))
             (let [pairs# (map vector '~complex-forms ~result-symbol)]
               (tag-as-chatty-falsehood {:actual ~binding-var,
-                                        :intermediate-results pairs#}))))))))
+                                        :intermediate-results pairs#}))
+            true))))))
 

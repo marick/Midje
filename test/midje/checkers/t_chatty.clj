@@ -3,8 +3,14 @@
 (ns midje.checkers.chatty
   (:use midje.sweet
         midje.checkers.chatty
-        midje.test-util))
+        midje.test-util
+        clojure.pprint))
 
+(facts "about an extended notion of falsehood"
+  (chattily-false? false) => truthy
+  (chattily-false? true) => falsey
+  (chattily-false? {:intermediate-results 3}) => falsey
+  (chattily-false? (tag-as-chatty-falsehood {})) => truthy)
 
 (facts "about chatty-checking utility functions"
   (tag-as-chatty-falsehood [5]) => chatty-checker-falsehood?
@@ -42,4 +48,42 @@
     result => chatty-checker-falsehood?
     result => {:actual 4
               :intermediate-results [ ['(inc actual) 5] ['(+ 2 actual) 6] ]}))
+
+
+
+;; Chatty checkers: interaction with checkers that return chatty-failures.
+(defn rows-in [rows] rows)
+(defn has-rows [rows]
+   (chatty-checker [actual-datastate]
+                   ( (just (contains rows)) (rows-in actual-datastate))))
+
+(after-silently 
+ (fact (let [all (fn [name] [{:region 1, :name name}])]
+         (all "PRK") => (has-rows [ {:region 1, :name "GDR"} ])))
+ (fact @reported => (just (contains {:type :mock-expected-result-functional-failure
+                                     :actual [{:region 1, :name "PRK"}]
+                                     :intermediate-results '([(rows-in actual-datastate)
+                                                              [{:region 1, :name "PRK"}]])}))))
+
+
+;; (facts "about the interaction between chatty checkers and the chatty notion of falseness"
+;;   (let [
+;;         has-rows (fn [rows]
+;;                    (chatty-checker [actual-datastate]
+;;                                    ( (just (contains rows)) (rows-in actual-datastate))))
+;; ;                                   ( (only-maps-containing rows) (rows-in actual-datastate))))
+;;         all (fn [name] [{:region 1, :name name}])]
+;;     (all "PRK") => (has-rows [ {:region 1, :name "GDR"} ])))
     
+
+;; (println "+++++++++")
+;; (defn chatty-maker [expected]
+;;    (chatty-checker [actual]
+;;                    ( (exactly expected) (+ 1 actual))))
+
+
+;; (facts
+;;   (let [chatty-maker (fn [expected]
+;;                        (chatty-checker [actual]
+;;                                        ( (exactly expected) (+ 1 actual))))]
+;;     3 => (chatty-maker 3)))
