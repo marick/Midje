@@ -11,14 +11,20 @@
                    without-nasty-looking-functions)
 
 
-;; This code generates failures. The following code prevents them from
-;; being counted as failures when the final summary is printed. The
-;; disadvantage is that legitimate failures won't appear in the final
-;; summary. They will, however, produce failure output, so that's an
-;; acceptable compromise.
+;; This set of tests generate failures. The following code prevents
+;; them from being counted as failures when the final summary is
+;; printed. The disadvantage is that legitimate failures won't appear
+;; in the final summary. They will, however, produce failure output,
+;; so that's an acceptable compromise.
+
+(when (nil? clojure.test/*report-counters*)
+  (alter-var-root #'clojure.test/*report-counters*
+                  (constantly (ref clojure.test/*initial-report-counters*))))
+
 (background (around :facts (let [report-counters @clojure.test/*report-counters*]
                              ?form
                              (dosync (commute clojure.test/*report-counters* (constantly report-counters)))) ))
+
 
 (fact "string positions have filenames and line numbers"
   (midje-position-string ["filename.clj" 33]) => "(filename.clj:33)")
