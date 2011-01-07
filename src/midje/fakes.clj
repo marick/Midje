@@ -111,8 +111,6 @@
                             :expected (call :expected-result-text-for-failures) }
                            (if (chatty-checker? (call :expected-result))
                              (do
-;                              (prn call)
-;                              (prn actual)
                                (let [chatty-result ((call :expected-result) actual)]
                                  (if (map? chatty-result)
                                    chatty-result

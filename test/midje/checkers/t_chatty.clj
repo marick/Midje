@@ -66,24 +66,14 @@
                                                               [{:region 1, :name "PRK"}]])}))))
 
 
-;; (facts "about the interaction between chatty checkers and the chatty notion of falseness"
-;;   (let [
-;;         has-rows (fn [rows]
-;;                    (chatty-checker [actual-datastate]
-;;                                    ( (just (contains rows)) (rows-in actual-datastate))))
-;; ;                                   ( (only-maps-containing rows) (rows-in actual-datastate))))
-;;         all (fn [name] [{:region 1, :name name}])]
-;;     (all "PRK") => (has-rows [ {:region 1, :name "GDR"} ])))
-    
+;; Old bug. During midjcoexpansion/macroexpansion, the interior of a chatty checker
+;; can turn into a lazy seq, which should be treated as if it were a list. This checks that. 
+(after-silently 
+ (fact
+   (let [a-chatty-checker (fn [expected]
+                            (chatty-checker [actual] (= expected (+ 1 actual))))]
+     3 => (a-chatty-checker 33)))
+ (fact @reported => (just (contains {:type :mock-expected-result-functional-failure
+                                     :actual 3
+                                     :intermediate-results '([(+ 1 actual) 4])}))))
 
-;; (println "+++++++++")
-;; (defn chatty-maker [expected]
-;;    (chatty-checker [actual]
-;;                    ( (exactly expected) (+ 1 actual))))
-
-
-;; (facts
-;;   (let [chatty-maker (fn [expected]
-;;                        (chatty-checker [actual]
-;;                                        ( (exactly expected) (+ 1 actual))))]
-;;     3 => (chatty-maker 3)))

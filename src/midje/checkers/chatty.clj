@@ -32,7 +32,7 @@
   (:midje/chatty-checker (meta fn)))
 
 (defn chatty-worth-reporting-on? [arg]
-  (and (list? arg)
+  (and (or (list? arg) (seq? arg)) ; what started as a list (fn x y) might now be a seq.
        (> (count arg) 0)
        (not (= (first arg) 'clojure.core/quote))))
 
