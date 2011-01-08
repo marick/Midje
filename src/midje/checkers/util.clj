@@ -15,6 +15,8 @@
 (def captured-exception-key "this Throwable was captured by midje:")
 (defn captured-exception [e] {captured-exception-key e})
 (defn captured-exception? [value] (and (map? value) (value captured-exception-key)))
+(defn captured-exception-value [captured-exception]
+  (captured-exception captured-exception-key))
 
 (defn throwable-with-class? [wrapped-throwable expected-class]
   (and (map? wrapped-throwable)

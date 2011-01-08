@@ -1,14 +1,13 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.util.t-report
-  (:use [midje.util.report])
-  (:use [midje.sweet])
-  (:use [clojure.test])
-  (:use [midje.test-util]))
+  (:use midje.util.report
+        [midje.checkers.util :only [captured-exception]]
+        [midje sweet test-util]))
 
 
 (testable-privates midje.util.report midje-position-string functional-failure-lines
-                   without-nasty-looking-functions)
+                   attractively-stringified-form)
 
 
 ;; This set of tests generate failures. The following code prevents
@@ -29,16 +28,12 @@
 (fact "string positions have filenames and line numbers"
   (midje-position-string ["filename.clj" 33]) => "(filename.clj:33)")
 
-(defn re [expected]
-  (fn [actual] (re-find expected actual)))
-
 ;; In the case of the checker (exactly odd?), you want to see failures
 ;; written in terms of a function name instead of some absurdly complicated
 ;; #<core$even_QMARK_ clojure.core$even_QMARK_@15ee9cc3>
 (fact "(exactly odd?) is printed attractively"
-  (without-nasty-looking-functions even?) => "a function named 'even?'"
-  (without-nasty-looking-functions (fn [n] 1)) => (re #"fn__"))
-
+  (attractively-stringified-form even?) => "a function named 'even?'"
+  (attractively-stringified-form (fn [n] 1)) => #"fn__")
 
 (fact "rendering functional failures"
   (let [failure-map {:type :mock-expected-result-functional-failure
@@ -48,22 +43,22 @@
                      :expected '(test-checker 33)}
         raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
 
-    (nth raw-report 0) => (re #"FAIL.*foo.clj:3")
-    (nth raw-report 1) => (re #"Actual.*did not agree")
-    (nth raw-report 2) => (re #"Actual.*2")
-    (nth raw-report 3) => (re #"Checking function.*test-checker 33")
-    (nth raw-report 4) => (re #"intermediate values")
-    (nth raw-report 5) => (re #"\(f 1\) => 33"))
+    (nth raw-report 0) => #"FAIL.*foo.clj:3"
+    (nth raw-report 1) => #"Actual.*did not agree"
+    (nth raw-report 2) => #"Actual.*2"
+    (nth raw-report 3) => #"Checking function.*test-checker 33"
+    (nth raw-report 4) => #"intermediate values"
+    (nth raw-report 5) => #"\(f 1\) => 33")
     
   (let [failure-map {:type :mock-expected-result-functional-failure
                      :actual 2
                      :position ["foo.clj" 3]
                      :expected 'odd?}
         raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
-    (nth raw-report 0) => (re #"FAIL.*foo.clj:3")
-    (nth raw-report 1) => (re #"Actual.*did not agree")
-    (nth raw-report 2) => (re #"Actual.*2")
-    (nth raw-report 3) => (re #"Checking function.*odd?"))
+    (nth raw-report 0) => #"FAIL.*foo.clj:3"
+    (nth raw-report 1) => #"Actual.*did not agree"
+    (nth raw-report 2) => #"Actual.*2"
+    (nth raw-report 3) => #"Checking function.*odd?")
 
   "values in strings are formatted via pr-str"
   (let [failure-map {:type :mock-expected-result-functional-failure
@@ -72,9 +67,9 @@
                :intermediate-results [['(+ 1 "ate") nil]]
                :position ["foo" 23]}
         raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
-    (nth raw-report 2) => (re #"result: nil")
-    (nth raw-report 3) => (re #"function: \(sloobom \"forp\"")
-    (nth raw-report 5) => (re #"\(\+ 1 \"ate\"\) => nil"))
+    (nth raw-report 2) => #"result: nil"
+    (nth raw-report 3) => #"function: \(sloobom \"forp\""
+    (nth raw-report 5) => #"\(\+ 1 \"ate\"\) => nil")
 
   (let [failure-map {:type :mock-expected-result-functional-failure
                      :actual 2
@@ -118,9 +113,19 @@
                      :actual nil
                      :expected "s"}
         raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
-    (nth raw-report 0) => (re #"FAIL at .*foo.clj:3")
-    (nth raw-report 1) => (re #"Expected: \"s\"")
-    (nth raw-report 2) => (re #"Actual: nil")))
+    (nth raw-report 0) => #"FAIL at .*foo.clj:3"
+    (nth raw-report 1) => #"Expected: \"s\""
+    (nth raw-report 2) => #"Actual: nil"))
 
+(facts "about reporting exceptions"
+  (let [failure-map {:type :mock-expected-result-failure
+                     :position ["foo.clj" 3]
+                     :actual (captured-exception (Error. "message"))
+                     :expected "hi"}
+        raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
+    (nth raw-report 2) => #"Error.*message"
+    (nth raw-report 2) => #"\(t_report.clj:\d+")
 
+  "This reporting only applies to unexpected exceptions."
+  (/ 1 0) => (throws ArithmeticException))
 

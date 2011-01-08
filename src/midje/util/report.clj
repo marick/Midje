@@ -8,7 +8,9 @@
 
 (ns midje.util.report
   (:use clojure.test
-        [midje.util.form-utils :only [flatten-and-remove-nils]]))
+        [midje.util.form-utils :only [flatten-and-remove-nils]]
+        [midje.util.exceptions :only [friendly-exception-text]]
+        [midje.checkers.util :only [captured-exception? captured-exception-value]]))
 
 (def *renderer* println)
 
@@ -18,11 +20,16 @@
 (defmacro with-identity-renderer [& forms]   ; for testing
   `(binding [*renderer* identity] ~@forms))
 
-(defn- without-nasty-looking-functions [form]
-  (if-let [name (and (fn? form)
-                      (:name (meta form)))]
-    (format "a function named '%s'" name)
-    (pr-str form)))
+(defn- attractively-stringified-form [form]
+  (let [named-function-name #(and (fn? %) (:name (meta %)))]
+    (cond (named-function-name form)
+          (format "a function named '%s'" (named-function-name form))
+
+          (captured-exception? form)
+          (friendly-exception-text (captured-exception-value form) "              ")
+
+          :else
+          (pr-str form))))
 
 (defn- fail-at [m]
   (str "\nFAIL at " (midje-position-string (:position m))))
@@ -46,13 +53,13 @@
    (list
     (fail-at m)
     (str "    Expected: " (pr-str (:expected m)))
-    (str "      Actual: " (pr-str (:actual m)))))
+    (str "      Actual: " (attractively-stringified-form (:actual m)))))
 
 (defmethod report-strings :mock-expected-result-functional-failure [m]
   (list
    (fail-at m)
    "Actual result did not agree with the checking function."
-   (str "        Actual result: " (without-nasty-looking-functions (:actual m)))
+   (str "        Actual result: " (attractively-stringified-form (:actual m)))
    (str "    Checking function: " (pr-str (:expected m)))
    (if (:intermediate-results m)
      (cons "    During checking, these intermediate values were seen:"
