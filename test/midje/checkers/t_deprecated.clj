@@ -1,8 +1,7 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.checkers.deprecated
+(ns midje.checkers.t-deprecated
   (:use midje.sweet
-        midje.checkers.deprecated
         midje.test-util))
 
 

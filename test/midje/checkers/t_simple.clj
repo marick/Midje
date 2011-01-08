@@ -1,8 +1,7 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.checkers.simple
+(ns midje.checkers.t-simple
   (:use midje.sweet
-        midje.checkers.simple
         midje.test-util))
 
 (facts "about truthy"

@@ -1,8 +1,11 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.checkers.chatty
+(ns midje.checkers.t-chatty
   (:use midje.sweet
-        midje.checkers.chatty
+        [midje.checkers.chatty :only [chattily-false? tag-as-chatty-falsehood
+                                      chatty-worth-reporting-on?
+                                      chatty-checker-falsehood? chatty-untease
+                                      chatty-checker?]]
         midje.test-util
         clojure.pprint))
 
