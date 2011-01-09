@@ -1,0 +1,1 @@
+(ns cake-midje.core)
