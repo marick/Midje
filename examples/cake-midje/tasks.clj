@@ -6,12 +6,10 @@
 (deftask midje
   "Run midje and clojure.test tests"
   (bake (:use [bake.core :only [with-context]])
+	(:require [clojure test string])
 	[namespaces (concat (find-namespaces-in-dir (java.io.File. "test"))
 			    (find-namespaces-in-dir (java.io.File. "src")))]
 	(with-context :test
-       	  (require 'clojure.test)
-       	  (require 'clojure.string)
-
        	  ;; This turns off "Testing ...." lines, which I hate, especially
        	  ;; when there's no failure output.
        	  (defmethod clojure.test/report :begin-test-ns [m])
@@ -48,8 +46,6 @@
 
        (when (> (+ (:fail clojure-test-result) (:error clojure-test-result))
        		0)
-       	 ;; For some reason, empty lines are swallowed, so I use >>> to
-         ;; demarcate sections.
        	 (println ">>> Output from clojure.test tests:")
        	 (dorun (map println (drop-last 2 clojure-test-output))))
 
