@@ -1,2 +1,2 @@
 rm downloads/examples.zip
-zip -r downloads/examples.zip examples/semi-sweet-examples examples/sweet-examples/basic
+zip -r downloads/examples.zip examples/basic
