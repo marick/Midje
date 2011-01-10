@@ -14,7 +14,12 @@ compound-checkers/
    right.)
 
 leiningen-midje/
+    The Midje plugin for leiningen
+
 leiningen-test/
+    You can use 'lein test'. You'll see all the individual
+    failures from both midje and clojure.test, but the 
+    summary will be wrong.
 
 semi-sweet-examples/
     Midje's default "sweet" interface is built on top of a 

@@ -1,4 +1,5 @@
-This shows the use of a Midje plugin for Leiningen. 
+This shows the use of a Midje plugin for Leiningen. It's in
+the file leiningen/midje.clj
 
 You run it like this:
 
@@ -8,3 +9,7 @@ As with `lein test`, you can give namespace arguments to
 check only particular namespaces.
 
 `lein midje` checks both the `test` and `src` directories.
+
+It will also run clojure.test deftests if any exist. 
+
+

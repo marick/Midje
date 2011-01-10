@@ -1,3 +1,4 @@
+The following two failures are intentional.
 FAIL for (t_core.clj:10)
 You claimed the following was needed, but it was never used:
 (g 1)
@@ -7,4 +8,13 @@ Expected: 1
 FAIL at (embedded_facts.clj:10)
 Expected: 2
   Actual: 1
+The following failure (from deftest) is intentional.
+>>> Output from clojure.test tests:
+FAIL in (a-failing-test) (t_core.clj:14)
+expected: (= 33 (+ 1 2))
+  actual: (not (= 33 3))
+>>> clojure.test summary:
+Ran 1 tests containing 1 assertions.
+1 failures, 0 errors.
+>>> Midje summary:
 FAILURE: 3 facts were not confirmed. (But 1 was.)
