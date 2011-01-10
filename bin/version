@@ -35,12 +35,12 @@ def install_jars(*dirs)
   end
 end
 
-remove_jars(".", "examples/semi-sweet-examples", "examples/sweet-examples/adder-webapp", 
-            "examples/sweet-examples/basic")
-install_jars(".", "examples/semi-sweet-examples", "examples/sweet-examples/adder-webapp", 
-            "examples/sweet-examples/basic")
+remove_jars(".", "examples/semi-sweet-examples", "examples/adder-webapp", 
+            "examples/basic")
+install_jars(".", "examples/semi-sweet-examples", "examples/adder-webapp", 
+            "examples/basic")
 
 `cd examples/semi-sweet-examples; make-run`
-`cd examples/sweet-examples/basic; make-run`
+`cd examples/basic; make-run`
 
 exit 0

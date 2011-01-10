@@ -1,0 +1,23 @@
+adder-webapp/
+   Mark McGranaghan's "Developing and Deploying a Simple Clojure Web
+   Application", converted to use Midje.
+
+basic/
+   Various tests that show the use of Midje's default "sweet" interface.
+
+cake-midje/
+   An example of running Midje tests with Cake.
+
+compound-checkers/
+   Writing checkers that check more than one thing. (The
+   tricky bit is getting the line numbers to come out
+   right.)
+
+leiningen-midje/
+leiningen-test/
+
+semi-sweet-examples/
+    Midje's default "sweet" interface is built on top of a 
+    "semi-sweet" interface (which in turn is built on an 
+    "unprocessed" interface. These examples show how
+    the semi-sweet interface is used.

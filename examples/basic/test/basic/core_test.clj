@@ -70,12 +70,14 @@
 ;; Here's one of them:
 
 (fact
-  [3 1 2] => (in-any-order [1 2 3])                         ;; succeeds
-  [3 3 1 2] => (in-any-order [1 2 3]))                       (note-expected-failure)
-;;     FAIL at (core_test.clj:74)
-;;     Actual result did not agree with the checking function.
+  [3 1 2] => (just [1 2 3] :in-any-order)                         ;; succeeds
+  [3 3 1 2] => (just [1 2 3] :in-any-order))                       (note-expected-failure)
+;; FAIL at (core_test.clj:74)		
+;; Actual result did not agree with the checking function.
 ;;         Actual result: [3 3 1 2]
-;;     Checking function: (in-any-order [1 2 3])
+;;     Checking function: (just [1 2 3] :in-any-order)
+;;     The checker said this about the reason:
+;;        Expected three elements. There were four.
 
 ;; Facts work with variables bound both within and outside of the fact form:
 (let [a 3]

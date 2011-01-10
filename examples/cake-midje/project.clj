@@ -2,4 +2,4 @@
   :description "TODO: add summary of your project"
   :dependencies [[clojure "1.2.0"]
 		 [clojure-contrib "1.2.0"]]
-  :dev-dependencies [[midje "0.9.0"]])
+  :dev-dependencies [[midje "1.0.0alpha1"]])

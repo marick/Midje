@@ -47,13 +47,13 @@
 ;; They have doc strings.
 ;; Here's one of them:
 (deftest example-of-a-predefined-checker
-  (expect '[3 1 2] => (in-any-order [1 2 3]))                         ;; succeeds
-  (expect '[3 3 1 2] => (in-any-order [1 2 3]))                       (note-expected))
-;;     FAIL at (core_test.clj:51)
-;;     Actual result did not pass expected function.
-;;     expected function: (in-any-order [1 2 3])
-;;         actual result: [3 3 1 2]
-
+  (expect '[3 1 2] => (just [1 2 3] :in-any-order))                         ;; succeeds
+  (expect '[3 3 1 2] => (just [1 2 3] :in-any-order))                       (note-expected))
+;; Actual result did not agree with the checking function.
+;;         Actual result: [3 3 1 2]
+;;     Checking function: (just [1 2 3] :in-any-order)
+;;     The checker said this about the reason:
+;;        Expected three elements. There were four.
 
 ;; In the semi-sweet version of Midje, functions can be faked out as follows.
 ;; As with normal functions, faked functions have to be declared before use.

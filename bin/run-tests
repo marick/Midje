@@ -4,14 +4,16 @@ require 'fileutils'
 include FileUtils
 
 lein_test_runs = %w{examples/semi-sweet-examples
-                    examples/sweet-examples/leiningen-test}
+                    examples/leiningen-test}
 
-lein_midje_runs = %w{examples/sweet-examples/basic
-                    examples/sweet-examples/adder-webapp
-                    examples/sweet-examples/compound-checkers
-                     examples/sweet-examples/leiningen-midje}
+lein_midje_runs = %w{examples/basic
+                    examples/adder-webapp
+                    examples/compound-checkers
+                     examples/leiningen-midje}
 
-run_runs = %w{ examples/semi-sweet-examples examples/sweet-examples/basic }
+cake_midje_runs = %w{examples/cake-midje}
+
+run_runs = %w{ examples/semi-sweet-examples examples/basic }
 
 puts "= Main Tests"
 # system("ls lib")
@@ -37,6 +39,16 @@ lein_midje_runs.each do | dir |
     system("lein clean")
     puts "  lein midje"
     system("lein midje > ~/tmp/lein.out; diff ~/tmp/lein.out lein-expected-output")
+  end
+end
+
+puts "= Cake midje tests"
+cake_midje_runs.each do | dir | 
+  puts("= " + dir)
+  Dir.chdir(dir) do
+    # system("ls lib")
+    puts "  cake midje"
+    system("cake midje > ~/tmp/cake.out; diff ~/tmp/cake.out cake-expected-output")
   end
 end
 

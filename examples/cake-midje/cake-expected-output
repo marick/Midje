@@ -1,0 +1,28 @@
+
++++ The following shows how 'cake midje' checks facts in test files.
++++ The failure is intentional.
+
+FAIL at (t_core.clj:13)
+    Expected: "I am a test file fact"
+      Actual: 3
+
++++ The following shows how 'cake midje' checks facts in source files.
++++ The failure is intentional.
+
+FAIL at (core.clj:7)
+    Expected: "I am a source-file fact."
+      Actual: 3
+
++++ The following shows how 'cake midje' runs clojure.test deftests.
++++ The failure is intentional.
+>>> Output from clojure.test tests:
+
+FAIL in (a-clojure-test-test) (t_core.clj:8)
+expected: (= 1 "I am a deftest expected result.")
+  actual: (not (= 1 "I am a deftest expected result."))
+
+>>> clojure.test summary:
+Ran 1 tests containing 1 assertions.
+1 failures, 0 errors.
+>>> Midje summary:
+FAILURE: 2 facts were not confirmed. 

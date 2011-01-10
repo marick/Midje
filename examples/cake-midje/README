@@ -1,0 +1,4 @@
+The file 'tasks.clj' contains a Cake task that checks both
+Midje facts and clojure.test tests. Run it like this:
+
+% cake midje
