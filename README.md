@@ -40,7 +40,7 @@ guide](https://github.com/marick/Midje/wiki). If
 anything there is unclear, ask in the [mailing
 list](http://groups.google.com/group/midje). If
 you like looking straight at code, [this heavily annotated
-example](http://github.com/marick/Midje/blob/master/examples/sweet-examples/basic/test/basic/core_test.clj)
+example](http://github.com/marick/Midje/blob/master/examples/basic/test/basic/core_test.clj)
   has a bunch. If you want to run that example, you
   can download it:
 
@@ -48,7 +48,7 @@ example](http://github.com/marick/Midje/blob/master/examples/sweet-examples/basi
 * In a shell, go to the directory your browser unpacked the example
   into. It should be named `examples`.
 * Go to
-  `examples/sweet-examples/basic/`.
+  `examples/basic/`.
 * Type "./run" or "lein test".
 * The facts in `test/*/core_test.clj` will be checked.
 
