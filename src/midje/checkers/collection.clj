@@ -10,6 +10,8 @@
 	[midje.checkers util extended-equality chatty]
 	))
 
+(def looseness-modifiers #{:in-any-order :gaps-ok})
+
 (defn- inexact-checker? 
   "Can the checker potentially match non-unique elements
    in a seq? (Ex: regex #'a+' can match 'a' and 'aa'.)"
@@ -351,7 +353,7 @@
 	      [actual (into {} expected) looseness])
 	
 	(set? actual)
-	(recur (vec actual) expected #{:in-any-order :gaps-ok})
+	(recur (vec actual) expected looseness-modifiers)
 	
 	(string? actual)
 	(cond (and (not (string? expected))
@@ -375,16 +377,34 @@
 
 ;; The interface
 
+(defn- separate-looseness
+  "Distinguish expected results from looseness descriptions.
+   1 :in-any-order => [1 [:in-any-order]]
+   1 2 :in-any-order => [ [1 2] [:in-any-order] ]
+   Single elements require specialized processing, so they're left alone.
+   More than one element must be an indication that a sequential is desired."
+  [args]
+  (let [special-case-singletons #(if (= 1 (count %)) (first %) %)
+        past-end-of-real-arguments #(or (empty? %)
+                                        (some looseness-modifiers [(first %)]))]
+  (loop [known-to-be-expected [(first args)]
+         might-be-looseness-modifier (rest args)]
+    (if (past-end-of-real-arguments might-be-looseness-modifier)
+      (vector (special-case-singletons known-to-be-expected) might-be-looseness-modifier)
+      (recur (conj known-to-be-expected (first might-be-looseness-modifier))
+             (rest might-be-looseness-modifier))))))
+
 (defn- container-checker-maker [name checker-fn]
   (tag-as-checker
-   (fn [expected & looseness]
-      (tag-as-chatty-checker
-       (named name expected
-              (fn [actual]
-                (add-actual actual
-                            (try (checker-fn actual expected looseness)
-                                 (catch Error ex
-                                   (noted-falsehood (.getMessage ex)))))))))))
+   (fn [& args]
+     (let [ [expected looseness] (separate-looseness args)]
+       (tag-as-chatty-checker
+        (named name expected
+               (fn [actual]
+                 (add-actual actual
+                             (try (checker-fn actual expected looseness)
+                                  (catch Error ex
+                                    (noted-falsehood (.getMessage ex))))))))))))
 
 (def contains (container-checker-maker 'contains
     (fn [actual expected looseness]

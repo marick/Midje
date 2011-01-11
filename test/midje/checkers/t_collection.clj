@@ -4,6 +4,7 @@
   (:use [midje sweet test-util]
         [midje.checkers.chatty :only [chatty-falsehood-to-map
                                       chatty-checker-falsehood?]]))
+(testable-privates midje.checkers.collection separate-looseness)
 
 (fact "left-hand-side: sequentials that are to contain things"
   [3 4 5 700] => (contains [4 5 700])
@@ -55,15 +56,22 @@
   [1 2 3] => (has-suffix #{odd? even?} :gaps-ok)   ; silly
 
   ;; Singletons
-  [700 4 5] => (contains 4)
+  [700 4 5] => (contains 4 :in-any-order)
   [4] => (just 4)
   [4] => (has-prefix 4)
   [4] => (has-suffix 4)
+  [:in-any-order] => (just :in-any-order :in-any-order)
 
   [4 4 1] => (has some odd?)
   [1 3 5] => (has every? odd?)
   ( (has some odd?) [34 34 88]) => falsey
   ( (has every? odd?) [1 3 44]) => falsey
+
+  ;; More than one not enclosed in a collection
+  [700 4 5] => (just 4 5 700 :in-any-order)
+  [[700] [4] [5]] => (contains [700] [5] :gaps-ok)
+  [ [1] [2] ] => (just (contains odd?) (contains even?))
+  [ {:s 2} [2] ] => (just map? vector?)
 
   ;; old bugs
   ( (contains [true]) [1 2]) => falsey
@@ -153,6 +161,8 @@
 
   ;; Strings and characters
   "s" => (just \s)
+  "as" => (has-prefix \a \s)
+  ( (has-prefix "a" "s") "as") => falsey
   ( (just \s) "as") => falsey
   "s" => (contains \s)
   ( (contains \s) "family") => falsey
@@ -204,6 +214,9 @@
 
   #{1} => (contains 1)
   #{1} => (just 1)
+  #{1 2} => (contains 1 2)
+  #{{:a 1} {:b 2}} => (contains [{:a 1} {:b 2}])
+  #{{:a 1} {:b 2}} => (contains {:a 1} {:b 2})
 
   (chatty-falsehood-to-map ( (has-prefix 1) #{1}))
   => (contains {:actual #{1} :notes ["Sets don't have prefixes."]})
@@ -252,6 +265,9 @@
 
  {:a 1} => (just [ (find {:a 1} :a) ])
  {:a 1} => (just [ [:a 1] ])
+ {:a 1, :b 3} => (contains [:a 1] [:b odd?])
+ ( (contains [:a 1] [:b odd?]) {:a 1, :b odd?}) => falsey
+ {:a 1, :b odd?} => (contains [:a 1] [:b (exactly odd?)])
  ( (just [ [:a 1] ]) {:a 1, :b 1}) => falsey
 
  (chatty-falsehood-to-map ( (contains [:a 1]) {:a 1}))
@@ -392,3 +408,13 @@
   [1 1] => (two-of odd?)
   [1] => (one-of odd?))
 
+(facts "about separating looseness from arguments"
+  (separate-looseness [1]) => [ 1 [] ]
+  (separate-looseness [1 :in-any-order]) => [ 1 [:in-any-order] ]
+  (separate-looseness [1 :in-any-order :gaps-ok]) => [ 1 [:in-any-order :gaps-ok] ]
+  (separate-looseness [1 2]) => [ [1 2] [] ]
+  (separate-looseness [1 2 :in-any-order]) => [ [1 2] [:in-any-order] ]
+
+  (separate-looseness [ [4 5 700] :in-any-order ]) => [ [4 5 700] [:in-any-order] ])
+
+  
