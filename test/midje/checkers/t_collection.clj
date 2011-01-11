@@ -72,6 +72,7 @@
   [[700] [4] [5]] => (contains [700] [5] :gaps-ok)
   [ [1] [2] ] => (just (contains odd?) (contains even?))
   [ {:s 2} [2] ] => (just map? vector?)
+  [ #{1 2} #{:a} {:a 1} #{3 4} ] => (contains #{1 2} #{3 4} :gaps-ok)
 
   ;; old bugs
   ( (contains [true]) [1 2]) => falsey
@@ -265,6 +266,9 @@
 
  {:a 1} => (just [ (find {:a 1} :a) ])
  {:a 1} => (just [ [:a 1] ])
+ {:a 1, :b 2, :c 3} => (contains   [:a 1] [:b 2]  ) ; Brackets can be dropped.
+ ( (just [:a 1]) {:a 1}) => falsey ; ambiguity resolved in favor of array.
+
  {:a 1, :b 3} => (contains [:a 1] [:b odd?])
  ( (contains [:a 1] [:b odd?]) {:a 1, :b odd?}) => falsey
  {:a 1, :b odd?} => (contains [:a 1] [:b (exactly odd?)])
@@ -417,4 +421,3 @@
 
   (separate-looseness [ [4 5 700] :in-any-order ]) => [ [4 5 700] [:in-any-order] ])
 
-  
