@@ -25,7 +25,7 @@
                  '[:key 'value] ])
 
   (let [actual (fakes-and-overrides '())]
-    actual => (just [empty? empty?])))
+    actual => (just empty? empty?)))
 
 (fact "calling a faked function raises an error"
   (faked-function) => (throws Error))
@@ -117,13 +117,13 @@
   (after-silently
    (expect (no-caller) => "irrelevant"
            (fake (mocked-function) => 33))
-   @reported => (just [wrong-call-count bad-result]))
+   @reported => (just wrong-call-count bad-result))
 
   "mock call was not supposed to be made, but was (non-zero call count)"
   (after-silently
    (expect (function-under-test 33) => "irrelevant"
            (not-called mocked-function))
-   @reported => (just [wrong-call-count bad-result]))
+   @reported => (just wrong-call-count bad-result))
 
   "call not from inside function"
   (after-silently 
@@ -136,8 +136,8 @@
   (after-silently
    (expect (+ (mocked-function 12) (mocked-function 33)) => "result irrelevant because of earlier failure"
            (fake (mocked-function 12) => "hi"))
-   @reported => (just [(contains {:type :mock-argument-match-failure :actual '(33)})
-                      bad-result]))
+   @reported => (just (contains {:type :mock-argument-match-failure :actual '(33)})
+                      bad-result))
 
   "failure because one variant of multiply-mocked function is not called"
   (after-silently 
@@ -145,9 +145,9 @@
            (fake (mocked-function 12) => 1)
            (fake (mocked-function 22) => 2)
            (fake (mocked-function 33) => 3))
-   @reported => (just [(contains {:type :mock-incorrect-call-count
+   @reported => (just (contains {:type :mock-incorrect-call-count
                                  :expected-call "(mocked-function 33)" })
-                       pass])) ; Right result, but wrong reason.
+                      pass)) ; Right result, but wrong reason.
 
   "multiple calls to a mocked function are perfectly fine"
   (expect (+ (mocked-function 12) (mocked-function 12)) => 2
