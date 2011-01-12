@@ -11,16 +11,16 @@
   (stacktrace-as-strings (Throwable.)) => (contains clojure-spewage-regexp))
 
 (fact "clojure spewage can be removed"
-  (let [strings (relevant-strings-from-stacktrace (Throwable.))]
-    (filter #(re-find clojure-spewage-regexp %) strings)) => empty?)
+  (let [strings [ "clojure.something"
+                  "java.something"
+                  "midje.something"
+                  "other.something"
+                  "user$eval19.invoke(NO_SOURCE_FILE:1)"]]
+    (relevant-strings strings) => ["other.something"]))
 
 (fact "there is a format for printing exceptions"
+  ;; since midje lines are omitted, there's not much we can check.
   (let [lines (friendly-exception-lines (Error. "message") ">>>")]
     (first lines) => #"Error.*message"
     (re-find #"^>>>" (first lines)) => falsey
-    (empty? (rest lines)) => falsey
-    (filter #(re-find clojure-spewage-regexp %) (rest lines)) => empty?
-    (re-find #"^>>>" (second lines)) => truthy
-    ))
-  
- 
+    (rest lines) => empty?))

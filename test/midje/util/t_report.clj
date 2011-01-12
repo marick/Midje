@@ -123,8 +123,8 @@
                      :actual (captured-exception (Error. "message"))
                      :expected "hi"}
         raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
-    (nth raw-report 2) => #"Error.*message"
-    (nth raw-report 2) => #"\(t_report.clj:\d+")
+    ;; Because midje stack traces are filtered out, there's not much more to check.
+    (nth raw-report 2) => #"Error.*message")
 
   "This reporting only applies to unexpected exceptions."
   (/ 1 0) => (throws ArithmeticException))
