@@ -6,6 +6,22 @@
                                       chatty-checker-falsehood?]]))
 (testable-privates midje.checkers.collection separate-looseness)
 
+
+(facts "demonstrating the effects of :in-any-order and ambiguity"
+  ;; In case anyone wants to make the algorithm better.
+  ;; Annoyingly, I seem to have mislaid some more extensive tests. Sloppy.
+  ;; So be extra-careful changing the code - these tests are probably not enough.
+  ["123" "12" "1"] => (contains [#"1" #"2" #"3"] :in-any-order)
+  ["12" "123" "1"] => (contains [#"1" #"2" #"3"] :in-any-order)
+  ["123" "1" "12" ] => (contains [#"1" #"2" #"3"] :in-any-order)
+  ["1" "12" "123"] => (contains [#"1" #"2" #"3"] :in-any-order)
+
+  [0 3 2 'a 1] => (contains #(<= % 3) #(<= % 2) #(<= % 1) :in-any-order :gaps-ok)
+  [0 3 'a 1 2] => (contains #(<= % 3) #(<= % 2) #(<= % 1) :in-any-order :gaps-ok)
+  [0 2 3 'a 1] => (contains #(<= % 3) #(<= % 2) #(<= % 1) :in-any-order :gaps-ok))
+
+  
+
 (fact "left-hand-side: sequentials that are to contain things"
   [3 4 5 700] => (contains [4 5 700])
   ( (contains [4 5 700]) [4 700 5]) => falsey
