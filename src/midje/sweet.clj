@@ -74,3 +74,9 @@
 (defmacro incipient-facts [& forms] (future-fact-1 &form))
 (defmacro antiterminologicaldisintactitudinarian-fact [& forms] (future-fact-1 &form))
 (defmacro antiterminologicaldisintactitudinarian-facts [& forms] (future-fact-1 &form))
+
+
+(defn what-do-they-win-midje? []
+  (println ">> Why, Brian, they win Midje stickers! Which will eventually be sent them ")
+  (println ">> if they send their surface mail address to marick@exampler.com!")
+  "Wow! I'll do that right away!")
