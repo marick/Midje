@@ -1,15 +1,13 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.util.laziness
-  (:require [clojure.zip :as zip]))
-
+(ns midje.util.laziness)
 
 (defn eagerly
   "Descend form, converting all lazy seqs into lists.
    Metadata is preserved. In the result all non-collections
    are identical? to those in the original form (as is
    their metadata). None of the collections are identical?
-   even if they contains no lazy seqs."
+   even if they contain no lazy seqs."
   ;; Modified from clojure.walk/walk
   [form]
   (let [m #(with-meta % (meta form))]
