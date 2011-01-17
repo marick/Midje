@@ -48,13 +48,12 @@ example](http://github.com/marick/Midje/blob/master/examples/basic/test/basic/co
   has a bunch. If you want to run that example, you
   can download it:
 
-* [Click here](http://github.com/marick/Midje/raw/master/downloads/examples.zip).
-* In a shell, go to the directory your browser unpacked the example
-  into. It should be named `examples`.
-* Go to
-  `examples/basic/`.
-* Type "./run" or "lein test".
-* The facts in `test/*/core_test.clj` will be checked.
+1. [Click here](http://github.com/marick/Midje/raw/master/downloads/examples.zip).
+2. In a shell, go to the directory your browser unpacked the example
+    into. It should be named `examples`.
+3. Go to `examples/basic/`.
+4. Type "./run" or "lein test".
+5. The facts in `test/*/core_test.clj` will be checked.
 
 You can [download
 everything](http://github.com/marick/Midje/downloads) to get
