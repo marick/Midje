@@ -50,8 +50,10 @@ example](http://github.com/marick/Midje/blob/master/examples/basic/test/basic/co
 
 * [Click here](http://github.com/marick/Midje/raw/master/downloads/examples.zip).
 * In a shell, go to the directory your browser unpacked the example
-  into. It should be named `basic`.
-* Within it, type "./run" or "lein test".
+  into. It should be named `examples`.
+* Go to
+  `examples/basic/`.
+* Type "./run" or "lein test".
 * The facts in `test/*/core_test.clj` will be checked.
 
 You can [download
