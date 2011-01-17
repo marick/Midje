@@ -38,7 +38,11 @@ that are more useful for testing than `odd?` is.
 Midje's other useful features are described in the [user
 guide](https://github.com/marick/Midje/wiki). If
 anything there is unclear, ask in the [mailing
-list](http://groups.google.com/group/midje). If
+list](http://groups.google.com/group/midje).
+If you like videos of people programming, here's an
+[8-minute infomercial](http://www.youtube.com/watch?v=a7YtkcIiLGI) that concentrates on transitioning from
+clojure.test. 
+If
 you like looking straight at code, [this heavily annotated
 example](http://github.com/marick/Midje/blob/master/examples/basic/test/basic/core_test.clj)
   has a bunch. If you want to run that example, you
