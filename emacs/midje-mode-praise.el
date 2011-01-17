@@ -35,6 +35,20 @@
   "Of course the universe *is* out to get us, but it's not going to do it by passing a null to one of our methods. -- Ron Jeffries"
   "Good code is its own best documentation. -- Steve McConnell"
   "First they ignored you, then they laughed at you, then they fought you, now you've won. -- Not quite Gandhi"
+  "The reward of a thing well done is to have done it. -- Emerson"
+  "The highest reward for a man's toil is not what he gets for it but what he becomes by it. -- Ruskin"
+  "Before the reward there must be labor. You plant before you harvest. You sow in tears before you reap joy. -- Ransom"
+  "Intellectual 'work' is misnamed; it is a pleasure, a dissipation, and is its own highest reward. -- Twain"
+  "The biggest reward for a thing well done is to have done it. -- Voltaire"
+  "Effort only fully releases its reward after a person refuses to quit. -- Hill"
+  "The journey is the reward. -- traditional"
+  "For every disciplined effort, there is a multiple reward. -- Rohn"
+  "Happiness is not a reward / it is a consequence. -- Ingersoll"
+  "It takes time to succeed because success is merely the natural reward of taking time to do anything well. -- Ross"
+  "There is an inevitable reward for good deeds. -- Ming Fu Wu"
+  "Achievement is its own reward. -- David Lynch"
+  "Not in rewards, but in the strength to strive, the blessing lies. -- Towbridge"
+  "The right word may be effective, but no word was ever as effective as a rightly timed pause. -- Twain"
 ))
 
 (provide 'midje-mode-praise)
