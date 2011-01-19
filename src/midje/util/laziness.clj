@@ -16,9 +16,9 @@
                           
           (vector? form)
           (m (vec (map eagerly form)))
-        
+
           (map? form)
-          (m (into (if (sorted? form) (sorted-map) {}) (map eagerly form)))
+          (m (into form (map eagerly form)))
 
           (set? form)
           (m (into (if (sorted? form) (sorted-set) #{}) (map eagerly form)))
