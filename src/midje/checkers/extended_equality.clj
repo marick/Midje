@@ -2,13 +2,8 @@
 
 (ns midje.checkers.extended-equality
   (:use [midje.checkers.chatty :only [chatty-checker-falsehood?]]
-        [midje.util.form-utils :only [regex? pairs]]))
+        [midje.util.form-utils :only [regex? pairs classic-map? record?]]))
 
-(defn classic-map? [x] (.isInstance clojure.lang.APersistentMap x))
-  
-(defn record? [x]  (and (map? x) (not (classic-map? x))))
-
-  
 
 (defn extended-fn? [x]
   (or (fn? x)

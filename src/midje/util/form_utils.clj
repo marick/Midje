@@ -6,6 +6,10 @@
 (defn regex? [thing]
   (= (class thing) java.util.regex.Pattern))
 
+(defn classic-map? [x] (.isInstance clojure.lang.APersistentMap x))
+  
+(defn record? [x]  (and (map? x) (not (classic-map? x))))
+  
 (defn symbol-named?
   "Is the thing a symbol with the name given by the string?"
   [thing string]

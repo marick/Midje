@@ -30,11 +30,6 @@
 
 (defrecord AB [a b])
 (defrecord AB2 [a b])
-(fact "records can be distinguished from maps"
-  (record? (AB. 1 2)) => truthy
-  (record? {:a 1, :b 2}) => falsey
-  (record? 5) => falsey)
-  
 
 (fact "extended equality allows one-way comparison of records to maps"
   "First, regular maps"

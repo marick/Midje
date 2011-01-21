@@ -5,6 +5,17 @@
   (:use [midje.sweet])
   (:use [midje.test-util]))
 
+(defrecord R [a])
+
+(facts "about recognizing classic maps"
+  (classic-map? {}) => truthy
+  (classic-map? (R. 1)) => falsey
+  (classic-map? 1) => falsey)
+
+(facts "about recognizing records"
+  (record? {}) => falsey
+  (record? (R. 1)) => truthy
+  (record? 1) => falsey)
 
 (facts "a form's reader-assigned line-number can be extracted"
   (reader-line-number (with-meta '(fact (this that)) {:line 23})) => 23
