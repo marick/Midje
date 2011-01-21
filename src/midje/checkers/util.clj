@@ -1,6 +1,7 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.checkers.util)
+(ns midje.checkers.util
+  (:use [midje.util.form-utils :only [classic-map?]]))
 
 (defn tag-as-checker [function]
   (vary-meta function merge {:midje/checker true}))
@@ -14,7 +15,9 @@
 
 (def captured-exception-key "this Throwable was captured by midje:")
 (defn captured-exception [e] {captured-exception-key e})
-(defn captured-exception? [value] (and (map? value) (value captured-exception-key)))
+(defn captured-exception? [value]
+  (and (classic-map? value)
+       (value captured-exception-key)))
 (defn captured-exception-value [captured-exception]
   (captured-exception captured-exception-key))
 
