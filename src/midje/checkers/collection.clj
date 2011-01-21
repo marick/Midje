@@ -6,7 +6,7 @@
         [clojure.contrib.def :only [defmacro- defvar-]]
         [clojure.contrib.pprint :only [cl-format]]
         [clojure.contrib.combinatorics :only [permutations]]
-        [midje.util.form-utils :only [regex? tack-on-to]]
+        [midje.util.form-utils :only [regex? tack-on-to record? classic-map?]]
 	[midje.checkers util extended-equality chatty]
 	))
 
@@ -320,7 +320,15 @@
 	(not (collection-like? actual))
 	(throw (Error. (str "You can't compare " (pr-str actual) " (" (type actual) 
 			    ") to " (pr-str expected) " (" (type expected) ").")))
-	
+
+        (and (record? expected)
+             (map? actual)
+             (not (= (class expected) (class actual))))
+        (throw (Error. (str "You expected a " (.getName (class expected))
+                            " but the actual value was a "
+                            (if (classic-map? actual) "map" (.getName (class actual)))
+                            ".")))
+        
 	(and (map? actual)
 	     (not (map? expected)))
 	(try (into {} expected)

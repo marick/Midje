@@ -6,6 +6,8 @@
                                       chatty-checker-falsehood?]]))
 (testable-privates midje.checkers.collection separate-looseness)
 
+(defrecord AB [a b])
+(defrecord AB-different-class [a b])
 
 (facts "demonstrating the effects of :in-any-order and ambiguity"
   ;; In case anyone wants to make the algorithm better.
@@ -43,8 +45,12 @@
   [700 [] 4 5] => (contains #{4 5 700} :gaps-ok)
   [700 [] 4 5] => (contains #{4 5 700} :gaps-ok :in-any-order) ; redundant
 
-  ;; containing maps
+  ;; containing maps and records
   [ {:a 1} "irrelevant"] => (contains {:a 1})
+  [ (AB. 1 2) "irrelevant"] => (contains (AB. 1 2))
+  [ (AB. 1 2) "irrelevant"] => (contains [(AB. 1 2)])
+  ( (contains (AB. 1 2)) [ 1 2 ] ) => falsey
+  ( (contains [(AB. 1 2)]) [ [:a 1] [:b 2 ] ] ) => falsey
 
   ;; Just
   [1 2 3] => (just [1 2 3]) 
@@ -248,6 +254,8 @@
 (fact "left-hand-side: maps"
  {:a 1, :b 2} => (contains {:a 1, :b 2})
  {:a "1", :b "2", :c "3"} => (contains {:a "1", :b "2"})
+ ( (contains (AB. 1 2)) {:a 1 :b 2}) => falsey
+ ( (just {:top (just (AB. 1 2))}) {:top {:a 1, :b 2}}) => falsey
 
  ( (contains {:a 1, :b 2, :c 2}) {:a 1, :b 2}) => falsey
  ( (contains {:a 1, :c 2}) {:a 1, :b 2}) => falsey
@@ -305,6 +313,36 @@
  ;; Quantifiers
  {:a 1, :b 5, :c 3} => (has every? odd?)
  )
+
+(facts "when the left-hand-side is a record"
+  "... and so is the right-hand-side"
+  (assoc (AB. 1 2) :c 3) => (contains (AB. 1 2))
+  ( (just (AB. 1 2))  (assoc (AB. 1 2) :c 3)) => falsey
+  (AB. 1 2) => (contains (AB. odd? even?))
+  ( (just (AB. 1 2)) (AB-different-class. 1 2)) => falsey
+
+  ;; collections of records, just for fun.
+  #{ (AB. 1 2) (AB. 'a 'b) } => (contains (AB. 1 2) )
+  {:a (AB. 1 2) } => (just {:a (AB. 1 2)})
+
+  "... and the right-hand-side is a map"
+  (AB. 1 2) => (contains {:a 1})
+  (AB. 1 2) => (contains {:a 1, :b 2})
+  (AB. 1 2) => (contains {:a 1, :b even?})
+  ((contains {:a 1, :b 2, :c 3}) (AB. 1 2)) => falsey
+
+  ;; collections of records, just for fun.
+  [ (AB. 1 2) ] => (contains (AB. 1 2))
+  [ (AB. 1 2) ] => (contains [(AB. 1 2)])
+
+  ((just {:a 1}) (AB. 1 2)) => falsey
+  (AB. 1 2) => (just {:a 1, :b 2})
+  (AB. 1 2) => (just {:a 1, :b even?})
+  ((just {:a 1, :b 2, :c 3}) (AB. 1 2)) => falsey
+  {:a (AB. 1 2)} => (just {:a (AB. 1 2)})
+  {:a (AB. 1 2)} => (contains {:a (AB. 1 2)}))
+ 
+  
 
 (facts "where actual values are of wrong type for legitimate expected"
 
@@ -399,6 +437,12 @@
   => (contains {:actual {:a 1} :notes (just #"\{:a 1\}.*:a.*map entries")})
   (chatty-falsehood-to-map ( (contains 1)         {:a 1}))
   => (contains {:actual {:a 1} :notes (just #"\{:a 1\}.*1.*map entries")})
+  (chatty-falsehood-to-map ( (just (AB. 1 2)) {:a 1 :b 2}))
+  => (contains {:actual {:a 1 :b 2}
+                :notes (just #"AB.*but.*was.*map")})
+  (chatty-falsehood-to-map ( (just (AB. 1 2)) (AB-different-class. 1 2)))
+  => (contains {:actual (AB-different-class. 1 2)
+                :notes (just #"AB.*but.*was.*AB-different-class")})
   )
 
 (fact "Actual result shown is the original collection"
