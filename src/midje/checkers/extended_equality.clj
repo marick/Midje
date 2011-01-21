@@ -4,6 +4,12 @@
   (:use [midje.checkers.chatty :only [chatty-checker-falsehood?]]
         [midje.util.form-utils :only [regex? pairs]]))
 
+(defn classic-map? [x] (.isInstance clojure.lang.APersistentMap x))
+  
+(defn record? [x]  (and (map? x) (not (classic-map? x))))
+
+  
+
 (defn extended-fn? [x]
   (or (fn? x)
       (= (class x) clojure.lang.MultiFn)))
@@ -24,6 +30,9 @@
           (if (regex? actual)
             (= (.toString actual) (.toString expected))
             (re-find expected actual))
+
+          (and (record? actual) (classic-map? expected))
+          (= (into {} actual) expected)
 
           :else
           (= actual expected))

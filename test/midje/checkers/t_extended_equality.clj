@@ -28,5 +28,35 @@
   (extended-list-= ['()] [seq?]) => truthy
   (extended-list-= ['() 1] [seq? seq?]) => falsey)
 
+(defrecord AB [a b])
+(defrecord AB2 [a b])
+(fact "records can be distinguished from maps"
+  (record? (AB. 1 2)) => truthy
+  (record? {:a 1, :b 2}) => falsey
+  (record? 5) => falsey)
+  
 
+(fact "extended equality allows one-way comparison of records to maps"
+  "First, regular maps"
+  (extended-= {:a 1} {:a 1}) => truthy
+  (extended-= {:a 1} {:a 2}) => falsey
+  (extended-= {:a 1} {:b 1}) => falsey
+  (extended-= {:a 1} {:a 1, :b 1}) => falsey
+  (extended-= {:a 1, :b 1} {:a 1}) => falsey
 
+  "And records compared to records"
+  (extended-= (AB. 1 2) (AB. 1 2)) => truthy
+  (extended-= (AB. 1 2) (AB. 1 3)) => falsey
+  (extended-= (AB. 1 2) (AB2. 1 2)) => falsey
+  (extended-= (assoc (AB. 1 2) :c 3) (AB. 1 2)) => falsey
+
+  "Maps on the left never match records on the right"
+  (extended-= {:a 1, :b 2} (AB. 1 2)) => falsey
+
+  "Maps on the RIGHT can match records on the left"
+  (extended-= (AB. 1 2) {:a 1, :b 2}) => truthy
+  (extended-= (AB. 1 2) {:a 1, :b 1}) => falsey
+  (extended-= (AB. 1 2) {:a 1, :b 2, :c 3}) => falsey
+  (extended-= (assoc (AB. 1 2) :c 3) {:a 1, :b 2, :c 3}) => truthy
+  )
+  
