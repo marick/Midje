@@ -2,7 +2,7 @@
 
 (ns midje.util.t-laziness
   (:use [midje.sweet]
-        [midje.util laziness]
+        [midje.util laziness thread-safe-var-nesting]
         [midje.test-util]
         [clojure.contrib.seq :only [separate]]))
 
@@ -23,29 +23,57 @@
 
 ;; After justification, more facts.
 
-(fact "eagerly recursively turns lazy sequences into lists, preserving metadata"
-  (let [lazied (with-meta (map identity [1 2 3]) {:hi :mom})]
-    (doseq [eagered [ (eagerly lazied)
-                      (first (eagerly (map identity [lazied])))
-                      (first (eagerly (list lazied)))
-                      (first (eagerly [lazied]))
-                      (:k (eagerly {:k lazied}))
-                      (first (keys (eagerly {lazied 3})))
-                      (first (eagerly #{lazied}))
-                      ] ]
-      (= (type eagered) clojure.lang.LazySeq) => falsey
-      eagered => list?
-      (meta eagered) => {:hi :mom})))
+(unfinished exploder)
+(map exploder [1 2 3])
 
+(defrecord Foo [x y])
+
+(facts "about what happens in the absence of eagerly"
+  (with-altered-roots {#'exploder identity} (map #'exploder [1 2 3]))
+  => (throws Error)
+  (first (with-altered-roots {#'exploder identity} [(map #'exploder [1 2 3])]))
+  => (throws Error)
+  (first (with-altered-roots {#'exploder identity} (list (map #'exploder [1 2 3]))))
+  => (throws Error)
+  (:k (with-altered-roots {#'exploder identity} {:k (map #'exploder [1 2 3])}))
+  => (throws Error)
+  (first (keys (with-altered-roots {#'exploder identity} {(map #'exploder [1 2 3]) 'foo})))
+  => (throws Error)
+  (:x (with-altered-roots {#'exploder identity} (Foo. (map #'exploder [1 2 3]) 'x)))
+  => (throws Error)
+)
+
+
+(fact "about how eagerly improves things"
+  (with-altered-roots {#'exploder identity} (eagerly (map #'exploder [1 2 3])))
+  => [1 2 3]
+  (first (with-altered-roots {#'exploder identity} (eagerly [(map #'exploder [1 2 3])])))
+  => [1 2 3]
+  (first (with-altered-roots {#'exploder identity} (eagerly (list (map #'exploder [1 2 3])))))
+  => [1 2 3]
+  (:k (with-altered-roots {#'exploder identity} (eagerly {:k (map #'exploder [1 2 3])})))
+  => [1 2 3]
+  (first (keys (with-altered-roots {#'exploder identity} (eagerly {(map #'exploder [1 2 3]) 'foo}))))
+  => [1 2 3]
+  (first (with-altered-roots {#'exploder identity} (eagerly #{(map #'exploder [1 2 3])})))
+  => [1 2 3]
+  (:x (with-altered-roots {#'exploder identity} (eagerly (Foo. (map #'exploder [1 2 3]) 'x))))
+  => [1 2 3]
+  )
+
+(fact "eagerly preserves metadata"
+  (meta (eagerly (with-meta (map identity [1 2 3]) {:hi :mom})))
+  => {:hi :mom})
+    
 (fact "eagerly preserves identical? for non-collections."
   (let [eagered (first (eagerly (map identity [odd?])))]
     eagered => #(identical? % odd?)
     (:name (meta eagered)) => #(identical? % (:name (meta odd?)))))
 
-(defrecord Foo [x y])
-(fact "preserves record types"
+(fact "eagerly preserves record types"
   (class (eagerly (Foo. 4 5))) => Foo
-  (Foo. 4 5) => (Foo. 4 5))
+  (eagerly (Foo. 4 5)) => (Foo. 4 5)
+  (eagerly [(Foo. 4 5)]) => [(Foo. 4 5)])
 
 (fact "eagerly does NOT preserve identical? for collections even if they had no lazy seqs"
   (let [lazied (with-meta '(1 2 3) {:original :metadata})
