@@ -1,3 +1,8 @@
+= 1.0.1
+* Ben Mabey fix: eagerly preserve record types
+* Extended-= and collection checkers have semantics for
+  mixing maps and records.
+
 = 1.0.0
 * Allow, where unambiguous, collection checkers to have multiple element arguments:
 
