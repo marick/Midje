@@ -340,7 +340,12 @@
   (AB. 1 2) => (just {:a 1, :b even?})
   ((just {:a 1, :b 2, :c 3}) (AB. 1 2)) => falsey
   {:a (AB. 1 2)} => (just {:a (AB. 1 2)})
-  {:a (AB. 1 2)} => (contains {:a (AB. 1 2)}))
+  {:a (AB. 1 2)} => (contains {:a (AB. 1 2)})
+
+  "... and the right hand side consists of map entries."
+  (AB. 1 2) => (just [[:a 1] [:b 2]])
+  (AB. 1 2) => (just [:a 1] [:b 2])
+  (AB. 1 2) => (contains [[:a 1]]))
  
   
 
