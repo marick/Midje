@@ -15,8 +15,7 @@
 (unfinished f)
 (after-silently
  (fact (f) => 3 (provided ...movie... => (exactly odd?)))
- (fact @reported => (just (just {:type :user-error,
-                                 :position ["t_error_handling.clj", 17],
+ (fact @reported => (just (contains {:type :user-error,
                                  :message #"must look like.*\.\.\.movie\.\.\." }))))
 
 
@@ -26,18 +25,13 @@
 
 (def ...movie... :...movie...)
 (let [error-regexp #"must look like.*\.\.\.movie\.\.\."
-      raw-fake (fake ...movie... => 3) 
-      numbered-raw-fake (fake ...movie... => 3
-                              :file-position (midje.util.file-position/line-number-known 5))]
+      raw-fake (fake ...movie... => 3) ]
   (fact
     raw-fake => broken-fake?
     raw-fake => (contains {:message error-regexp})
-    numbered-raw-fake => broken-fake?
-    numbered-raw-fake => (contains {:message error-regexp})
     ))
 
 (after-silently 
  (fact (f) =>)
- (fact @reported => (just (contains {:type :user-error,
-                                     :position ["t_error_handling.clj", 40]}))))
+ (fact @reported => (just (contains {:type :user-error }))))
  
