@@ -7,6 +7,7 @@
         [midje.checkers.extended-equality :only [extended-=]]
         [midje.checkers.chatty :only [chatty-checker?]]
         [midje.checkers.util]
+        [midje.error-handling :only [broken-fake? report-broken-fakes]]
         clojure.contrib.error-kit
         [clojure.contrib.ns-utils :only [immigrate]]))
 (immigrate 'midje.checkers)
@@ -62,10 +63,13 @@
   "The core function in unprocessed Midje. Takes a map describing a call and a 
    list of maps, each of which describes a secondary call the first call is supposed to 
    make. See the documentation at http://github.com/marick/Midje."
-  (let [fakes (background-fakes-plus local-fakes)]
-    (with-altered-roots (binding-map fakes)
-      (let [code-under-test-result (capturing-exception
-                                    (eagerly
-                                     ((call-map :function-under-test))))]
-        (check-call-counts fakes)
-        (check-result code-under-test-result call-map)))))
+  (let [fakes (background-fakes-plus local-fakes)
+        broken-fakes (filter broken-fake? fakes)]
+    (if (empty? broken-fakes)
+      (with-altered-roots (binding-map fakes)
+        (let [code-under-test-result (capturing-exception
+                                      (eagerly
+                                       ((call-map :function-under-test))))]
+          (check-call-counts fakes)
+          (check-result code-under-test-result call-map)))
+      (report-broken-fakes broken-fakes))))

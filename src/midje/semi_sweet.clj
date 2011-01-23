@@ -4,6 +4,7 @@
   (:use clojure.test
         midje.fakes
         [midje.util debugging form-utils file-position]
+        [midje.error-handling :only [broken-fake]]
         [midje.production-mode]
         [clojure.contrib.ns-utils :only [immigrate]]))
 (immigrate 'midje.unprocessed)
@@ -36,29 +37,29 @@
   "Creates an fake map that a particular call will be made. When it is made,
    the result is to be returned. Either form may contain bound variables. 
    Example: (let [a 5] (fake (f a) => a))"
-  [call-form => result & overrides]
-  (let [[var-sym & args] call-form & overrides]
-    ;; The (vec args) keeps something like (...o...) from being evaluated as a
-    ;; function call later on. Right approach would seem to be '~args. That causes
-    ;; spurious failures. Debug someday.
-    (make-fake-map var-sym
-                          `{:arg-matchers (map midje.fakes/arg-matcher-maker ~(vec args))
-                            :call-text-for-failures (str '~call-form)
-                            :result-supplier (fn [] ~result)
-                            :type :fake}
-                          overrides))
-)
+  [& forms]
+  (or (broken-fake forms)
+      (let [ [call-form => result & overrides] forms
+             [var-sym & args] call-form]
+        ;; The (vec args) keeps something like (...o...) from being evaluated as a
+        ;; function call later on. Right approach would seem to be '~args. That causes
+        ;; spurious failures. Debug someday.
+        (make-fake-map var-sym
+                       `{:arg-matchers (map midje.fakes/arg-matcher-maker ~(vec args))
+                         :call-text-for-failures (str '~call-form)
+                         :result-supplier (fn [] ~result)
+                         :type :fake}
+                       overrides))))
 
 (defmacro not-called
   "Creates an fake map that a function will not be called.
    Example: (not-called f))"
   [var-sym & overrides]
   (make-fake-map var-sym
-                        `{:call-text-for-failures (str '~var-sym " was called.")
-                          :result-supplier (fn [] nil)
-                          :type :not-called}
-                        overrides)
-)
+                 `{:call-text-for-failures (str '~var-sym " was called.")
+                   :result-supplier (fn [] nil)
+                   :type :not-called}
+                 overrides))
 
 ;; I want to use resolve() to compare calls to fake, rather than the string
 ;; value of the symbol, but for some reason when the tests run, *ns* is User,

@@ -76,6 +76,12 @@
         (:description m)
         (midje-position-string (:position m)))))
   
+(defmethod report-strings :user-error [m]
+   (list
+    (fail-at m)
+    (str "    It seems this test is incorrect: ")
+    (str "      " (:message m))))
+  
 (defn render [m]
   (doall (map *renderer* (flatten-and-remove-nils (report-strings m)))))
 

@@ -98,6 +98,5 @@
 (defn arg-matcher-maker [expected]
   "Based on an expected value, generates a function that returns true if the 
    actual value matches it."
-;  (prn "arg matcher:" expected)
   (fn [actual] (extended-= actual expected)))
 
