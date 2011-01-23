@@ -40,16 +40,22 @@
     
 (defmacro fact [& forms]
   (when (user-desires-checking?)
-    (let [[background remainder] (separate-background-forms forms)]
-      (if (empty? background)
-        (let [things-to-run (-> remainder
-                                add-line-numbers
-                                translate-fact-body
-                                unfold-prerequisites)]
-          (define-metaconstants things-to-run)
-          (multiwrap (midjcoexpand `(every? true? (list ~@things-to-run)))
-                     (forms-to-wrap-around :facts)))
-        `(against-background ~background (midje.sweet/fact ~@remainder))))))
+    (try 
+      (let [[background remainder] (separate-background-forms forms)]
+        (if (empty? background)
+          (let [things-to-run (-> remainder
+                                  add-line-numbers
+                                  translate-fact-body
+                                  unfold-prerequisites)]
+            (define-metaconstants things-to-run)
+            (multiwrap (midjcoexpand `(every? true? (list ~@things-to-run)))
+                       (forms-to-wrap-around :facts)))
+          `(against-background ~background (midje.sweet/fact ~@remainder))))
+      (catch Exception ex
+        `(do (clojure.test/report {:type :user-error
+                                   :message "Bad juju!"
+                                   :position (midje.util.file-position/line-number-known ~(:line (meta &form)))})
+             false)))))
 
 
 (defmacro facts [& forms]

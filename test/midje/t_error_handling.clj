@@ -35,3 +35,9 @@
     numbered-raw-fake => broken-fake?
     numbered-raw-fake => (contains {:message error-regexp})
     ))
+
+(after-silently 
+ (fact (f) =>)
+ (fact @reported => (just (contains {:type :user-error,
+                                     :position ["t_error_handling.clj", 40]}))))
+ 
