@@ -8,7 +8,7 @@
                                       tack-on-to pairs]]
 	[midje.checkers.collection :only [just contains]]))
 
-;; deprecated checkers
+;; Note: checkers need to be exported in ../checkers.clj
 
 (defn map-containing [expected]
   "Accepts a map that contains all the keys and values in expected,

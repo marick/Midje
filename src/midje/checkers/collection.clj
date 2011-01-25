@@ -1,5 +1,7 @@
 ;; -*- indent-tabs-mode: nil -*-
 
+;; Note: checkers need to be exported in ../checkers.clj
+
 (ns midje.checkers.collection
   (:use [clojure.set :only [union]]
         [clojure.contrib.seq :only [rotations]]

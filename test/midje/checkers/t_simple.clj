@@ -27,6 +27,20 @@
   ( (exactly 1) 2) => falsey
   even? => (exactly even?))
 
+(facts "about roughly"
+  "explicit range"
+  ( (roughly 2.0 1.0) 0.99) => falsey
+  ( (roughly 2.0 1.0) 3.01) => falsey
+
+  0.00 => (roughly 1.0 1.0)
+  2.00 => (roughly 1.0 1.0)
+
+  "implicit range"
+  ( (roughly 1000) 998.999) => falsey
+  ( (roughly 1000) 999.001) => truthy
+  ( (roughly 1000) 1000.990) => truthy
+  ( (roughly 1000) 1001.001) => falsey)
+
 (defn throw-exception
   ([] (throw (NullPointerException.)))
   ([message] (throw (Error. message)))

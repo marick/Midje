@@ -1,5 +1,7 @@
 ;; -*- indent-tabs-mode: nil -*-
 
+;; Note: checkers need to be exported in ../checkers.clj
+
 (ns midje.checkers.simple
   (:use [midje.checkers util extended-equality]))
 
@@ -29,6 +31,18 @@
   [expected]
     (named 'exactly expected
            (fn [actual] (= expected actual))))
+
+(defn roughly
+  "With two arguments, accepts a value within delta of the
+   expected value. With one argument, the delta is 1/1000th
+   of the expected value."
+  {:midje/checker true}
+  ([expected delta]
+     (fn [actual]
+       (and (>= expected (- actual delta))
+            (<= expected (+ actual delta)))))
+  ([expected]
+     (roughly expected (* 0.001 expected))))
 
 ;;Concerning Throwables
 

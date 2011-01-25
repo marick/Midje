@@ -3,6 +3,8 @@
 (ns midje.checkers.chatty
   (:use [midje.checkers util]))
 
+;; Note: checkers need to be exported in ../checkers.clj
+
 ;; TODO: It might make sense to split the notion of extended-falsehood out of
 ;; that of chatty checkers, since there are now other kinds of checkers that
 ;; generate chatty falsehoods.
