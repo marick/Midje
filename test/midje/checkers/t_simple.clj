@@ -19,7 +19,9 @@
 (facts "about anything"
   true => anything
   false => anything
-  even? => anything)
+  even? => anything
+  "irrelevant is a synonym"
+  1 => irrelevant)
 
 (facts "about exactly"
   true => (exactly true)
