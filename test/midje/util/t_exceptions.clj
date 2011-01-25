@@ -16,7 +16,15 @@
                   "midje.something"
                   "other.something"
                   "user$eval19.invoke(NO_SOURCE_FILE:1)"]]
-    (relevant-strings strings) => ["other.something"]))
+    (without-clojure-strings strings) => ["midje.something" "other.something"])
+  
+  "... and midje frames are often considered spewage"
+  (let [strings [ "clojure.something"
+                  "java.something"
+                  "midje.something"
+                  "other.something"
+                  "user$eval19.invoke(NO_SOURCE_FILE:1)"]]
+    (without-midje-or-clojure-strings strings) => ["other.something"]))
 
 (fact "there is a format for printing exceptions"
   ;; since midje lines are omitted, there's not much we can check.

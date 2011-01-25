@@ -8,18 +8,25 @@
 (defn stacktrace-as-strings [ex]
   (map (fn [elt] (.toString elt)) (.getStackTrace ex)))
 
-;; Somehow I am at the moment too stupid to make ->> work.
-(defn relevant-strings [strings]
-  (let [dump (fn [re strings] (remove #(re-find re %) strings))]
-    (dump #"^java\."
-          (dump #"^clojure\."
-                (dump #"^midje" 
-                      (dump #"^user\$eval" strings))))))
+(defn remove-matches [re strings] (remove #(re-find re %) strings))
+
+(defn without-clojure-strings [all-strings]
+  (->> all-strings 
+       (remove-matches #"^java\.")
+       (remove-matches #"^clojure\.")
+       (remove-matches #"^user\$eval")))
+  
+(defn without-midje-or-clojure-strings [all-strings]
+  (remove-matches #"^midje" (without-clojure-strings all-strings)))
+
+(defn user-error-exception-lines [ex]
+  (cons (.toString ex)
+        (without-clojure-strings (stacktrace-as-strings ex))))
 
 (defn friendly-exception-lines [ex prefix]
   (cons (.toString ex)
 	(map #(str prefix %)
-	     (relevant-strings (stacktrace-as-strings ex)))))
+	     (without-midje-or-clojure-strings (stacktrace-as-strings ex)))))
 
 (defn friendly-exception-text [ex prefix]
   (str-join (System/getProperty "line.separator") (friendly-exception-lines ex prefix)))
