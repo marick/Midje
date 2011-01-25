@@ -4,8 +4,10 @@ About Midje
 Midje is a test framework for Clojure. I created it to
 support [top-down](https://github.com/marick/Midje/wiki/Top-down-testing) as well as bottom-up testing, to encourage
 readable tests, to provide a [smooth migration path from
-clojure.test](https://github.com/marick/Midje/wiki/Migrating-from-clojure.test), and to support a balance between abstraction
-and concreteness. 
+clojure.test](https://github.com/marick/Midje/wiki/Migrating-from-clojure.test),
+to support a balance between [abstraction and
+concreteness](https://github.com/marick/Midje/wiki/Metaconstants),
+and to be [gracious](https://github.com/marick/Midje/wiki/Error-message-improvements) in its treatment of you, my valued guest.
 
 Here's a simple Midje test:
 
