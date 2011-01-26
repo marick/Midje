@@ -4,3 +4,6 @@ lib
 classes
 test/midje/scratch
 .cake
+*#*
+*~
+semantic.cache
