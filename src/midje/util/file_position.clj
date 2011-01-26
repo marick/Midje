@@ -14,3 +14,7 @@
   [number]
   `[(first (user-file-position)) ~number])
 
+(defn position-of-form
+  "Guess position, using metadata of given form for the line number."
+  [form]
+  (line-number-known (:line (meta form))))
