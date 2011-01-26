@@ -3,6 +3,10 @@
 (ns midje.util.file-position
   (:require [clojure.zip :as zip]))
 
+(def fallback-line-number (atom 0))
+(defn set-fallback-line-number-from [form]
+  (reset! fallback-line-number (or (:line (meta form)) 0)))
+
 (defn user-file-position 
   "Guesses the file position (basename and line number) that the user is
    most likely to be interested in if a test fails."
@@ -15,15 +19,22 @@
   [number]
   `[(first (user-file-position)) ~number])
 
-(defn position-of-form
-  "Guess position, using metadata of given form for the line number."
-  [form]
-  (line-number-known (:line (meta form))))
 
-;; Yeah, it's not tail-recursive. So sue me.
+(defn- raw-arrow-line-number [arrow-loc]
+  (try
+    (let [directional (fn [direction-fn]
+                        (fn [loc]
+                          (-> loc direction-fn zip/node meta :line)))
+          left-lineno (directional zip/left)
+          right-lineno (directional zip/right)]
+      (or (left-lineno arrow-loc)
+          (right-lineno arrow-loc)
+          (inc (left-lineno (zip/prev arrow-loc)))))
+    (catch Throwable ex nil)))
+  
 (defn arrow-line-number [arrow-loc]
-  (try (or  (-> arrow-loc zip/left zip/node meta :line)
-            (-> arrow-loc zip/right zip/node meta :line)
-            (inc (arrow-line-number (zip/prev arrow-loc))))
-       (catch Throwable ex nil)))
+  (let [raw-lineno (raw-arrow-line-number arrow-loc)]
+    (if raw-lineno
+      (reset! fallback-line-number raw-lineno)
+      (swap! fallback-line-number inc))))
 

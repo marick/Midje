@@ -168,3 +168,36 @@
  (pending-fact (+ 1 1) => 2)
  (fact (just (contains {:position '("t_line_number_reporting.clj" 169)
 			:description "" }))))
+
+
+;; Improved error handling for pathological cases
+
+(def line-number-pathological 175)
+;; statements without lists guess 1+ most recent"
+(after-silently
+ (fact 
+   1 => even?)
+ (fact @reported => (just (contains {:position
+                                     ["t_line_number_reporting.clj"
+                                      (+ line-number-pathological 4)]}))))
+
+;; That can cause mistakes
+(after-silently
+ (fact
+   
+   1 => even?)
+ (fact @reported => (just (contains {:position
+                                     ["t_line_number_reporting.clj"
+                                      (+ line-number-pathological 12)]}))))
+
+;; Facts that have detectable line numbers update the best-guess.
+(after-silently
+ (fact
+   ;; Here, the line numbering goes astray.
+   (+ 1 2) => odd?
+   1 => even?)
+ (fact @reported => (just [pass
+                           (contains {:position ["t_line_number_reporting.clj"
+                                                 (+ line-number-pathological 23)]})])))
+
+

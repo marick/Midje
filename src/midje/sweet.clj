@@ -4,20 +4,19 @@
   (:use clojure.test
         [clojure.contrib.ns-utils :only [immigrate]]
         clojure.contrib.error-kit
-        [clojure.contrib.pprint :only [pprint]])
-  (:use [midje.production-mode])
-  (:use midje.midje-forms.recognizing)
-  (:use [midje.midje-forms.translating :only [midjcoexpand replace-wrappers-returning-immediate
+        [clojure.contrib.pprint :only [pprint]]
+        [clojure.contrib.seq :only [separate]])
+  (:use [midje production-mode metaconstants]
+        midje.midje-forms.recognizing
+        [midje.midje-forms.translating :only [midjcoexpand replace-wrappers-returning-immediate
                                               forms-to-wrap-around translate-fact-body
-                                              add-line-numbers unfold-prerequisites]])
-  (:use [midje.midje-forms.dissecting :only [separate-background-forms]])
+                                              add-line-numbers unfold-prerequisites]]
+        [midje.midje-forms.dissecting :only [separate-background-forms]]
+        [midje.util report debugging thread-safe-var-nesting]
+        [midje.util.wrapping :only [multiwrap]]
+        [midje.util.form-utils :only [reader-line-number]]
+        [midje.util.file-position :only [user-file-position set-fallback-line-number-from]])
   (:require [midje.midje-forms.building :as building])
-  (:use [clojure.contrib.seq :only [separate]])
-  (:use midje.metaconstants)
-  (:use [midje.util report debugging thread-safe-var-nesting])
-  (:use [midje.util.wrapping :only [multiwrap]])
-  (:use [midje.util.form-utils :only [reader-line-number]])
-  (:use [midje.util.file-position :only [user-file-position]])
   (:require midje.checkers)
 )
 (immigrate 'midje.unprocessed)
@@ -40,7 +39,8 @@
     
 (defmacro fact [& forms]
   (when (user-desires-checking?)
-    (try 
+    (try
+      (set-fallback-line-number-from &form)
       (let [[background remainder] (separate-background-forms forms)]
         (if (empty? background)
           (let [things-to-run (-> remainder

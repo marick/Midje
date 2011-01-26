@@ -93,9 +93,17 @@
     loc => loc-is-start-of-arrow-sequence?
     (arrow-line-number (zip/right loc)) => 33)
 
-  "Default result is nil."
+  "Default result is is one plus the fallback line number."
+  (set-fallback-line-number-from (at-line 333 '(previous form)))
   (let [form '(1 => 2)
         loc (-> form zip/seq-zip zip/down)]
     loc => loc-is-start-of-arrow-sequence?
-    (arrow-line-number (zip/right loc)) => nil))
+    (arrow-line-number (zip/right loc)) => 334
 
+    ;; incrementing happens more than once
+    (arrow-line-number (zip/right loc)) => 335
+
+
+    (let [another-form `( ~(at-line 3 '(f 1)) => 5) ]
+      (-> another-form zip/seq-zip zip/down zip/right arrow-line-number)
+      (arrow-line-number (zip/right loc)) => 4)))
