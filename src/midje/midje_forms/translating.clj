@@ -3,7 +3,8 @@
 (ns midje.midje-forms.translating
   (:use clojure.contrib.def)
   (:use [clojure.contrib.seq :only [separate]])
-  (:use [midje.util thread-safe-var-nesting wrapping form-utils laziness form-utils])
+  (:use [midje.util thread-safe-var-nesting wrapping form-utils laziness form-utils]
+        [midje.util.file-position :only [arrow-line-number]])
   (:use midje.metaconstants)
   (:require [clojure.zip :as zip])
   (:use [midje.midje-forms building recognizing dissecting moving-around editing])

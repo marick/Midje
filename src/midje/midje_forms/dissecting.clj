@@ -36,13 +36,6 @@
         (recur (conj so-far whole-body)
                (nthnext remainder (count whole-body)))))))
 
-;; Yeah, it's not tail-recursive. So sue me.
-(defn arrow-line-number [arrow-loc]
-  (try (or  (-> arrow-loc zip/left zip/node meta :line)
-            (-> arrow-loc zip/right zip/node meta :line)
-            (inc (arrow-line-number (zip/prev arrow-loc))))
-       (catch Throwable ex nil)))
-
 (defn extract-nested-prerequisite [fake-form]
   (-> fake-form second second))
 

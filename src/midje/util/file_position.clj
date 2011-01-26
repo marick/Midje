@@ -1,6 +1,7 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.util.file-position)
+(ns midje.util.file-position
+  (:require [clojure.zip :as zip]))
 
 (defn user-file-position 
   "Guesses the file position (basename and line number) that the user is
@@ -18,3 +19,11 @@
   "Guess position, using metadata of given form for the line number."
   [form]
   (line-number-known (:line (meta form))))
+
+;; Yeah, it's not tail-recursive. So sue me.
+(defn arrow-line-number [arrow-loc]
+  (try (or  (-> arrow-loc zip/left zip/node meta :line)
+            (-> arrow-loc zip/right zip/node meta :line)
+            (inc (arrow-line-number (zip/prev arrow-loc))))
+       (catch Throwable ex nil)))
+
