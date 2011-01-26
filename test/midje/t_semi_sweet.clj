@@ -35,7 +35,8 @@
         previous-line-position (file-position 1)
         fake-0 (fake (faked-function) => 2)
         fake-1 (fake (faked-function some-variable) => (+ 2 some-variable))
-        fake-2 (fake (faked-function 1 some-variable) => [1 some-variable])]
+        fake-2 (fake (faked-function 1 some-variable) => [1 some-variable])
+        fake-streamed (fake (faked-function 0) =streams=> ['r1 'r2])]
 
     "The basic parts"
     (:function fake-0) => #'midje.t-semi-sweet/faked-function
@@ -56,7 +57,10 @@
     ((:result-supplier fake-0)) => 2
     ((:result-supplier fake-1)) => (+ 2 some-variable)
     ((:result-supplier fake-2)) => [1 some-variable]
-))
+
+    "Streamed results"
+    ((:result-supplier fake-streamed)) => 'r1
+    ((:result-supplier fake-streamed)) => 'r2))
 
 (facts "key-value arguments can override fakes"
   (let [fake (fake (faked-function) => 2 :file-position 33)]
@@ -262,3 +266,17 @@
   
 (binding [midje.semi-sweet/*include-midje-checks* false]
   (load "semi_sweet_compile_out"))
+
+
+(facts "about result suppliers used"
+       (fact "returns identity for =>"
+            ;TODO: i think the dsl is matching "=>" as plain =>
+             (let [arrow "=>"]
+               ((make-result-supplier arrow [1 2 3])) => [1 2 3]))
+             
+       (fact "returns stream for =streams=>"
+             (let [supplier (make-result-supplier "=streams=>" [1 2 3])]
+               (supplier) => 1
+               (supplier) => 2
+               (supplier) => 3)))
+                    
