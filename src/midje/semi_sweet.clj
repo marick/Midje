@@ -9,7 +9,9 @@
         [clojure.contrib.ns-utils :only [immigrate]]))
 (immigrate 'midje.unprocessed)
 
-(def => "=>")   ; So every namespace uses the same qualified name.
+; So every namespace uses the same qualified name.
+(def => "=>")
+(def =streams=> "=streams=>")   
 
 (defonce
   #^{:doc "True by default.  If set to false, Midje checks are not
@@ -39,7 +41,7 @@
    Example: (let [a 5] (fake (f a) => a))"
   [& forms]
   (or (broken-fake forms)
-      (let [ [call-form => result & overrides] forms
+      (let [ [call-form arrow result & overrides] forms
              [var-sym & args] call-form]
         ;; The (vec args) keeps something like (...o...) from being evaluated as a
         ;; function call later on. Right approach would seem to be '~args. That causes
@@ -47,7 +49,7 @@
         (make-fake-map var-sym
                        `{:arg-matchers (map midje.fakes/arg-matcher-maker ~(vec args))
                          :call-text-for-failures (str '~call-form)
-                         :result-supplier (fn [] ~result)
+                         :result-supplier (make-result-supplier ~arrow ~result)
                          :type :fake}
                        overrides))))
 
@@ -100,3 +102,14 @@
     (let [ [fakes overrides] (fakes-and-overrides other-stuff)]
       `(let [call# (call-being-tested ~call-form ~expected-result ~overrides)]
          (expect* call# (vector ~@fakes))))))
+
+(defmulti make-result-supplier (fn [arrow & _]  arrow))
+
+(defmethod make-result-supplier => [arrow result] #(identity result))
+
+(defmethod make-result-supplier =streams=> [arrow result-stream]
+           (let [current-stream (atom result-stream)]
+             #(let [current-result (first @current-stream)]
+                (swap! current-stream rest)
+                current-result)))
+
