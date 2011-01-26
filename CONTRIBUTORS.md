@@ -1,3 +1,4 @@
+* Sean T. Allen
 * Ben Mabey
 * Brian Marick
 * Bob Martin
