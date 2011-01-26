@@ -33,7 +33,9 @@
 
 (defn- fail-at [m]
   (str "\nFAIL at " (midje-position-string (:position m))))
-  
+
+(defn- indented [lines]
+  (map (fn [line] (str "       " line)) lines))
 
 (defmulti report-strings :type)
 
@@ -67,8 +69,7 @@
                 (:intermediate-results m))))
    (if (:notes m)
      (cons "    The checker said this about the reason:"
-           (map (fn [note] (str "       " note))
-                (:notes m))))))
+           (indented (:notes m))))))
 
 (defmethod report-strings :future-fact [m]
   (list
@@ -79,8 +80,15 @@
 (defmethod report-strings :user-error [m]
    (list
     (fail-at m)
-    (str "    It seems this test is incorrect: ")
+    (str "    Midje could not understand something you wrote: ")
     (str "      " (:message m))))
+  
+(defmethod report-strings :exceptional-user-error [m]
+   (list
+    (fail-at m)
+    (str "    Midje caught an exception when translating this form:")
+    (str "      " (pr-str (:macro-form m)))
+    (indented (:exception-lines m))))
   
 (defn render [m]
   (doall (map *renderer* (flatten-and-remove-nils (report-strings m)))))

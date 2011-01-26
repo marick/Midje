@@ -129,3 +129,22 @@
   "This reporting only applies to unexpected exceptions."
   (/ 1 0) => (throws ArithmeticException))
 
+(facts "about reporting specific user errors"
+  (let [failure-map {:type :user-error
+                     :message "message"
+                     :position ["foo.clj" 3]}
+        raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
+    (nth raw-report 0) => #"FAIL at .*foo.clj:3"
+    (nth raw-report 2) => #"message"))
+
+(facts "about reporting user errors detected because of an exception"
+  (let [failure-map {:type :exceptional-user-error
+                     :macro-form '(foo bar)
+                     :exception-lines ["one" "two"]
+                     :position ["foo.clj" 3]}
+        raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
+    (nth raw-report 0) => #"FAIL at .*foo.clj:3"
+    (nth raw-report 2) => (contains "(foo bar)")
+    (nth raw-report 3) => (contains "one")
+    (nth raw-report 4) => (contains "two")))
+
