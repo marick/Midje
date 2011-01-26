@@ -35,7 +35,7 @@
   (str "\nFAIL at " (midje-position-string (:position m))))
 
 (defn- indented [lines]
-  (map (fn [line] (str "       " line)) lines))
+  (map (fn [line] (str "        " line)) lines))
 
 (defmulti report-strings :type)
 
@@ -88,6 +88,7 @@
     (fail-at m)
     (str "    Midje caught an exception when translating this form:")
     (str "      " (pr-str (:macro-form m)))
+    (str "      " "This stack trace *might* help:")
     (indented (:exception-lines m))))
   
 (defn render [m]

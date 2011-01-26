@@ -13,6 +13,7 @@
                                               add-line-numbers unfold-prerequisites]]
         [midje.midje-forms.dissecting :only [separate-background-forms]]
         [midje.util report debugging thread-safe-var-nesting]
+        [midje.util.exceptions :only [user-error-exception-lines]]
         [midje.util.wrapping :only [multiwrap]]
         [midje.util.form-utils :only [reader-line-number]]
         [midje.util.file-position :only [user-file-position set-fallback-line-number-from]])
@@ -52,8 +53,10 @@
                        (forms-to-wrap-around :facts)))
           `(against-background ~background (midje.sweet/fact ~@remainder))))
       (catch Exception ex
-        `(do (clojure.test/report {:type :user-error
-                                   :message "Bad juju!"
+        (println (user-error-exception-lines ex))
+        `(do (clojure.test/report {:type :exceptional-user-error
+                                   :macro-form '~&form
+                                   :exception-lines '~(user-error-exception-lines ex)
                                    :position (midje.util.file-position/line-number-known ~(:line (meta &form)))})
              false)))))
 
