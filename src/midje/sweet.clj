@@ -53,7 +53,6 @@
                        (forms-to-wrap-around :facts)))
           `(against-background ~background (midje.sweet/fact ~@remainder))))
       (catch Exception ex
-        (println (user-error-exception-lines ex))
         `(do (clojure.test/report {:type :exceptional-user-error
                                    :macro-form '~&form
                                    :exception-lines '~(user-error-exception-lines ex)

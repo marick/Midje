@@ -145,6 +145,6 @@
         raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
     (nth raw-report 0) => #"FAIL at .*foo.clj:3"
     (nth raw-report 2) => (contains "(foo bar)")
-    (nth raw-report 3) => (contains "one")
-    (nth raw-report 4) => (contains "two")))
+    (nth raw-report 4) => (contains "one")
+    (nth raw-report 5) => (contains "two")))
 

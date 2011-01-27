@@ -33,5 +33,5 @@
 
 (after-silently 
  (fact (f) =>)
- (fact @reported => (just (contains {:type :user-error }))))
+ (fact @reported => (just (contains {:type :exceptional-user-error }))))
  
