@@ -8,7 +8,6 @@
         [midje.checkers.chatty :only [chatty-checker?]]
         [midje.checkers.util]
         [midje.error-handling :only [broken-fake? report-broken-fakes]]
-        clojure.contrib.error-kit
         [clojure.contrib.ns-utils :only [immigrate]]))
 (immigrate 'midje.checkers)
 
