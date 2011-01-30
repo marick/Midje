@@ -24,7 +24,12 @@
                   "midje.something"
                   "other.something"
                   "user$eval19.invoke(NO_SOURCE_FILE:1)"]]
-    (without-midje-or-clojure-strings strings) => ["other.something"]))
+    (without-midje-or-clojure-strings strings) => ["other.something"])
+
+  "... and let us not forget swank spewage"
+  (let [strings [ "swank.core$eval" ] ]
+    (without-midje-or-clojure-strings strings) => []))
+  
 
 (fact "there is a format for printing exceptions"
   ;; since midje lines are omitted, there's not much we can check.

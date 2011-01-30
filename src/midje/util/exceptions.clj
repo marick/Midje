@@ -14,6 +14,7 @@
   (->> all-strings 
        (remove-matches #"^java\.")
        (remove-matches #"^clojure\.")
+       (remove-matches #"^swank\.")
        (remove-matches #"^user\$eval")))
   
 (defn without-midje-or-clojure-strings [all-strings]
