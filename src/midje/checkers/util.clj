@@ -5,6 +5,11 @@
 
 (defn tag-as-checker [function]
   (vary-meta function merge {:midje/checker true}))
+
+(defn checker? [item]
+  (if (symbol? item)
+    (recur (ns-resolve (symbol (namespace item)) item))
+    (:midje/checker (meta item))))
   
 (defn named [name expected function]
   "Adds a string name that looks like a function call to
