@@ -41,16 +41,3 @@
    (provided
      (all-procedures) => [...procedure...] ))
 
-
-
-(unfinished first-subfunction another-subfunction)
-  
-(defn function-under-test []
-  (+ (first-subfunction 1 2 '(a blue cow))
-     (another-subfunction inc)))
-
-(fact (function-under-test) => 11
-        (provided
-          (first-subfunction odd? even? anything) => 1
-	  (another-subfunction (exactly inc)) => 10))
-
