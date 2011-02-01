@@ -20,7 +20,7 @@
 (defmacro with-identity-renderer [& forms]   ; for testing
   `(binding [*renderer* identity] ~@forms))
 
-(defn- attractively-stringified-form [form]
+(defn attractively-stringified-form [form]
   (let [named-function-name #(and (fn? %) (:name (meta %)))]
     (cond (named-function-name form)
           (format "a function named '%s'" (named-function-name form))
