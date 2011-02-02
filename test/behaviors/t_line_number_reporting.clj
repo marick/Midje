@@ -201,3 +201,19 @@
                                                  (+ line-number-pathological 23)]})])))
 
 
+(def facts-position 204)
+(after-silently
+ (facts "... also use fallback line number"
+   1 => even?  
+
+
+   5 => even?
+   (+ 1 2) => odd?
+   3 => even?)
+ (fact @reported => (just (contains {:position ["t_line_number_reporting.clj"
+                                                (+ facts-position 3)]})
+                          (contains {:position ["t_line_number_reporting.clj"
+                                                (+ facts-position 4)]})
+                          pass
+                          (contains {:position ["t_line_number_reporting.clj"
+                                                (+ facts-position 8)]}))))

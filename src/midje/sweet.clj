@@ -61,7 +61,7 @@
 
 
 (defmacro facts [& forms]
-  `(fact ~@forms))
+  (with-meta `(fact ~@forms) (meta &form)))
 
 (defn- future-fact-1 [forms]
   (let [lineno (reader-line-number forms)
