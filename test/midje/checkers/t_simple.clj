@@ -2,21 +2,28 @@
 
 (ns midje.checkers.t-simple
   (:use midje.sweet
+        [midje.checkers.defining :only [checker?]]
         midje.test-util))
 
 (facts "about truthy"
+  #'truthy => checker?
+  truthy => checker?
   true => truthy
   1 => truthy
   (truthy false) => false
   (truthy nil) => false)
 
 (facts "about falsey"
+  #'falsey => checker?
+  falsey => checker?
   false => falsey
   nil => falsey
   (falsey true) => false
   (falsey 1) => false)
 
 (facts "about anything"
+  #'anything => checker?
+  anything => checker?
   true => anything
   false => anything
   even? => anything
@@ -24,12 +31,21 @@
   1 => irrelevant)
 
 (facts "about exactly"
+  #'exactly => checker?
+  exactly => checker?
+  (checker? (exactly odd?)) => falsey ;; It represents the function itself.
   true => (exactly true)
   ( (exactly 2) 2) => truthy
   ( (exactly 1) 2) => falsey
   even? => (exactly even?))
 
 (facts "about roughly"
+  "a checker that produces checkers"
+  #'roughly => checker?
+  roughly => checker?
+  (roughly 3) => checker?
+  (roughly 3 1) => checker?
+
   "explicit range"
   ( (roughly 2.0 1.0) 0.99) => falsey
   ( (roughly 2.0 1.0) 3.01) => falsey
@@ -49,6 +65,11 @@
 )
 
 (facts "about throws"
+  #'throws => checker?
+  throws => checker?
+  (throws NullPointerException) => checker?
+  (throws NullPointerException "hi") => checker?
+  
   (throw-exception) => (throws NullPointerException)
   (throw-exception "hi") => (throws Error "hi")
   (throw-exception "hi") => (throws Error #"h."))

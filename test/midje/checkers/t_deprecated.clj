@@ -2,10 +2,14 @@
 
 (ns midje.checkers.t-deprecated
   (:use midje.sweet
+        [midje.checkers.defining :only [checker?]]
         midje.test-util))
 
 
 (facts "about in-any-order"
+  in-any-order => checker?
+  #'in-any-order => checker?
+  (in-any-order []) => checker?
   [] => (in-any-order [])
   [1] => (in-any-order [1])
   '(2 1) => (in-any-order [1 2])
@@ -19,6 +23,10 @@
   ( (in-any-order [2 1 3 2]) [1 2 3 3]) => falsey)
 
 (facts "about map-containing"
+  map-containing => checker?
+  #'map-containing => checker?
+  (map-containing {}) => checker?
+  
   {:a 1 :b 2} => (map-containing {:a 1 :b 2})
   {:a 1 :b 2 :c 3} => (map-containing {:a 1 :b 2})
 
@@ -26,6 +34,10 @@
   ( (map-containing {:a 1 :b 2})  {:a 1 :b 3}) => falsey)
 
 (facts "about only-maps-containing-test"
+  only-maps-containing => checker?
+  #'only-maps-containing => checker?
+  (only-maps-containing {}) => checker?
+  
   ( (only-maps-containing {:a 1 :b 2}) [{:a 1 :b 2} {:extra true}]) => falsey
   ( (only-maps-containing {:a 1 :b 2}  {:extra true}) [{:a 1 :b 2}]) => falsey
 
@@ -35,6 +47,10 @@
   ( (only-maps-containing {:b 2} {:b 22}) [{:b 2} {:b 33}]) => falsey)
 
 (facts "about maps-containing"
+  maps-containing => checker?
+  #'maps-containing => checker?
+  (maps-containing {}) => checker?
+  
   ( (maps-containing {:a 1 :b 2}  {:extra true}) [{:a 1 :b 2}]) => falsey
 
   [{:a 1 :b 2} {:extra 1}] => (maps-containing {:extra 1} {:a 1})

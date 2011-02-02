@@ -28,8 +28,7 @@
     (named 'exactly expected
            (checker [actual] (= expected actual))))
 
-;; TODO: needs to use defchecker
-(defn roughly
+(defchecker roughly
   "With two arguments, accepts a value within delta of the
    expected value. With one argument, the delta is 1/1000th
    of the expected value."
@@ -42,8 +41,7 @@
 
 ;;Concerning Throwables
 
-;; TODO: needs to use defchecker
-(defn throws
+(defchecker throws
   "Checks that Throwable of named class was thrown and, optionally, that
    the message is as desired."
   ([expected-exception-class]

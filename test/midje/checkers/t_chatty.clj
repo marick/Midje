@@ -2,6 +2,7 @@
 
 (ns midje.checkers.t-chatty
   (:use midje.sweet
+        [midje.checkers.defining :only [checker?]]
         [midje.checkers.chatty :only [chattily-false? tag-as-chatty-falsehood
                                       chatty-worth-reporting-on?
                                       chatty-checker-falsehood? chatty-untease
@@ -34,6 +35,9 @@
 
 (def actual-plus-one-equals-4 (chatty-checker [actual] (= (inc actual) 4)))
 (def no-longer-limited-form (chatty-checker [actual] (= (inc actual) 4 (+ 2 actual))))
+
+(fact "chatty checkers are checkers"
+  actual-plus-one-equals-4 => checker?)
 
 (facts "about the form of chatty-checkers"
   actual-plus-one-equals-4 => chatty-checker?

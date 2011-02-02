@@ -415,7 +415,7 @@
                                   (catch Error ex
                                     (noted-falsehood (.getMessage ex)))))))))))
 
-(def contains (container-checker-maker 'contains
+(def ^{:midje/checker true} contains (container-checker-maker 'contains
     (fn [actual expected looseness]
       (let [ [actual expected looseness] (standardized-arguments actual expected looseness)]
         (cond (regex? expected)
@@ -424,7 +424,7 @@
               :else
               (match? actual expected looseness))))))
 
-(def just (container-checker-maker 'just
+(def ^{:midje/checker true} just (container-checker-maker 'just
     (fn [actual expected looseness]
       (let [ [actual expected looseness] (standardized-arguments actual expected looseness)]
         (cond (regex? expected)
@@ -440,7 +440,7 @@
                           (count actual))))))))
 
 (defn- has-xfix [x-name pattern-fn take-fn]
-  (fn [actual expected looseness]
+  (checker [actual expected looseness]
     (cond (set? actual)
           (noted-falsehood (format "Sets don't have %ses." x-name))
 
@@ -461,15 +461,15 @@
                               "A collection with ~R element~:P cannot match a ~A of size ~R."
                               (count actual) x-name (count expected))))))))
 
-(def has-prefix
+(def ^{:midje/checker true} has-prefix
      (container-checker-maker 'has-prefix
       (has-xfix "prefix" #(re-pattern (str "^" (.toString %))) take)))
-(def has-suffix
+(def ^{:midje/checker true} has-suffix
      (container-checker-maker 'has-suffix
       (has-xfix "suffix" #(re-pattern (str (.toString %) "$" )) take-last)))
                             
-(defn has [quantifier predicate]
-  (fn [actual]
+(defchecker has [quantifier predicate]
+  (checker [actual]
     (quantifier predicate
                 (if (map? actual)
                   (vals actual)
@@ -477,8 +477,7 @@
 
 ;; These are used in some internal tests. Worth publicizing?
 
-(defn n-of [expected expected-count]
-  {:midje/checker true}
+(defchecker n-of [expected expected-count]
   (chatty-checker [actual]
     (and (= (count actual) expected-count)
          (every? #(extended-= % expected) actual))))
@@ -487,8 +486,7 @@
 (defmacro- of-functions []
   (let [names {1 "one", 2 "two", 3 "three", 4 "four", 5 "five", 6 "six", 7 "seven",
                8 "eight", 9 "nine", 10 "ten"}
-        defns (map (fn [key] `(defn ~(symbol (str (get names key) "-of")) [expected-checker#]
-                                {:midje/checker true}
+        defns (map (fn [key] `(defchecker ~(symbol (str (get names key) "-of")) [expected-checker#]
                                 (n-of expected-checker# ~key)))
                    (keys names))]
     `(do ~@defns)))

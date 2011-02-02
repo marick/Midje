@@ -22,14 +22,13 @@
     list-like-thing
     (first list-like-thing)))
 
-(defn only-maps-containing 
+(defchecker only-maps-containing 
   "Each map in the argument(s) contains some map in the expected
    result. There may be no extra maps in either the argument(s) or expected result.
 
    You can call this with either (only-maps-containing {..} {..}) or
    (only-maps-containing [ {..} {..} ])."
   [& maps-or-maplist]
-  {:midje/checker true}
   (let [expected (one-level-map-flatten maps-or-maplist)
         subfunctions (map contains expected)]
     (just subfunctions :in-any-order)))
@@ -45,9 +44,8 @@
         subfunctions (map contains expected)]
     (contains subfunctions :in-any-order :gaps-ok)))
 
-(defn in-any-order
+(defchecker in-any-order
   "Produces matcher that matches sequences without regard to order.
    Prefer (just x :in-any-order)."
-  {:midje/checker true}
   [expected]
   (just expected :in-any-order))

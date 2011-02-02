@@ -2,6 +2,7 @@
 
 (ns midje.checkers.t-collection
   (:use [midje sweet test-util]
+        [midje.checkers.defining :only [checker?]]
         [midje.checkers.chatty :only [chatty-falsehood-to-map
                                       chatty-checker-falsehood?]]))
 (testable-privates midje.checkers.collection separate-looseness)
@@ -486,3 +487,25 @@
 
   (separate-looseness [ [4 5 700] :in-any-order ]) => [ [4 5 700] [:in-any-order] ])
 
+(facts "collection checkers are checkers"
+  has => checker?
+  has-suffix => checker?
+  has-prefix => checker?
+  just => checker?
+  contains => checker?
+  one-of => checker?
+
+  #'has => checker?
+  #'has-suffix => checker?
+  #'has-prefix => checker?
+  #'just => checker?
+  #'contains => checker?
+  #'two-of => checker?
+
+  (has some even?) => checker?
+  (has-suffix "foo") => checker?
+  (has-prefix '(b)) => checker?
+  (just 1) => checker?
+  (contains [1 2] :in-any-order) => checker?
+  (one-of even?) => checker?
+  (n-of even? 33) => checker?)
