@@ -61,7 +61,7 @@
 
   "sloop" => (fn [actual] (= "sloop" actual)) ; an inline checker
   (checker? (fn [actual] (= "sloop" actual))) => falsey
-  (tag-as-checker (fn [actual] (= "sloop" actual))) => checker?
+  (as-checker (fn [actual] (= "sloop" actual))) => checker?
 
   (checker? "blah") => falsey
   (checker? 1) => falsey)

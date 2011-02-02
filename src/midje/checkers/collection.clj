@@ -72,7 +72,7 @@
   "Produce a partially constructed chatty falsehood that contains
    a :notes key with the strings."
   [& strings ]
-  (tag-as-chatty-falsehood {:notes strings}))
+  (as-chatty-falsehood {:notes strings}))
 
 (defn- try-re 
   "Use the function (re-find or re-matches) to apply re to the thing.
@@ -407,7 +407,7 @@
 (defn- container-checker-maker [name checker-fn]
    (checker [& args]
      (let [ [expected looseness] (separate-looseness args)]
-       (tag-as-chatty-checker
+       (as-chatty-checker
         (named name expected
                (fn [actual]
                  (add-actual actual

@@ -2,7 +2,7 @@
 
 (ns midje.checkers.defining)
 
-(defn tag-as-checker [function]
+(defn as-checker [function]
   (vary-meta function merge {:midje/checker true}))
 
 
@@ -37,7 +37,7 @@
     (working-with-bodies-and-arglists checker-name nil stuff)))
     
 (defmacro checker [args & body]
-  `(tag-as-checker (fn ~(vec args) ~@body)))
+  `(as-checker (fn ~(vec args) ~@body)))
 
 (defn checker? [item]
   (:midje/checker (meta item)))

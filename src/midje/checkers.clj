@@ -15,7 +15,7 @@
   `(republish* '~namespace '~symbols))
 
 (republish midje.checkers.defining
-           defchecker checker tag-as-checker)
+           defchecker checker as-checker)
 (republish midje.checkers.chatty
            chatty-checker)
 (republish midje.checkers.simple
