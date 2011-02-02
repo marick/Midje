@@ -107,7 +107,7 @@
     (println "-- WARNING: In this version, prerequisite arguments that are functions are")
     (println "-- considered checkers. In the near future, they'll be considered ordinary")
     (println "-- values. If you want them to be checkers, you need to declare them as")
-    (println "-- such. <link to doc>")
+    (println "-- such. See https://github.com/marick/Midje/wiki/Checkers-within-prerequisites")
     (println "-- The function argument I'm objecting to is:")
     (println "--    " (attractively-stringified-form expected))
     (println "--     in" (nth (without-clojure-strings (stacktrace-as-strings (Throwable.))) 12))
