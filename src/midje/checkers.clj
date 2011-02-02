@@ -14,10 +14,12 @@
 (defmacro republish [namespace & symbols]
   `(republish* '~namespace '~symbols))
 
+(republish midje.checkers.defining
+           defchecker checker as-checker)
 (republish midje.checkers.chatty
            chatty-checker)
 (republish midje.checkers.simple
-           truthy falsey anything exactly throws)
+           truthy falsey anything irrelevant exactly throws roughly)
 (republish midje.checkers.collection
            has has-suffix has-prefix just contains
            one-of two-of three-of four-of five-of six-of seven-of eight-of nine-of ten-of

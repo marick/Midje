@@ -1,45 +1,53 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.checkers.simple
-  (:use [midje.checkers util extended-equality]))
+;; Note: checkers need to be exported in ../checkers.clj
 
-(defn truthy 
+(ns midje.checkers.simple
+  (:use [midje.checkers util extended-equality defining]))
+
+(defchecker truthy 
   "Returns precisely true if actual is not nil and not false."
-  {:midje/checker true}
   [actual] 
   (and (not (captured-exception? actual))
        (not (not actual))))
 
-(defn falsey 
+(defchecker falsey 
   "Returns precisely true if actual is nil or false."
-  {:midje/checker true}
   [actual] 
   (not actual))
 
-(defn anything
+(defchecker anything
   "Accepts any value"
-  {:midje/checker true}
   [actual]
   (not (captured-exception? actual)))
 (def irrelevant anything)
 
-(defn exactly
+(defchecker exactly
   "Checks for equality. Use to avoid default handling of functions."
-  {:midje/checker true}
   [expected]
     (named 'exactly expected
-           (fn [actual] (= expected actual))))
+           (checker [actual] (= expected actual))))
+
+(defchecker roughly
+  "With two arguments, accepts a value within delta of the
+   expected value. With one argument, the delta is 1/1000th
+   of the expected value."
+  ([expected delta]
+     (checker [actual]
+       (and (>= expected (- actual delta))
+            (<= expected (+ actual delta)))))
+  ([expected]
+     (roughly expected (* 0.001 expected))))
 
 ;;Concerning Throwables
 
-(defn throws
+(defchecker throws
   "Checks that Throwable of named class was thrown and, optionally, that
    the message is as desired."
-  {:midje/checker true}
   ([expected-exception-class]
-     (fn [wrapped-throwable] (throwable-with-class? wrapped-throwable expected-exception-class)))
+     (checker [wrapped-throwable] (throwable-with-class? wrapped-throwable expected-exception-class)))
   ([expected-exception-class message]
-     (fn [wrapped-throwable]
+     (checker [wrapped-throwable]
        (and (throwable-with-class? wrapped-throwable expected-exception-class)
             (extended-= (.getMessage (wrapped-throwable captured-exception-key))
                         message)))))

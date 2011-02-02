@@ -2,7 +2,8 @@
 
 (ns midje.checkers.t-chatty
   (:use midje.sweet
-        [midje.checkers.chatty :only [chattily-false? tag-as-chatty-falsehood
+        [midje.checkers.defining :only [checker?]]
+        [midje.checkers.chatty :only [chattily-false? as-chatty-falsehood
                                       chatty-worth-reporting-on?
                                       chatty-checker-falsehood? chatty-untease
                                       chatty-checker?]]
@@ -13,10 +14,10 @@
   (chattily-false? false) => truthy
   (chattily-false? true) => falsey
   (chattily-false? {:intermediate-results 3}) => falsey
-  (chattily-false? (tag-as-chatty-falsehood {})) => truthy)
+  (chattily-false? (as-chatty-falsehood {})) => truthy)
 
 (facts "about chatty-checking utility functions"
-  (tag-as-chatty-falsehood [5]) => chatty-checker-falsehood?
+  (as-chatty-falsehood [5]) => chatty-checker-falsehood?
 
   (chatty-worth-reporting-on? 1) => falsey 
   (chatty-worth-reporting-on? '()) => falsey
@@ -34,6 +35,9 @@
 
 (def actual-plus-one-equals-4 (chatty-checker [actual] (= (inc actual) 4)))
 (def no-longer-limited-form (chatty-checker [actual] (= (inc actual) 4 (+ 2 actual))))
+
+(fact "chatty checkers are checkers"
+  actual-plus-one-equals-4 => checker?)
 
 (facts "about the form of chatty-checkers"
   actual-plus-one-equals-4 => chatty-checker?
@@ -79,4 +83,3 @@
  (fact @reported => (just (contains {:type :mock-expected-result-functional-failure
                                      :actual 3
                                      :intermediate-results '([(+ 1 actual) 4])}))))
-

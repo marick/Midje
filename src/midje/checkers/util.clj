@@ -1,11 +1,8 @@
 ;; -*- indent-tabs-mode: nil -*-
-
 (ns midje.checkers.util
-  (:use [midje.util.form-utils :only [classic-map?]]))
+  (:use [midje.util.form-utils :only [classic-map?]])
+  (:use [midje.checkers.defining]))
 
-(defn tag-as-checker [function]
-  (vary-meta function merge {:midje/checker true}))
-  
 (defn named [name expected function]
   "Adds a string name that looks like a function call to
    a functions metadata under :name"

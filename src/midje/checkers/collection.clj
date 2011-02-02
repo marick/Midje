@@ -1,5 +1,7 @@
 ;; -*- indent-tabs-mode: nil -*-
 
+;; Note: checkers need to be exported in ../checkers.clj
+
 (ns midje.checkers.collection
   (:use [clojure.set :only [union]]
         [clojure.contrib.seq :only [rotations]]
@@ -7,7 +9,7 @@
         [clojure.contrib.pprint :only [cl-format]]
         [clojure.contrib.combinatorics :only [permutations]]
         [midje.util.form-utils :only [regex? tack-on-to record? classic-map?]]
-	[midje.checkers util extended-equality chatty]
+	[midje.checkers util extended-equality chatty defining]
 	))
 
 (def looseness-modifiers #{:in-any-order :gaps-ok})
@@ -70,7 +72,7 @@
   "Produce a partially constructed chatty falsehood that contains
    a :notes key with the strings."
   [& strings ]
-  (tag-as-chatty-falsehood {:notes strings}))
+  (as-chatty-falsehood {:notes strings}))
 
 (defn- try-re 
   "Use the function (re-find or re-matches) to apply re to the thing.
@@ -403,18 +405,17 @@
              (rest might-be-looseness-modifier))))))
 
 (defn- container-checker-maker [name checker-fn]
-  (tag-as-checker
-   (fn [& args]
+   (checker [& args]
      (let [ [expected looseness] (separate-looseness args)]
-       (tag-as-chatty-checker
+       (as-chatty-checker
         (named name expected
                (fn [actual]
                  (add-actual actual
                              (try (checker-fn actual expected looseness)
                                   (catch Error ex
-                                    (noted-falsehood (.getMessage ex))))))))))))
+                                    (noted-falsehood (.getMessage ex)))))))))))
 
-(def contains (container-checker-maker 'contains
+(def ^{:midje/checker true} contains (container-checker-maker 'contains
     (fn [actual expected looseness]
       (let [ [actual expected looseness] (standardized-arguments actual expected looseness)]
         (cond (regex? expected)
@@ -423,7 +424,7 @@
               :else
               (match? actual expected looseness))))))
 
-(def just (container-checker-maker 'just
+(def ^{:midje/checker true} just (container-checker-maker 'just
     (fn [actual expected looseness]
       (let [ [actual expected looseness] (standardized-arguments actual expected looseness)]
         (cond (regex? expected)
@@ -439,7 +440,7 @@
                           (count actual))))))))
 
 (defn- has-xfix [x-name pattern-fn take-fn]
-  (fn [actual expected looseness]
+  (checker [actual expected looseness]
     (cond (set? actual)
           (noted-falsehood (format "Sets don't have %ses." x-name))
 
@@ -460,15 +461,15 @@
                               "A collection with ~R element~:P cannot match a ~A of size ~R."
                               (count actual) x-name (count expected))))))))
 
-(def has-prefix
+(def ^{:midje/checker true} has-prefix
      (container-checker-maker 'has-prefix
       (has-xfix "prefix" #(re-pattern (str "^" (.toString %))) take)))
-(def has-suffix
+(def ^{:midje/checker true} has-suffix
      (container-checker-maker 'has-suffix
       (has-xfix "suffix" #(re-pattern (str (.toString %) "$" )) take-last)))
                             
-(defn has [quantifier predicate]
-  (fn [actual]
+(defchecker has [quantifier predicate]
+  (checker [actual]
     (quantifier predicate
                 (if (map? actual)
                   (vals actual)
@@ -476,8 +477,7 @@
 
 ;; These are used in some internal tests. Worth publicizing?
 
-(defn n-of [expected expected-count]
-  {:midje/checker true}
+(defchecker n-of [expected expected-count]
   (chatty-checker [actual]
     (and (= (count actual) expected-count)
          (every? #(extended-= % expected) actual))))
@@ -486,8 +486,7 @@
 (defmacro- of-functions []
   (let [names {1 "one", 2 "two", 3 "three", 4 "four", 5 "five", 6 "six", 7 "seven",
                8 "eight", 9 "nine", 10 "ten"}
-        defns (map (fn [key] `(defn ~(symbol (str (get names key) "-of")) [expected-checker#]
-                                {:midje/checker true}
+        defns (map (fn [key] `(defchecker ~(symbol (str (get names key) "-of")) [expected-checker#]
                                 (n-of expected-checker# ~key)))
                    (keys names))]
     `(do ~@defns)))
