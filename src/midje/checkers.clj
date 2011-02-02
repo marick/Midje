@@ -14,6 +14,8 @@
 (defmacro republish [namespace & symbols]
   `(republish* '~namespace '~symbols))
 
+(republish midje.checkers.defining
+           defchecker checker tag-as-checker)
 (republish midje.checkers.chatty
            chatty-checker)
 (republish midje.checkers.simple

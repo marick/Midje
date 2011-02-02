@@ -6,14 +6,14 @@
         [clojure.contrib.combinatorics :only [permutations]]
         [midje.util.form-utils :only [regex? vector-without-element-at-index
                                       tack-on-to pairs]]
-	[midje.checkers.collection :only [just contains]]))
+	[midje.checkers.collection :only [just contains]]
+	[midje.checkers defining util]))
 
 ;; Note: checkers need to be exported in ../checkers.clj
 
-(defn map-containing [expected]
+(defchecker map-containing [expected]
   "Accepts a map that contains all the keys and values in expected,
    perhaps along with others"
-  {:midje/checker true}
   (contains expected))
 
 (defn- one-level-map-flatten [list-like-thing]
@@ -32,13 +32,12 @@
         subfunctions (map contains expected)]
     (just subfunctions :in-any-order)))
   
-(defn maps-containing [& maps-or-maplist]
+(defchecker maps-containing [& maps-or-maplist]
   "Each map in the argument(s) contains contains some map in the expected
    result. There may be extra maps in the actual result.
 
    You can call this with either (maps-containing {..} {..}) or
    (maps-containing [ {..} {..} ])."
-  {:midje/checker true}
   (let [expected (one-level-map-flatten maps-or-maplist)
         subfunctions (map contains expected)]
     (contains subfunctions :in-any-order :gaps-ok)))

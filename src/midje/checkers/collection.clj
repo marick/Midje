@@ -9,7 +9,7 @@
         [clojure.contrib.pprint :only [cl-format]]
         [clojure.contrib.combinatorics :only [permutations]]
         [midje.util.form-utils :only [regex? tack-on-to record? classic-map?]]
-	[midje.checkers util extended-equality chatty]
+	[midje.checkers util extended-equality chatty defining]
 	))
 
 (def looseness-modifiers #{:in-any-order :gaps-ok})
@@ -405,8 +405,7 @@
              (rest might-be-looseness-modifier))))))
 
 (defn- container-checker-maker [name checker-fn]
-  (tag-as-checker
-   (fn [& args]
+   (checker [& args]
      (let [ [expected looseness] (separate-looseness args)]
        (tag-as-chatty-checker
         (named name expected
@@ -414,7 +413,7 @@
                  (add-actual actual
                              (try (checker-fn actual expected looseness)
                                   (catch Error ex
-                                    (noted-falsehood (.getMessage ex))))))))))))
+                                    (noted-falsehood (.getMessage ex)))))))))))
 
 (def contains (container-checker-maker 'contains
     (fn [actual expected looseness]

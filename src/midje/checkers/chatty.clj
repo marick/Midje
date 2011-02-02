@@ -1,7 +1,8 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.checkers.chatty
-  (:use [midje.checkers util]))
+  (:use [midje.checkers util]
+        [midje.checkers.defining :only [tag-as-checker]]))
 
 ;; Note: checkers need to be exported in ../checkers.clj
 

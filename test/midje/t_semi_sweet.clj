@@ -9,6 +9,10 @@
 
 (unfinished faked-function mocked-function other-function)
 
+(defchecker odd-checker
+  [actual]
+  (odd? actual))
+
 (fact "separating overrides of an #expect from fakes"
   ;; The lets are because fact isn't smart enough not to add overrides to fake call otherwise.
   (let [actual (fakes-and-overrides '( (fake (f 1) => 2) :key 'value))]
@@ -199,7 +203,7 @@
 
   "mocked function argument matching uses function-aware equality"
   (expect (function-under-test 1 "floob" even?) => even?
-          (fake (mocked-function odd? anything (exactly even?)) => 44)))
+          (fake (mocked-function odd-checker anything (exactly even?)) => 44)))
 
 (defn actual-plus-one-is-greater-than [expected]
   (chatty-checker [actual] (> (inc actual) expected)))
