@@ -23,30 +23,30 @@
   (:arglists (meta #'undocumented-magic-number)) => '([actual])
   (:doc (meta #'undocumented-magic-number)) => nil)
 
-;; (defchecker double-magic-number "double docstring"
-;;   ([actual] (= 587 actual))
-;;   ([actual increment] (= (+ actual increment) 587)))
-;; (future-fact "checker with a doc string and more than one function body"
-;;   double-magic-number => checker?
-;;   #'double-magic-number => checker?
-;;   587 => double-magic-number
-;;   (double-magic-number 8) => falsey
-;;   (double-magic-number 587 0) => truthy
-;;   (double-magic-number 587 1) => falsey
-;;   (:arglists (meta #'double-magic-number)) => '([actual] [actual increment])
-;;   (:doc (meta #'double-magic-number)) => "double docstring")
+(defchecker double-magic-number "double docstring"
+  ([actual] (= 587 actual))
+  ([actual increment] (= (+ actual increment) 587)))
+(fact "checker with a doc string and more than one function body"
+  double-magic-number => checker?
+  #'double-magic-number => checker?
+  587 => double-magic-number
+  (double-magic-number 8) => falsey
+  (double-magic-number 587 0) => truthy
+  (double-magic-number 587 1) => falsey
+  (:arglists (meta #'double-magic-number)) => '([actual] [actual increment])
+  (:doc (meta #'double-magic-number)) => "double docstring")
 
-;; (defchecker double-magic-number-no-docstring "double docstring"
-;;   ([actual] (= 587 actual))
-;;   ([actual increment] (= (+ actual increment) 587)))
-;; (future-fact "checker with a doc string and more than one function body"
-;;   double-magic-number-no-docstring => checker?
-;;   #'double-magic-number-no-docstring => checker?
-;;   587 => double-magic-number-no-docstring
-;;   (double-magic-number-no-docstring 8) => falsey
-;;   (double-magic-number-no-docstring 587 0) => truthy
-;;   (double-magic-number-no-docstring 587 1) => falsey
-;;   (:arglists (meta #'double-magic-number-no-docstring)) => '([actual] [actual increment]))
+(defchecker double-magic-number-no-docstring "double docstring"
+  ([actual] (= 587 actual))
+  ([actual increment] (= (+ actual increment) 587)))
+(fact "checker with a doc string and more than one function body"
+  double-magic-number-no-docstring => checker?
+  #'double-magic-number-no-docstring => checker?
+  587 => double-magic-number-no-docstring
+  (double-magic-number-no-docstring 8) => falsey
+  (double-magic-number-no-docstring 587 0) => truthy
+  (double-magic-number-no-docstring 587 1) => falsey
+  (:arglists (meta #'double-magic-number-no-docstring)) => '([actual] [actual increment]))
 
 (fact "inline checker"
   (let [inline-magic-number (checker [actual] (= 587 actual))]
@@ -65,4 +65,3 @@
 
   (checker? "blah") => falsey
   (checker? 1) => falsey)
-
