@@ -18,11 +18,24 @@ Actual result did not agree with the checking function.
         Actual result: [3 3 1 2]
     Checking function: (just [1 2 3] :in-any-order)
     The checker said this about the reason:
-       Expected three elements. There were four.
+        Expected three elements. There were four.
 ^^^^ The previous failure was expected ^^^^
 FAIL at (core_test.clj:78)
 You claimed the following was needed, but it was never used:
     (first-fake 3)
 ^^^^ The previous failure was expected ^^^^
-Ran 11 tests containing 14 assertions.
+-----
+-- WARNING: In this version, prerequisite arguments that are functions are
+-- considered checkers. In the near future, they'll be considered ordinary
+-- values. If you want them to be checkers, you need to declare them as such.
+-- The function argument I'm objecting to is:
+--     a function named 'odd?'
+--     near (core_test.clj:125)
+-- To future-proof your fact (and make this message go away), do this:
+--     (as-checker <<<your function argument>>>)
+-- If you never wanted this argument to be treated as a checker, do this:
+       (exactly <<<your function argument>>>)
+-- For more, see https://github.com/marick/Midje/wiki/Checkers-within-prerequisites
+-----
+Ran 11 tests containing 18 assertions.
 5 failures, 0 errors.

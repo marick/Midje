@@ -64,7 +64,7 @@
 ;; gobbledeegook like #<core$even_QMARK_ clojure.core$even_QMARK_@21a722ef>.)
 
 ;; There are a number of matching functions available. You can find them all with 
-;;            (ns-publics 'midje.utils.checkers)
+;;            (ns-publics 'midje.checkers)
 ;; They have doc strings.
 ;; (Or you can look at the wiki: http://github.com/marick/Midje/wiki/Checkers)
 ;; Here's one of them:
@@ -77,7 +77,7 @@
 ;;         Actual result: [3 3 1 2]
 ;;     Checking function: (just [1 2 3] :in-any-order)
 ;;     The checker said this about the reason:
-;;        Expected three elements. There were four.
+;;         Expected three elements. There were four.
 
 ;; Facts work with variables bound both within and outside of the fact form:
 (let [a 3]
@@ -165,22 +165,38 @@
   (g 2) => 4
   (g 3) => 7))
 
-;; When trying to match arguments in the provided functions, Midje
-;; uses the same rules as when checking a function-under-test's actual
-;; result. That means you can use single-argument matching functions
-;; and you must use (exactly) to match a functional argument.
+;; When looking for a matching prerequisite, Midje 1.1 uses the same rules as
+;; when checking a function-under-test's actual result. Because that's
+;; been found to be confusing, it'll change. What follows is future-proof
+;; test-writing. 
 
-(unfinished first-subfunction another-subfunction)
+(unfinished subfunction)
   
-(defn function-under-test []
-  (+ (first-subfunction 1 2 '(a blue cow))
-     (another-subfunction inc)))
+(defn function-under-test [value-to-pass]
+  (subfunction value-to-pass))
 
-(fact (function-under-test) => 11
-        (provided
-          (first-subfunction odd? even? anything) => 1
-	  (another-subfunction (exactly inc)) => 10))
+(facts "about functions in the argument list of a prerequisite"
+  "Predefined checkers can be used unadorned"
+  (function-under-test 'blue-cow) => 11
+  (provided (subfunction anything) => 11)
 
+  (function-under-test 3.00000001) => 11
+  (provided (subfunction (roughly 3.0)) => 11)
+
+  "If you want to use an ordinary function as a checker, wrap it in as-checker."
+  (function-under-test 3) => 11
+  (provided (subfunction (as-checker odd?)) => 11)
+
+  "If you want a functional argument NOT to be run to check for a match,
+   but rather to be matched literally, wrapp it in exactly."
+  (function-under-test odd?) => 11
+  (provided (subfunction (exactly odd?)) => 11)
+
+  "In Midje 1.1, an unwrapped ordinary function is treated as a checker,
+   but you'll get a warning because that behavior will change."
+  (function-under-test 333333) => 11
+  (provided (subfunction odd?) => 11))
+  
 ;; The return values of a prerequisite function don't follow the rules
 ;; for arguments. They're literal constant values.
 

@@ -17,7 +17,7 @@ Actual result did not agree with the checking function.
         Actual result: [3 3 1 2]
     Checking function: (just [1 2 3] :in-any-order)
     The checker said this about the reason:
-       Expected three elements. There were four.
+        Expected three elements. There were four.
 ^^^^ The previous failure was expected ^^^^
 FAIL at (core_test.clj:120)
 You claimed the following was needed, but it was never used:
@@ -30,11 +30,24 @@ Actual result did not agree with the checking function.
         Actual result: nil
     Checking function: truthy
 ^^^^ The previous three failures were expected ^^^^
-FAIL at (core_test.clj:211)
+-----
+-- WARNING: In this version, prerequisite arguments that are functions are
+-- considered checkers. In the near future, they'll be considered ordinary
+-- values. If you want them to be checkers, you need to declare them as such.
+-- The function argument I'm objecting to is:
+--     a function named 'odd?'
+--     near (core_test.clj:197)
+-- To future-proof your fact (and make this message go away), do this:
+--     (as-checker <<<your function argument>>>)
+-- If you never wanted this argument to be treated as a checker, do this:
+       (exactly <<<your function argument>>>)
+-- For more, see https://github.com/marick/Midje/wiki/Checkers-within-prerequisites
+-----
+FAIL at (core_test.clj:227)
 You claimed the following was needed, but it was never used:
     (data-structure)
-FAIL at (core_test.clj:211)
+FAIL at (core_test.clj:227)
 You claimed the following was needed, but it was never used:
     (property-of ...data-structure-value-1...)
 ^^^^ The previous two failures were expected ^^^^
-FAILURE: 9 facts were not confirmed. (But 10 were.)
+FAILURE: 9 facts were not confirmed. (But 14 were.)

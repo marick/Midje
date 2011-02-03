@@ -43,7 +43,7 @@
 ;;         actual result: #<core$even_QMARK___4680 clojure.core$even_QMARK___4680@494b6bed>
 
 ;; There are a number of matching functions available. You can find them all with 
-;;            (ns-publics (40 'midje.checkers))
+;;            (ns-publics 'midje.checkers)
 ;; They have doc strings.
 ;; Here's one of them:
 (deftest example-of-a-predefined-checker
@@ -97,18 +97,33 @@
      (fake (first-fake 2 2) => 10)
      (fake (another-fake) => 100)))
 
-;; When looking for a matching fake, Midje uses the same rules as when
-;; checking a function-under-test's actual result. That means you can 
-;; use single-argument matching functions and you must use (exactly) to 
-;; match a functional argument.
-(defn function-under-test-4 []
-  (+ (first-fake 1 2 '(a blue cow))
-     (another-fake inc)))
+;; When looking for a matching fake, Midje 1.1 uses the same rules as
+;; when checking a function-under-test's actual result. Because that's
+;; been found to be confusing, it'll change. Here's future-proof
+;; behavior. Given this function:
+
+(defn function-under-test-4 [value-to-pass]
+  (first-fake value-to-pass))
+
 
 (deftest example-of-interesting-functional-args
-  (expect (function-under-test-4) => 11
-     (fake (first-fake odd? even? anything) => 1)
-     (fake (another-fake (exactly inc)) => 10)))
+  ;; You can use predefined checkers as arguments.
+  (expect (function-under-test-4 'hops) => 11
+     (fake (first-fake anything) => 11))
+  (expect (function-under-test-4 3.0) => 11
+     (fake (first-fake (roughly 3.0 0.1)) => 11))
+  ;; If you want to use an ordinary function as a checker, wrap it in
+  ;; as-checker:
+  (expect (function-under-test-4 3) => 11
+          (fake (first-fake (as-checker odd?)) => 11))
+  ;; If you don't want the function to run to check for a match, but
+  ;; rather to be matched literally, wrap it in exactly:
+  (expect (function-under-test-4 odd?) => 11
+          (fake (first-fake (exactly odd?)) => 11))
+  ;; As of 1.1, an unwrapped ordinary function will be treated as a checker,
+  ;; but you'll get a warning because that behavior will change:
+  (expect (function-under-test-4 3) => 11
+          (fake (first-fake odd?) => 11)))
 
 ;; The return values of a fake don't follow the rules for fake
 ;; arguments. I suppose I could be convinced that a "returning" a
@@ -124,13 +139,13 @@
   (expect (not-caller 3) => 4
      (not-called some-function-never-called)))
 
-;; You can fake a function outside the current namespace. Suppose we 
+;; You can fake a function that's part of Clojure. Suppose we 
 ;; have a function that operates on two sets. We want to override 
 ;; clojure.set/intersection so that our tests can only talk about properties
 ;; of tests, rather than have to laboriously construct actual sets with those
 ;; properties. So we pass in descriptive strings and fake out intersection.
 ;;
-;; There is (will be) more support for this style in midje.sweet.
+;; There is more support for this style in midje.sweet.
 
 (use 'clojure.set)
 (defn set-handler [set1 set2]
@@ -144,30 +159,7 @@
 	  (fake (intersection "some set" "some disjoint set") => #{}))
   "For overlapping sets, return the intersection"
   (expect (set-handler "set" "overlapping set") => #{"intersection"}
-	  (fake (intersection "set" "overlapping set") => #{"intersection"}))
-)
-
-
-;; My development style is "programming by wishful thinking"
-;; (Sussman). Suppose I'm writing function (quux). If I hit anything
-;; hard, I say "I really really believe there's already a function
-;; (frozzle) that does just what I need". I then fake (frozzle) until
-;; I'm done writing (quux). Later I'll get around to writing
-;; (frozzle). In the meantime I need to define it somehow. Preferably
-;; I'll define it in a way that will make it really obvious what
-;; happens if I try to run the whole program before I've got a real
-;; (frozzle). The way (declare) fails is not revealing enough. So I
-;; use this:
-
-(only-mocked frozzle another-function)
-
-;; If I call (frozzle), I get this:
-;;      Exception in thread "main" java.lang.Error: frozzle has no
-;;      implementation. It's used in mock tests. (core_test.clj:1)
-
-
-
-
+	  (fake (intersection "set" "overlapping set") => #{"intersection"})))
 
 (defn test-ns-hook []
   "This calls the functions in order."

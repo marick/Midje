@@ -1,4 +1,21 @@
-= 1.0.1
+= 1.1-alpha-1
+* Syntax errors made in Midje forms are somewhat better
+  more gracefully reported.
+* The #'roughly checker can be used for inexact numerical
+  comparisons. 
+* #'irrelevant is a synonym for #anything
+* Line numbers are better reported for failures of very
+  stripped-down forms (like (fact 1 => odd?)
+* When stack traces are reported, they are better trimmed
+  down.
+* A prerequisite like (f 1) =streams=> [1 2 3] produces
+  the next value each time it's called.
+* Issue warning when bare function is used in a
+  prerequisite. Behavior will change in 1.2.
+* Several ways to make checkers that can be used in
+  prerequisites.
+
+= 1.0.1 (stable)
 * Ben Mabey fix: eagerly preserve record types
 * Extended-= and collection checkers have semantics for
   mixing maps and records.
