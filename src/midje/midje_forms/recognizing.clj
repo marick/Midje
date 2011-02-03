@@ -1,7 +1,8 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.midje-forms.recognizing
-  (:use midje.util.form-utils)
+  (:use midje.util.form-utils
+        [midje.checkers.defining :only [checker? checker-makers]])
   (:require [midje.util.wrapping :as wrapping])
   (:require [midje.util.unify :as unify])
   (:require [clojure.zip :as zip]))
@@ -76,11 +77,13 @@
 ;; Note that folded prerequisites are in semi-sweet-style. (That is, they can only
 ;; be recognized after sweet style has been converted to semi-sweet.)
 
+(def special-forms '[quote fn let])
 
 (defn- mockable-function-symbol? [loc]
   (let [symbol (zip/node loc)]
-    (not (or (= 'quote symbol)
-             (:midje/checker (meta (resolve symbol)))))))
+    (not (or (some #{symbol} special-forms)
+             (some #{symbol} checker-makers)
+             (checker? (resolve symbol))))))
 
 (defn looks-like-a-function-call? [loc first-symbol-validity-test]
   (when-let [tree (and loc (zip/node loc))]
