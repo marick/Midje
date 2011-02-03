@@ -88,6 +88,10 @@
      :file-position (user-file-position)}
     (hash-map-duplicates-ok ~@overrides)))
 
+(defn- expect-expansion [call-form arrow expected-result other-stuff]
+  (let [ [fakes overrides] (fakes-and-overrides other-stuff)]
+      `(let [call# (call-being-tested ~call-form ~expected-result ~overrides)]
+         (expect* call# (vector ~@fakes)))))
 
 (defmacro expect 
   "Run the call form, check that all the mocks defined in the fakes 
@@ -97,11 +101,9 @@
 
    To strip tests from production code, set either clojure.test/*load-tests*
    or midje.semi-sweet/*check* to false."
-  [call-form => expected-result & other-stuff]
+  [call-form arrow expected-result & other-stuff]
   (when (user-desires-checking?)
-    (let [ [fakes overrides] (fakes-and-overrides other-stuff)]
-      `(let [call# (call-being-tested ~call-form ~expected-result ~overrides)]
-         (expect* call# (vector ~@fakes))))))
+    (expect-expansion call-form arrow expected-result other-stuff)))
 
 (defmulti make-result-supplier (fn [arrow & _]  arrow))
 
