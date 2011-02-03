@@ -41,4 +41,5 @@
 
 (defn checker? [item]
   (:midje/checker (meta item)))
-  
+
+(def checker-makers '[defchecker checker as-checker])
