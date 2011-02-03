@@ -30,11 +30,13 @@
      ~@forms))
 
 (defn metaconstant-for-form [inner-form]
-  (let [name (first inner-form)
-        swap-fn (fn [current-value name]
-                  (if (current-value name)
-                    (assoc current-value name (inc (current-value name)))
-                    (assoc current-value name 1)))
-        number ((swap! *unfolded-prerequisite-counts* swap-fn name) name)]
-    (symbol (format "...%s-value-%s..." name number))))
+  (let [function-symbol (first inner-form)
+        swap-fn (fn [current-value function-symbol]
+                  (if (current-value function-symbol)
+                    (assoc current-value function-symbol
+                           (inc (current-value function-symbol)))
+                    (assoc current-value function-symbol 1)))
+        number ((swap! *unfolded-prerequisite-counts* swap-fn function-symbol)
+                function-symbol)]
+    (symbol (format "...%s-value-%s..." (name function-symbol) number))))
 
