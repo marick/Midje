@@ -3,7 +3,6 @@
 (ns midje.fakes
   (:use [clojure.contrib.seq-utils :only [find-first]]
         clojure.test
-        clojure.contrib.error-kit
         [midje.util report file-position form-utils exceptions]
         [midje.checkers.defining :only [checker?]]
         [midje.checkers.util :only [captured-exception]]
