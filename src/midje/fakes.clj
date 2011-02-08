@@ -14,7 +14,7 @@
 (defn common-to-all-fakes [var-sym] 
   `{:function (var ~var-sym)
     :count-atom (atom 0)
-    :file-position (user-file-position)})
+    :position (user-file-position)})
 
 (defn make-fake-map 
   [var-sym special-to-fake-type user-override-pairs]
@@ -53,7 +53,7 @@
         (clojure.test/report {:type :mock-argument-match-failure
                  :function faked-function
                  :actual args
-                 :position (:file-position (first fakes))}))
+                 :position (:position (first fakes))}))
       (do 
         (swap! (found :count-atom) inc)
         ((found :result-supplier)))))
@@ -89,7 +89,7 @@
       (do
         (report {:type :mock-incorrect-call-count
                  :expected-call (fake :call-text-for-failures)
-                 :position (:file-position fake)
+                 :position (:position fake)
                  :expected (fake :call-text-for-failures)}))))
 )
 

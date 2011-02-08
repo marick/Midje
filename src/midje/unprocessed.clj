@@ -29,7 +29,7 @@
 
         (fn? (call :expected-result))
         (do (report (merge {:type :mock-expected-result-functional-failure
-                            :position (call :file-position)
+                            :position (call :position)
                             :expected (call :expected-result-text-for-failures) }
                            (if (chatty-checker? (call :expected-result))
                              (do
@@ -47,7 +47,7 @@
         :else
         (do 
           (report {:type :mock-expected-result-failure
-                   :position (call :file-position)
+                   :position (call :position)
                    :actual actual
                    :expected (call :expected-result) })
           false))

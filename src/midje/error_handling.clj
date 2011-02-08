@@ -8,7 +8,7 @@
 (defn make-broken-fake [overrides & message-args]
   (merge `{:type :broken-fake
            :message ~(apply (partial cl-format nil) message-args)
-          :file-position (user-file-position) }
+          :position (user-file-position) }
          (apply hash-map-duplicates-ok overrides)))
 
 (defn broken-fake? [thing]
@@ -18,7 +18,7 @@
   (doseq [busted brokens]
     (report {:type :user-error
              :message (:message busted)
-             :position (:file-position busted)})))
+             :position (:position busted)})))
 
 (defn best-guess-at-overrides [fake-forms]
   (let [ [_ _ _ & overrides] fake-forms] overrides))

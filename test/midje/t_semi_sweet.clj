@@ -67,12 +67,12 @@
     ((:result-supplier fake-streamed)) => 'r2))
 
 (facts "key-value arguments can override fakes"
-  (let [fake (fake (faked-function) => 2 :file-position 33)]
-    (fake :file-position) => 33)
+  (let [fake (fake (faked-function) => 2 :position 33)]
+    (fake :position) => 33)
 
   (let [filepos 33
-        fake (fake (faked-function) => 2 :file-position filepos)]
-    (:file-position fake) => 33))
+        fake (fake (faked-function) => 2 :position filepos)]
+    (:position fake) => 33))
 
 (facts "about not-called"
   (let [fake-0 (not-called faked-function)]

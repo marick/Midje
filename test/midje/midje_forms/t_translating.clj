@@ -20,8 +20,8 @@
                     ~(with-meta '(f 2) {:line 35}) => a)
         actual (add-line-numbers original)
         expected '(clojure.core/let [a 1]
-                                    midje.midje-forms.t-translating/a midje.sweet/=> 2 :file-position (midje.util.file-position/line-number-known 34)
-                                    (f 2) midje.sweet/=> midje.midje-forms.t-translating/a :file-position (midje.util.file-position/line-number-known 35))]
+                                    midje.midje-forms.t-translating/a midje.sweet/=> 2 :position (midje.util.file-position/line-number-known 34)
+                                    (f 2) midje.sweet/=> midje.midje-forms.t-translating/a :position (midje.util.file-position/line-number-known 35))]
     actual => expected))
 
 

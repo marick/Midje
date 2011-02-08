@@ -34,8 +34,8 @@
 
                                               33)]
   (fact "fake, being a one-level macro, knows its file position as a single line"
-    (:file-position fake-on-one-line) => (this-file (+ 2 line-marker-2))
-    (:file-position multiline-with-position-at-first-token) => (this-file (+ 3 line-marker-2))))
+    (:position fake-on-one-line) => (this-file (+ 2 line-marker-2))
+    (:position multiline-with-position-at-first-token) => (this-file (+ 3 line-marker-2))))
 
 (defmacro result-of-second-form [& forms] (second forms))
 
@@ -45,7 +45,7 @@
             (fake (f 1) => 33)
             "more garbage")]
   (fact "Macros within dirt-simple macroexpansions find their correct file position"
-    (:file-position fake) => (this-file (+ 3 line-marker-3))))
+    (:position fake) => (this-file (+ 3 line-marker-3))))
 
 (defmacro fake-constructor [& forms]
   `(do
@@ -57,7 +57,7 @@
                       "random garbage"
                       (f 1) => 33)] ; though we wish it were this.
   (fact "macros that construct fakes won't find user-file-position useful."
-    (:file-position fake) => (this-file (+ 1 line-marker-4))))
+    (:position fake) => (this-file (+ 1 line-marker-4))))
 
 
 ;; Macros like the above will need to calculate the file position themselves, but

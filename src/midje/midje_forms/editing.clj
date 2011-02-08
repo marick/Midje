@@ -49,7 +49,7 @@
   (-> loc
       zip/right
       (zip/insert-right `(line-number-known ~number))
-      (zip/insert-right :file-position)
+      (zip/insert-right :position)
       zip/left))
 
 (defn replace-one-fake-with-two__then__stay_put [fake-loc replacements]

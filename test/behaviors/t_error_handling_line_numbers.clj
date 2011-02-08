@@ -4,12 +4,12 @@
   (:use [midje sweet error-handling test-util]))
 
 ;; Different kinds of errors in prerequisites
-;; TODO: It is beyond stupid that there's both a :file-position and :position.
+
 (defn this-file [line]
   (contains {:position ["t_error_handling_line_numbers.clj", line]}))
 
 (defn raw-this-file [line]
-  (contains {:file-position ["t_error_handling_line_numbers.clj", line]}))
+  (contains {:position ["t_error_handling_line_numbers.clj", line]}))
 
 (unfinished f)
 (after-silently
@@ -22,7 +22,7 @@
  
 (let [raw-fake (fake ...movie... => 3) 
       numbered-raw-fake (fake ...movie... => 3
-                              :file-position (midje.util.file-position/line-number-known 5))]
+                              :position (midje.util.file-position/line-number-known 5))]
   (fact
     raw-fake => (raw-this-file 23)
     numbered-raw-fake => (raw-this-file 5)))

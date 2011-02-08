@@ -13,6 +13,9 @@
 (def => "=>")
 (def =streams=> "=streams=>")   
 
+(def expect-arrows [=>])
+(def fake-arrows [=> =streams=>])
+
 (defonce
   #^{:doc "True by default.  If set to false, Midje checks are not
      included into production code, whether compiled or loaded."}
@@ -85,7 +88,7 @@
     {:function-under-test (fn [] ~call-form)
      :expected-result ~expected-result
      :expected-result-text-for-failures '~expected-result
-     :file-position (user-file-position)}
+     :position (user-file-position)}
     (hash-map-duplicates-ok ~@overrides)))
 
 (defn- expect-expansion [call-form arrow expected-result other-stuff]
