@@ -4,8 +4,9 @@
   (:use clojure.test
         midje.fakes
         [midje.util debugging form-utils file-position]
-        [midje.error-handling :only [broken-fake]]
+        [midje.error-handling]
         [midje.production-mode]
+        [clojure.pprint]
         [clojure.contrib.ns-utils :only [immigrate]]))
 (immigrate 'midje.unprocessed)
 
@@ -93,8 +94,16 @@
 
 (defn- expect-expansion [call-form arrow expected-result other-stuff]
   (let [ [fakes overrides] (fakes-and-overrides other-stuff)]
-      `(let [call# (call-being-tested ~call-form ~expected-result ~overrides)]
-         (expect* call# (vector ~@fakes)))))
+    `(let [call# (call-being-tested ~call-form ~expected-result ~overrides)]
+       (expect* call# (vector ~@fakes)))))
+
+(defn validate-expect [forms]
+  (cond (< (count forms) 4)
+        (user-error-report-form forms
+         (cl-format nil "    This form: ~A" forms)
+         (cl-format nil "Doesn't match: (~A <actual> => <expected> [<keyword-value pairs>*])" (first forms)))
+        :else
+        (rest forms)))
 
 (defmacro expect 
   "Run the call form, check that all the mocks defined in the fakes 
@@ -104,9 +113,11 @@
 
    To strip tests from production code, set either clojure.test/*load-tests*
    or midje.semi-sweet/*check* to false."
-  [call-form arrow expected-result & other-stuff]
-  (when (user-desires-checking?)
-    (expect-expansion call-form arrow expected-result other-stuff)))
+  [& args]
+  (error-let [[call-form arrow expected-result & other-stuff]
+              (validate-expect &form)]
+    (when (user-desires-checking?)
+      (expect-expansion call-form arrow expected-result other-stuff))))
 
 (defmulti make-result-supplier (fn [arrow & _]  arrow))
 
