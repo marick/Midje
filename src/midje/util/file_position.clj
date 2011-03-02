@@ -3,22 +3,13 @@
 (ns midje.util.file-position
   (:require [clojure.zip :as zip]))
 
+;; COMPILE-TIME POSITIONS.
+;; For annotating forms with information retrieved at runtime.
+;; For reporting syntax errors
+
 (def fallback-line-number (atom 0))
 (defn set-fallback-line-number-from [form]
   (reset! fallback-line-number (or (:line (meta form)) 0)))
-
-(defn user-file-position 
-  "Guesses the file position (basename and line number) that the user is
-   most likely to be interested in if a test fails."
-  []
-  (second (map #(list (.getFileName %) (.getLineNumber %))
-               (.getStackTrace (Throwable.)))))
-
-(defmacro line-number-known 
-  "Guess the filename of a file position, but use the given line number."
-  [number]
-  `[(first (user-file-position)) ~number])
-
 
 (defn- raw-arrow-line-number [arrow-loc]
   (try
@@ -37,4 +28,25 @@
     (if raw-lineno
       (reset! fallback-line-number raw-lineno)
       (swap! fallback-line-number inc))))
+
+(defn form-position [form]
+  (list *file* (:line (meta form))))
+
+
+;; RUNTIME POSITIONS
+;; For reporting information that is not known (was not
+;; inserted at runtime).
+
+(defn user-file-position 
+  "Guesses the file position (basename and line number) that the user is
+   most likely to be interested in if a test fails."
+  []
+  (second (map #(list (.getFileName %) (.getLineNumber %))
+               (.getStackTrace (Throwable.)))))
+
+(defmacro line-number-known 
+  "Guess the filename of a file position, but use the given line number."
+  [number]
+  `[(first (user-file-position)) ~number])
+
 
