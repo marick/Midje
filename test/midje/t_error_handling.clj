@@ -2,6 +2,7 @@
 
 (ns midje.t-error-handling
   (:use [midje sweet error-handling test-util]
+        [midje.util.file-position :only [form-position]]
         [clojure.contrib monads]))
 
 (fact "any form can be turned into a user-error form"
@@ -31,13 +32,16 @@
 (fact "safely turns a function application into one that propagates errors."
   (safely concat my-favorite-error-form '()) => my-favorite-error-form)
 
-(fact "there is a helper function that produces error-reporting forms"
-  (let [result (user-error-report-form "message" "position")]
-    result => '(clojure.test/report {:type :user-error
-                                     :message "message"
-                                     :position "position" })
-    result => user-error-form?))
 
+(fact "there is a helper function that produces error-reporting forms"
+  (user-error-report-form '(anything) "note 1" "note 2")
+  => '(clojure.test/report {:type :user-error
+                            :notes '["note 1" "note 2"]
+                            :position '...form-position... })
+  (provided
+    (form-position '(anything)) => ...form-position...)
+
+  (user-error-report-form '(whatever)) => user-error-form?)
 
 
 

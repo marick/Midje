@@ -14,10 +14,10 @@
 (defn user-error-form? [form]
   (:midje-user-error (meta form)))
 
-(defn user-error-report-form [message position]
+(defn user-error-report-form [form & notes]
   (as-user-error `(report {:type :user-error
-                           :message ~message
-                           :position ~position})))
+                           :notes '~notes
+                           :position '~(form-position form)})))
 
 ; Maybe monad
 (defmonad midje-maybe-m
@@ -32,6 +32,11 @@
 (defmacro safely [fn & body]
   `( (with-monad midje-maybe-m (m-lift ~(count body) ~fn))
      ~@body))
+
+
+
+
+
 
 
 
