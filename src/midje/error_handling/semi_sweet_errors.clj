@@ -5,7 +5,8 @@
         [midje.error-handling.monadic]
         [midje.util report file-position form-utils]))
 
-(defn validate-fake [form]
+
+(defmethod validate "fake" [form]
   (cond (not (list? (second form)))
         (user-error-report-form
          form
@@ -14,11 +15,12 @@
         :else
         (rest form)))
 
-(defn validate-expect [form]
+(defmethod validate "expect" [form]
   (cond (< (count form) 4)
         (user-error-report-form form
          (cl-format nil "    This form: ~A" form)
          (cl-format nil "Doesn't match: (~A <actual> => <expected> [<keyword-value pairs>*])" (first form)))
         :else
         (rest form)))
+
 

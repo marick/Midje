@@ -8,20 +8,20 @@
 
 (facts "expect validation returns tail part of structure"
   (let [correct '(expect (f 1) => 3)]
-    (validate-expect correct) => (complement user-error-form?)
-    (validate-expect correct) => '[(f 1) => 3]))
+    (validate correct) => (complement user-error-form?)
+    (validate correct) => '[(f 1) => 3]))
 
-; Duplication of validate-fake is because of bug in against-background.
+; Duplication of validate is because of bug in against-background.
 (facts "errors are so tagged and contain file position"
   (against-background (form-position anything) => ...position...)
 
   (let [too-short '(expect (f 1) =>)]
-    (validate-expect too-short) => user-error-form?
-    (str (validate-expect too-short)) => (contains "...position..."))
+    (validate too-short) => user-error-form?
+    (str (validate too-short)) => (contains "...position..."))
   
   (let [bad-left-side '(fake a => 3)]
-    (validate-fake bad-left-side) => user-error-form?
-    (str (validate-fake bad-left-side)) => (contains "...position...")))
+    (validate bad-left-side) => user-error-form?
+    (str (validate bad-left-side)) => (contains "...position...")))
 
 ;;; Full-bore tests.
 
