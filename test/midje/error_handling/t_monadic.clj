@@ -34,6 +34,17 @@
 (fact "safely turns a function application into one that propagates errors."
   (safely concat my-favorite-error-form '()) => my-favorite-error-form)
 
+(fact "errors can spread to infect whole collections"
+  (spread-error [1 2 3]) => '(1 2 3)
+  (spread-error [1 my-favorite-error-form]) => my-favorite-error-form)
+
+(fact "you can insist a collection of items be fully valid"
+  (let [suspect [1 2 3]]
+    (with-valid suspect (second suspect)) => 2)
+  (let [suspect [1 (as-user-error '(str "this would report an error"))]]
+    (with-valid suspect "this is the wrong return value") => "this would report an error"))
+    
+
 
 (fact "there is a helper function that produces error-reporting forms"
   (user-error-report-form '(anything) "note 1" "note 2")
@@ -44,6 +55,5 @@
     (form-position '(anything)) => ...form-position...)
 
   (user-error-report-form '(whatever)) => user-error-form?)
-
 
 

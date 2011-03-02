@@ -3,10 +3,9 @@
 (ns midje.error-handling.monadic
   (:use [clojure.contrib.pprint :only [cl-format]]
         [clojure.contrib.monads]
+        [clojure.contrib.seq-utils :only [find-first]]
         [midje.util report file-position form-utils]
         [clojure.test]))
-
-;; My own maybe monad
 
 (defn as-user-error [form]
   (vary-meta form assoc :midje-user-error true))
@@ -19,7 +18,6 @@
                            :notes '~notes
                            :position '~(form-position form)})))
 
-; Maybe monad
 (defmonad midje-maybe-m
    "Monad describing form processing with possible failures. Failure
    is represented by any form with metadata :midje-user-error"
@@ -33,7 +31,17 @@
   `( (with-monad midje-maybe-m (m-lift ~(count body) ~fn))
      ~@body))
 
+(defn spread-error [collection]
+  (or (find-first user-error-form? collection) collection))
+
+;; This is a pretty dubious addition. Not using it now - found
+;; a better way - but might need it later.
+(defmacro with-valid [symbol & body]
+  `(let [~symbol (spread-error ~symbol)]
+     (if (user-error-form? ~symbol)
+       (eval ~symbol)
+       (do ~@body))))
 
 
-
-
+(defmulti validate (fn [form] (name (first form))))
+(defmethod validate :default [form] (rest form))
