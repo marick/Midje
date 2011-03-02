@@ -67,9 +67,10 @@
      
 
 (defn expect* [call-map local-fakes]
-  "The core function in unprocessed Midje. Takes a map describing a call and a 
-   list of maps, each of which describes a secondary call the first call is supposed to 
-   make. See the documentation at http://github.com/marick/Midje."
+  "The core function in unprocessed Midje. Takes a map describing a
+  call and a list of maps, each of which describes a secondary call
+  the first call is supposed to make. See the documentation at
+  http://github.com/marick/Midje."
   (let [fakes (background-fakes-plus local-fakes)]
     (or (reported-on-user-errors? call-map local-fakes)
         (with-altered-roots (binding-map fakes)

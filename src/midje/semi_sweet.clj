@@ -39,7 +39,7 @@
   [& names] (only-mocked* names))
 
 (defmacro fake 
-  "Creates an fake map that a particular call will be made. When it is made,
+  "Creates a fake map that a particular call will be made. When it is made,
    the result is to be returned. Either form may contain bound variables. 
    Example: (let [a 5] (fake (f a) => a))"
   [& forms]
