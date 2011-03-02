@@ -81,7 +81,7 @@
    (list
     (fail-at m)
     (str "    Midje could not understand something you wrote: ")
-    (str "      " (:message m))))
+    (indented (:notes m))))
   
 (defmethod report-strings :exceptional-user-error [m]
    (list

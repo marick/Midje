@@ -130,7 +130,7 @@
 
 (facts "about reporting specific user errors"
   (let [failure-map {:type :user-error
-                     :message "message"
+                     :notes ["message"]
                      :position ["foo.clj" 3]}
         raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
     (nth raw-report 0) => #"FAIL at .*foo.clj:3"
