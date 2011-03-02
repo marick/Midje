@@ -1,9 +1,9 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.error-handling.t-util
+(ns midje.error-handling.t-monadic
   
   (:use [midje sweet test-util]
-        [midje.error-handling.util]
+        [midje.error-handling.monadic]
         [midje.util.file-position :only [form-position]]
         [clojure.contrib monads]))
 
@@ -47,38 +47,3 @@
 
 
 
-;;Util
-
-(fact "recognizing broken fakes"
-  1 => (complement broken-fake?)
-  (make-broken-fake {} "foo") => broken-fake?)
-
-;; User errors are reported specially.
-
-(future-fact
-
-;; Fake errors
-(unfinished f)
-(after-silently
- (fact (f) => 3 (provided ...movie... => (exactly odd?)))
- (fact @reported => (just (contains {:type :user-error,
-                                 :message #"must look like.*\.\.\.movie\.\.\." }))))
-
-
-;; (fact (f) => 3 (provided ...movie... => (+ 1 3)))
-
-;;Fakes
-
-(def ...movie... :...movie...)
-(let [error-regexp #"must look like.*\.\.\.movie\.\.\."
-      raw-fake (fake ...movie... => 3) ]
-  (fact
-    raw-fake => broken-fake?
-    raw-fake => (contains {:message error-regexp})
-    ))
-
-(after-silently 
- (fact (f) =>)
- (fact @reported => (just (contains {:type :exceptional-user-error }))))
- 
-)

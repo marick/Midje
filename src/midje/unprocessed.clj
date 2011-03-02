@@ -7,7 +7,6 @@
         [midje.checkers.extended-equality :only [extended-=]]
         [midje.checkers.chatty :only [chatty-checker?]]
         [midje.checkers.util]
-        [midje.error-handling.util :only [broken-fake? report-broken-fakes]]
         [clojure.contrib.ns-utils :only [immigrate]]))
 (immigrate 'midje.checkers)
 
@@ -58,24 +57,15 @@
         (catch Throwable e#
           (captured-exception e#))))
 
-;; This is a macro to get line numbers to come out right. Feh.
-(defmacro reported-on-user-errors? [call-map local-fakes]
-  `(let [broken-fakes# (filter broken-fake? ~local-fakes)]
-     (report-broken-fakes broken-fakes#)
-     (not (empty? broken-fakes#))))
-   
-     
-
 (defn expect* [call-map local-fakes]
   "The core function in unprocessed Midje. Takes a map describing a
   call and a list of maps, each of which describes a secondary call
   the first call is supposed to make. See the documentation at
   http://github.com/marick/Midje."
   (let [fakes (background-fakes-plus local-fakes)]
-    (or (reported-on-user-errors? call-map local-fakes)
-        (with-altered-roots (binding-map fakes)
-          (let [code-under-test-result (capturing-exception
-                                        (eagerly
-                                         ((call-map :function-under-test))))]
-            (check-call-counts fakes)
-            (check-result code-under-test-result call-map))))))
+    (with-altered-roots (binding-map fakes)
+      (let [code-under-test-result (capturing-exception
+                                    (eagerly
+                                     ((call-map :function-under-test))))]
+        (check-call-counts fakes)
+        (check-result code-under-test-result call-map)))))

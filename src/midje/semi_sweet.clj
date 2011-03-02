@@ -4,7 +4,7 @@
   (:use clojure.test
         midje.fakes
         [midje.util debugging form-utils file-position]
-        [midje.error-handling util semi-sweet-errors]
+        [midje.error-handling monadic semi-sweet-errors]
         [midje.production-mode]
         [clojure.pprint]
         [clojure.contrib.ns-utils :only [immigrate]]))

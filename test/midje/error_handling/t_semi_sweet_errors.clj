@@ -2,7 +2,7 @@
 
 (ns midje.error-handling.t-semi-sweet-errors
   (:use [midje.sweet]
-        [midje.error-handling util semi-sweet-errors]
+        [midje.error-handling monadic semi-sweet-errors]
         [midje.util.file-position :only [form-position]]
         [midje.test-util]))
 

@@ -2,7 +2,7 @@
 
 (ns midje.error-handling.semi-sweet-errors
   (:use [clojure.contrib.pprint :only [cl-format]]
-        [midje.error-handling.util]
+        [midje.error-handling.monadic]
         [midje.util report file-position form-utils]))
 
 (defn validate-fake [form]

@@ -2,7 +2,7 @@
 
 (ns behaviors.t-error-handling-line-numbers
   (:use [midje sweet test-util]
-        [midje.error-handling.util]))
+        [midje.error-handling.monadic]))
 
 ;; Different kinds of errors in prerequisites
 
