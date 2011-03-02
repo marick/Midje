@@ -44,7 +44,7 @@
    the result is to be returned. Either form may contain bound variables. 
    Example: (let [a 5] (fake (f a) => a))"
   [& forms]
-  (error-let [ [call-form arrow result & overrides] (validate-fake &form)
+  (error-let [ [call-form arrow result & overrides] (validate &form)
                [var-sym & args] call-form]
         ;; The (vec args) keeps something like (...o...) from being
         ;; evaluated as a function call later on. Right approach would
@@ -94,8 +94,9 @@
 
 (defn- expect-expansion [call-form arrow expected-result other-stuff]
   (let [ [fakes overrides] (fakes-and-overrides other-stuff)]
-    `(let [call# (call-being-tested ~call-form ~expected-result ~overrides)]
-       (expect* call# (vector ~@fakes)))))
+    (error-let [_ (spread-error (map validate fakes))]
+      `(let [call# (call-being-tested ~call-form ~expected-result ~overrides)]
+         (expect* call# (vector ~@fakes))))))
 
 (defmacro expect 
   "Run the call form, check that all the mocks defined in the fakes 
@@ -107,7 +108,7 @@
    or midje.semi-sweet/*check* to false."
   [& args]
   (error-let [[call-form arrow expected-result & other-stuff]
-              (validate-expect &form)]
+              (validate &form)]
     (when (user-desires-checking?)
       (expect-expansion call-form arrow expected-result other-stuff))))
 
