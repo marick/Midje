@@ -7,7 +7,7 @@
         [midje.checkers.extended-equality :only [extended-=]]
         [midje.checkers.chatty :only [chatty-checker?]]
         [midje.checkers.util]
-        [midje.error-handling :only [broken-fake? report-broken-fakes]]
+        [midje.error-handling.util :only [broken-fake? report-broken-fakes]]
         [clojure.contrib.ns-utils :only [immigrate]]))
 (immigrate 'midje.checkers)
 

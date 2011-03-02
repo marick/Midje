@@ -4,7 +4,7 @@
   (:use clojure.test
         midje.fakes
         [midje.util debugging form-utils file-position]
-        [midje.error-handling]
+        [midje.error-handling util semi-sweet-errors]
         [midje.production-mode]
         [clojure.pprint]
         [clojure.contrib.ns-utils :only [immigrate]]))
@@ -44,18 +44,18 @@
    the result is to be returned. Either form may contain bound variables. 
    Example: (let [a 5] (fake (f a) => a))"
   [& forms]
-  (or (broken-fake forms)
-      (let [ [call-form arrow result & overrides] forms
-             [var-sym & args] call-form]
-        ;; The (vec args) keeps something like (...o...) from being evaluated as a
-        ;; function call later on. Right approach would seem to be '~args. That causes
-        ;; spurious failures. Debug someday.
-        (make-fake-map var-sym
-                       `{:arg-matchers (map midje.fakes/arg-matcher-maker ~(vec args))
-                         :call-text-for-failures (str '~call-form)
-                         :result-supplier (make-result-supplier ~arrow ~result)
-                         :type :fake}
-                       overrides))))
+  (error-let [ [call-form arrow result & overrides] (validate-fake &form)
+               [var-sym & args] call-form]
+        ;; The (vec args) keeps something like (...o...) from being
+        ;; evaluated as a function call later on. Right approach would
+        ;; seem to be '~args. That causes spurious failures. Debug
+        ;; someday.
+    (make-fake-map var-sym
+                   `{:arg-matchers (map midje.fakes/arg-matcher-maker ~(vec args))
+                     :call-text-for-failures (str '~call-form)
+                     :result-supplier (make-result-supplier ~arrow ~result)
+                     :type :fake}
+                   overrides)))
 
 (defmacro not-called
   "Creates an fake map that a function will not be called.
@@ -96,14 +96,6 @@
   (let [ [fakes overrides] (fakes-and-overrides other-stuff)]
     `(let [call# (call-being-tested ~call-form ~expected-result ~overrides)]
        (expect* call# (vector ~@fakes)))))
-
-(defn validate-expect [forms]
-  (cond (< (count forms) 4)
-        (user-error-report-form forms
-         (cl-format nil "    This form: ~A" forms)
-         (cl-format nil "Doesn't match: (~A <actual> => <expected> [<keyword-value pairs>*])" (first forms)))
-        :else
-        (rest forms)))
 
 (defmacro expect 
   "Run the call form, check that all the mocks defined in the fakes 

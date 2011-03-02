@@ -1,6 +1,6 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.error-handling
+(ns midje.error-handling.util
   (:use [clojure.contrib.pprint :only [cl-format]]
         [clojure.contrib.monads]
         [midje.util report file-position form-utils]
@@ -16,8 +16,8 @@
 
 (defn user-error-report-form [form & notes]
   (as-user-error `(report {:type :user-error
-                           :notes [~@notes]
-                           :position [~@(form-position form)]})))
+                           :notes '~notes
+                           :position '~(form-position form)})))
 
 ; Maybe monad
 (defmonad midje-maybe-m

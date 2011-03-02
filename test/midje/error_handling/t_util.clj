@@ -1,7 +1,9 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.t-error-handling
-  (:use [midje sweet error-handling test-util]
+(ns midje.error-handling.t-util
+  
+  (:use [midje sweet test-util]
+        [midje.error-handling.util]
         [midje.util.file-position :only [form-position]]
         [clojure.contrib monads]))
 
@@ -53,6 +55,8 @@
 
 ;; User errors are reported specially.
 
+(future-fact
+
 ;; Fake errors
 (unfinished f)
 (after-silently
@@ -77,3 +81,4 @@
  (fact (f) =>)
  (fact @reported => (just (contains {:type :exceptional-user-error }))))
  
+)
