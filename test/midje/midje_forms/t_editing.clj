@@ -80,7 +80,6 @@
         z             (zip/seq-zip original)
         original-loc  (-> z zip/down)
         resulting-loc (wrap-with-expect__then__at-rightmost-expect-leaf original-loc)]
-    (prn (zip/root resulting-loc))
     (:line (meta (first (zip/root resulting-loc)))) => 505))
 
   
