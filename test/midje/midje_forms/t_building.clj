@@ -16,4 +16,8 @@
     (b/metaconstant-for-form '(b/metaconstant-for-form))
     => '...metaconstant-for-form-value-1...))
 
+(fact "make-fake's result has the line number of the arrow form"
+  (let [args `( ~(at-line 789 '(f 1)) => 3)]
+    (:line (meta (b/make-fake args))) => 789))
+
      

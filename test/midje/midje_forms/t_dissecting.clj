@@ -59,9 +59,6 @@
   (let [result (partition-arrow-forms '(  (f 1) => 2 :key value   (g 1) => 3))]
     result =>                         '( [(f 1) => 2 :key value] [(g 1) => 3])))
 
-
-
-
 (facts "about extracting nested prerequisites"
   (extract-nested-prerequisite '(fake (f (g)) => 3)) => '(g))
 	    

@@ -106,8 +106,11 @@
       (-> another-form zip/seq-zip zip/down zip/right arrow-line-number)
       (arrow-line-number (zip/right loc)) => 4)))
 
+(facts "about finding the arrow-line-number from a form"
+  (let [form `( ~(at-line 333 '(f 1)) => 3)]
+    (arrow-line-number-from-form form) => 333))
 
-(facts "about compile-time discovery of positions and line numbers"
+(facts "about compile-time discovery of positions and line numbers from a form"
   (form-position (with-meta '(form) {:line 332}))
   => ["midje/util/t_file_position.clj" 332])
                    

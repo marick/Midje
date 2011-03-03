@@ -51,8 +51,8 @@
     original-loc => (node '(f 1))
     original-loc => loc-is-start-of-arrow-sequence?
     
-   (zip/root resulting-loc) => edited
-   (zip/next resulting-loc) => (node "next"))
+    (zip/root resulting-loc) => edited
+    (zip/next resulting-loc) => (node "next"))
 
 
   (let [original '(                          (f 1)                  => (+ 2 3) :key "value"  "next")
@@ -73,7 +73,17 @@
         original-loc  (-> z zip/down)
         resulting-loc (wrap-with-expect__then__at-rightmost-expect-leaf original-loc)]
     (zip/root resulting-loc) => edited
-    (zip/next resulting-loc) => zip/end?))
+    (zip/next resulting-loc) => zip/end?)
+
+  "The new expect form has the same line number as the arrow"
+  (let [original `( ~(at-line 505 '(f 1)) => 1)
+        z             (zip/seq-zip original)
+        original-loc  (-> z zip/down)
+        resulting-loc (wrap-with-expect__then__at-rightmost-expect-leaf original-loc)]
+    (prn (zip/root resulting-loc))
+    (:line (meta (first (zip/root resulting-loc)))) => 505))
+
+  
 
 
 (fact "one can add a line number to an arrow sequence"

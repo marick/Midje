@@ -1,10 +1,15 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.midje-forms.building
-  (:use [midje.util.wrapping :only [ensure-correct-form-variable]]))
+  (:use [midje.util.wrapping :only [ensure-correct-form-variable]]
+        [midje.util.file-position :only [arrow-line-number-from-form]]))
 
 (defn make-fake [fake-body]
-  `(midje.semi-sweet/fake ~@fake-body))
+  (let [line-number (arrow-line-number-from-form fake-body)]
+    (vary-meta
+     `(midje.semi-sweet/fake ~@fake-body)
+     assoc :line line-number)))
+    
 
 (defn make-background [fake]
   (concat fake '(:type :background)))
