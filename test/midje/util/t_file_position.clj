@@ -66,8 +66,6 @@
   (let [position (line-number-known 33)]
     position => ["t_file_position.clj", 33]))
 
-(defn at-line [line-no form] (with-meta form {:line line-no}))
-
 (facts "about determining a line number from forms near an arrow"
   "Typical case is form on left. (f 1) => 5"
   (let [form `( ~(at-line 33 '(f 1)) => 5)
