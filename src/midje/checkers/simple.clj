@@ -22,6 +22,7 @@
   (not (captured-exception? actual)))
 (def irrelevant anything)
 
+
 (defchecker exactly
   "Checks for equality. Use to avoid default handling of functions."
   [expected]
@@ -51,4 +52,20 @@
        (and (throwable-with-class? wrapped-throwable expected-exception-class)
             (extended-= (.getMessage (wrapped-throwable captured-exception-key))
                         message)))))
+
+(defchecker defined
+  "Returns true if not nil"
+  [actual] 
+  (not (nil? actual)))
+(def not-nil defined)
+
+(defchecker carin
+  "Returns true if not nil"
+  [actual] 
+  (not (nil? actual)))
+
+
+
+
+
 
