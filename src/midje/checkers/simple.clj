@@ -57,6 +57,3 @@
   [actual] 
   (not (nil? actual)))
 (def not-nil defined)
-
-
-
