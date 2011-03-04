@@ -88,5 +88,16 @@
    (throw-exception "throws Error") => falsey
    (throw-exception "throws Error") => truthy)
  (fact
-   @reported => (three-of checker-fails)))
+  @reported => (three-of checker-fails)))
 
+(facts "defined"
+  #'defined => checker?
+  defined => checker?
+  1 => defined
+  (not nil) => defined
+  nil => (not defined)
+  false => defined
+  true => defined
+  even? => defined
+  "not-nil is a synonym"
+  1 => not-nil)
