@@ -22,7 +22,6 @@
   (not (captured-exception? actual)))
 (def irrelevant anything)
 
-
 (defchecker exactly
   "Checks for equality. Use to avoid default handling of functions."
   [expected]
@@ -58,14 +57,6 @@
   [actual] 
   (not (nil? actual)))
 (def not-nil defined)
-
-(defchecker carin
-  "Returns true if not nil"
-  [actual] 
-  (not (nil? actual)))
-
-
-
 
 
 
