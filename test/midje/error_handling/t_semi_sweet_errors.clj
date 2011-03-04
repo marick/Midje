@@ -38,8 +38,12 @@
 
 (after-silently
  (fake a => 3)
- (expect @reported => (user-error-with-notes #"must look like a function call.*`a` doesn't")))
+ (expect @reported => (user-error-with-notes
+                        #"must look like a function call"
+                        #"`a` doesn't")))
 
 (after-silently
  (expect (throw "should not be evaluated") => 3 (fake a => 3))
- (expect @reported => (user-error-with-notes #"must look like a function call.*`a` doesn't")))
+ (expect @reported => (user-error-with-notes
+                        #"must look like a function call"
+                        #"`a` doesn't")))

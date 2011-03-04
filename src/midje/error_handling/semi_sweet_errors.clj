@@ -10,8 +10,8 @@
   (cond (not (list? (second form)))
         (user-error-report-form
          form
-         (cl-format nil "Left-hand-side must look like a function call. `~S` doesn't."
-                    (second form)))
+         "The left-hand-side of a prerequisite must look like a function call."
+         (cl-format nil "`~S` doesn't." (second form)))
         :else
         (rest form)))
 
