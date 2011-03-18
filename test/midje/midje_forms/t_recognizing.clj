@@ -35,12 +35,12 @@
 
 (fact "can ask if at first element of X => Y :possible :keywords"
   (let [possible (fn [nested-form] (zip/down (zip/seq-zip nested-form)))]
-    (possible '( (f 1) )) => (complement loc-is-start-of-arrow-sequence?)
-    (possible '( (f 1) (f 2))) => (complement loc-is-start-of-arrow-sequence?)
+    (possible '( (f 1) )) => (complement loc-is-start-of-check-sequence?)
+    (possible '( (f 1) (f 2))) => (complement loc-is-start-of-check-sequence?)
 
-    (possible '( (f 1) => 2)) => loc-is-start-of-arrow-sequence?
-    (possible '( (f 1) => 2 :key 'value)) => loc-is-start-of-arrow-sequence?
-    (possible '( (f 1) midje.semi-sweet/=> 2)) => loc-is-start-of-arrow-sequence?))
+    (possible '( (f 1) => 2)) => loc-is-start-of-check-sequence?
+    (possible '( (f 1) => 2 :key 'value)) => loc-is-start-of-check-sequence?
+    (possible '( (f 1) midje.semi-sweet/=> 2)) => loc-is-start-of-check-sequence?))
 
 (facts "recognizing setup/teardown forms"
   '[ (before :checks (+ 1 1)) ... ] => seq-headed-by-setup-teardown-form?

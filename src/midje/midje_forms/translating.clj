@@ -38,7 +38,7 @@
       (zip/root loc)
       (recur
        (zip/next
-        (cond (loc-is-start-of-arrow-sequence? loc)
+        (cond (loc-is-start-of-check-sequence? loc)
               (wrap-with-expect__then__at-rightmost-expect-leaf loc)
 
               (loc-is-head-of-form-providing-prerequisites? loc)

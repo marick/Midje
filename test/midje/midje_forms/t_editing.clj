@@ -49,7 +49,7 @@
         original-loc  (-> z zip/down)
         resulting-loc (wrap-with-expect__then__at-rightmost-expect-leaf original-loc)]
     original-loc => (node '(f 1))
-    original-loc => loc-is-start-of-arrow-sequence?
+    original-loc => loc-is-start-of-check-sequence?
     
     (zip/root resulting-loc) => edited
     (zip/next resulting-loc) => (node "next"))
@@ -61,7 +61,7 @@
         original-loc  (-> z zip/down)
         resulting-loc (wrap-with-expect__then__at-rightmost-expect-leaf original-loc)]
     original-loc => (node '(f 1))
-    original-loc => loc-is-start-of-arrow-sequence?
+    original-loc => loc-is-start-of-check-sequence?
     
    (zip/root resulting-loc) => edited
    (zip/next resulting-loc) => (node "next"))

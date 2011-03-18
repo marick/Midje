@@ -1,7 +1,7 @@
 (ns midje.midje-forms.editing
   (:use midje.semi-sweet)
   (:use [midje.midje-forms.recognizing :only [loc-is-head-of-form-providing-prerequisites?
-					      loc-is-start-of-arrow-sequence?
+					      loc-is-start-of-check-sequence?
 					      loc-is-at-full-expect-form?]]
 	[midje.midje-forms.moving-around :only [up-to-full-expect-form
 						skip-to-rightmost-leaf]]
@@ -35,7 +35,7 @@
     (-> loc tack zip/down skip-to-rightmost-leaf)))
 
 (defn wrap-with-expect__then__at-rightmost-expect-leaf [loc]
-  (assert (loc-is-start-of-arrow-sequence? loc))
+  (assert (loc-is-start-of-check-sequence? loc))
   (let [right-hand (-> loc zip/right zip/right)
 	additions (arrow-form-overrides (zip/rights right-hand))
         line-number (arrow-line-number (zip/right loc))

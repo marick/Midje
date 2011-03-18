@@ -37,11 +37,9 @@
 
 ;; A problem with not using namespacey-match for this is that
 ;; it will then match quoted Midje forms in a zillion tests.
-(defn loc-is-start-of-arrow-sequence? [loc]
+(defn loc-is-start-of-check-sequence? [loc]
   (and (zip/right loc)
        (namespacey-match '(=>) (zip/right loc))))
-
-
 
 ;; Wrapping
 
