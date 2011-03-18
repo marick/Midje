@@ -4,4 +4,4 @@
     [[org.clojure/clojure "1.2.0"]
      [org.clojure/clojure-contrib "1.2.0"]]
   :dev-dependencies
-  [[midje "1.1-alpha-1"]])
+  [[midje "1.1-alpha-2"]])

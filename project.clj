@@ -1,4 +1,4 @@
-(defproject midje "1.1-alpha-1"
+(defproject midje "1.1-alpha-2"
   :description "A TDD library for Clojure, with an emphasis on mocks"
   :dependencies [[org.clojure/clojure "1.2.0"]
                  [org.clojure/clojure-contrib "1.2.0"]

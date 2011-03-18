@@ -1,3 +1,8 @@
+= 1.1-alpha-2
+* Better error checking infrastructure (not much user
+  visible yet)
+* Fixed bug in folded prerequisites.
+
 = 1.1-alpha-1
 * Syntax errors made in Midje forms are somewhat better
   more gracefully reported.
