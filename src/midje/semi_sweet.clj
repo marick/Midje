@@ -12,10 +12,14 @@
 
 ; So every namespace uses the same qualified name.
 (def => "=>")
+(def =not=> "=not=>")
 (def =streams=> "=streams=>")   
 
-(def expect-arrows [=>])
+(def expect-arrows [=> =not=>])
 (def fake-arrows [=> =streams=>])
+
+(defn check-for-arrow [arrow]
+  (get {=> :check-match =not=> :check-negated-match} (name arrow)))
 
 (defonce
   #^{:doc "True by default.  If set to false, Midje checks are not
@@ -81,13 +85,14 @@
     (separate-by fake? form)))
         
 
-(defmacro call-being-tested [call-form expected-result overrides]
+(defmacro call-being-tested [call-form arrow expected-result overrides]
   "Creates a map that contains a function-ized version of the form being 
    tested, an expected result, and the file position to refer to in case of 
    failure. See 'expect'."
   `(merge
     {:function-under-test (fn [] ~call-form)
      :expected-result ~expected-result
+     :desired-check ~(check-for-arrow arrow)
      :expected-result-text-for-failures '~expected-result
      :position (user-file-position)}
     (hash-map-duplicates-ok ~@overrides)))
@@ -95,7 +100,7 @@
 (defn- expect-expansion [call-form arrow expected-result other-stuff]
   (let [ [fakes overrides] (fakes-and-overrides other-stuff)]
     (error-let [_ (spread-error (map validate fakes))]
-      `(let [call# (call-being-tested ~call-form ~expected-result ~overrides)]
+      `(let [call# (call-being-tested ~call-form ~arrow ~expected-result ~overrides)]
          (expect* call# (vector ~@fakes))))))
 
 (defmacro expect 

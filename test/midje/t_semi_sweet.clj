@@ -13,6 +13,13 @@
   [actual]
   (odd? actual))
 
+(facts "about arrows"
+  (let [result (map check-for-arrow
+                    '(=> midje.semi-sweet/=> midje.sweet/=>
+                      =not=> midje.semi-sweet/=not=> midje.sweet/=not=>))]
+    (fact result => [:check-match :check-match :check-match
+                     :check-negated-match :check-negated-match :check-negated-match])))
+
 (fact "separating overrides of an #expect from fakes"
   ;; The lets are because fact isn't smart enough not to add overrides to fake call otherwise.
   (let [actual (fakes-and-overrides '( (fake (f 1) => 2) :key 'value))]
@@ -92,6 +99,9 @@
   (after-silently 
    (expect (+ 1 3) => 4)
    @reported => (one-of pass))
+
+  "There is a =not=> arrow."
+  (expect (+ 1 3) =not=> 5)
 
   "actual doesn't match expected"
   (after-silently 

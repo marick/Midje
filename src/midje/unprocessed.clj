@@ -21,7 +21,10 @@
 ;; Later note: this doesn't actually work well anyway when facts are nested within
 ;; larger structures. Probably fact should return true/false based on interior failure
 ;; counts.
-(defn check-result [actual call]
+(defmulti check-result (fn [actual call]
+                         (:desired-check call)))
+
+(defmethod check-result :check-match [actual call]
   (cond (extended-= actual (call :expected-result))
         (do (report {:type :pass})
             true)
@@ -51,6 +54,11 @@
                    :expected (call :expected-result) })
           false))
 )
+
+(defmethod check-result :check-negated-match [actual call]
+           (prn "In check-result" call actual)
+  (report {:type :pass}))
+
 
 (defmacro capturing-exception [form]
   `(try ~form
