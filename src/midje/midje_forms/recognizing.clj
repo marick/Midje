@@ -2,7 +2,8 @@
 
 (ns midje.midje-forms.recognizing
   (:use midje.util.form-utils
-        [midje.checkers.defining :only [checker? checker-makers]])
+        [midje.checkers.defining :only [checker? checker-makers]]
+        [midje.semi-sweet :only [expect-arrows]])
   (:require [midje.util.wrapping :as wrapping])
   (:require [midje.util.unify :as unify])
   (:require [clojure.zip :as zip]))
@@ -39,7 +40,7 @@
 ;; it will then match quoted Midje forms in a zillion tests.
 (defn loc-is-start-of-check-sequence? [loc]
   (and (zip/right loc)
-       (namespacey-match '(=>) (zip/right loc))))
+       (namespacey-match expect-arrows (zip/right loc))))
 
 ;; Wrapping
 

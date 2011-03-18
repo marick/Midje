@@ -56,7 +56,6 @@
 )
 
 (defmethod check-result :check-negated-match [actual call]
-           (prn "In check-result" call actual)
   (report {:type :pass}))
 
 

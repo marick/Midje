@@ -43,8 +43,8 @@
 
 (fact "sweet-style facts can be converted to semi-sweet expect forms"
   "The simple case"
-  (let [original '(                          (f 1)                  => (+ 2 3)  "next")
-        edited   '( (midje.semi-sweet/expect (f 1) midje.semi-sweet/=> (+ 2 3)) "next")
+  (let [original '(                          (f 1) => (+ 2 3)  "next")
+        edited   '( (midje.semi-sweet/expect (f 1) => (+ 2 3)) "next")
         z             (zip/seq-zip original)
         original-loc  (-> z zip/down)
         resulting-loc (wrap-with-expect__then__at-rightmost-expect-leaf original-loc)]
@@ -55,8 +55,21 @@
     (zip/next resulting-loc) => (node "next"))
 
 
-  (let [original '(                          (f 1)                  => (+ 2 3) :key "value"  "next")
-        edited   '( (midje.semi-sweet/expect (f 1) midje.semi-sweet/=> (+ 2 3) :key "value") "next")   
+  "A negating check"
+  (let [original '(                          (f 1) =not=> (+ 2 3)  "next")
+        edited   '( (midje.semi-sweet/expect (f 1) =not=> (+ 2 3)) "next")
+        z             (zip/seq-zip original)
+        original-loc  (-> z zip/down)
+        resulting-loc (wrap-with-expect__then__at-rightmost-expect-leaf original-loc)]
+    original-loc => (node '(f 1))
+    original-loc => loc-is-start-of-check-sequence?
+    
+    (zip/root resulting-loc) => edited
+    (zip/next resulting-loc) => (node "next"))
+
+
+  (let [original '(                          (f 1) => (+ 2 3) :key "value"  "next")
+        edited   '( (midje.semi-sweet/expect (f 1) => (+ 2 3) :key "value") "next")   
         z             (zip/seq-zip original)
         original-loc  (-> z zip/down)
         resulting-loc (wrap-with-expect__then__at-rightmost-expect-leaf original-loc)]
@@ -67,8 +80,8 @@
    (zip/next resulting-loc) => (node "next"))
 
   "annotations on the original form are preserved"
-  (let [original '(                          (f 1)                  => (+ 2 3) :key "value")
-        edited   '( (midje.semi-sweet/expect (f 1) midje.semi-sweet/=> (+ 2 3) :key "value"))   
+  (let [original '(                          (f 1) => (+ 2 3) :key "value")
+        edited   '( (midje.semi-sweet/expect (f 1) => (+ 2 3) :key "value"))   
         z             (zip/seq-zip original)
         original-loc  (-> z zip/down)
         resulting-loc (wrap-with-expect__then__at-rightmost-expect-leaf original-loc)]

@@ -37,12 +37,13 @@
 (defn wrap-with-expect__then__at-rightmost-expect-leaf [loc]
   (assert (loc-is-start-of-check-sequence? loc))
   (let [right-hand (-> loc zip/right zip/right)
+        arrow-form (-> loc zip/right zip/node)
 	additions (arrow-form-overrides (zip/rights right-hand))
         line-number (arrow-line-number (zip/right loc))
 	edited-loc (zip/edit loc
 			     (fn [loc]
                                (vary-meta 
-                                 `(expect ~loc => ~(zip/node right-hand) ~@additions)
+                                 `(expect ~loc ~arrow-form ~(zip/node right-hand) ~@additions)
                                  assoc :line line-number)))]
     (->> edited-loc
 	 zip/right

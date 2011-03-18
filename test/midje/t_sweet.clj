@@ -102,6 +102,10 @@
  (fact (+ 1 1) midje.sweet/=> 3)
  (fact @reported => (one-of bad-result)))
 
+(future-fact "=not=>")
+(after-silently
+ (fact (+ 1 2) =not=> 599)
+ (fact @reported => (one-of pass)))
 
 ;; Background prerequisites
 (unfinished check-f check-g check-h)
