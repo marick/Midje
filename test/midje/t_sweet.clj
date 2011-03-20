@@ -19,14 +19,6 @@
   "this is another one"
   (+ 20 20) => 40)
 
-;; Results of facts are truth values.
-(let [truth-values (list (run-silently (fact (+ 1 1) => 2))
-                         (run-silently (fact (+ 1 2) => 2))
-                         (run-silently (fact
-                                         (+ 1 2) => 2
-                                         (+ 1 2) => 3)))]
-  (fact truth-values => [true false false]))
-
 (unfinished g)
 (defn f [n] (g n))
 (defn call2 [n m]

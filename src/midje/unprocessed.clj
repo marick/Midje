@@ -26,34 +26,28 @@
 
 (defmethod check-result :check-match [actual call]
   (cond (extended-= actual (call :expected-result))
-        (do (report {:type :pass})
-            true)
+        (report {:type :pass})
 
         (fn? (call :expected-result))
-        (do (report (merge {:type :mock-expected-result-functional-failure
-                            :position (call :position)
-                            :expected (call :expected-result-text-for-failures) }
-                           (if (chatty-checker? (call :expected-result))
-                             (do
-                               (let [chatty-result ((call :expected-result) actual)]
-                                 (if (map? chatty-result)
-                                   chatty-result
-                                   {:actual actual
-                                    :notes ["Midje program error. Please report."
-                                            (str "A chatty checker returned "
-                                                 (pr-str chatty-result)
-                                                 " instead of a map.")]})))
-                             {:actual actual})))
-            false)
-        
+        (report (merge {:type :mock-expected-result-functional-failure
+                        :position (call :position)
+                        :expected (call :expected-result-text-for-failures) }
+                       (if (chatty-checker? (call :expected-result))
+                         (do
+                           (let [chatty-result ((call :expected-result) actual)]
+                             (if (map? chatty-result)
+                               chatty-result
+                               {:actual actual
+                                :notes ["Midje program error. Please report."
+                                        (str "A chatty checker returned "
+                                             (pr-str chatty-result)
+                                             " instead of a map.")]})))
+                         {:actual actual})))
         :else
-        (do 
-          (report {:type :mock-expected-result-failure
+        (report {:type :mock-expected-result-failure
                    :position (call :position)
                    :actual actual
-                   :expected (call :expected-result) })
-          false))
-)
+                   :expected (call :expected-result) })))
 
 (defmethod check-result :check-negated-match [actual call]
    (cond (not (extended-= actual (call :expected-result)))

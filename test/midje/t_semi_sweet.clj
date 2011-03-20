@@ -194,14 +194,6 @@
                   :result-supplier (fn [] expected)))))
     
 
-(fact "expect returns an appropriate truth value"
-  (run-silently (expect (function-under-test 1) => 33
-                        (fake (mocked-function 1) => 33))) => true
-                        
-  (run-silently (expect (function-under-test 1) => 33
-                         (fake (mocked-function 2) => 33))) => false ; mock failure
-  (run-silently (expect (+ 1 1) => 33)) => false)
-
 (facts "about checkers"
   "expected results can be functions"
   (expect (+ 1 1) => even?)
