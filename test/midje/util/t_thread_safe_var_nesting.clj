@@ -23,9 +23,9 @@
   root => "root"
 
   "... work with unbound variables"
-  (bound? #'unbound!) => falsey
+  #'unbound! =not=> bound?
   (with-altered-roots {#'unbound! "override"} unbound!) => "override"
-  (bound? #'unbound!) => falsey
+  #'unbound! =not=> bound?
 
   "... work with throwables"
   (try

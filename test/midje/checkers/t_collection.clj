@@ -26,16 +26,17 @@
   
 
 (fact "left-hand-side: sequentials that are to contain things"
-  [3 4 5 700] => (contains [4 5 700])
-  ( (contains [4 5 700]) [4 700 5]) => falsey
-  ( (contains [4 5 700]) [4 5 'hi 700]) => falsey
+  [3 4 5 700]       => (contains [4 5 700])
+  [4 700 5]     =not=> (contains [4 5 700])
+  [4 5 'hi 700] =not=> (contains [4 5 700])
 
-  ['hi 700 5 4] => (contains [4 5 700] :in-any-order)
-  ( (contains [4 5 700] :in-any-order) [4 5 'hi 700]) => falsey
+  ['hi 700 5 4]     => (contains [4 5 700] :in-any-order)
+  [4 5 'hi 700] =not=> (contains [4 5 700] :in-any-order)
 
-  [4 5 'hi 700] => (contains [4 5 700] :gaps-ok)
-  ( (contains [4 5 700] :gaps-ok) [4 700 'hi' 5]) => falsey
+  [4 5 'hi 700]     => (contains [4 5 700] :gaps-ok)
+  [4 700 'hi 5] =not=> (contains [4 5 700] :gaps-ok)
 
+  
   [4 700 5] => (contains [4 5 700] :gaps-ok :in-any-order)
   [4 5 'hi 700] => (contains [4 5 700] :in-any-order :gaps-ok)
   [700 'hi 4 5 'hi] => (contains [4 5 700] :in-any-order :gaps-ok)

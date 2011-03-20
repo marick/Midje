@@ -33,7 +33,7 @@
 (facts "about exactly"
   #'exactly => checker?
   exactly => checker?
-  (checker? (exactly odd?)) => falsey ;; It represents the function itself.
+  (exactly odd?) =not=> checker? ;; It represents the function itself.
   true => (exactly true)
   ( (exactly 2) 2) => truthy
   ( (exactly 1) 2) => falsey
@@ -47,8 +47,8 @@
   (roughly 3 1) => checker?
 
   "explicit range"
-  ( (roughly 2.0 1.0) 0.99) => falsey
-  ( (roughly 2.0 1.0) 3.01) => falsey
+  0.99 =not=> (roughly 2.0 1.0)
+  3.01 =not=> (roughly 2.0 1.0)
 
   0.00 => (roughly 1.0 1.0)
   2.00 => (roughly 1.0 1.0)
@@ -58,6 +58,11 @@
   ( (roughly 1000) 999.001) => truthy
   ( (roughly 1000) 1000.990) => truthy
   ( (roughly 1000) 1001.001) => falsey)
+
+  998.999 => (roughly 1000)
+  999.001 => (roughly 1000)
+  1000.990 => (roughly 1000)
+  1001.001 => (roughly 1000)
 
 (defn throw-exception
   ([] (throw (NullPointerException.)))

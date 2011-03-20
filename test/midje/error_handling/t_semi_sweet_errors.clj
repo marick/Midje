@@ -8,7 +8,7 @@
 
 (facts "expect validation returns tail part of structure"
   (let [correct '(expect (f 1) => 3)]
-    (validate correct) => (complement user-error-form?)
+    (validate correct) =not=> user-error-form?
     (validate correct) => '[(f 1) => 3]))
 
 ; Duplication of validate is because of bug in against-background.

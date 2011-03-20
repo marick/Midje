@@ -18,14 +18,14 @@
 (fact "an embedded expect form can be recognized"
   (zip/seq-zip '(expect x => y)) => loc-is-at-full-expect-form?
   (zip/seq-zip '(midje.semi-sweet/expect x => y)) => loc-is-at-full-expect-form?
-  (zip/seq-zip '(+ x y)) => (complement loc-is-at-full-expect-form?)
-  (zip/seq-zip 'expect) => (complement loc-is-at-full-expect-form?))
+  (zip/seq-zip '(+ x y)) =not=> loc-is-at-full-expect-form?
+  (zip/seq-zip 'expect) =not=> loc-is-at-full-expect-form?)
 
 (fact "can ask whether at the beginning of a form that provides prerequisites"
   (let [values (zip/seq-zip '(provided midje.semi-sweet/provided fluke))]
     (-> values zip/down) => loc-is-head-of-form-providing-prerequisites?
     (-> values zip/down zip/right) => loc-is-head-of-form-providing-prerequisites?
-    (-> values zip/down zip/right zip/right) => (complement loc-is-head-of-form-providing-prerequisites?)))
+    (-> values zip/down zip/right zip/right) =not=> loc-is-head-of-form-providing-prerequisites?))
 
 (fact "can identify and skip over semi-sweet keywords (currently 'expect' and 'fake')"
   (doseq [skippable '(expect fake midje.semi-sweet/expect midje.semi-sweet/fake)]
@@ -35,9 +35,8 @@
 
 (fact "can ask if at first element of X =?> Y :possible :keywords"
   (let [possible (fn [nested-form] (zip/down (zip/seq-zip nested-form)))]
-    (possible '( (f 1) )) => (complement loc-is-start-of-check-sequence?)
-    (possible '( (f 1) (f 2))) => (complement loc-is-start-of-check-sequence?)
-    (possible '( (f 1) (f 2))) =not=> (complement loc-is-start-of-check-sequence?)
+    (possible '( (f 1) )) =not=> loc-is-start-of-check-sequence?
+    (possible '( (f 1) (f 2))) =not=> loc-is-start-of-check-sequence?
 
     (possible '( (f 1) => 2)) => loc-is-start-of-check-sequence?
     (possible '( (f 1) =not=> 2)) => loc-is-start-of-check-sequence?
@@ -46,9 +45,9 @@
 
 (facts "recognizing setup/teardown forms"
   '[ (before :checks (+ 1 1)) ... ] => seq-headed-by-setup-teardown-form?
-  '[ (before :checks) ... ] => (complement seq-headed-by-setup-teardown-form?)
+  '[ (before :checks) ... ] =not=>  seq-headed-by-setup-teardown-form?
   '[ (before :checks (+ 1 1) :after (- 2 2)) ... ] => seq-headed-by-setup-teardown-form?
-  '[ (before :checks (+ 1 1) :after ) ... ] => (complement seq-headed-by-setup-teardown-form?)
+  '[ (before :checks (+ 1 1) :after ) ... ] =not=> seq-headed-by-setup-teardown-form?
 
   '[ (after :checks (+ 1 1)) ... ] => seq-headed-by-setup-teardown-form?
   '[ (around :checks (let [x 1] ?form)) ... ] => seq-headed-by-setup-teardown-form?)

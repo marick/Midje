@@ -58,6 +58,8 @@
 
 ;; Kinds of result maps
 (def bad-result (contains {:type :mock-expected-result-failure}))
+(def inappropriate-equality (contains {:type :mock-expected-result-inappropriately-matched}))
+(def inappropriate-checker (contains {:type :mock-actual-inappropriately-matches-checker}))
 (def pass (contains {:type :pass}))
 (def checker-fails (contains {:type :mock-expected-result-functional-failure}))
 (def wrong-call-count (contains {:type :mock-incorrect-call-count}))
