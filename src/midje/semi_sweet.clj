@@ -13,13 +13,16 @@
 ; So every namespace uses the same qualified name.
 (def => "=>")
 (def =not=> "=not=>")
+(def =deny=> "=deny=>")
 (def =streams=> "=streams=>")   
 
-(def expect-arrows [=> =not=>])
+(def expect-arrows [=> =not=> =deny=>])
 (def fake-arrows [=> =streams=>])
 
 (defn check-for-arrow [arrow]
-  (get {=> :check-match =not=> :check-negated-match} (name arrow)))
+  (get {=> :check-match
+        =not=> :check-negated-match
+        =deny=> :check-negated-match} (name arrow)))
 
 (defonce
   #^{:doc "True by default.  If set to false, Midje checks are not
