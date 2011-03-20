@@ -4,8 +4,7 @@
   (:use clojure.test
         [clojure.contrib.ns-utils :only [immigrate]]
         [clojure.contrib.pprint :only [pprint]]
-        [clojure.contrib.seq :only [separate]]
-        clojure.contrib.condition)
+        [clojure.contrib.seq :only [separate]])
          
   (:use [midje production-mode metaconstants]
         midje.midje-forms.recognizing
@@ -39,27 +38,22 @@
 (defmacro fact [& forms]
   (when (user-desires-checking?)
     (try
-      (handler-case :type
-        (set-fallback-line-number-from &form)
-        (let [[background remainder] (separate-background-forms forms)]
-          (if (empty? background)
-            (let [things-to-run (-> remainder
-                                    add-line-numbers
-                                    translate-fact-body
-                                    unfold-prerequisites)]
-              (define-metaconstants things-to-run)
-              (multiwrap (midjcoexpand `(every? true? (list ~@things-to-run)))
-                         (forms-to-wrap-around :facts)))
-            `(against-background ~background (midje.sweet/fact ~@remainder))))
-        (catch Exception ex
-          `(do (clojure.test/report {:type :exceptional-user-error
-                                     :macro-form '~&form
-                                     :exception-lines '~(user-error-exception-lines ex)
-                                     :position (midje.util.file-position/line-number-known ~(:line (meta &form)))})
-               false))
-        (handle :user-error
-          (println "HI"))))))
-
+      (set-fallback-line-number-from &form)
+      (let [[background remainder] (separate-background-forms forms)]
+        (if (empty? background)
+          (let [things-to-run (-> remainder
+                                  add-line-numbers
+                                  translate-fact-body
+                                  unfold-prerequisites)]
+            (define-metaconstants things-to-run)
+            (multiwrap (midjcoexpand `(every? true? (list ~@things-to-run)))
+                       (forms-to-wrap-around :facts)))
+          `(against-background ~background (midje.sweet/fact ~@remainder))))
+      (catch Exception ex
+        `(clojure.test/report {:type :exceptional-user-error
+                                   :macro-form '~&form
+                                   :exception-lines '~(user-error-exception-lines ex)
+                                   :position (midje.util.file-position/line-number-known ~(:line (meta &form)))})))))
 
 (defmacro facts [& forms]
   (with-meta `(fact ~@forms) (meta &form)))
