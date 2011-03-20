@@ -56,8 +56,20 @@
 )
 
 (defmethod check-result :check-negated-match [actual call]
-  (report {:type :pass}))
+   (cond (not (extended-= actual (call :expected-result)))
+         (report {:type :pass})
 
+        (fn? (call :expected-result))
+        (report {:type :mock-actual-inappropriately-matches-checker
+                 :position (call :position)
+                 :expected (call :expected-result-text-for-failures)
+                 :actual actual})
+
+        :else
+        (report {:type :mock-expected-result-inappropriately-matched
+                 :position (call :position)
+                 :expected (call :expected-result-text-for-failures) 
+                 :actual actual})))
 
 (defmacro capturing-exception [form]
   `(try ~form
