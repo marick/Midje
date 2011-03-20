@@ -85,8 +85,18 @@
     (nth raw-report 6) => (contains "ME TOO")))
 
   
+(fact "rendering inappropriate checker matches"
+  (let [failure-map {:type :mock-actual-inappropriately-matches-checker
+                     :actual 2
+                     :position ["foo.clj" 3]
+                     :expected '(test-checker 33)}
+        raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
 
-
+    (nth raw-report 0) => #"FAIL.*foo.clj:3"
+    (nth raw-report 1) => #"Actual.*was NOT supposed to agree"
+    (nth raw-report 2) => #"Actual.*2"
+    (nth raw-report 3) => #"Checking function.*test-checker 33"))
+    
 (fact "excess matches"
   (let [failure-map {:type :mock-argument-match-failure
                      :actual '(nil)
@@ -115,6 +125,16 @@
     (nth raw-report 0) => #"FAIL at .*foo.clj:3"
     (nth raw-report 1) => #"Expected: \"s\""
     (nth raw-report 2) => #"Actual: nil"))
+
+(fact "equality when inequality expected"
+  (let [failure-map {:type :mock-expected-result-inappropriately-matched
+                     :position ["foo.clj" 3]
+                     :actual "s"
+                     :expected "s"}
+        raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
+    (nth raw-report 0) => #"FAIL at .*foo.clj:3"
+    (nth raw-report 1) => #"Expected: Anything BUT \"s\""
+    (nth raw-report 2) => #"Actual: \"s\""))
 
 (facts "about reporting exceptions"
   (let [failure-map {:type :mock-expected-result-failure

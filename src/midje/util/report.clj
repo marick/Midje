@@ -57,6 +57,12 @@
     (str "    Expected: " (pr-str (:expected m)))
     (str "      Actual: " (attractively-stringified-form (:actual m)))))
 
+(defmethod report-strings :mock-expected-result-inappropriately-matched [m]
+   (list
+    (fail-at m)
+    (str "    Expected: Anything BUT " (pr-str (:expected m)))
+    (str "      Actual: " (attractively-stringified-form (:actual m)))))
+
 (defmethod report-strings :mock-expected-result-functional-failure [m]
   (list
    (fail-at m)
@@ -70,6 +76,13 @@
    (if (:notes m)
      (cons "    The checker said this about the reason:"
            (indented (:notes m))))))
+
+(defmethod report-strings :mock-actual-inappropriately-matches-checker [m]
+  (list
+   (fail-at m)
+   "Actual result was NOT supposed to agree with the checking function."
+   (str "        Actual result: " (attractively-stringified-form (:actual m)))
+   (str "    Checking function: " (pr-str (:expected m)))))
 
 (defmethod report-strings :future-fact [m]
   (list
