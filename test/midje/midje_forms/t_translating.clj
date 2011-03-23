@@ -4,7 +4,8 @@
   (:use [midje.midje-forms.translating])
   (:use [midje.sweet])
   (:use midje.test-util)
-  (:use [midje.midje-forms.building :only [forgetting-unfolded-prerequisites]])
+  (:use [midje.midje-forms.building
+         :only [metaconstant-for-form forgetting-unfolded-prerequisites]])
   (:use [midje.util thread-safe-var-nesting unify])
   (:require [clojure.zip :as zip])
   (:use clojure.contrib.pprint))
@@ -160,3 +161,65 @@
       (unfold-prerequisite input-form) => expected))
 
   )
+
+(println "delete earlier")
+;;================================== 
+
+(facts "about each step of unfolding"
+  "unfolding a non-fake just moves the head of the list"
+  (unfolding-step '[...] '[blah]   {}) => [ '[... blah]   [] {} ]
+  (unfolding-step '[...] '[(blah)] {}) => [ '[... (blah)] [] {} ]
+
+  "unfolding a plain fake does nothing in particular"
+  (unfolding-step '[...] '[(midje.semi-sweet/fake (f 1) arrow 4) ...] {})
+  => [ '[... (midje.semi-sweet/fake (f 1) arrow 4)] '[...] {} ]
+
+  "unfolding a fake that should be unfolded adds a new fake"
+  (let [original '(midje.semi-sweet/fake (f (h 1)) arrow 4 ...overrides...)
+        flattened '(midje.semi-sweet/fake (f ...h-1...) arrow 4 ...overrides...)
+        generated '(midje.semi-sweet/fake (h 1) => ...h-1... ...overrides...)]
+    (unfolding-step '[...]
+                    [original '...]
+                    {})
+    => [ ['... flattened]
+         [generated '...]
+         '{(h 1) ...h-1...} ]
+    (provided
+      (augment-substitutions {} original) => '{(h 1) ...h-1...}
+      (flatten-fake original '{(h 1) ...h-1...}) => flattened
+      (generate-fakes '{(h 1) ...h-1...} [...overrides...]) => [generated]))
+  )
+
+(fact "substitutions are augmented by unique nested args in fake"
+  (augment-substitutions {} '(fake (f (h 1)))) => '{ (h 1) ...h-1... }
+  (provided
+    (metaconstant-for-form '(h 1)) => '...h-1...)
+  "Which means that already-existing substitutions are reused"
+  (augment-substitutions {'(h 1) ...h-1...} '(fake (f (h 1)))) => '{ (h 1) ...h-1... })
+
+(println "replace arrow with dummy arrow")
+(fact "fakes are flattened by making substitutions"
+  (flatten-fake '(fake (f (g 1) 2 (h 3)) =test=> 33 ...overrides...)
+                '{ (g 1) ...g-1..., (h 3) ...h-1... })
+  => '(fake (f ...g-1... 2 ...h-1...) =test=> 33 ...overrides...))
+
+(fact "generated fakes maintain overrrides"
+  (let [g-fake '(midje.semi-sweet/fake (g 1) midje.semi-sweet/=> ...g-1... ...overrides...)
+        h-fake '(midje.semi-sweet/fake (h 3) midje.semi-sweet/=> ...h-1... ...overrides...)]
+    (set (generate-fakes '{ (g 1) ...g-1..., (h 3) ...h-1... } '(...overrides...)))
+    => #{g-fake h-fake}))
+   
+(fact "a fake that needs unfolding has a nested left-hand-side"
+  '1                                            =not=> fake-that-needs-unfolding?
+  '(fake (f (h 1)))                             =not=> fake-that-needs-unfolding?
+  '(midje.semi-sweet/non-fake (f (h 1)))        =not=> fake-that-needs-unfolding?
+  '(midje.semi-sweet/fake (f 1) =test=> 3)      =not=> fake-that-needs-unfolding?
+  '(midje.semi-sweet/fake (f (h 1)) =test=> 3)  => fake-that-needs-unfolding?
+  '(midje.semi-sweet/fake (f 1 (h 1)) =test= 3) => fake-that-needs-unfolding?
+
+  "but don't decide to unfold a checker used as argument matcher"
+  '(midje.semi-sweet/fake (f 1 (exactly even?)) =test=> 3) =not=> fake-that-needs-unfolding?
+  "Or special forms that look like functions"
+  '(midje.semi-sweet/fake (f 1 (quote foo)) =test=> 3) =not=> fake-that-needs-unfolding?
+  )
+

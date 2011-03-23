@@ -1,7 +1,8 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.midje-forms.translating
-  (:use clojure.contrib.def)
+  (:use clojure.contrib.def
+        [midje.checkers.defining :only [checker? checker-makers]])
   (:use [clojure.contrib.seq :only [separate]])
   (:use [midje.util thread-safe-var-nesting wrapping form-utils laziness form-utils]
         [midje.util.file-position :only [arrow-line-number]])
@@ -184,7 +185,7 @@
     [ `(midje.semi-sweet/fake ~interior-form midje.semi-sweet/=> ~placeholder ~@keypairs)
       (replace-nested-prerequisite-with-metaconstant fake-form interior-form placeholder) ]))
 
-(defn unfold-prerequisites [form]
+(defn unfold-prerequisites-old [form]
   (forgetting-unfolded-prerequisites
     (loop [loc (zip/seq-zip form)]
       (if (zip/end? loc)
@@ -197,4 +198,77 @@
                                  loc (unfold-prerequisite (zip/node loc)))
                                
                                :else loc)))))))
+
+(println "delete old version of unfolding")
+;;================================
+
+(defn- mockable-function-symbol? [symbol]
+  (not (or (some #{symbol} special-forms)
+           (some #{symbol} checker-makers)
+           (checker? (resolve symbol)))))
+
+(defn substitutable-funcall? [funcall-arg]
+  (and (list? funcall-arg)
+       (mockable-function-symbol? (first funcall-arg))))
+
+(defn fake-form-funcall [fake-form]
+  (second fake-form))
+
+(defn fake-form-funcall-arglist [fake-form]
+  (rest (fake-form-funcall fake-form)))
+
+(defn fake-that-needs-unfolding? [form]
+  (and (sequential? form)
+       (= 'midje.semi-sweet/fake (first form))
+       ;; We now know this: (fake (f ...arg... ...arg...) ...)
+       (some substitutable-funcall? (fake-form-funcall-arglist form))))
+
+(defn augment-substitutions [substitutions fake-form]
+  (let [needed-keys (filter substitutable-funcall?
+                            (fake-form-funcall-arglist fake-form))]
+    (reduce (fn [substitutions needed-key]
+              (if (get substitutions needed-key)
+                substitutions
+                (assoc substitutions needed-key (metaconstant-for-form needed-key))))
+            substitutions
+            needed-keys)))
+
+(defn flatten-fake [ [fake [fun & args] & rest] substitutions]
+  (let [new-args (map (fn [arg] (get substitutions arg arg)) args)]
+    `(~fake (~fun ~@new-args) ~@rest)))
+
+(defn generate-fakes [new-substitutions overrides]
+  (map (fn [ [nested metacons] ]
+         `(midje.semi-sweet/fake ~nested midje.semi-sweet/=> ~metacons ~@overrides))
+       new-substitutions))
+
+(defn unfolding-step [finished pending substitutions]
+  (let [target (first pending)]
+    (if (fake-that-needs-unfolding? target)
+      (let [overrides (nthnext target 4)
+            augmented-substitutions (augment-substitutions substitutions target)
+            flattened-target (flatten-fake target augmented-substitutions)
+            generated-fakes (generate-fakes
+                             (map-difference augmented-substitutions substitutions)
+                             overrides)]
+        [ (conj finished flattened-target)
+          (concat generated-fakes (rest pending))
+          augmented-substitutions])
+    [(conj finished target), (rest pending), substitutions])))
   
+(defn unfold-expect-form__then__stay_put [loc]
+  (loop [ [finished pending substitutions] [ [] (zip/node loc) {} ]]
+    (if (empty? pending)
+      (zip/replace loc (apply list finished))
+      (recur (unfolding-step finished pending substitutions)))))
+
+(defn unfold-prerequisites [form]
+  (forgetting-unfolded-prerequisites
+    (loop [loc (zip/seq-zip form)]
+      (if (zip/end? loc)
+        (zip/root loc)
+        (recur (zip/next (cond (loc-is-at-full-expect-form? loc)
+                               (unfold-expect-form__then__stay_put loc)
+
+                               :else loc)))))))
+

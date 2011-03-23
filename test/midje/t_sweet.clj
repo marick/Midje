@@ -125,3 +125,18 @@
  (fact (four-of pass)))
 
 
+(unfinished h g i j)
+
+(defn f [n] (+ (g (h n)) (i (h n))))
+
+(fact
+ (f 1) => 3
+ (provided
+   (g (h 1)) => 2
+   (i (h 1)) => 1))
+  
+(defn nesty [n] (g (h (i (j n)))))
+(fact
+ (nesty 1) => 3
+ (provided
+   (g (h (i (j 1)))) => 3))
