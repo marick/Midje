@@ -84,12 +84,12 @@
        (name (favorite-animal)) => "betsy"))
    (fact
      @reported => (just [ (contains {:type :mock-incorrect-call-count
-				     :expected-call "(favorite-animal)"
-				     :position ["t_line_number_reporting.clj" (+ line-number 5)]})
-			  (contains {:type :mock-incorrect-call-count
 				     :position ["t_line_number_reporting.clj" (+ line-number 5)]
 				     :expected-call "(name ...favorite-animal-value-1...)" })
-			  (contains {:type :mock-expected-result-failure
+                          (contains {:type :mock-incorrect-call-count
+				     :expected-call "(favorite-animal)"
+				     :position ["t_line_number_reporting.clj" (+ line-number 5)]})
+                          (contains {:type :mock-expected-result-failure
 				     :position ["t_line_number_reporting.clj" (+ line-number 3)]})])))
                        
   (def line-number 95)
@@ -117,10 +117,10 @@
 				     :actual '("fred")})
 			  (contains {:type :mock-incorrect-call-count
 				     :position ["t_line_number_reporting.clj" (+ line-number 5)]
-				     :expected-call "(favorite-animal)"})
+				     :expected-call "(name ...favorite-animal-value-1...)"})
 			  (contains {:type :mock-incorrect-call-count
 				     :position ["t_line_number_reporting.clj" (+ line-number 5)]
-				     :expected-call "(name ...favorite-animal-value-1...)"})
+				     :expected-call "(favorite-animal)"})
 			  (contains {:type :mock-expected-result-failure
 				     :position ["t_line_number_reporting.clj" (+ line-number 3)]})])))
 
@@ -133,12 +133,12 @@
        (name (favorite-animal 1)) => "betsy"
        (name (favorite-animal 2)) => "jake")) ;; a folded prerequisite can have two errors.
    (fact
-     @reported => (just [ (contains {:type :mock-incorrect-call-count
-				     :position ["t_line_number_reporting.clj" (+ line-number 6)]
-				     :expected-call "(favorite-animal 2)"})
-			  (contains {:type :mock-incorrect-call-count
+     @reported => (just [(contains {:type :mock-incorrect-call-count
 				     :position ["t_line_number_reporting.clj" (+ line-number 6)]
 				     :expected-call "(name ...favorite-animal-value-2...)"})
+                         (contains {:type :mock-incorrect-call-count
+				     :position ["t_line_number_reporting.clj" (+ line-number 6)]
+				     :expected-call "(favorite-animal 2)"})
 			  pass ]))))
 
 (def line-number-separate 144)
