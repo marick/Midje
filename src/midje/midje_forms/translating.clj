@@ -170,37 +170,7 @@
         :else
         form)))
 
-;; Nested prerequisites
-
-(defn replace-nested-prerequisite-with-metaconstant [fake-form interior-form placeholder]
-  (let [one-level-replacement (fn [form replacement]
-                                (cons (first form) (cons replacement (rest (rest form)))))
-        original-interior (second fake-form)
-        new-interior (one-level-replacement original-interior placeholder)]
-    (one-level-replacement fake-form new-interior)))
-
-(defn unfold-prerequisite [ [fake call-part => result-part & keypairs :as fake-form] ]
-  (let [interior-form (extract-nested-prerequisite fake-form)
-        placeholder (metaconstant-for-form interior-form)]
-    [ `(midje.semi-sweet/fake ~interior-form midje.semi-sweet/=> ~placeholder ~@keypairs)
-      (replace-nested-prerequisite-with-metaconstant fake-form interior-form placeholder) ]))
-
-(defn unfold-prerequisites-old [form]
-  (forgetting-unfolded-prerequisites
-    (loop [loc (zip/seq-zip form)]
-      (if (zip/end? loc)
-        (zip/root loc)
-        (recur (zip/next (cond (not (zip/branch? loc))
-                               loc
-                               
-                               (at-folded-prerequisite? loc)
-                               (replace-one-fake-with-two__then__stay_put
-                                 loc (unfold-prerequisite (zip/node loc)))
-                               
-                               :else loc)))))))
-
-(println "delete old version of unfolding")
-;;================================
+;; Folded prerequisites
 
 (defn- mockable-function-symbol? [symbol]
   (not (or (some #{symbol} special-forms)
