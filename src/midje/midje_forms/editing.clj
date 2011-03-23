@@ -57,8 +57,3 @@
       (zip/insert-right :position)
       zip/left))
 
-(defn replace-one-fake-with-two__then__stay_put [fake-loc replacements]
-  (let [replace-with-first (fn [loc] (zip/replace loc (first replacements)))
-        append-second (fn [loc] (zip/insert-right loc (second replacements)))]
-    (-> fake-loc replace-with-first append-second)))
-
