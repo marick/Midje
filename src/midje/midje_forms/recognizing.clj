@@ -80,34 +80,24 @@
 
 (def special-forms '[quote fn let])
 
-(defn- mockable-function-symbol? [loc]
-  (let [symbol (zip/node loc)]
-    (not (or (some #{symbol} special-forms)
-             (some #{symbol} checker-makers)
-             (checker? (resolve symbol))))))
+(defn- mockable-function-symbol? [symbol]
+  (not (or (some #{symbol} special-forms)
+           (some #{symbol} checker-makers)
+           (checker? (resolve symbol)))))
 
-(defn looks-like-a-function-call? [loc first-symbol-validity-test]
-  (when-let [tree (and loc (zip/node loc))]
-    (and tree
-         (or (list? tree) (= (type tree) clojure.lang.Cons))
-         (-> tree first) 
-         (-> tree first symbol?) 
-         (-> loc zip/down first-symbol-validity-test))))
+(defn substitutable-funcall? [funcall-arg]
+  (and (list? funcall-arg)
+       (mockable-function-symbol? (first funcall-arg))))
 
-(defn- nested-function-like-list
-  ([loc]
-     (nested-function-like-list loc (fn [symbol] true)))
-  ([loc first-symbol-validity-test]
-     (when (looks-like-a-function-call? loc first-symbol-validity-test)
-       (-> loc zip/down zip/right))))
+(defn fake-form-funcall [fake-form]
+  (second fake-form))
 
+(defn fake-form-funcall-arglist [fake-form]
+  (rest (fake-form-funcall fake-form)))
 
-(defn at-folded-prerequisite? [loc]
-  (-> loc
-      ;; (fake ...) or something else
-      (nested-function-like-list (fn [loc] (namespacey-match '(fake) loc)))
-      ;; (f ...) or nil
-      nested-function-like-list
-      ;; (g ...) or nil
-      (looks-like-a-function-call? mockable-function-symbol?)))
+(defn fake-that-needs-unfolding? [form]
+  (and (sequential? form)
+       (= 'midje.semi-sweet/fake (first form))
+       ;; We now know this: (fake (f ...arg... ...arg...) ...)
+       (some substitutable-funcall? (fake-form-funcall-arglist form))))
 

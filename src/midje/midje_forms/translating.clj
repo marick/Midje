@@ -172,27 +172,6 @@
 
 ;; Folded prerequisites
 
-(defn- mockable-function-symbol? [symbol]
-  (not (or (some #{symbol} special-forms)
-           (some #{symbol} checker-makers)
-           (checker? (resolve symbol)))))
-
-(defn substitutable-funcall? [funcall-arg]
-  (and (list? funcall-arg)
-       (mockable-function-symbol? (first funcall-arg))))
-
-(defn fake-form-funcall [fake-form]
-  (second fake-form))
-
-(defn fake-form-funcall-arglist [fake-form]
-  (rest (fake-form-funcall fake-form)))
-
-(defn fake-that-needs-unfolding? [form]
-  (and (sequential? form)
-       (= 'midje.semi-sweet/fake (first form))
-       ;; We now know this: (fake (f ...arg... ...arg...) ...)
-       (some substitutable-funcall? (fake-form-funcall-arglist form))))
-
 (defn augment-substitutions [substitutions fake-form]
   (let [needed-keys (filter substitutable-funcall?
                             (fake-form-funcall-arglist fake-form))]

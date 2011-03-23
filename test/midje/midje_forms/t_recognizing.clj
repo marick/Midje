@@ -70,27 +70,32 @@
 ;; Folded prerequisites
 
 (defmacro some-macro [& rest] )
-(fact "within semi-sweet fake statements, prerequisites can be folded/nested"
-  (let [input-form '(x (fake (f (g 1)) => 3 :key 'value) y)
-        loc (-> input-form zip/seq-zip zip/down zip/right)]
-    (at-folded-prerequisite? loc) => truthy
-    (at-folded-prerequisite? (zip/left loc)) => falsey
-    (at-folded-prerequisite? (zip/left loc)) => falsey)
 
-  "There are special cases that do NOT count as folded prerequisites"
-  (let [run (fn [form] (at-folded-prerequisite? (zip/seq-zip form)))]
-    (run '()) => falsey
-    (run '(+ 1 2)) => falsey
-    (run '(midje.semi-sweet/fake (f) => 3)) => falsey
-    (run '(midje.semi-sweet/fake (f 1) => 3)) => falsey
-    (run '(midje.semi-sweet/fake (f '(l)) => 3)) => falsey
-    (run '(midje.semi-sweet/fake (f [l]) => 3)) => falsey
-    (run '(midje.semi-sweet/fake (f {a 1}) => 3)) => falsey
-    (run '(midje.semi-sweet/fake
-		   (f (in-any-order [1 2 3])) => 33)) => falsey
-    ;; This next is surprisingly hard to get right.
-;    (run '(midje.semi-sweet/fake (f (some-macro 33)) => 3)) => falsey)
-    (run '(midje.semi-sweet/fake (f (g 3)) => 33)) => truthy
-    ;; Sad but true: a cons is not a list.
-    (run (cons 'midje.semi-sweet/fake '((f (g 3)) => 33))) => truthy
-))
+   
+(fact "a fake that needs unfolding has a nested left-hand-side"
+  "things not a proper fake macro"
+  '1                                            =not=> fake-that-needs-unfolding?
+  '()                                           =not=> fake-that-needs-unfolding?
+  '(fake (f (h 1)))                             =not=> fake-that-needs-unfolding?
+  '(midje.semi-sweet/non-fake (f (h 1)))        =not=> fake-that-needs-unfolding?
+
+  "Things that might be misinterpreted as nested funcalls"
+  '(midje.semi-sweet/fake (f) =test=> 3)        =not=> fake-that-needs-unfolding?
+  '(midje.semi-sweet/fake (f 1) =test=> 3)      =not=> fake-that-needs-unfolding?
+  '(midje.semi-sweet/fake (f 1 '(foo)) =test=> 3) =not=> fake-that-needs-unfolding?
+  '(midje.semi-sweet/fake (f 1 [foo]) =test=> 3) =not=> fake-that-needs-unfolding?
+  '(midje.semi-sweet/fake (f 1 {foo 1}) =test=> 3) =not=> fake-that-needs-unfolding?
+
+  "These are real nested function calls"
+  '(midje.semi-sweet/fake (f (h 1)) =test=> 3)  => fake-that-needs-unfolding?
+  '(midje.semi-sweet/fake (f 1 (h 1)) =test= 3) => fake-that-needs-unfolding?
+
+  "but don't decide to unfold a checker used as argument matcher"
+  '(midje.semi-sweet/fake (f 1 (exactly even?)) =test=> 3) =not=> fake-that-needs-unfolding?
+  "Sad but true: a cons is not a list."
+  (cons 'midje.semi-sweet/fake '((f (h 3)) =test=> 3))
+  => fake-that-needs-unfolding?
+
+  "Macros are surprisingly hard to get right"
+;  '(midje.semi-sweet/fake (f 1 (some-macro 33)) =test=> 3) =not=> fake-that-needs-unfolding?
+  )
