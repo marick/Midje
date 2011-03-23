@@ -28,10 +28,10 @@
   (ensure-correct-form-variable around-form))
 
 
-(def *unfolded-prerequisite-counts*)
+(def *metadata-counts*)
 
-(defmacro forgetting-unfolded-prerequisites [& forms]
-  `(binding [*unfolded-prerequisite-counts* (atom {})]
+(defmacro with-fresh-generated-metadata-names [& forms]
+  `(binding [*metadata-counts* (atom {})]
      ~@forms))
 
 (defn metaconstant-for-form [inner-form]
@@ -41,7 +41,7 @@
                     (assoc current-value function-symbol
                            (inc (current-value function-symbol)))
                     (assoc current-value function-symbol 1)))
-        number ((swap! *unfolded-prerequisite-counts* swap-fn function-symbol)
+        number ((swap! *metadata-counts* swap-fn function-symbol)
                 function-symbol)]
     (symbol (format "...%s-value-%s..." (name function-symbol) number))))
 

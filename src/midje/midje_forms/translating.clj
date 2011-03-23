@@ -223,7 +223,7 @@
       (recur (unfolding-step finished pending substitutions)))))
 
 (defn unfold-prerequisites [form]
-  (forgetting-unfolded-prerequisites
+  (with-fresh-generated-metadata-names
     (loop [loc (zip/seq-zip form)]
       (if (zip/end? loc)
         (zip/root loc)
