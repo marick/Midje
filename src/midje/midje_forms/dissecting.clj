@@ -36,6 +36,4 @@
         (recur (conj so-far whole-body)
                (nthnext remainder (count whole-body)))))))
 
-(defn extract-nested-prerequisite [fake-form]
-  (-> fake-form second second))
 
