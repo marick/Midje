@@ -172,7 +172,7 @@
 ;; Folded prerequisites
 
 (defn augment-substitutions [substitutions fake-form]
-  (let [needed-keys (filter substitutable-funcall?
+  (let [needed-keys (filter mockable-funcall?
                             (fake-form-funcall-arglist fake-form))]
     (reduce (fn [substitutions needed-key]
               (if (get substitutions needed-key)

@@ -85,9 +85,9 @@
            (some #{symbol} checker-makers)
            (checker? (resolve symbol)))))
 
-(defn substitutable-funcall? [funcall-arg]
-  (and (list? funcall-arg)
-       (mockable-function-symbol? (first funcall-arg))))
+(defn mockable-funcall? [thing]
+  (and (list? thing)
+       (mockable-function-symbol? (first thing))))
 
 (defn fake-form-funcall [fake-form]
   (second fake-form))
@@ -99,5 +99,5 @@
   (and (sequential? form)
        (= 'midje.semi-sweet/fake (first form))
        ;; We now know this: (fake (f ...arg... ...arg...) ...)
-       (some substitutable-funcall? (fake-form-funcall-arglist form))))
+       (some mockable-funcall? (fake-form-funcall-arglist form))))
 
