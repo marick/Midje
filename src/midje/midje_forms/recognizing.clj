@@ -89,6 +89,9 @@
   (and (list? thing)
        (mockable-function-symbol? (first thing))))
 
+
+;; It's annoying that these have to be here, instead of
+;; dissecting, but I can't do circular references.
 (defn fake-form-funcall [fake-form]
   (second fake-form))
 
