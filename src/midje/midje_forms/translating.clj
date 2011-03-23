@@ -2,14 +2,13 @@
 
 (ns midje.midje-forms.translating
   (:use clojure.contrib.def
-        [midje.checkers.defining :only [checker? checker-makers]])
-  (:use [clojure.contrib.seq :only [separate]])
-  (:use [midje.util thread-safe-var-nesting wrapping form-utils laziness form-utils]
-        [midje.util.file-position :only [arrow-line-number]])
-  (:use midje.metaconstants)
-  (:require [clojure.zip :as zip])
-  (:use [midje.midje-forms building recognizing dissecting moving-around editing])
-  (:use [midje.util.debugging]))
+        [clojure.contrib.seq :only [separate]]
+        midje.metaconstants
+        [midje.util thread-safe-var-nesting wrapping form-utils laziness form-utils]
+        [midje.util.file-position :only [arrow-line-number]]
+        [midje.midje-forms building recognizing dissecting moving-around editing]
+        [midje.util.debugging])
+  (:require [clojure.zip :as zip]))
 
 ;; Translating a form into an equivalent form with all arrow sequences given
 ;; line numbers. 
