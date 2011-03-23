@@ -1,7 +1,8 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.util.form-utils
-  (:use [midje.util laziness]))
+  (:use [midje.util laziness]
+        [clojure.set :only [difference]]))
 
 (defn regex? [thing]
   (= (class thing) java.util.regex.Pattern))
@@ -71,3 +72,6 @@
          (map (fn [function arg] (apply function [arg]))
               functions arglist))
        arglists))
+
+(defn map-difference [bigger smaller]
+  (select-keys bigger (difference (set (keys bigger)) (set (keys smaller)))))

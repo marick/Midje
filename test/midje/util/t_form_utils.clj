@@ -49,3 +49,6 @@
   (hash-map-duplicates-ok :a 1 :b 2) => {:a 1 :b 2}
   (hash-map-duplicates-ok :a 1 :b 2 :b 33333) => {:a 1 :b 33333})
 
+
+(fact "map-difference"
+  (map-difference {:a 1, :b 2} {:a 1, :c 3}) => {:b 2})
