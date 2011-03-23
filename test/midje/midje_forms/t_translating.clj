@@ -142,12 +142,12 @@
   (unfolding-step '[...] '[(blah)] {}) => [ '[... (blah)] [] {} ]
 
   "unfolding a plain fake does nothing in particular"
-  (unfolding-step '[...] '[(midje.semi-sweet/fake (f 1) arrow 4) ...] {})
-  => [ '[... (midje.semi-sweet/fake (f 1) arrow 4)] '[...] {} ]
+  (unfolding-step '[...] '[(midje.semi-sweet/fake (f 1) =test=> 4) ...] {})
+  => [ '[... (midje.semi-sweet/fake (f 1) =test=> 4)] '[...] {} ]
 
   "unfolding a fake that should be unfolded adds a new fake"
-  (let [original '(midje.semi-sweet/fake (f (h 1)) arrow 4 ...overrides...)
-        flattened '(midje.semi-sweet/fake (f ...h-1...) arrow 4 ...overrides...)
+  (let [original '(midje.semi-sweet/fake (f (h 1)) =test=> 4 ...overrides...)
+        flattened '(midje.semi-sweet/fake (f ...h-1...) =test=> 4 ...overrides...)
         generated '(midje.semi-sweet/fake (h 1) => ...h-1... ...overrides...)]
     (unfolding-step '[...]
                     [original '...]
@@ -168,7 +168,6 @@
   "Which means that already-existing substitutions are reused"
   (augment-substitutions {'(h 1) ...h-1...} '(fake (f (h 1)))) => '{ (h 1) ...h-1... })
 
-(println "replace arrow with dummy arrow")
 (fact "fakes are flattened by making substitutions"
   (flatten-fake '(fake (f (g 1) 2 (h 3)) =test=> 33 ...overrides...)
                 '{ (g 1) ...g-1..., (h 3) ...h-1... })
