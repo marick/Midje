@@ -171,10 +171,17 @@
 
 ;; Folded prerequisites
 
+;; General strategy is to condense fake forms into a funcall=>metaconstant
+;; mapping. These substitutions are used both to "flatten" a fake form and also
+;; to generate new fakes.
+
 (defn augment-substitutions [substitutions fake-form]
   (let [needed-keys (filter mockable-funcall?
                             (fake-form-funcall-arglist fake-form))]
     (reduce (fn [substitutions needed-key]
+              ;; Note: because I like for a function's metaconstants to be
+              ;; easily mappable to the original fake, I don't make one
+              ;; unless I'm sure I need it.
               (if (get substitutions needed-key)
                 substitutions
                 (assoc substitutions needed-key (metaconstant-for-form needed-key))))
@@ -185,11 +192,16 @@
   (let [new-args (map (fn [arg] (get substitutions arg arg)) args)]
     `(~fake (~fun ~@new-args) ~@rest)))
 
-(defn generate-fakes [new-substitutions overrides]
-  (map (fn [ [nested metacons] ]
-         `(midje.semi-sweet/fake ~nested midje.semi-sweet/=> ~metacons ~@overrides))
-       new-substitutions))
+(defn generate-fakes [substitutions overrides]
+  (map (fn [ [funcall metaconstant] ]
+         `(midje.semi-sweet/fake ~funcall midje.semi-sweet/=> ~metaconstant ~@overrides))
+       substitutions))
 
+;; This walks through a `pending` list that may contain fakes. Each element is
+;; copied to the `finished` list. If it is a suitable fake, its nested funcalls
+;; are flattened (replaced with a metaconstant). If the metaconstant was newly
+;; generated, the fake that describes it is added to the pending list. In that way,
+;; it'll in turn be processed. This allows arbitrarily deep nesting.
 (defn unfolding-step [finished pending substitutions]
   (let [target (first pending)]
     (if (fake-that-needs-unfolding? target)
