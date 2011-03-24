@@ -36,8 +36,8 @@
   (and (zip/branch? loc)
        (namespacey-match '(expect) (zip/down loc))))
 
-;; A problem with not using namespacey-match for this is that
-;; it will then match quoted Midje forms in a zillion tests.
+;; The reason for not using namespacey-match for this is that
+;; it would then match quoted Midje forms in a zillion tests.
 (defn loc-is-start-of-check-sequence? [loc]
   (and (zip/right loc)
        (namespacey-match expect-arrows (zip/right loc))))
