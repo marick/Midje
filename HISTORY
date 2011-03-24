@@ -1,3 +1,9 @@
+= 1.1-alpha-3
+* Negating arrows in facts
+  https://github.com/marick/Midje/wiki/Negating-arrows
+* Folded prerequisites are much more competent
+  https://github.com/marick/Midje/wiki/Folded-prerequisites
+
 = 1.1-alpha-2
 * Better error checking infrastructure (not much user
   visible yet)

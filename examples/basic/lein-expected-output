@@ -45,9 +45,9 @@ Actual result did not agree with the checking function.
 -----
 FAIL at (core_test.clj:227)
 You claimed the following was needed, but it was never used:
-    (data-structure)
+    (property-of ...data-structure-value-1...)
 FAIL at (core_test.clj:227)
 You claimed the following was needed, but it was never used:
-    (property-of ...data-structure-value-1...)
+    (data-structure)
 ^^^^ The previous two failures were expected ^^^^
 FAILURE: 9 facts were not confirmed. (But 14 were.)

@@ -127,6 +127,7 @@
 
 (unfinished h g i j)
 
+
 (defn f [n] (+ (g (h n)) (i (h n))))
 
 (fact
@@ -140,3 +141,18 @@
  (nesty 1) => 3
  (provided
    (g (h (i (j 1)))) => 3))
+
+(defn second-arg [a b] (+ a (f a (g b))))
+(fact
+ (second-arg 1 2) => 9
+ (provided
+   (f 1 (g 2)) => 8))
+
+
+(defn oopsie [n] (f (h n)))
+(fact
+ (oopsie 1) => 2
+ (provided
+   (h 1) => 8
+   (f (h 1)) => 2))
+  
