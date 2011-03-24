@@ -227,14 +227,9 @@
    (+ 1 1) =deny=> 2
    (+ 1 1) =not=> 2
    (+ 1 "1") =future=> "2")
- (future-fact @reported => (just (contains {:position ["t_line_number_reporting.clj"
+ (fact @reported => (just (contains {:position ["t_line_number_reporting.clj"
                                                 (+ variant-position 3)]})
                           (contains {:position ["t_line_number_reporting.clj"
                                                 (+ variant-position 4)]})
                           (contains {:position ["t_line_number_reporting.clj"
                                                 (+ variant-position 5)]}))))
-
-(future-fact "line-number-handling for =streams=>")
-
-
-

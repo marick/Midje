@@ -4,6 +4,7 @@
   (:use clojure.contrib.def
         [clojure.contrib.seq :only [separate]]
         midje.metaconstants
+        [midje.semi-sweet :only [all-arrows]]
         [midje.util thread-safe-var-nesting wrapping form-utils laziness form-utils]
         [midje.util.file-position :only [arrow-line-number]]
         [midje.midje-forms building recognizing dissecting moving-around editing]
@@ -17,7 +18,7 @@
   (loop [loc (zip/seq-zip form)]
     (if (zip/end? loc)
       (zip/root loc)
-      (recur (zip/next (cond (namespacey-match '(=>) loc)
+      (recur (zip/next (cond (namespacey-match all-arrows loc)
                              (add-line-number-to-end-of-arrow-sequence__then__no-movement
                                (arrow-line-number loc) loc)
                              

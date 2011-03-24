@@ -22,6 +22,7 @@
 
 (def expect-arrows [=> =not=> =deny=> =future=>])
 (def fake-arrows [=> =streams=>])
+(def all-arrows (concat expect-arrows fake-arrows))
 
 (defn check-for-arrow [arrow]
   (get {=> :check-match

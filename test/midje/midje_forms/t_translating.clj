@@ -25,8 +25,16 @@
                                     (f 2) midje.sweet/=> midje.midje-forms.t-translating/a :position (midje.util.file-position/line-number-known 35))]
     actual => expected))
 
-
-
+(fact "various arrow forms have line numbers"
+  (let [original `(
+                    (~(with-meta '(f 1) {:line 33}) => 2)
+                    (~(with-meta '(f 1) {:line 33}) =not=> 2)
+                    (~(with-meta '(f 1) {:line 33}) =streams=> 2)
+                    (~(with-meta '(f 1) {:line 33}) =future=> 2))
+        actual (add-line-numbers original)]
+    (doseq [expansion actual]
+      (take-last 2 expansion)
+      => '(:position (midje.util.file-position/line-number-known 33)))))
 
 ;; Translating sweet forms into their semi-sweet equivalent
 
