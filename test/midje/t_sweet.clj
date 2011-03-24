@@ -14,6 +14,19 @@
    (+ 20 20) => 40)
  (fact @reported => (two-of pass)))
 
+
+(after-silently ; combination, including a future fact
+ (facts
+   (+ 1 1) => 3
+   (+ 1 "1") =future=> "2"
+   (+ 1 1) => 2)
+ (fact @reported => (just bad-result
+                          (contains {:type :future-fact
+                                     :description "(+ 1 \"1\") "})
+                          pass)))
+                                     
+   
+
 (facts "this is a doc string"
   (+ 10 10) => 20
   "this is another one"

@@ -15,17 +15,24 @@
 (def =not=> "=not=>")
 (def =deny=> "=deny=>")
 (def =streams=> "=streams=>")
+(def =future=> "=future=>")
 
 (def ^{:doc "Use this when testing Midje code that processes arrow-forms"}
      =test=> "=test=>")
 
-(def expect-arrows [=> =not=> =deny=>])
+(def expect-arrows [=> =not=> =deny=> =future=>])
 (def fake-arrows [=> =streams=>])
 
 (defn check-for-arrow [arrow]
   (get {=> :check-match
         =not=> :check-negated-match
         =deny=> :check-negated-match} (name arrow)))
+
+(defn handling-of-expect-form [arrow]
+  (get {=> :expect*
+        =not=> :expect*
+        =deny=> :expect*
+        =future=> :report-future-fact} (name arrow)))
 
 (defonce
   #^{:doc "True by default.  If set to false, Midje checks are not
@@ -103,11 +110,21 @@
      :position (user-file-position)}
     (hash-map-duplicates-ok ~@overrides)))
 
-(defn- expect-expansion [call-form arrow expected-result other-stuff]
-  (let [ [fakes overrides] (fakes-and-overrides other-stuff)]
-    (error-let [_ (spread-error (map validate fakes))]
-      `(let [call# (call-being-tested ~call-form ~arrow ~expected-result ~overrides)]
-         (expect* call# (vector ~@fakes))))))
+(defmulti expect-expansion
+  (fn [call-form arrow expected-result fakes overrides]
+    (handling-of-expect-form arrow)))
+
+(defmethod expect-expansion :expect*
+   [call-form arrow expected-result fakes overrides]
+  `(let [call# (call-being-tested ~call-form ~arrow ~expected-result ~overrides)]
+     (expect* call# (vector ~@fakes))))
+
+(defmethod expect-expansion :report-future-fact
+   [call-form arrow expected-result fakes overrides]
+  `(let [call# (call-being-tested ~call-form ~arrow ~expected-result ~overrides)]
+    (clojure.test/report {:type :future-fact
+                          :description ~(str call-form " ")
+                          :position (:position call#)})))
 
 (defmacro expect 
   "Run the call form, check that all the mocks defined in the fakes 
@@ -121,7 +138,9 @@
   (error-let [[call-form arrow expected-result & other-stuff]
               (validate &form)]
     (when (user-desires-checking?)
-      (expect-expansion call-form arrow expected-result other-stuff))))
+      (let [ [fakes overrides] (fakes-and-overrides other-stuff)]
+        (error-let [_ (spread-error (map validate fakes))]
+          (expect-expansion call-form arrow expected-result fakes overrides))))))
 
 (defmulti make-result-supplier (fn [arrow & _]  arrow))
 

@@ -286,3 +286,9 @@
                (supplier) => 2
                (supplier) => 3)))
                     
+
+(facts "about =future=>"
+  (after-silently 
+   (expect (+ 1 "3") =future=> 3)
+   @reported => (one-of (contains {:type :future-fact
+                                   :description "(+ 1 \"3\") " }))))
