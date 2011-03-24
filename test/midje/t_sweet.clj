@@ -147,12 +147,3 @@
  (second-arg 1 2) => 9
  (provided
    (f 1 (g 2)) => 8))
-
-
-(defn oopsie [n] (f (h n)))
-(fact
- (oopsie 1) => 2
- (provided
-   (h 1) => 8
-   (f (h 1)) => 2))
-  
