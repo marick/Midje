@@ -24,15 +24,15 @@ Actual result did not agree with the checking function.
         Expected three elements. There were four.
 ^^^^ The previous failure was expected ^^^^
 
-FAIL at (core_test.clj:120)
+FAIL at (core_test.clj:124)
 You claimed the following was needed, but it was never used:
     (alive? ...cell...)
 
-FAIL at (core_test.clj:121)
+FAIL at (core_test.clj:125)
 You claimed the following was needed, but it was never used:
     (neighbor-count ...cell...)
 
-FAIL at (core_test.clj:118)
+FAIL at (core_test.clj:122)
 Actual result did not agree with the checking function.
         Actual result: nil
     Checking function: truthy
@@ -43,7 +43,7 @@ Actual result did not agree with the checking function.
 -- values. If you want them to be checkers, you need to declare them as such.
 -- The function argument I'm objecting to is:
 --     a function named 'odd?'
---     near (core_test.clj:197)
+--     near (core_test.clj:201)
 -- To future-proof your fact (and make this message go away), do this:
 --     (as-checker <<<your function argument>>>)
 -- If you never wanted this argument to be treated as a checker, do this:
@@ -51,11 +51,11 @@ Actual result did not agree with the checking function.
 -- For more, see https://github.com/marick/Midje/wiki/Checkers-within-prerequisites
 -----
 
-FAIL at (core_test.clj:227)
+FAIL at (core_test.clj:231)
 You claimed the following was needed, but it was never used:
     (property-of ...data-structure-value-1...)
 
-FAIL at (core_test.clj:227)
+FAIL at (core_test.clj:231)
 You claimed the following was needed, but it was never used:
     (data-structure)
 ^^^^ The previous two failures were expected ^^^^

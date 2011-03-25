@@ -79,6 +79,10 @@
 ;;     The checker said this about the reason:
 ;;         Expected three elements. There were four.
 
+;; You can negate the sense of a check:
+
+(fact (set [1 2 3]) =not=> sequential?)
+
 ;; Facts work with variables bound both within and outside of the fact form:
 (let [a 3]
   (fact (+ a a) => 6)
