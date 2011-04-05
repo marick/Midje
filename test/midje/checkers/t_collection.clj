@@ -67,14 +67,14 @@
   [1 3 2] => (just #{1 2 3} :gaps-ok)
 
 
-  [1 2 3] => (has-prefix [1 2])
-  ( (has-prefix [2 1]) [1 2 3]) => false
+  [1 2 3]     => (has-prefix [1 2])
+  [1 2 3] =not=> (has-prefix [2 1])
   [1 2 3] => (has-prefix [2 1] :in-any-order)
   [1 2 3] => (has-prefix #{2 1})
   [1 2 3] => (has-prefix #{2 1} :gaps-ok)   ; silly
 
-  [1 2 3] => (has-suffix [even? odd?])
-  ( (has-suffix [odd? even?]) [1 2 3]) => falsey
+  [1 2 3]      => (has-suffix [even? odd?])
+  [1 2 3] =deny=> (has-suffix [odd? even?])
   [1 2 3] => (has-suffix [odd? even?] :in-any-order)
   [1 2 3] => (has-suffix #{even? odd?})
   [1 2 3] => (has-suffix #{odd? even?} :gaps-ok)   ; silly

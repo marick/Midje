@@ -1,29 +1,17 @@
-= 1.1-RC1
+= 1.1
 * Can defer individual checks in a fact with the =future=>
   arrow.
   https://github.com/marick/Midje/wiki/Future-facts
-
-= 1.1-alpha-3
-* Negating arrows in facts
+* Negating arrows in facts (=not=>)
   https://github.com/marick/Midje/wiki/Negating-arrows
 * Folded prerequisites are much more competent
   https://github.com/marick/Midje/wiki/Folded-prerequisites
-
-= 1.1-alpha-2
-* Better error checking infrastructure (not much user
-  visible yet)
-* Fixed bug in folded prerequisites.
-
-= 1.1-alpha-1
-* Syntax errors made in Midje forms are somewhat better
-  more gracefully reported.
+* Some improvement in error reporting.
 * The #'roughly checker can be used for inexact numerical
   comparisons. 
 * #'irrelevant is a synonym for #anything
 * Line numbers are better reported for failures of very
   stripped-down forms (like (fact 1 => odd?)
-* When stack traces are reported, they are better trimmed
-  down.
 * A prerequisite like (f 1) =streams=> [1 2 3] produces
   the next value each time it's called.
 * Issue warning when bare function is used in a
