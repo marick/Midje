@@ -62,6 +62,25 @@
      (g 2) => 20))
  (fact @reported => (one-of pass)))
 
+;;midje-tests - TODO: patch this
+(defn function-stubbed [] :this-should-not-be)
+(defn function-calling-stub [] (function-stubbed))
+
+(fact "Should stub calls"
+       (let [stubbed-values [1 2 3]]         
+         (function-calling-stub) => stubbed-values
+         (provided
+          (function-stubbed) => stubbed-values)))
+
+(fact "Should stub calls made in let blocks"
+       (let [stubbed-values [1 2 3]
+             result (function-calling-stub)]
+         result => stubbed-values)
+         (provided
+          (function-stubbed) => [1 2 3] ))
+
+
+
 ;; facts can see their environment
 (let [outer-value 2]
   (fact
