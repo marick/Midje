@@ -69,7 +69,9 @@
 
           (is-arrow-form? in-progress)
           (let [content (take-arrow-form in-progress)]
-            (recur (conj expanded (-> content make-fake make-background))
+            (recur (conj expanded (-> content make-fake
+                                      make-background
+                                      background-fake-to-wrapper))
                    (nthnext in-progress (count content))))
 
           (seq-headed-by-setup-teardown-form? in-progress)
