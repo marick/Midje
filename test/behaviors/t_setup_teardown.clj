@@ -49,7 +49,7 @@
 
 (after-silently 
  (fact "background wrapping establishes a lexical binding"
-   (against-background (around :checks (let [x 1] ?form))
+   (against-background (around :facts (let [x 1] ?form))
                        (f x) => 2 )
    (+ (f x) 2) => 4)
  (fact (only-passes? 1) => truthy))
