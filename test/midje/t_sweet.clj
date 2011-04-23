@@ -160,3 +160,23 @@
  (second-arg 1 2) => 9
  (provided
    (f 1 (g 2)) => 8))
+
+
+(unfinished scope-to-fact)
+(defn g [x] (scope-to-fact))
+(facts
+  (against-background (scope-to-fact) => 5)
+  (g 1) => 5
+  (let [result (g 1)] result => 5))    ;; This used to fail
+
+(defn b [arg] (+ arg 10))
+(defn a [] (b 1))
+(fact "Stubs are executed without a let binding"
+            (a) => 666
+            (provided
+             (b 1) => 666))
+
+(fact "Stubs are executed with a let binding"
+  (against-background (b 1) => 666)
+  (let [result (a)]
+    result => 666))
