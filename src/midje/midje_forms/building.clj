@@ -9,9 +9,7 @@
     (vary-meta
      `(midje.semi-sweet/fake ~@fake-body)
      assoc :line line-number)))
-
-(defn background-fake-to-wrapper [fake]
-  `(around :facts (midje.unprocessed/with-installed-fakes [~fake] ?form)))
+    
 
 (defn make-background [fake]
   (concat fake '(:type :background)))
