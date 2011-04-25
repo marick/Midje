@@ -54,27 +54,9 @@
    (+ (f x) 2) => 4)
  (fact (only-passes? 1) => truthy))
 
-(after-silently 
- (fact "prerequisites are scoped within all setup/teardown"
-   (against-background (f x) => 2
-                       (around :checks (let [x 1] ?form)))
-   (+ (f x) 2) => 4)
- (fact (only-passes? 1) => truthy))
 
-;; This case doesn't work. The problem is that background facts are scoped the
-;; same as :check state setters. So they can be intermixed with state setters
-;; in left-to-right order. As a result (f x) is outside the 'let. If anyone cares,
-;; the solution would be to make :fact be a tighter scope than :check. Right now,
-;; I don't care.
-;; (against-background [ (f x) => 2 ]
-;;   (after-silently
-;;    (fact "prerequisites are scoped within all setup/teardown"
-;;      (against-background (around :checks (let [x 1] ?form)))
-;;      (+ (f x) 2) => 4)
-;;    (fact (only-passes? 1) => truthy)))
-  
-    
-;; Here's a possibly more sensible case
+(future-fact "establish that this lexical binding is scoped only to fact")
+
 (against-background [ (f 1) => 2 ]
   (after-silently 
    (fact "prerequisites are scoped within all setup/teardown"

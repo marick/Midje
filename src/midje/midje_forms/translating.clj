@@ -96,10 +96,24 @@
       (second canonicalized-non-fake))
     (throw (Error. (str "Could make nothing of " canonicalized-non-fake)))))
 
-(defn- final-fake-wrapper [fakes]
-  (with-wrapping-target
-    `(with-pushed-namespace-values :midje/background-fakes ~fakes ~(?form))
-    :checks))
+(defn- final-background-fake-wrappers [fakes]
+  (let [around-facts-and-checks `(with-pushed-namespace-values
+                                   :midje/background-fakes
+                                   ~fakes ~(?form))]
+        ;; If you wanted to have fakes go into effect immediately,
+        ;; you'd use something like this. However, this cause problems:
+        ;; if fact-scoped wrapper binds a variable, the immediately-form
+        ;; will blow up.
+        ;; immediately `(set-namespace-value :midje/background-fakes
+        ;;                                  ~fakes)]
+    (list 
+;     (with-wrapping-target immediately :contents)
+     (with-wrapping-target around-facts-and-checks :facts)
+     ;; fakes used to be scoped to checks. But that causes problems.
+     ;; See issue 26
+;     (with-wrapping-target around-facts-and-checks :checks)
+     )))
+
 
 ;; Collecting all the background fakes is here for historical reasons:
 ;; it made it easier to eyeball expanded forms and see what was going on.
@@ -110,7 +124,7 @@
         final-state-wrappers (eagerly (map final-state-wrapper state-wrappers))]
     (if (empty? fakes)
       final-state-wrappers
-      (concat final-state-wrappers (list (final-fake-wrapper fakes))))))
+      (concat final-state-wrappers (final-background-fake-wrappers fakes)))))
 
 (defmacro- with-additional-wrappers [final-wrappers form]
   `(with-pushed-namespace-values :midje/wrappers ~final-wrappers
@@ -121,7 +135,6 @@
                                       (final-wrappers raw-wrappers))]
     (set-namespace-value :midje/wrappers (list finals))
     (multiwrap "unimportant-value" immediates)))
-
 
 (defn forms-to-wrap-around [wrapping-target]
   (let [wrappers (namespace-values-inside-out :midje/wrappers)
@@ -144,8 +157,9 @@
         (multiwrap form (forms-to-wrap-around :checks))
 
         (fact? form)
-        (multiwrap (midjcoexpand (macroexpand form))
-                   (forms-to-wrap-around :facts))
+        (do
+          (multiwrap (midjcoexpand (macroexpand form))
+                     (forms-to-wrap-around :facts)))
 
         (background-form? form)
         (do

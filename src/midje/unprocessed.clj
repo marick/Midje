@@ -14,6 +14,10 @@
 (defn- background-fakes-plus [fakes]
   (concat fakes (namespace-values-inside-out :midje/background-fakes)))
 
+;; TODO: This belongs somewhere else
+(defn background-fakes []
+  (background-fakes-plus []))
+
 ;; TODO: I'm not wild about signalling failure in two ways: by report() and by
 ;; return value. Fix this when (a) we move away from clojure.test.report and
 ;; (b) we figure out how to make fact() some meaningful unit of reporting.
@@ -70,13 +74,16 @@
         (catch Throwable e#
           (captured-exception e#))))
 
+(defmacro with-installed-fakes [fakes & forms]
+  `(with-altered-roots (binding-map ~fakes) ~@forms))
+
 (defn expect* [call-map local-fakes]
   "The core function in unprocessed Midje. Takes a map describing a
   call and a list of maps, each of which describes a secondary call
   the first call is supposed to make. See the documentation at
   http://github.com/marick/Midje."
   (let [fakes (background-fakes-plus local-fakes)]
-    (with-altered-roots (binding-map fakes)
+    (with-installed-fakes fakes
       (let [code-under-test-result (capturing-exception
                                     (eagerly
                                      ((call-map :function-under-test))))]
