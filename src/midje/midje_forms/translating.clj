@@ -8,6 +8,7 @@
         [midje.util thread-safe-var-nesting wrapping form-utils laziness form-utils]
         [midje.util.file-position :only [arrow-line-number]]
         [midje.midje-forms building recognizing dissecting moving-around editing]
+        [midje.fakes :only [background-fake-wrappers]]
         [midje.util.debugging])
   (:require [clojure.zip :as zip]))
 
@@ -80,12 +81,6 @@
           (throw (Error. (str "This doesn't look like part of a background: "
                               (vec in-progress)))))))
 
-(defn with-wrapping-target [what target]
-  (with-meta what (merge (meta what) {:midje/wrapping-target target})))
-
-(defn for-wrapping-target? [target]
-  (fn [actual] (= (:midje/wrapping-target (meta actual)) target)))
-
 (defn- final-state-wrapper [canonicalized-non-fake]
 ;  (println canonicalized-non-fake)
   (if (some #{(name (first canonicalized-non-fake))} '("before" "after" "around"))
@@ -96,25 +91,6 @@
       (second canonicalized-non-fake))
     (throw (Error. (str "Could make nothing of " canonicalized-non-fake)))))
 
-(defn- final-background-fake-wrappers [fakes]
-  (let [around-facts-and-checks `(with-pushed-namespace-values
-                                   :midje/background-fakes
-                                   ~fakes ~(?form))]
-        ;; If you wanted to have fakes go into effect immediately,
-        ;; you'd use something like this. However, this cause problems:
-        ;; if fact-scoped wrapper binds a variable, the immediately-form
-        ;; will blow up.
-        ;; immediately `(set-namespace-value :midje/background-fakes
-        ;;                                  ~fakes)]
-    (list 
-;     (with-wrapping-target immediately :contents)
-     (with-wrapping-target around-facts-and-checks :facts)
-     ;; fakes used to be scoped to checks. But that causes problems.
-     ;; See issue 26
-;     (with-wrapping-target around-facts-and-checks :checks)
-     )))
-
-
 ;; Collecting all the background fakes is here for historical reasons:
 ;; it made it easier to eyeball expanded forms and see what was going on.
 (defn final-wrappers [raw-wrappers]
@@ -124,26 +100,20 @@
         final-state-wrappers (eagerly (map final-state-wrapper state-wrappers))]
     (if (empty? fakes)
       final-state-wrappers
-      (concat final-state-wrappers (final-background-fake-wrappers fakes)))))
+      (concat final-state-wrappers (background-fake-wrappers fakes)))))
 
-(defmacro- with-additional-wrappers [final-wrappers form]
-  `(with-pushed-namespace-values :midje/wrappers ~final-wrappers
-    ~form))
-
-(defn replace-wrappers-returning-immediate [raw-wrappers]
+(defn put-wrappers-into-effect [raw-wrappers]
   (let [[immediates finals] (separate (for-wrapping-target? :contents)
                                       (final-wrappers raw-wrappers))]
-    (set-namespace-value :midje/wrappers (list finals))
+    (set-wrappers finals)
     (multiwrap "unimportant-value" immediates)))
 
 (defn forms-to-wrap-around [wrapping-target]
-  (let [wrappers (namespace-values-inside-out :midje/wrappers)
-        per-target-wrappers (filter (for-wrapping-target? wrapping-target) wrappers)]
-    per-target-wrappers))
+  (filter (for-wrapping-target? wrapping-target) (wrappers)))
 
 (defn midjcoexpand [form]
   ;; (p+ "== midjcoexpanding" form)
-  ;; (p "== with" (namespace-values-inside-out :midje/wrappers))
+  ;; (p "== with" (wrappers))
   (nopret (cond (already-wrapped? form)
         form
 
@@ -165,7 +135,7 @@
         (do
           ;; (p+ "use these wrappers" (raw-wrappers form))
           ;; (p "for this form" (interior-forms form))
-          ;; (p (namespace-values-inside-out :midje/wrappers))
+          ;; (p (wrappers))
           (nopret (let [wrappers (final-wrappers (raw-wrappers form))
                       [now-wrappers later-wrappers] (separate (for-wrapping-target? :contents)
                                                               wrappers)]

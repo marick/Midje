@@ -8,9 +8,11 @@
          
   (:use [midje production-mode metaconstants]
         midje.midje-forms.recognizing
-        [midje.midje-forms.translating :only [midjcoexpand replace-wrappers-returning-immediate
-                                              forms-to-wrap-around translate-fact-body
-                                              add-line-numbers unfold-prerequisites]]
+        [midje.midje-forms.translating
+         :only [midjcoexpand put-wrappers-into-effect
+                forms-to-wrap-around translate-fact-body
+                add-line-numbers unfold-prerequisites]]
+        [midje.fakes :only [background-fakes]]
         [midje.midje-forms.dissecting :only [separate-background-forms]]
         [midje.util report debugging thread-safe-var-nesting]
         [midje.util.exceptions :only [user-error-exception-lines]]
@@ -28,7 +30,7 @@
 
 (defmacro background [& raw-wrappers]
   (when (user-desires-checking?)
-    (replace-wrappers-returning-immediate raw-wrappers)))
+    (put-wrappers-into-effect raw-wrappers)))
 
 (defmacro against-background [wrappers & forms]
   (if (user-desires-checking?)

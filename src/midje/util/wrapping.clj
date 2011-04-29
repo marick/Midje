@@ -1,7 +1,7 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.util.wrapping
-  (:use midje.util.form-utils)
+  (:use [midje.util form-utils thread-safe-var-nesting])
   (:require [clojure.zip :as zip])
   (:require [midje.util.unify :as unify]))
 
@@ -33,4 +33,22 @@
     `(midje-wrapped ~form)
     (recur (wrap (first wrappers) form)
            (rest wrappers))))
+
+;; stashing wrapping targets
+
+(defn set-wrappers [wrappers]
+  (set-namespace-value :midje/wrappers (list wrappers)))
+
+(defn wrappers []
+  (namespace-values-inside-out :midje/wrappers))
+
+(defn with-wrapping-target [what target]
+  (with-meta what (merge (meta what) {:midje/wrapping-target target})))
+
+(defn for-wrapping-target? [target]
+  (fn [actual] (= (:midje/wrapping-target (meta actual)) target)))
+
+(defmacro with-additional-wrappers [final-wrappers form]
+  `(with-pushed-namespace-values :midje/wrappers ~final-wrappers
+    ~form))
 

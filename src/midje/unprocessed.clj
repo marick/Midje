@@ -11,13 +11,6 @@
 (immigrate 'midje.checkers)
 
 
-(defn- background-fakes-plus [fakes]
-  (concat fakes (namespace-values-inside-out :midje/background-fakes)))
-
-;; TODO: This belongs somewhere else
-(defn background-fakes []
-  (background-fakes-plus []))
-
 ;; TODO: I'm not wild about signalling failure in two ways: by report() and by
 ;; return value. Fix this when (a) we move away from clojure.test.report and
 ;; (b) we figure out how to make fact() some meaningful unit of reporting.
