@@ -175,10 +175,17 @@
     (g 1) => 5
     (let [result (g 1)] result => 5)))    ;; This used to fail
 
-;; TODO: make test that notes this will never work.
 (background (scope-to-fact) => 5)
-(future-facts "convert this test into one that shows behavior is ruled out"
+(facts 
   (g 1) => 5
   (let [result (g 1)] result => 5)    ;; This used to fail
 )
 
+(background (scope-to-fact) => "outer")
+
+(fact "fakes can be overridden"
+  (against-background (scope-to-fact) => "middle")
+  (g 1) => "middle"
+  (g 1) => "inner"
+  (provided
+    (scope-to-fact) => "inner"))

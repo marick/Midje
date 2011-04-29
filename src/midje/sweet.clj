@@ -45,11 +45,15 @@
                                   add-line-numbers
                                   translate-fact-body
                                   unfold-prerequisites)
-                expansion (midjcoexpand `(every? true? (list ~@things-to-run)))
+                fake-enabled `(with-installed-fakes
+                                (background-fakes)
+                                (every? true?
+                                        (list ~@things-to-run)))
+                expansion (midjcoexpand fake-enabled)
                 wrapped-expansion (multiwrap expansion
                                              (forms-to-wrap-around :facts))]
             (define-metaconstants things-to-run)
-            `(with-installed-fakes (background-fakes) ~wrapped-expansion))
+            wrapped-expansion)
           `(against-background ~background (midje.sweet/fact ~@remainder))))
       (catch Exception ex
         `(clojure.test/report {:type :exceptional-user-error

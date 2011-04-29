@@ -82,10 +82,9 @@
   call and a list of maps, each of which describes a secondary call
   the first call is supposed to make. See the documentation at
   http://github.com/marick/Midje."
-  (let [fakes (background-fakes-plus local-fakes)]
-    (with-installed-fakes fakes
-      (let [code-under-test-result (capturing-exception
-                                    (eagerly
-                                     ((call-map :function-under-test))))]
-        (check-call-counts fakes)
-        (check-result code-under-test-result call-map)))))
+  (with-installed-fakes local-fakes
+    (let [code-under-test-result (capturing-exception
+                                  (eagerly
+                                   ((call-map :function-under-test))))]
+      (check-call-counts local-fakes)
+      (check-result code-under-test-result call-map))))

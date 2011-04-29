@@ -46,23 +46,25 @@
      (+ x 2) => 3)
    (fact (only-passes? 1) => truthy)))
 
-
 (after-silently 
- (fact "background wrapping establishes a lexical binding"
+ (fact "`around` lexical bindings are available to background prerequisites"
    (against-background (around :facts (let [x 1] ?form))
                        (f x) => 2 )
    (+ (f x) 2) => 4)
  (fact (only-passes? 1) => truthy))
 
+(after-silently 
+ (fact "order is unimportant"
+   (against-background (f x) => 2
+                       (around :facts (let [x 1] ?form)))
+   (+ (f x) 2) => 4)
+ (fact (only-passes? 1) => truthy))
 
-(future-fact "establish that this lexical binding is scoped only to fact")
-
-(against-background [ (f 1) => 2 ]
-  (after-silently 
-   (fact "prerequisites are scoped within all setup/teardown"
-     (against-background (around :checks (let [x 1] ?form)))
-     (+ (f x) 2) => 4)
-   (fact (only-passes? 1) => truthy)))
+(after-silently 
+ (fact "... and also per-check prerequisites"
+   (against-background (around :facts (let [x 1] ?form)))
+   (+ (f x) 2) => 4 (provided (f x) => 2 ))
+ (fact (only-passes? 1) => truthy))
 
                                         ; ========
 
