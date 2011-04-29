@@ -1,3 +1,7 @@
+= 1.1.1 
+* Background prerequisites are now scoped to facts. That
+  works better with let-bindings. (Issue 26)
+
 = 1.1
 * Can defer individual checks in a fact with the =future=>
   arrow.
