@@ -3,6 +3,7 @@
 (ns midje.midje-forms.t-translating
   (:use [midje.midje-forms.translating])
   (:use [midje.sweet])
+  (:use [midje.util.wrapping :only [for-wrapping-target?]])
   (:use midje.test-util)
   (:use [midje.midje-forms.building
          :only [metaconstant-for-form with-fresh-generated-metadata-names]])

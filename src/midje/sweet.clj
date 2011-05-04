@@ -8,9 +8,11 @@
          
   (:use [midje production-mode metaconstants]
         midje.midje-forms.recognizing
-        [midje.midje-forms.translating :only [midjcoexpand replace-wrappers-returning-immediate
-                                              forms-to-wrap-around translate-fact-body
-                                              add-line-numbers unfold-prerequisites]]
+        [midje.midje-forms.translating
+         :only [midjcoexpand put-wrappers-into-effect
+                forms-to-wrap-around translate-fact-body
+                add-line-numbers unfold-prerequisites]]
+        [midje.fakes :only [background-fakes]]
         [midje.midje-forms.dissecting :only [separate-background-forms]]
         [midje.util report debugging thread-safe-var-nesting]
         [midje.util.exceptions :only [user-error-exception-lines]]
@@ -28,7 +30,7 @@
 
 (defmacro background [& raw-wrappers]
   (when (user-desires-checking?)
-    (replace-wrappers-returning-immediate raw-wrappers)))
+    (put-wrappers-into-effect raw-wrappers)))
 
 (defmacro against-background [wrappers & forms]
   (if (user-desires-checking?)
@@ -44,10 +46,16 @@
           (let [things-to-run (-> remainder
                                   add-line-numbers
                                   translate-fact-body
-                                  unfold-prerequisites)]
+                                  unfold-prerequisites)
+                fake-enabled `(with-installed-fakes
+                                (background-fakes)
+                                (every? true?
+                                        (list ~@things-to-run)))
+                expansion (midjcoexpand fake-enabled)
+                wrapped-expansion (multiwrap expansion
+                                             (forms-to-wrap-around :facts))]
             (define-metaconstants things-to-run)
-            (multiwrap (midjcoexpand `(every? true? (list ~@things-to-run)))
-                       (forms-to-wrap-around :facts)))
+            wrapped-expansion)
           `(against-background ~background (midje.sweet/fact ~@remainder))))
       (catch Exception ex
         `(clojure.test/report {:type :exceptional-user-error

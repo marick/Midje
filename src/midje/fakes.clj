@@ -3,7 +3,8 @@
 (ns midje.fakes
   (:use [clojure.contrib.seq-utils :only [find-first]]
         clojure.test
-        [midje.util report file-position form-utils exceptions]
+        [midje.util report file-position form-utils exceptions
+                    thread-safe-var-nesting wrapping]
         [midje.checkers.defining :only [checker?]]
         [midje.checkers.util :only [captured-exception]]
         [midje.checkers.chatty :only [chatty-checker-falsehood? chatty-checker?]]
@@ -120,4 +121,16 @@
       (println "-- For more, see https://github.com/marick/Midje/wiki/Checkers-within-prerequisites")
       (println "-----")))
   (fn [actual] (extended-= actual expected)))
+
+;; Managing background fakes
+
+(defn background-fakes []
+  (namespace-values-inside-out :midje/background-fakes))
+
+(defn background-fake-wrappers [fakes]
+  (let [around-facts-and-checks `(with-pushed-namespace-values
+                                   :midje/background-fakes
+                                   ~fakes ~(?form))]
+    (list 
+     (with-wrapping-target around-facts-and-checks :facts))))
 

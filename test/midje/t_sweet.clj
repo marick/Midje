@@ -179,3 +179,32 @@
  (second-arg 1 2) => 9
  (provided
    (f 1 (g 2)) => 8))
+
+
+(unfinished scope-to-fact)
+(defn g [x] (scope-to-fact))
+
+(facts
+  (against-background (scope-to-fact) => 5)
+  (g 1) => 5
+  (let [result (g 1)] result => 5))    ;; This used to fail
+
+(against-background [(scope-to-fact) => 5]
+  (facts
+    (g 1) => 5
+    (let [result (g 1)] result => 5)))    ;; This used to fail
+
+(background (scope-to-fact) => 5)
+(facts 
+  (g 1) => 5
+  (let [result (g 1)] result => 5)    ;; This used to fail
+)
+
+(background (scope-to-fact) => "outer")
+
+(fact "fakes can be overridden"
+  (against-background (scope-to-fact) => "middle")
+  (g 1) => "middle"
+  (g 1) => "inner"
+  (provided
+    (scope-to-fact) => "inner"))
