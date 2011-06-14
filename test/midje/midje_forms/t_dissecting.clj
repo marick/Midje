@@ -59,3 +59,19 @@
   (let [result (partition-arrow-forms '(  (f 1) => 2 :key value   (g 1) => 3))]
     result =>                         '( [(f 1) => 2 :key value] [(g 1) => 3])))
 
+;; Fact tables
+
+(def simple-fact-table '(fact-table
+                         (+ ?a ?b) => ?result
+                         ?a     ?b      ?result
+                         1      2       3))
+
+(fact
+  (let [expected '(midje.sweet/fact (+ ?a ?b) => ?result)]
+    (table-fact-part simple-fact-table) => expected))
+
+
+(fact  
+  (table-substitutions simple-fact-table) => '[ {?a 1, ?b 2, ?result 3} ])
+                 
+ 

@@ -87,3 +87,7 @@
 (defmacro antiterminologicaldisintactitudinarian-facts [& forms] (future-fact-1 &form))
 
 
+(defmacro fact-table [& forms]
+  `(fact ~@forms))
+
+
