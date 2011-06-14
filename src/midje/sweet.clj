@@ -13,8 +13,9 @@
                 forms-to-wrap-around translate-fact-body
                 add-line-numbers unfold-prerequisites]]
         [midje.fakes :only [background-fakes]]
-        [midje.midje-forms.dissecting :only [separate-background-forms]]
-        [midje.util report debugging thread-safe-var-nesting]
+        [midje.midje-forms.dissecting :only [separate-background-forms
+                                             table-fact-part table-substitutions]]
+        [midje.util report debugging thread-safe-var-nesting unify]
         [midje.util.exceptions :only [user-error-exception-lines]]
         [midje.util.wrapping :only [multiwrap]]
         [midje.util.form-utils :only [reader-line-number]]
@@ -88,6 +89,9 @@
 
 
 (defmacro fact-table [& forms]
-  `(fact ~@forms))
+  (let [fact-form (table-fact-part forms)
+        binding-lists (table-substitutions forms)
+        substitute (fn [bindings] (cons 'fact (subst fact-form bindings)))]
+    `(do ~@(map substitute binding-lists))))
 
 

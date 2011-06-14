@@ -41,11 +41,11 @@
 
 
 (defn table-fact-part [fact-table]
-  `(midje.sweet/fact ~@(take 3 (rest fact-table))))
+  (take 3 fact-table))
 
 
 (defn table-substitutions [fact-table]
-  (let [table (nthnext (rest fact-table) 3)
+  (let [table (nthnext fact-table 3)
         variables (take-while #(.startsWith (pr-str %) "?") table)
         value-lists (rest (partition (count variables) table))]
     (map (fn [values] (apply hash-map (interleave variables values)))

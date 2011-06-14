@@ -61,13 +61,13 @@
 
 ;; Fact tables
 
-(def simple-fact-table '(fact-table
+(def simple-fact-table '(
                          (+ ?a ?b) => ?result
                          ?a     ?b      ?result
                          1      2       3))
 
 (fact
-  (let [expected '(midje.sweet/fact (+ ?a ?b) => ?result)]
+  (let [expected '((+ ?a ?b) => ?result)]
     (table-fact-part simple-fact-table) => expected))
 
 
