@@ -62,12 +62,12 @@
 ;; Fact tables
 
 
-(let [simple-fact-table '(fact-table
-                          (+ ?a ?b) => ?result
-                          ?a     ?b      ?result
-                          1      2       3)
+(let [simple-fact-table (rest '(tabular 
+                                (fact (+ ?a ?b) => ?result)
+                                ?a     ?b      ?result
+                                1      2       3))
       dissected (dissect-fact-table simple-fact-table)
-      expected-fact-form '(midje.sweet/fact (+ ?a ?b) => ?result)
+      expected-fact-form '(fact (+ ?a ?b) => ?result)
       expected-binding-lists '[ {?a 1, ?b 2, ?result 3} ] ]
   (facts
     (:fact-form dissected) => expected-fact-form

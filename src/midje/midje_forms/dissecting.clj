@@ -39,19 +39,15 @@
 
 
 
-(defn- table-fact-part [fact-table]
-  `(midje.sweet/fact ~@(take 3 (rest fact-table))))
-
-(defn- table-binding-lists [fact-table]
-  (let [table (nthnext fact-table 4)
-        variables (take-while #(.startsWith (pr-str %) "?") table)
+(defn- table-binding-lists [table]
+  (let [variables (take-while #(.startsWith (pr-str %) "?") table)
         value-lists (rest (partition (count variables) table))]
     (map (fn [values] (apply hash-map (interleave variables values)))
          value-lists)))
 
 
-(defn dissect-fact-table [fact-table]
-  {:fact-form (table-fact-part fact-table)
-   :binding-lists (table-binding-lists fact-table) })
+(defn dissect-fact-table [forms]
+  {:fact-form (first forms)
+   :binding-lists (table-binding-lists (rest forms)) })
 
 

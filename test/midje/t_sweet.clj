@@ -189,3 +189,30 @@
   (g 1) => "inner"
   (provided
     (scope-to-fact) => "inner"))
+
+;;; Tables
+(tabular (fact (+ 1 1) => 2))
+
+(tabular
+ (fact (+ ?a ?b) => ?result )
+ ?a    ?b      ?result
+ 1     2       3)
+
+(tabular
+ (fact "some information about that"
+   (+ ?a ?b) => ?result)
+ ?a    ?b      ?result
+ 1     2       3)
+
+(defn f [n] (inc (g n)))
+
+(tabular
+ (fact
+   (f ?n) => ?result
+   (provided
+     (g ?n) => ?intermediate))
+ ?result ?n ?intermediate
+ 2       1      1
+ 3       1      2
+ 3       2      2)
+ 

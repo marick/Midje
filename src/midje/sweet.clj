@@ -88,9 +88,11 @@
 (defmacro antiterminologicaldisintactitudinarian-facts [& forms] (future-fact-1 &form))
 
 
-(defmacro fact-table [& forms]
-  (let [dissected (dissect-fact-table &form)
-        substitute (fn [bindings] (subst (:fact-form dissected) bindings))]
-    `(do ~@(map substitute (:binding-lists dissected)))))
+(defmacro tabular [& forms]
+  (let [dissected (dissect-fact-table forms)
+        substitute (fn [bindings] (subst (:fact-form dissected) bindings))
+        numbered (fn [form] (with-meta form (meta (:fact-form dissected))))]
+    `(do ~@(map (comp numbered substitute)
+                (:binding-lists dissected)))))
 
 

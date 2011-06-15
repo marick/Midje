@@ -17,4 +17,9 @@
 
 (str *localvar*)  ;; Non-fact forms are still processed.
 
+
+(tabular (fact (inc ?n) => ?n)
+         ?n
+         1)
+
 (alter-var-root #'*include-midje-checks* (constantly true))
