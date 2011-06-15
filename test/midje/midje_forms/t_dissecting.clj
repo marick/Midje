@@ -61,17 +61,15 @@
 
 ;; Fact tables
 
-(def simple-fact-table '(
-                         (+ ?a ?b) => ?result
-                         ?a     ?b      ?result
-                         1      2       3))
 
-(fact
-  (let [expected '((+ ?a ?b) => ?result)]
-    (table-fact-part simple-fact-table) => expected))
-
-
-(fact  
-  (table-substitutions simple-fact-table) => '[ {?a 1, ?b 2, ?result 3} ])
-                 
- 
+(let [simple-fact-table '(fact-table
+                          (+ ?a ?b) => ?result
+                          ?a     ?b      ?result
+                          1      2       3)
+      dissected (dissect-fact-table simple-fact-table)
+      expected-fact-form '(midje.sweet/fact (+ ?a ?b) => ?result)
+      expected-binding-lists '[ {?a 1, ?b 2, ?result 3} ] ]
+  (facts
+    (:fact-form dissected) => expected-fact-form
+    (:binding-lists dissected) => expected-binding-lists))
+    

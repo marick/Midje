@@ -9,9 +9,16 @@
 
 
 (fact-table
-  (+ ?a ?b) => ?result
-  ?a    ?b      ?result
+ (+ ?a ?b) => ?result 
+ ?a    ?b      ?result
   1     2       3)
+
+
+;; (fact-table
+;;  "This is some commentary"
+;;  (+ ?a ?b) => ?result 
+;;  ?a    ?b      ?result
+;;   1     2       4)
 
 
 (future-fact "production mode for fact-table")

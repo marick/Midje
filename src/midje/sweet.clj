@@ -14,7 +14,7 @@
                 add-line-numbers unfold-prerequisites]]
         [midje.fakes :only [background-fakes]]
         [midje.midje-forms.dissecting :only [separate-background-forms
-                                             table-fact-part table-substitutions]]
+                                             dissect-fact-table]]
         [midje.util report debugging thread-safe-var-nesting unify]
         [midje.util.exceptions :only [user-error-exception-lines]]
         [midje.util.wrapping :only [multiwrap]]
@@ -89,9 +89,8 @@
 
 
 (defmacro fact-table [& forms]
-  (let [fact-form (table-fact-part forms)
-        binding-lists (table-substitutions forms)
-        substitute (fn [bindings] (cons 'fact (subst fact-form bindings)))]
-    `(do ~@(map substitute binding-lists))))
+  (let [dissected (dissect-fact-table &form)
+        substitute (fn [bindings] (subst (:fact-form dissected) bindings))]
+    `(do ~@(map substitute (:binding-lists dissected)))))
 
 
