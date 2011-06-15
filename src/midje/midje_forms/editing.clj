@@ -1,7 +1,7 @@
 (ns midje.midje-forms.editing
   (:use midje.semi-sweet)
-  (:use [midje.midje-forms.recognizing :only [loc-is-head-of-form-providing-prerequisites?
-					      loc-is-start-of-check-sequence?
+  (:use [midje.midje-forms.recognizing :only [is-head-of-form-providing-prerequisites?
+					      is-start-of-check-sequence?
 					      loc-is-at-full-expect-form?]]
 	[midje.midje-forms.moving-around :only [up-to-full-expect-form
 						skip-to-rightmost-leaf]]
@@ -20,7 +20,7 @@
 )
 
 (defn delete_prerequisite_form__then__at-previous-full-expect-form [loc]
-  (assert (loc-is-head-of-form-providing-prerequisites? loc))
+  (assert (is-head-of-form-providing-prerequisites? loc))
   (let [x (-> loc zip/up zip/remove)]
     (up-to-full-expect-form x)))
 
@@ -35,7 +35,7 @@
     (-> loc tack zip/down skip-to-rightmost-leaf)))
 
 (defn wrap-with-expect__then__at-rightmost-expect-leaf [loc]
-  (assert (loc-is-start-of-check-sequence? loc))
+  (assert (is-start-of-check-sequence? loc))
   (let [right-hand (-> loc zip/right zip/right)
         arrow-form (-> loc zip/right zip/node)
 	additions (arrow-form-overrides (zip/rights right-hand))

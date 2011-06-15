@@ -40,15 +40,15 @@
       (zip/root loc)
       (recur
        (zip/next
-        (cond (loc-is-start-of-check-sequence? loc)
+        (cond (is-start-of-check-sequence? loc)
               (wrap-with-expect__then__at-rightmost-expect-leaf loc)
 
-              (loc-is-head-of-form-providing-prerequisites? loc)
+              (is-head-of-form-providing-prerequisites? loc)
               (let [fake-calls (expand-prerequisites-into-fake-calls loc)
                     full-expect-form (delete_prerequisite_form__then__at-previous-full-expect-form loc)]
                 (tack-on__then__at-rightmost-expect-leaf fake-calls full-expect-form))
 
-              (loc-is-semi-sweet-keyword? loc)
+              (is-semi-sweet-keyword? loc)
               (skip-to-rightmost-leaf loc)
 
               :else loc))))))

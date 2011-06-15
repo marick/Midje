@@ -8,39 +8,57 @@
   (:require [midje.util.unify :as unify])
   (:require [clojure.zip :as zip]))
 
-;; TODO: Make many of these multimethods, dispatching on whether "here"
-;; is a clojure.zip loc?
 ;; TODO: Replace namespacey-match with form-first-like strategy?
-
-(defn namespacey-match [symbols loc]
-  (let [base-names (map name symbols)
-        qualified-names (concat (map #(str "midje.semi-sweet/" %) base-names)
-                                (map #(str "midje.sweet/" %) base-names))]
-    ( (set (concat base-names qualified-names)) (str (zip/node loc)))))
-
 
 (defn is-arrow-form? [forms]
   (= (str (second forms)) "=>"))
 
 (defn fake? [form] (form-first? form "fake"))
 
-;; Clojure.zip trees
+;; Zipper vs. form agnostic
 
-(defn loc-is-semi-sweet-keyword? [loc]
+(defn is-zipper? [treelike]
+  (:zip/make-node (meta treelike)))
+
+(defn treelike-type [treelike]
+  (if (is-zipper? treelike) :zipper :form))
+
+(defmulti namespacey-match (fn [symbols treelike] (treelike-type treelike)))
+
+(defmethod namespacey-match :zipper [symbols loc]
+   (namespacey-match symbols (zip/node loc)))
+
+(defmethod namespacey-match :form [symbols node]
+  (let [base-names (map name symbols)
+        qualified-names (concat (map #(str "midje.semi-sweet/" %) base-names)
+                                (map #(str "midje.sweet/" %) base-names))]
+    ( (set (concat base-names qualified-names)) (str node))))
+
+
+
+(defn is-semi-sweet-keyword? [loc]
   (namespacey-match '(expect fake) loc))
 
-(defn loc-is-head-of-form-providing-prerequisites? [loc]
+(defn is-head-of-form-providing-prerequisites? [loc]
   (namespacey-match '(provided) loc))
+
+(defmulti is-start-of-check-sequence? treelike-type)
+
+(defmethod is-start-of-check-sequence? :zipper [loc]
+  (and (zip/right loc)
+       (namespacey-match expect-arrows (zip/right loc))))
+
+(defmethod is-start-of-check-sequence? :form [form]
+  (and (sequential? form)
+       (namespacey-match expect-arrows (second form))))
+
+
+
+;; Clojure.zip trees
 
 (defn loc-is-at-full-expect-form? [loc]
   (and (zip/branch? loc)
        (namespacey-match '(expect) (zip/down loc))))
-
-;; The reason for not using namespacey-match for this is that
-;; it would then match quoted Midje forms in a zillion tests.
-(defn loc-is-start-of-check-sequence? [loc]
-  (and (zip/right loc)
-       (namespacey-match expect-arrows (zip/right loc))))
 
 ;; Wrapping
 

@@ -11,7 +11,7 @@
 (fact-table
   (+ ?a ?b) => ?result
   ?a    ?b      ?result
-  1     2       4)
+  1     2       3)
 
 
 (future-fact "production mode for fact-table")

@@ -26,7 +26,7 @@
         resulting-loc
          (delete_prerequisite_form__then__at-previous-full-expect-form original-loc)]
         
-    original-loc => loc-is-head-of-form-providing-prerequisites?
+    original-loc => is-head-of-form-providing-prerequisites?
     resulting-loc => loc-is-at-full-expect-form?
     (zip/root resulting-loc) => edited))
     
@@ -49,7 +49,7 @@
         original-loc  (-> z zip/down)
         resulting-loc (wrap-with-expect__then__at-rightmost-expect-leaf original-loc)]
     original-loc => (node '(f 1))
-    original-loc => loc-is-start-of-check-sequence?
+    original-loc => is-start-of-check-sequence?
     
     (zip/root resulting-loc) => edited
     (zip/next resulting-loc) => (node "next"))
@@ -62,7 +62,7 @@
         original-loc  (-> z zip/down)
         resulting-loc (wrap-with-expect__then__at-rightmost-expect-leaf original-loc)]
     original-loc => (node '(f 1))
-    original-loc => loc-is-start-of-check-sequence?
+    original-loc => is-start-of-check-sequence?
     
     (zip/root resulting-loc) => edited
     (zip/next resulting-loc) => (node "next"))
@@ -74,7 +74,7 @@
         original-loc  (-> z zip/down)
         resulting-loc (wrap-with-expect__then__at-rightmost-expect-leaf original-loc)]
     original-loc => (node '(f 1))
-    original-loc => loc-is-start-of-check-sequence?
+    original-loc => is-start-of-check-sequence?
     
    (zip/root resulting-loc) => edited
    (zip/next resulting-loc) => (node "next"))
