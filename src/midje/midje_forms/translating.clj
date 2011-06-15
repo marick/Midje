@@ -217,3 +217,27 @@
 
                                :else loc)))))))
 
+(defn- replace-loc-line [loc loc-with-line]
+  (zip/replace loc (with-meta (zip/node loc)
+                     (assoc (meta (zip/node loc)) :line                
+                            (:line (meta (zip/node loc-with-line)))))))
+
+(defn form-with-copied-line-numbers [form line-number-source]
+  (loop [loc (zip/seq-zip form)
+         line-loc (zip/seq-zip line-number-source)]
+    (cond (zip/end? line-loc)
+          (zip/root loc)
+
+          (zip/branch? line-loc)
+          (recur (zip/next (replace-loc-line loc line-loc))
+                 (zip/next line-loc))
+
+          ;; the form has a tree in place of a non-tree
+          (zip/branch? loc)
+            (recur (zip/next
+                    (skip-to-rightmost-leaf (zip/down (replace-loc-line loc line-loc))))
+                   (zip/next line-loc))
+
+          :else
+          (recur (zip/next loc)
+                 (zip/next line-loc)))))

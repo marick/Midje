@@ -213,6 +213,15 @@
      (g ?n) => ?intermediate))
  ?result ?n ?intermediate
  2       1      1
- 3       1      2
+ (+ 1 2) 1      2
  3       2      2)
+ 
+(tabular
+ (fact "nice fact properties are retained"
+   (let [a 1]
+     (f ?n) => ?result
+     (provided
+       (g ?n) => ?intermediate)))
+ ?result ?n ?intermediate
+ (+ a 1)       1      1)
  

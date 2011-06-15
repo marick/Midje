@@ -233,3 +233,17 @@
                                                 (+ variant-position 4)]})
                           (contains {:position ["t_line_number_reporting.clj"
                                                 (+ variant-position 5)]}))))
+
+
+(def tabular-position 238)
+(after-silently
+ (tabular
+  (fact (inc ?n) => ?n)
+  ?n
+  1
+  2)
+ (fact "The line number is the line number of the fact, not the substitutions."
+   @reported => (just (contains {:position ["t_line_number_reporting.clj"
+                                                (+ tabular-position 3)]})
+                          (contains {:position ["t_line_number_reporting.clj"
+                                                (+ tabular-position 3)]}))))

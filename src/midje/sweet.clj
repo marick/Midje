@@ -11,7 +11,8 @@
         [midje.midje-forms.translating
          :only [midjcoexpand put-wrappers-into-effect
                 forms-to-wrap-around translate-fact-body
-                add-line-numbers unfold-prerequisites]]
+                add-line-numbers unfold-prerequisites
+                form-with-copied-line-numbers]]
         [midje.fakes :only [background-fakes]]
         [midje.midje-forms.dissecting :only [separate-background-forms
                                              dissect-fact-table]]
@@ -90,8 +91,10 @@
 
 (defmacro tabular [& forms]
   (let [dissected (dissect-fact-table forms)
-        substitute (fn [bindings] (subst (:fact-form dissected) bindings))
-        numbered (fn [form] (with-meta form (meta (:fact-form dissected))))]
+        substitute (fn [bindings]
+                     (subst (:fact-form dissected) bindings))
+        numbered (fn [form]
+                   (form-with-copied-line-numbers form (:fact-form dissected)))]
     `(do ~@(map (comp numbered substitute)
                 (:binding-lists dissected)))))
 

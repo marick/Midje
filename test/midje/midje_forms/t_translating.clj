@@ -187,3 +187,67 @@
         h-fake '(midje.semi-sweet/fake (h 3) midje.semi-sweet/=> ...h-1... ...overrides...)]
     (set (generate-fakes '{ (g 1) ...g-1..., (h 3) ...h-1... } '(...overrides...)))
     => #{g-fake h-fake}))
+
+
+(defn lineno
+  ([tree] (:line (meta tree)))
+  ([tree n] (:line (meta (nth tree n)))))
+
+(fact "metadata can be copied from one tree to a matching tree"
+  (let [line-number-source '(This has
+                      (some line numbers)
+                      (on it))
+        form-source '(The line  
+                      (numbers of this)
+                      (tree differ))
+        result (form-with-copied-line-numbers form-source line-number-source)]
+
+    line-number-source =not=> form-source
+    result => form-source
+    
+    (lineno form-source) =not=> (lineno line-number-source)
+    (lineno form-source 2) =not=> (lineno line-number-source 2)
+    (lineno form-source 3) =not=> (lineno line-number-source 3)
+
+    (lineno result) => (lineno line-number-source)
+    (lineno result 2) => (lineno line-number-source 2)
+    (lineno result 3) => (lineno line-number-source 3)))
+
+(fact "The metadata tree might have nodes where the other tree has branches"
+  (let [line-number-source '(This
+                 ?1
+                 (that)
+                 ?2)
+        form-source '(This
+                      (something (deeply (nested)))
+                      (that)
+                      (something (deeply (nested))))
+        result (form-with-copied-line-numbers form-source line-number-source)]
+
+    line-number-source =not=> form-source
+    result => form-source
+
+    (lineno line-number-source 1) => nil
+    (lineno line-number-source 3) => nil
+    (lineno form-source 1) =not=> nil
+    (lineno form-source 3) =not=> nil
+    (lineno result 1) => nil
+    (lineno result 3) => nil
+
+    (lineno result) =not=> (lineno form-source)
+    (lineno result) => (lineno line-number-source)
+
+    (lineno result 2) =not=> (lineno form-source 2)
+    (lineno result 2) => (lineno line-number-source 2)))
+
+(fact "other metadata is left alone"
+  (let [line-number-source '(This (that))
+        form-source `(This
+                      ~(with-meta
+                         '(something (deeply (nested)))
+                         {:meta :data, :line 33}))
+        result (form-with-copied-line-numbers form-source line-number-source)]
+    (lineno result 1) => (lineno line-number-source 1)
+    (:meta (meta (nth result 1))) => :data))
+
+  
