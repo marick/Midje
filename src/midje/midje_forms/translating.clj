@@ -3,6 +3,7 @@
 (ns midje.midje-forms.translating
   (:use clojure.contrib.def
         [clojure.contrib.seq :only [separate]]
+        [clojure.contrib.str-utils :only [str-join]]
         midje.metaconstants
         [midje.semi-sweet :only [all-arrows]]
         [midje.util thread-safe-var-nesting wrapping form-utils laziness form-utils]
@@ -241,7 +242,11 @@
           (recur (zip/next loc)
                  (zip/next line-loc)))))
 
-(defn with-one-binding-annotation [expect-containing-form binding-map]
+(defn- ordered-map-str [full-map keys-in-order]
+  (let [entries (map (fn [key] (str key " " (key full-map))) keys-in-order)]
+    (str "{" (str-join ", " entries) "}")))
+
+(defn add-one-binding-annotation [expect-containing-form binding-map map-order]
   (loop [loc (zip/seq-zip expect-containing-form)]
     (cond (zip/end? loc)
           (zip/root loc)
@@ -250,11 +255,12 @@
           (recur (zip/next
                   (skip-to-rightmost-leaf
                    (add-key-value-within-arrow-branch__then__at_arrow
-                    :binding-note `'~binding-map loc))))
+                    :binding-note (ordered-map-str binding-map map-order) loc))))
 
           :else
           (recur (zip/next loc)))))
 
-(defn with-binding-annotations [expect-containing-forms binding-maps]
-  (map #(apply with-one-binding-annotation %)
+(defn add-binding-annotations [expect-containing-forms binding-maps map-order]
+  (map (fn [ [expect-form binding-map] ]
+             (add-one-binding-annotation expect-form binding-map map-order))
        (partition 2 (interleave expect-containing-forms binding-maps))))

@@ -37,10 +37,11 @@
                (nthnext remainder (count whole-body)))))))
 
 
-
+(defn- table-variables [table]
+  (take-while #(.startsWith (pr-str %) "?") table))
 
 (defn- table-binding-maps [table]
-  (let [variables (take-while #(.startsWith (pr-str %) "?") table)
+  (let [variables (table-variables table)
         value-lists (rest (partition (count variables) table))]
     (map (fn [values] (apply hash-map (interleave variables values)))
          value-lists)))
@@ -48,6 +49,7 @@
 
 (defn dissect-fact-table [forms]
   {:fact-form (first forms)
-   :binding-maps (table-binding-maps (rest forms)) })
+   :binding-maps (table-binding-maps (rest forms))
+   :map-order (table-variables (rest forms))})
 
 

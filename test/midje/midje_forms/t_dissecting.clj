@@ -68,8 +68,11 @@
                                 1      2       3))
       dissected (dissect-fact-table simple-fact-table)
       expected-fact-form '(fact (+ ?a ?b) => ?result)
-      expected-binding-maps '[ {?a 1, ?b 2, ?result 3} ] ]
+      expected-binding-maps '[ {?a 1, ?b 2, ?result 3} ]
+      expected-map-order '[?a ?b ?result]]
+  
   (facts
     (:fact-form dissected) => expected-fact-form
-    (:binding-maps dissected) => expected-binding-maps))
+    (:binding-maps dissected) => expected-binding-maps
+    (:map-order dissected) => expected-map-order))
     

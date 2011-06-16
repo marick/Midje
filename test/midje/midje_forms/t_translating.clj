@@ -255,7 +255,7 @@
 (tabular (fact ?comment
            (let [line-no-free-original ?original
                  line-no-free-expected ?expected]
-             (with-one-binding-annotation line-no-free-original '{ ?a a })
+             (add-one-binding-annotation line-no-free-original '{?a a } '[?a])
              => line-no-free-expected))
 
          ?comment ?original ?expected
@@ -264,16 +264,25 @@
          '(do (midje.semi-sweet/expect (a) => b)
               (do (midje.semi-sweet/expect (inc a) => M)))
          '(do (midje.semi-sweet/expect (a) => b
-                                       :binding-note '{?a a})
+                                       :binding-note "{?a a}")
                       (do (midje.semi-sweet/expect (inc a) => M
-                                                   :binding-note '{?a a})))
+                                                   :binding-note "{?a a}")))
 
          "fakes do not get insertions"
          '(do (midje.semi-sweet/expect (a) => b
                                        (midje.semi-sweet/fake (x) => 3)))
-         '(do (midje.semi-sweet/expect (a) => b :binding-note '{?a a}
+         '(do (midje.semi-sweet/expect (a) => b :binding-note "{?a a}"
                                        (midje.semi-sweet/fake (x) => 3)))
 
          "other annotations are preserved"
          '(do (midje.semi-sweet/expect (a) => b :line 33))
-         '(do (midje.semi-sweet/expect (a) => b :binding-note '{?a a} :line 33)))
+         '(do (midje.semi-sweet/expect (a) => b :binding-note "{?a a}" :line 33)))
+
+(fact "the binding notes are in the order of the original column"
+  (let [actual (add-one-binding-annotation '(do (expect 1 => 2))
+                                           '{?a 1, ?b 2, ?delta 0, ?result 3}
+                                           '[?result ?b ?a ?delta])
+        expected '(do (expect 1 => 2 :binding-note "{?result 3, ?b 2, ?a 1, ?delta 0}"))]
+    actual => expected))
+    
+                                     
