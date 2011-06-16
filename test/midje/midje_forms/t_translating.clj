@@ -280,9 +280,8 @@
 
 (fact "the binding notes are in the order of the original column"
   (let [actual (add-one-binding-annotation '(do (expect 1 => 2))
-                                           '{?a 1, ?b 2, ?delta 0, ?result 3}
+                                           '{?a 1, ?b 2, ?delta "0", ?result 3}
                                            '[?result ?b ?a ?delta])
-        expected '(do (expect 1 => 2 :binding-note "{?result 3, ?b 2, ?a 1, ?delta 0}"))]
+        expected '(do (expect 1 => 2 :binding-note "{?result 3, ?b 2, ?a 1, ?delta \"0\"}"))]
     actual => expected))
     
-                                     

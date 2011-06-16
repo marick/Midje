@@ -243,7 +243,7 @@
                  (zip/next line-loc)))))
 
 (defn- ordered-map-str [full-map keys-in-order]
-  (let [entries (map (fn [key] (str key " " (key full-map))) keys-in-order)]
+  (let [entries (map (fn [key] (str key " " (pr-str (key full-map)))) keys-in-order)]
     (str "{" (str-join ", " entries) "}")))
 
 (defn add-one-binding-annotation [expect-containing-form binding-map map-order]
