@@ -1,3 +1,7 @@
+= 1.2-alpha1
+* Tabular facts
+   https://github.com/marick/Midje/wiki/Tabular-facts
+
 = 1.1.1 
 * Background prerequisites are now scoped to facts. That
   works better with let-bindings. (Issue 26)
