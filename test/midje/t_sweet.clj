@@ -217,18 +217,38 @@
  3       2      2)
 
                                      
-(tabular
- (fact "only two numbers have the same sum and square"
-   (* ?n ?n) ?arrow (+ ?n ?n))
- ?n     ?arrow
- 0      =>      
- 2      =>
- ;; Failure cases
- 1      =not=>
- 1000   =not=>
- ;; and so on
- )
+     (tabular
+      (fact "only two numbers have the same sum and square"
+        (* ?n ?n) ?arrow (+ ?n ?n))
+      ?n        ?arrow
+      0         =>      
+      2         =>
+      ;; Failure cases
+      1         =not=>
+      (* 10 10) =not=>
+      ;; and so on
+      )
 
+(defn alive? [cell-status neighbor-count]
+  (cond (= cell-status :dead)
+        (= 3 neighbor-count)
+
+        :else
+        (some #{neighbor-count} #{2 3})))
+
+     (tabular
+      (fact "The rules of Conway's life"
+        (alive? ?cell-status ?neighbor-count) => ?expected)
+      ?cell-status   ?neighbor-count   ?expected
+      :alive         1                 falsey        ; underpopulation
+      :alive         2                 truthy       
+      :alive         3                 truthy
+      :alive         4                 falsey        ; overpopulation
+     
+      ;; A newborn cell has three parents
+      :dead          2                 falsey
+      :dead          3                 truthy
+      :dead          4                 falsey)
 
 (tabular
  (fact "nice fact properties are retained"
@@ -239,3 +259,7 @@
  ?result ?n ?intermediate
  (+ a 1)       1      1)
  
+     (tabular
+      (future-fact (inc ?int) => ?int)
+      ?int
+      1)
