@@ -68,8 +68,8 @@
                                 1      2       3))
       dissected (dissect-fact-table simple-fact-table)
       expected-fact-form '(fact (+ ?a ?b) => ?result)
-      expected-binding-lists '[ {?a 1, ?b 2, ?result 3} ] ]
+      expected-binding-maps '[ {?a 1, ?b 2, ?result 3} ] ]
   (facts
     (:fact-form dissected) => expected-fact-form
-    (:binding-lists dissected) => expected-binding-lists))
+    (:binding-maps dissected) => expected-binding-maps))
     

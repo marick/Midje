@@ -12,10 +12,14 @@
     (recur (zip/up loc))))
 
 (defn skip-to-rightmost-leaf [loc]
-  "When positioned at a branch, move to the end form.
+  "When positioned at leftmost position of branch, move to the end form.
    In a tree, that's the rightmost leaf."
   (let [end-form (zip/rightmost loc)]
     (if (zip/branch? end-form)
       (recur (zip/down end-form))
       end-form)))
+
+(defn skip-down-then-rightmost-leaf [loc]
+  "When positioned at a branch, move into it and then to the rightmost leaf."
+  (skip-to-rightmost-leaf (zip/down loc)))
 

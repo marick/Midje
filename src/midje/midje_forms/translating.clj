@@ -82,7 +82,6 @@
                               (vec in-progress)))))))
 
 (defn- final-state-wrapper [canonicalized-non-fake]
-;  (println canonicalized-non-fake)
   (if (some #{(name (first canonicalized-non-fake))} '("before" "after" "around"))
     (with-wrapping-target
       (macroexpand-1 (cons (symbol "midje.midje-forms.building"
@@ -241,3 +240,21 @@
           :else
           (recur (zip/next loc)
                  (zip/next line-loc)))))
+
+(defn with-one-binding-annotation [expect-containing-form binding-map]
+  (loop [loc (zip/seq-zip expect-containing-form)]
+    (cond (zip/end? loc)
+          (zip/root loc)
+
+          (loc-is-at-full-expect-form? loc)
+          (recur (zip/next
+                  (skip-to-rightmost-leaf
+                   (add-key-value-within-arrow-branch__then__at_arrow
+                    :binding-note `'~binding-map loc))))
+
+          :else
+          (recur (zip/next loc)))))
+
+(defn with-binding-annotations [expect-containing-forms binding-maps]
+  (map #(apply with-one-binding-annotation %)
+       (partition 2 (interleave expect-containing-forms binding-maps))))

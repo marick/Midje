@@ -50,10 +50,17 @@
 	 (n-times (+ 1 (count additions)) remove-moving-right)
 	 zip/remove)))
 
-(defn add-line-number-to-end-of-arrow-sequence__then__no-movement [number loc]
+(defn add-key-value-to-end-of-arrow-sequence__then__no-movement [key value loc]
   (-> loc
       zip/right
-      (zip/insert-right `(line-number-known ~number))
-      (zip/insert-right :position)
+      (zip/insert-right value)
+      (zip/insert-right key)
       zip/left))
 
+(defn add-key-value-within-arrow-branch__then__at_arrow [key value loc]
+  (->> loc zip/down zip/right zip/right
+       (add-key-value-to-end-of-arrow-sequence__then__no-movement key value)))
+
+(defn add-line-number-to-end-of-arrow-sequence__then__no-movement [number loc]
+  (add-key-value-to-end-of-arrow-sequence__then__no-movement
+   :position `(line-number-known ~number) loc))

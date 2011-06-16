@@ -12,7 +12,8 @@
          :only [midjcoexpand put-wrappers-into-effect
                 forms-to-wrap-around translate-fact-body
                 add-line-numbers unfold-prerequisites
-                form-with-copied-line-numbers]]
+                form-with-copied-line-numbers
+                with-binding-annotations]]
         [midje.fakes :only [background-fakes]]
         [midje.midje-forms.dissecting :only [separate-background-forms
                                              dissect-fact-table]]
@@ -94,8 +95,10 @@
         substitute (fn [bindings]
                      (subst (:fact-form dissected) bindings))
         numbered (fn [form]
-                   (form-with-copied-line-numbers form (:fact-form dissected)))]
-    `(do ~@(map (comp numbered substitute)
-                (:binding-lists dissected)))))
+                   (form-with-copied-line-numbers form (:fact-form dissected)))
+        expect-forms (map (comp macroexpand numbered substitute)
+                          (:binding-maps dissected))
+        result (with-binding-annotations expect-forms (:binding-maps dissected))]
+    `(do ~@result)))
 
 

@@ -251,3 +251,23 @@
     (:meta (meta (nth result 1))) => :data))
 
   
+(fact "bindings can be added to an expect form for documentation"
+  (let [original '(do (midje.semi-sweet/expect (a) => b)
+                      (do (midje.semi-sweet/expect (inc a) => M)))
+        expected '(do (midje.semi-sweet/expect (a) => b :binding-note '{?a a})
+                      (do (midje.semi-sweet/expect (inc a) => M :binding-note '{?a a})))]
+    (with-one-binding-annotation original '{ ?a a }) => expected)
+
+  "fakes do not get insertions"
+  (let [original '(do (midje.semi-sweet/expect (a) => b
+                        (midje.semi-sweet/fake (x) => 3)))
+        expected '(do (midje.semi-sweet/expect (a) => b :binding-note '{?a a}
+                        (midje.semi-sweet/fake (x) => 3)))]
+    (with-one-binding-annotation original '{ ?a a }) => expected)
+
+  "other annotations are preserved"
+  (let [original '(do (midje.semi-sweet/expect (a) => b :line 33))
+        expected '(do (midje.semi-sweet/expect (a) => b :binding-note '{?a a} :line 33))]
+    (with-one-binding-annotation original '{ ?a a }) => expected))
+
+

@@ -39,7 +39,7 @@
 
 
 
-(defn- table-binding-lists [table]
+(defn- table-binding-maps [table]
   (let [variables (take-while #(.startsWith (pr-str %) "?") table)
         value-lists (rest (partition (count variables) table))]
     (map (fn [values] (apply hash-map (interleave variables values)))
@@ -48,6 +48,6 @@
 
 (defn dissect-fact-table [forms]
   {:fact-form (first forms)
-   :binding-lists (table-binding-lists (rest forms)) })
+   :binding-maps (table-binding-maps (rest forms)) })
 
 
