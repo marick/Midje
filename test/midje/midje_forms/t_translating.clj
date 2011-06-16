@@ -250,24 +250,30 @@
     (lineno result 1) => (lineno line-number-source 1)
     (:meta (meta (nth result 1))) => :data))
 
-  
-(fact "bindings can be added to an expect form for documentation"
-  (let [original '(do (midje.semi-sweet/expect (a) => b)
-                      (do (midje.semi-sweet/expect (inc a) => M)))
-        expected '(do (midje.semi-sweet/expect (a) => b :binding-note '{?a a})
-                      (do (midje.semi-sweet/expect (inc a) => M :binding-note '{?a a})))]
-    (with-one-binding-annotation original '{ ?a a }) => expected)
-
-  "fakes do not get insertions"
-  (let [original '(do (midje.semi-sweet/expect (a) => b
-                        (midje.semi-sweet/fake (x) => 3)))
-        expected '(do (midje.semi-sweet/expect (a) => b :binding-note '{?a a}
-                        (midje.semi-sweet/fake (x) => 3)))]
-    (with-one-binding-annotation original '{ ?a a }) => expected)
-
-  "other annotations are preserved"
-  (let [original '(do (midje.semi-sweet/expect (a) => b :line 33))
-        expected '(do (midje.semi-sweet/expect (a) => b :binding-note '{?a a} :line 33))]
-    (with-one-binding-annotation original '{ ?a a }) => expected))
 
 
+(tabular (fact ?comment
+           (let [line-no-free-original ?original
+                 line-no-free-expected ?expected]
+             (with-one-binding-annotation line-no-free-original '{ ?a a })
+             => line-no-free-expected))
+
+         ?comment ?original ?expected
+
+         "binding notes can be inserted"
+         '(do (midje.semi-sweet/expect (a) => b)
+              (do (midje.semi-sweet/expect (inc a) => M)))
+         '(do (midje.semi-sweet/expect (a) => b
+                                       :binding-note '{?a a})
+                      (do (midje.semi-sweet/expect (inc a) => M
+                                                   :binding-note '{?a a})))
+
+         "fakes do not get insertions"
+         '(do (midje.semi-sweet/expect (a) => b
+                                       (midje.semi-sweet/fake (x) => 3)))
+         '(do (midje.semi-sweet/expect (a) => b :binding-note '{?a a}
+                                       (midje.semi-sweet/fake (x) => 3)))
+
+         "other annotations are preserved"
+         '(do (midje.semi-sweet/expect (a) => b :line 33))
+         '(do (midje.semi-sweet/expect (a) => b :binding-note '{?a a} :line 33)))
