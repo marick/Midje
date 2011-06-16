@@ -27,6 +27,7 @@
 
         (fn? (call :expected-result))
         (report (merge {:type :mock-expected-result-functional-failure
+                        :binding-note (call :binding-note)
                         :position (call :position)
                         :expected (call :expected-result-text-for-failures) }
                        (if (chatty-checker? (call :expected-result))
@@ -42,9 +43,10 @@
                          {:actual actual})))
         :else
         (report {:type :mock-expected-result-failure
-                   :position (call :position)
-                   :actual actual
-                   :expected (call :expected-result) })))
+                 :position (call :position)
+                 :binding-note (call :binding-note)
+                 :actual actual
+                 :expected (call :expected-result) })))
 
 (defmethod check-result :check-negated-match [actual call]
    (cond (not (extended-= actual (call :expected-result)))
@@ -52,12 +54,14 @@
 
         (fn? (call :expected-result))
         (report {:type :mock-actual-inappropriately-matches-checker
+                 :binding-note (call :binding-note)
                  :position (call :position)
                  :expected (call :expected-result-text-for-failures)
                  :actual actual})
 
         :else
         (report {:type :mock-expected-result-inappropriately-matched
+                 :binding-note (call :binding-note)
                  :position (call :position)
                  :expected (call :expected-result-text-for-failures) 
                  :actual actual})))

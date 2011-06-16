@@ -32,7 +32,9 @@
           (pr-str form))))
 
 (defn- fail-at [m]
-  (str "\nFAIL at " (midje-position-string (:position m))))
+  [(str "\nFAIL at " (midje-position-string (:position m)))
+   (when (:binding-note m)
+     (str "With table substitutions: " (:binding-note m)))])
 
 (defn- indented [lines]
   (map (fn [line] (str "        " line)) lines))

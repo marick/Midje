@@ -215,7 +215,21 @@
  2       1      1
  (+ 1 2) 1      2
  3       2      2)
- 
+
+                                     
+(tabular
+ (fact "only two numbers have the same sum and square"
+   (* ?n ?n) ?arrow (+ ?n ?n))
+ ?n     ?arrow
+ 0      =>      
+ 2      =>
+ ;; Failure cases
+ 1      =not=>
+ 1000   =not=>
+ ;; and so on
+ )
+
+
 (tabular
  (fact "nice fact properties are retained"
    (let [a 1]
