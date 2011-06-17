@@ -10,11 +10,13 @@
   [actual] 
   (and (not (captured-exception? actual))
        (not (not actual))))
+(def TRUTHY truthy)
 
 (defchecker falsey 
   "Returns precisely true if actual is nil or false."
   [actual] 
   (not actual))
+(def FALSEY falsey)
 
 (defchecker anything
   "Accepts any value"
