@@ -74,11 +74,23 @@
 
 (defmethod call-count-incorrect? :fake
   [fake]
-  (zero? @(fake :count-atom)))
+  (let [method (or (:times fake) :default)
+        count (fake-count fake)]
+    (cond (= method :default)
+          (zero? count)
+
+          (number? method)
+          (not= method count)
+
+          (coll? method)
+          (not (some #{count} method))
+
+          (fn? method)
+          (not (method count)))))
 
 (defmethod call-count-incorrect? :not-called
   [fake]
-  (not (zero? @(fake :count-atom))))
+  (not (zero? (fake-count fake))))
 
 (defmethod call-count-incorrect? :background
   [fake]
@@ -86,13 +98,12 @@
 
 (defn check-call-counts [fakes]
   (doseq [fake fakes]
-    (if (call-count-incorrect? fake)
-      (do
-        (report {:type :mock-incorrect-call-count
-                 :expected-call (fake :call-text-for-failures)
-                 :position (:position fake)
-                 :expected (fake :call-text-for-failures)}))))
-)
+    (when (call-count-incorrect? fake)
+      (report {:type :mock-incorrect-call-count
+               :actual-count @(fake :count-atom)
+               :expected-call (fake :call-text-for-failures)
+               :position (:position fake)
+               :expected (fake :call-text-for-failures)}))))
 
 ;; TODO: Making everything into a function is a bit silly, given that
 ;; extended-= already knows how to deal with functions on the right-hand-side.

@@ -240,15 +240,15 @@
       (fact "The rules of Conway's life"
         (alive? ?cell-status ?neighbor-count) => ?expected)
       ?cell-status   ?neighbor-count   ?expected
-      :alive         1                 falsey        ; underpopulation
+      :alive         1                 FALSEY        ; underpopulation
       :alive         2                 truthy       
       :alive         3                 truthy
-      :alive         4                 falsey        ; overpopulation
+      :alive         4                 FALSEY        ; overpopulation
      
       ;; A newborn cell has three parents
-      :dead          2                 falsey
+      :dead          2                 FALSEY
       :dead          3                 truthy
-      :dead          4                 falsey)
+      :dead          4                 FALSEY)
 
 (tabular
  (fact "nice fact properties are retained"
@@ -258,8 +258,53 @@
        (g ?n) => ?intermediate)))
  ?result ?n ?intermediate
  (+ a 1)       1      1)
+
+(after-silently
+ (tabular
+  (future-fact (inc ?int) => ?int)
+  ?int
+  1)
+ (fact @reported => (just (contains {:type :future-fact}))))
+
+
+(unfinished called)
+
+(after-silently 
+ (fact
+   (called 1) => 1
+   (provided
+     (called 1) => 1 :times 2))
+ (fact (contains {:type :mock-incorrect-call-count
+                  :actual-count 1})))
+  
+(after-silently
+ (fact
+   (called 1) => 1
+   (provided
+     (called 1) => 1 :times (range 2 8)))
+ (fact (contains {:type :mock-incorrect-call-count
+                  :actual-count 1})))
  
-     (tabular
-      (future-fact (inc ?int) => ?int)
-      ?int
-      1)
+
+(after-silently
+ (fact
+   (do (called 1) (called 1) (called 1)) => 1
+   (provided
+     (called 1) => 1 :times even?))
+ (fact (contains {:type :mock-incorrect-call-count
+                  :actual-count 3})))
+  
+(fact
+  (do (called 1) (called 1)) => 1
+  (provided
+    (called 1) => 1))
+  
+;; Possibly the most common case
+(after-silently
+ (fact
+   (called 45) => 3
+   (provided
+     (called anything) => 1 :times 0))
+ (fact (contains {:type :mock-incorrect-call-count
+                  :actual-count 0})))
+    
