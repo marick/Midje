@@ -8,6 +8,7 @@
 
 (ns midje.util.report
   (:use clojure.test
+        [clojure.contrib.pprint :only [cl-format]]
         [midje.util.form-utils :only [flatten-and-remove-nils]]
         [midje.util.exceptions :only [friendly-exception-text]]
         [midje.checkers.util :only [captured-exception? captured-exception-value]]))
@@ -50,7 +51,11 @@
 (defmethod report-strings :mock-incorrect-call-count [m]
    (list
     (fail-at m)
-    (str "You claimed the following was needed, but it was never used:")
+    (if (zero? (:actual-count m))
+      "You claimed the following was needed, but it was never used:"
+      (cl-format nil
+                 "The following prerequisite was used ~R time~:P. That's not what you predicted."
+                 (:actual-count m)))
     (str "    " (:expected m))))
 
 (defmethod report-strings :mock-expected-result-failure [m]
