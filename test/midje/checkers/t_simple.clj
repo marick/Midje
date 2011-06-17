@@ -21,6 +21,10 @@
   (falsey true) => false
   (falsey 1) => false)
 
+(fact "truthy and falsey have capitalized versions"
+  false => FALSEY
+  true => TRUTHY)
+
 (facts "about anything"
   #'anything => checker?
   anything => checker?
