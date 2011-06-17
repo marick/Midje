@@ -15,11 +15,15 @@
     (expect (namespacey-match '(expect) expect-node) => truthy)
     (expect (namespacey-match '(n) m-node) => falsey)))
 
-(fact "an embedded expect form can be recognized"
-  (zip/seq-zip '(expect x => y)) => loc-is-at-full-expect-form?
-  (zip/seq-zip '(midje.semi-sweet/expect x => y)) => loc-is-at-full-expect-form?
-  (zip/seq-zip '(+ x y)) =not=> loc-is-at-full-expect-form?
-  (zip/seq-zip 'expect) =not=> loc-is-at-full-expect-form?)
+(tabular 
+ (fact "an embedded expect form can be recognized"
+   (loc-is-at-full-expect-form? (zip/seq-zip ?form)) => ?expected)
+
+ ?form                                  ?expected
+ '(expect x => y)                       truthy
+ '(midje.semi-sweet/expect x => y)      truthy
+ '(+ x y)                               falsey
+ 'expect                                falsey)
 
 (fact "can ask whether at the beginning of a form that provides prerequisites"
   (let [values (zip/seq-zip '(provided midje.semi-sweet/provided fluke))]
