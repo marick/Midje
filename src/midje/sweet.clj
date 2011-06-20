@@ -17,13 +17,14 @@
         [midje.fakes :only [background-fakes]]
         [midje.midje-forms.dissecting :only [separate-background-forms
                                              dissect-fact-table]]
-        [midje.util report debugging thread-safe-var-nesting unify]
+        [midje.util debugging thread-safe-var-nesting unify]
         [midje.util.exceptions :only [user-error-exception-lines]]
         [midje.util.wrapping :only [multiwrap]]
         [midje.util.form-utils :only [reader-line-number]]
         [midje.util.file-position :only [user-file-position set-fallback-line-number-from]])
   (:require [midje.midje-forms.building :as building])
   (:require midje.checkers)
+  (:require [midje.util.report :as report])
 )
 (immigrate 'midje.unprocessed)
 (immigrate 'midje.semi-sweet)
@@ -58,13 +59,17 @@
                 wrapped-expansion (multiwrap expansion
                                              (forms-to-wrap-around :facts))]
             (define-metaconstants things-to-run)
-            wrapped-expansion)
+            `(do (report/fact-begins)
+                 ~wrapped-expansion
+                 (report/fact-checks-out?)))
           `(against-background ~background (midje.sweet/fact ~@remainder))))
       (catch Exception ex
-        `(clojure.test/report {:type :exceptional-user-error
-                                   :macro-form '~&form
-                                   :exception-lines '~(user-error-exception-lines ex)
-                                   :position (midje.util.file-position/line-number-known ~(:line (meta &form)))})))))
+        `(do
+           (clojure.test/report {:type :exceptional-user-error
+                                 :macro-form '~&form
+                                 :exception-lines '~(user-error-exception-lines ex)
+                                 :position (midje.util.file-position/line-number-known ~(:line (meta &form)))})
+           false)))))
 
 (defmacro facts [& forms]
   (with-meta `(fact ~@forms) (meta &form)))

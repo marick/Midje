@@ -308,3 +308,29 @@
  (fact (contains {:type :mock-incorrect-call-count
                   :actual-count 0})))
     
+
+;;; return values
+
+(def *fact-retval* (fact
+                     (+ 1 1) => 2
+                     "some random return value"))
+(fact "fact returns true on success"
+   *fact-retval* => true)
+
+
+(def *fact-retval* (fact
+                     (midje.util.report/note-failure-in-fact)
+                     "some random return value"))
+(fact "fact returns false on failure"
+  *fact-retval* => false)
+
+
+(def *fact-retval* (fact
+                      (+ 1 1) => 2
+                      "some random return value"))
+(fact "a fact's return value is not affected by previous failures"
+  *fact-retval* => true)
+
+
+
+

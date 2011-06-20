@@ -84,4 +84,5 @@
                                   (eagerly
                                    ((call-map :function-under-test))))]
       (check-call-counts local-fakes)
-      (check-result code-under-test-result call-map))))
+      (check-result code-under-test-result call-map)
+      :irrelevant-return-value)))

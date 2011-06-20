@@ -15,6 +15,21 @@
 
 (def *renderer* println)
 
+
+;;; This mechanism is only used to make `fact` return appropriate values of
+;;; true or false. It doesn't piggyback off clojure.test/*report-counters*
+;;; partly because that's not normally initialized and partly to reduce
+;;; dependencies.
+(def *failure-in-fact* false)
+(defn note-failure-in-fact
+  ([] (note-failure-in-fact true))
+  ([val] (alter-var-root #'*failure-in-fact* (constantly val))))
+(defn fact-begins []
+  (note-failure-in-fact false))
+(defn fact-checks-out? [] (not *failure-in-fact*))
+
+
+
 (defn- midje-position-string [position-pair]
   (format "(%s:%s)" (first position-pair) (second position-pair)))
 
@@ -116,7 +131,11 @@
 
 (defmethod clojure.test/old-report :default [m]
    (inc-report-counter :fail)
+   (note-failure-in-fact)
    (render m))
 
 (defmethod clojure.test/old-report :future-fact [m]
    (render m))
+
+
+   
