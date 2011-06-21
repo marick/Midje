@@ -190,8 +190,8 @@
 
 
 (defn lineno
-  ([tree] (:line (meta tree)))
-  ([tree n] (:line (meta (nth tree n)))))
+  ([tree] (get (meta tree) :line :not-found))
+  ([tree n] (get (meta (nth tree n)) :line :not-found)))
 
 (fact "metadata can be copied from one tree to a matching tree"
   (let [line-number-source '(This has
@@ -227,12 +227,12 @@
     line-number-source =not=> form-source
     result => form-source
 
-    (lineno line-number-source 1) => nil
-    (lineno line-number-source 3) => nil
+    (lineno line-number-source 1) => :not-found
+    (lineno line-number-source 3) => :not-found
     (lineno form-source 1) =not=> nil
     (lineno form-source 3) =not=> nil
-    (lineno result 1) => nil
-    (lineno result 3) => nil
+    (lineno result 1) => :not-found
+    (lineno result 3) => :not-found
 
     (lineno result) =not=> (lineno form-source)
     (lineno result) => (lineno line-number-source)

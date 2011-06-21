@@ -49,3 +49,21 @@
      (+ (f x) 2) => 4)
    (fact (only-passes? 1) => truthy)))
 
+(defn day-of-month-stream [xyz] :blah)
+
+(defn new-date [x y z] :blah)
+
+(tabular
+  (fact "makes a stream of given day of the month"
+    (day-of-month-stream 1) => ?date-time)
+	  
+	?nth   ?date-time
+        first  (new-date 1 2 3))
+
+(defn today-num [])
+
+(tabular 
+ (fact 
+   #(today-num) => anything)
+ ?day-num
+ 7 )

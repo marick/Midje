@@ -218,9 +218,11 @@
                                :else loc)))))))
 
 (defn- replace-loc-line [loc loc-with-line]
-  (zip/replace loc (with-meta (zip/node loc)
-                     (assoc (meta (zip/node loc)) :line                
-                            (:line (meta (zip/node loc-with-line)))))))
+  (let [m (fn [loc] (meta (zip/node loc)))
+        transferred-meta (if (contains? (m loc-with-line) :line)
+                           (assoc (m loc) :line (:line (m loc-with-line)))
+                           (dissoc (m loc) :line))]
+    (zip/replace loc (with-meta (zip/node loc) transferred-meta))))
 
 (defn form-with-copied-line-numbers [form line-number-source]
   (loop [loc (zip/seq-zip form)
