@@ -13,11 +13,12 @@ end
 
 
 $clojure_version = arg(0, "clojure")
-$midje_version = arg(1, "midje")
+$clojure_contrib_version = arg(1, "clojure_contrib")
+$midje_version = arg(2, "midje")
 
 
 $clojure_jar="#{ENV['HOME']}/.m2/repository/org/clojure/clojure/#{$clojure_version}/clojure-#{$clojure_version}.jar"
-$contrib_jar="#{ENV['HOME']}/.m2/repository/org/clojure/clojure-contrib/#{$clojure_version}/clojure-contrib-#{$clojure_version}.jar"
+$contrib_jar="#{ENV['HOME']}/.m2/repository/org/clojure/clojure-contrib/#{$clojure_contrib_version}/clojure-contrib-#{$clojure_contrib_version}.jar"
 $midje_jar="midje-#{$midje_version}.jar"
 
 def remove_jars(*dirs)

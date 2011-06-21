@@ -5,6 +5,7 @@
    https://github.com/marick/Midje/wiki/Tabular-facts
 * `fact` will now return true if all the checks succeed;
   false otherwise.
+* Can use either Clojure 1.2.0 or 1.2.1
 
 = 1.1.1 
 * Background prerequisites are now scoped to facts. That

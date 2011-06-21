@@ -4,11 +4,14 @@ require 'rubygems'
 require 'rake'
 
 def jar_name
-    text = File.read('project.clj')
-    unless /midje\s+"(\d+\.\d+\.\d+(-[A-Z]+)?)"/ =~ text
-    	"Couldn't find version in project file."
-	exit 1
-   end
+  text = File.read('project.clj')
+  unless /midje\s+"(\d+\.\d+\.\d+(-[A-Z]+)?)"/ =~ text ||
+         /midje\s+"(\d+\.\d-alpha\d)"/ =~ text || 
+         /midje\s+"(\d+\.\d-beta\d)"/ =~ text || 
+    puts "Couldn't find version in project file."
+    exit 1
+  end
+  puts "jar name: #{$1}"
    "midje-#{$1}.jar"
 end
 
@@ -32,7 +35,9 @@ end
 
 desc "upload to clojars"
 task :upload do
-     doit("lein pom")
-     doit("mv midje.jar #{jar_name} ")
-     doit("scp pom.xml #{jar_name} clojars@clojars.org:")
+  doit("lein pom")
+  if File.exist?("midje.jar")
+    doit("mv midje.jar #{jar_name} ")
+  end
+  doit("scp pom.xml #{jar_name} clojars@clojars.org:")
 end

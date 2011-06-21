@@ -4,7 +4,11 @@ manual.
 * Update HISTORY
 * bin/update-project-files <midje-version>
 * Rake fresh
-* bin/version 1.2.0 <midje-version>
+* bin/version 1.2.0 1.2.0 <midje-version>
+* bin/run-tests
+
+* Rake fresh
+* bin/version 1.2.1 1.2.0 <midje-version>
 * bin/run-tests
 
 * Rake fresh
