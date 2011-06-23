@@ -6,8 +6,7 @@
 (defn named [name expected function]
   "Adds a string name that looks like a function call to
    a functions metadata under :name"
-  (with-meta function
-        {:name (format "(%s %s)" name expected)}))
+  (vary-meta function assoc :name (format "(%s %s)" name expected)))
   
 
 (def captured-exception-key "this Throwable was captured by midje:")
