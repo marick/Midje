@@ -49,8 +49,47 @@
                                    :notes  ["Expected one element. There were two."]})))
 
 
+;; The behavior of checkers is different in prerequisites
 
+(tabular
+ (fact ?actual ?arrow ?expected)
 
+ ?expected                      ?actual ?arrow
+ odd?                           3       =>
+ odd?                           odd?    =not=>
 
-   
- 
+ (exactly odd?)                 3       =not=>
+ (exactly odd?)                 odd?    =>
+
+ (as-checker odd?)              3       =>
+ (as-checker odd?)              odd?    =not=>
+
+ (fn [actual] (= 3 actual))     3       =>
+ (fn [actual] (= 3 actual))     odd?    =not=>)
+
+(unfinished inner)
+(defn outer [n] (inner n))
+
+(tabular
+ (after-silently 
+  (fact
+    (outer ?actual) => "expected"
+    (provided 
+      (inner ?expected) => "expected"))
+  (fact @reported ?arrow (one-of pass)))
+
+ ?expected                      ?actual ?arrow
+ odd?                           3       =not=>   ;; different
+ odd?                           odd?    =>       ;; different
+
+ (exactly odd?)                 3       =not=>
+ (exactly odd?)                 odd?    =>
+
+ (as-checker odd?)              3       =>
+ (as-checker odd?)              odd?    =not=>
+
+ (fn [actual] (= 3 actual))     3       =not=>  ;; different
+ (fn [actual] (= 3 actual))     odd?    =not=>  ;; different
+
+ (as-checker (fn [actual] (= 3 actual)))     3       =>
+ (as-checker (fn [actual] (= 3 actual)))     odd?    =not=>)

@@ -5,6 +5,7 @@
         clojure.test
         [midje.util report file-position form-utils exceptions
                     thread-safe-var-nesting wrapping]
+        [midje.checkers :only [exactly]]
         [midje.checkers.defining :only [checker?]]
         [midje.checkers.util :only [captured-exception]]
         [midje.checkers.chatty :only [chatty-checker-falsehood? chatty-checker?]]
@@ -105,33 +106,14 @@
                :position (:position fake)
                :expected (fake :call-text-for-failures)}))))
 
-;; TODO: Making everything into a function is a bit silly, given that
-;; extended-= already knows how to deal with functions on the right-hand-side.
-(defn arg-matcher-maker [expected]
+(defn arg-matcher-maker 
   "Based on an expected value, generates a function that returns true if the 
    actual value matches it."
-  (when (and (extended-fn? expected)
-             (not (checker? expected))
-             (not (and (string? (:name (meta expected)))
-                       (re-find #"^\(exactly " (:name (meta expected))))))
-    (let [stacktrace-line (nth (without-midje-or-clojure-strings
-                                (stacktrace-as-strings (Throwable.)))
-                               1)
-          stacktrace-position (first (re-find #"(\(.*\))" stacktrace-line))]
-      (println "-----")
-      (println "-- WARNING: In this version, prerequisite arguments that are functions are")
-      (println "-- considered checkers. In the near future, they'll be considered ordinary")
-      (println "-- values. If you want them to be checkers, you need to declare them as such.")
-      (println "-- The function argument I'm objecting to is:")
-      (println "--    " (attractively-stringified-form expected))
-      (println "--     near" stacktrace-position)
-      (println "-- To future-proof your fact (and make this message go away), do this:")
-      (println "--     (as-checker <<<your function argument>>>)")
-      (println "-- If you never wanted this argument to be treated as a checker, do this:")
-      (println "       (exactly <<<your function argument>>>)")
-      (println "-- For more, see https://github.com/marick/Midje/wiki/Checkers-within-prerequisites")
-      (println "-----")))
-  (fn [actual] (extended-= actual expected)))
+  [expected]
+  (if (and (extended-fn? expected)
+           (not (checker? expected)))
+    (fn [actual] (extended-= actual (exactly expected)))
+    (fn [actual] (extended-= actual expected))))
 
 ;; Managing background fakes
 
