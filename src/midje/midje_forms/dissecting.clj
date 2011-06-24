@@ -35,15 +35,16 @@
         (recur (conj so-far whole-body)
                (nthnext remainder (count whole-body)))))))
 
-(defn- remove-pipes [table]
-  (remove #(= "|" (pr-str %)) table))
+(defn- remove-pipes+where [table]
+  (let [strip-off-where #(if (contains? #{:where 'where} (first %)) (rest %) % )]
+    (->> table strip-off-where (remove #(= "|" (pr-str %))))))
 
 (defn- table-variables [table]
-  (take-while #(.startsWith (pr-str %) "?") (remove-pipes table)))	
+  (take-while #(.startsWith (pr-str %) "?") (remove-pipes+where table)))	
 
 (defn- table-binding-maps [table]
   (let [variables (table-variables table)
-        value-lists (rest (partition (count variables) (remove-pipes table)))]
+        value-lists (rest (partition (count variables) (remove-pipes+where table)))]
     (map (partial zipmap variables) value-lists)))
 
 (defn dissect-fact-table [[fact-form & table]]

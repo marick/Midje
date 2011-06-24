@@ -211,6 +211,22 @@
  ?a  | ?b  | ?c  | ?result
  "a" | "|" | "c" | "a|c" )
 
+(tabular
+ (fact "will ignore an optional ':where' above the table"
+   (+ ?a ?b) => ?result)
+ 
+ :where
+ ?a | ?b | ?result
+ 1  | 2  | 3)
+
+(tabular
+ (fact "will ignore an optional 'where' above the table"
+   (+ ?a ?b) => ?result)
+ 
+ where
+ ?a | ?b | ?result
+ 1  | 2  | 3)
+
 (defn f [n] (inc (g n)))
 
 (tabular
