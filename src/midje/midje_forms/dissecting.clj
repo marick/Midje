@@ -46,9 +46,7 @@
         value-lists (rest (partition (count variables) (remove-pipes table)))]
     (map (partial zipmap variables) value-lists)))
 
-(defn dissect-fact-table [forms]
-  {:fact-form (first forms)
-   :binding-maps (table-binding-maps (rest forms))
-   :map-order (table-variables (rest forms))})
-
-
+(defn dissect-fact-table [[fact-form & table]]
+  {:fact-form fact-form 
+   :binding-maps (table-binding-maps table)
+   :map-order (table-variables table)})
