@@ -94,18 +94,12 @@
 (defmacro antiterminologicaldisintactitudinarian-fact [& forms] (future-fact-1 &form))
 (defmacro antiterminologicaldisintactitudinarian-facts [& forms] (future-fact-1 &form))
 
-
 (defmacro tabular [& forms]
-  (let [dissected (dissect-fact-table forms)
+  (let [{:keys [fact-form binding-maps map-order]} (dissect-fact-table forms)
         substitute (fn [bindings]
-                     (subst (:fact-form dissected) bindings))
+                     (subst fact-form bindings))
         numbered (fn [form]
-                   (form-with-copied-line-numbers form (:fact-form dissected)))
-        expect-forms (map (comp macroexpand numbered substitute)
-                          (:binding-maps dissected))
-        result (add-binding-annotations expect-forms
-                                        (:binding-maps dissected)
-                                        (:map-order dissected))]
+                   (form-with-copied-line-numbers form fact-form))
+        expect-forms (map (comp macroexpand numbered substitute) binding-maps)
+        result (add-binding-annotations expect-forms binding-maps map-order)]
     `(do ~@result)))
-
-
