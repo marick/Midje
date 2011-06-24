@@ -16,8 +16,7 @@
 
 
 (defn remove-moving-right [loc]
-  (-> loc zip/remove zip/next)
-)
+  (-> loc zip/remove zip/next))
 
 (defn delete_prerequisite_form__then__at-previous-full-expect-form [loc]
   (assert (is-head-of-form-providing-prerequisites? loc))
