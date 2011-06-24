@@ -13,8 +13,7 @@
 (defn raw-wrappers [background-form]  (second background-form))
 
 (defn interior-forms [form]
-  `(do ~@(rest (rest form)))
-  )
+  `(do ~@(rest (rest form))))
 
 (defn arrow-form-overrides [forms]
   "Extract key-value overrides from the sequence of forms"
@@ -36,20 +35,18 @@
         (recur (conj so-far whole-body)
                (nthnext remainder (count whole-body)))))))
 
+(defn- remove-pipes [table]
+  (remove #(= "|" (pr-str %)) table))
 
 (defn- table-variables [table]
-  (take-while #(.startsWith (pr-str %) "?") table))
+  (take-while #(.startsWith (pr-str %) "?") (remove-pipes table)))	
 
 (defn- table-binding-maps [table]
   (let [variables (table-variables table)
-        value-lists (rest (partition (count variables) table))]
-    (map (fn [values] (apply hash-map (interleave variables values)))
-         value-lists)))
+        value-lists (rest (partition (count variables) (remove-pipes table)))]
+    (map (partial zipmap variables) value-lists)))
 
-
-(defn dissect-fact-table [forms]
-  {:fact-form (first forms)
-   :binding-maps (table-binding-maps (rest forms))
-   :map-order (table-variables (rest forms))})
-
-
+(defn dissect-fact-table [[fact-form & table]]
+  {:fact-form fact-form 
+   :binding-maps (table-binding-maps table)
+   :map-order (table-variables table)})
