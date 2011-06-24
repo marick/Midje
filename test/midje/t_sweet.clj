@@ -206,10 +206,10 @@
 
 (tabular
  (fact "will ignore optional pipes separating table columns"
-   (+ ?a ?b) => ?result)
+   (str ?a ?b ?c) => ?result)
  
- ?a | ?b | ?result
- 1  | 2  | 3)
+ ?a  | ?b  | ?c  | ?result
+ "a" | "|" | "c" | "a|c" )
 
 (defn f [n] (inc (g n)))
 
