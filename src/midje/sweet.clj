@@ -2,9 +2,7 @@
 
 (ns midje.sweet
   (:use clojure.test
-        [clojure.contrib.ns-utils :only [immigrate]]
-        [clojure.contrib.pprint :only [pprint]]
-        [clojure.contrib.seq :only [separate]])
+        [clojure.contrib.ns-utils :only [immigrate]])
          
   (:use [midje production-mode metaconstants]
         midje.midje-forms.recognizing
@@ -96,10 +94,10 @@
 
 (defmacro tabular [& forms]
   (let [{:keys [fact-form binding-maps map-order]} (dissect-fact-table forms)
-        substitute (fn [bindings]
-                     (subst fact-form bindings))
-        numbered (fn [form]
-                   (form-with-copied-line-numbers form fact-form))
-        expect-forms (map (comp macroexpand numbered substitute) binding-maps)
+        expect-forms (map (comp macroexpand 
+        		        #(form-with-copied-line-numbers % fact-form) 
+        		        (partial subst fact-form)) binding-maps)
         result (add-binding-annotations expect-forms binding-maps map-order)]
     `(do ~@result)))
+
+
