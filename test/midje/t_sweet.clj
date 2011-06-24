@@ -77,7 +77,7 @@
 ; Metaconstants
 (fact (always-one ...anything...) => 1)
 (fact (g-caller ...something...) => ...g-value...
-  (provided (g-caller ...something...) => ...g-value...))
+  (provided (g ...something...) => ...g-value...))
 
 (fact "key-value pairs can be passed to override normal behavior"
   (always-one 3) => 3 :expected-result 1)
