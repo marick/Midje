@@ -35,6 +35,9 @@
         (recur (conj so-far whole-body)
                (nthnext remainder (count whole-body)))))))
 
+;; dissecting tabular facts - could be in its own ns since it uses nothing from the above code
+;; maybe midje.midje-forms.dissecting.tabular
+
 (defn- remove-pipes+where [table]
   (let [strip-off-where #(if (contains? #{:where 'where} (first %)) (rest %) % )]
     (->> table strip-off-where (remove #(= "|" (pr-str %))))))
