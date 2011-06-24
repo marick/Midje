@@ -36,16 +36,19 @@
         (recur (conj so-far whole-body)
                (nthnext remainder (count whole-body)))))))
 
+(defn- remove-pipes [table]
+  (remove #(= "|" (pr-str %)) table))
 
 (defn- table-variables [table]
-  (take-while #(.startsWith (pr-str %) "?") table))
+  (->> table 
+       remove-pipes 
+       (take-while #(.startsWith (pr-str %) "?"))))	  
 
 (defn- table-binding-maps [table]
   (let [variables (table-variables table)
-        value-lists (rest (partition (count variables) table))]
-    (map (fn [values] (apply hash-map (interleave variables values)))
+        value-lists (rest (partition (count variables) (remove-pipes table)))]
+    (map (fn [values] (apply hash-map (interleave variables values))) ;; (partial zipmap variables) ???
          value-lists)))
-
 
 (defn dissect-fact-table [forms]
   {:fact-form (first forms)

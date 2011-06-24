@@ -204,6 +204,13 @@
  ?a    ?b      ?result
  1     2       3)
 
+(tabular
+ (fact "will ignore optional pipes separating table columns"
+   (+ ?a ?b) => ?result)
+ 
+ ?a | ?b | ?result
+ 1  | 2  | 3)
+
 (defn f [n] (inc (g n)))
 
 (tabular
