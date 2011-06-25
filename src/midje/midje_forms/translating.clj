@@ -10,7 +10,8 @@
         [midje.util.file-position :only [arrow-line-number]]
         [midje.midje-forms building recognizing dissecting moving-around editing]
         [midje.fakes :only [background-fake-wrappers]]
-        [midje.util.debugging])
+        [midje.util.debugging]
+        midje.util.sequence)
   (:require [clojure.zip :as zip]))
 
 ;; Translating a form into an equivalent form with all arrow sequences given
@@ -245,7 +246,7 @@
                  (zip/next line-loc)))))
 
 (defn- ordered-map-str [full-map keys-in-order]
-  (let [entries (map (fn [key] (str key " " (pr-str (key full-map)))) keys-in-order)]
+  (let [entries (map (fn [k] (str k " " (pr-str (k full-map)))) keys-in-order)]
     (str "{" (str-join ", " entries) "}")))
 
 (defn add-one-binding-annotation [expect-containing-form binding-map variable-order]
@@ -265,4 +266,4 @@
 (defn add-binding-annotations [expect-containing-forms binding-maps variable-order]
   (map (fn [ [expect-form binding-map] ]
              (add-one-binding-annotation expect-form binding-map variable-order))
-       (partition 2 (interleave expect-containing-forms binding-maps))))
+       (zip expect-containing-forms binding-maps)))
