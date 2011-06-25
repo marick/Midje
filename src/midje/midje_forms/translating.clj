@@ -249,7 +249,7 @@
   (let [entries (map (fn [k] (str k " " (pr-str (k full-map)))) keys-in-order)]
     (str "{" (str-join ", " entries) "}")))
 
-(defn add-one-binding-annotation [expect-containing-form binding-map variable-order]
+(defn add-one-binding-note [expect-containing-form binding-map variable-order]
   (loop [loc (zip/seq-zip expect-containing-form)]
     (cond (zip/end? loc)
           (zip/root loc)
@@ -263,7 +263,7 @@
           :else
           (recur (zip/next loc)))))
 
-(defn add-binding-annotations [expect-containing-forms binding-maps variable-order]
+(defn add-binding-notes [expect-containing-forms binding-maps variable-order]
   (map (fn [ [expect-form binding-map] ]
-             (add-one-binding-annotation expect-form binding-map variable-order))
+             (add-one-binding-note expect-form binding-map variable-order))
        (zip expect-containing-forms binding-maps)))

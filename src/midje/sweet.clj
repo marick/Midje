@@ -11,7 +11,7 @@
                 forms-to-wrap-around translate-fact-body
                 add-line-numbers unfold-prerequisites
                 form-with-copied-line-numbers
-                add-binding-annotations]]
+                add-binding-notes]]
         [midje.fakes :only [background-fakes]]
         [midje.midje-forms.dissecting :only [separate-background-forms
                                              dissect-fact-table]]
@@ -97,7 +97,7 @@
         expect-forms (map (comp macroexpand 
         		        #(form-with-copied-line-numbers % fact-form) 
         		        (partial subst fact-form)) binding-maps)
-        result (add-binding-annotations expect-forms binding-maps variable-order)]
+        result (add-binding-notes expect-forms binding-maps variable-order)]
     `(do ~@result)))
 
 

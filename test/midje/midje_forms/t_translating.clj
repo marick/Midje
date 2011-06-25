@@ -255,7 +255,7 @@
 (tabular (fact ?comment
            (let [line-no-free-original ?original
                  line-no-free-expected ?expected]
-             (add-one-binding-annotation line-no-free-original '{?a a } '[?a])
+             (add-one-binding-note line-no-free-original '{?a a } '[?a])
              => line-no-free-expected))
 
          ?comment ?original ?expected
@@ -279,7 +279,7 @@
          '(do (midje.semi-sweet/expect (a) => b :binding-note "{?a a}" :line 33)))
 
 (fact "the binding notes are in the order of the original column"
-  (let [actual (add-one-binding-annotation '(do (expect 1 => 2))
+  (let [actual (add-one-binding-note '(do (expect 1 => 2))
                                            '{?a 1, ?b 2, ?delta "0", ?result 3}
                                            '[?result ?b ?a ?delta])
         expected '(do (expect 1 => 2 :binding-note "{?result 3, ?b 2, ?a 1, ?delta \"0\"}"))]
