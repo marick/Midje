@@ -12,7 +12,6 @@
         [midje.checkers.extended-equality :only [extended-= extended-list-= extended-fn?]])
   (:require [clojure.zip :as zip]))
 
-
 (defn common-to-all-fakes [var-sym] 
   `{:function (var ~var-sym)
     :count-atom (atom 0)
@@ -26,8 +25,7 @@
    (apply hash-map-duplicates-ok user-override-pairs)))
 
 (defn unique-function-vars [fakes]
-  (distinct (map #(:function %) fakes))
-)
+  (distinct (map #(:function %) fakes)))
 
 (defmulti matches-call? (fn [fake faked-function args]
                           (:type fake)))
@@ -42,10 +40,8 @@
        (= (count args) (count (fake :arg-matchers)))
        (extended-list-= args (fake :arg-matchers))))
 
-
 (defn find-matching-call [faked-function args fakes]
-  (find-first #(matches-call? % faked-function args) fakes)
-)
+  (find-first #(matches-call? % faked-function args) fakes))
 
 (defn call-faker [faked-function args fakes]
   "This is the function that handles all mocked calls."
@@ -66,8 +62,7 @@
               (let [faker (fn [& actual-args] (call-faker function-var actual-args fakes))]
                 (assoc accumulator function-var faker)))
           {}
-          (unique-function-vars fakes))
-)
+          (unique-function-vars fakes)))
 
 (defn fake-count [fake] (deref (:count-atom fake)))
 

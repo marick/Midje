@@ -13,8 +13,7 @@
 (defn raw-wrappers [background-form]  (second background-form))
 
 (defn interior-forms [form]
-  `(do ~@(rest (rest form)))
-  )
+  `(do ~@(rest (rest form))))
 
 (defn arrow-form-overrides [forms]
   "Extract key-value overrides from the sequence of forms"
@@ -36,20 +35,22 @@
         (recur (conj so-far whole-body)
                (nthnext remainder (count whole-body)))))))
 
+;; dissecting tabular facts - could be in its own ns since it uses nothing from the above code
+;; maybe midje.midje-forms.dissecting.tabular
+
+(defn- remove-pipes+where [table]
+  (let [strip-off-where #(if (contains? #{:where 'where} (first %)) (rest %) % )]
+    (->> table strip-off-where (remove #(= "|" (pr-str %))))))
 
 (defn- table-variables [table]
-  (take-while #(.startsWith (pr-str %) "?") table))
+  (take-while #(.startsWith (pr-str %) "?") (remove-pipes+where table)))	
 
 (defn- table-binding-maps [table]
-  (let [variables (table-variables table)
-        value-lists (rest (partition (count variables) table))]
-    (map (fn [values] (apply hash-map (interleave variables values)))
-         value-lists)))
+  (let [[variables values] (split-with #(.startsWith (pr-str %) "?") (remove-pipes+where table))
+        value-lists (partition (count variables) values)]
+    (map (partial zipmap variables) value-lists)))
 
-
-(defn dissect-fact-table [forms]
-  {:fact-form (first forms)
-   :binding-maps (table-binding-maps (rest forms))
-   :map-order (table-variables (rest forms))})
-
-
+(defn dissect-fact-table [[fact-form & table]]
+  {:fact-form fact-form 
+   :binding-maps (table-binding-maps table)
+   :variable-order (table-variables table)})

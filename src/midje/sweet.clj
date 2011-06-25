@@ -2,9 +2,7 @@
 
 (ns midje.sweet
   (:use clojure.test
-        [clojure.contrib.ns-utils :only [immigrate]]
-        [clojure.contrib.pprint :only [pprint]]
-        [clojure.contrib.seq :only [separate]])
+        [clojure.contrib.ns-utils :only [immigrate]])
          
   (:use [midje production-mode metaconstants]
         midje.midje-forms.recognizing
@@ -94,18 +92,12 @@
 (defmacro antiterminologicaldisintactitudinarian-fact [& forms] (future-fact-1 &form))
 (defmacro antiterminologicaldisintactitudinarian-facts [& forms] (future-fact-1 &form))
 
-
 (defmacro tabular [& forms]
-  (let [dissected (dissect-fact-table forms)
-        substitute (fn [bindings]
-                     (subst (:fact-form dissected) bindings))
-        numbered (fn [form]
-                   (form-with-copied-line-numbers form (:fact-form dissected)))
-        expect-forms (map (comp macroexpand numbered substitute)
-                          (:binding-maps dissected))
-        result (add-binding-annotations expect-forms
-                                        (:binding-maps dissected)
-                                        (:map-order dissected))]
+  (let [{:keys [fact-form binding-maps variable-order]} (dissect-fact-table forms)
+        expect-forms (map (comp macroexpand 
+        		        #(form-with-copied-line-numbers % fact-form) 
+        		        (partial subst fact-form)) binding-maps)
+        result (add-binding-annotations expect-forms binding-maps variable-order)]
     `(do ~@result)))
 
 

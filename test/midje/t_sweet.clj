@@ -77,7 +77,7 @@
 ; Metaconstants
 (fact (always-one ...anything...) => 1)
 (fact (g-caller ...something...) => ...g-value...
-  (provided (g-caller ...something...) => ...g-value...))
+  (provided (g ...something...) => ...g-value...))
 
 (fact "key-value pairs can be passed to override normal behavior"
   (always-one 3) => 3 :expected-result 1)
@@ -203,6 +203,37 @@
    (+ ?a ?b) => ?result)
  ?a    ?b      ?result
  1     2       3)
+
+(tabular
+ (fact "will ignore optional pipes separating table columns"
+   (str ?a ?b ?c) => ?result)
+ 
+ ?a  | ?b  | ?c  | ?result
+ "a" | "|" | "c" | "a|c" )
+
+(tabular
+ (fact "will ignore an optional ':where' above the table"
+   (+ ?a ?b) => ?result)
+ 
+ :where
+ ?a | ?b | ?result
+ 1  | 2  | 3)
+
+(tabular
+ (fact "will ignore an optional 'where' above the table"
+   (+ ?a ?b) => ?result)
+ 
+ where
+ ?a | ?b | ?result
+ 1  | 2  | 3)
+
+(tabular
+ (fact "can have different forms of where in the data, no problem"
+   (str ?a ?b) => ?result)
+ 
+ where
+ ?a     | ?b     | ?result
+ :where | 'where | ":wherewhere")
 
 (defn f [n] (inc (g n)))
 
