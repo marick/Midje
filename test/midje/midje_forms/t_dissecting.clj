@@ -84,6 +84,22 @@
        ?a | ?b | ?result
        1  | 2  | 3))
 
+(check-dissects-fact-table "ignores symbol - where" 	
+  '(tabular    
+    (fact (+ ?a ?b) => ?result)
+    
+      where	 	
+       ?a  ?b  ?result	 	
+       1   2   3))	 	
+	 	
+(check-dissects-fact-table "ignores keyword - :where"	 	
+  '(tabular	 	
+     (fact (+ ?a ?b) => ?result)	
+ 	
+      :where	 	
+      ?a  ?b  ?result	 	
+      1   2   3))
+
 (let [dissected (dissect-fact-table (rest '(tabular
                                          (fact (str ?a ?b) => ?result)
                                        ?a     | ?b     | ?result
