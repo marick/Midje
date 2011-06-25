@@ -3,6 +3,34 @@
 (ns midje.t-fakes
   (:use [midje fakes sweet test-util]))
 
+
+(tabular
+ (facts "the arg matcher maker hadles functions specially"
+   ((arg-matcher-maker ?expected) ?actual) => ?result)
+ ?expected              ?actual         ?result
+ 1                      1               TRUTHY
+ 1                      odd?            falsey
+
+ anything               3               TRUTHY
+ anything               odd?            TRUTHY
+ (roughly 3)            3               TRUTHY
+ (roughly 3)            0               falsey
+ (contains 1)           [3 1]           TRUTHY
+ (contains 1)           [3 3]           falsey
+ (contains odd?)        [3]             TRUTHY
+ (contains odd?)        [2 odd?]        falsey
+
+ (exactly odd?)         odd?            TRUTHY
+ (exactly odd?)         3               falsey
+
+ (as-checker odd?)      odd?            falsey
+ (as-checker odd?)      3               TRUTHY
+
+ odd?                   odd?            TRUTHY
+ odd?                   3               falsey)
+
+ 
+
 (declare f g)
 (fact "unique variables can be found in fakes"
   (let [fakes [ (fake (f 1) => 2)

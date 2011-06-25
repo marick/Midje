@@ -37,7 +37,7 @@
 (facts "about exactly"
   #'exactly => checker?
   exactly => checker?
-  (exactly odd?) =not=> checker? ;; It represents the function itself.
+  (exactly odd?) => checker? 
   true => (exactly true)
   ( (exactly 2) 2) => truthy
   ( (exactly 1) 2) => falsey
