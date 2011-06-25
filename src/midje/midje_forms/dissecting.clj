@@ -46,8 +46,8 @@
   (take-while #(.startsWith (pr-str %) "?") (remove-pipes+where table)))	
 
 (defn- table-binding-maps [table]
-  (let [variables (table-variables table)
-        value-lists (rest (partition (count variables) (remove-pipes+where table)))]
+  (let [[variables values] (split-with #(.startsWith (pr-str %) "?") (remove-pipes+where table))
+        value-lists (partition (count variables) values)]
     (map (partial zipmap variables) value-lists)))
 
 (defn dissect-fact-table [[fact-form & table]]
