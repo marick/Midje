@@ -35,18 +35,22 @@
         (recur (conj so-far whole-body)
                (nthnext remainder (count whole-body)))))))
 
-(defn- remove-pipes [table]
-  (remove #(= "|" (pr-str %)) table))
+;; dissecting tabular facts - could be in its own ns since it uses nothing from the above code
+;; maybe midje.midje-forms.dissecting.tabular
+
+(defn- remove-pipes+where [table]
+  (let [strip-off-where #(if (contains? #{:where 'where} (first %)) (rest %) % )]
+    (->> table strip-off-where (remove #(= "|" (pr-str %))))))
 
 (defn- table-variables [table]
-  (take-while #(.startsWith (pr-str %) "?") (remove-pipes table)))	
+  (take-while #(.startsWith (pr-str %) "?") (remove-pipes+where table)))	
 
 (defn- table-binding-maps [table]
-  (let [variables (table-variables table)
-        value-lists (rest (partition (count variables) (remove-pipes table)))]
+  (let [[variables values] (split-with #(.startsWith (pr-str %) "?") (remove-pipes+where table))
+        value-lists (partition (count variables) values)]
     (map (partial zipmap variables) value-lists)))
 
 (defn dissect-fact-table [[fact-form & table]]
   {:fact-form fact-form 
    :binding-maps (table-binding-maps table)
-   :map-order (table-variables table)})
+   :variable-order (table-variables table)})
