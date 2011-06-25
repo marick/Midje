@@ -227,6 +227,14 @@
  ?a | ?b | ?result
  1  | 2  | 3)
 
+(tabular
+ (fact "can have different forms of where in the data, no problem"
+   (str ?a ?b) => ?result)
+ 
+ where
+ ?a     | ?b     | ?result
+ :where | 'where | ":wherewhere")
+
 (defn f [n] (inc (g n)))
 
 (tabular

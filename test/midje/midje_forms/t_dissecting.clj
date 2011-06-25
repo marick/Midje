@@ -84,18 +84,15 @@
        ?a | ?b | ?result
        1  | 2  | 3))
 
-(check-dissects-fact-table "ignores symbol - where"
-  '(tabular
-     (fact (+ ?a ?b) => ?result)
-
-      where
-       ?a  ?b  ?result
-       1   2   3))
-
-(check-dissects-fact-table "ignores keyword - :where"
-  '(tabular
-     (fact (+ ?a ?b) => ?result)
-
-      :where
-      ?a  ?b  ?result
-      1   2   3))
+(let [dissected (dissect-fact-table (rest '(tabular
+                                         (fact (str ?a ?b) => ?result)
+                                       ?a     | ?b     | ?result
+                                       'where | :where | "where:where")))
+      expected-fact-form '(fact (str ?a ?b) => ?result)
+      expected-binding-maps '[ { ?a (quote where), ?b :where, ?result "where:where"} ]
+      expected-map-order '[?a ?b ?result]]
+  
+  (facts "has no trouble with :where or where in the data"
+    (:fact-form dissected) => expected-fact-form
+    (:binding-maps dissected) => expected-binding-maps
+    (:map-order dissected) => expected-map-order))
