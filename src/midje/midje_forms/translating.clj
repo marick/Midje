@@ -246,7 +246,7 @@
                  (zip/next line-loc)))))
 
 (defn- binding-note [ordered-binding-map]
-  (let [entries (map (fn [k] (str k " " (pr-str (k ordered-binding-map)))) (keys ordered-binding-map))]
+  (let [entries (map (fn [[variable value]] (str variable " " (pr-str value))) ordered-binding-map)]
     (str "{" (str-join ", " entries) "}")))
 
 (defn add-one-binding-note [expect-containing-form ordered-binding-map]
