@@ -42,11 +42,7 @@
   (let [strip-off-where #(if (contains? #{:where 'where} (first %)) (rest %) % )]
     (->> table strip-off-where (remove #(= "|" (pr-str %))))))	
 
-(defn- table-binding-maps [table]
+(defn table-binding-maps [table]
   (let [[variables values] (split-with #(.startsWith (pr-str %) "?") (remove-pipes+where table))
         value-lists (partition (count variables) values)]
     (map (partial ordered-zipmap variables) value-lists)))
-
-(defn dissect-fact-table [[fact-form & table]]
-  { :fact-form fact-form 
-    :ordered-binding-maps (table-binding-maps table)})

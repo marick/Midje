@@ -213,11 +213,11 @@
 
 (tabular
  (fact "will ignore an optional ':where' above the table"
-   (+ ?a ?b) => ?result)
+   (str ?a ?b) => ?result)
  
  :where
- ?a | ?b | ?result
- 1  | 2  | 3)
+ ?a     | ?b     | ?result
+ 'where | :where | "where:where") ;; just to makes sure
 
 (tabular
  (fact "will ignore an optional 'where' above the table"

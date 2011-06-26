@@ -14,7 +14,7 @@
                 add-binding-notes]]
         [midje.fakes :only [background-fakes]]
         [midje.midje-forms.dissecting :only [separate-background-forms
-                                             dissect-fact-table]]
+                                             table-binding-maps]]
         [midje.util debugging thread-safe-var-nesting unify]
         [midje.util.exceptions :only [user-error-exception-lines]]
         [midje.util.wrapping :only [multiwrap]]
@@ -92,12 +92,10 @@
 (defmacro antiterminologicaldisintactitudinarian-fact [& forms] (future-fact-1 &form))
 (defmacro antiterminologicaldisintactitudinarian-facts [& forms] (future-fact-1 &form))
 
-(defmacro tabular [& forms]
-  (let [{:keys [fact-form ordered-binding-maps]} (dissect-fact-table forms)
+(defmacro tabular [fact-form & table]
+  (let [ordered-binding-maps (table-binding-maps table)
         expect-forms (map (comp macroexpand 
         		        #(form-with-copied-line-numbers % fact-form) 
         		        (partial subst fact-form)) ordered-binding-maps)
         result (add-binding-notes expect-forms ordered-binding-maps)]
     `(do ~@result)))
-
-

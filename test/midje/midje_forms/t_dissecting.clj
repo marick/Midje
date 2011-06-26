@@ -60,51 +60,31 @@
     result =>                         '( [(f 1) => 2 :key value] [(g 1) => 3])))
 
 ;; Fact tables
-
-(defn check-dissects-fact-table [msg [fact-form & table]]
-  (let [dissected (dissect-fact-table table)
-        expected-fact-form '(fact (+ ?a ?b) => ?result)
-        expected-binding-maps [ (ordered-map '?a 1, '?b 2, '?result 3) ]]
-  
-    (facts
-      (:fact-form dissected) => expected-fact-form
-      (:ordered-binding-maps dissected) => expected-binding-maps)))
-
-(check-dissects-fact-table "basic table"
-  '(tabular
-     (fact (+ ?a ?b) => ?result)
-       ?a     ?b      ?result
-        1      2       3))
-
-(check-dissects-fact-table "ignores pipes"
-  '(tabular
-     (fact (+ ?a ?b) => ?result)
-       ?a | ?b | ?result
-       1  | 2  | 3))
-
-(check-dissects-fact-table "ignores symbol - where" 	
-  '(tabular    
-    (fact (+ ?a ?b) => ?result)
-    
-      where	 	
-       ?a  ?b  ?result	 	
-       1   2   3))	 	
-	 	
-(check-dissects-fact-table "ignores keyword - :where"	 	
-  '(tabular	 	
-     (fact (+ ?a ?b) => ?result)	
- 	
-      :where	 	
-      ?a  ?b  ?result	 	
-      1   2   3))
-
-(let [dissected (dissect-fact-table (rest '(tabular
-                                         (fact (str ?a ?b) => ?result)
-                                       ?a     | ?b     | ?result
-                                       'where | :where | "where:where")))
-      expected-fact-form '(fact (str ?a ?b) => ?result)
-      expected-binding-maps [ (ordered-map '?a '(quote where), '?b :where, '?result "where:where") ]]
-  
-  (facts "has no trouble with :where or where in the data"
-    (:fact-form dissected) => expected-fact-form
-    (:ordered-binding-maps dissected) => expected-binding-maps))
+ 
+(fact "gets the bindings off fact table"
+  (table-binding-maps (list '?a  '?b '?result
+                              1   2   3))
+    => [ (ordered-map '?a 1, '?b 2, '?result 3) ])
+ 
+(fact "ignores pipes"
+  (table-binding-maps (list '?a '| '?b '| '?result
+                              1 '|  2  '|  3))
+    => [ (ordered-map '?a 1, '?b 2, '?result 3) ])
+ 
+(fact "ignores symbol - where"
+  (table-binding-maps (list 'where
+  		            '?a '?b '?result
+                              1   2   3))
+    => [ (ordered-map '?a 1, '?b 2, '?result 3) ])
+ 
+(fact "ignores keyword - :where"
+  (table-binding-maps (list :where
+  		            '?a '?b '?result
+                              1   2   3))
+    => [ (ordered-map '?a 1, '?b 2, '?result 3) ])
+ 
+(fact "no trouble with :where or where in the data"
+  (table-binding-maps (list :where
+  		            '?a      '?b      '?result
+                             'where   :where   "where:where"))
+    => [ (ordered-map '?a 'where, '?b :where, '?result "where:where") ])	
