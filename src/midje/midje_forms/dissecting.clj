@@ -2,11 +2,12 @@
 
 (ns midje.midje-forms.dissecting
   (:require [clojure.zip :as zip])
-  (:require [midje.midje-forms.recognizing :as recognizing]))
+  (:require [midje.midje-forms.recognizing :as recognizing])
+  (:use [midje.util.sequence :only (ordered-zipmap)]))
 
 (defn separate-background-forms [fact-forms]
-  (let [background-forms (apply concat (map rest (filter recognizing/background-form?
-                                                         fact-forms)))
+  (let [background-forms (mapcat rest (filter recognizing/background-form?
+                                                         fact-forms))
         other-forms (filter (comp not recognizing/background-form?) fact-forms)]
     [ background-forms other-forms ]))
 
@@ -48,7 +49,7 @@
 (defn- table-binding-maps [table]
   (let [[variables values] (split-with #(.startsWith (pr-str %) "?") (remove-pipes+where table))
         value-lists (partition (count variables) values)]
-    (map (partial zipmap variables) value-lists)))
+    (map (partial ordered-zipmap variables) value-lists)))
 
 (defn dissect-fact-table [[fact-form & table]]
   {:fact-form fact-form 

@@ -278,10 +278,10 @@
          '(do (midje.semi-sweet/expect (a) => b :line 33))
          '(do (midje.semi-sweet/expect (a) => b :binding-note "{?a a}" :line 33)))
 
-(fact "the binding notes are in the order of the original column"
+(fact "binding notes are in the order of the original row - this order is maintained within the ordered-binding-map"
   (let [actual (add-one-binding-note '(do (expect 1 => 2))
                                            '{?a 1, ?b 2, ?delta "0", ?result 3}
                                            '[?result ?b ?a ?delta])
-        expected '(do (expect 1 => 2 :binding-note "{?result 3, ?b 2, ?a 1, ?delta \"0\"}"))]
+        expected '(do (expect 1 => 2 :binding-note "{?a 1, ?b 2, ?delta \"0\", ?result 3}"))]
     actual => expected))
     

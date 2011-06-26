@@ -10,7 +10,7 @@
         [midje.util.file-position :only [arrow-line-number]]
         [midje.midje-forms building recognizing dissecting moving-around editing]
         [midje.fakes :only [background-fake-wrappers]]
-        [midje.util.debugging]
+        midje.util.debugging
         midje.util.sequence)
   (:require [clojure.zip :as zip]))
 
@@ -245,8 +245,8 @@
           (recur (zip/next loc)
                  (zip/next line-loc)))))
 
-(defn- ordered-map-str [full-map keys-in-order]
-  (let [entries (map (fn [k] (str k " " (pr-str (k full-map)))) keys-in-order)]
+(defn- ordered-map-str [m _]
+  (let [entries (map (fn [k] (str k " " (pr-str (k m)))) (keys m))]
     (str "{" (str-join ", " entries) "}")))
 
 (defn add-one-binding-note [expect-containing-form binding-map variable-order]
