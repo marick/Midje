@@ -13,14 +13,9 @@
 
 (defn- raw-arrow-line-number [arrow-loc]
   (try
-    (let [directional (fn [direction-fn]
-                        (fn [loc]
-                          (-> loc direction-fn zip/node meta :line)))
-          left-lineno (directional zip/left)
-          right-lineno (directional zip/right)]
-      (or (left-lineno arrow-loc)
-          (right-lineno arrow-loc)
-          (inc (left-lineno (zip/prev arrow-loc)))))
+      (or (-> arrow-loc zip/left zip/node meta :line)
+          (-> arrow-loc zip/right zip/node meta :line)
+          (inc (-> arrow-loc zip/prev zip/left zip/node meta :line)))
     (catch Throwable ex nil)))
   
 (defn arrow-line-number [arrow-loc]
