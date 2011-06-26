@@ -69,28 +69,3 @@
  7 )
 
 
-
-(defprotocol FooProtocol
-  (strcat [this from-function]))
-
-(defrecord FooRecord [from-record]
-  FooProtocol
-  (strcat [this from-function]
-          (str "record: " from-record " function: " from-function)))
-
-(defn foo-record-user [record]
-  (strcat record "foo-record-user"))
-
-;; This is fine...
-(fact
-  (let [foo (FooRecord. "rec")]
-    (foo-record-user foo) => "record: rec function: foo-record-user"))
-
-;; ... this won't work because can't override `strcat`, which is
-;; dispatched from Java.
-(future-fact "Functions defined via protocols can be overridden."
-  (let [foo (FooRecord. "rec")]
-    (foo-record-user foo) => "33"
-    (provided (strcat foo) => "33")))
-  
-
