@@ -94,5 +94,14 @@
 
          
 
+(defn called-because-mock-checking-requires-it [] nil)
+(defn has-faked-function []
+  (called-because-mock-checking-requires-it)
+  (function-tagged-as-fake? called-because-mock-checking-requires-it))
          
-         
+(fact "A faked function can be identified from its metadata"
+  (has-faked-function) => falsey
+  (has-faked-function) => truthy
+  (provided
+    (called-because-mock-checking-requires-it) => 33))
+  

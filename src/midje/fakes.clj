@@ -12,6 +12,12 @@
         [midje.checkers.extended-equality :only [extended-= extended-list-= extended-fn?]])
   (:require [clojure.zip :as zip]))
 
+(defn tag-function-as-fake [function]
+  (vary-meta function assoc :midje/faked-function true))
+
+(defn function-tagged-as-fake? [function]
+  (:midje/faked-function (meta function)))
+
 (defn common-to-all-fakes [var-sym] 
   `{:function (var ~var-sym)
     :count-atom (atom 0)
@@ -59,8 +65,9 @@
 
 (defn binding-map [fakes]
   (reduce (fn [accumulator function-var] 
-              (let [faker (fn [& actual-args] (call-faker function-var actual-args fakes))]
-                (assoc accumulator function-var faker)))
+            (let [faker (fn [& actual-args] (call-faker function-var actual-args fakes))
+                  tagged-faker (tag-function-as-fake faker)]
+                (assoc accumulator function-var tagged-faker)))
           {}
           (unique-function-vars fakes)))
 
