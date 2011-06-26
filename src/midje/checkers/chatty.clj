@@ -2,7 +2,8 @@
 
 (ns midje.checkers.chatty
   (:use [midje.checkers util]
-        [midje.checkers.defining :only [as-checker]]))
+        [midje.checkers.defining :only [as-checker]]
+        [midje.util.form-utils :only (pairs)]))
 
 ;; Note: checkers need to be exported in ../checkers.clj
 
@@ -62,7 +63,7 @@
       (fn [~binding-var]
         (let [~result-symbol (vector ~@complex-forms)]
           (if (chattily-false? (~function ~@substituted-arglist))
-            (let [pairs# (map vector '~complex-forms ~result-symbol)]
+            (let [pairs# (pairs '~complex-forms ~result-symbol)]
               (as-chatty-falsehood {:actual ~binding-var,
                                     :intermediate-results pairs#}))
             true))))))

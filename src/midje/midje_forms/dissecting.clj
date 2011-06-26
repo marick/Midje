@@ -4,7 +4,9 @@
   (:require [clojure.zip :as zip])
   (:use [midje.midje-forms.recognizing :only (background-form?)])
   (:use [clojure.contrib.seq-utils :only (separate)])
-  (:use [midje.util.sequence :only (ordered-zipmap)]))
+  (:use [midje.util.form-utils :only (ordered-zipmap)]))
+
+;; dissecting background forms
 
 (defn separate-background-forms [fact-forms]
   (let [[background-forms other-forms] (separate background-form? fact-forms)]
@@ -14,6 +16,8 @@
 
 (defn interior-forms [form]
   `(do ~@(rest (rest form))))
+
+;; dissecting arrow forms
 
 (defn arrow-form-overrides [forms]
   "Extract key-value overrides from the sequence of forms"

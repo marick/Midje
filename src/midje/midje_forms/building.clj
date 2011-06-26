@@ -14,12 +14,11 @@
 (defn make-background [fake]
   (concat fake '(:type :background)))
 
-(defmacro before [wrapping-target before-form & extras ]
-  (let [after-form (second extras)]
-    (ensure-correct-form-variable `(try
-                                    ~before-form
-                                    ?form
-                                    (finally ~after-form)))))
+(defmacro before [wrapping-target before-form & [_ after-form & _ ] ]
+  (ensure-correct-form-variable `(try
+                                  ~before-form
+                                  ?form
+                                  (finally ~after-form))))
 
 (defmacro after [wrapping-target after-form]
   (ensure-correct-form-variable `(try ?form (finally ~after-form))))
@@ -34,9 +33,8 @@
   `(binding [*metadata-counts* (atom {})]
      ~@forms))
 
-(defn metaconstant-for-form [inner-form]
-  (let [function-symbol (first inner-form)
-        swap-fn (fn [current-value function-symbol]
+(defn metaconstant-for-form [[function-symbol & _ :as inner-form]]
+  (let [swap-fn (fn [current-value function-symbol]
                   (if (current-value function-symbol)
                     (assoc current-value function-symbol
                            (inc (current-value function-symbol)))

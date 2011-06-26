@@ -11,7 +11,7 @@
         [midje.midje-forms building recognizing dissecting moving-around editing]
         [midje.fakes :only [background-fake-wrappers]]
         midje.util.debugging
-        midje.util.sequence)
+        [midje.util.form-utils :only (pairs)])
   (:require [clojure.zip :as zip]))
 
 ;; Translating a form into an equivalent form with all arrow sequences given
@@ -264,5 +264,5 @@
           (recur (zip/next loc)))))
 
 (defn add-binding-notes [expect-containing-forms ordered-binding-maps]
-  (map (fn [[ef obm]] (add-one-binding-note ef obm))
-       (zip expect-containing-forms ordered-binding-maps)))
+  (map (partial apply add-one-binding-note) 
+       (pairs expect-containing-forms ordered-binding-maps)))

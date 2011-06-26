@@ -37,18 +37,26 @@
   (vector-without-element-at-index 1 [0 1 2]) => [0 2]
   (vector-without-element-at-index 2 [0 1 2]) => [0 1])
 
-
 (facts "you can tack new keys onto a hashmap"
   (tack-on-to {:a [1], :b [55] :c 'blah} :a 2 :b 56) => {:a [1 2], :b [55 56], :c 'blah})
-
-(fact "pairs are exciting"
-  (pairs [:a :b :c] [1 2 3]) => [ [:a 1] [:b 2] [:c 3] ])
 
 (fact "it can be useful to get hash-map to allow duplicates"
   (hash-map-duplicates-ok) => {} 
   (hash-map-duplicates-ok :a 1 :b 2) => {:a 1 :b 2}
   (hash-map-duplicates-ok :a 1 :b 2 :b 33333) => {:a 1 :b 33333})
 
+(fact "pairs are exciting"
+  (pairs [:a :b :c] [1 2 3]) => [ [:a 1] [:b 2] [:c 3] ])
 
 (fact "map-difference"
   (map-difference {:a 1, :b 2} {:a 1, :c 3}) => {:b 2})
+
+(fact "zips two seqs together into a map - maintaining/guaranteeing order matches the original order"
+  (keys (ordered-zipmap [:a :b :c :d :e :f :g :h] [1 2 3 4 5 6 7 8])) 
+    => [:a :b :c :d :e :f :g :h]
+  (vals (ordered-zipmap [:a :b :c :d :e :f :g :h] [1 2 3 4 5 6 7 8])) 
+    => [1 2 3 4 5 6 7 8] )
+
+(fact "shortens to the smallest of the two seqs"
+  (ordered-zipmap [:a] [1 2 3 4]) => {:a 1}
+  (ordered-zipmap [:a :b :c :d] [1]) => {:a 1} )	

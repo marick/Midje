@@ -5,7 +5,7 @@
         [clojure.contrib.pprint :only [cl-format]]
         [clojure.contrib.combinatorics :only [permutations]]
         [midje.util.form-utils :only [regex? vector-without-element-at-index
-                                      tack-on-to pairs]]
+                                      tack-on-to]]
 	[midje.checkers.collection :only [just contains]]
 	[midje.checkers defining util]))
 

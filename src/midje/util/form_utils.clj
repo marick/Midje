@@ -2,7 +2,8 @@
 
 (ns midje.util.form-utils
   (:use [midje.util laziness]
-        [clojure.set :only [difference]]))
+        [clojure.set :only [difference]]
+        [ordered.map :only (ordered-map)]))
 
 (defn regex? [thing]
   (= (class thing) java.util.regex.Pattern))
@@ -75,3 +76,14 @@
 
 (defn map-difference [bigger smaller]
   (select-keys bigger (difference (set (keys bigger)) (set (keys smaller)))))
+
+(defn ordered-zipmap [keys vals]
+  "like zipmap, but guarantees order of the entries"
+  (loop [m (ordered-map)
+         ks (seq keys)
+         vs (seq vals)]
+    (if (and ks vs)
+      (recur (assoc m (first ks) (first vs))
+             (next ks)
+             (next vs))
+      m)))
