@@ -6,8 +6,7 @@
   (:use [midje.util.sequence :only (ordered-zipmap)]))
 
 (defn separate-background-forms [fact-forms]
-  (let [background-forms (mapcat rest (filter recognizing/background-form?
-                                                         fact-forms))
+  (let [background-forms (mapcat rest (filter recognizing/background-form? fact-forms))
         other-forms (filter (comp not recognizing/background-form?) fact-forms)]
     [ background-forms other-forms ]))
 
@@ -41,10 +40,7 @@
 
 (defn- remove-pipes+where [table]
   (let [strip-off-where #(if (contains? #{:where 'where} (first %)) (rest %) % )]
-    (->> table strip-off-where (remove #(= "|" (pr-str %))))))
-
-(defn- table-variables [table]
-  (take-while #(.startsWith (pr-str %) "?") (remove-pipes+where table)))	
+    (->> table strip-off-where (remove #(= "|" (pr-str %))))))	
 
 (defn- table-binding-maps [table]
   (let [[variables values] (split-with #(.startsWith (pr-str %) "?") (remove-pipes+where table))
@@ -52,6 +48,5 @@
     (map (partial ordered-zipmap variables) value-lists)))
 
 (defn dissect-fact-table [[fact-form & table]]
-  {:fact-form fact-form 
-   :binding-maps (table-binding-maps table)
-   :variable-order (table-variables table)})
+  { :fact-form fact-form 
+    :binding-maps (table-binding-maps table)})

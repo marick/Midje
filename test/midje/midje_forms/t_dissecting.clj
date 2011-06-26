@@ -64,13 +64,11 @@
 (defn check-dissects-fact-table [msg [fact-form & table]]
   (let [dissected (dissect-fact-table table)
         expected-fact-form '(fact (+ ?a ?b) => ?result)
-        expected-binding-maps '[ {?a 1, ?b 2, ?result 3} ]
-        expected-variable-order '[?a ?b ?result]]
+        expected-binding-maps '[ {?a 1, ?b 2, ?result 3} ]]
   
     (facts
       (:fact-form dissected) => expected-fact-form
-      (:binding-maps dissected) => expected-binding-maps
-      (:variable-order dissected) => expected-variable-order)))
+      (:binding-maps dissected) => expected-binding-maps)))
 
 (check-dissects-fact-table "basic table"
   '(tabular
@@ -105,10 +103,8 @@
                                        ?a     | ?b     | ?result
                                        'where | :where | "where:where")))
       expected-fact-form '(fact (str ?a ?b) => ?result)
-      expected-binding-maps '[ { ?a (quote where), ?b :where, ?result "where:where"} ]
-      expected-variable-order '[?a ?b ?result]]
+      expected-binding-maps '[ { ?a (quote where), ?b :where, ?result "where:where"} ]]
   
   (facts "has no trouble with :where or where in the data"
     (:fact-form dissected) => expected-fact-form
-    (:binding-maps dissected) => expected-binding-maps
-    (:variable-order dissected) => expected-variable-order))
+    (:binding-maps dissected) => expected-binding-maps))

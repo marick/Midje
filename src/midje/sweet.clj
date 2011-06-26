@@ -93,11 +93,11 @@
 (defmacro antiterminologicaldisintactitudinarian-facts [& forms] (future-fact-1 &form))
 
 (defmacro tabular [& forms]
-  (let [{:keys [fact-form binding-maps variable-order]} (dissect-fact-table forms)
+  (let [{:keys [fact-form binding-maps]} (dissect-fact-table forms)
         expect-forms (map (comp macroexpand 
         		        #(form-with-copied-line-numbers % fact-form) 
         		        (partial subst fact-form)) binding-maps)
-        result (add-binding-notes expect-forms binding-maps variable-order)]
+        result (add-binding-notes expect-forms binding-maps)]
     `(do ~@result)))
 
 

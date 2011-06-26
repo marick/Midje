@@ -9,7 +9,8 @@
          :only [metaconstant-for-form with-fresh-generated-metadata-names]])
   (:use [midje.util thread-safe-var-nesting unify])
   (:require [clojure.zip :as zip])
-  (:use clojure.contrib.pprint))
+  (:use clojure.contrib.pprint)
+  (:use [ordered.map :only (ordered-map)]))
 (testable-privates midje.midje-forms.translating
                    canonicalize-raw-wrappers final-state-wrapper replace-with-magic-form)
 
@@ -255,7 +256,7 @@
 (tabular (fact ?comment
            (let [line-no-free-original ?original
                  line-no-free-expected ?expected]
-             (add-one-binding-note line-no-free-original '{?a a } '[?a])
+             (add-one-binding-note line-no-free-original (ordered-map '?a 'a))
              => line-no-free-expected))
 
          ?comment ?original ?expected
@@ -280,8 +281,7 @@
 
 (fact "binding notes are in the order of the original row - this order is maintained within the ordered-binding-map"
   (let [actual (add-one-binding-note '(do (expect 1 => 2))
-                                           '{?a 1, ?b 2, ?delta "0", ?result 3}
-                                           '[?result ?b ?a ?delta])
+                                          (ordered-map '?a 1, '?b 2, '?delta "0", '?result 3))
         expected '(do (expect 1 => 2 :binding-note "{?a 1, ?b 2, ?delta \"0\", ?result 3}"))]
     actual => expected))
     
