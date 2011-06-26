@@ -44,7 +44,9 @@
     (try
       (set-fallback-line-number-from &form)
       (let [[background remainder] (separate-background-forms forms)]
-        (if (empty? background)
+        (if (seq background)
+          `(against-background ~background (midje.sweet/fact ~@remainder))        	
+          
           (let [things-to-run (-> remainder
                                   add-line-numbers
                                   translate-fact-body
@@ -59,8 +61,7 @@
             (define-metaconstants things-to-run)
             `(do (report/fact-begins)
                  ~wrapped-expansion
-                 (report/fact-checks-out?)))
-          `(against-background ~background (midje.sweet/fact ~@remainder))))
+                 (report/fact-checks-out?)))))
       (catch Exception ex
         `(do
            (clojure.test/report {:type :exceptional-user-error
