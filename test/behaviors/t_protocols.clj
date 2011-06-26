@@ -1,16 +1,12 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns behaviors.t-canary
-  (:use [midje.sweet])
-  (:use [midje.test-util]))
-
+(ns behaviors.t-protocols
+  (:use [midje sweet test-util]
+        behaviors.t-protocols-support)
+  (:import behaviors.t-protocols-support.OutsideNSFakeableRecord))
 
 (future-fact "... working on faking records")
 
-
-(defprotocol RecordFakeable
-  (fake-me [this function])
-  (call-fake-me [this]))
 
 (defrecord InNSFakeableRecord [a b]
   RecordFakeable
@@ -37,7 +33,24 @@
 
 (fact "Record functions can be faked when called from inside"
   (let [rec (InNSFakeableRecord. 1 3)]
-    (call-fake-me rec) => [1 3 3]
+    (call-fake-me rec) => [1 3 2]
+    (call-fake-me rec) => :faked
+    (provided
+      (fake-me rec inc) => :faked)))
+
+
+
+(fact "Imported record functions can be faked when called from outside"
+  (let [rec (OutsideNSFakeableRecord. 1 3)]
+    (fake-me rec inc) => [1 3 2]
+    (outside-double-inc-fake-me rec) => [1 3 2 1 3 2]
+    (outside-double-inc-fake-me rec) => [1 1]
+    (provided
+      (fake-me rec inc) => [1])))
+
+(fact "Imported record functions can be faked when called from inside"
+  (let [rec (OutsideNSFakeableRecord. 1 3)]
+    (call-fake-me rec) => [1 3 2]
     (call-fake-me rec) => :faked
     (provided
       (fake-me rec inc) => :faked)))
