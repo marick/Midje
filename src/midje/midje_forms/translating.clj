@@ -245,11 +245,11 @@
           (recur (zip/next loc)
                  (zip/next line-loc)))))
 
-(defn- ordered-map-str [m]
-  (let [entries (map (fn [k] (str k " " (pr-str (k m)))) (keys m))]
+(defn- binding-note [ordered-binding-map]
+  (let [entries (map (fn [k] (str k " " (pr-str (k ordered-binding-map)))) (keys ordered-binding-map))]
     (str "{" (str-join ", " entries) "}")))
 
-(defn add-one-binding-note [expect-containing-form binding-map]
+(defn add-one-binding-note [expect-containing-form ordered-binding-map]
   (loop [loc (zip/seq-zip expect-containing-form)]
     (cond (zip/end? loc)
           (zip/root loc)
@@ -258,12 +258,11 @@
           (recur (zip/next
                   (skip-to-rightmost-leaf
                    (add-key-value-within-arrow-branch__then__at_arrow
-                    :binding-note (ordered-map-str binding-map) loc))))
+                    :binding-note (binding-note ordered-binding-map) loc))))
 
           :else
           (recur (zip/next loc)))))
 
-(defn add-binding-notes [expect-containing-forms binding-maps]
-  (map (fn [ [expect-form binding-map] ]
-             (add-one-binding-note expect-form binding-map))
-       (zip expect-containing-forms binding-maps)))
+(defn add-binding-notes [expect-containing-forms ordered-binding-maps]
+  (map (fn [[ef obm]] (add-one-binding-note ef obm))
+       (zip expect-containing-forms ordered-binding-maps)))

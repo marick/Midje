@@ -49,4 +49,4 @@
 
 (defn dissect-fact-table [[fact-form & table]]
   { :fact-form fact-form 
-    :binding-maps (table-binding-maps table)})
+    :ordered-binding-maps (table-binding-maps table)})
