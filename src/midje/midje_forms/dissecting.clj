@@ -2,13 +2,12 @@
 
 (ns midje.midje-forms.dissecting
   (:require [clojure.zip :as zip])
-  (:require [midje.midje-forms.recognizing :as recognizing])
-  (:use [midje.util.sequence :only (ordered-zipmap)]))
+  (:use [midje.midje-forms.recognizing :only (background-form?)])
+  (:use [midje.util.sequence :only (ordered-zipmap split-by-pred)]))
 
 (defn separate-background-forms [fact-forms]
-  (let [background-forms (mapcat rest (filter recognizing/background-form? fact-forms))
-        other-forms (filter (comp not recognizing/background-form?) fact-forms)]
-    [ background-forms other-forms ]))
+  (let [[background-forms other-forms] (split-by-pred background-form? fact-forms)]
+    [(mapcat rest background-forms) other-forms]))
 
 (defn raw-wrappers [background-form]  (second background-form))
 

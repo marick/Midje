@@ -19,4 +19,7 @@
 
 (fact "shortens to the smallest of the two seqs"
   (ordered-zipmap [:a] [1 2 3 4]) => {:a 1}
-  (ordered-zipmap [:a :b :c :d] [1]) => {:a 1} )
+  (ordered-zipmap [:a :b :c :d] [1]) => {:a 1} )	
+
+(fact "splits a seq into 2 groups - left side: passed predicate, right side: failed predicate"
+  (split-by-pred odd? [1 2 3 4 5]) => [[1 3 5] [2 4]])

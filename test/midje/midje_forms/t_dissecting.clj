@@ -87,4 +87,4 @@
   (table-binding-maps (list :where
   		            '?a      '?b      '?result
                              'where   :where   "where:where"))
-    => [ (ordered-map '?a 'where, '?b :where, '?result "where:where") ])	
+    => [ (ordered-map '?a 'where, '?b :where, '?result "where:where") ])

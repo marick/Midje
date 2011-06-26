@@ -14,3 +14,6 @@
              (next ks)
              (next vs))
       m)))
+
+(defn split-by-pred [pred coll]
+  (list (filter pred coll) (remove pred coll)))
