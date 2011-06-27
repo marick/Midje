@@ -245,6 +245,8 @@
           (recur (zip/next loc)
                  (zip/next line-loc)))))
 
+;; binding notes for tabular facts
+
 (defn- binding-note [ordered-binding-map]
   (let [entries (map (fn [[variable value]] (str variable " " (pr-str value))) ordered-binding-map)]
     (str "{" (str-join ", " entries) "}")))

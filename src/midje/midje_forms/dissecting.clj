@@ -44,7 +44,7 @@
 
 (defn- remove-pipes+where [table]
   (let [strip-off-where #(if (contains? #{:where 'where} (first %)) (rest %) % )]
-    (->> table strip-off-where (remove #(= "|" (pr-str %))))))	
+    (->> table strip-off-where (remove #(= % '|)))))	
 
 (defn table-binding-maps [table]
   (let [[variables values] (split-with #(.startsWith (pr-str %) "?") (remove-pipes+where table))

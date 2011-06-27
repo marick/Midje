@@ -228,12 +228,12 @@
  1  | 2  | 3)
 
 (tabular
- (fact "can have different forms of where in the data, no problem"
-   (str ?a ?b) => ?result)
+ (fact "can have different forms of where or pipe in the data, no problem"
+   (str ?a ?b ?c ?d) => ?result)
  
  where
- ?a     | ?b     | ?result
- :where | 'where | ":wherewhere")
+ ?a     | ?b  | ?c     | ?d | ?result
+ :where | "|" | 'where | '| | ":where|where|")
 
 (defn f [n] (inc (g n)))
 

@@ -8,6 +8,7 @@
 ;; For reporting syntax errors
 
 (def fallback-line-number (atom 0))
+
 (defn set-fallback-line-number-from [form]
   (reset! fallback-line-number (or (:line (meta form)) 0)))
 
