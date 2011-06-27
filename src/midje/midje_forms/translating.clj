@@ -36,26 +36,34 @@
         fake-bodies (partition-arrow-forms fakes)]
     (map make-fake fake-bodies)))
 
+
+(defn first-true-fn [ preds arg]
+  (when (seq preds)
+    (if ((first preds) arg)
+        (first preds)
+        (first-true-fn (rest preds) arg))))
+
+(defn transform [form & more]
+  (loop [loc (zip/seq-zip form)]
+      (if (zip/end? loc)
+          (zip/root loc)
+          (if-let [true-fn (first-true-fn (map first (partition 2 more)) loc)]
+            (recur (zip/next ((get (apply hash-map more) true-fn) loc)))
+            (recur (zip/next loc))))))
+
 (defn translate-fact-body [multi-form]
-  (loop [loc (zip/seq-zip multi-form)]
-    (if (zip/end? loc)
-      (zip/root loc)
-      (recur
-       (zip/next
-        (cond (is-start-of-check-sequence? loc)
-              (wrap-with-expect__then__at-rightmost-expect-leaf loc)
-
-              (is-head-of-form-providing-prerequisites? loc)
-              (let [fake-calls (expand-prerequisites-into-fake-calls loc)
+  (transform multi-form
+    is-start-of-check-sequence?
+    wrap-with-expect__then__at-rightmost-expect-leaf
+    
+    is-head-of-form-providing-prerequisites?
+    (fn [loc ] (let [fake-calls (expand-prerequisites-into-fake-calls loc)
                     full-expect-form (delete_prerequisite_form__then__at-previous-full-expect-form loc)]
-                (tack-on__then__at-rightmost-expect-leaf fake-calls full-expect-form))
+                 (tack-on__then__at-rightmost-expect-leaf fake-calls full-expect-form)))
 
-              (is-semi-sweet-keyword? loc)
-              (skip-to-rightmost-leaf loc)
+    is-semi-sweet-keyword?
+    skip-to-rightmost-leaf))
 
-              :else loc))))))
-
-
 
 (declare midjcoexpand)
 
@@ -210,13 +218,9 @@
 
 (defn unfold-prerequisites [form]
   (with-fresh-generated-metadata-names
-    (loop [loc (zip/seq-zip form)]
-      (if (zip/end? loc)
-        (zip/root loc)
-        (recur (zip/next (cond (loc-is-at-full-expect-form? loc)
-                               (unfold-expect-form__then__stay_put loc)
-
-                               :else loc)))))))
+    (transform form
+        loc-is-at-full-expect-form?
+        unfold-expect-form__then__stay_put)))
 
 (defn- replace-loc-line [loc loc-with-line]
   (let [m (fn [loc] (meta (zip/node loc)))
@@ -252,18 +256,10 @@
     (str "{" (str-join ", " entries) "}")))
 
 (defn add-one-binding-note [expect-containing-form ordered-binding-map]
-  (loop [loc (zip/seq-zip expect-containing-form)]
-    (cond (zip/end? loc)
-          (zip/root loc)
-
-          (loc-is-at-full-expect-form? loc)
-          (recur (zip/next
-                  (skip-to-rightmost-leaf
-                   (add-key-value-within-arrow-branch__then__at_arrow
-                    :binding-note (binding-note ordered-binding-map) loc))))
-
-          :else
-          (recur (zip/next loc)))))
+  (transform expect-containing-form
+  	  loc-is-at-full-expect-form?
+  	  (fn [loc] (skip-to-rightmost-leaf
+             (add-key-value-within-arrow-branch__then__at_arrow :binding-note (binding-note ordered-binding-map) loc)))))
 
 (defn add-binding-notes [expect-containing-forms ordered-binding-maps]
   (map (partial apply add-one-binding-note) 
