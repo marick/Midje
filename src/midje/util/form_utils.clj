@@ -87,3 +87,9 @@
              (next ks)
              (next vs))
       m)))
+
+(defn first-true [preds & args]	
+  (when (seq preds)
+    (if (apply (first preds) args)
+        (first preds)
+        (apply first-true (rest preds) args))))

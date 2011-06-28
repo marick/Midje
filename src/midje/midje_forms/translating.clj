@@ -11,17 +11,12 @@
         [midje.midje-forms building recognizing dissecting moving-around editing]
         [midje.fakes :only [background-fake-wrappers]]
         midje.util.debugging
-        [midje.util.form-utils :only (pairs)])
+        [midje.util.form-utils :only (pairs first-true)])
   (:require [clojure.zip :as zip]))
 
-
-(defn first-true [preds & args]
-  (when (seq preds)
-    (if (apply (first preds) args)
-        (first preds)
-        (apply first-true (rest preds) args))))
-
-(defn translate [form & preds+translate-fns]
+;; traverses the zipper; for the first (only the first!) predicate matching a 
+;; node, calls the related translate function. Otherwise, contiues traversing.   
+(defn- translate [form & preds+translate-fns]
   (loop [loc (zip/seq-zip form)]
       (if (zip/end? loc)
           (zip/root loc)
