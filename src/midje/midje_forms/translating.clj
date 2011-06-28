@@ -14,20 +14,28 @@
         [midje.util.form-utils :only (pairs)])
   (:require [clojure.zip :as zip]))
 
+
+(defn first-true [preds & args]
+  (when (seq preds)
+    (if (apply (first preds) args)
+        (first preds)
+        (apply first-true (rest preds) args))))
+
+(defn translate [form & preds+translate-fns]
+  (loop [loc (zip/seq-zip form)]
+      (if (zip/end? loc)
+          (zip/root loc)
+          (if-let [true-fn (first-true (map first (partition 2 preds+translate-fns)) loc)]
+            (recur (zip/next ((get (apply hash-map preds+translate-fns) true-fn) loc)))
+            (recur (zip/next loc))))))
+
 ;; Translating a form into an equivalent form with all arrow sequences given
 ;; line numbers. 
 
 (defn add-line-numbers [form]
-  (loop [loc (zip/seq-zip form)]
-    (if (zip/end? loc)
-      (zip/root loc)
-      (recur (zip/next (cond (namespacey-match all-arrows loc)
-                             (add-line-number-to-end-of-arrow-sequence__then__no-movement
-                               (arrow-line-number loc) loc)
-                             
-                             :else loc))))))
-
-
+  (translate form
+    (fn [loc] (namespacey-match all-arrows loc))
+    (fn [loc] (add-line-number-to-end-of-arrow-sequence__then__no-movement (arrow-line-number loc) loc))))
 
 ;; Translating sweet forms into their semi-sweet equivalent
 
@@ -36,23 +44,8 @@
         fake-bodies (partition-arrow-forms fakes)]
     (map make-fake fake-bodies)))
 
-
-(defn first-true-fn [ preds arg]
-  (when (seq preds)
-    (if ((first preds) arg)
-        (first preds)
-        (first-true-fn (rest preds) arg))))
-
-(defn transform [form & more]
-  (loop [loc (zip/seq-zip form)]
-      (if (zip/end? loc)
-          (zip/root loc)
-          (if-let [true-fn (first-true-fn (map first (partition 2 more)) loc)]
-            (recur (zip/next ((get (apply hash-map more) true-fn) loc)))
-            (recur (zip/next loc))))))
-
 (defn translate-fact-body [multi-form]
-  (transform multi-form
+  (translate multi-form
     is-start-of-check-sequence?
     wrap-with-expect__then__at-rightmost-expect-leaf
     
@@ -63,7 +56,6 @@
 
     is-semi-sweet-keyword?
     skip-to-rightmost-leaf))
-
 
 (declare midjcoexpand)
 
@@ -218,7 +210,7 @@
 
 (defn unfold-prerequisites [form]
   (with-fresh-generated-metadata-names
-    (transform form
+    (translate form
         loc-is-at-full-expect-form?
         unfold-expect-form__then__stay_put)))
 
@@ -256,10 +248,10 @@
     (str "{" (str-join ", " entries) "}")))
 
 (defn add-one-binding-note [expect-containing-form ordered-binding-map]
-  (transform expect-containing-form
-  	  loc-is-at-full-expect-form?
-  	  (fn [loc] (skip-to-rightmost-leaf
-             (add-key-value-within-arrow-branch__then__at_arrow :binding-note (binding-note ordered-binding-map) loc)))))
+  (translate expect-containing-form
+    loc-is-at-full-expect-form?
+    (fn [loc] (skip-to-rightmost-leaf
+      (add-key-value-within-arrow-branch__then__at_arrow :binding-note (binding-note ordered-binding-map) loc)))))
 
 (defn add-binding-notes [expect-containing-forms ordered-binding-maps]
   (map (partial apply add-one-binding-note) 
