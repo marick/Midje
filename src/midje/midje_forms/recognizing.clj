@@ -96,11 +96,15 @@
 ;; Note that folded prerequisites are in semi-sweet-style. (That is, they can only
 ;; be recognized after sweet style has been converted to semi-sweet.)
 
-(def special-forms '[quote fn let])
+(def special-forms '[quote fn let new])
+
+(defn- constructor? [symbol]
+  (.endsWith (name symbol) "."))
 
 (defn- mockable-function-symbol? [symbol]
   (not (or (some #{symbol} special-forms)
            (some #{symbol} checker-makers)
+           (constructor? symbol)
            (checker? (resolve symbol)))))
 
 (defn mockable-funcall? [thing]

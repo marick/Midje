@@ -88,31 +88,44 @@
 
 (defmacro some-macro [& rest] )
 
+
+(tabular 
+ (fact "things that are not fake-sexps don't need to be unfolded"
+   ?thing ?arrow fake-that-needs-unfolding?)
+
+  ;; things not a proper fake macro
+  ?thing                                        ?arrow
+  '1                                            =not=> 
+  '()                                           =not=> 
+  '(fake (f (h 1)))                             =not=> ; not in right namespace
+  '(midje.semi-sweet/non-fake (f (h 1)))        =not=>
+
+  ;; Sad but true: a cons is not a list.
+  (cons 'midje.semi-sweet/fake '((f (h 3)) =test=> 3))    => )
+
+(tabular
+ (fact "unfolding depends on the inner structure of a funcall"
+  '(midje.semi-sweet/fake ?call =test=> 3) ?arrow fake-that-needs-unfolding?)
    
-(fact "a fake that needs unfolding has a nested left-hand-side"
-  "things not a proper fake macro"
-  '1                                            =not=> fake-that-needs-unfolding?
-  '()                                           =not=> fake-that-needs-unfolding?
-  '(fake (f (h 1)))                             =not=> fake-that-needs-unfolding?
-  '(midje.semi-sweet/non-fake (f (h 1)))        =not=> fake-that-needs-unfolding?
+ ?call                  ?arrow
+ ;; Things that might be misinterpreted as nested funcalls
+  (f)                  =not=> 
+  (f 1)                =not=> 
+  (f 1 '(foo))         =not=> 
+  (f 1 [foo])          =not=> 
+  (f 1 {foo 1})        =not=> 
 
-  "Things that might be misinterpreted as nested funcalls"
-  '(midje.semi-sweet/fake (f) =test=> 3)        =not=> fake-that-needs-unfolding?
-  '(midje.semi-sweet/fake (f 1) =test=> 3)      =not=> fake-that-needs-unfolding?
-  '(midje.semi-sweet/fake (f 1 '(foo)) =test=> 3) =not=> fake-that-needs-unfolding?
-  '(midje.semi-sweet/fake (f 1 [foo]) =test=> 3) =not=> fake-that-needs-unfolding?
-  '(midje.semi-sweet/fake (f 1 {foo 1}) =test=> 3) =not=> fake-that-needs-unfolding?
+  ;; These are real nested function calls
+  (f (h 1))              => 
+  (f 1 (h 1))            => 
 
-  "These are real nested function calls"
-  '(midje.semi-sweet/fake (f (h 1)) =test=> 3)  => fake-that-needs-unfolding?
-  '(midje.semi-sweet/fake (f 1 (h 1)) =test= 3) => fake-that-needs-unfolding?
+  ;; but don't decide to unfold a checker used as argument matcher"
+  (f 1 (exactly even?))  =not=>
 
-  "but don't decide to unfold a checker used as argument matcher"
-  '(midje.semi-sweet/fake (f 1 (exactly even?)) =test=> 3) =not=> fake-that-needs-unfolding?
-  "Sad but true: a cons is not a list."
-  (cons 'midje.semi-sweet/fake '((f (h 3)) =test=> 3))
-  => fake-that-needs-unfolding?
-
+  ;; don't unfold a constructor.
+  (f (java.util.Date. 1 1 1))           =not=>
+  (f (new java.util.Date 1 2 2))        =not=>
+  
   "Macros are surprisingly hard to get right"
-;  '(midje.semi-sweet/fake (f 1 (some-macro 33)) =test=> 3) =not=> fake-that-needs-unfolding?
+;  '(f 1 (some-macro 33))  =not=> fake-that-needs-unfolding?
   )
