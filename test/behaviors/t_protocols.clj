@@ -92,13 +92,15 @@
   (padd [this that])
   (pmult [this that]))
 
-(defrecord-openly Peano [value]
+(defrecord-openly Peano [representation]
   Peanoific
   (pzero? [this] :unfinished)
   (pequal? [this that] :unfinished)
   (psuccessor [this] :unfinished)
   (padd [this that]
-        (if (pzero? that) this))
+     (if (pzero? that)
+         this
+         :unfinished))
   (pmult [this that] :unfinished))
 
 
@@ -112,7 +114,7 @@
    (padd (Peano. ...a...) (psuccessor (Peano. ...b...)))
    => (psuccessor (padd (Peano. ...a...) (Peano. ...b...)))
    (provided
-     (pzero? anything) => false))
+     (pzero? anything) => true))
  (fact @reported => (one-of bad-result)))
 
 
