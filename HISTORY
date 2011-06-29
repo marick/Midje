@@ -1,4 +1,6 @@
-= 1.2-alpha3
+= 1.2-alpha4
+* defrecord-openly and deftype-openly allows the use of
+  `provided` with protocol functions.
 * You can now specify how often prerequisites should be called.
   https://github.com/marick/Midje/wiki/Specifying-call-counts
 * Tabular facts
