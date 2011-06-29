@@ -1,5 +1,9 @@
 #!/usr/bin/env ruby
 
+$directories = %w{examples/adder-webapp examples/basic examples/cake-midje
+                  examples/compound-checkers examples/leiningen-midje
+                  examples/leiningen-test examples/semi-sweet-examples} 
+
 require 'fileutils'
 include FileUtils
 
@@ -24,7 +28,7 @@ $midje_jar="midje-#{$midje_version}.jar"
 def remove_jars(*dirs)
   dirs.each do | dir | 
     `rm -f #{File.join(dir, "lib", "clojure-*")}`
-    `rm -f #{File.join(dir, "lib", "midje-*")}`
+    `rm -f #{File.join(dir, "lib", "dev", "*")}`
   end
 end
 
@@ -32,16 +36,23 @@ def install_jars(*dirs)
   dirs.each do | dir | 
     cp $clojure_jar, File.join(dir, "lib")
     cp $contrib_jar, File.join(dir, "lib")
-    cp $midje_jar, File.join(dir, "lib")
+    devdir = File.join(dir, "lib", "dev")
+    mkdir(devdir) unless File.exist?(devdir)
+    cp $midje_jar, devdir
+    Dir.glob("lib/*.jar").delete_if { | name | name =~ /clojure.*jar/ }.
+      each { | jar | `cp #{jar} #{devdir}`}
   end
 end
 
-remove_jars(".", "examples/semi-sweet-examples", "examples/adder-webapp", 
-            "examples/basic")
-install_jars(".", "examples/semi-sweet-examples", "examples/adder-webapp", 
-            "examples/basic")
+def make_runs(*dirs)
+  dirs.each do | dir | 
+    if File.exist?("#{dir}/make-run")
+      `(cd #{dir}; make-run)`
+    end
+  end
+end
 
-`cd examples/semi-sweet-examples; make-run`
-`cd examples/basic; make-run`
-
+remove_jars(*$directories)
+install_jars(*$directories)
+make_runs(*$directories)
 exit 0

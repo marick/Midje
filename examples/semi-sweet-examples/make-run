@@ -2,7 +2,7 @@
 # Yeah, I know, I should use Clojure.
 
 Dir.chdir "test"
-jars=Dir.glob('../lib/*')
+jars=Dir.glob('../lib/*')+Dir.glob('../lib/dev/*')
 classpath=jars.join(':')
 clojure = %q{(ns semi-sweet-simple.core-test)(run-tests)}
 command="java -cp #{classpath} clojure.main -i semi_sweet_simple/core_test.clj -e '#{clojure}'"

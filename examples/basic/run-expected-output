@@ -37,25 +37,12 @@ Actual result did not agree with the checking function.
         Actual result: nil
     Checking function: truthy
 ^^^^ The previous three failures were expected ^^^^
------
--- WARNING: In this version, prerequisite arguments that are functions are
--- considered checkers. In the near future, they'll be considered ordinary
--- values. If you want them to be checkers, you need to declare them as such.
--- The function argument I'm objecting to is:
---     a function named 'odd?'
---     near (core_test.clj:201)
--- To future-proof your fact (and make this message go away), do this:
---     (as-checker <<<your function argument>>>)
--- If you never wanted this argument to be treated as a checker, do this:
-       (exactly <<<your function argument>>>)
--- For more, see https://github.com/marick/Midje/wiki/Checkers-within-prerequisites
------
 
-FAIL at (core_test.clj:231)
+FAIL at (core_test.clj:225)
 You claimed the following was needed, but it was never used:
     (property-of ...data-structure-value-1...)
 
-FAIL at (core_test.clj:231)
+FAIL at (core_test.clj:225)
 You claimed the following was needed, but it was never used:
     (data-structure)
 ^^^^ The previous two failures were expected ^^^^
