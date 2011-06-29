@@ -107,23 +107,18 @@
 
 
 (deftest example-of-interesting-functional-args
-  ;; You can use predefined checkers as arguments.
-  (expect (function-under-test-4 'hops) => 11
-     (fake (first-fake anything) => 11))
-  (expect (function-under-test-4 3.0) => 11
-     (fake (first-fake (roughly 3.0 0.1)) => 11))
+  ;; Function arguments in checkers are matched literally.
+  (expect (function-under-test-4 odd?) => 11
+          (fake (first-fake odd?) => 11))
   ;; If you want to use an ordinary function as a checker, wrap it in
   ;; as-checker:
   (expect (function-under-test-4 3) => 11
           (fake (first-fake (as-checker odd?)) => 11))
-  ;; If you don't want the function to run to check for a match, but
-  ;; rather to be matched literally, wrap it in exactly:
-  (expect (function-under-test-4 odd?) => 11
-          (fake (first-fake (exactly odd?)) => 11))
-  ;; As of 1.1, an unwrapped ordinary function will be treated as a checker,
-  ;; but you'll get a warning because that behavior will change:
-  (expect (function-under-test-4 3) => 11
-          (fake (first-fake odd?) => 11)))
+  ;; You can use predefined checkers as arguments.
+  (expect (function-under-test-4 'hops) => 11
+     (fake (first-fake anything) => 11))
+  (expect (function-under-test-4 3.0) => 11
+     (fake (first-fake (roughly 3.0 0.1)) => 11)))
 
 ;; The return values of a fake don't follow the rules for fake
 ;; arguments. I suppose I could be convinced that a "returning" a
