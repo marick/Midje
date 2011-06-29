@@ -7,11 +7,9 @@ manual.
 * bin/version 1.2.0 1.2.0 <midje-version>
 * bin/run-tests
 
-* Rake fresh
 * bin/version 1.2.1 1.2.0 <midje-version>
 * bin/run-tests
 
-* Rake fresh
 * Rake upload
 * DO NOT CLEAN.
 * bin/gather-downloads

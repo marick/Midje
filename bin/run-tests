@@ -3,6 +3,11 @@
 require 'fileutils'
 include FileUtils
 
+
+### IMPORTANT
+### If you add any new test directories here,
+### you must also add them to bin/version.
+
 lein_test_runs = %w{examples/semi-sweet-examples
                     examples/leiningen-test}
 
@@ -17,7 +22,6 @@ run_runs = %w{ examples/semi-sweet-examples examples/basic }
 
 puts "= Main Tests"
 # system("ls lib")
-system("lein clean")
 system("lein test | grep failure")
 
 puts "= Lein test tests"
