@@ -80,3 +80,39 @@
     (provided
       (add-fields rec) => 0)))
 
+
+
+
+
+;; An example used in the user documentation
+(defprotocol Peanoific
+  (pzero? [this])
+  (pequal? [this that])
+  (psuccessor [this])
+  (padd [this that])
+  (pmult [this that]))
+
+(defrecord-openly Peano [value]
+  Peanoific
+  (pzero? [this] :unfinished)
+  (pequal? [this that] :unfinished)
+  (psuccessor [this] :unfinished)
+  (padd [this that]
+        (if (pzero? that) this))
+  (pmult [this that] :unfinished))
+
+
+(fact
+  (padd (Peano. ...n...) (Peano. ...zero...)) => (Peano. ...n...)
+  (provided
+    (pzero? (Peano. ...zero...)) => true))
+
+(after-silently 
+ (fact 
+   (padd (Peano. ...a...) (psuccessor (Peano. ...b...)))
+   => (psuccessor (padd (Peano. ...a...) (Peano. ...b...)))
+   (provided
+     (pzero? anything) => false))
+ (fact @reported => (one-of bad-result)))
+
+
