@@ -3,6 +3,7 @@
 (ns leiningen.midje
   (:refer-clojure :exclude [test])
   (:use [leiningen.util.ns :only [namespaces-in-dir]]
+        [leiningen.test :only [*exit-after-tests*]]
         [leiningen.compile :only [eval-in-project]]))
 
 (defn require-namespaces-form [namespaces]
@@ -58,9 +59,10 @@
        (println midje-failure-message# midje-consolation#)
 
        ;; A non-nil return value is printed, so I'll just exit here.
-       (System/exit (+ midje-fails#
-                       (:error clojure-test-result#)
-                       (:fail clojure-test-result#))))))
+       (when ~*exit-after-tests*
+         (System/exit (+ midje-fails#
+                         (:error clojure-test-result#)
+                         (:fail clojure-test-result#)))))))
 
 (defn midje [project & namespaces]
   (let [desired-namespaces  (if (empty? namespaces)
