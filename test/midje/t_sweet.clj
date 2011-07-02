@@ -191,8 +191,6 @@
     (scope-to-fact) => "inner"))
 
 ;;; Tables
-(tabular (fact (+ 1 1) => 2))
-
 (tabular
  (fact (+ ?a ?b) => ?result )
  ?a    ?b      ?result

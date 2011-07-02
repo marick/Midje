@@ -50,8 +50,3 @@
   (let [[variables values] (split-with #(.startsWith (pr-str %) "?") (remove-pipes+where table))
         value-lists (partition (count variables) values)]
     (map (partial ordered-zipmap variables) value-lists)))
-
-(defn tabular-forms [forms]
-  (if (string? (first forms))
-    (recur (rest forms))
-    [ (first forms) (rest forms) ]))

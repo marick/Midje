@@ -2,9 +2,9 @@
 
 (ns midje.midje-forms.t-dissecting
   (:require [clojure.zip :as zip])
-  (:use [midje.midje-forms dissecting recognizing])
-  (:use midje.sweet)
-  (:use midje.test-util)
+  (:use [midje.midje-forms dissecting recognizing]
+        [midje.error-handling monadic sweet-errors]
+        [midje sweet test-util])
   (:use [ordered.map :only (ordered-map)]))
 
 (unfinished unused used)
@@ -89,22 +89,21 @@
                              'where   :where   "where:where"))
     => [ (ordered-map '?a 'where, '?b :where, '?result "where:where") ])
 
-(future-fact "Error handling should complain about missing table values")
-;; (tabular
-;;  (fact "error message"
-;;    (tabular-forms '?forms) => '?expected
-;;    ?forms                       ?expect
-;;    [ fact table ]               [fact table]))
-
-
+(after-silently
+ (tabular
+  (fact "error message"
+    (tabular-forms '?forms) => '?expected
+    ?forms                       ?expect
+    [ fact table ]               [fact table]))
+ (fact (one-of user-error)))
 
 (tabular "can split apart fact forms with optional doc-string"
  (fact 
    (let [s "string"]
-     (tabular-forms '?forms) => '?expected))
-   ?forms                       ?expected
-   [ fact table... ]            [fact [table...]]
-   [ "string" fact table...]    [fact [table...]]
+     (validate '?forms) => '?expected))
+   ?forms                               ?expected
+   (tabular fact table...)              [fact [table...]]
+   (tabular "string" fact table...)     [fact [table...]]
    ;; Doesn't work with non-literal strings
-   [ s fact table...]              [s [fact table...]])
+   (tabular s fact table...)            [s [fact table...]])
 
