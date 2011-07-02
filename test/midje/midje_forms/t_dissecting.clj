@@ -3,9 +3,8 @@
 (ns midje.midje-forms.t-dissecting
   (:require [clojure.zip :as zip])
   (:use [midje.midje-forms dissecting recognizing]
-        [midje.error-handling monadic sweet-errors]
-        [midje sweet test-util])
-  (:use [ordered.map :only (ordered-map)]))
+        [midje.error-handling monadic]
+        [midje sweet test-util]))
 
 (unfinished unused used)
 (defn calls-nothing [] )
@@ -58,52 +57,4 @@
 
   (let [result (partition-arrow-forms '(  (f 1) => 2 :key value   (g 1) => 3))]
     result =>                         '( [(f 1) => 2 :key value] [(g 1) => 3])))
-
-;; Fact tables
- 
-(fact "gets the bindings off fact table"
-  (table-binding-maps (list '?a  '?b '?result
-                              1   2   3))
-    => [ (ordered-map '?a 1, '?b 2, '?result 3) ])
- 
-(fact "ignores pipes"
-  (table-binding-maps (list '?a '| '?b '| '?result
-                              1 '|  2  '|  3))
-    => [ (ordered-map '?a 1, '?b 2, '?result 3) ])
- 
-(fact "ignores symbol - where"
-  (table-binding-maps (list 'where
-  		            '?a '?b '?result
-                              1   2   3))
-    => [ (ordered-map '?a 1, '?b 2, '?result 3) ])
- 
-(fact "ignores keyword - :where"
-  (table-binding-maps (list :where
-  		            '?a '?b '?result
-                              1   2   3))
-    => [ (ordered-map '?a 1, '?b 2, '?result 3) ])
- 
-(fact "no trouble with :where or where in the data"
-  (table-binding-maps (list :where
-  		            '?a      '?b      '?result
-                             'where   :where   "where:where"))
-    => [ (ordered-map '?a 'where, '?b :where, '?result "where:where") ])
-
-(after-silently
- (tabular
-  (fact "error message"
-    (tabular-forms '?forms) => '?expected
-    ?forms                       ?expect
-    [ fact table ]               [fact table]))
- (fact (one-of user-error)))
-
-(tabular "can split apart fact forms with optional doc-string"
- (fact 
-   (let [s "string"]
-     (validate '?forms) => '?expected))
-   ?forms                               ?expected
-   (tabular fact table...)              [fact [table...]]
-   (tabular "string" fact table...)     [fact [table...]]
-   ;; Doesn't work with non-literal strings
-   (tabular s fact table...)            [s [fact table...]])
 

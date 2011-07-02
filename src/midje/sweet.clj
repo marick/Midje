@@ -9,13 +9,11 @@
         [midje.midje-forms.translating
          :only [midjcoexpand put-wrappers-into-effect
                 forms-to-wrap-around translate-fact-body
-                add-line-numbers unfold-prerequisites
-                form-with-copied-line-numbers
-                add-binding-notes]]
+                add-line-numbers unfold-prerequisites]]
         [midje.fakes :only [background-fakes]]
-        [midje.error-handling monadic sweet-errors]
-        [midje.midje-forms.dissecting :only [separate-background-forms
-                                             table-binding-maps]]
+        [midje.tabular :only [tabular*]]
+        [midje.error-handling monadic]
+        [midje.midje-forms.dissecting :only [separate-background-forms]]
         [midje.util debugging thread-safe-var-nesting unify]
         [midje.util.exceptions :only [user-error-exception-lines]]
         [midje.util.wrapping :only [multiwrap]]
@@ -94,11 +92,5 @@
 (defmacro antiterminologicaldisintactitudinarian-fact [& forms] (future-fact-1 &form))
 (defmacro antiterminologicaldisintactitudinarian-facts [& forms] (future-fact-1 &form))
 
-(defmacro tabular [& forms]
-  (error-let [[fact-form table] (validate &form)
-              ordered-binding-maps (table-binding-maps table)
-              expect-forms (map (comp macroexpand 
-                                      #(form-with-copied-line-numbers % fact-form) 
-                                      (partial subst fact-form)) ordered-binding-maps)
-              result (add-binding-notes expect-forms ordered-binding-maps)]
-    `(do ~@result)))
+(defmacro tabular [& _]
+  (tabular* &form))
