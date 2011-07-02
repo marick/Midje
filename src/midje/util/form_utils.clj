@@ -47,7 +47,7 @@
       "0 (no line info)"))
   
 (defn flatten-and-remove-nils [seq]
-  (filter identity (flatten seq)))
+  (->> seq flatten (remove nil?)))
 
 (defn vector-without-element-at-index [index v]
   (vec (concat (subvec v 0 index) (subvec v (inc index)))))
@@ -69,10 +69,10 @@
 (defn apply-pairwise [ functions & arglists ]
   "(apply-pairwise [inc dec] [1 1] [2 2]) => [ [2 0] [3 1] ]
    Note that the functions must take only a single argument."
-  (map (fn [arglist]
-         (map (fn [function arg] (apply function [arg]))
-              functions arglist))
-       arglists))
+  (map (partial map 
+  		(fn [f arg] (f arg)) 
+  		functions) 
+  	arglists))
 
 (defn map-difference [bigger smaller]
   (select-keys bigger (difference (set (keys bigger)) (set (keys smaller)))))
@@ -88,8 +88,8 @@
              (next vs))
       m)))
 
-(defn first-true [preds & args]	
-  (when (seq preds)
-    (if (apply (first preds) args)
-        (first preds)
-        (apply first-true (rest preds) args))))
+(defn first-true [[pred & more-preds] & args]	
+  (when pred
+    (if (apply pred args)
+        pred
+        (apply first-true more-preds args))))
