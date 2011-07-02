@@ -20,33 +20,37 @@ cake_midje_runs = %w{examples/cake-midje}
 
 run_runs = %w{ examples/semi-sweet-examples examples/basic }
 
-puts "= Main Tests"
+def lein_clean; system("lein clean 2>&1 | grep -v 'Cleaning up'"); end
+def lein_deps;  system("lein deps 2>&1 | grep -v 'Copying .* files'"); end
+
+puts "++++++++++++++++++++                                      Main Tests"
 # system("ls lib")
 system("lein test | grep failure")
 
-puts "= Lein test tests"
+puts "++++++++++++++++++++                                      Lein test tests"
 lein_test_runs.each do | dir | 
   puts("= " + dir)
   Dir.chdir(dir) do
     # system("ls lib")
-    system("lein clean")
+    lein_clean
     puts "  lein test"
     system("lein test > ~/tmp/lein.out; diff ~/tmp/lein.out lein-expected-output")
   end
 end
 
-puts "= Lein midje tests"
+puts "++++++++++++++++++++                                      Lein midje tests"
 lein_midje_runs.each do | dir | 
   puts("= " + dir)
   Dir.chdir(dir) do
     # system("ls lib")
-    system("lein clean")
+    lein_clean
+    lein_deps
     puts "  lein midje"
     system("lein midje > ~/tmp/lein.out; diff ~/tmp/lein.out lein-expected-output")
   end
 end
 
-puts "= Cake midje tests"
+puts "++++++++++++++++++++ Cake midje tests"
 cake_midje_runs.each do | dir | 
   puts("= " + dir)
   Dir.chdir(dir) do
@@ -57,12 +61,12 @@ cake_midje_runs.each do | dir |
 end
 
 
-puts "= Raw running"
+puts "++++++++++++++++++++                                      Raw running"
 run_runs.each do | dir | 
   puts("= " + dir)
   Dir.chdir(dir) do
     # system("ls lib")
-    system("lein clean")
+    lein_clean
     puts "  run"
     system("run > ~/tmp/run.out; diff ~/tmp/run.out run-expected-output")
   end

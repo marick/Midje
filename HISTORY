@@ -1,4 +1,5 @@
-= 1.2-alpha4
+= 1.2-alpha5
+* Lein-midje has been split off into a separate project.
 * defrecord-openly and deftype-openly allows the use of
   `provided` with protocol functions.
 * You can now specify how often prerequisites should be called.
