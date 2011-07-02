@@ -25,7 +25,7 @@
                 [ '( (f) (+ 1 2))  '(1 (g-101 0) 33 (g-101 1))  ])
 
 (tabular 
-  (fact ""
+  (fact "knows if is worth reporting on"
     (chatty-worth-reporting-on? ?arg) => ?worth-it)
   
     ?arg   ?worth-it
