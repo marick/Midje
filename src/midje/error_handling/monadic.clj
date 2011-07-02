@@ -1,8 +1,8 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.error-handling.monadic
-  (:use [clojure.contrib.pprint :only [cl-format]]
-        [clojure.contrib.monads]
+  (:use [clojure.pprint :only [cl-format]]
+        [clojure.algo.monads]
         [clojure.contrib.seq-utils :only [find-first]]
         [midje.util report file-position form-utils]
         [clojure.test]))
