@@ -88,3 +88,23 @@
   		            '?a      '?b      '?result
                              'where   :where   "where:where"))
     => [ (ordered-map '?a 'where, '?b :where, '?result "where:where") ])
+
+(future-fact "Error handling should complain about missing table values")
+;; (tabular
+;;  (fact "error message"
+;;    (tabular-forms '?forms) => '?expected
+;;    ?forms                       ?expect
+;;    [ fact table ]               [fact table]))
+
+
+
+(tabular "can split apart fact forms with optional doc-string"
+ (fact 
+   (let [s "string"]
+     (tabular-forms '?forms) => '?expected))
+   ?forms                       ?expected
+   [ fact table... ]            [fact [table...]]
+   [ "string" fact table...]    [fact [table...]]
+   ;; Doesn't work with non-literal strings
+   [ s fact table...]              [s [fact table...]])
+
