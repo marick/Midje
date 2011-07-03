@@ -3,8 +3,7 @@
 (ns midje.midje-forms.dissecting
   (:require [clojure.zip :as zip])
   (:use [midje.midje-forms.recognizing :only (background-form?)])
-  (:use [clojure.contrib.seq-utils :only (separate)])
-  (:use [midje.util.form-utils :only (ordered-zipmap)]))
+  (:use [clojure.contrib.seq-utils :only (separate)]))
 
 ;; dissecting background forms
 
@@ -39,14 +38,3 @@
         (recur (conj so-far whole-body)
                (nthnext remainder (count whole-body)))))))
 
-;; dissecting tabular facts - could be in its own ns since it uses nothing from the above code
-;; maybe midje.midje-forms.dissecting.tabular
-
-(defn- remove-pipes+where [table]
-  (let [strip-off-where #(if (contains? #{:where 'where} (first %)) (rest %) % )]
-    (->> table strip-off-where (remove #(= % '|)))))	
-
-(defn table-binding-maps [table]
-  (let [[variables values] (split-with #(.startsWith (pr-str %) "?") (remove-pipes+where table))
-        value-lists (partition (count variables) values)]
-    (map (partial ordered-zipmap variables) value-lists)))

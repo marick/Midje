@@ -63,6 +63,8 @@
 (def pass (contains {:type :pass}))
 (def checker-fails (contains {:type :mock-expected-result-functional-failure}))
 (def wrong-call-count (contains {:type :mock-incorrect-call-count}))
+(def user-error (contains {:type :user-error}))
+
 
 (defn at-line [line-no form] (with-meta form {:line line-no}))
 

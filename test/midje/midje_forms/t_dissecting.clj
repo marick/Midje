@@ -2,10 +2,9 @@
 
 (ns midje.midje-forms.t-dissecting
   (:require [clojure.zip :as zip])
-  (:use [midje.midje-forms dissecting recognizing])
-  (:use midje.sweet)
-  (:use midje.test-util)
-  (:use [ordered.map :only (ordered-map)]))
+  (:use [midje.midje-forms dissecting recognizing]
+        [midje.error-handling monadic]
+        [midje sweet test-util]))
 
 (unfinished unused used)
 (defn calls-nothing [] )
@@ -59,32 +58,3 @@
   (let [result (partition-arrow-forms '(  (f 1) => 2 :key value   (g 1) => 3))]
     result =>                         '( [(f 1) => 2 :key value] [(g 1) => 3])))
 
-;; Fact tables
- 
-(fact "gets the bindings off fact table"
-  (table-binding-maps (list '?a  '?b '?result
-                              1   2   3))
-    => [ (ordered-map '?a 1, '?b 2, '?result 3) ])
- 
-(fact "ignores pipes"
-  (table-binding-maps (list '?a '| '?b '| '?result
-                              1 '|  2  '|  3))
-    => [ (ordered-map '?a 1, '?b 2, '?result 3) ])
- 
-(fact "ignores symbol - where"
-  (table-binding-maps (list 'where
-  		            '?a '?b '?result
-                              1   2   3))
-    => [ (ordered-map '?a 1, '?b 2, '?result 3) ])
- 
-(fact "ignores keyword - :where"
-  (table-binding-maps (list :where
-  		            '?a '?b '?result
-                              1   2   3))
-    => [ (ordered-map '?a 1, '?b 2, '?result 3) ])
- 
-(fact "no trouble with :where or where in the data"
-  (table-binding-maps (list :where
-  		            '?a      '?b      '?result
-                             'where   :where   "where:where"))
-    => [ (ordered-map '?a 'where, '?b :where, '?result "where:where") ])
