@@ -83,7 +83,7 @@
          ks (seq keys)
          vs (seq vals)]
     (if (and ks vs)
-      (recur (assoc m (first ks) (first vs))
+      (recur (assoc m (first ks) (first vs)) 
              (next ks)
              (next vs))
       m)))
@@ -93,3 +93,13 @@
     (if (apply pred args)
         pred
         (apply first-true more-preds args))))
+
+;; traverses the zipper; for the first (only the first!) predicate matching a 
+;; node, calls the related translate function. Otherwise, contiues traversing.   
+(defn translate [form & preds+translate-fns]
+  (loop [loc (zip/seq-zip form)]
+      (if (zip/end? loc)
+          (zip/root loc)
+          (if-let [true-fn (first-true (map first (partition 2 preds+translate-fns)) loc)]
+            (recur (zip/next ((get (apply hash-map preds+translate-fns) true-fn) loc)))
+            (recur (zip/next loc))))))
