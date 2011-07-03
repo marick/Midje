@@ -3,7 +3,8 @@
 (ns midje.util.form-utils
   (:use [midje.util laziness]
         [clojure.set :only [difference]]
-        [ordered.map :only (ordered-map)]))
+        [ordered.map :only (ordered-map)])
+  (:require [clojure.zip :as zip]))
 
 (defn regex? [thing]
   (= (class thing) java.util.regex.Pattern))
