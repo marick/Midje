@@ -7,14 +7,6 @@
   (:use midje.test-util)
 )
 
-(fact "namespacey-match accepts symbols from different midje namespaces"
-  (let [values (zip/seq-zip '(m midje.semi-sweet/expect))
-        m-node (zip/down values)
-        expect-node (-> values zip/down zip/right)]
-    (expect (namespacey-match '(m) m-node) => truthy)
-    (expect (namespacey-match '(expect) expect-node) => truthy)
-    (expect (namespacey-match '(n) m-node) => falsey)))
-
 (tabular 
  (fact "an embedded expect form can be recognized"
    (loc-is-at-full-expect-form? (zip/seq-zip ?form)) => ?expected)
@@ -37,28 +29,6 @@
           skippable (-> z zip/down zip/next zip/down)]
       skippable => is-semi-sweet-keyword?)))
 
-(fact "can ask if at first element of X =?> Y :possible :keywords"
-  (let [possible (fn [nested-form] (zip/down (zip/seq-zip nested-form)))]
-              "a string" =not=> is-start-of-check-sequence?
-              '(foo) =not=> is-start-of-check-sequence?
-    
-              '( (f 1) ) =not=> is-start-of-check-sequence?
-    (possible '( (f 1) )) =not=> is-start-of-check-sequence?
-    
-              '( (f 1) (f 2)) =not=> is-start-of-check-sequence?
-    (possible '( (f 1) (f 2))) =not=> is-start-of-check-sequence?
-
-              '( (f 1) => 2) => is-start-of-check-sequence?
-    (possible '( (f 1) => 2)) => is-start-of-check-sequence?
-
-              '( (f 1) =not=> 2) => is-start-of-check-sequence?
-    (possible '( (f 1) =not=> 2)) => is-start-of-check-sequence?
-
-              '( (f 1) => 2 :key 'value) => is-start-of-check-sequence?
-    (possible '( (f 1) => 2 :key 'value)) => is-start-of-check-sequence?
-
-              '( (f 1) midje.semi-sweet/=> 2) => is-start-of-check-sequence?
-    (possible '( (f 1) midje.semi-sweet/=> 2)) => is-start-of-check-sequence?))
 
 (facts "recognizing setup/teardown forms"
   '[ (before :checks (+ 1 1)) ... ] => seq-headed-by-setup-teardown-form?

@@ -1,11 +1,11 @@
 (ns midje.midje-forms.editing
   (:use midje.semi-sweet)
+  (:use [midje.arrows :only [is-start-of-arrow-sequence?
+                             arrow-sequence-overrides]])
   (:use [midje.midje-forms.recognizing :only [is-head-of-form-providing-prerequisites?
-					      is-start-of-check-sequence?
 					      loc-is-at-full-expect-form?]]
 	[midje.midje-forms.moving-around :only [up-to-full-expect-form
 						skip-to-rightmost-leaf]]
-	[midje.midje-forms.dissecting :only [arrow-form-overrides]]
 	[midje.util.file-position :only [line-number-known arrow-line-number]])
   (:require [clojure.zip :as zip]))
 
@@ -34,32 +34,18 @@
     (-> loc tack zip/down skip-to-rightmost-leaf)))
 
 (defn wrap-with-expect__then__at-rightmost-expect-leaf [loc]
-  (assert (is-start-of-check-sequence? loc))
+  (assert (is-start-of-arrow-sequence? loc))
   (let [right-hand (-> loc zip/right zip/right)
-        arrow-form (-> loc zip/right zip/node)
-	additions (arrow-form-overrides (zip/rights right-hand))
+        arrow-sequence (-> loc zip/right zip/node)
+	additions (arrow-sequence-overrides (zip/rights right-hand))
         line-number (arrow-line-number (zip/right loc))
 	edited-loc (zip/edit loc
 			     (fn [loc]
                                (vary-meta 
-                                 `(expect ~loc ~arrow-form ~(zip/node right-hand) ~@additions)
+                                 `(expect ~loc ~arrow-sequence ~(zip/node right-hand) ~@additions)
                                  assoc :line line-number)))]
     (->> edited-loc
 	 zip/right
 	 (n-times (+ 1 (count additions)) remove-moving-right)
 	 zip/remove)))
 
-(defn add-key-value-to-end-of-arrow-sequence__then__no-movement [key value loc]
-  (-> loc
-      zip/right
-      (zip/insert-right value)
-      (zip/insert-right key)
-      zip/left))
-
-(defn add-key-value-within-arrow-branch__then__at_arrow [key value loc]
-  (->> loc zip/down zip/right zip/right
-       (add-key-value-to-end-of-arrow-sequence__then__no-movement key value)))
-
-(defn add-line-number-to-end-of-arrow-sequence__then__no-movement [number loc]
-  (add-key-value-to-end-of-arrow-sequence__then__no-movement
-   :position `(line-number-known ~number) loc))

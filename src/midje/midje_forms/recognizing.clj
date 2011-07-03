@@ -1,39 +1,18 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.midje-forms.recognizing
-  (:use midje.util.form-utils
+  (:use [midje.util form-utils treelike namespace]
         [midje.checkers.defining :only [checker? checker-makers]]
-        [midje.semi-sweet :only [expect-arrows]])
+        [midje.arrows :only [expect-arrows]])
   (:require [midje.util.wrapping :as wrapping])
   (:require [midje.util.unify :as unify])
   (:require [clojure.zip :as zip]))
 
 ;; TODO: Replace namespacey-match with form-first-like strategy?
 
-(defn is-arrow-form? [forms]
-  (= (str (second forms)) "=>"))
-
 (defn fake? [form] (form-first? form "fake"))
 
 ;; Zipper vs. form agnostic
-
-(defn is-zipper? [treelike]
-  (:zip/make-node (meta treelike)))
-
-(defn treelike-type [treelike]
-  (if (is-zipper? treelike) :zipper :form))
-
-(defmulti namespacey-match (fn [symbols treelike] (treelike-type treelike)))
-
-(defmethod namespacey-match :zipper [symbols loc]
-   (namespacey-match symbols (zip/node loc)))
-
-(defmethod namespacey-match :form [symbols node]
-  (let [base-names (map name symbols)
-        qualified-names (concat (map #(str "midje.semi-sweet/" %) base-names)
-                                (map #(str "midje.sweet/" %) base-names))]
-    ( (set (concat base-names qualified-names)) (str node))))
-
 
 
 (defn is-semi-sweet-keyword? [loc]
@@ -41,16 +20,6 @@
 
 (defn is-head-of-form-providing-prerequisites? [loc]
   (namespacey-match '(provided) loc))
-
-(defmulti is-start-of-check-sequence? treelike-type)
-
-(defmethod is-start-of-check-sequence? :zipper [loc]
-  (and (zip/right loc)
-       (namespacey-match expect-arrows (zip/right loc))))
-
-(defmethod is-start-of-check-sequence? :form [form]
-  (and (sequential? form)
-       (namespacey-match expect-arrows (second form))))
 
 
 

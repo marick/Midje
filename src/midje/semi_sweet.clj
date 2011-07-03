@@ -9,20 +9,7 @@
         [clojure.pprint]
         [clojure.contrib.ns-utils :only [immigrate]]))
 (immigrate 'midje.unprocessed)
-
-; So every namespace uses the same qualified name.
-(def => "=>")
-(def =not=> "=not=>")
-(def =deny=> "=deny=>")
-(def =streams=> "=streams=>")
-(def =future=> "=future=>")
-
-(def ^{:doc "Use this when testing Midje code that processes arrow-forms"}
-     =test=> "=test=>")
-
-(def expect-arrows [=> =not=> =deny=> =future=>])
-(def fake-arrows [=> =streams=>])
-(def all-arrows (concat expect-arrows fake-arrows))
+(immigrate 'midje.arrow-symbols)
 
 (defn check-for-arrow [arrow]
   (get {=> :check-match

@@ -4,9 +4,14 @@
   (:use clojure.contrib.def
         [clojure.contrib.seq :only [separate]]
         [clojure.contrib.str-utils :only [str-join]]
+        [midje.arrows :only [is-start-of-arrow-sequence?
+                             take-arrow-sequence
+                             group-arrow-sequences
+                             above_arrow_sequence__add-key-value__at_arrow
+                             at_arrow__add-line-number-to-end__no-movement]]
         midje.metaconstants
-        [midje.semi-sweet :only [all-arrows]]
-        [midje.util thread-safe-var-nesting wrapping form-utils laziness form-utils]
+        [midje.arrows :only [all-arrows]]
+        [midje.util thread-safe-var-nesting wrapping form-utils laziness form-utils namespace]
         [midje.util.file-position :only [arrow-line-number]]
         [midje.midje-forms building recognizing dissecting moving-around editing]
         [midje.fakes :only [background-fake-wrappers]]
@@ -30,18 +35,18 @@
 (defn add-line-numbers [form]
   (translate form
     (fn [loc] (namespacey-match all-arrows loc))
-    (fn [loc] (add-line-number-to-end-of-arrow-sequence__then__no-movement (arrow-line-number loc) loc))))
+    (fn [loc] (at_arrow__add-line-number-to-end__no-movement (arrow-line-number loc) loc))))
 
 ;; Translating sweet forms into their semi-sweet equivalent
 
 (defn expand-prerequisites-into-fake-calls [provided-loc]
   (let [fakes (rest (zip/node (zip/up provided-loc)))
-        fake-bodies (partition-arrow-forms fakes)]
+        fake-bodies (group-arrow-sequences fakes)]
     (map make-fake fake-bodies)))
 
 (defn translate-fact-body [multi-form]
   (translate multi-form
-    is-start-of-check-sequence?
+    is-start-of-arrow-sequence?
     wrap-with-expect__then__at-rightmost-expect-leaf
     
     is-head-of-form-providing-prerequisites?
@@ -65,8 +70,8 @@
     (cond (empty? in-progress)
           expanded
 
-          (is-arrow-form? in-progress)
-          (let [content (take-arrow-form in-progress)]
+          (is-start-of-arrow-sequence? in-progress)
+          (let [content (take-arrow-sequence in-progress)]
             (recur (conj expanded (-> content make-fake make-background))
                    (nthnext in-progress (count content))))
 
@@ -246,7 +251,7 @@
   (translate expect-containing-form
     loc-is-at-full-expect-form?
     (fn [loc] (skip-to-rightmost-leaf
-      (add-key-value-within-arrow-branch__then__at_arrow :binding-note (binding-note ordered-binding-map) loc)))))
+      (above_arrow_sequence__add-key-value__at_arrow :binding-note (binding-note ordered-binding-map) loc)))))
 
 (defn add-binding-notes [expect-containing-forms ordered-binding-maps]
   (map (partial apply add-one-binding-note) 

@@ -3,6 +3,7 @@
 (ns midje.midje-forms.t-editing
   (:use [midje.midje-forms.editing]
         [midje.midje-forms.recognizing]
+        [midje.arrows :only [is-start-of-arrow-sequence?]]
         clojure.test
         midje.sweet
         midje.test-util)
@@ -49,7 +50,7 @@
         original-loc  (-> z zip/down)
         resulting-loc (wrap-with-expect__then__at-rightmost-expect-leaf original-loc)]
     original-loc => (node '(f 1))
-    original-loc => is-start-of-check-sequence?
+    original-loc => is-start-of-arrow-sequence?
     
     (zip/root resulting-loc) => edited
     (zip/next resulting-loc) => (node "next"))
@@ -62,7 +63,7 @@
         original-loc  (-> z zip/down)
         resulting-loc (wrap-with-expect__then__at-rightmost-expect-leaf original-loc)]
     original-loc => (node '(f 1))
-    original-loc => is-start-of-check-sequence?
+    original-loc => is-start-of-arrow-sequence?
     
     (zip/root resulting-loc) => edited
     (zip/next resulting-loc) => (node "next"))
@@ -74,7 +75,7 @@
         original-loc  (-> z zip/down)
         resulting-loc (wrap-with-expect__then__at-rightmost-expect-leaf original-loc)]
     original-loc => (node '(f 1))
-    original-loc => is-start-of-check-sequence?
+    original-loc => is-start-of-arrow-sequence?
     
    (zip/root resulting-loc) => edited
    (zip/next resulting-loc) => (node "next"))
@@ -97,14 +98,4 @@
 
   
 
-
-(fact "one can add a line number to an arrow sequence"
-  (let [original '( (f n) => 2  )
-        expected '( (f n) => 2 :position (midje.util.file-position/line-number-known 10))
-        z            (zip/seq-zip original)
-        original-loc (-> z zip/down zip/right)
-        new-loc      (add-line-number-to-end-of-arrow-sequence__then__no-movement
-                        10 original-loc)]
-    (name (zip/node new-loc)) => "=>"
-    (zip/root new-loc) => expected))
 
