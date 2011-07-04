@@ -1,8 +1,8 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.util.unify
-  (:require [me.fogus.unifycle :as unify])
-  (:use [clojure.walk :as walk :only [prewalk]]))
+  (:use [clojure.walk :only [prewalk]])
+  (:require [me.fogus.unifycle :as unify]))
 
 (defn- variable? [x] (and (symbol? x) (.startsWith (name x) "?")))
 
@@ -17,7 +17,7 @@
 (defn subst
   "Attempts to substitute the bindings in the appropriate locations in the given expression."
   [x binds]
-  (walk/prewalk (fn [expr] 
+  (prewalk (fn [expr] 
                   (if (and (variable? expr)
                            (not= (get binds expr 'not-found) 'not-found))
                     (binds expr)
