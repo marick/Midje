@@ -12,7 +12,7 @@
   (:use clojure.contrib.pprint)
   (:use [ordered.map :only (ordered-map)]))
 (testable-privates midje.midje-forms.translating
-                   canonicalize-raw-wrappers final-state-wrapper replace-with-magic-form)
+                   canonicalize-raw-wrappers final-state-wrapper)
 
 
 

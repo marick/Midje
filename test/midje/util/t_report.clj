@@ -6,7 +6,7 @@
         [midje sweet test-util]))
 
 
-(testable-privates midje.util.report midje-position-string functional-failure-lines)
+(testable-privates midje.util.report midje-position-string)
 
 
 ;; This set of tests generate failures. The following code prevents

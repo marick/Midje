@@ -40,6 +40,7 @@
   (namespace-value :testval) => nil
   (set-namespace-value :testval '( ( (1) ) ))
   (namespace-value :testval) => '( ( (1) ) )
+  (destroy-namespace-value :testval)
 
   "... are accessed by a peculiar function"
   (namespace-values-inside-out :peculiar) => '()
