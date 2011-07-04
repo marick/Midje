@@ -61,8 +61,14 @@
   (ordered-zipmap [:a] [1 2 3 4]) => {:a 1}
   (ordered-zipmap [:a :b :c :d] [1]) => {:a 1} )	
 
-(fact "returns the first function that is true for the given args"
-  (first-true [string? keyword?] :kw) => (exactly keyword?))	
+(fact "apply each function to each corresponding arg" 
+  (apply-pairwise [inc dec] [1 1] [2 2]) => [[2 0] [3 1]])
 
-(fact "shortcircuits when it reaches a match - odd? would have blown up"
-  (first-true [keyword? odd?] :kw) => (exactly keyword?))
+(tabular
+  (fact "returns the first function that is true for the given args"
+    (first-true ?fns :kw)  => (exactly ?first-true-fn))
+  
+     ?fns                ?first-true-fn
+     [string? keyword?]  keyword? 
+     []                  nil       
+     [keyword? odd?]     keyword? ) ;; shortcircuits when it reaches a match - evaluating (odd? :kw) would have blown up   

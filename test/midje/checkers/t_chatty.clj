@@ -19,16 +19,21 @@
 (facts "about chatty-checking utility functions"
   (as-chatty-falsehood [5]) => chatty-checker-falsehood?
 
-  (chatty-worth-reporting-on? 1) => falsey 
-  (chatty-worth-reporting-on? '()) => falsey
-  (chatty-worth-reporting-on? '(f)) => truthy
-  (chatty-worth-reporting-on? ''(f)) => truthy
-  (chatty-worth-reporting-on? '[f]) => falsey
-
   (chatty-untease 'g-101 '()) => [[] []]
   
   (chatty-untease 'g-101 '(1 (f) 33 (+ 1 2))) =>
                 [ '( (f) (+ 1 2))  '(1 (g-101 0) 33 (g-101 1))  ])
+
+(tabular 
+  (fact "knows if is worth reporting on"
+    (chatty-worth-reporting-on? ?arg) => ?worth-it)
+  
+    ?arg   ?worth-it
+    1      falsey
+    '()    falsey
+    '(f)   truthy
+    ''(f)  truthy
+    '[f]   falsey )
   
 
 ;; The form of chatty checkers
