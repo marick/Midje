@@ -11,10 +11,9 @@
   (:require [clojure.zip :as zip])
   (:use clojure.contrib.pprint)
   (:use [ordered.map :only (ordered-map)]))
+
 (testable-privates midje.midje-forms.translating
                    canonicalize-raw-wrappers final-state-wrapper replace-with-magic-form)
-
-
 
 
 (fact "a whole form can have line numbers added to its arrow sequences"

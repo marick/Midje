@@ -1,12 +1,11 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.tabular
-  (:use [midje.error-handling monadic]
-        [midje.midje-forms.translating :only [form-with-copied-line-numbers
-                                              add-binding-notes]])
-  (:use [midje.util.form-utils :only (ordered-zipmap)]
-        [midje.util report file-position form-utils])
-(:require [midje.util.unify :as unify]))
+  (:use 
+    [midje.error-handling.monadic :only [error-let user-error-report-form validate]]
+    [midje.midje-forms.translating :only [add-binding-notes form-with-copied-line-numbers]]
+    [midje.util.form-utils :only [ordered-zipmap]])
+  (:require [midje.util.unify :as unify]))
 
 (defn- remove-pipes+where [table]
   (let [strip-off-where #(if (contains? #{:where 'where} (first %)) (rest %) % )]

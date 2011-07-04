@@ -1,16 +1,17 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.fakes
-  (:use [clojure.contrib.seq-utils :only [find-first]]
-        clojure.test
-        [midje.util report file-position form-utils exceptions
-                    thread-safe-var-nesting wrapping]
-        [midje.checkers :only [exactly]]
-        [midje.checkers.defining :only [checker?]]
-        [midje.checkers.util :only [captured-exception]]
-        [midje.checkers.chatty :only [chatty-checker-falsehood? chatty-checker?]]
-        [midje.checkers.extended-equality :only [extended-= extended-list-= extended-fn?]])
-  (:require [clojure.zip :as zip]))
+  (:use
+    [clojure.contrib.seq :only [find-first]]
+    [clojure.test :only [report]]
+    [midje.checkers :only [exactly]]
+    [midje.checkers.defining :only [checker?]]
+    [midje.checkers.extended-equality :only [extended-= extended-list-= extended-fn?]]
+    [midje.util.file-position :only [user-file-position]]
+    [midje.util.form-utils :only [hash-map-duplicates-ok]]
+    [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
+                                               with-pushed-namespace-values]]
+    [midje.util.wrapping :only [?form with-wrapping-target]]))
 
 (defn tag-function-as-fake [function]
   (vary-meta function assoc :midje/faked-function true))
