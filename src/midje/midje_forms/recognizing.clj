@@ -1,12 +1,14 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.midje-forms.recognizing
-  (:use midje.util.form-utils
-        [midje.checkers.defining :only [checker? checker-makers]]
-        [midje.semi-sweet :only [expect-arrows]])
-  (:require [midje.util.wrapping :as wrapping])
-  (:require [midje.util.unify :as unify])
-  (:require [clojure.zip :as zip]))
+  (:use
+    [midje.checkers.defining :only [checker-makers checker?]]
+    [midje.semi-sweet :only [expect-arrows]]
+    [midje.util.form-utils :only [form-first?]])
+  (:require
+    [clojure.zip :as zip]
+    [midje.util.unify :as unify]
+    [midje.util.wrapping :as wrapping]))
 
 ;; TODO: Replace namespacey-match with form-first-like strategy?
 
