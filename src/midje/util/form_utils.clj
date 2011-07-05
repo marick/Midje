@@ -96,7 +96,7 @@
         (apply first-true more-preds args))))
 
 ;; traverses the zipper; for the first (only the first!) predicate matching a 
-;; node, calls the related translate function. Otherwise, contiues traversing.   
+;; node, calls the corresponding translate function. Then, continues traversing.   
 (defn translate [form & preds+translate-fns]
   (loop [loc (zip/seq-zip form)]
       (if (zip/end? loc)

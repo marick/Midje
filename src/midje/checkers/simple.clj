@@ -3,7 +3,13 @@
 ;; Note: checkers need to be exported in ../checkers.clj
 
 (ns midje.checkers.simple
-  (:use [midje.checkers util extended-equality defining]))
+  (:use [midje.checkers :only [defchecker]]
+  	[midje.checkers.defining :only [checker]]
+  	[midje.checkers.extended-equality :only [extended-=]]
+  	[midje.checkers.util :only [captured-exception? 
+  	                            captured-exception-key 
+  	                            named 
+  	                            throwable-with-class?]]))
 
 (defchecker truthy 
   "Returns precisely true if actual is not nil and not false."
@@ -53,4 +59,3 @@
        (and (throwable-with-class? wrapped-throwable expected-exception-class)
             (extended-= (.getMessage (wrapped-throwable captured-exception-key))
                         message)))))
-
