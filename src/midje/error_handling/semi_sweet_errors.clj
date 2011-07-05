@@ -1,10 +1,9 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.error-handling.semi-sweet-errors
-  (:use [clojure.contrib.pprint :only [cl-format]]
-        [midje.error-handling.monadic]
-        [midje.util report file-position form-utils]))
-
+  (:use 
+    [clojure.pprint :only [cl-format]]
+    [midje.error-handling.monadic :only [user-error-report-form validate]]))
 
 (defmethod validate "fake" [form]
   (cond (not (list? (second form)))
@@ -22,5 +21,3 @@
          (cl-format nil "Doesn't match: (~A <actual> => <expected> [<keyword-value pairs>*])" (first form)))
         :else
         (rest form)))
-
-
