@@ -1,9 +1,9 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.midje-forms.dissecting
-  (:require [clojure.zip :as zip])
-  (:use [midje.midje-forms.recognizing :only (background-form?)])
-  (:use [clojure.contrib.seq-utils :only (separate)]))
+  (:use
+    [clojure.contrib.seq :only [separate]]
+    [midje.midje-forms.recognizing :only [background-form?]]))
 
 ;; dissecting background forms
 

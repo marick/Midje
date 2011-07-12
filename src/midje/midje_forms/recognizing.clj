@@ -1,14 +1,15 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.midje-forms.recognizing
-  (:use [midje.util form-utils treelike namespace]
-        [midje.checkers.defining :only [checker? checker-makers]]
-        [midje.arrows :only [expect-arrows]])
-  (:require [midje.util.wrapping :as wrapping])
-  (:require [midje.util.unify :as unify])
-  (:require [clojure.zip :as zip]))
-
-;; TODO: Replace namespacey-match with form-first-like strategy?
+  (:use
+    [midje.util.namespace :only [namespacey-match]]
+    [midje.checkers.defining :only [checker-makers checker?]]
+    [midje.arrows :only [expect-arrows]]
+    [midje.util.form-utils :only [form-first?]])
+  (:require
+    [clojure.zip :as zip]
+    [midje.util.unify :as unify]
+    [midje.util.wrapping :as wrapping]))
 
 (defn fake? [form] (form-first? form "fake"))
 

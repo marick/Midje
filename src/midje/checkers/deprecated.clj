@@ -1,13 +1,6 @@
 (ns midje.checkers.deprecated
-  (:use [clojure.set :only [difference union subset?]]
-        [clojure.contrib.seq :only [rotations]]
-        [clojure.contrib.def :only [defmacro- defvar-]]
-        [clojure.contrib.pprint :only [cl-format]]
-        [clojure.contrib.combinatorics :only [permutations]]
-        [midje.util.form-utils :only [regex? vector-without-element-at-index
-                                      tack-on-to]]
-	[midje.checkers.collection :only [just contains]]
-	[midje.checkers defining util]))
+  (:use [midje.checkers :only [defchecker]]
+  	[midje.checkers.collection :only [just contains]]))
 
 ;; Note: checkers need to be exported in ../checkers.clj
 

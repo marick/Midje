@@ -1,9 +1,7 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.util.exceptions
-  (:use midje.util.strings
-	[clojure.contrib.str-utils :only [str-join]]))
-  
+  (:use [clojure.contrib.str-utils :only [str-join]])) 
 
 (defn stacktrace-as-strings [ex]
   (map (fn [elt] (.toString elt)) (.getStackTrace ex)))

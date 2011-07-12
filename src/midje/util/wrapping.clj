@@ -1,10 +1,13 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.util.wrapping
-  (:use [midje.util form-utils thread-safe-var-nesting])
-  (:require [clojure.zip :as zip])
-  (:require [midje.util.unify :as unify])
-  (:require [midje.util.form-utils :only (translate)]))
+  (:use
+    [midje.util.form-utils :only [form-first? symbol-named? translate]]
+    [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
+                                               set-namespace-value
+                                               with-pushed-namespace-values]])
+  (:require [clojure.zip :as zip] 
+  	    [midje.util.unify :as unify]))
 
 ;; TODO: Should this be in with the midje-forms? It's general purpose (except
 ;; for the use of midje in varnames).

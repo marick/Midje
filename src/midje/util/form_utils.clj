@@ -1,9 +1,9 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.util.form-utils
-  (:use [midje.util laziness]
-        [clojure.set :only [difference]]
-        [ordered.map :only (ordered-map)])
+  (:use
+    [clojure.set :only [difference]]
+    [ordered.map :only [ordered-map]])
   (:require [clojure.zip :as zip]))
 
 (defn regex? [thing]
@@ -96,7 +96,7 @@
         (apply first-true more-preds args))))
 
 ;; traverses the zipper; for the first (only the first!) predicate matching a 
-;; node, calls the related translate function. Otherwise, contiues traversing.   
+;; node, calls the corresponding translate function. Then, continues traversing.   
 (defn translate [form & preds+translate-fns]
   (loop [loc (zip/seq-zip form)]
       (if (zip/end? loc)

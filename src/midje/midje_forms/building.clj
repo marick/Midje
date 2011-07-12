@@ -1,8 +1,9 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.midje-forms.building
-  (:use [midje.util.wrapping :only [ensure-correct-form-variable]]
-        [midje.util.file-position :only [arrow-line-number-from-form]]))
+  (:use
+    [midje.util.file-position :only [arrow-line-number-from-form]]
+    [midje.util.wrapping :only [ensure-correct-form-variable]]))
 
 (defn make-fake [fake-body]
   (let [line-number (arrow-line-number-from-form fake-body)]

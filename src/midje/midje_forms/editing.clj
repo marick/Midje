@@ -1,12 +1,13 @@
 (ns midje.midje-forms.editing
-  (:use midje.semi-sweet)
-  (:use [midje.arrows :only [is-start-of-arrow-sequence?
-                             arrow-sequence-overrides]])
-  (:use [midje.midje-forms.recognizing :only [is-head-of-form-providing-prerequisites?
-					      loc-is-at-full-expect-form?]]
-	[midje.midje-forms.moving-around :only [up-to-full-expect-form
-						skip-to-rightmost-leaf]]
-	[midje.util.file-position :only [line-number-known arrow-line-number]])
+  (:use
+    [midje.arrows :only [is-start-of-arrow-sequence?
+                         arrow-sequence-overrides]]
+    [midje.midje-forms.moving-around :only [skip-to-rightmost-leaf 
+                                            up-to-full-expect-form]]
+    [midje.midje-forms.recognizing :only [is-head-of-form-providing-prerequisites?
+                                          loc-is-at-full-expect-form?]]
+    [midje.semi-sweet :only [expect]]
+    [midje.util.file-position :only [arrow-line-number line-number-known]])
   (:require [clojure.zip :as zip]))
 
 (defn- n-times [n zip-fn loc]
@@ -23,11 +24,11 @@
   (let [x (-> loc zip/up zip/remove)]
     (up-to-full-expect-form x)))
 
-(defn tack-on__then__at-same-location [forms loc]
+(defn tack-on__then__at-same-location [[form & more-forms] loc]
   (assert (loc-is-at-full-expect-form? loc))
-  (if (empty? forms)
-    (up-to-full-expect-form loc)
-    (recur (rest forms) (zip/append-child loc (first forms)))))
+  (if form
+    (recur more-forms (zip/append-child loc form))	  
+    (up-to-full-expect-form loc)))
 
 (defn tack-on__then__at-rightmost-expect-leaf [forms loc]
   (let [tack (fn [loc] (tack-on__then__at-same-location forms loc))]

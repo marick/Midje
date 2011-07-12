@@ -1,22 +1,58 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.midje-forms.translating
-  (:use clojure.contrib.def
-        [clojure.contrib.seq :only [separate]]
-        [clojure.contrib.str-utils :only [str-join]]
-        [midje.arrows :only [is-start-of-arrow-sequence?
-                             take-arrow-sequence
-                             group-arrow-sequences
-                             above_arrow_sequence__add-key-value__at_arrow
-                             at_arrow__add-line-number-to-end__no-movement]]
-        midje.metaconstants
-        [midje.arrows :only [all-arrows]]
-        [midje.util thread-safe-var-nesting wrapping form-utils laziness form-utils namespace]
-        [midje.util.file-position :only [arrow-line-number]]
-        [midje.midje-forms building recognizing dissecting moving-around editing]
-        [midje.fakes :only [background-fake-wrappers]]
-        midje.util.debugging
-        [midje.util.form-utils :only (pairs first-true translate)])
+  (:use
+    [clojure.contrib.seq :only [separate]]
+    [clojure.contrib.str-utils :only [str-join]]
+    [midje.util.namespace :only [namespacey-match]]
+    [midje.arrows :only [all-arrows
+                         is-start-of-arrow-sequence?
+                         take-arrow-sequence
+                         group-arrow-sequences
+                         above_arrow_sequence__add-key-value__at_arrow
+                         at_arrow__add-line-number-to-end__no-movement]]
+    [midje.fakes :only [background-fake-wrappers]]
+    [midje.metaconstants :only [define-metaconstants]]
+    [midje.midje-forms.building :only [make-background
+                                       make-fake
+                                       metaconstant-for-form
+                                       with-fresh-generated-metadata-names]]
+    [midje.midje-forms.dissecting :only [interior-forms
+                                         raw-wrappers]]
+    [midje.midje-forms.editing :only [
+                                      
+                                      delete_prerequisite_form__then__at-previous-full-expect-form
+                                      tack-on__then__at-rightmost-expect-leaf
+                                      wrap-with-expect__then__at-rightmost-expect-leaf]]
+    [midje.midje-forms.moving-around :only [skip-to-rightmost-leaf]]
+    [midje.midje-forms.recognizing :only [already-wrapped?
+                                          background-form?
+                                          expect?
+				      fact?
+				      fake-form-funcall-arglist
+				      fake-that-needs-unfolding?
+				      fake?
+				      future-fact?
+				      is-head-of-form-providing-prerequisites?
+				      is-semi-sweet-keyword?
+				      loc-is-at-full-expect-form?
+				      mockable-funcall?
+				      seq-headed-by-setup-teardown-form?]]
+    [midje.util.debugging :only [nopret]]
+    [midje.util.file-position :only [arrow-line-number]]
+    [midje.util.form-utils :only [form-first?
+				      map-difference
+				      pairs
+				      preserve-type
+				      separate-by
+				      translate]]
+    [midje.util.laziness :only [eagerly]]
+    [midje.util.wrapping :only [for-wrapping-target?
+				      multiwrap
+				      set-wrappers
+				      with-additional-wrappers
+				      with-wrapping-target
+				      wrappers]])
   (:require [clojure.zip :as zip]))
 
 ;; Translating a form into an equivalent form with all arrow sequences given

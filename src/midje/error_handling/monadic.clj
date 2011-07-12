@@ -1,11 +1,11 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.error-handling.monadic
-  (:use [clojure.pprint :only [cl-format]]
-        [clojure.algo.monads]
-        [clojure.contrib.seq-utils :only [find-first]]
-        [midje.util report file-position form-utils]
-        [clojure.test]))
+  (:use
+    [clojure.algo.monads :only [defmonad domonad with-monad m-lift]]
+    [clojure.contrib.seq :only [find-first]]
+    [clojure.test :only [report]]
+    [midje.util.file-position :only [form-position]]))
 
 (defn as-user-error [form]
   (vary-meta form assoc :midje-user-error true))
