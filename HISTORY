@@ -11,6 +11,7 @@
 * Can use either Clojure 1.2.0 or 1.2.1
 * Plain functions within prerequisite arglists are now
   implicitly wrapped with `exactly`.
+* Bugfix: `roughly` works when a single argument is negative.
 
 = 1.1.1 
 * Background prerequisites are now scoped to facts. That

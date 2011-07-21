@@ -9,7 +9,8 @@
   	[midje.checkers.util :only [captured-exception? 
   	                            captured-exception-key 
   	                            named 
-  	                            throwable-with-class?]]))
+  	                            throwable-with-class?]]
+        [clojure.contrib.math :only [abs]]))
 
 (defchecker truthy 
   "Returns precisely true if actual is not nil and not false."
@@ -45,7 +46,7 @@
        (and (>= expected (- actual delta))
             (<= expected (+ actual delta)))))
   ([expected]
-     (roughly expected (* 0.001 expected))))
+     (roughly expected (abs (* 0.001 expected)))))
 
 ;;Concerning Throwables
 

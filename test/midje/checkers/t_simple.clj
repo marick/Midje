@@ -61,12 +61,26 @@
   ( (roughly 1000) 998.999) => falsey
   ( (roughly 1000) 999.001) => truthy
   ( (roughly 1000) 1000.990) => truthy
-  ( (roughly 1000) 1001.001) => falsey)
+  ( (roughly 1000) 1001.001) => falsey
 
-  998.999 => (roughly 1000)
+  "negative numbers"
+  -1 => (roughly -1)
+  -1.00001 => (roughly -1)
+  -0.99999 => (roughly -1)
+  
+  -1 => (roughly -1 0.1)
+  -0.90001 => (roughly -1 0.1)
+  -1.00001 => (roughly -1 0.1)
+
+  "old bug"
+  [-0.16227766016837952 6.16227766016838] => (just (roughly -0.1622) (roughly 6.1622))
+
+  
+  "misc"
+  998.999 =not=> (roughly 1000)
   999.001 => (roughly 1000)
   1000.990 => (roughly 1000)
-  1001.001 => (roughly 1000)
+  1001.001 =not=> (roughly 1000))
 
 (defn throw-exception
   ([] (throw (NullPointerException.)))
