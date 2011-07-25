@@ -17,7 +17,7 @@
                                        make-fake
                                        metaconstant-for-form
                                        with-fresh-generated-metadata-names]]
-    [midje.midje-forms.dissecting :only [interior-forms
+    [midje.background :only [
                                          raw-wrappers]]
     [midje.midje-forms.editing :only [
                                       
@@ -25,8 +25,9 @@
                                       tack-on__then__at-rightmost-expect-leaf
                                       wrap-with-expect__then__at-rightmost-expect-leaf]]
     [midje.util.zip :only [skip-to-rightmost-leaf]]
+    [midje.background :only [
+                                          background-form?]]
     [midje.midje-forms.recognizing :only [already-wrapped?
-                                          background-form?
                                           expect?
 				      fact?
 				      fake-form-funcall-arglist
@@ -54,6 +55,11 @@
 				      with-wrapping-target
 				      wrappers]])
   (:require [clojure.zip :as zip]))
+
+(defn interior-forms [form]
+  `(do ~@(rest (rest form))))
+
+
 
 ;; Translating a form into an equivalent form with all arrow sequences given
 ;; line numbers. 

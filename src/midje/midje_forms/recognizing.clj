@@ -3,6 +3,7 @@
 (ns midje.midje-forms.recognizing
   (:use
     [midje.util.namespace :only [namespacey-match]]
+    [midje.background :only [background-form? setup-teardown-bindings]]
     [midje.checkers.defining :only [checker-makers checker?]]
     [midje.arrows :only [expect-arrows]]
     [midje.util.form-utils :only [form-first?]])
@@ -34,7 +35,6 @@
 
 (def already-wrapped? wrapping/wrapped?)
 (defn expect? [form] (form-first? form "expect"))
-(defn background-form? [form] (form-first? form "against-background"))
 (defn fact? [form]
   (or (form-first? form "fact")
       (form-first? form "facts")))
@@ -49,12 +49,6 @@
       (form-first? form "antiterminologicaldisintactitudinarian-facts")))
 
 ;;; background forms
-
-;; this actually should be in dissecting, but needs to be here to avoid
-;; circularity. Feh.
-(defn setup-teardown-bindings [form]
-  (unify/bindings-map-or-nil form
-                             '(?key ?when ?first-form ?after ?second-form)))
 
 (defn seq-headed-by-setup-teardown-form? [forms]
   (when-let [bindings (setup-teardown-bindings (first forms))]

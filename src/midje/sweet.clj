@@ -13,7 +13,7 @@
         [midje.fakes :only [background-fakes]]
         [midje.tabular :only [tabular*]]
         [midje.error-handling monadic]
-        [midje.midje-forms.dissecting :only [separate-background-forms]]
+        [midje.background :only [separate-background-forms]]
         [midje.util debugging thread-safe-var-nesting unify]
         [midje.util.exceptions :only [user-error-exception-lines]]
         [midje.util.wrapping :only [multiwrap]]

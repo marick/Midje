@@ -39,21 +39,6 @@
   '[ (after :checks (+ 1 1)) ... ] => seq-headed-by-setup-teardown-form?
   '[ (around :checks (let [x 1] ?form)) ... ] => seq-headed-by-setup-teardown-form?)
 
-(facts "dissecting setup/teardown forms"
-  (setup-teardown-bindings '(before :checks (+ 1 1))) =>
-    (contains '{?key before, ?when :checks, ?first-form (+ 1 1), ?after nil})
-
-  (setup-teardown-bindings '(before :checks (+ 1 1) :after (- 2 2))) =>
-    (contains '{?key before, ?when :checks, ?first-form (+ 1 1),
-                ?after :after, ?second-form (- 2 2)})
-
-  (setup-teardown-bindings '(after :checks (+ 1 1))) =>
-    (contains '{?key after, ?when :checks, ?first-form (+ 1 1)})
-
-  (setup-teardown-bindings '(around :checks (let [x 1] ?form))) =>
-    (contains '{?key around, ?when :checks,
-                ?first-form (let [x 1] ?form) }))
-
 ;; Folded prerequisites
 
 (defmacro some-macro [& rest] )
