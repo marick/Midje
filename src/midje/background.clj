@@ -3,11 +3,33 @@
 (ns midje.background
   (:use
     [clojure.contrib.seq :only [separate]]
-    [midje.util.form-utils :only [form-first?]]
-    [midje.util.wrapping :only [ensure-correct-form-variable]])
-  (:require [midje.util.unify :as unify :only [bindings-map-or-nil]]))
+    [midje.util.form-utils :only [form-first? translate symbol-named?]]
+    [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out with-pushed-namespace-values]]
+    [midje.util.wrapping :only [?form with-wrapping-target]])
+  (:require [midje.util.unify :as unify :only [bindings-map-or-nil]]
+            [clojure.zip :as zip]))
 
 (defn background-form? [form] (form-first? form "against-background"))
+
+(defn- ensure-correct-form-variable [form]
+  (translate form       
+      (fn [loc] (symbol-named? (zip/node loc) "?form"))
+      (fn [loc] (zip/replace loc (?form)))))
+
+(defn background-fakes []
+  (namespace-values-inside-out :midje/background-fakes))
+
+(defn background-fake-wrappers [fakes]
+  (let [around-facts-and-checks `(with-pushed-namespace-values
+                                   :midje/background-fakes
+                                   ~fakes ~(?form))]
+    (list 
+     (with-wrapping-target around-facts-and-checks :facts))))
+
+(defn wrap [outer-form inner-form]
+  (unify/subst outer-form {(?form) inner-form}))
+
+
 
 
 ;; dissecting background forms

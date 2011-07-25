@@ -120,19 +120,6 @@
     (fn [actual] (extended-= actual (exactly expected)))
     (fn [actual] (extended-= actual expected))))
 
-;; Managing background fakes
-
-(defn background-fakes []
-  (namespace-values-inside-out :midje/background-fakes))
-
-(defn background-fake-wrappers [fakes]
-  (let [around-facts-and-checks `(with-pushed-namespace-values
-                                   :midje/background-fakes
-                                   ~fakes ~(?form))]
-    (list 
-     (with-wrapping-target around-facts-and-checks :facts))))
-
-
 ;;
 
 (defn make-fake [fake-body]

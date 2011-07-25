@@ -24,7 +24,6 @@
 
 ;; Wrapping
 
-(def already-wrapped? wrapping/wrapped?)
 (defn fact? [form]
   (or (form-first? form "fact")
       (form-first? form "facts")))

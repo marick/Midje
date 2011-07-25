@@ -2,22 +2,14 @@
 
 (ns midje.util.wrapping
   (:use
-    [midje.util.form-utils :only [form-first? symbol-named? translate]]
+    [midje.util.form-utils :only [form-first?]]
     [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
                                                set-namespace-value
                                                with-pushed-namespace-values]])
   (:require [clojure.zip :as zip] 
   	    [midje.util.unify :as unify]))
 
-;; TODO: Should this be in with the midje-forms? It's general purpose (except
-;; for the use of midje in varnames).
-
 (defn ?form [] (symbol (name (ns-name *ns*)) "?form")) ; this cannot be right
-
-(defn ensure-correct-form-variable [form]
-  (translate form       
-      (fn [loc] (symbol-named? (zip/node loc) "?form"))
-      (fn [loc] (zip/replace loc (?form)))))
 
 (defn midje-wrapped
   "This is used prevent later wrapping passes from processing the
@@ -25,6 +17,7 @@
   [value] value)
 
 (defn wrapped? [form] (form-first? form "midje-wrapped"))
+(def already-wrapped? wrapped?)
 
 (defn wrap [outer-form inner-form]
   (unify/subst outer-form {(?form) inner-form}))

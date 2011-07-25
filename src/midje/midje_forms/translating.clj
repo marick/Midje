@@ -13,13 +13,13 @@
                          above_arrow_sequence__add-key-value__at_arrow
                          at_arrow__add-line-number-to-end__no-movement]]
     [midje.metaconstants :only [define-metaconstants]]
-    [midje.fakes :only [background-fake-wrappers
+    [midje.fakes :only [
                         tag-as-background-fake
                         make-fake
                         fake?]]
     [midje.metaconstants :only [metaconstant-for-form
                                        with-fresh-generated-metaconstant-names]]
-    [midje.background :only [
+    [midje.background :only [background-fake-wrappers
                                          raw-wrappers]]
     [midje.midje-forms.editing :only [
                                       
@@ -30,8 +30,8 @@
     [midje.background :only [
                              background-form?]]
     [midje.semi-sweet :only [is-semi-sweet-keyword?]]
-
-    [midje.midje-forms.recognizing :only [already-wrapped?
+    [midje.util.wrapping :only [already-wrapped?]]
+    [midje.midje-forms.recognizing :only [
 				      fact?
 				      fake-form-funcall-arglist
 				      fake-that-needs-unfolding?
