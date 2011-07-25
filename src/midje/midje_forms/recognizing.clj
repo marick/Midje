@@ -12,13 +12,8 @@
     [midje.util.unify :as unify]
     [midje.util.wrapping :as wrapping]))
 
-(defn fake? [form] (form-first? form "fake"))
-
 ;; Zipper vs. form agnostic
 
-
-(defn is-semi-sweet-keyword? [loc]
-  (namespacey-match '(expect fake) loc))
 
 (defn is-head-of-form-providing-prerequisites? [loc]
   (namespacey-match '(provided) loc))

@@ -4,7 +4,8 @@
   (:use [clojure.test]  ;; This is used to check production mode with deftest.
         [midje.sweet]
         [midje.util form-utils]
-        [midje.test-util]))
+        [midje.test-util])
+  (:require [clojure.zip :as zip]))
 (testable-privates midje.semi-sweet fakes-and-overrides)
 
 (unfinished faked-function mocked-function other-function)
@@ -292,3 +293,12 @@
    (expect (+ 1 "3") =future=> 3)
    @reported => (one-of (contains {:type :future-fact
                                    :description "(+ 1 \"3\") " }))))
+
+
+(fact "can identify semi-sweet keywords (currently 'expect' and 'fake')"
+  (doseq [skippable '(expect fake midje.semi-sweet/expect midje.semi-sweet/fake)]
+    (let [z (zip/seq-zip `(111 (~skippable 1 2 '(3)) "next"))
+          skippable (-> z zip/down zip/next zip/down)]
+      skippable => is-semi-sweet-keyword?)))
+
+

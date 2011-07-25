@@ -3,13 +3,16 @@
 (ns midje.semi-sweet
   (:use clojure.test
         midje.fakes
-        [midje.util debugging form-utils file-position]
+        [midje.util debugging form-utils file-position namespace]
         [midje.error-handling monadic semi-sweet-errors]
         [midje.production-mode]
         [clojure.pprint]
         [clojure.contrib.ns-utils :only [immigrate]]))
 (immigrate 'midje.unprocessed)
 (immigrate 'midje.arrow-symbols)
+
+(defn is-semi-sweet-keyword? [loc]
+  (namespacey-match '(expect fake) loc))
 
 (defn check-for-arrow [arrow]
   (get {=> :check-match

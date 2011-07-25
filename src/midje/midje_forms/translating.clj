@@ -11,10 +11,11 @@
                          group-arrow-sequences
                          above_arrow_sequence__add-key-value__at_arrow
                          at_arrow__add-line-number-to-end__no-movement]]
-    [midje.fakes :only [background-fake-wrappers]]
     [midje.metaconstants :only [define-metaconstants]]
-    [midje.fakes :only [tag-as-background-fake
-                        make-fake]]
+    [midje.fakes :only [background-fake-wrappers
+                        tag-as-background-fake
+                        make-fake
+                        fake?]]
     [midje.metaconstants :only [metaconstant-for-form
                                        with-fresh-generated-metaconstant-names]]
     [midje.background :only [
@@ -26,16 +27,16 @@
                                       wrap-with-expect__then__at-rightmost-expect-leaf]]
     [midje.util.zip :only [skip-to-rightmost-leaf]]
     [midje.background :only [
-                                          background-form?]]
+                             background-form?]]
+    [midje.semi-sweet :only [is-semi-sweet-keyword?]]
+
     [midje.midje-forms.recognizing :only [already-wrapped?
                                           expect?
 				      fact?
 				      fake-form-funcall-arglist
 				      fake-that-needs-unfolding?
-				      fake?
 				      future-fact?
 				      is-head-of-form-providing-prerequisites?
-				      is-semi-sweet-keyword?
 				      loc-is-at-full-expect-form?
 				      mockable-funcall?
 				      seq-headed-by-setup-teardown-form?]]
@@ -58,7 +59,6 @@
 
 (defn interior-forms [form]
   `(do ~@(rest (rest form))))
-
 
 
 ;; Translating a form into an equivalent form with all arrow sequences given

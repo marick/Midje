@@ -23,13 +23,6 @@
     (-> values zip/down zip/right) => is-head-of-form-providing-prerequisites?
     (-> values zip/down zip/right zip/right) =not=> is-head-of-form-providing-prerequisites?))
 
-(fact "can identify and skip over semi-sweet keywords (currently 'expect' and 'fake')"
-  (doseq [skippable '(expect fake midje.semi-sweet/expect midje.semi-sweet/fake)]
-    (let [z (zip/seq-zip `(111 (~skippable 1 2 '(3)) "next"))
-          skippable (-> z zip/down zip/next zip/down)]
-      skippable => is-semi-sweet-keyword?)))
-
-
 (facts "recognizing setup/teardown forms"
   '[ (before :checks (+ 1 1)) ... ] => seq-headed-by-setup-teardown-form?
   '[ (before :checks) ... ] =not=>  seq-headed-by-setup-teardown-form?

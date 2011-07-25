@@ -12,7 +12,8 @@
     [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
                                                with-pushed-namespace-values]]
     [midje.util.file-position :only [arrow-line-number-from-form]]
-    [midje.util.wrapping :only [?form with-wrapping-target]]))
+    [midje.util.wrapping :only [?form with-wrapping-target]]
+    [midje.util.form-utils :only [form-first?]]))
 
 (defn tag-function-as-fake [function]
   (vary-meta function assoc :midje/faked-function true))
@@ -142,4 +143,6 @@
 
 (defn tag-as-background-fake [fake]
   (concat fake '(:type :background)))
+
+(defn fake? [form] (form-first? form "fake"))
 
