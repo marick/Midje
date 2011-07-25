@@ -5,7 +5,6 @@
         [clojure.contrib.ns-utils :only [immigrate]])
          
   (:use [midje production-mode metaconstants]
-        midje.midje-forms.recognizing
         [midje.midje-forms.translating
          :only [midjcoexpand put-wrappers-into-effect
                 forms-to-wrap-around translate-fact-body
@@ -80,8 +79,6 @@
                            :description ~description
                            :position (midje.util.file-position/line-number-known ~lineno)})))
 
-;; Wanna add more to these? See also midje-forms.recognizing.
-;; Such is the penalty for whimsy.
 (defmacro future-fact [& forms] (future-fact-1 &form))
 (defmacro future-facts [& forms] (future-fact-1 &form))
 (defmacro pending-fact [& forms] (future-fact-1 &form))

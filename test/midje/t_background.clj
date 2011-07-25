@@ -1,10 +1,10 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.background
+(ns midje.t-background
   (:require [clojure.zip :as zip])
-  (:use [midje.midje-forms recognizing]
-        [midje.error-handling monadic]
-        [midje sweet test-util]))
+  (:use [midje sweet test-util]
+        [midje.background :only [separate-background-forms setup-teardown-bindings seq-headed-by-setup-teardown-form?]]
+        ))
 
 (unfinished unused used)
 (defn calls-nothing [] )
@@ -52,4 +52,13 @@
   (setup-teardown-bindings '(around :checks (let [x 1] ?form))) =>
     (contains '{?key around, ?when :checks,
                 ?first-form (let [x 1] ?form) }))
+
+(facts "recognizing setup/teardown forms"
+  '[ (before :checks (+ 1 1)) ... ] => seq-headed-by-setup-teardown-form?
+  '[ (before :checks) ... ] =not=>  seq-headed-by-setup-teardown-form?
+  '[ (before :checks (+ 1 1) :after (- 2 2)) ... ] => seq-headed-by-setup-teardown-form?
+  '[ (before :checks (+ 1 1) :after ) ... ] =not=> seq-headed-by-setup-teardown-form?
+
+  '[ (after :checks (+ 1 1)) ... ] => seq-headed-by-setup-teardown-form?
+  '[ (around :checks (let [x 1] ?form)) ... ] => seq-headed-by-setup-teardown-form?)
 

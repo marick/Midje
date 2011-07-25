@@ -1,7 +1,9 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.midje-forms.t-translating
-  (:use [midje.midje-forms.translating])
+  (:use [midje.midje-forms.translating]
+        [midje.prerequisites :only [mockable-funcall?]])
+
   (:use [midje.sweet])
   (:use [midje.util.wrapping :only [for-wrapping-target?]])
   (:use midje.test-util)

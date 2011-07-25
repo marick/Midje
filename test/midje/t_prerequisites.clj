@@ -1,13 +1,11 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.midje-forms.t-recognizing
-  (:use [midje.midje-forms.recognizing]
-        [midje.prerequisites])
+(ns midje.t-prerequisites
+  (:use [midje.prerequisites])
   (:use midje.sweet)
   (:require [clojure.zip :as zip])
   (:use midje.test-util)
 )
-
 
 (fact "can ask whether at the beginning of a form that provides prerequisites"
   (let [values (zip/seq-zip '(provided midje.semi-sweet/provided fluke))]
@@ -15,14 +13,6 @@
     (-> values zip/down zip/right) => is-head-of-form-providing-prerequisites?
     (-> values zip/down zip/right zip/right) =not=> is-head-of-form-providing-prerequisites?))
 
-(facts "recognizing setup/teardown forms"
-  '[ (before :checks (+ 1 1)) ... ] => seq-headed-by-setup-teardown-form?
-  '[ (before :checks) ... ] =not=>  seq-headed-by-setup-teardown-form?
-  '[ (before :checks (+ 1 1) :after (- 2 2)) ... ] => seq-headed-by-setup-teardown-form?
-  '[ (before :checks (+ 1 1) :after ) ... ] =not=> seq-headed-by-setup-teardown-form?
-
-  '[ (after :checks (+ 1 1)) ... ] => seq-headed-by-setup-teardown-form?
-  '[ (around :checks (let [x 1] ?form)) ... ] => seq-headed-by-setup-teardown-form?)
 
 ;; Folded prerequisites
 
@@ -31,7 +21,7 @@
 
 (tabular 
  (fact "things that are not fake-sexps don't need to be unfolded"
-   ?thing ?arrow fake-that-needs-unfolding?)
+   ?thing ?arrow folded-prerequisite?)
 
   ;; things not a proper fake macro
   ?thing                                        ?arrow
@@ -45,7 +35,7 @@
 
 (tabular
  (fact "unfolding depends on the inner structure of a funcall"
-  '(midje.semi-sweet/fake ?call =test=> 3) ?arrow fake-that-needs-unfolding?)
+  '(midje.semi-sweet/fake ?call =test=> 3) ?arrow folded-prerequisite?)
    
  ?call                  ?arrow
  ;; Things that might be misinterpreted as nested funcalls
@@ -67,5 +57,5 @@
   (f (new java.util.Date 1 2 2))        =not=>
   
   "Macros are surprisingly hard to get right"
-;  '(f 1 (some-macro 33))  =not=> fake-that-needs-unfolding?
+;  '(f 1 (some-macro 33))  =not=> folded-prerequisite?
   )

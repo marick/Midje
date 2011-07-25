@@ -133,3 +133,9 @@
 
 (defn fake? [form] (form-first? form "fake"))
 
+(defn fake-form-funcall [fake-form]
+  (second fake-form))
+
+(defn fake-form-funcall-arglist [fake-form]
+  (rest (fake-form-funcall fake-form)))
+

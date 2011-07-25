@@ -52,4 +52,9 @@
 (defmacro around [wrapping-target around-form]
   (ensure-correct-form-variable around-form))
 
+(defn seq-headed-by-setup-teardown-form? [forms]
+  (when-let [bindings (setup-teardown-bindings (first forms))]
+    (and (bindings '?first-form)
+         (or (not (bindings '?after)) (bindings '?second-form)))))
+
 

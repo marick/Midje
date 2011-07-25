@@ -15,11 +15,14 @@
     [midje.metaconstants :only [define-metaconstants]]
     [midje.fakes :only [
                         tag-as-background-fake
+                        fake-form-funcall-arglist
                         make-fake
                         fake?]]
     [midje.metaconstants :only [metaconstant-for-form
                                        with-fresh-generated-metaconstant-names]]
     [midje.background :only [background-fake-wrappers
+                             seq-headed-by-setup-teardown-form?
+                             setup-teardown-bindings
                                          raw-wrappers]]
     [midje.midje-forms.editing :only [
                                       
@@ -32,12 +35,7 @@
     [midje.semi-sweet :only [is-semi-sweet-keyword?]]
     [midje.util.wrapping :only [already-wrapped?]]
     [midje.fact :only [fact? future-fact?]]
-    [midje.prerequisites :only [is-head-of-form-providing-prerequisites?]]
-    [midje.midje-forms.recognizing :only [
-				      fake-form-funcall-arglist
-				      fake-that-needs-unfolding?
-				      mockable-funcall?
-				      seq-headed-by-setup-teardown-form?]]
+    [midje.prerequisites :only [is-head-of-form-providing-prerequisites? mockable-funcall? folded-prerequisite?]]
     [midje.util.debugging :only [nopret]]
     [midje.util.file-position :only [arrow-line-number]]
     [midje.util.form-utils :only [form-first?
@@ -220,7 +218,7 @@
 ;; it'll in turn be processed. This allows arbitrarily deep nesting.
 (defn unfolding-step [finished pending substitutions]
   (let [target (first pending)]
-    (if (fake-that-needs-unfolding? target)
+    (if (folded-prerequisite? target)
       (let [overrides (nthnext target 4)
             augmented-substitutions (augment-substitutions substitutions target)
             flattened-target (flatten-fake target augmented-substitutions)
