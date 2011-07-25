@@ -24,7 +24,7 @@
                                       delete_prerequisite_form__then__at-previous-full-expect-form
                                       tack-on__then__at-rightmost-expect-leaf
                                       wrap-with-expect__then__at-rightmost-expect-leaf]]
-    [midje.midje-forms.moving-around :only [skip-to-rightmost-leaf]]
+    [midje.util.zip :only [skip-to-rightmost-leaf]]
     [midje.midje-forms.recognizing :only [already-wrapped?
                                           background-form?
                                           expect?

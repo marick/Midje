@@ -2,8 +2,8 @@
   (:use
     [midje.arrows :only [is-start-of-arrow-sequence?
                          arrow-sequence-overrides]]
-    [midje.midje-forms.moving-around :only [skip-to-rightmost-leaf 
-                                            up-to-full-expect-form]]
+    [midje.expect :only [up-to-full-expect-form]]
+    [midje.util.zip :only [skip-to-rightmost-leaf]]
     [midje.midje-forms.recognizing :only [is-head-of-form-providing-prerequisites?
                                           loc-is-at-full-expect-form?]]
     [midje.semi-sweet :only [expect]]
