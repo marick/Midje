@@ -23,3 +23,11 @@
                     (binds expr)
                     expr)) 
                 x))
+
+(defn ?form [] (symbol (name (ns-name *ns*)) "?form")) ; this cannot be right
+
+(defn inject-form [outer-form inner-form]
+  (subst outer-form {(?form) inner-form}))
+
+
+

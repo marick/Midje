@@ -9,8 +9,6 @@
   (:require [clojure.zip :as zip] 
   	    [midje.util.unify :as unify]))
 
-(defn ?form [] (symbol (name (ns-name *ns*)) "?form")) ; this cannot be right
-
 (defn midje-wrapped
   "This is used prevent later wrapping passes from processing the
    code-that-produces-the-value."
@@ -19,12 +17,9 @@
 (defn wrapped? [form] (form-first? form "midje-wrapped"))
 (def already-wrapped? wrapped?)
 
-(defn wrap [outer-form inner-form]
-  (unify/subst outer-form {(?form) inner-form}))
-
 (defn multiwrap [form [wrapper & more-wrappers]]
   (if wrapper
-    (recur (wrap wrapper form) more-wrappers)
+    (recur (unify/inject-form wrapper form) more-wrappers)
     `(midje-wrapped ~form)))
 
 ;; stashing wrapping targets
