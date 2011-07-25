@@ -2,10 +2,10 @@
   (:use
     [midje.arrows :only [is-start-of-arrow-sequence?
                          arrow-sequence-overrides]]
-    [midje.expect :only [up-to-full-expect-form]]
+    [midje.expect :only [up-to-full-expect-form expect?]]
     [midje.util.zip :only [skip-to-rightmost-leaf]]
     [midje.midje-forms.recognizing :only [is-head-of-form-providing-prerequisites?
-                                          loc-is-at-full-expect-form?]]
+                                          ]]
     [midje.semi-sweet :only [expect]]
     [midje.util.file-position :only [arrow-line-number line-number-known]])
   (:require [clojure.zip :as zip]))
@@ -25,7 +25,7 @@
     (up-to-full-expect-form x)))
 
 (defn tack-on__then__at-same-location [[form & more-forms] loc]
-  (assert (loc-is-at-full-expect-form? loc))
+  (assert (expect? loc))
   (if form
     (recur more-forms (zip/append-child loc form))	  
     (up-to-full-expect-form loc)))

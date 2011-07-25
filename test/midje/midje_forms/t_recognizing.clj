@@ -7,15 +7,6 @@
   (:use midje.test-util)
 )
 
-(tabular 
- (fact "an embedded expect form can be recognized"
-   (loc-is-at-full-expect-form? (zip/seq-zip ?form)) => ?expected)
-
- ?form                                  ?expected
- '(expect x => y)                       truthy
- '(midje.semi-sweet/expect x => y)      truthy
- '(+ x y)                               falsey
- 'expect                                falsey)
 
 (fact "can ask whether at the beginning of a form that provides prerequisites"
   (let [values (zip/seq-zip '(provided midje.semi-sweet/provided fluke))]

@@ -15,3 +15,12 @@
     (up-to-full-expect-form (-> z zip/down zip/rightmost)) => finds-enclosing
     (up-to-full-expect-form (-> z zip/down zip/rightmost zip/down)) => finds-enclosing))
 
+(tabular 
+ (fact "an embedded expect form can be recognized"
+   (expect? (zip/seq-zip ?form)) => ?expected)
+
+ ?form                                  ?expected
+ '(expect x => y)                       truthy
+ '(midje.semi-sweet/expect x => y)      truthy
+ '(+ x y)                               falsey
+ 'expect                                falsey)

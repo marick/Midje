@@ -5,6 +5,7 @@
     [clojure.contrib.seq :only [separate]]
     [clojure.contrib.str-utils :only [str-join]]
     [midje.util.namespace :only [namespacey-match]]
+    [midje.expect :only [expect?]]
     [midje.arrows :only [all-arrows
                          is-start-of-arrow-sequence?
                          take-arrow-sequence
@@ -31,13 +32,11 @@
     [midje.semi-sweet :only [is-semi-sweet-keyword?]]
 
     [midje.midje-forms.recognizing :only [already-wrapped?
-                                          expect?
 				      fact?
 				      fake-form-funcall-arglist
 				      fake-that-needs-unfolding?
 				      future-fact?
 				      is-head-of-form-providing-prerequisites?
-				      loc-is-at-full-expect-form?
 				      mockable-funcall?
 				      seq-headed-by-setup-teardown-form?]]
     [midje.util.debugging :only [nopret]]
@@ -243,7 +242,7 @@
 (defn unfold-prerequisites [form]
   (with-fresh-generated-metaconstant-names
     (translate form
-        loc-is-at-full-expect-form?
+        expect?
         unfold-expect-form__then__stay_put)))
 
 (defn- replace-loc-line [loc loc-with-line]
@@ -281,7 +280,7 @@
 
 (defn add-one-binding-note [expect-containing-form ordered-binding-map]
   (translate expect-containing-form
-    loc-is-at-full-expect-form?
+    expect?
     (fn [loc] (skip-to-rightmost-leaf
       (above_arrow_sequence__add-key-value__at_arrow :binding-note (binding-note ordered-binding-map) loc)))))
 

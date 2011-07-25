@@ -3,6 +3,7 @@
 (ns midje.midje-forms.t-editing
   (:use [midje.midje-forms.editing]
         [midje.midje-forms.recognizing]
+        [midje.expect :only [expect?]]
         [midje.arrows :only [is-start-of-arrow-sequence?]]
         clojure.test
         midje.sweet
@@ -28,7 +29,7 @@
          (delete_prerequisite_form__then__at-previous-full-expect-form original-loc)]
         
     original-loc => is-head-of-form-providing-prerequisites?
-    resulting-loc => loc-is-at-full-expect-form?
+    resulting-loc => expect?
     (zip/root resulting-loc) => edited))
     
 (fact "can append forms to end of top-level of expect form"
@@ -38,8 +39,8 @@
         original-loc (-> z zip/down)
         resulting-loc
            (tack-on__then__at-same-location '((fake (f) => 2) (fake (g) => 3)) original-loc)]
-    original-loc => loc-is-at-full-expect-form?
-    resulting-loc => loc-is-at-full-expect-form?
+    original-loc => expect?
+    resulting-loc => expect?
     (zip/root resulting-loc) => edited))
 
 (fact "sweet-style facts can be converted to semi-sweet expect forms"

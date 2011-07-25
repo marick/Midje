@@ -22,14 +22,9 @@
 
 ;; Clojure.zip trees
 
-(defn loc-is-at-full-expect-form? [loc]
-  (and (zip/branch? loc)
-       (namespacey-match '(expect) (zip/down loc))))
-
 ;; Wrapping
 
 (def already-wrapped? wrapping/wrapped?)
-(defn expect? [form] (form-first? form "expect"))
 (defn fact? [form]
   (or (form-first? form "fact")
       (form-first? form "facts")))
