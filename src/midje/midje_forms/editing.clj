@@ -4,7 +4,7 @@
                          arrow-sequence-overrides]]
     [midje.expect :only [up-to-full-expect-form expect?]]
     [midje.util.zip :only [skip-to-rightmost-leaf]]
-    [midje.midje-forms.recognizing :only [is-head-of-form-providing-prerequisites?
+    [midje.prerequisites :only [is-head-of-form-providing-prerequisites?
                                           ]]
     [midje.semi-sweet :only [expect]]
     [midje.util.file-position :only [arrow-line-number line-number-known]])

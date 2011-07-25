@@ -1,7 +1,8 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.midje-forms.t-recognizing
-  (:use [midje.midje-forms.recognizing])
+  (:use [midje.midje-forms.recognizing]
+        [midje.prerequisites])
   (:use midje.sweet)
   (:require [clojure.zip :as zip])
   (:use midje.test-util)

@@ -2,7 +2,6 @@
 
 (ns midje.midje-forms.recognizing
   (:use
-    [midje.util.namespace :only [namespacey-match]]
     [midje.background :only [background-form? setup-teardown-bindings]]
     [midje.checkers.defining :only [checker-makers checker?]]
     [midje.arrows :only [expect-arrows]]
@@ -14,8 +13,6 @@
 
 
 
-(defn is-head-of-form-providing-prerequisites? [loc]
-  (namespacey-match '(provided) loc))
 ;;; background forms
 
 (defn seq-headed-by-setup-teardown-form? [forms]

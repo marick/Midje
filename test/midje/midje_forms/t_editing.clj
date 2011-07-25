@@ -3,6 +3,7 @@
 (ns midje.midje-forms.t-editing
   (:use [midje.midje-forms.editing]
         [midje.midje-forms.recognizing]
+        [midje.prerequisites]
         [midje.expect :only [expect?]]
         [midje.arrows :only [is-start-of-arrow-sequence?]]
         clojure.test

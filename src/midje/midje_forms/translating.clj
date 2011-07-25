@@ -32,10 +32,10 @@
     [midje.semi-sweet :only [is-semi-sweet-keyword?]]
     [midje.util.wrapping :only [already-wrapped?]]
     [midje.fact :only [fact? future-fact?]]
+    [midje.prerequisites :only [is-head-of-form-providing-prerequisites?]]
     [midje.midje-forms.recognizing :only [
 				      fake-form-funcall-arglist
 				      fake-that-needs-unfolding?
-				      is-head-of-form-providing-prerequisites?
 				      mockable-funcall?
 				      seq-headed-by-setup-teardown-form?]]
     [midje.util.debugging :only [nopret]]
