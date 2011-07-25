@@ -31,11 +31,10 @@
                              background-form?]]
     [midje.semi-sweet :only [is-semi-sweet-keyword?]]
     [midje.util.wrapping :only [already-wrapped?]]
+    [midje.fact :only [fact? future-fact?]]
     [midje.midje-forms.recognizing :only [
-				      fact?
 				      fake-form-funcall-arglist
 				      fake-that-needs-unfolding?
-				      future-fact?
 				      is-head-of-form-providing-prerequisites?
 				      mockable-funcall?
 				      seq-headed-by-setup-teardown-form?]]

@@ -12,31 +12,10 @@
     [midje.util.unify :as unify]
     [midje.util.wrapping :as wrapping]))
 
-;; Zipper vs. form agnostic
 
 
 (defn is-head-of-form-providing-prerequisites? [loc]
   (namespacey-match '(provided) loc))
-
-
-
-;; Clojure.zip trees
-
-;; Wrapping
-
-(defn fact? [form]
-  (or (form-first? form "fact")
-      (form-first? form "facts")))
-(defn future-fact? [form]
-  (or (form-first? form "future-fact")
-      (form-first? form "future-facts")
-      (form-first? form "pending-fact")
-      (form-first? form "pending-facts")
-      (form-first? form "incipient-fact")
-      (form-first? form "incipient-facts")
-      (form-first? form "antiterminologicaldisintactitudinarian-fact")
-      (form-first? form "antiterminologicaldisintactitudinarian-facts")))
-
 ;;; background forms
 
 (defn seq-headed-by-setup-teardown-form? [forms]
