@@ -1,8 +1,8 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.midje-forms.t-dissecting
+(ns midje.background
   (:require [clojure.zip :as zip])
-  (:use [midje.midje-forms dissecting recognizing]
+  (:use [midje.midje-forms recognizing]
         [midje.error-handling monadic]
         [midje sweet test-util]))
 
@@ -36,3 +36,20 @@
  [(against-background)
   (f 1) => 3 ]                          []                              [(f 1) => 3]
 )
+
+
+(facts "dissecting setup/teardown forms"
+  (setup-teardown-bindings '(before :checks (+ 1 1))) =>
+    (contains '{?key before, ?when :checks, ?first-form (+ 1 1), ?after nil})
+
+  (setup-teardown-bindings '(before :checks (+ 1 1) :after (- 2 2))) =>
+    (contains '{?key before, ?when :checks, ?first-form (+ 1 1),
+                ?after :after, ?second-form (- 2 2)})
+
+  (setup-teardown-bindings '(after :checks (+ 1 1))) =>
+    (contains '{?key after, ?when :checks, ?first-form (+ 1 1)})
+
+  (setup-teardown-bindings '(around :checks (let [x 1] ?form))) =>
+    (contains '{?key around, ?when :checks,
+                ?first-form (let [x 1] ?form) }))
+

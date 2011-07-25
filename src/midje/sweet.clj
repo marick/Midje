@@ -19,15 +19,15 @@
         [midje.util.wrapping :only [multiwrap]]
         [midje.util.form-utils :only [reader-line-number]]
         [midje.util.file-position :only [user-file-position set-fallback-line-number-from]])
-  (:require [midje.midje-forms.building :as building])
+  (:require [midje.background :as background])
   (:require midje.checkers)
   (:require [midje.util.report :as report])
 )
 (immigrate 'midje.unprocessed)
 (immigrate 'midje.semi-sweet)
-(intern *ns* 'before #'building/before)
-(intern *ns* 'after #'building/after)
-(intern *ns* 'around #'building/around)
+(intern *ns* 'before #'background/before)
+(intern *ns* 'after #'background/after)
+(intern *ns* 'around #'background/around)
 
 (defmacro background [& raw-wrappers]
   (when (user-desires-checking?)

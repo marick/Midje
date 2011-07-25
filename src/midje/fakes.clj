@@ -11,6 +11,7 @@
     [midje.util.form-utils :only [hash-map-duplicates-ok]]
     [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
                                                with-pushed-namespace-values]]
+    [midje.util.file-position :only [arrow-line-number-from-form]]
     [midje.util.wrapping :only [?form with-wrapping-target]]))
 
 (defn tag-function-as-fake [function]
@@ -129,4 +130,16 @@
                                    ~fakes ~(?form))]
     (list 
      (with-wrapping-target around-facts-and-checks :facts))))
+
+
+;;
+
+(defn make-fake [fake-body]
+  (let [line-number (arrow-line-number-from-form fake-body)]
+    (vary-meta
+     `(midje.semi-sweet/fake ~@fake-body)
+     assoc :line line-number)))
+
+(defn tag-as-background-fake [fake]
+  (concat fake '(:type :background)))
 

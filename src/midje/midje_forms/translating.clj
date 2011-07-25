@@ -13,10 +13,10 @@
                          at_arrow__add-line-number-to-end__no-movement]]
     [midje.fakes :only [background-fake-wrappers]]
     [midje.metaconstants :only [define-metaconstants]]
-    [midje.midje-forms.building :only [make-background
-                                       make-fake
-                                       metaconstant-for-form
-                                       with-fresh-generated-metadata-names]]
+    [midje.fakes :only [tag-as-background-fake
+                        make-fake]]
+    [midje.metaconstants :only [metaconstant-for-form
+                                       with-fresh-generated-metaconstant-names]]
     [midje.background :only [
                                          raw-wrappers]]
     [midje.midje-forms.editing :only [
@@ -104,7 +104,7 @@
 
           (is-start-of-arrow-sequence? in-progress)
           (let [content (take-arrow-sequence in-progress)]
-            (recur (conj expanded (-> content make-fake make-background))
+            (recur (conj expanded (-> content make-fake tag-as-background-fake))
                    (nthnext in-progress (count content))))
 
           (seq-headed-by-setup-teardown-form? in-progress)
@@ -118,7 +118,7 @@
 (defn- final-state-wrapper [canonicalized-non-fake]
   (if (some #{(name (first canonicalized-non-fake))} '("before" "after" "around"))
     (with-wrapping-target
-      (macroexpand-1 (cons (symbol "midje.midje-forms.building"
+      (macroexpand-1 (cons (symbol "midje.background"
                                    (name (first canonicalized-non-fake)))
                            (rest canonicalized-non-fake)))
       (second canonicalized-non-fake))
@@ -241,7 +241,7 @@
       (recur (unfolding-step finished pending substitutions)))))
 
 (defn unfold-prerequisites [form]
-  (with-fresh-generated-metadata-names
+  (with-fresh-generated-metaconstant-names
     (translate form
         loc-is-at-full-expect-form?
         unfold-expect-form__then__stay_put)))

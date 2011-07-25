@@ -5,8 +5,8 @@
   (:use [midje.sweet])
   (:use [midje.util.wrapping :only [for-wrapping-target?]])
   (:use midje.test-util)
-  (:use [midje.midje-forms.building
-         :only [metaconstant-for-form with-fresh-generated-metadata-names]])
+  (:use [midje.metaconstants
+         :only [metaconstant-for-form with-fresh-generated-metaconstant-names]])
   (:use [midje.util thread-safe-var-nesting unify])
   (:require [clojure.zip :as zip])
   (:use clojure.contrib.pprint)
