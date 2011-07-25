@@ -3,7 +3,7 @@
   (:require [clojure.zip :as zip]))
 
 
-(defmulti namespacey-match (fn [symbols treelike] (treelike-type treelike)))
+(defmulti namespacey-match (fn [symbols treelike] (tree-variant treelike)))
 
 (defmethod namespacey-match :zipper [symbols loc]
    (namespacey-match symbols (zip/node loc)))

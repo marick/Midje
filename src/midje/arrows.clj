@@ -14,7 +14,7 @@
 
 ;; Recognizing
 
-(defmulti is-start-of-arrow-sequence? treelike-type)
+(defmulti is-start-of-arrow-sequence? tree-variant)
 (defmethod is-start-of-arrow-sequence? :zipper [loc]
   (and (zip/right loc)
        (namespacey-match expect-arrows (zip/right loc))))
