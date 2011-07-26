@@ -11,7 +11,7 @@
     [midje.util.form-utils :only [hash-map-duplicates-ok]]
     [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
                                                with-pushed-namespace-values]]
-    [midje.util.file-position :only [arrow-line-number-from-form]]
+    [midje.internal-ideas.file-position :only [arrow-line-number-from-form]]
     [midje.util.wrapping :only [with-wrapping-target]]
     [midje.util.form-utils :only [form-first?]]))
 

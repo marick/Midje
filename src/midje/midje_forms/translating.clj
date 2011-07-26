@@ -10,8 +10,7 @@
                          is-start-of-arrow-sequence?
                          take-arrow-sequence
                          group-arrow-sequences
-                         above_arrow_sequence__add-key-value__at_arrow
-                         at_arrow__add-line-number-to-end__no-movement]]
+                         ]]
     [midje.metaconstants :only [define-metaconstants]]
     [midje.fakes :only [
                         tag-as-background-fake
@@ -37,7 +36,7 @@
     [midje.fact :only [fact? future-fact?]]
     [midje.prerequisites :only [is-head-of-form-providing-prerequisites? mockable-funcall? folded-prerequisite?]]
     [midje.util.debugging :only [nopret]]
-    [midje.util.file-position :only [arrow-line-number]]
+    [midje.internal-ideas.file-position :only [arrow-line-number]]
     [midje.util.form-utils :only [form-first?
 				      map-difference
 				      pairs
@@ -56,11 +55,6 @@
 
 ;; Translating a form into an equivalent form with all arrow sequences given
 ;; line numbers. 
-
-(defn add-line-numbers [form]
-  (translate form
-    (fn [loc] (namespacey-match all-arrows loc))
-    (fn [loc] (at_arrow__add-line-number-to-end__no-movement (arrow-line-number loc) loc))))
 
 ;; Translating sweet forms into their semi-sweet equivalent
 
@@ -192,32 +186,6 @@
         expect?
         unfold-expect-form__then__stay_put)))
 
-(defn- replace-loc-line [loc loc-with-line]
-  (let [m (fn [loc] (meta (zip/node loc)))
-        transferred-meta (if (contains? (m loc-with-line) :line)
-                           (assoc (m loc) :line (:line (m loc-with-line)))
-                           (dissoc (m loc) :line))]
-    (zip/replace loc (with-meta (zip/node loc) transferred-meta))))
-
-(defn form-with-copied-line-numbers [form line-number-source]
-  (loop [loc (zip/seq-zip form)
-         line-loc (zip/seq-zip line-number-source)]
-    (cond (zip/end? line-loc)
-          (zip/root loc)
-
-          (zip/branch? line-loc)
-          (recur (zip/next (replace-loc-line loc line-loc))
-                 (zip/next line-loc))
-
-          ;; the form has a tree in place of a non-tree
-          (zip/branch? loc)
-            (recur (zip/next
-                    (skip-to-rightmost-leaf (zip/down (replace-loc-line loc line-loc))))
-                   (zip/next line-loc))
-
-          :else
-          (recur (zip/next loc)
-                 (zip/next line-loc)))))
 
 ;; binding notes for tabular facts
 

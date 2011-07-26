@@ -3,7 +3,8 @@
 (ns midje.semi-sweet
   (:use clojure.test
         midje.fakes
-        [midje.util debugging form-utils file-position namespace]
+        midje.internal-ideas.file-position
+        [midje.util debugging form-utils namespace]
         [midje.error-handling monadic semi-sweet-errors]
         [midje.production-mode]
         [clojure.pprint]

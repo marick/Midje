@@ -7,7 +7,7 @@
     [midje.prerequisites :only [is-head-of-form-providing-prerequisites?
                                           ]]
     [midje.semi-sweet :only [expect]]
-    [midje.util.file-position :only [arrow-line-number line-number-known]])
+    [midje.internal-ideas.file-position :only [arrow-line-number line-number-known]])
   (:require [clojure.zip :as zip]))
 
 

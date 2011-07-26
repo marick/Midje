@@ -18,27 +18,6 @@
                    canonicalize-raw-wrappers final-state-wrapper)
 
 
-(fact "a whole form can have line numbers added to its arrow sequences"
-  (let [original `(let ~(with-meta '[a 1] {:line 33})
-                    a => 2
-                    ~(with-meta '(f 2) {:line 35}) => a)
-        actual (add-line-numbers original)
-        expected '(clojure.core/let [a 1]
-                                    midje.midje-forms.t-translating/a midje.sweet/=> 2 :position (midje.util.file-position/line-number-known 34)
-                                    (f 2) midje.sweet/=> midje.midje-forms.t-translating/a :position (midje.util.file-position/line-number-known 35))]
-    actual => expected))
-
-(fact "various arrow forms have line numbers"
-  (let [original `(
-                    (~(with-meta '(f 1) {:line 33}) => 2)
-                    (~(with-meta '(f 1) {:line 33}) =not=> 2)
-                    (~(with-meta '(f 1) {:line 33}) =streams=> 2)
-                    (~(with-meta '(f 1) {:line 33}) =future=> 2))
-        actual (add-line-numbers original)]
-    (doseq [expansion actual]
-      (take-last 2 expansion)
-      => '(:position (midje.util.file-position/line-number-known 33)))))
-
 ;; Translating sweet forms into their semi-sweet equivalent
 
 (fact "can convert prerequisites into fake calls"
@@ -189,68 +168,5 @@
         h-fake '(midje.semi-sweet/fake (h 3) midje.semi-sweet/=> ...h-1... ...overrides...)]
     (set (generate-fakes '{ (g 1) ...g-1..., (h 3) ...h-1... } '(...overrides...)))
     => #{g-fake h-fake}))
-
-
-(defn lineno
-  ([tree] (get (meta tree) :line :not-found))
-  ([tree n] (get (meta (nth tree n)) :line :not-found)))
-
-(fact "metadata can be copied from one tree to a matching tree"
-  (let [line-number-source '(This has
-                      (some line numbers)
-                      (on it))
-        form-source '(The line  
-                      (numbers of this)
-                      (tree differ))
-        result (form-with-copied-line-numbers form-source line-number-source)]
-
-    line-number-source =not=> form-source
-    result => form-source
-    
-    (lineno form-source) =not=> (lineno line-number-source)
-    (lineno form-source 2) =not=> (lineno line-number-source 2)
-    (lineno form-source 3) =not=> (lineno line-number-source 3)
-
-    (lineno result) => (lineno line-number-source)
-    (lineno result 2) => (lineno line-number-source 2)
-    (lineno result 3) => (lineno line-number-source 3)))
-
-(fact "The metadata tree might have nodes where the other tree has branches"
-  (let [line-number-source '(This
-                 ?1
-                 (that)
-                 ?2)
-        form-source '(This
-                      (something (deeply (nested)))
-                      (that)
-                      (something (deeply (nested))))
-        result (form-with-copied-line-numbers form-source line-number-source)]
-
-    line-number-source =not=> form-source
-    result => form-source
-
-    (lineno line-number-source 1) => :not-found
-    (lineno line-number-source 3) => :not-found
-    (lineno form-source 1) =not=> nil
-    (lineno form-source 3) =not=> nil
-    (lineno result 1) => :not-found
-    (lineno result 3) => :not-found
-
-    (lineno result) =not=> (lineno form-source)
-    (lineno result) => (lineno line-number-source)
-
-    (lineno result 2) =not=> (lineno form-source 2)
-    (lineno result 2) => (lineno line-number-source 2)))
-
-(fact "other metadata is left alone"
-  (let [line-number-source '(This (that))
-        form-source `(This
-                      ~(with-meta
-                         '(something (deeply (nested)))
-                         {:meta :data, :line 33}))
-        result (form-with-copied-line-numbers form-source line-number-source)]
-    (lineno result 1) => (lineno line-number-source 1)
-    (:meta (meta (nth result 1))) => :data))
-
 
 

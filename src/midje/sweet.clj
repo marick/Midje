@@ -9,7 +9,7 @@
         [midje.midje-forms.translating
          :only [put-wrappers-into-effect
                 translate-fact-body
-                add-line-numbers unfold-prerequisites]]
+                unfold-prerequisites]]
         [midje.tabular :only [tabular*]]
         [midje.error-handling monadic]
         [midje.background :only [separate-background-forms background-fakes]]
@@ -17,7 +17,8 @@
         [midje.util.exceptions :only [user-error-exception-lines]]
         [midje.util.wrapping :only [multiwrap]]
         [midje.util.form-utils :only [reader-line-number]]
-        [midje.util.file-position :only [user-file-position set-fallback-line-number-from]])
+        [midje.internal-ideas.file-position :only [user-file-position set-fallback-line-number-from
+                                                   annotate-embedded-arrows-with-line-numbers]])
   (:require [midje.background :as background])
   (:require midje.checkers)
   (:require [midje.util.report :as report])
@@ -46,7 +47,7 @@
           `(against-background ~background (midje.sweet/fact ~@remainder))        	
           
           (let [things-to-run (-> remainder
-                                  add-line-numbers
+                                  annotate-embedded-arrows-with-line-numbers
                                   translate-fact-body
                                   unfold-prerequisites)
                 fake-enabled `(with-installed-fakes

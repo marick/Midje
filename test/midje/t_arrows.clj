@@ -57,14 +57,3 @@
   (let [result (group-arrow-sequences '(  (f 1) => 2 :key value   (g 1) => 3))]
     result =>                         '( [(f 1) => 2 :key value] [(g 1) => 3])))
 
-
-(fact "one can add a line number to an arrow sequence"
-  (let [original '( (f n) => 2  )
-        expected '( (f n) => 2 :position (midje.util.file-position/line-number-known 10))
-        z            (zip/seq-zip original)
-        original-loc (-> z zip/down zip/right)
-        new-loc      (at_arrow__add-line-number-to-end__no-movement
-                        10 original-loc)]
-    (name (zip/node new-loc)) => "=>"
-    (zip/root new-loc) => expected))
-

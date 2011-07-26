@@ -5,7 +5,7 @@
     [clojure.algo.monads :only [defmonad domonad with-monad m-lift]]
     [clojure.contrib.seq :only [find-first]]
     [clojure.test :only [report]]
-    [midje.util.file-position :only [form-position]]))
+    [midje.internal-ideas.file-position :only [form-position]]))
 
 (defn as-user-error [form]
   (vary-meta form assoc :midje-user-error true))

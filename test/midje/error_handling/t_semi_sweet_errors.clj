@@ -3,7 +3,7 @@
 (ns midje.error-handling.t-semi-sweet-errors
   (:use [midje.sweet]
         [midje.error-handling monadic semi-sweet-errors]
-        [midje.util.file-position :only [form-position]]
+        [midje.internal-ideas.file-position :only [form-position]]
         [midje.test-util]))
 
 (facts "expect validation returns tail part of structure"

@@ -3,7 +3,6 @@
 (ns midje.arrows
   (:use midje.arrow-symbols)
   (:use [midje.util treelike namespace])
-  (:use [midje.util.file-position :only [line-number-known]])
   (:require [clojure.zip :as zip]))
 
 ;; Arrow groupings
@@ -46,17 +45,14 @@
 
 ;; Editing
 
-(defn at_arrow__add-key-value-to-end__no-movement [key value loc]
+(defn at-arrow__add-key-value-to-end__no-movement [key value loc]
   (-> loc
       zip/right
       (zip/insert-right value)
       (zip/insert-right key)
       zip/left))
 
-(defn above_arrow_sequence__add-key-value__at_arrow [key value loc]
+(defn above-arrow-sequence__add-key-value__at-arrow [key value loc]
   (->> loc zip/down zip/right zip/right
-       (at_arrow__add-key-value-to-end__no-movement key value)))
+       (at-arrow__add-key-value-to-end__no-movement key value)))
 
-(defn at_arrow__add-line-number-to-end__no-movement [number loc]
-  (at_arrow__add-key-value-to-end__no-movement
-   :position `(line-number-known ~number) loc))

@@ -1,7 +1,7 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.util.t-file-position
-  (:use [midje.util.file-position]
+(ns midje.internal-ideas.t-file-position
+  (:use [midje.internal-ideas.file-position]
         [midje sweet test-util]
         [midje.arrows :only [is-start-of-arrow-sequence?]])
   (:require [clojure.zip :as zip]))
@@ -112,5 +112,103 @@
 
 (facts "about compile-time discovery of positions and line numbers from a form"
   (form-position (with-meta '(form) {:line 332}))
-  => ["midje/util/t_file_position.clj" 332])
+  => ["midje/internal_ideas/t_file_position.clj" 332])
                    
+
+
+(defn lineno
+  ([tree] (get (meta tree) :line :not-found))
+  ([tree n] (get (meta (nth tree n)) :line :not-found)))
+
+(fact "metadata can be copied from one tree to a matching tree"
+  (let [line-number-source '(This has
+                      (some line numbers)
+                      (on it))
+        form-source '(The line  
+                      (numbers of this)
+                      (tree differ))
+        result (form-with-copied-line-numbers form-source line-number-source)]
+
+    line-number-source =not=> form-source
+    result => form-source
+    
+    (lineno form-source) =not=> (lineno line-number-source)
+    (lineno form-source 2) =not=> (lineno line-number-source 2)
+    (lineno form-source 3) =not=> (lineno line-number-source 3)
+
+    (lineno result) => (lineno line-number-source)
+    (lineno result 2) => (lineno line-number-source 2)
+    (lineno result 3) => (lineno line-number-source 3)))
+
+(fact "The metadata tree might have nodes where the other tree has branches"
+  (let [line-number-source '(This
+                 ?1
+                 (that)
+                 ?2)
+        form-source '(This
+                      (something (deeply (nested)))
+                      (that)
+                      (something (deeply (nested))))
+        result (form-with-copied-line-numbers form-source line-number-source)]
+
+    line-number-source =not=> form-source
+    result => form-source
+
+    (lineno line-number-source 1) => :not-found
+    (lineno line-number-source 3) => :not-found
+    (lineno form-source 1) =not=> nil
+    (lineno form-source 3) =not=> nil
+    (lineno result 1) => :not-found
+    (lineno result 3) => :not-found
+
+    (lineno result) =not=> (lineno form-source)
+    (lineno result) => (lineno line-number-source)
+
+    (lineno result 2) =not=> (lineno form-source 2)
+    (lineno result 2) => (lineno line-number-source 2)))
+
+(fact "other metadata is left alone"
+  (let [line-number-source '(This (that))
+        form-source `(This
+                      ~(with-meta
+                         '(something (deeply (nested)))
+                         {:meta :data, :line 33}))
+        result (form-with-copied-line-numbers form-source line-number-source)]
+    (lineno result 1) => (lineno line-number-source 1)
+    (:meta (meta (nth result 1))) => :data))
+
+
+
+
+(fact "one can add a line number to an arrow sequence"
+  (let [original '( (f n) => 2  )
+        expected '( (f n) => 2 :position (midje.internal-ideas.file-position/line-number-known 10))
+        z            (zip/seq-zip original)
+        original-loc (-> z zip/down zip/right)
+        new-loc      (at-arrow__add-line-number-to-end__no-movement
+                        10 original-loc)]
+    (name (zip/node new-loc)) => "=>"
+    (zip/root new-loc) => expected))
+
+
+(fact "a whole form can have line numbers added to its arrow sequences"
+  (let [original `(let ~(with-meta '[a 1] {:line 33})
+                    a => 2
+                    ~(with-meta '(f 2) {:line 35}) => a)
+        actual (annotate-embedded-arrows-with-line-numbers original)
+        expected '(clojure.core/let [a 1]
+                                    midje.internal-ideas.t-file-position/a midje.sweet/=> 2 :position (midje.internal-ideas.file-position/line-number-known 34)
+                                    (f 2) midje.sweet/=> midje.internal-ideas.t-file-position/a :position (midje.internal-ideas.file-position/line-number-known 35))]
+    actual => expected))
+
+(fact "various arrow forms have line numbers"
+  (let [original `(
+                    (~(with-meta '(f 1) {:line 33}) => 2)
+                    (~(with-meta '(f 1) {:line 33}) =not=> 2)
+                    (~(with-meta '(f 1) {:line 33}) =streams=> 2)
+                    (~(with-meta '(f 1) {:line 33}) =future=> 2))
+        actual (annotate-embedded-arrows-with-line-numbers original)]
+    (doseq [expansion actual]
+      (take-last 2 expansion)
+      => '(:position (midje.internal-ideas.file-position/line-number-known 33)))))
+
