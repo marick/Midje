@@ -47,3 +47,6 @@
     (set-wrappers deferred)
     (multiwrap "unimportant-value" immediates)))
 
+(defn forms-to-wrap-around [wrapping-target]
+  (filter (for-wrapping-target? wrapping-target) (wrappers)))
+
