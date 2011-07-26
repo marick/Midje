@@ -2,7 +2,7 @@
 
 (ns midje.semi-sweet
   (:use clojure.test
-        midje.fakes
+        midje.internal-ideas.fakes
         midje.internal-ideas.file-position
         [midje.util debugging form-utils namespace]
         [midje.error-handling monadic semi-sweet-errors]
@@ -10,7 +10,7 @@
         [clojure.pprint]
         [clojure.contrib.ns-utils :only [immigrate]]))
 (immigrate 'midje.unprocessed)
-(immigrate 'midje.arrow-symbols)
+(immigrate 'midje.ideas.arrow-symbols)
 
 (defn is-semi-sweet-keyword? [loc]
   (namespacey-match '(expect fake) loc))
@@ -60,7 +60,7 @@
         ;; seem to be '~args. That causes spurious failures. Debug
         ;; someday.
     (make-fake-map var-sym
-                   `{:arg-matchers (map midje.fakes/arg-matcher-maker ~(vec args))
+                   `{:arg-matchers (map midje.internal-ideas.fakes/arg-matcher-maker ~(vec args))
                      :call-text-for-failures (str '~call-form)
                      :result-supplier (make-result-supplier ~arrow ~result)
                      :type :fake}

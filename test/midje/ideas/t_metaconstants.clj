@@ -1,7 +1,7 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.t-metaconstants
-  (:use [midje.metaconstants :only [metaconstant? define-metaconstants
+(ns midje.ideas.t-metaconstants
+  (:use [midje.ideas.metaconstants :only [metaconstant? define-metaconstants
                                     with-fresh-generated-metaconstant-names
                                     metaconstant-for-form]])
   (:use midje.sweet)

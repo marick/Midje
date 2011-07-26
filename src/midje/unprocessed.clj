@@ -2,7 +2,7 @@
 
 (ns midje.unprocessed
   (:use clojure.test
-        [midje.fakes]
+        [midje.internal-ideas.fakes]
         [midje.util laziness report thread-safe-var-nesting]
         [midje.checkers.extended-equality :only [extended-=]]
         [midje.checkers.chatty :only [chatty-checker?]]

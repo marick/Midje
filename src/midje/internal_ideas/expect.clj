@@ -1,10 +1,10 @@
 ;; -*- indent-tabs-mode: nil -*-
-(ns midje.expect
+(ns midje.internal-ideas.expect
   (:use [midje.util.treelike :only [tree-variant]]
         [midje.util.namespace :only [namespacey-match]]
         [midje.util.form-utils :only [form-first?]]
         [midje.util.zip :only [skip-to-rightmost-leaf n-times remove-moving-right]]
-        [midje.arrows :only [is-start-of-arrow-sequence? arrow-sequence-overrides]]
+        [midje.ideas.arrows :only [is-start-of-arrow-sequence? arrow-sequence-overrides]]
         [midje.internal-ideas.file-position :only [arrow-line-number]])
   (:require [clojure.zip :as zip]))
   

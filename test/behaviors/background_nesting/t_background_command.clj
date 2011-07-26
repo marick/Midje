@@ -4,7 +4,7 @@
   (:use clojure.test)
   (:use [midje.sweet])
   (:use [midje.test-util])
-  (:use clojure.contrib.pprint)
+  (:use clojure.pprint)
 )
 
 ;; This is a separate file because we're making namespace-wide changes

@@ -1,15 +1,15 @@
-(ns midje.prerequisites
+(ns midje.ideas.prerequisites
   (:use [midje.util.namespace :only [namespacey-match]]
-        [midje.expect :only [expect? up-to-full-expect-form]]
+        [midje.internal-ideas.expect :only [expect? up-to-full-expect-form]]
         [midje.util.form-utils :only [translate
                                       map-difference
                                       ]]
-        [midje.metaconstants :only [metaconstant-for-form
+        [midje.ideas.metaconstants :only [metaconstant-for-form
                                     with-fresh-generated-metaconstant-names]]
-        [midje.arrows :only [group-arrow-sequences
+        [midje.ideas.arrows :only [group-arrow-sequences
                              ]]
         [midje.checkers.defining :only [checker-makers checker?]]
-        [midje.fakes :only [fake-form-funcall-arglist make-fake]])
+        [midje.internal-ideas.fakes :only [fake-form-funcall-arglist make-fake]])
   (:require [clojure.zip :as zip]))
 
 (defn is-head-of-form-providing-prerequisites? [loc]

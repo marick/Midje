@@ -3,7 +3,7 @@
 (ns midje.internal-ideas.t-file-position
   (:use [midje.internal-ideas.file-position]
         [midje sweet test-util]
-        [midje.arrows :only [is-start-of-arrow-sequence?]])
+        [midje.ideas.arrows :only [is-start-of-arrow-sequence?]])
   (:require [clojure.zip :as zip]))
 
 (defn this-file [line-number] 

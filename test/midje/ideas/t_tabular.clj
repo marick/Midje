@@ -1,7 +1,7 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.t-tabular
-  (:use midje.tabular
+(ns midje.ideas.t-tabular
+  (:use midje.ideas.tabular
         [midje.error-handling.monadic]
         [midje sweet test-util])
   (:use [ordered.map :only (ordered-map)]))

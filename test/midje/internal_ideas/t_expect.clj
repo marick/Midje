@@ -1,8 +1,8 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.t-expect
-  (:use [midje.expect]
-        [midje.arrows :only [is-start-of-arrow-sequence?]]
+(ns midje.internal-ideas.t-expect
+  (:use [midje.internal-ideas.expect]
+        [midje.ideas.arrows :only [is-start-of-arrow-sequence?]]
 	midje.sweet
 	midje.test-util)
   (:require [clojure.zip :as zip])

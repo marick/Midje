@@ -1,21 +1,21 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.background
+(ns midje.ideas.background
   (:use
     [clojure.contrib.seq :only [separate]]
     [midje.util.form-utils :only [form-first? translate symbol-named? separate-by]]
-    [midje.metaconstants :only [define-metaconstants]]
-    [midje.arrows :only [
+    [midje.ideas.metaconstants :only [define-metaconstants]]
+    [midje.ideas.arrows :only [
                          is-start-of-arrow-sequence?
                          take-arrow-sequence
                          ]]
     [midje.util.laziness :only [eagerly]]
-    [midje.fakes :only [
+    [midje.internal-ideas.fakes :only [
                         tag-as-background-fake
                         make-fake
                         fake?]]
     [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out with-pushed-namespace-values]]
-    [midje.util.wrapping :only [with-wrapping-target]])
+    [midje.internal-ideas.wrapping :only [with-wrapping-target]])
   (:require [midje.util.unify :as unify :only [bindings-map-or-nil ?form]]
             [clojure.zip :as zip]))
 
@@ -90,7 +90,7 @@
 (defn- state-wrapper [state-description]
   (if (some #{(name (first state-description))} '("before" "after" "around"))
     (with-wrapping-target
-      (macroexpand-1 (cons (symbol "midje.background"
+      (macroexpand-1 (cons (symbol "midje.ideas.background"
                                    (name (first state-description)))
                            (rest state-description)))
       (second state-description))

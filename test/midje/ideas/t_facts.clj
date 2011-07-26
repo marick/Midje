@@ -1,7 +1,7 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.t-facts
-  (:use midje.fact
+(ns midje.ideas.t-facts
+  (:use midje.ideas.facts
         midje.sweet midje.test-util)
   (:require [clojure.zip :as zip]))
 

@@ -4,20 +4,21 @@
   (:use clojure.test
         [clojure.contrib.ns-utils :only [immigrate]])
          
-  (:use [midje production-mode metaconstants]
-        [midje.fact :only [translate-fact-body]]
+  (:use [midje production-mode]
+        [midje.ideas.metaconstants]
+        [midje.ideas.facts :only [translate-fact-body]]
         [midje.internal-ideas.midjcoexpansion :only [midjcoexpand forms-to-wrap-around]]
-        [midje.prerequisites :only [unfold-prerequisites]]
-        [midje.tabular :only [tabular*]]
+        [midje.ideas.prerequisites :only [unfold-prerequisites]]
+        [midje.ideas.tabular :only [tabular*]]
         [midje.error-handling monadic]
-        [midje.background :only [separate-background-forms background-fakes background-wrappers]]
+        [midje.ideas.background :only [separate-background-forms background-fakes background-wrappers]]
         [midje.util debugging thread-safe-var-nesting unify]
         [midje.util.exceptions :only [user-error-exception-lines]]
-        [midje.util.wrapping :only [multiwrap put-wrappers-into-effect]]
+        [midje.internal-ideas.wrapping :only [multiwrap put-wrappers-into-effect]]
         [midje.util.form-utils :only [reader-line-number]]
         [midje.internal-ideas.file-position :only [user-file-position set-fallback-line-number-from
                                                    annotate-embedded-arrows-with-line-numbers]])
-  (:require [midje.background :as background])
+  (:require [midje.ideas.background :as background])
   (:require midje.checkers)
   (:require [midje.util.report :as report])
 )

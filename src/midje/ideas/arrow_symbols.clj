@@ -1,4 +1,4 @@
-(ns midje.arrow-symbols)
+(ns midje.ideas.arrow-symbols)
 
 (def => "=>")
 (def =not=> "=not=>")

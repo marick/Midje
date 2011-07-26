@@ -1,20 +1,19 @@
 (ns midje.internal-ideas.midjcoexpansion
   (:use [midje.util.debugging :only [nopret]]
-        [midje.util.wrapping :only [already-wrapped?]]
         [midje.util.form-utils :only [form-first?
 				      preserve-type
 				      ]]
-        [midje.expect :only [expect?]]
+        [midje.internal-ideas.expect :only [expect?]]
         [midje.util.laziness :only [eagerly]]
-        [midje.util.wrapping :only [
+        [midje.internal-ideas.wrapping :only [already-wrapped?
                                     wrappers
                                     for-wrapping-target?
                                     with-additional-wrappers
                                     multiwrap
                                     ]]
         [clojure.contrib.seq :only [separate]]
-        [midje.fact :only [fact? future-fact?]]
-        [midje.background :only [
+        [midje.ideas.facts :only [fact? future-fact?]]
+        [midje.ideas.background :only [
                                  background-wrappers
                                  raw-wrappers
                                  background-form?]])

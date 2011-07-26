@@ -1,7 +1,8 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns behaviors.t-protocols
-  (:use [midje sweet test-util open-protocols]
+  (:use [midje sweet test-util]
+        [midje.open-protocols]
         behaviors.t-protocols-support)
   (:import behaviors.t-protocols-support.OutsideNSFakeableRecord))
 

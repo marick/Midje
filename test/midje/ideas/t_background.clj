@@ -1,13 +1,13 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.t-background
+(ns midje.ideas.t-background
   (:require [clojure.zip :as zip])
   (:use [midje sweet test-util]
-        [midje.util.wrapping :only [for-wrapping-target?]]
+        [midje.internal-ideas.wrapping :only [for-wrapping-target?]]
         [midje.util unify]
-        [midje.background :only [separate-background-forms setup-teardown-bindings
+        [midje.ideas.background :only [separate-background-forms setup-teardown-bindings
                                  seq-headed-by-setup-teardown-form? background-wrappers]]))
-(testable-privates midje.background
+(testable-privates midje.ideas.background
                    prerequisites-to-fakes state-wrapper)
 
 (unfinished unused used)
@@ -109,7 +109,7 @@
 ;; a fact because it gets substituted. So we let the caller use "danger" instead.
 (defn- form-matching? [expected]
   (fn [actual] (= actual
-                  (subst expected {'?danger 'midje.t-background/?form}))))
+                  (subst expected {'?danger 'midje.ideas.t-background/?form}))))
 
 (fact "canonicalized setup/teardown wrappers can be put into final form"
   (let [final (state-wrapper '(before :checks (do-something)))]

@@ -3,7 +3,7 @@
 (ns behaviors.background-nesting.t-shadowing
   (:use clojure.test
         [midje sweet test-util]
-        clojure.contrib.pprint))
+        clojure.pprint))
 
 ;; This is a separate file because we're making namespace-wide changes
 

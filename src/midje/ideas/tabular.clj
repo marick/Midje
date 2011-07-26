@@ -1,14 +1,14 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.tabular
+(ns midje.ideas.tabular
   (:use 
     [clojure.contrib.str-utils :only [str-join]]
     [midje.error-handling.monadic :only [error-let user-error-report-form validate]]
     [midje.internal-ideas.file-position :only [form-with-copied-line-numbers]]
     [midje.util.form-utils :only [ordered-zipmap translate pairs]]
     [midje.util.zip :only [skip-to-rightmost-leaf]]
-    [midje.expect :only [expect?]]
-    [midje.arrows :only [above-arrow-sequence__add-key-value__at-arrow]])
+    [midje.internal-ideas.expect :only [expect?]]
+    [midje.ideas.arrows :only [above-arrow-sequence__add-key-value__at-arrow]])
 (:require [midje.util.unify :as unify]))
 
 (defn- binding-note [ordered-binding-map]

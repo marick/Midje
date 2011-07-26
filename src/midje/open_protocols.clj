@@ -8,7 +8,7 @@
 
 (defn- open-spec [[name args & body]]
   `(~name ~args
-     (if (midje.fakes/function-tagged-as-fake? ~name)
+     (if (midje.internal-ideas.fakes/function-tagged-as-fake? ~name)
        (apply ~name ~args)
        (do ~@body))))
 

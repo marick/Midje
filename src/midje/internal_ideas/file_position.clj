@@ -4,7 +4,7 @@
   (:use [midje.util.zip :only [skip-to-rightmost-leaf]]
         [midje.util.form-utils :only [translate]]
         [midje.util.namespace :only [namespacey-match]]
-        [midje.arrows :only [all-arrows at-arrow__add-key-value-to-end__no-movement]])
+        [midje.ideas.arrows :only [all-arrows at-arrow__add-key-value-to-end__no-movement]])
   (:require [clojure.zip :as zip]))
 
 ;; COMPILE-TIME POSITIONS.

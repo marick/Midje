@@ -1,7 +1,8 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.t-fakes
-  (:use [midje fakes sweet test-util]))
+(ns midje.internal-ideas.t-fakes
+  (:use [midje sweet test-util]
+        midje.internal-ideas.fakes))
 
 
 (tabular

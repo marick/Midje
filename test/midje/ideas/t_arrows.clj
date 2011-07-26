@@ -1,7 +1,7 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.t-arrows
-  (:use midje.arrows)
+(ns midje.ideas.t-arrows
+  (:use midje.ideas.arrows)
   (:use [midje sweet test-util])
   (:require [clojure.zip :as zip]))
 

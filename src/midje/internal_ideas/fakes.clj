@@ -1,6 +1,6 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.fakes
+(ns midje.internal-ideas.fakes
   (:use
     [clojure.contrib.seq :only [find-first]]
     [clojure.test :only [report]]
@@ -12,7 +12,7 @@
     [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
                                                with-pushed-namespace-values]]
     [midje.internal-ideas.file-position :only [arrow-line-number-from-form]]
-    [midje.util.wrapping :only [with-wrapping-target]]
+    [midje.internal-ideas.wrapping :only [with-wrapping-target]]
     [midje.util.form-utils :only [form-first?]]))
 
 (defn tag-function-as-fake [function]

@@ -1,6 +1,6 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.util.wrapping
+(ns midje.internal-ideas.wrapping
   (:use
     [midje.util.form-utils :only [form-first?]]
     [clojure.contrib.seq :only [separate]]

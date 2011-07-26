@@ -1,6 +1,6 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.metaconstants
+(ns midje.ideas.metaconstants
 )
 
 (defn- form-branch? [candidate]

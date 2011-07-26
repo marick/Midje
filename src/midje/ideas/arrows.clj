@@ -1,7 +1,7 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.arrows
-  (:use midje.arrow-symbols)
+(ns midje.ideas.arrows
+  (:use midje.ideas.arrow-symbols)
   (:use [midje.util treelike namespace])
   (:require [clojure.zip :as zip]))
 
