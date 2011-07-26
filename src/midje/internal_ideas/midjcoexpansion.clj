@@ -15,9 +15,9 @@
         [clojure.contrib.seq :only [separate]]
         [midje.fact :only [fact? future-fact?]]
         [midje.background :only [
+                                 background-wrappers
                                  raw-wrappers
-                                 background-form?]]
-        [midje.midje-forms.translating :only [final-wrappers]])
+                                 background-form?]])
   )
 
 (defn interior-forms [form]
@@ -52,7 +52,7 @@
           ;; (p+ "use these wrappers" (raw-wrappers form))
           ;; (p "for this form" (interior-forms form))
           ;; (p (wrappers))
-          (nopret (let [wrappers (final-wrappers (raw-wrappers form))
+          (nopret (let [wrappers (background-wrappers (raw-wrappers form))
                       [now-wrappers later-wrappers] (separate (for-wrapping-target? :contents)
                                                               wrappers)]
             ;; "Now wrappers" have to be separated out and discarded here, because

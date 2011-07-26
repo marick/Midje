@@ -7,16 +7,13 @@
   (:use [midje production-mode metaconstants]
         [midje.fact :only [translate-fact-body]]
         [midje.internal-ideas.midjcoexpansion :only [midjcoexpand forms-to-wrap-around]]
-        [midje.midje-forms.translating
-         :only [put-wrappers-into-effect
-                ]]
         [midje.prerequisites :only [unfold-prerequisites]]
         [midje.tabular :only [tabular*]]
         [midje.error-handling monadic]
-        [midje.background :only [separate-background-forms background-fakes]]
+        [midje.background :only [separate-background-forms background-fakes background-wrappers]]
         [midje.util debugging thread-safe-var-nesting unify]
         [midje.util.exceptions :only [user-error-exception-lines]]
-        [midje.util.wrapping :only [multiwrap]]
+        [midje.util.wrapping :only [multiwrap put-wrappers-into-effect]]
         [midje.util.form-utils :only [reader-line-number]]
         [midje.internal-ideas.file-position :only [user-file-position set-fallback-line-number-from
                                                    annotate-embedded-arrows-with-line-numbers]])
@@ -30,14 +27,14 @@
 (intern *ns* 'after #'background/after)
 (intern *ns* 'around #'background/around)
 
-(defmacro background [& raw-wrappers]
+(defmacro background [& forms]
   (when (user-desires-checking?)
-    (put-wrappers-into-effect raw-wrappers)))
+    (put-wrappers-into-effect (background-wrappers forms))))
 
-(defmacro against-background [wrappers & forms]
+(defmacro against-background [background-forms & foreground-forms]
   (if (user-desires-checking?)
-    (midjcoexpand `(against-background ~wrappers ~@forms))
-    `(do ~@forms)))
+    (midjcoexpand `(against-background ~background-forms ~@foreground-forms))
+    `(do ~@foreground-forms)))
     
 (defmacro fact [& forms]
   (when (user-desires-checking?)

@@ -3,6 +3,7 @@
 (ns midje.util.wrapping
   (:use
     [midje.util.form-utils :only [form-first?]]
+    [clojure.contrib.seq :only [separate]]
     [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
                                                set-namespace-value
                                                with-pushed-namespace-values]])
@@ -39,4 +40,10 @@
 (defmacro with-additional-wrappers [final-wrappers form]
   `(with-pushed-namespace-values :midje/wrappers ~final-wrappers
     ~form))
+
+(defn put-wrappers-into-effect [wrappers]
+  (let [[immediates deferred] (separate (for-wrapping-target? :contents)
+                                      wrappers)]
+    (set-wrappers deferred)
+    (multiwrap "unimportant-value" immediates)))
 

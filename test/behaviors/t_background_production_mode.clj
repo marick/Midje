@@ -1,6 +1,6 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.midje-forms.t-translating--production-mode
+(ns behaviors.t-background-production-mode
   (:use [midje.sweet])
   (:use clojure.contrib.pprint))
 
