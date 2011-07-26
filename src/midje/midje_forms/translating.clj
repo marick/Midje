@@ -53,9 +53,6 @@
 				      wrappers]])
   (:require [clojure.zip :as zip]))
 
-(defn interior-forms [form]
-  `(do ~@(rest (rest form))))
-
 
 ;; Translating a form into an equivalent form with all arrow sequences given
 ;; line numbers. 
@@ -84,8 +81,6 @@
 
     is-semi-sweet-keyword?
     skip-to-rightmost-leaf))
-
-(declare midjcoexpand)
 
 ;; There are three variants of background forms, here referred to as "wrappers":
 ;; 1. RAW - wrappers mixed up, like [ (f 1) => 3 (before ...) (f 2) => 3) ]. Needs parsing.
@@ -137,51 +132,6 @@
     (set-wrappers finals)
     (multiwrap "unimportant-value" immediates)))
 
-(defn forms-to-wrap-around [wrapping-target]
-  (filter (for-wrapping-target? wrapping-target) (wrappers)))
-
-(defn midjcoexpand [form]
-  ;; (p+ "== midjcoexpanding" form)
-  ;; (p "== with" (wrappers))
-  (nopret (cond (already-wrapped? form)
-        form
-
-        (form-first? form "quote")
-        form
-
-        (future-fact? form)
-        (macroexpand form)
-
-        (expect? form)
-        (multiwrap form (forms-to-wrap-around :checks))
-
-        (fact? form)
-        (do
-          (multiwrap (midjcoexpand (macroexpand form))
-                     (forms-to-wrap-around :facts)))
-
-        (background-form? form)
-        (do
-          ;; (p+ "use these wrappers" (raw-wrappers form))
-          ;; (p "for this form" (interior-forms form))
-          ;; (p (wrappers))
-          (nopret (let [wrappers (final-wrappers (raw-wrappers form))
-                      [now-wrappers later-wrappers] (separate (for-wrapping-target? :contents)
-                                                              wrappers)]
-            ;; "Now wrappers" have to be separated out and discarded here, because
-            ;; if they were left in, they'd be reapplied in any nested background
-            ;; forms.
-            ;; (p "now-wrappers" now-wrappers)
-            ;; (p "later-wrappers" later-wrappers)
-            (multiwrap (with-additional-wrappers later-wrappers
-                          (midjcoexpand (interior-forms form)))
-                       now-wrappers))))
-        
-        (sequential? form)
-        (preserve-type form (eagerly (map midjcoexpand form)))
-
-        :else
-        form)))
 
 ;; Folded prerequisites
 

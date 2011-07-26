@@ -5,9 +5,10 @@
         [clojure.contrib.ns-utils :only [immigrate]])
          
   (:use [midje production-mode metaconstants]
+        [midje.internal-ideas.midjcoexpansion :only [midjcoexpand forms-to-wrap-around]]
         [midje.midje-forms.translating
-         :only [midjcoexpand put-wrappers-into-effect
-                forms-to-wrap-around translate-fact-body
+         :only [put-wrappers-into-effect
+                translate-fact-body
                 add-line-numbers unfold-prerequisites]]
         [midje.tabular :only [tabular*]]
         [midje.error-handling monadic]
