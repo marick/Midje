@@ -8,8 +8,8 @@
         [midje.internal-ideas.midjcoexpansion :only [midjcoexpand forms-to-wrap-around]]
         [midje.midje-forms.translating
          :only [put-wrappers-into-effect
-                translate-fact-body
-                unfold-prerequisites]]
+                translate-fact-body]]
+        [midje.prerequisites :only [unfold-prerequisites]]
         [midje.tabular :only [tabular*]]
         [midje.error-handling monadic]
         [midje.background :only [separate-background-forms background-fakes]]
