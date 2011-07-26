@@ -23,11 +23,6 @@
                              seq-headed-by-setup-teardown-form?
                              setup-teardown-bindings
                                          raw-wrappers]]
-    [midje.midje-forms.editing :only [
-                                      
-                                      delete_prerequisite_form__then__at-previous-full-expect-form
-                                      tack-on__then__at-rightmost-expect-leaf
-                                      wrap-with-expect__then__at-rightmost-expect-leaf]]
     [midje.util.zip :only [skip-to-rightmost-leaf]]
     [midje.background :only [
                              background-form?]]
@@ -58,19 +53,6 @@
 ;; line numbers. 
 
 ;; Translating sweet forms into their semi-sweet equivalent
-
-(defn translate-fact-body [multi-form]
-  (translate multi-form
-    is-start-of-arrow-sequence?
-    wrap-with-expect__then__at-rightmost-expect-leaf
-    
-    is-head-of-form-providing-prerequisites?
-    (fn [loc ] (let [fake-calls (expand-prerequisites-into-fake-calls loc)
-                    full-expect-form (delete_prerequisite_form__then__at-previous-full-expect-form loc)]
-                 (tack-on__then__at-rightmost-expect-leaf fake-calls full-expect-form)))
-
-    is-semi-sweet-keyword?
-    skip-to-rightmost-leaf))
 
 ;; There are three variants of background forms, here referred to as "wrappers":
 ;; 1. RAW - wrappers mixed up, like [ (f 1) => 3 (before ...) (f 2) => 3) ]. Needs parsing.

@@ -1,6 +1,6 @@
 (ns midje.prerequisites
   (:use [midje.util.namespace :only [namespacey-match]]
-        [midje.expect :only [expect?]]
+        [midje.expect :only [expect? up-to-full-expect-form]]
         [midje.util.form-utils :only [translate
                                       map-difference
                                       ]]
@@ -107,4 +107,9 @@
   (let [fakes (rest (zip/node (zip/up provided-loc)))
         fake-bodies (group-arrow-sequences fakes)]
     (map make-fake fake-bodies)))
+
+(defn delete_prerequisite_form__then__at-previous-full-expect-form [loc]
+  (assert (is-head-of-form-providing-prerequisites? loc))
+  (let [x (-> loc zip/up zip/remove)]
+    (up-to-full-expect-form x)))
 

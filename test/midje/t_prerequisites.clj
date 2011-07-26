@@ -2,6 +2,7 @@
 
 (ns midje.t-prerequisites
   (:use midje.prerequisites
+        [midje.expect :only [expect?]]
         [midje.metaconstants :only [metaconstant-for-form]]
         midje.sweet midje.test-util)
   (:require [clojure.zip :as zip]))
@@ -18,6 +19,21 @@
         z (zip/seq-zip original)
         loc (zip/down z)]
     (expand-prerequisites-into-fake-calls loc) => translated))
+
+(fact "prerequisite containers are deleted so their contents can be inserted elsewhere"
+  (let [original '( (expect (f x) => (+ 1 2)) (provided ...) "next")
+        edited   '( (expect (f x) => (+ 1 2))                "next")
+        z (zip/seq-zip original)
+        original-loc (-> z zip/down zip/right zip/down)
+        resulting-loc
+         (delete_prerequisite_form__then__at-previous-full-expect-form original-loc)]
+        
+    original-loc => is-head-of-form-providing-prerequisites?
+    resulting-loc => expect?
+    (zip/root resulting-loc) => edited))
+    
+
+
 
 ;; Folded prerequisites
 
