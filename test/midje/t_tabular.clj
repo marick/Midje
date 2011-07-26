@@ -174,3 +174,36 @@
    (tabular "string" fact table...)     [fact [table...]]
    ;; Doesn't work with non-literal strings
    (tabular s fact table...)            [s [fact table...]])
+
+(tabular (fact ?comment
+           (let [line-no-free-original ?original
+                 line-no-free-expected ?expected]
+             (add-one-binding-note line-no-free-original (ordered-map '?a 'a))
+             => line-no-free-expected))
+
+         ?comment ?original ?expected
+
+         "binding notes can be inserted"
+         '(do (midje.semi-sweet/expect (a) => b)
+              (do (midje.semi-sweet/expect (inc a) => M)))
+         '(do (midje.semi-sweet/expect (a) => b
+                                       :binding-note "{?a a}")
+                      (do (midje.semi-sweet/expect (inc a) => M
+                                                   :binding-note "{?a a}")))
+
+         "fakes do not get insertions"
+         '(do (midje.semi-sweet/expect (a) => b
+                                       (midje.semi-sweet/fake (x) => 3)))
+         '(do (midje.semi-sweet/expect (a) => b :binding-note "{?a a}"
+                                       (midje.semi-sweet/fake (x) => 3)))
+
+         "other annotations are preserved"
+         '(do (midje.semi-sweet/expect (a) => b :line 33))
+         '(do (midje.semi-sweet/expect (a) => b :binding-note "{?a a}" :line 33)))
+
+(fact "binding notes are in the order of the original row - this order is maintained within the ordered-binding-map"
+  (let [actual (add-one-binding-note '(do (expect 1 => 2))
+                                          (ordered-map '?a 1, '?b 2, '?delta "0", '?result 3))
+        expected '(do (expect 1 => 2 :binding-note "{?a 1, ?b 2, ?delta \"0\", ?result 3}"))]
+    actual => expected))
+    

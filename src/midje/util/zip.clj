@@ -13,3 +13,11 @@
   "When positioned at a branch, move into it and then to the rightmost leaf."
   (skip-to-rightmost-leaf (zip/down loc)))
 
+(defn n-times [n zip-fn loc]
+  (if (zero? n)
+    loc
+    (recur (dec n) zip-fn (zip-fn loc))))
+
+(defn remove-moving-right [loc]
+  (-> loc zip/remove zip/next))
+

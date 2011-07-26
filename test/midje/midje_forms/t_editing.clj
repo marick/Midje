@@ -13,13 +13,6 @@
 
 (defn node [expected] (fn [actual] (= expected (zip/node actual))))
 
-(fact "it's useful to delete a node and move right"
-  (let [z (zip/seq-zip '( (f n) => (+ 3 4)))
-        loc (-> z zip/down zip/right)]
-    (remove-moving-right loc) => (node '(+ 3 4))
-    (zip/root (remove-moving-right loc)) => '( (f n) (+ 3 4))))
-
-
 (fact "prerequisite containers are deleted so their contents can be inserted elsewhere"
   (let [original '( (expect (f x) => (+ 1 2)) (provided ...) "next")
         edited   '( (expect (f x) => (+ 1 2))                "next")

@@ -3,21 +3,13 @@
     [midje.arrows :only [is-start-of-arrow-sequence?
                          arrow-sequence-overrides]]
     [midje.expect :only [up-to-full-expect-form expect?]]
-    [midje.util.zip :only [skip-to-rightmost-leaf]]
+    [midje.util.zip :only [skip-to-rightmost-leaf n-times remove-moving-right]]
     [midje.prerequisites :only [is-head-of-form-providing-prerequisites?
                                           ]]
     [midje.semi-sweet :only [expect]]
     [midje.util.file-position :only [arrow-line-number line-number-known]])
   (:require [clojure.zip :as zip]))
 
-(defn- n-times [n zip-fn loc]
-  (if (zero? n)
-    loc
-    (recur (dec n) zip-fn (zip-fn loc))))
-
-
-(defn remove-moving-right [loc]
-  (-> loc zip/remove zip/next))
 
 (defn delete_prerequisite_form__then__at-previous-full-expect-form [loc]
   (assert (is-head-of-form-providing-prerequisites? loc))

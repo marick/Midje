@@ -2,10 +2,30 @@
 
 (ns midje.tabular
   (:use 
+    [clojure.contrib.str-utils :only [str-join]]
     [midje.error-handling.monadic :only [error-let user-error-report-form validate]]
-    [midje.midje-forms.translating :only [add-binding-notes form-with-copied-line-numbers]]
-    [midje.util.form-utils :only [ordered-zipmap]])
-  (:require [midje.util.unify :as unify]))
+    [midje.midje-forms.translating :only [form-with-copied-line-numbers]]
+    [midje.util.form-utils :only [ordered-zipmap translate pairs]]
+    [midje.util.zip :only [skip-to-rightmost-leaf]]
+    [midje.expect :only [expect?]]
+    [midje.arrows :only [above_arrow_sequence__add-key-value__at_arrow]])
+(:require [midje.util.unify :as unify]))
+
+(defn- binding-note [ordered-binding-map]
+  (let [entries (map (fn [[variable value]] (str variable " " (pr-str value))) ordered-binding-map)]
+    (str "{" (str-join ", " entries) "}")))
+
+(defn add-one-binding-note [expect-containing-form ordered-binding-map]
+  (translate expect-containing-form
+    expect?
+    (fn [loc] (skip-to-rightmost-leaf
+      (above_arrow_sequence__add-key-value__at_arrow :binding-note (binding-note ordered-binding-map) loc)))))
+
+(defn add-binding-notes [expect-containing-forms ordered-binding-maps]
+  (map (partial apply add-one-binding-note) 
+       (pairs expect-containing-forms ordered-binding-maps)))
+
+
 
 (defn- remove-pipes+where [table]
   (let [strip-off-where #(if (contains? #{:where 'where} (first %)) (rest %) % )]
