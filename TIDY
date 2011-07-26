@@ -1,0 +1,58 @@
+total 64
+drwxr-xr-x   9 marick  marick   306 Jul 26 16:03 checkers/
+-rw-r--r--   1 marick  marick   991 Jul 26 16:03 checkers.clj
+drwxr-xr-x   4 marick  marick   136 Jul 26 16:03 error_handling/
+drwxr-xr-x   9 marick  marick   306 Jul 26 17:50 ideas/
+-rw-r--r--   1 marick  marick   435 Jul 26 16:03 inner_functions.clj
+drwxr-xr-x   6 marick  marick   204 Jul 26 17:44 internal_ideas/
+-rw-r--r--   1 marick  marick   872 Jul 26 16:03 open_protocols.clj
+-rw-r--r--   1 marick  marick   458 Jun 27 16:44 production_mode.clj
+-rw-r--r--   1 marick  marick  5878 Jul 26 16:03 semi_sweet.clj
+-rw-r--r--   1 marick  marick  3823 Jul 26 16:03 unprocessed.clj
+drwxr-xr-x  14 marick  marick   476 Jul 26 16:03 util/
+
+src/midje/checkers:
+total 88
+-rw-r--r--  1 marick  marick   2523 Jul 26 16:03 chatty.clj
+-rw-r--r--  1 marick  marick  19137 Jul 26 16:03 collection.clj
+-rw-r--r--  1 marick  marick   1861 Feb 26 17:50 defining.clj
+-rw-r--r--  1 marick  marick   1564 Jul 26 16:03 deprecated.clj
+-rw-r--r--  1 marick  marick   1185 Jul 26 16:03 extended_equality.clj
+-rw-r--r--  1 marick  marick   2037 Jul 26 16:03 simple.clj
+-rw-r--r--  1 marick  marick    824 Jul 26 16:03 util.clj
+
+src/midje/error_handling:
+total 16
+-rw-r--r--  1 marick  marick  1530 Jul 26 16:03 monadic.clj
+-rw-r--r--  1 marick  marick   787 Jul 26 16:03 semi_sweet_errors.clj
+
+src/midje/ideas:
+total 80
+-rw-r--r--  1 marick  marick   251 Jul 26 16:03 arrow_symbols.clj
+-rw-r--r--  1 marick  marick  1744 Jul 26 16:03 arrows.clj
+-rw-r--r--  1 marick  marick  4269 Jul 26 16:03 background.clj
+-rw-r--r--  1 marick  marick  5337 Jul 26 17:50 facts.clj
+-rw-r--r--  1 marick  marick  1267 Jul 26 16:03 metaconstants.clj
+-rw-r--r--  1 marick  marick  4736 Jul 26 16:03 prerequisites.clj
+-rw-r--r--  1 marick  marick  2468 Jul 26 16:03 tabular.clj
+
+src/midje/internal_ideas:
+total 40
+-rw-r--r--  1 marick  marick  2022 Jul 26 16:03 expect.clj
+-rw-r--r--  1 marick  marick  4456 Jul 26 16:03 fakes.clj
+-rw-r--r--  1 marick  marick  3233 Jul 26 16:03 file_position.clj
+-rw-r--r--  1 marick  marick  1733 Jul 26 17:04 wrapping.clj
+
+src/midje/util:
+total 96
+-rw-r--r--  1 marick  marick   954 Feb 26 17:50 debugging.clj
+-rw-r--r--  1 marick  marick  1031 Jul 26 16:03 exceptions.clj
+-rw-r--r--  1 marick  marick  3485 Jul 26 16:03 form_utils.clj
+-rw-r--r--  1 marick  marick   807 Feb 26 17:50 laziness.clj
+-rw-r--r--  1 marick  marick   573 Jul 26 16:03 namespace.clj
+-rw-r--r--  1 marick  marick  4807 Jul 26 16:03 report.clj
+-rw-r--r--  1 marick  marick   213 Feb 26 17:50 strings.clj
+-rw-r--r--  1 marick  marick  2375 Jul 26 16:03 thread_safe_var_nesting.clj
+-rw-r--r--  1 marick  marick   204 Jul 26 16:03 treelike.clj
+-rw-r--r--  1 marick  marick   914 Jul 26 16:03 unify.clj
+-rw-r--r--  1 marick  marick   655 Jul 26 16:03 zip.clj

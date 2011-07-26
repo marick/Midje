@@ -1,11 +1,13 @@
 (ns midje.ideas.facts
   (:use [midje.util.form-utils :only [form-first? translate preserve-type]]
         [midje.unprocessed :only [with-installed-fakes]]
+        [midje.internal-ideas.fakes :only [unfold-fakes]]
+
         [midje.util.laziness :only [eagerly]]
         [midje.internal-ideas.expect :only [tack-on__then__at-rightmost-expect-leaf
                                             wrap-with-expect__then__at-rightmost-expect-leaf
                                             expect?]]
-        [midje.internal-ideas.file-position :only [user-file-position set-fallback-line-number-from
+        [midje.internal-ideas.file-position :only [set-fallback-line-number-from
                                                    annotate-embedded-arrows-with-line-numbers]]
         [midje.internal-ideas.wrapping :only [already-wrapped?
                                               multiwrap
@@ -18,7 +20,6 @@
         [midje.semi-sweet :only [is-semi-sweet-keyword?]]
         [midje.ideas.prerequisites :only [is-head-of-form-providing-prerequisites?
                                     expand-prerequisites-into-fake-calls
-                                          unfold-prerequisites
                                     delete_prerequisite_form__then__at-previous-full-expect-form]]
         [midje.ideas.arrows :only [is-start-of-arrow-sequence?]]
         [clojure.contrib.seq :only [separate]]
@@ -46,7 +47,7 @@
       (form-first? form "antiterminologicaldisintactitudinarian-facts")))
 
 
-(defn translate-fact-body [multi-form]
+(defn to-semi-sweet [multi-form]
   (translate multi-form
     is-start-of-arrow-sequence?
     wrap-with-expect__then__at-rightmost-expect-leaf
@@ -108,22 +109,17 @@
         form)))
 
 
+(defn- surround-with-background-fakes [forms]
+  `(with-installed-fakes (background-fakes)
+     (do ~@forms)))
+
 (defn expand-and-transform [forms]
-  (let [things-to-run (-> forms
-                          annotate-embedded-arrows-with-line-numbers
-                          translate-fact-body
-                          unfold-prerequisites)
-        fake-enabled `(with-installed-fakes
-                        (background-fakes)
-                        (every? true?
-                                (list ~@things-to-run)))
-        expansion (midjcoexpand fake-enabled)
-        wrapped-expansion (multiwrap expansion
-                                     (forms-to-wrap-around :facts))]
-    (define-metaconstants things-to-run)
-    `(do (report/fact-begins)
-         ~wrapped-expansion
-         (report/fact-checks-out?))))
-
-
-
+  (let [form-to-run (-> forms
+                        annotate-embedded-arrows-with-line-numbers
+                        to-semi-sweet
+                        unfold-fakes
+                        surround-with-background-fakes
+                        midjcoexpand
+                        (multiwrap (forms-to-wrap-around :facts)))]
+    (define-metaconstants form-to-run)
+    (report/form-providing-friendly-return-value form-to-run)))

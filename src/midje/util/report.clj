@@ -29,6 +29,12 @@
 (defn fact-checks-out? [] (not *failure-in-fact*))
 
 
+(defn form-providing-friendly-return-value [test-form]
+  `(do (fact-begins)
+       ~test-form
+       (fact-checks-out?)))
+
+
 
 (defn- midje-position-string [position-pair]
   (format "(%s:%s)" (first position-pair) (second position-pair)))
