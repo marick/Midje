@@ -1,50 +1,44 @@
-= 1.2
-* Lein-midje has been split off into a separate project.
-* defrecord-openly and deftype-openly allows the use of
-  `provided` with protocol functions.
-  https://github.com/marick/Midje/wiki/Prerequisites-and-protocols
-* You can now specify how often prerequisites should be called.
-  https://github.com/marick/Midje/wiki/Specifying-call-counts
-* Tabular facts
+1.2
+--------
+*   Lein-midje has been split off into a separate project.
+*   defrecord-openly and deftype-openly allows the use of
+    `provided` with protocol functions.   https://github.com/marick/Midje/wiki/Prerequisites-and-protocols
+*    You can now specify how often prerequisites should be
+     called.   https://github.com/marick/Midje/wiki/Specifying-call-counts
+*    Tabular facts
    https://github.com/marick/Midje/wiki/Tabular-facts
-* `fact` will now return true if all the checks succeed;
-  false otherwise.
-* Can use either Clojure 1.2.0 or 1.2.1
-* Plain functions within prerequisite arglists are now
-  implicitly wrapped with `exactly`.
-* Bugfix: `roughly` works when a single argument is negative.
+*    `fact` will now return true if all the checks succeed;  false otherwise.
+*    Can use either Clojure 1.2.0 or 1.2.1
+*    Plain functions within prerequisite arglists are now  implicitly wrapped with `exactly`.
+*    Bugfix: `roughly` works when a single argument is negative.
 
-= 1.1.1 
-* Background prerequisites are now scoped to facts. That
-  works better with let-bindings. (Issue 26)
+1.1.1 
+---------
+* Background prerequisites are now scoped to facts. That  works better with let-bindings. (Issue 26)
 
-= 1.1
-* Can defer individual checks in a fact with the =future=>
-  arrow.
+1.1
+--------
+* Can defer individual checks in a fact with the =future=>  arrow.
   https://github.com/marick/Midje/wiki/Future-facts
 * Negating arrows in facts (=not=>)
   https://github.com/marick/Midje/wiki/Negating-arrows
 * Folded prerequisites are much more competent
   https://github.com/marick/Midje/wiki/Folded-prerequisites
 * Some improvement in error reporting.
-* The #'roughly checker can be used for inexact numerical
-  comparisons. 
+* The #'roughly checker can be used for inexact numerical comparisons. 
 * #'irrelevant is a synonym for #anything
-* Line numbers are better reported for failures of very
-  stripped-down forms (like (fact 1 => odd?)
-* A prerequisite like (f 1) =streams=> [1 2 3] produces
-  the next value each time it's called.
-* Issue warning when bare function is used in a
-  prerequisite. Behavior will change in 1.2.
-* Several ways to make checkers that can be used in
-  prerequisites.
+* Line numbers are better reported for failures of very stripped-down forms (like (fact 1 => odd?)
+* A prerequisite like (f 1) =streams=> [1 2 3] produces  the next value each time it's called.
+* Issue warning when bare function is used in a prerequisite. Behavior will change in 1.2.
+* Several ways to make checkers that can be used in prerequisites.
 
-= 1.0.1 (stable)
+1.0.1
+-------------
 * Ben Mabey fix: eagerly preserve record types
-* Extended-= and collection checkers have semantics for
-  mixing maps and records.
+* Extended-= and collection checkers have semantics for mixing maps and records.
 
-= 1.0.0
+1.0.0
+----------------
 * Allow, where unambiguous, collection checkers to have multiple element arguments:
 
       (f) => (just  1 2 3 ) ; same as..
@@ -66,93 +60,3 @@
 * `lein midje` runs clojure.test deftests and integrates the results into the summary.
 
 * `cake midje` does the same for Cake users.
-
-
-= 0.9.0 
-* Regexps can be placed on the right-hand-side of an
-  expression: "foo" => #"fo+"
-* Throws and other checkers are "checker-aware", so 
-  you can write:  (f) => (throws Error (contains #"part of a message"))
-* Containment checkers
-  https://github.com/marick/Midje/wiki/Checkers-for-collections-and-strings
-
-= 0.8.1 (stable)
-* before/after/around
-  http://bit.ly/hgw1CU
-* background facts work within deftests
-* future-fact, pending-fact 
-
-= 0.8.0
-* Dropping support for Clojure 1.1.
-* Incompatible syntax change for #'against-background
-* Backgrounds can now be set for a namespace or within a
-  #'fact body.
-* Background-setting functions obey *include-midje-checks*
-* Compiling out test code from production code actually
-   works.
-
-= 0.7.2
-* Use alter-var-root instead of with-binding in preparation
-  for Clojure 1.3 (and use with threads).
-* against-background
-   https://github.com/marick/Midje/wiki/Background-prerequisites
-
-= 0.7.1 
-* Three new checkers: map-containing, maps-containing, and
-  only-maps-containing. 
-* Chatty checkers are much improved.
-  http://github.com/marick/Midje/wiki/Chatty-checkers
-* Some bug fixes
-
-= 0.7.0
-* Chatty checkers
-  http://github.com/marick/Midje/wiki/Chatty-checkers
-* Added a leiningen plugin to get tidy test reports.
-  http://github.com/marick/Midje/wiki/Lein-midje
-* Set midje.semi-sweet/*include-midje-checks* to false to
-  compile tests out of production code. 
-  http://github.com/marick/Midje/wiki/Production-mode
-* Incompatible change: Midje no longer defines fakes for 
-  you at the top level. As with any other identifier used in
-  code, they must be defined before use. The unfinished macro
-  is good for that.
-* Functions print as their names, if they have them, in case
-  of an (exactly x) failure.
-* Does a better job forcing seqs in the result to fully calculate
-  themselves.
-* Emacs midje-mode is a little smarter about what a Clojure
-  identifier is (for M-x midje-unfinished)
-  
-= 0.6.1
-* Midje-mode is (more) compatible with clojure-test-mode.
-
-= 0.6.0 
-* Can "unfold" nested function calls in provided facts, so
-  that (f (g 1)) produces two mock calls, the first of which
-  returns a metaconstant that the second expects.
-* If a fact fails for more than one reason, report them all.
-* midje-mode.el provides a smooth workflow for those 
-  who use slime/swank.
-
-= 0.5.0
-* Line numbers almost always point to the line that provoked
-  the error (one of the lines with => on them).
-* The in-any-order checker should work correctly.
-* Expectations (x => y) can appear at any level, so they can
-  be nested within lets.
-
-= 0.4.0
-* midje.sweet in workable shape.
-* (not-called f) expectation added (Wilkes Joiner)
-* key&value arguments can be passed to expect(), fake(), and
-  not-called() to override defaults.
-* (fact) and (expect) return boolean variables because
-  that's more informative in REPL.
-* The checker for (f) => (throws Throwable) is supported.
-
-= 0.3.0
-* Works with 1.2-RC1 (Wilkes Joiner)
-
-= 0.2.0
-
-* Can fake functions from other namespaces. (Wilkes Joiner)
