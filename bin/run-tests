@@ -42,9 +42,10 @@ puts "++++++++++++++++++++                                      Lein midje tests
 lein_midje_runs.each do | dir | 
   puts("= " + dir)
   Dir.chdir(dir) do
-    # system("ls lib")
+    # system("ls -R lib")
     lein_clean
-    lein_deps
+    # Evidently, lein deps now tries to fetch even if the file is already present.
+    # lein_deps   
     puts "  lein midje"
     system("lein midje > ~/tmp/lein.out; diff ~/tmp/lein.out lein-expected-output")
   end
