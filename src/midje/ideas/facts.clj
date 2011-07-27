@@ -4,6 +4,7 @@
         [midje.internal-ideas.fakes :only [unfold-fakes]]
 
         [midje.util.laziness :only [eagerly]]
+        [midje.util.namespace :only [namespacey-match]]
         [midje.internal-ideas.expect :only [tack-on__then__at-rightmost-expect-leaf
                                             wrap-with-expect__then__at-rightmost-expect-leaf
                                             expect?]]
@@ -17,7 +18,6 @@
                                               put-wrappers-into-effect
                                               forms-to-wrap-around]]
         [midje.util.debugging :only [nopret]]
-        [midje.semi-sweet :only [is-semi-sweet-keyword?]]
         [midje.ideas.prerequisites :only [is-head-of-form-providing-prerequisites?
                                     expand-prerequisites-into-fake-calls
                                     delete_prerequisite_form__then__at-previous-full-expect-form]]
@@ -46,6 +46,10 @@
       (form-first? form "antiterminologicaldisintactitudinarian-fact")
       (form-first? form "antiterminologicaldisintactitudinarian-facts")))
 
+
+;; Would rather this were elsewhere, but it causes a circular dependency
+(defn is-semi-sweet-keyword? [loc]
+  (namespacey-match '(expect fake) loc))
 
 (defn to-semi-sweet [multi-form]
   (translate multi-form

@@ -12,9 +12,6 @@
 (immigrate 'midje.unprocessed)
 (immigrate 'midje.ideas.arrow-symbols)
 
-(defn is-semi-sweet-keyword? [loc]
-  (namespacey-match '(expect fake) loc))
-
 (defn check-for-arrow [arrow]
   (get {=> :check-match
         =not=> :check-negated-match

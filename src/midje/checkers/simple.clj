@@ -3,8 +3,7 @@
 ;; Note: checkers need to be exported in ../checkers.clj
 
 (ns midje.checkers.simple
-  (:use [midje.checkers :only [defchecker]]
-  	[midje.checkers.defining :only [checker]]
+  (:use [midje.checkers.defining :only [checker defchecker]]
   	[midje.checkers.extended-equality :only [extended-=]]
   	[midje.checkers.util :only [captured-exception? 
   	                            captured-exception-key 
