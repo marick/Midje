@@ -14,7 +14,7 @@
     [midje.ideas.metaconstants :only [metaconstant-for-form
                                       with-fresh-generated-metaconstant-names]]
     [midje.checkers.extended-equality :only [extended-= extended-list-= extended-fn?]]
-    [midje.util.file-position :only [user-file-position]]
+    [midje.internal-ideas.file-position :only [user-file-position]]
     [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
                                                with-pushed-namespace-values]]
     [midje.internal-ideas.file-position :only [arrow-line-number-from-form]]

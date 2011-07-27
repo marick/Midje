@@ -46,7 +46,7 @@
            (clojure.test/report {:type :exceptional-user-error
                                  :macro-form '~&form
                                  :exception-lines '~(user-error-exception-lines ex)
-                                 :position (midje.util.file-position/line-number-known ~(:line (meta &form)))})
+                                 :position (midje.internal-ideas.file-position/line-number-known ~(:line (meta &form)))})
            false)))))
 
 (defmacro facts [& forms]
@@ -59,7 +59,7 @@
                       "")]
     `(clojure.test/report {:type :future-fact
                            :description ~description
-                           :position (midje.util.file-position/line-number-known ~lineno)})))
+                           :position (midje.internal-ideas.file-position/line-number-known ~lineno)})))
 
 (defmacro future-fact [& forms] (future-fact-1 &form))
 (defmacro future-facts [& forms] (future-fact-1 &form))
