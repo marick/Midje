@@ -1,3 +1,7 @@
+Available via [clojars](http://clojars.org/)   
+Current stable version: 1.1.1   
+Development version: 1.2-beta1
+
 About Midje
 =======================
 
