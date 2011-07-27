@@ -34,8 +34,10 @@ end
 
 def install_jars(*dirs)
   dirs.each do | dir | 
-    cp $clojure_jar, File.join(dir, "lib")
-    cp $contrib_jar, File.join(dir, "lib")
+    libdir = File.join(dir, "lib")
+    mkdir(libdir) unless File.exist?(libdir)
+    cp $clojure_jar, libdir
+    cp $contrib_jar, libdir
     devdir = File.join(dir, "lib", "dev")
     mkdir(devdir) unless File.exist?(devdir)
     cp $midje_jar, devdir
