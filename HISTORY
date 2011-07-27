@@ -1,4 +1,4 @@
-= 1.2-alpha5
+= 1.2
 * Lein-midje has been split off into a separate project.
 * defrecord-openly and deftype-openly allows the use of
   `provided` with protocol functions.
