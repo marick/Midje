@@ -2,27 +2,15 @@
 
 (ns midje.semi-sweet
   (:use clojure.test
-        midje.fakes
-        [midje.util debugging form-utils file-position]
+        midje.internal-ideas.fakes
+        midje.internal-ideas.file-position
+        [midje.util debugging form-utils namespace]
         [midje.error-handling monadic semi-sweet-errors]
         [midje.production-mode]
         [clojure.pprint]
         [clojure.contrib.ns-utils :only [immigrate]]))
 (immigrate 'midje.unprocessed)
-
-; So every namespace uses the same qualified name.
-(def => "=>")
-(def =not=> "=not=>")
-(def =deny=> "=deny=>")
-(def =streams=> "=streams=>")
-(def =future=> "=future=>")
-
-(def ^{:doc "Use this when testing Midje code that processes arrow-forms"}
-     =test=> "=test=>")
-
-(def expect-arrows [=> =not=> =deny=> =future=>])
-(def fake-arrows [=> =streams=>])
-(def all-arrows (concat expect-arrows fake-arrows))
+(immigrate 'midje.ideas.arrow-symbols)
 
 (defn check-for-arrow [arrow]
   (get {=> :check-match
@@ -69,7 +57,7 @@
         ;; seem to be '~args. That causes spurious failures. Debug
         ;; someday.
     (make-fake-map var-sym
-                   `{:arg-matchers (map midje.fakes/arg-matcher-maker ~(vec args))
+                   `{:arg-matchers (map midje.internal-ideas.fakes/arg-matcher-maker ~(vec args))
                      :call-text-for-failures (str '~call-form)
                      :result-supplier (make-result-supplier ~arrow ~result)
                      :type :fake}

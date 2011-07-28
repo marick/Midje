@@ -1,11 +1,11 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.error-handling.monadic
-  (:use [clojure.contrib.pprint :only [cl-format]]
-        [clojure.contrib.monads]
-        [clojure.contrib.seq-utils :only [find-first]]
-        [midje.util report file-position form-utils]
-        [clojure.test]))
+  (:use
+    [clojure.algo.monads :only [defmonad domonad with-monad m-lift]]
+    [clojure.contrib.seq :only [find-first]]
+    [clojure.test :only [report]]
+    [midje.internal-ideas.file-position :only [form-position]]))
 
 (defn as-user-error [form]
   (vary-meta form assoc :midje-user-error true))
@@ -27,6 +27,7 @@
 
 (defmacro error-let [let-vector & body]
   `(domonad midje-maybe-m [~@let-vector] ~@body))
+
 (defmacro safely [fn & body]
   `( (with-monad midje-maybe-m (m-lift ~(count body) ~fn))
      ~@body))

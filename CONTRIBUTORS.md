@@ -1,4 +1,5 @@
 * Sean T. Allen
+* Alex Baranosky
 * Phillip Calçado
 * Ben Mabey
 * Brian Marick

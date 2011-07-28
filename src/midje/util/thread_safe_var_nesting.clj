@@ -45,6 +45,9 @@
 (defn set-namespace-value [key-name newval] 
   (alter-meta! *ns* merge {key-name newval}))
 
+(defn destroy-namespace-value [key-name]
+  (alter-meta! *ns* dissoc key-name))
+
 (defn namespace-value [key-name]
   (key-name (meta *ns*)))
 

@@ -3,18 +3,26 @@
 ;; Note: checkers need to be exported in ../checkers.clj
 
 (ns midje.checkers.simple
-  (:use [midje.checkers util extended-equality defining]))
+  (:use [midje.checkers.defining :only [checker defchecker]]
+  	[midje.checkers.extended-equality :only [extended-=]]
+  	[midje.checkers.util :only [captured-exception? 
+  	                            captured-exception-key 
+  	                            named 
+  	                            throwable-with-class?]]
+        [clojure.contrib.math :only [abs]]))
 
 (defchecker truthy 
   "Returns precisely true if actual is not nil and not false."
   [actual] 
   (and (not (captured-exception? actual))
        (not (not actual))))
+(def TRUTHY truthy)
 
 (defchecker falsey 
   "Returns precisely true if actual is nil or false."
   [actual] 
   (not actual))
+(def FALSEY falsey)
 
 (defchecker anything
   "Accepts any value"
@@ -37,7 +45,7 @@
        (and (>= expected (- actual delta))
             (<= expected (+ actual delta)))))
   ([expected]
-     (roughly expected (* 0.001 expected))))
+     (roughly expected (abs (* 0.001 expected)))))
 
 ;;Concerning Throwables
 
@@ -51,4 +59,3 @@
        (and (throwable-with-class? wrapped-throwable expected-exception-class)
             (extended-= (.getMessage (wrapped-throwable captured-exception-key))
                         message)))))
-

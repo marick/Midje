@@ -96,7 +96,7 @@
 ; Metaconstants
 (fact (always-one ...anything...) => 1)
 (fact (g-caller ...something...) => ...g-value...
-  (provided (g-caller ...something...) => ...g-value...))
+  (provided (g ...something...) => ...g-value...))
 
 (fact "key-value pairs can be passed to override normal behavior"
   (always-one 3) => 3 :expected-result 1)
@@ -208,3 +208,73 @@
   (g 1) => "inner"
   (provided
     (scope-to-fact) => "inner"))
+
+
+
+(unfinished called)
+
+(after-silently 
+ (fact
+   (called 1) => 1
+   (provided
+     (called 1) => 1 :times 2))
+ (fact (contains {:type :mock-incorrect-call-count
+                  :actual-count 1})))
+  
+(after-silently
+ (fact
+   (called 1) => 1
+   (provided
+     (called 1) => 1 :times (range 2 8)))
+ (fact (contains {:type :mock-incorrect-call-count
+                  :actual-count 1})))
+ 
+
+(after-silently
+ (fact
+   (do (called 1) (called 1) (called 1)) => 1
+   (provided
+     (called 1) => 1 :times even?))
+ (fact (contains {:type :mock-incorrect-call-count
+                  :actual-count 3})))
+  
+(fact
+  (do (called 1) (called 1)) => 1
+  (provided
+    (called 1) => 1))
+  
+;; Possibly the most common case
+(after-silently
+ (fact
+   (called 45) => 3
+   (provided
+     (called anything) => 1 :times 0))
+ (fact (contains {:type :mock-incorrect-call-count
+                  :actual-count 0})))
+    
+
+;;; return values
+
+(def *fact-retval* (fact
+                     (+ 1 1) => 2
+                     "some random return value"))
+(fact "fact returns true on success"
+   *fact-retval* => true)
+
+
+(def *fact-retval* (fact
+                     (midje.util.report/note-failure-in-fact)
+                     "some random return value"))
+(fact "fact returns false on failure"
+  *fact-retval* => false)
+
+
+(def *fact-retval* (fact
+                      (+ 1 1) => 2
+                      "some random return value"))
+(fact "a fact's return value is not affected by previous failures"
+  *fact-retval* => true)
+
+
+
+

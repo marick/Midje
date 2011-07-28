@@ -3,7 +3,7 @@
 (ns behaviors.t-setup-teardown
   (:use [midje.sweet])
   (:use [midje.test-util])
-  (:use clojure.contrib.pprint)
+  (:use clojure.pprint)
 )
 
 (def test-atom (atom 33))

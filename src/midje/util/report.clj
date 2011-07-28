@@ -8,11 +8,33 @@
 
 (ns midje.util.report
   (:use clojure.test
+        [clojure.contrib.pprint :only [cl-format]]
         [midje.util.form-utils :only [flatten-and-remove-nils]]
         [midje.util.exceptions :only [friendly-exception-text]]
         [midje.checkers.util :only [captured-exception? captured-exception-value]]))
 
 (def *renderer* println)
+
+
+;;; This mechanism is only used to make `fact` return appropriate values of
+;;; true or false. It doesn't piggyback off clojure.test/*report-counters*
+;;; partly because that's not normally initialized and partly to reduce
+;;; dependencies.
+(def *failure-in-fact* false)
+(defn note-failure-in-fact
+  ([] (note-failure-in-fact true))
+  ([val] (alter-var-root #'*failure-in-fact* (constantly val))))
+(defn fact-begins []
+  (note-failure-in-fact false))
+(defn fact-checks-out? [] (not *failure-in-fact*))
+
+
+(defn form-providing-friendly-return-value [test-form]
+  `(do (fact-begins)
+       ~test-form
+       (fact-checks-out?)))
+
+
 
 (defn- midje-position-string [position-pair]
   (format "(%s:%s)" (first position-pair) (second position-pair)))
@@ -32,7 +54,9 @@
           (pr-str form))))
 
 (defn- fail-at [m]
-  (str "\nFAIL at " (midje-position-string (:position m))))
+  [(str "\nFAIL at " (midje-position-string (:position m)))
+   (when (:binding-note m)
+     (str "With table substitutions: " (:binding-note m)))])
 
 (defn- indented [lines]
   (map (fn [line] (str "        " line)) lines))
@@ -48,7 +72,11 @@
 (defmethod report-strings :mock-incorrect-call-count [m]
    (list
     (fail-at m)
-    (str "You claimed the following was needed, but it was never used:")
+    (if (zero? (:actual-count m))
+      "You claimed the following was needed, but it was never used:"
+      (cl-format nil
+                 "The following prerequisite was used ~R time~:P. That's not what you predicted."
+                 (:actual-count m)))
     (str "    " (:expected m))))
 
 (defmethod report-strings :mock-expected-result-failure [m]
@@ -109,7 +137,11 @@
 
 (defmethod clojure.test/old-report :default [m]
    (inc-report-counter :fail)
+   (note-failure-in-fact)
    (render m))
 
 (defmethod clojure.test/old-report :future-fact [m]
    (render m))
+
+
+   

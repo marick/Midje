@@ -2,66 +2,52 @@
 
 (ns midje.sweet
   (:use clojure.test
-        [clojure.contrib.ns-utils :only [immigrate]]
-        [clojure.contrib.pprint :only [pprint]]
-        [clojure.contrib.seq :only [separate]])
+        [clojure.contrib.ns-utils :only [immigrate]])
          
-  (:use [midje production-mode metaconstants]
-        midje.midje-forms.recognizing
-        [midje.midje-forms.translating
-         :only [midjcoexpand put-wrappers-into-effect
-                forms-to-wrap-around translate-fact-body
-                add-line-numbers unfold-prerequisites]]
-        [midje.fakes :only [background-fakes]]
-        [midje.midje-forms.dissecting :only [separate-background-forms]]
-        [midje.util report debugging thread-safe-var-nesting]
-        [midje.util.exceptions :only [user-error-exception-lines]]
-        [midje.util.wrapping :only [multiwrap]]
+  (:use midje.production-mode
+        midje.error-handling.monadic
+        midje.util.debugging
         [midje.util.form-utils :only [reader-line-number]]
-        [midje.util.file-position :only [user-file-position set-fallback-line-number-from]])
-  (:require [midje.midje-forms.building :as building])
+        [midje.util.exceptions :only [user-error-exception-lines]]
+        [midje.internal-ideas.wrapping :only [put-wrappers-into-effect]]
+        [midje.internal-ideas.file-position :only [set-fallback-line-number-from]]
+        [midje.ideas.tabular :only [tabular*]]
+        [midje.ideas.facts :only [midjcoexpand
+                                  expand-and-transform]])
+  (:require [midje.ideas.background :as background])
   (:require midje.checkers)
+  (:require [midje.util.report :as report])
 )
 (immigrate 'midje.unprocessed)
 (immigrate 'midje.semi-sweet)
-(intern *ns* 'before #'building/before)
-(intern *ns* 'after #'building/after)
-(intern *ns* 'around #'building/around)
+(intern *ns* 'before #'background/before)
+(intern *ns* 'after #'background/after)
+(intern *ns* 'around #'background/around)
 
-(defmacro background [& raw-wrappers]
+(defmacro background [& forms]
   (when (user-desires-checking?)
-    (put-wrappers-into-effect raw-wrappers)))
+    (put-wrappers-into-effect (background/background-wrappers forms))))
 
-(defmacro against-background [wrappers & forms]
+(defmacro against-background [background-forms & foreground-forms]
   (if (user-desires-checking?)
-    (midjcoexpand `(against-background ~wrappers ~@forms))
-    `(do ~@forms)))
+    (midjcoexpand `(against-background ~background-forms ~@foreground-forms))
+    `(do ~@foreground-forms)))
     
 (defmacro fact [& forms]
   (when (user-desires-checking?)
     (try
       (set-fallback-line-number-from &form)
-      (let [[background remainder] (separate-background-forms forms)]
-        (if (empty? background)
-          (let [things-to-run (-> remainder
-                                  add-line-numbers
-                                  translate-fact-body
-                                  unfold-prerequisites)
-                fake-enabled `(with-installed-fakes
-                                (background-fakes)
-                                (every? true?
-                                        (list ~@things-to-run)))
-                expansion (midjcoexpand fake-enabled)
-                wrapped-expansion (multiwrap expansion
-                                             (forms-to-wrap-around :facts))]
-            (define-metaconstants things-to-run)
-            wrapped-expansion)
-          `(against-background ~background (midje.sweet/fact ~@remainder))))
+      (let [[background remainder] (background/separate-background-forms forms)]
+        (if (seq background)
+          `(against-background ~background (midje.sweet/fact ~@remainder))        	
+          (expand-and-transform remainder)))
       (catch Exception ex
-        `(clojure.test/report {:type :exceptional-user-error
-                                   :macro-form '~&form
-                                   :exception-lines '~(user-error-exception-lines ex)
-                                   :position (midje.util.file-position/line-number-known ~(:line (meta &form)))})))))
+        `(do
+           (clojure.test/report {:type :exceptional-user-error
+                                 :macro-form '~&form
+                                 :exception-lines '~(user-error-exception-lines ex)
+                                 :position (midje.internal-ideas.file-position/line-number-known ~(:line (meta &form)))})
+           false)))))
 
 (defmacro facts [& forms]
   (with-meta `(fact ~@forms) (meta &form)))
@@ -73,10 +59,8 @@
                       "")]
     `(clojure.test/report {:type :future-fact
                            :description ~description
-                           :position (midje.util.file-position/line-number-known ~lineno)})))
+                           :position (midje.internal-ideas.file-position/line-number-known ~lineno)})))
 
-;; Wanna add more to these? See also midje-forms.recognizing.
-;; Such is the penalty for whimsy.
 (defmacro future-fact [& forms] (future-fact-1 &form))
 (defmacro future-facts [& forms] (future-fact-1 &form))
 (defmacro pending-fact [& forms] (future-fact-1 &form))
@@ -86,4 +70,5 @@
 (defmacro antiterminologicaldisintactitudinarian-fact [& forms] (future-fact-1 &form))
 (defmacro antiterminologicaldisintactitudinarian-facts [& forms] (future-fact-1 &form))
 
-
+(defmacro tabular [& _]
+  (tabular* &form))

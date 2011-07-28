@@ -4,7 +4,7 @@
   
   (:use [midje sweet test-util]
         [midje.error-handling.monadic]
-        [midje.util.file-position :only [form-position]]
+        [midje.internal-ideas.file-position :only [form-position]]
         [clojure.contrib monads]))
 
 (fact "any form can be turned into a user-error form"

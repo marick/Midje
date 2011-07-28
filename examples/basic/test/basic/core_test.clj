@@ -180,26 +180,20 @@
   (subfunction value-to-pass))
 
 (facts "about functions in the argument list of a prerequisite"
+  "Ordinarily, functions in an argument list have to be matched exactly"
+  (function-under-test odd?) => 11
+  (provided (subfunction odd?) => 11)
+  
+  "If you want to use an ordinary function as a checker, wrap it in as-checker."
+  (function-under-test 3) => 11
+  (provided (subfunction (as-checker odd?)) => 11)
+  
   "Predefined checkers can be used unadorned"
   (function-under-test 'blue-cow) => 11
   (provided (subfunction anything) => 11)
 
   (function-under-test 3.00000001) => 11
-  (provided (subfunction (roughly 3.0)) => 11)
-
-  "If you want to use an ordinary function as a checker, wrap it in as-checker."
-  (function-under-test 3) => 11
-  (provided (subfunction (as-checker odd?)) => 11)
-
-  "If you want a functional argument NOT to be run to check for a match,
-   but rather to be matched literally, wrapp it in exactly."
-  (function-under-test odd?) => 11
-  (provided (subfunction (exactly odd?)) => 11)
-
-  "In Midje 1.1, an unwrapped ordinary function is treated as a checker,
-   but you'll get a warning because that behavior will change."
-  (function-under-test 333333) => 11
-  (provided (subfunction odd?) => 11))
+  (provided (subfunction (roughly 3.0)) => 11))
   
 ;; The return values of a prerequisite function don't follow the rules
 ;; for arguments. They're literal constant values.
