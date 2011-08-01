@@ -13,9 +13,11 @@ manual.
 * Rake upload
 * DO NOT CLEAN.
 * bin/gather-downloads
+* Update README.md
 * Commit
 * git tag -a -m "message" v.x.x.x   ;; git push --tags
 * Push to github
 
 * Update example page, if needed.
 * Try out downloads.
+

@@ -69,3 +69,17 @@
  7 )
 
 
+(defn another-fn [arg]
+ (println (str "another-fn being called with " arg))
+ "blah")
+
+(def fn-map
+ {:foo #'another-fn})
+
+(defn some-fn [k arg]
+ ((get fn-map k) arg))
+
+(fact
+  (some-fn :foo 55) => ...something...
+  (provided
+    (another-fn 55) => ...something...))

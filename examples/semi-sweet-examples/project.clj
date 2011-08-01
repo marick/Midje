@@ -2,4 +2,4 @@
   :description "An example of using Midje semi-sweet mocking"
   :dependencies [[org.clojure/clojure "[1.2.0,1.2.1]"]
                  [org.clojure/clojure-contrib "1.2.0"]]
-  :dev-dependencies [[midje "1.2-beta1"]])
+  :dev-dependencies [[midje "1.2.0"]])
