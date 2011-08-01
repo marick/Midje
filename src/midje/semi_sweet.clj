@@ -23,6 +23,9 @@
         =deny=> :expect*
         =future=> :report-future-fact} (name arrow)))
 
+(defn is-semi-sweet-keyword? [loc]
+  (namespacey-match '(expect fake) loc))
+
 (defonce
   #^{:doc "True by default.  If set to false, Midje checks are not
      included into production code, whether compiled or loaded."}

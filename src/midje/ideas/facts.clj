@@ -1,32 +1,27 @@
 (ns midje.ideas.facts
   (:use [midje.util.form-utils :only [form-first? translate preserve-type]]
-        [midje.unprocessed :only [with-installed-fakes]]
+        [midje.semi-sweet :only [is-semi-sweet-keyword?]]
         [midje.internal-ideas.fakes :only [unfold-fakes]]
 
         [midje.util.laziness :only [eagerly]]
         [midje.util.namespace :only [namespacey-match]]
-        [midje.internal-ideas.expect :only [tack-on__then__at-rightmost-expect-leaf
-                                            wrap-with-expect__then__at-rightmost-expect-leaf
-                                            expect?]]
-        [midje.internal-ideas.file-position :only [set-fallback-line-number-from
-                                                   annotate-embedded-arrows-with-line-numbers]]
+        [midje.internal-ideas.expect :only [expect?
+                                            wrap-with-expect__then__at-rightmost-expect-leaf]]
+        [midje.internal-ideas.file-position :only [annotate-embedded-arrows-with-line-numbers]]
         [midje.internal-ideas.wrapping :only [already-wrapped?
                                               multiwrap
-                                              wrappers
                                               with-additional-wrappers
-                                              for-wrapping-target?
-                                              put-wrappers-into-effect
                                               forms-to-wrap-around]]
         [midje.util.debugging :only [nopret]]
         [midje.ideas.prerequisites :only [is-head-of-form-providing-prerequisites?
-                                    expand-prerequisites-into-fake-calls
-                                    delete_prerequisite_form__then__at-previous-full-expect-form]]
+                                          insert-prerequisites-into-expect-form-as-fakes]]
         [midje.ideas.arrows :only [is-start-of-arrow-sequence?]]
         [clojure.contrib.seq :only [separate]]
-        [midje.ideas.background :only [background-fakes
-                                       raw-wrappers
-                                       background-wrappers
-                                       background-form?]]
+        [midje.ideas.background :only [surround-with-background-fakes
+                                       against-background-body
+                                       against-background-contents-wrappers
+                                       against-background-children-wrappers
+                                       against-background?]]
         [midje.ideas.metaconstants :only [define-metaconstants]]
         [midje.util.zip :only [skip-to-rightmost-leaf]])
   (:require [clojure.zip :as zip])
@@ -47,32 +42,29 @@
       (form-first? form "antiterminologicaldisintactitudinarian-facts")))
 
 
-;; Would rather this were elsewhere, but it causes a circular dependency
-(defn is-semi-sweet-keyword? [loc]
-  (namespacey-match '(expect fake) loc))
-
-(defn to-semi-sweet [multi-form]
+(defn to-semi-sweet
+  "Convert sweet keywords into their semi-sweet equivalents.
+   1) Arrow sequences become expect forms.
+   2) (provided ...) become fakes inserted into preceding expect."
+  [multi-form]
   (translate multi-form
     is-start-of-arrow-sequence?
     wrap-with-expect__then__at-rightmost-expect-leaf
     
     is-head-of-form-providing-prerequisites?
-    (fn [loc ] (let [fake-calls (expand-prerequisites-into-fake-calls loc)
-                    full-expect-form (delete_prerequisite_form__then__at-previous-full-expect-form loc)]
-                 (tack-on__then__at-rightmost-expect-leaf fake-calls full-expect-form)))
+    insert-prerequisites-into-expect-form-as-fakes
 
     is-semi-sweet-keyword?
     skip-to-rightmost-leaf))
 
+(defn- expand-against-background [form wrappers]
+  (with-additional-wrappers wrappers
+    (midjcoexpand form)))
 
-(defn interior-forms [form]
-  `(do ~@(rest (rest form))))
-
-
-(defn midjcoexpand [form]
-  ;; (p+ "== midjcoexpanding" form)
-  ;; (p "== with" (wrappers))
-  (nopret (cond (already-wrapped? form)
+(defn midjcoexpand
+  "Descend form, macroexpanding *only* midje forms and placing background wrappers where appropriate."
+  [form]
+  (cond (already-wrapped? form)
         form
 
         (form-first? form "quote")
@@ -81,43 +73,27 @@
         (future-fact? form)
         (macroexpand form)
 
+        (against-background? form)
+        (-> (expand-against-background (against-background-body form)
+                                       (against-background-children-wrappers form))
+            (multiwrap (against-background-contents-wrappers form)))
+        
         (expect? form)
-        (multiwrap form (forms-to-wrap-around :checks))
+        (multiwrap form
+                   (forms-to-wrap-around :checks))
 
         (fact? form)
-        (do
-          (multiwrap (midjcoexpand (macroexpand form))
-                     (forms-to-wrap-around :facts)))
+        (multiwrap (midjcoexpand (macroexpand form))
+                   (forms-to-wrap-around :facts))
 
-        (background-form? form)
-        (do
-          ;; (p+ "use these wrappers" (raw-wrappers form))
-          ;; (p "for this form" (interior-forms form))
-          ;; (p (wrappers))
-          (nopret (let [wrappers (background-wrappers (raw-wrappers form))
-                      [now-wrappers later-wrappers] (separate (for-wrapping-target? :contents)
-                                                              wrappers)]
-            ;; "Now wrappers" have to be separated out and discarded here, because
-            ;; if they were left in, they'd be reapplied in any nested background
-            ;; forms.
-            ;; (p "now-wrappers" now-wrappers)
-            ;; (p "later-wrappers" later-wrappers)
-            (multiwrap (with-additional-wrappers later-wrappers
-                          (midjcoexpand (interior-forms form)))
-                       now-wrappers))))
-        
         (sequential? form)
         (preserve-type form (eagerly (map midjcoexpand form)))
 
         :else
-        form)))
+        form))
 
 
-(defn- surround-with-background-fakes [forms]
-  `(with-installed-fakes (background-fakes)
-     (do ~@forms)))
-
-(defn expand-and-transform [forms]
+(defn complete-fact-transformation [forms]
   (let [form-to-run (-> forms
                         annotate-embedded-arrows-with-line-numbers
                         to-semi-sweet

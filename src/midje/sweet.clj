@@ -13,7 +13,7 @@
         [midje.internal-ideas.file-position :only [set-fallback-line-number-from]]
         [midje.ideas.tabular :only [tabular*]]
         [midje.ideas.facts :only [midjcoexpand
-                                  expand-and-transform]])
+                                  complete-fact-transformation]])
   (:require [midje.ideas.background :as background])
   (:require midje.checkers)
   (:require [midje.util.report :as report])
@@ -40,7 +40,7 @@
       (let [[background remainder] (background/separate-background-forms forms)]
         (if (seq background)
           `(against-background ~background (midje.sweet/fact ~@remainder))        	
-          (expand-and-transform remainder)))
+          (complete-fact-transformation remainder)))
       (catch Exception ex
         `(do
            (clojure.test/report {:type :exceptional-user-error

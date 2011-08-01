@@ -3,6 +3,7 @@
 (ns midje.ideas.background
   (:use
     [clojure.contrib.seq :only [separate]]
+    [midje.unprocessed :only [with-installed-fakes]]
     [midje.util.form-utils :only [form-first? translate symbol-named? separate-by]]
     [midje.ideas.metaconstants :only [define-metaconstants]]
     [midje.ideas.arrows :only [
@@ -15,11 +16,12 @@
                         make-fake
                         fake?]]
     [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out with-pushed-namespace-values]]
-    [midje.internal-ideas.wrapping :only [with-wrapping-target]])
+    [midje.internal-ideas.wrapping :only [with-wrapping-target
+                                          for-wrapping-target?]])
   (:require [midje.util.unify :as unify :only [bindings-map-or-nil ?form]]
             [clojure.zip :as zip]))
 
-(defn background-form? [form] (form-first? form "against-background"))
+(defn against-background? [form] (form-first? form "against-background"))
 
 (defn- ensure-correct-form-variable [form]
   (translate form       
@@ -40,10 +42,8 @@
 ;; dissecting background forms
 
 (defn separate-background-forms [fact-forms]
-  (let [[background-forms other-forms] (separate background-form? fact-forms)]
+  (let [[background-forms other-forms] (separate against-background? fact-forms)]
     [(mapcat rest background-forms) other-forms]))
-
-(defn raw-wrappers [background-form] (second background-form))
 
 (defn setup-teardown-bindings [form]
   (unify/bindings-map-or-nil form
@@ -105,5 +105,26 @@
     (if (empty? fakes)
       state-wrappers
       (concat state-wrappers (background-fake-wrappers fakes)))))
+
+(defn against-background-wrappers [against-background-form]
+  (background-wrappers (second against-background-form)))
+
+(defn against-background-body [form]
+  `(do ~@(rest (rest form))))
+
+(defn against-background-X-wrappers [filter-fun form]
+  (filter-fun (for-wrapping-target? :contents) (against-background-wrappers form)))
+
+(defn against-background-contents-wrappers [form]
+  (against-background-X-wrappers filter form))
+
+(defn against-background-children-wrappers [form]
+  (remove (for-wrapping-target? :contents) (against-background-wrappers form)))
+
+
+(defn surround-with-background-fakes [forms]
+  `(with-installed-fakes (background-fakes)
+     (do ~@forms)))
+
 
 

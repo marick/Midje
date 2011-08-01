@@ -3,7 +3,6 @@
 (ns midje.t-semi-sweet
   (:use [clojure.test]  ;; This is used to check production mode with deftest.
         [midje.sweet]
-        [midje.ideas.facts :only [is-semi-sweet-keyword?]]
         [midje.util form-utils]
         [midje.test-util])
   (:require [clojure.zip :as zip]))
@@ -231,7 +230,6 @@
 
 (declare chatty-prerequisite)
 (defn chatty-fut [x] (chatty-prerequisite x))
-
 (fact "chatty functions can be used for argument matching"
   (expect (chatty-fut 5) => "hello"
           (fake (chatty-prerequisite (actual-plus-one-is-greater-than 5)) => "hello")))
