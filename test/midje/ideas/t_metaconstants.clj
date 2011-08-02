@@ -1,19 +1,33 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.ideas.t-metaconstants
-  (:use [midje.ideas.metaconstants :only [metaconstant? define-metaconstants
+  (:use [midje.ideas.metaconstants :only [metaconstant-symbol? define-metaconstants
                                     with-fresh-generated-metaconstant-names
                                     metaconstant-for-form]])
   (:use midje.sweet)
   (:use midje.test-util)
 )
 
-(fact "metaconstants begin and end with dots"
-  (metaconstant? '...foo...) => truthy
-  (metaconstant? '.foo.) => truthy
-  (metaconstant? 'foo) => falsey
-  (metaconstant? '.foo) => falsey
-  (metaconstant? 'foo.) => falsey)
+(tabular 
+ (fact "metaconstants begin and end with dots"
+   '?candidate ?arrow metaconstant-symbol?)
+ ?candidate   ?arrow
+ ...foo...      => 
+ .foo.          => 
+ foo            =not=>
+ .foo           =not=>
+ foo.           =not=>
+ "foo"          =not=>
+ (..foo..)      =not=>)
+
+
+(unfinished m)
+(defn caller [head tail]
+  (m head tail))
+
+(fact "metaconstants work even when quoted"
+  (caller 'sym ...tail...) => '(sym ...tail...)
+  (provided (m 'sym ...tail...) => '(sym ...tail...)))
 
 (defn claim-symbols [symbols]
   (doseq [metaconstant-symbol symbols]

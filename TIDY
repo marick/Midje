@@ -31,8 +31,6 @@ total 80
 -rw-r--r--  1 marick  marick   251 Jul 26 16:03 arrow_symbols.clj
 -rw-r--r--  1 marick  marick  1744 Jul 26 16:03 arrows.clj
 -rw-r--r--  1 marick  marick  4269 Jul 26 16:03 background.clj
-IN PROGRESS                                                -rw-r--r--  1 marick  marick  5337 Jul 26 17:50 facts.clj
--rw-r--r--  1 marick  marick  1267 Jul 26 16:03 metaconstants.clj
 -rw-r--r--  1 marick  marick  4736 Jul 26 16:03 prerequisites.clj
 -rw-r--r--  1 marick  marick  2468 Jul 26 16:03 tabular.clj
 
