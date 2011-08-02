@@ -32,7 +32,7 @@
     1      falsey
     '()    falsey
     '(f)   truthy
-    ''(f)  truthy
+    ''(f)  falsey
     '[f]   falsey )
   
 

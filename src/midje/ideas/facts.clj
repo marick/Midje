@@ -1,5 +1,5 @@
 (ns midje.ideas.facts
-  (:use [midje.util.form-utils :only [form-first? translate preserve-type]]
+  (:use [midje.util.form-utils :only [form-first? translate preserve-type quoted?]]
         [midje.semi-sweet :only [is-semi-sweet-keyword?]]
         [midje.internal-ideas.fakes :only [unfold-fakes]]
 
@@ -67,7 +67,7 @@
   (cond (already-wrapped? form)
         form
 
-        (form-first? form "quote")
+        (quoted? form)
         form
 
         (future-fact? form)

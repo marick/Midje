@@ -1,9 +1,9 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.util.form-utils
-  (:use
-    [clojure.set :only [difference]]
-    [ordered.map :only [ordered-map]])
+  (:use [midje.util.treelike :only [tree-variant]]
+        [clojure.set :only [difference]]
+        [ordered.map :only [ordered-map]])
   (:require [clojure.zip :as zip]))
 
 (defn regex? [thing]
@@ -23,6 +23,13 @@
   "Is the form's first element a symbol whose name is the desired string?"
   [form desired]
   (and (sequential? form) (symbol-named? (first form) desired)))
+
+
+(defmulti quoted? tree-variant)
+(defmethod quoted? :zipper [loc]
+  (quoted? (zip/node loc)))
+(defmethod quoted? :form [form]
+  (form-first? form "quote"))
 
 (defn preserve-type
   "If the original form was a vector, make the transformed form a vector too."
