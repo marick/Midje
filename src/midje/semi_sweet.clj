@@ -48,23 +48,25 @@
    throw Errors if ever called."
   [& names] (only-mocked* names))
 
+(defn fake* [ [[var-sym & args :as call-form] arrow result & overrides] ]
+  ;; The (vec args) keeps something like (...o...) from being
+  ;; evaluated as a function call later on. Right approach would
+  ;; seem to be '~args. That causes spurious failures. Debug
+  ;; someday.
+  (make-fake-map var-sym
+                 `{:arg-matchers (map midje.internal-ideas.fakes/arg-matcher-maker ~(vec args))
+                   :call-text-for-failures (str '~call-form)
+                   :result-supplier (make-result-supplier ~arrow ~result)
+                   :type :fake}
+                 overrides))
+  
 (defmacro fake 
   "Creates a fake map that a particular call will be made. When it is made,
    the result is to be returned. Either form may contain bound variables. 
    Example: (let [a 5] (fake (f a) => a))"
   [& forms]
-  (error-let [ [call-form arrow result & overrides] (validate &form)
-               [var-sym & args] call-form]
-        ;; The (vec args) keeps something like (...o...) from being
-        ;; evaluated as a function call later on. Right approach would
-        ;; seem to be '~args. That causes spurious failures. Debug
-        ;; someday.
-    (make-fake-map var-sym
-                   `{:arg-matchers (map midje.internal-ideas.fakes/arg-matcher-maker ~(vec args))
-                     :call-text-for-failures (str '~call-form)
-                     :result-supplier (make-result-supplier ~arrow ~result)
-                     :type :fake}
-                   overrides)))
+  (error-let [ rest (validate &form)]
+    (fake* rest)))
 
 (defmacro not-called
   "Creates an fake map that a function will not be called.
