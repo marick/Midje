@@ -1,6 +1,10 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.ideas.metaconstants)
+(ns midje.ideas.metaconstants
+  (:use [midje.util.form-utils :only [quoted? translate form-first?]]
+        [midje.util.zip :only [skip-down-then-rightmost-leaf]])
+  (:require [clojure.zip :as zip]))
+
 
 (defn metaconstant-symbol? [symbol-or-form]
   (and (symbol? symbol-or-form)
@@ -28,3 +32,38 @@
                 function-symbol)]
     (symbol (format "...%s-value-%s..." (name function-symbol) number))))
 
+;; Treating metaconstants as implementing ILookup
+
+(defn meta-get [metaconstant key & rest]
+  (throw (Error. "meta-get has no implementation. It is used to fake lookup on metaconstants.")))
+
+
+(defn key-first-lookup? [loc]
+  (let [tree (zip/node loc)]
+    (and 
+         (>= (count tree) 2)
+         (keyword? (first tree))
+         (metaconstant-symbol? (second tree)))))
+
+(defn key-first-transformation [loc]
+  (let [ [key meta & rest] (zip/node loc)]
+    (zip/replace loc `(meta-get ~meta ~key ~@rest))))
+
+(defn meta-first-lookup? [loc]
+  (let [tree (zip/node loc)]
+    (and 
+         (>= (count tree) 2)
+         (metaconstant-symbol? (first tree)))))
+
+(defn meta-first-transformation [loc]
+  (let [ [key meta & rest] (zip/node loc)]
+    (zip/replace loc `(meta-get ~key ~meta ~@rest))))
+
+  
+
+(defn metaconstant-lookup-transform [forms]
+  (translate forms
+             (complement zip/branch?) identity
+             quoted? skip-down-then-rightmost-leaf
+             key-first-lookup? key-first-transformation
+             meta-first-lookup? meta-first-transformation))

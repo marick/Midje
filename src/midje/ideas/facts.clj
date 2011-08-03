@@ -22,7 +22,8 @@
                                        against-background-contents-wrappers
                                        against-background-children-wrappers
                                        against-background?]]
-        [midje.ideas.metaconstants :only [define-metaconstants]]
+        [midje.ideas.metaconstants :only [define-metaconstants
+                                          metaconstant-lookup-transform]]
         [midje.util.zip :only [skip-to-rightmost-leaf]])
   (:require [clojure.zip :as zip])
   (:require [midje.util.report :as report]))
@@ -96,6 +97,7 @@
 (defn complete-fact-transformation [forms]
   (let [form-to-run (-> forms
                         annotate-embedded-arrows-with-line-numbers
+                        metaconstant-lookup-transform
                         to-semi-sweet
                         unfold-fakes
                         surround-with-background-fakes
