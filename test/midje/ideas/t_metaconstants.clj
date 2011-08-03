@@ -3,7 +3,8 @@
 (ns midje.ideas.t-metaconstants
   (:use midje.ideas.metaconstants
         [midje sweet test-util])
-  (:require [clojure.zip :as zip]))
+  (:require [clojure.zip :as zip])
+  (:import midje.ideas.metaconstants.Metaconstant))
 
 (tabular 
  (fact "metaconstants begin and end with dots"
@@ -16,6 +17,60 @@
  foo.           =not=>
  "foo"          =not=>
  (..foo..)      =not=>)
+
+
+
+(fact "Metaconstants print as their name"
+  (let [mc (Metaconstant. '...name... {})]
+    (str mc) => "...name..."
+    (pr-str mc) => "...name..."))
+
+(fact "Metaconstants are equal if their *names* are equal."
+  (Metaconstant.    '...name... {:key "value"}) 
+  => (Metaconstant. '...name... {:key "not-value"})
+  "And they are equal to symbols with that name"
+  (= (Metaconstant. '...name... {}) '...name...) => truthy
+  (= (Metaconstant. '...name... {}) '...not-name...) => falsey
+  "... which has this implication:"
+  (list 'a (Metaconstant. '...name... {})) => '(a ...name...)
+  '(a ...name...) => (list 'a (Metaconstant. '...name... {})))
+  
+
+(fact "Metaconstants implement ILookup"
+  (let [mc (Metaconstant. 'm {:key "value"})]
+    (:key mc) => "value"
+    (:not-key mc "default") => "default"
+    "And let's allow the other type of map lookup"
+    (mc :key) => "value"
+    (mc :not-key "default") => "default"))
+
+(fact "Metaconstants implement Associative"
+  (let [mc (Metaconstant. 'm {:key "value"})]
+    (contains? mc :key) => truthy
+    (contains? mc :not-key) => falsey
+
+    (find mc :key) => [:key "value"]
+
+    (let [new-mc (assoc mc :new-key "new value")]
+      (type new-mc) => Metaconstant
+      (:new-key new-mc) => "new value"
+      "Note that the new metaconstant is equal to the old!"
+      (= new-mc new-mc))))
+    
+(fact "Associate extends Seqable and IPersistentCollection"
+  (let [mc (Metaconstant. 'm {:key "value"})]
+    (seq mc) => (seq {:key "value"})
+    (count mc) => 1
+    (empty? mc) => falsey
+    (.equiv mc mc) => truthy))
+    
+
+
+  
+
+    
+
+  
 
 
 (unfinished m)
@@ -57,43 +112,4 @@
     "Not fooled by namespaces"
     (metaconstant-for-form '(metaconstant-for-form))
     => '...metaconstant-for-form-value-1...))
-
-
-(defn incer [thing] (inc (:value thing)))
-
-(fact "metaconstants have a function that is used to fake lookup"
-  (+ 1 (midje.ideas.metaconstants/meta-get ...metaconst... :value)) => 2
-  (provided
-    (midje.ideas.metaconstants/meta-get ...metaconst... :value) => 1))
-
-
-(let [key-first-variants (map zip/seq-zip '[(:value ...meta...)
-                                            (:value ...meta... default)
-                                            (:value not-meta)
-                                            (not-key ...meta...)])]
-  (fact 
-    (map key-first-lookup? key-first-variants)
-    => (just [truthy truthy falsey falsey])))
-      
-(let [meta-first-variants (map zip/seq-zip '[(...meta... anything)
-                                             (not-meta anything)
-                                             (...meta... anything default)])]
-  (fact
-    (map meta-first-lookup? meta-first-variants)
-    => (just [truthy falsey truthy])))
-      
-
-(fact
-  (metaconstant-lookup-transform '(f (...mc... :value)))
-  => '(f (midje.ideas.metaconstants/meta-get ...mc... :value))
-
-  (metaconstant-lookup-transform '(f (...mc... :value :default)))
-  => '(f (midje.ideas.metaconstants/meta-get ...mc... :value :default))
-
-  (metaconstant-lookup-transform '(f (:value ...mc...)))
-  => '(f (midje.ideas.metaconstants/meta-get ...mc... :value))
-  (metaconstant-lookup-transform '(f (:value ...mc... 1)))
-  => '(f (midje.ideas.metaconstants/meta-get ...mc... :value 1)))
-
-
 

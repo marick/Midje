@@ -10,10 +10,58 @@
   (and (symbol? symbol-or-form)
        (re-matches #"^\.+.+\.+" (name symbol-or-form))))
 
+(deftype Metaconstant [name storage]
+  Object
+  (toString [this]
+            (.toString (.name this)))
+  (equals [this that]
+         (if (instance? (class this) that)
+           (= (.name this) (.name that))
+           (= (.name this) that)))
+
+  clojure.lang.ILookup
+  (valAt [this key]
+         (get storage key))
+  (valAt [this key default]
+         (get storage key default))
+
+  clojure.lang.IFn
+  (invoke [this key]
+          (get storage key))
+  (invoke [this key default]
+          (get storage key default))
+
+  clojure.lang.Associative
+  (containsKey [this key]
+               (.containsKey storage key))
+  (entryAt [this key]
+           (find storage key))
+  (assoc [this key val]
+         (Metaconstant. (.name this) (assoc storage key val)))
+
+  ;; Next two interfaces are extended by Associative.
+  ;; Defining even the ones I don't think are used
+  clojure.lang.Seqable
+  (seq [this] (seq storage))
+
+  clojure.lang.IPersistentCollection
+  (count [this]
+         (count storage))
+  (cons [this o]
+        (Metaconstant. (.name this) (cons storage o)))
+  (empty [this]
+         (empty? storage))
+  (equiv [this that]
+         (.equals this that)))
+
+(defmethod print-method Metaconstant [o ^Writer w]
+  (print-method (.name o) w))
+
+
 (defn define-metaconstants [form]
   (let [metaconstants (filter metaconstant-symbol? (tree-seq coll? seq form))]
     (doseq [metaconstant metaconstants]
-      (intern *ns* metaconstant (symbol metaconstant)))
+      (intern *ns* metaconstant (Metaconstant. metaconstant {})))
     metaconstants))
 
 (def *metaconstant-counts*)
@@ -32,38 +80,3 @@
                 function-symbol)]
     (symbol (format "...%s-value-%s..." (name function-symbol) number))))
 
-;; Treating metaconstants as implementing ILookup
-
-(defn meta-get [metaconstant key & rest]
-  (throw (Error. "meta-get has no implementation. It is used to fake lookup on metaconstants.")))
-
-
-(defn key-first-lookup? [loc]
-  (let [tree (zip/node loc)]
-    (and 
-         (>= (count tree) 2)
-         (keyword? (first tree))
-         (metaconstant-symbol? (second tree)))))
-
-(defn key-first-transformation [loc]
-  (let [ [key meta & rest] (zip/node loc)]
-    (zip/replace loc `(meta-get ~meta ~key ~@rest))))
-
-(defn meta-first-lookup? [loc]
-  (let [tree (zip/node loc)]
-    (and 
-         (>= (count tree) 2)
-         (metaconstant-symbol? (first tree)))))
-
-(defn meta-first-transformation [loc]
-  (let [ [key meta & rest] (zip/node loc)]
-    (zip/replace loc `(meta-get ~key ~meta ~@rest))))
-
-  
-
-(defn metaconstant-lookup-transform [forms]
-  (translate forms
-             (complement zip/branch?) identity
-             quoted? skip-down-then-rightmost-leaf
-             key-first-lookup? key-first-transformation
-             meta-first-lookup? meta-first-transformation))
