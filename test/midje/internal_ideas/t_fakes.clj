@@ -107,11 +107,6 @@
   (provided
     (called-because-mock-checking-requires-it) => 33))
   
-(fact "make-fake's result has the line number of the arrow form"
-  (let [args `( ~(at-line 789 '(f 1)) => 3)]
-    (:line (meta (make-fake args))) => 789))
-
-     
 (facts "about result suppliers used"
   "returns identity for =>"
   (let [arrow "=>"]

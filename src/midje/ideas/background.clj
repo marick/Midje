@@ -5,12 +5,12 @@
     [clojure.contrib.seq :only [separate]]
     [midje.util.form-utils :only [form-first? translate symbol-named? separate-by]]
     [midje.ideas.metaconstants :only [define-metaconstants]]
+    [midje.ideas.prerequisites :only [prerequisite-to-fake]]
     [midje.ideas.arrows :only [is-start-of-arrow-sequence?
                                take-arrow-sequence]]
     [midje.util.laziness :only [eagerly]]
     [midje.internal-ideas.fakes :only [with-installed-fakes
                                        tag-as-background-fake
-                                       make-fake
                                        fake?]]
     [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out with-pushed-namespace-values]]
     [midje.internal-ideas.wrapping :only [with-wrapping-target
@@ -73,7 +73,7 @@
 
           (is-start-of-arrow-sequence? in-progress)
           (let [content (take-arrow-sequence in-progress)]
-            (recur (conj expanded (-> content make-fake tag-as-background-fake))
+            (recur (conj expanded (-> content prerequisite-to-fake tag-as-background-fake))
                    (nthnext in-progress (count content))))
 
           (seq-headed-by-setup-teardown-form? in-progress)

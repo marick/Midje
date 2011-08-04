@@ -18,17 +18,21 @@
     [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
                                                with-pushed-namespace-values
                                                with-altered-roots]]
-    [midje.internal-ideas.file-position :only [arrow-line-number-from-form]]
     [midje.internal-ideas.wrapping :only [with-wrapping-target]]
     [midje.ideas.arrow-symbols])
   (:require [clojure.zip :as zip]))
 
+;;; Questions to ask of fakes // accessors
+
+(defn implements-a-fake? [function] (:midje/faked-function (meta function)))
+(defn fake? [form] (form-first? form "fake"))
+(defn fake-form-funcall [[fake funcall => value & overrides]] funcall)
+(defn fake-form-funcall-arglist [fake-form] (rest (fake-form-funcall fake-form)))
+
+;;; Creation
 
 (defn fn-that-implements-a-fake [function]
   (vary-meta function assoc :midje/faked-function true))
-
-(defn implements-a-fake? [function]
-  (:midje/faked-function (meta function)))
 
 (defn common-to-all-fakes [var-sym] 
   `{:function (var ~var-sym)
@@ -42,8 +46,41 @@
    special-to-fake-type
    (apply hash-map-duplicates-ok user-override-pairs)))
 
-(defn unique-function-vars [fakes]
-  (distinct (map #(:function %) fakes)))
+(defn arg-matcher-maker 
+  "Based on an expected value, generates a function that returns true if the 
+   actual value matches it."
+  [expected]
+  (if (and (extended-fn? expected)
+           (not (checker? expected)))
+    (fn [actual] (extended-= actual (exactly expected)))
+    (fn [actual] (extended-= actual expected))))
+
+(defmulti make-result-supplier (fn [arrow & _]  arrow))
+
+(defmethod make-result-supplier => [arrow result] #(identity result))
+
+(defmethod make-result-supplier =streams=> [arrow result-stream]
+           (let [current-stream (atom result-stream)]
+             #(let [current-result (first @current-stream)]
+                (swap! current-stream rest)
+                current-result)))
+
+(defn fake* [ [[var-sym & args :as call-form] arrow result & overrides] ]
+  ;; The (vec args) keeps something like (...o...) from being
+  ;; evaluated as a function call later on. Right approach would
+  ;; seem to be '~args. That causes spurious failures. Debug
+  ;; someday.
+  (make-fake-map var-sym
+                 `{:arg-matchers (map midje.internal-ideas.fakes/arg-matcher-maker ~(vec args))
+                   :call-text-for-failures (str '~call-form)
+                   :result-supplier (make-result-supplier ~arrow ~result)
+                   :type :fake}
+                 overrides))
+
+(defn tag-as-background-fake [fake]
+  (concat fake '(:type :background)))
+
+;;; Binding
 
 (defmulti matches-call? (fn [fake faked-function args]
                           (:type fake)))
@@ -75,6 +112,10 @@
         ((found :result-supplier)))))
   )
 
+
+(defn unique-function-vars [fakes]
+  (distinct (map #(:function %) fakes)))
+
 (defn binding-map [fakes]
   (reduce (fn [accumulator function-var] 
             (let [faker (fn [& actual-args] (call-faker function-var actual-args fakes))
@@ -82,6 +123,8 @@
                 (assoc accumulator function-var tagged-faker)))
           {}
           (unique-function-vars fakes)))
+
+;;; Checking
 
 (defn fake-count [fake] (deref (:count-atom fake)))
 
@@ -119,59 +162,6 @@
                :expected-call (fake :call-text-for-failures)
                :position (:position fake)
                :expected (fake :call-text-for-failures)}))))
-
-(defn arg-matcher-maker 
-  "Based on an expected value, generates a function that returns true if the 
-   actual value matches it."
-  [expected]
-  (if (and (extended-fn? expected)
-           (not (checker? expected)))
-    (fn [actual] (extended-= actual (exactly expected)))
-    (fn [actual] (extended-= actual expected))))
-
-;;
-
-(defmulti make-result-supplier (fn [arrow & _]  arrow))
-
-(defmethod make-result-supplier => [arrow result] #(identity result))
-
-(defmethod make-result-supplier =streams=> [arrow result-stream]
-           (let [current-stream (atom result-stream)]
-             #(let [current-result (first @current-stream)]
-                (swap! current-stream rest)
-                current-result)))
-
-(defn fake* [ [[var-sym & args :as call-form] arrow result & overrides] ]
-  ;; The (vec args) keeps something like (...o...) from being
-  ;; evaluated as a function call later on. Right approach would
-  ;; seem to be '~args. That causes spurious failures. Debug
-  ;; someday.
-  (make-fake-map var-sym
-                 `{:arg-matchers (map midje.internal-ideas.fakes/arg-matcher-maker ~(vec args))
-                   :call-text-for-failures (str '~call-form)
-                   :result-supplier (make-result-supplier ~arrow ~result)
-                   :type :fake}
-                 overrides))
-  
-
-
-
-(defn make-fake [fake-body]
-  (let [line-number (arrow-line-number-from-form fake-body)]
-    (vary-meta
-     `(midje.semi-sweet/fake ~@fake-body)
-     assoc :line line-number)))
-
-(defn tag-as-background-fake [fake]
-  (concat fake '(:type :background)))
-
-(defn fake? [form] (form-first? form "fake"))
-
-(defn fake-form-funcall [fake-form]
-  (second fake-form))
-
-(defn fake-form-funcall-arglist [fake-form]
-  (rest (fake-form-funcall fake-form)))
 
 (defmacro with-installed-fakes [fakes & forms]
   `(with-altered-roots (binding-map ~fakes) ~@forms))
