@@ -11,13 +11,6 @@
 (immigrate 'midje.checkers)
 
 
-;; TODO: I'm not wild about signalling failure in two ways: by report() and by
-;; return value. Fix this when (a) we move away from clojure.test.report and
-;; (b) we figure out how to make fact() some meaningful unit of reporting.
-;;
-;; Later note: this doesn't actually work well anyway when facts are nested within
-;; larger structures. Probably fact should return true/false based on interior failure
-;; counts.
 (defmulti check-result (fn [actual call]
                          (:desired-check call)))
 
