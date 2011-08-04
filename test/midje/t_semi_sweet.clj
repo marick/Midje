@@ -274,19 +274,6 @@
   (load "semi_sweet_compile_out"))
 
 
-(facts "about result suppliers used"
-       (fact "returns identity for =>"
-            ;TODO: i think the dsl is matching "=>" as plain =>
-             (let [arrow "=>"]
-               ((make-result-supplier arrow [1 2 3])) => [1 2 3]))
-             
-       (fact "returns stream for =streams=>"
-             (let [supplier (make-result-supplier "=streams=>" [1 2 3])]
-               (supplier) => 1
-               (supplier) => 2
-               (supplier) => 3)))
-                    
-
 (facts "about =future=>"
   (after-silently 
    (expect (+ 1 "3") =future=> 3)

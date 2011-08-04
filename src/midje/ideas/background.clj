@@ -3,18 +3,15 @@
 (ns midje.ideas.background
   (:use
     [clojure.contrib.seq :only [separate]]
-    [midje.unprocessed :only [with-installed-fakes]]
     [midje.util.form-utils :only [form-first? translate symbol-named? separate-by]]
     [midje.ideas.metaconstants :only [define-metaconstants]]
-    [midje.ideas.arrows :only [
-                         is-start-of-arrow-sequence?
-                         take-arrow-sequence
-                         ]]
+    [midje.ideas.arrows :only [is-start-of-arrow-sequence?
+                               take-arrow-sequence]]
     [midje.util.laziness :only [eagerly]]
-    [midje.internal-ideas.fakes :only [
-                        tag-as-background-fake
-                        make-fake
-                        fake?]]
+    [midje.internal-ideas.fakes :only [with-installed-fakes
+                                       tag-as-background-fake
+                                       make-fake
+                                       fake?]]
     [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out with-pushed-namespace-values]]
     [midje.internal-ideas.wrapping :only [with-wrapping-target
                                           for-wrapping-target?]])

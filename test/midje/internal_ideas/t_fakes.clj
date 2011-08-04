@@ -112,6 +112,18 @@
     (:line (meta (make-fake args))) => 789))
 
      
+(facts "about result suppliers used"
+  "returns identity for =>"
+  (let [arrow "=>"]
+    ((make-result-supplier arrow [1 2 3])) => [1 2 3])
+             
+  "returns stream for =streams=>"
+  (let [supplier (make-result-supplier "=streams=>" [1 2 3])]
+    (supplier) => 1
+    (supplier) => 2
+    (supplier) => 3))
+                    
+
 
 
 ;; Folded fakes

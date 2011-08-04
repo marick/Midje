@@ -16,10 +16,13 @@
     [midje.checkers.extended-equality :only [extended-= extended-list-= extended-fn?]]
     [midje.internal-ideas.file-position :only [user-file-position]]
     [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
-                                               with-pushed-namespace-values]]
+                                               with-pushed-namespace-values
+                                               with-altered-roots]]
     [midje.internal-ideas.file-position :only [arrow-line-number-from-form]]
-    [midje.internal-ideas.wrapping :only [with-wrapping-target]])
+    [midje.internal-ideas.wrapping :only [with-wrapping-target]]
+    [midje.ideas.arrow-symbols])
   (:require [clojure.zip :as zip]))
+
 
 (defn fn-that-implements-a-fake [function]
   (vary-meta function assoc :midje/faked-function true))
@@ -128,6 +131,31 @@
 
 ;;
 
+(defmulti make-result-supplier (fn [arrow & _]  arrow))
+
+(defmethod make-result-supplier => [arrow result] #(identity result))
+
+(defmethod make-result-supplier =streams=> [arrow result-stream]
+           (let [current-stream (atom result-stream)]
+             #(let [current-result (first @current-stream)]
+                (swap! current-stream rest)
+                current-result)))
+
+(defn fake* [ [[var-sym & args :as call-form] arrow result & overrides] ]
+  ;; The (vec args) keeps something like (...o...) from being
+  ;; evaluated as a function call later on. Right approach would
+  ;; seem to be '~args. That causes spurious failures. Debug
+  ;; someday.
+  (make-fake-map var-sym
+                 `{:arg-matchers (map midje.internal-ideas.fakes/arg-matcher-maker ~(vec args))
+                   :call-text-for-failures (str '~call-form)
+                   :result-supplier (make-result-supplier ~arrow ~result)
+                   :type :fake}
+                 overrides))
+  
+
+
+
 (defn make-fake [fake-body]
   (let [line-number (arrow-line-number-from-form fake-body)]
     (vary-meta
@@ -145,14 +173,11 @@
 (defn fake-form-funcall-arglist [fake-form]
   (rest (fake-form-funcall fake-form)))
 
+(defmacro with-installed-fakes [fakes & forms]
+  `(with-altered-roots (binding-map ~fakes) ~@forms))
 
 
 
-;; This walks through a `pending` list that may contain fakes. Each element is
-;; copied to the `finished` list. If it is a suitable fake, its nested 
-;; are flattened (replaced with a metaconstant). If the metaconstant was newly
-;; generated, the fake that describes it is added to the pending list. In that way,
-;; it'll in turn be processed. This allows arbitrarily deep nesting.
 
 ;; Folded prerequisites
 
@@ -209,6 +234,12 @@
   (map (fn [ [funcall metaconstant] ]
          `(midje.semi-sweet/fake ~funcall midje.semi-sweet/=> ~metaconstant ~@overrides))
        substitutions))
+
+;; This walks through a `pending` list that may contain fakes. Each element is
+;; copied to the `finished` list. If it is a suitable fake, its nested 
+;; are flattened (replaced with a metaconstant). If the metaconstant was newly
+;; generated, the fake that describes it is added to the pending list. In that way,
+;; it'll in turn be processed. This allows arbitrarily deep nesting.
 
 (defn unfolding-step [finished pending substitutions]
   (let [target (first pending)]

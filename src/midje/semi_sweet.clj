@@ -48,18 +48,6 @@
    throw Errors if ever called."
   [& names] (only-mocked* names))
 
-(defn fake* [ [[var-sym & args :as call-form] arrow result & overrides] ]
-  ;; The (vec args) keeps something like (...o...) from being
-  ;; evaluated as a function call later on. Right approach would
-  ;; seem to be '~args. That causes spurious failures. Debug
-  ;; someday.
-  (make-fake-map var-sym
-                 `{:arg-matchers (map midje.internal-ideas.fakes/arg-matcher-maker ~(vec args))
-                   :call-text-for-failures (str '~call-form)
-                   :result-supplier (make-result-supplier ~arrow ~result)
-                   :type :fake}
-                 overrides))
-  
 (defmacro fake 
   "Creates a fake map that a particular call will be made. When it is made,
    the result is to be returned. Either form may contain bound variables. 
@@ -135,14 +123,4 @@
       (let [ [fakes overrides] (fakes-and-overrides other-stuff)]
         (error-let [_ (spread-error (map validate fakes))]
           (expect-expansion call-form arrow expected-result fakes overrides))))))
-
-(defmulti make-result-supplier (fn [arrow & _]  arrow))
-
-(defmethod make-result-supplier => [arrow result] #(identity result))
-
-(defmethod make-result-supplier =streams=> [arrow result-stream]
-           (let [current-stream (atom result-stream)]
-             #(let [current-result (first @current-stream)]
-                (swap! current-stream rest)
-                current-result)))
 

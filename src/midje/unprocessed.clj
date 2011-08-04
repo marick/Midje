@@ -3,7 +3,7 @@
 (ns midje.unprocessed
   (:use clojure.test
         [midje.internal-ideas.fakes]
-        [midje.util laziness report thread-safe-var-nesting]
+        [midje.util laziness report]
         [midje.checkers.extended-equality :only [extended-=]]
         [midje.checkers.chatty :only [chatty-checker?]]
         [midje.checkers.util]
@@ -70,9 +70,6 @@
   `(try ~form
         (catch Throwable e#
           (captured-exception e#))))
-
-(defmacro with-installed-fakes [fakes & forms]
-  `(with-altered-roots (binding-map ~fakes) ~@forms))
 
 (defn expect* [call-map local-fakes]
   "The core function in unprocessed Midje. Takes a map describing a
