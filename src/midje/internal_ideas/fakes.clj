@@ -21,10 +21,10 @@
     [midje.internal-ideas.wrapping :only [with-wrapping-target]])
   (:require [clojure.zip :as zip]))
 
-(defn tag-function-as-fake [function]
+(defn fn-that-implements-a-fake [function]
   (vary-meta function assoc :midje/faked-function true))
 
-(defn function-tagged-as-fake? [function]
+(defn implements-a-fake? [function]
   (:midje/faked-function (meta function)))
 
 (defn common-to-all-fakes [var-sym] 
@@ -75,7 +75,7 @@
 (defn binding-map [fakes]
   (reduce (fn [accumulator function-var] 
             (let [faker (fn [& actual-args] (call-faker function-var actual-args fakes))
-                  tagged-faker (tag-function-as-fake faker)]
+                  tagged-faker (fn-that-implements-a-fake faker)]
                 (assoc accumulator function-var tagged-faker)))
           {}
           (unique-function-vars fakes)))

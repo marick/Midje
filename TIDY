@@ -5,7 +5,6 @@ drwxr-xr-x   4 marick  marick   136 Jul 26 16:03 error_handling/
 drwxr-xr-x   9 marick  marick   306 Jul 26 17:50 ideas/
 -rw-r--r--   1 marick  marick   435 Jul 26 16:03 inner_functions.clj
 drwxr-xr-x   6 marick  marick   204 Jul 26 17:44 internal_ideas/
--rw-r--r--   1 marick  marick   872 Jul 26 16:03 open_protocols.clj
 -rw-r--r--   1 marick  marick   458 Jun 27 16:44 production_mode.clj
 -rw-r--r--   1 marick  marick  5878 Jul 26 16:03 semi_sweet.clj
 -rw-r--r--   1 marick  marick  3823 Jul 26 16:03 unprocessed.clj
