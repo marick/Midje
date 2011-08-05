@@ -101,7 +101,7 @@
   (let [failure-map {:type :mock-argument-match-failure
                      :actual '(nil)
                      :position ["foo.clj" 3]
-                     :function odd?}
+                     :lhs odd?}
         raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
     (nth raw-report 0) => #"FAIL at .*foo.clj:3"
     (nth raw-report 1) => #"never said odd\? would be needed"

@@ -2,7 +2,7 @@
 
 (ns midje.internal-ideas.fakes
   (:use
-    [clojure.contrib.seq :only [find-first]]
+    [clojure.contrib.seq :only [find-first separate]]
     [clojure.test :only [report]]
     [midje.checkers :only [exactly]]
     [midje.checkers.defining :only [checker? checker-makers]]
@@ -35,7 +35,7 @@
   (vary-meta function assoc :midje/faked-function true))
 
 (defn common-to-all-fakes [var-sym] 
-  `{:function (var ~var-sym)
+  `{:lhs (var ~var-sym)
     :count-atom (atom 0)
     :position (user-file-position)})
 
@@ -65,6 +65,9 @@
                 (swap! current-stream rest)
                 current-result)))
 
+(defmethod make-result-supplier :default [arrow result-stream]
+  (throw (Error. (str "It's likely you misparenthesized your metaconstant prerequisite."))))
+
 (defn fake* [ [[var-sym & args :as call-form] arrow result & overrides] ]
   ;; The (vec args) keeps something like (...o...) from being
   ;; evaluated as a function call later on. Right approach would
@@ -77,6 +80,15 @@
                    :type :fake}
                  overrides))
 
+(println "==== fakes.clj FIX background to not be a type and :type of data-fake to be data-fake")
+(defn data-fake* [ [metaconstant arrow contained & overrides] ]
+  (make-fake-map metaconstant
+                 `{:contained ~contained
+                  :count-atom (atom 1)  ;; CLUDKJE!
+                  :type :fake
+                  :data-fake true}
+                 overrides))
+
 (defn tag-as-background-fake [fake]
   (concat fake '(:type :background)))
 
@@ -87,11 +99,11 @@
 
 (defmethod matches-call? :not-called
   [fake faked-function args]
-  (= faked-function (fake :function)))
+  (= faked-function (fake :lhs)))
 
 (defmethod matches-call? :default
   [fake faked-function args]
-  (and (= faked-function (fake :function))
+  (and (= faked-function (fake :lhs))
        (= (count args) (count (fake :arg-matchers)))
        (extended-list-= args (fake :arg-matchers))))
 
@@ -104,7 +116,7 @@
     (if-not found 
       (do 
         (clojure.test/report {:type :mock-argument-match-failure
-                 :function faked-function
+                 :lhs faked-function
                  :actual args
                  :position (:position (first fakes))}))
       (do 
@@ -113,16 +125,30 @@
   )
 
 
-(defn unique-function-vars [fakes]
-  (distinct (map #(:function %) fakes)))
+(defn unique-vars [fakes]
+  (distinct (map :lhs fakes)))
+
+
+(defn binding-map-with-function-fakes [fakes]
+  (reduce (fn [accumulator var] 
+            (let [faker (fn [& actual-args] (call-faker var actual-args fakes))
+                  tagged-faker (fn-that-implements-a-fake faker)]
+                (assoc accumulator var tagged-faker)))
+          {}
+          (unique-vars fakes)))
+
+(defn binding-map-with-data-fakes [fakes]
+  (let [expanded (map (fn [fake] {(:lhs fake) (:contained fake)}) fakes)]
+    (apply merge-with merge expanded)))
 
 (defn binding-map [fakes]
-  (reduce (fn [accumulator function-var] 
-            (let [faker (fn [& actual-args] (call-faker function-var actual-args fakes))
-                  tagged-faker (fn-that-implements-a-fake faker)]
-                (assoc accumulator function-var tagged-faker)))
-          {}
-          (unique-function-vars fakes)))
+  (let [[data-fakes function-fakes] (separate :data-fake fakes)]
+    (merge (binding-map-with-function-fakes function-fakes)
+           (binding-map-with-data-fakes data-fakes)
+           )))
+
+(defmacro with-installed-fakes [fakes & forms]
+  `(with-altered-roots (binding-map ~fakes) ~@forms))
 
 ;;; Checking
 
@@ -162,10 +188,6 @@
                :expected-call (fake :call-text-for-failures)
                :position (:position fake)
                :expected (fake :call-text-for-failures)}))))
-
-(defmacro with-installed-fakes [fakes & forms]
-  `(with-altered-roots (binding-map ~fakes) ~@forms))
-
 
 
 

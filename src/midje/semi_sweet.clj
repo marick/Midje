@@ -24,7 +24,7 @@
         =future=> :report-future-fact} (name arrow)))
 
 (defn is-semi-sweet-keyword? [loc]
-  (namespacey-match '(expect fake) loc))
+  (namespacey-match '(expect fake not-called data-fake) loc))
 
 (defonce
   #^{:doc "True by default.  If set to false, Midje checks are not
@@ -56,6 +56,12 @@
   (error-let [ rest (validate &form)]
     (fake* rest)))
 
+(defmacro data-fake
+  "Creates a fake map that's used to associate key/value pairs with a metaconstant"
+  [& forms]
+  (error-let [ rest (validate &form)]
+    (data-fake* rest)))
+
 (defmacro not-called
   "Creates an fake map that a function will not be called.
    Example: (not-called f))"
@@ -75,8 +81,7 @@
 ;; but those fail for reasons I don't understand. Bah.
 (defn- fakes-and-overrides [form]
   (let [fake? #(and (seq? %)
-                    (or (= "fake" (name (first %)))
-                        (= "not-called" (name (first %)))))]
+                    (is-semi-sweet-keyword? (first %)))]
     (separate-by fake? form)))
         
 
@@ -97,7 +102,7 @@
     (handling-of-expect-form arrow)))
 
 (defmethod expect-expansion :expect*
-   [call-form arrow expected-result fakes overrides]
+  [call-form arrow expected-result fakes overrides]
   `(let [call# (call-being-tested ~call-form ~arrow ~expected-result ~overrides)]
      (expect* call# (vector ~@fakes))))
 

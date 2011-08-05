@@ -39,12 +39,13 @@
     transformed-form))
 
 (defn separate-by
-  "Like clojure.core/separate, but not lazy, returns nil for empy list."
+  "Like clojure.core/separate, but not lazy, returns nil for empty list."
   ;; TODO: One of those two differences is the difference between
   ;; a blowup in PersistentArrayMap and no blowup. Should investigate.
   [predicate forms]
-  (let [group (group-by predicate forms)]
-    [ (group true) (group false) ]))
+  (let [ensure-truthful (comp not not predicate)]
+    (let [group (group-by ensure-truthful forms)]
+      [ (group true) (group false) ])))
 
 (defn reader-line-number 
   "Find what line number the reader put on the given form or on

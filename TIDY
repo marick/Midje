@@ -35,7 +35,6 @@ total 80
 src/midje/internal_ideas:
 total 40
 -rw-r--r--  1 marick  marick  2022 Jul 26 16:03 expect.clj
--rw-r--r--  1 marick  marick  4456 Jul 26 16:03 fakes.clj
 -rw-r--r--  1 marick  marick  3233 Jul 26 16:03 file_position.clj
 -rw-r--r--  1 marick  marick  1733 Jul 26 17:04 wrapping.clj
 

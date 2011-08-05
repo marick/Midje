@@ -37,7 +37,13 @@
                  '[:key 'value] ])
 
   (let [actual (fakes-and-overrides '())]
-    actual => (just empty? empty?)))
+    actual => (just empty? empty?))
+
+  "data fakes too"
+  (let [actual (fakes-and-overrides '((data-fake ..m.. =contains=> {:a 1}) :key 'value))]
+    actual => [  '[(data-fake ..m.. =contains=> {:a 1})]
+                 '[:key 'value] ]))
+
 
 (fact "calling a faked function raises an error"
   (faked-function) => (throws Error))
@@ -51,7 +57,7 @@
         fake-streamed (fake (faked-function 0) =streams=> ['r1 'r2])]
 
     "The basic parts"
-    (:function fake-0) => #'midje.t-semi-sweet/faked-function
+    (:lhs fake-0) => #'midje.t-semi-sweet/faked-function
     (:call-text-for-failures fake-1) => "(faked-function some-variable)"
     (deref (:count-atom fake-0)) => 0
 
@@ -85,7 +91,7 @@
 (facts "about not-called"
   (let [fake-0 (not-called faked-function)]
 
-    (:function fake-0) => #'midje.t-semi-sweet/faked-function
+    (:lhs fake-0) => #'midje.t-semi-sweet/faked-function
     (:call-text-for-failures fake-0) => "faked-function was called."
     @(:count-atom fake-0) => 0
     (:arg-matchers fake-0) => nil?
@@ -281,8 +287,10 @@
                                    :description "(+ 1 \"3\") " }))))
 
 
-(fact "can identify semi-sweet keywords (currently 'expect' and 'fake')"
-  (doseq [skippable '(expect fake midje.semi-sweet/expect midje.semi-sweet/fake)]
+(fact "can identify semi-sweet keywords"
+  (doseq [skippable '(expect midje.semi-sweet/expect
+                             fake midje.semi-sweet/fake
+                             data-fake midje.semi-sweet/data-fake)]
     (let [z (zip/seq-zip `(111 (~skippable 1 2 '(3)) "next"))
           skippable (-> z zip/down zip/next zip/down)]
       skippable => is-semi-sweet-keyword?)))

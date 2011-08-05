@@ -66,7 +66,7 @@
 (defmethod report-strings :mock-argument-match-failure [m]
    (list
     (fail-at m)
-    (str "You never said " (:name (meta (:function m))) " would be needed with these arguments:")
+    (str "You never said " (:name (meta (:lhs m))) " would be needed with these arguments:")
     (str "    " (pr-str (:actual m)))))
 
 (defmethod report-strings :mock-incorrect-call-count [m]

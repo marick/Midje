@@ -112,7 +112,7 @@
        (name (favorite-animal)) => "betsy"))
    (fact
      @reported => (just [ (contains {:type :mock-argument-match-failure
-				     :function #'clojure.core/name
+				     :lhs #'clojure.core/name
 				     :position ["t_line_number_reporting.clj" (+ line-number 5)]
 				     :actual '("fred")})
 			  (contains {:type :mock-incorrect-call-count

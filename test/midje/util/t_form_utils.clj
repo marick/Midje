@@ -72,3 +72,8 @@
      [string? keyword?]  keyword? 
      []                  nil       
      [keyword? odd?]     keyword? ) ;; shortcircuits when it reaches a match - evaluating (odd? :kw) would have blown up   
+
+(fact "can a seq into two pieces, one for true predicate one for false"
+  (separate-by odd? [1 2 3]) => [ [1 3] [2] ]
+  "works for predicates that don't return true or false"
+  (separate-by #(if (odd? %) nil %) [1 2 3]) => [[2] [1 3]])

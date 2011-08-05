@@ -1,8 +1,10 @@
 (ns midje.ideas.prerequisites
   (:use [midje.util.namespace :only [namespacey-match]]
+        [midje.util.form-utils :only [symbol-named?]]
         [midje.internal-ideas.file-position :only [arrow-line-number-from-form]]
         [midje.ideas.metaconstants :only [metaconstant-for-form
                                           with-fresh-generated-metaconstant-names]]
+        midje.ideas.arrow-symbols
         [midje.ideas.arrows :only [group-arrow-sequences]]
         [midje.internal-ideas.expect :only [up-to-full-expect-form
                                             tack-on__then__at-rightmost-expect-leaf]])
@@ -12,11 +14,13 @@
   (namespacey-match '(provided) loc))
 
 
-
-(defn prerequisite-to-fake [fake-body]
-  (let [line-number (arrow-line-number-from-form fake-body)]
+(defn prerequisite-to-fake [[lhs arrow rhs & overrides :as fake-body]]
+  (let [line-number (arrow-line-number-from-form fake-body)
+        fake-tag (if (symbol-named? arrow =contains=>)
+                   'midje.semi-sweet/data-fake
+                   'midje.semi-sweet/fake)]
     (vary-meta
-     `(midje.semi-sweet/fake ~@fake-body)
+     `(~fake-tag ~@fake-body)
      assoc :line line-number)))
 
 (defn expand-prerequisites-into-fake-calls [provided-loc]
