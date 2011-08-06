@@ -82,13 +82,12 @@
                    :type :fake}
                  overrides))
 
-(println "==== fakes.clj FIX background to not be a type and :type of data-fake to be data-fake")
 (defn data-fake* [ [metaconstant arrow contained & overrides] ]
   (make-fake-map metaconstant
                  `{:contained ~contained
                   :count-atom (atom 1)  ;; CLUDKJE!
                   :type :fake
-                  :data-fake true}
+                  :data-fake :data-fake}
                  overrides))
 
 (defn tag-as-background-fake [fake]

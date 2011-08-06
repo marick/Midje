@@ -229,4 +229,3 @@
     => #{g-fake h-fake}))
 
 
-(future-facts "data-fakes sanity checking")

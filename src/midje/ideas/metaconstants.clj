@@ -2,7 +2,8 @@
 
 (ns midje.ideas.metaconstants
   (:use [midje.util.form-utils :only [quoted? translate form-first?]]
-        [midje.util.zip :only [skip-down-then-rightmost-leaf]])
+        [midje.util.zip :only [skip-down-then-rightmost-leaf]]
+        [midje.error-handling.monadic :only [user-error-report-form validate]])
   (:require [clojure.zip :as zip]))
 
 
@@ -80,3 +81,4 @@
                 function-symbol)]
     (symbol (format "...%s-value-%s..." (name function-symbol) number))))
 
+        

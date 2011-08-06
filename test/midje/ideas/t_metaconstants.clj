@@ -140,6 +140,9 @@
   (against-background ..m.. =contains=> {:a 1})
   (:a ..m..) => 1)
 
+(future-fact "an error case"
+   (against-background ..m.. => {:a 1}))
+
 (defn concer [source] (str (:a source) (:b source) (:c source)))
 (fact
   (let [c 'c]

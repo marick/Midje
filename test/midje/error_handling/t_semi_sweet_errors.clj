@@ -47,3 +47,12 @@
  (expect @reported => (user-error-with-notes
                         #"must look like a function call"
                         #"`a` doesn't")))
+
+(after-silently
+ (data-fake (f 1) =contains=> {:a 1})
+ (expect @reported => (user-error-with-notes #"no metaconstant")))
+
+(future-fact "handle case where =contains=> is left out"
+  (+ 1 1) => 2
+  (provided ..m.. => 3))
+
