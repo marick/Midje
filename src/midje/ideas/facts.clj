@@ -15,7 +15,7 @@
         [midje.util.debugging :only [nopret]]
         [midje.ideas.prerequisites :only [is-head-of-form-providing-prerequisites?
                                           insert-prerequisites-into-expect-form-as-fakes]]
-        [midje.ideas.arrows :only [is-start-of-arrow-sequence?]]
+        [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence?]]
         [clojure.contrib.seq :only [separate]]
         [midje.ideas.background :only [surround-with-background-fakes
                                        against-background-body
@@ -48,7 +48,7 @@
    2) (provided ...) become fakes inserted into preceding expect."
   [multi-form]
   (translate multi-form
-    is-start-of-arrow-sequence?
+    is-start-of-checking-arrow-sequence?
     wrap-with-expect__then__at-rightmost-expect-leaf
     
     is-head-of-form-providing-prerequisites?

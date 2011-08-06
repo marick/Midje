@@ -5,8 +5,9 @@
     [clojure.contrib.seq :only [separate]]
     [midje.util.form-utils :only [form-first? translate symbol-named? separate-by]]
     [midje.ideas.metaconstants :only [define-metaconstants]]
-    [midje.ideas.prerequisites :only [prerequisite-to-fake]]
-    [midje.ideas.arrows :only [is-start-of-arrow-sequence?
+    [midje.ideas.prerequisites :only [prerequisite-to-fake
+                                      metaconstant-prerequisite?]]
+    [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence?
                                take-arrow-sequence]]
     [midje.util.laziness :only [eagerly]]
     [midje.internal-ideas.fakes :only [with-installed-fakes
@@ -71,11 +72,16 @@
     (cond (empty? in-progress)
           expanded
 
-          (is-start-of-arrow-sequence? in-progress)
+          (is-start-of-checking-arrow-sequence? in-progress)
           (let [content (take-arrow-sequence in-progress)]
             (recur (conj expanded (-> content prerequisite-to-fake tag-as-background-fake))
                    (nthnext in-progress (count content))))
 
+          (metaconstant-prerequisite? in-progress)
+          (let [content (take-arrow-sequence in-progress)]
+            (recur (conj expanded (-> content prerequisite-to-fake))
+                   (nthnext in-progress (count content))))
+          
           (seq-headed-by-setup-teardown-form? in-progress)
           (recur (conj expanded (first in-progress))
                  (rest in-progress))

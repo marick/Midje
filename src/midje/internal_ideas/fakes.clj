@@ -25,7 +25,9 @@
 ;;; Questions to ask of fakes // accessors
 
 (defn implements-a-fake? [function] (:midje/faked-function (meta function)))
-(defn fake? [form] (form-first? form "fake"))
+(defn function-fake? [form] (form-first? form "fake"))
+(defn data-fake? [form] (form-first? form "data-fake"))
+(defn fake? [form] (or (function-fake? form) (data-fake? form)))
 (defn fake-form-funcall [[fake funcall => value & overrides]] funcall)
 (defn fake-form-funcall-arglist [fake-form] (rest (fake-form-funcall fake-form)))
 
@@ -90,7 +92,9 @@
                  overrides))
 
 (defn tag-as-background-fake [fake]
-  (concat fake '(:type :background)))
+  (concat fake
+          '(:background :background)
+          '(:times (range 0))))
 
 ;;; Binding
 
@@ -175,10 +179,6 @@
 (defmethod call-count-incorrect? :not-called
   [fake]
   (not (zero? (fake-count fake))))
-
-(defmethod call-count-incorrect? :background
-  [fake]
-  false)
 
 (defn check-call-counts [fakes]
   (doseq [fake fakes]

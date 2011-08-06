@@ -229,4 +229,4 @@
     => #{g-fake h-fake}))
 
 
-(future-tests "data-fakes sanity checking")
+(future-facts "data-fakes sanity checking")

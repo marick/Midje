@@ -7,26 +7,26 @@
 
 (fact "can ask if at first element of X =?> Y :possible :keywords"
   (let [possible (fn [nested-form] (zip/down (zip/seq-zip nested-form)))]
-              "a string" =not=> is-start-of-arrow-sequence?
-              '(foo) =not=> is-start-of-arrow-sequence?
+              "a string" =not=> is-start-of-checking-arrow-sequence?
+              '(foo) =not=> is-start-of-checking-arrow-sequence?
     
-              '( (f 1) ) =not=> is-start-of-arrow-sequence?
-    (possible '( (f 1) )) =not=> is-start-of-arrow-sequence?
+              '( (f 1) ) =not=> is-start-of-checking-arrow-sequence?
+    (possible '( (f 1) )) =not=> is-start-of-checking-arrow-sequence?
     
-              '( (f 1) (f 2)) =not=> is-start-of-arrow-sequence?
-    (possible '( (f 1) (f 2))) =not=> is-start-of-arrow-sequence?
+              '( (f 1) (f 2)) =not=> is-start-of-checking-arrow-sequence?
+    (possible '( (f 1) (f 2))) =not=> is-start-of-checking-arrow-sequence?
 
-              '( (f 1) => 2) => is-start-of-arrow-sequence?
-    (possible '( (f 1) => 2)) => is-start-of-arrow-sequence?
+              '( (f 1) => 2) => is-start-of-checking-arrow-sequence?
+    (possible '( (f 1) => 2)) => is-start-of-checking-arrow-sequence?
 
-              '( (f 1) =not=> 2) => is-start-of-arrow-sequence?
-    (possible '( (f 1) =not=> 2)) => is-start-of-arrow-sequence?
+              '( (f 1) =not=> 2) => is-start-of-checking-arrow-sequence?
+    (possible '( (f 1) =not=> 2)) => is-start-of-checking-arrow-sequence?
 
-              '( (f 1) => 2 :key 'value) => is-start-of-arrow-sequence?
-    (possible '( (f 1) => 2 :key 'value)) => is-start-of-arrow-sequence?
+              '( (f 1) => 2 :key 'value) => is-start-of-checking-arrow-sequence?
+    (possible '( (f 1) => 2 :key 'value)) => is-start-of-checking-arrow-sequence?
 
-              '( (f 1) midje.semi-sweet/=> 2) => is-start-of-arrow-sequence?
-    (possible '( (f 1) midje.semi-sweet/=> 2)) => is-start-of-arrow-sequence?))
+              '( (f 1) midje.semi-sweet/=> 2) => is-start-of-checking-arrow-sequence?
+    (possible '( (f 1) midje.semi-sweet/=> 2)) => is-start-of-checking-arrow-sequence?))
 
 (fact "when at end of required part of arrow form, can ask for overrides"
     "empty rest of form"

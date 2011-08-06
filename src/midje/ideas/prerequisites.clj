@@ -13,10 +13,12 @@
 (defn is-head-of-form-providing-prerequisites? [loc]
   (namespacey-match '(provided) loc))
 
+(defn metaconstant-prerequisite? [[lhs arrow rhs & overrides :as fake-body]]
+  (symbol-named? arrow =contains=>))
 
-(defn prerequisite-to-fake [[lhs arrow rhs & overrides :as fake-body]]
+(defn prerequisite-to-fake [fake-body]
   (let [line-number (arrow-line-number-from-form fake-body)
-        fake-tag (if (symbol-named? arrow =contains=>)
+        fake-tag (if (metaconstant-prerequisite? fake-body)
                    'midje.semi-sweet/data-fake
                    'midje.semi-sweet/fake)]
     (vary-meta

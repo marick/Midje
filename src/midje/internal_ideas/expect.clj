@@ -4,7 +4,7 @@
         [midje.util.namespace :only [namespacey-match]]
         [midje.util.form-utils :only [form-first?]]
         [midje.util.zip :only [skip-to-rightmost-leaf n-times remove-moving-right]]
-        [midje.ideas.arrows :only [is-start-of-arrow-sequence? arrow-sequence-overrides]]
+        [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence? arrow-sequence-overrides]]
         [midje.internal-ideas.file-position :only [arrow-line-number]])
   (:require [clojure.zip :as zip]))
   
@@ -44,7 +44,7 @@
 
 
 (defn wrap-with-expect__then__at-rightmost-expect-leaf [loc]
-  (assert (is-start-of-arrow-sequence? loc))
+  (assert (is-start-of-checking-arrow-sequence? loc))
   (let [right-hand (-> loc zip/right zip/right)
         arrow-sequence (-> loc zip/right zip/node)
 	additions (arrow-sequence-overrides (zip/rights right-hand))
