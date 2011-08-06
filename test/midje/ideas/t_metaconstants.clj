@@ -105,7 +105,7 @@
   (merge ..m.. ..n..) => {:a 3, :b 4}
   (merge ..m.. ..n..) => map?)
 
-(fact "keys, values, and contains"
+(fact "keys, values, and contains work on metaconstants"
   (against-background ..m.. =contains=> {:a 3, :b 4})
   (keys ..m..) => [:a :b]
   (vals ..m..) => [3 4]
@@ -136,9 +136,46 @@
   ..m.. => (contains {:a (exactly even?), :b (exactly odd?)}))
 
 
+(defn fullname [person]
+  (str (:given person) " " (:family person)))
+
+(fact
+  (fullname ...person...) => "Brian Marick"
+  (provided
+    ...person... =contains=> {:given "Brian", :family "Marick"}))
+
 (fact "background metaconstants"
   (against-background ..m.. =contains=> {:a 1})
   (:a ..m..) => 1)
+
+(fact "metaconstants can be mentioned multiple times"
+  (+ (:a ..m..) (:b ..m..)) => 3
+  (provided
+    ..m.. =contains=> {:a 1}
+    ..m.. =contains=> {:b 2})
+
+  "Later takes precedence over the former."
+  (+ (:a ..m..) (:b ..m..)) => 3
+  (provided
+    ..m.. =contains=> {:a 1, :b 333333}
+    ..m.. =contains=> {:b 2}))
+
+(future-fact "combining background and `provided` prerequisites"
+  (against-background ..m.. =contains=> {:b 2})
+
+  (+ (:a ..m..) (:b ..m..)) => 3
+  (provided
+    ..m.. =contains=> {:a 1})
+
+  "`provided` keys take precedence"
+  (+ (:a ..m..) (:b ..m..)) => 301
+  (provided
+    ..m.. =contains=> {:a 1, :b 300}))
+    
+
+(fact 
+  (:a ..m..) => 1
+  (provided ..m.. =contains=> {:a 1}))
 
 (future-fact "an error case"
    (against-background ..m.. => {:a 1}))
