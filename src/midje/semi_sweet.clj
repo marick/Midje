@@ -6,6 +6,7 @@
         midje.internal-ideas.file-position
         [midje.util debugging form-utils namespace]
         [midje.error-handling monadic semi-sweet-errors]
+        [midje.util.exceptions :only [user-error]]
         [midje.production-mode]
         [clojure.pprint]
         [clojure.contrib.ns-utils :only [immigrate]]))
@@ -34,7 +35,7 @@
 (defn- only-mocked* [names]
   (let [declarations (map (fn [name] 
                               `(defn ~name [& args#] 
-                                 (throw (Error. (str "#'" '~name " has no implementation. It's used as a prerequisite in Midje tests.")))))
+                                 (throw (user-error (str "#'" '~name " has no implementation. It's used as a prerequisite in Midje tests.")))))
                           names)]
     `(do ~@declarations)))
 

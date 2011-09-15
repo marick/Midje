@@ -18,6 +18,7 @@
     [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
                                                with-pushed-namespace-values
                                                with-altered-roots]]
+    [midje.util.exceptions :only [user-error]]
     [midje.internal-ideas.wrapping :only [with-wrapping-target]]
     [midje.ideas.arrow-symbols])
   (:require [clojure.zip :as zip]))
@@ -68,7 +69,7 @@
                 current-result)))
 
 (defmethod make-result-supplier :default [arrow result-stream]
-  (throw (Error. (str "It's likely you misparenthesized your metaconstant prerequisite."))))
+  (throw (user-error (str "It's likely you misparenthesized your metaconstant prerequisite."))))
 
 (defn fake* [ [[var-sym & args :as call-form] arrow result & overrides] ]
   ;; The (vec args) keeps something like (...o...) from being

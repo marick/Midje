@@ -1,6 +1,9 @@
 1.3
 --------
 * First stab at data prerequisites.
+  https://github.com/marick/Midje/wiki/Data-fakes
+* Default format for metaconstants changed to use
+  dashes instead of dots: ---mc---
 
 1.2
 --------

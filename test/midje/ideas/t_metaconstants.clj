@@ -20,6 +20,28 @@
  (..foo..)      =not=>)
 
 
+(tabular "or they begin and end with dashes"
+ (fact 
+   '?candidate ?arrow metaconstant-symbol?)
+ ?candidate   ?arrow
+ ---foo---      => 
+ -foo-          => 
+ foo            =not=>
+ -foo           =not=>
+ foo-           =not=>
+ "foo"          =not=>
+ (--foo--)      =not=>)
+
+;; This allows them to be used as function arguments.
+
+(defn f [fun args]
+  (apply fun args))
+
+(fact (f --v-- [1 2 3]) => 8
+  (provided
+    (--v-- 1 2 3) => 8))
+
+
 
 (let [mc (Metaconstant. '...name... {})]
   (fact "Metaconstants print as their name"
@@ -89,6 +111,14 @@
   (= ..m.. ..n..) => truthy 
   (provided
     ..m.. =contains=> {:a 3}
+    ..n.. =contains=> {:a 3})
+  (= ..m.. ..n..) => falsey
+  (provided
+    ..m.. =contains=> {:a 4}
+    ..n.. =contains=> {:a 3})
+  (= ..m.. ..n..) => falsey
+  (provided
+    ..m.. =contains=> {:b 3}
     ..n.. =contains=> {:a 3}))
 
 

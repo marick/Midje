@@ -9,7 +9,8 @@
 
 (defn metaconstant-symbol? [symbol-or-form]
   (and (symbol? symbol-or-form)
-       (re-matches #"^\.+.+\.+" (name symbol-or-form))))
+       (or (re-matches #"^\.+.+\.+" (name symbol-or-form))
+           (re-matches #"^-+.+-+" (name symbol-or-form)))))
 
 (deftype Metaconstant [name storage]
   Object
