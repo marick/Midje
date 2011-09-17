@@ -3,7 +3,7 @@
 (ns midje.unprocessed
   (:use clojure.test
         [midje.internal-ideas.fakes]
-        [midje.util laziness report thread-safe-var-nesting]
+        [midje.util laziness report]
         [midje.checkers.extended-equality :only [extended-=]]
         [midje.checkers.chatty :only [chatty-checker?]]
         [midje.checkers.util]
@@ -11,13 +11,6 @@
 (immigrate 'midje.checkers)
 
 
-;; TODO: I'm not wild about signalling failure in two ways: by report() and by
-;; return value. Fix this when (a) we move away from clojure.test.report and
-;; (b) we figure out how to make fact() some meaningful unit of reporting.
-;;
-;; Later note: this doesn't actually work well anyway when facts are nested within
-;; larger structures. Probably fact should return true/false based on interior failure
-;; counts.
 (defmulti check-result (fn [actual call]
                          (:desired-check call)))
 
@@ -70,9 +63,6 @@
   `(try ~form
         (catch Throwable e#
           (captured-exception e#))))
-
-(defmacro with-installed-fakes [fakes & forms]
-  `(with-altered-roots (binding-map ~fakes) ~@forms))
 
 (defn expect* [call-map local-fakes]
   "The core function in unprocessed Midje. Takes a map describing a

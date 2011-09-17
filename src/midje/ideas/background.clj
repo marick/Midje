@@ -5,21 +5,21 @@
     [clojure.contrib.seq :only [separate]]
     [midje.util.form-utils :only [form-first? translate symbol-named? separate-by]]
     [midje.ideas.metaconstants :only [define-metaconstants]]
-    [midje.ideas.arrows :only [
-                         is-start-of-arrow-sequence?
-                         take-arrow-sequence
-                         ]]
+    [midje.ideas.prerequisites :only [prerequisite-to-fake
+                                      metaconstant-prerequisite?]]
+    [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence?
+                               take-arrow-sequence]]
     [midje.util.laziness :only [eagerly]]
-    [midje.internal-ideas.fakes :only [
-                        tag-as-background-fake
-                        make-fake
-                        fake?]]
+    [midje.internal-ideas.fakes :only [with-installed-fakes
+                                       tag-as-background-fake
+                                       fake?]]
     [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out with-pushed-namespace-values]]
-    [midje.internal-ideas.wrapping :only [with-wrapping-target]])
+    [midje.internal-ideas.wrapping :only [with-wrapping-target
+                                          for-wrapping-target?]])
   (:require [midje.util.unify :as unify :only [bindings-map-or-nil ?form]]
             [clojure.zip :as zip]))
 
-(defn background-form? [form] (form-first? form "against-background"))
+(defn against-background? [form] (form-first? form "against-background"))
 
 (defn- ensure-correct-form-variable [form]
   (translate form       
@@ -40,10 +40,8 @@
 ;; dissecting background forms
 
 (defn separate-background-forms [fact-forms]
-  (let [[background-forms other-forms] (separate background-form? fact-forms)]
+  (let [[background-forms other-forms] (separate against-background? fact-forms)]
     [(mapcat rest background-forms) other-forms]))
-
-(defn raw-wrappers [background-form] (second background-form))
 
 (defn setup-teardown-bindings [form]
   (unify/bindings-map-or-nil form
@@ -74,11 +72,16 @@
     (cond (empty? in-progress)
           expanded
 
-          (is-start-of-arrow-sequence? in-progress)
+          (is-start-of-checking-arrow-sequence? in-progress)
           (let [content (take-arrow-sequence in-progress)]
-            (recur (conj expanded (-> content make-fake tag-as-background-fake))
+            (recur (conj expanded (-> content prerequisite-to-fake tag-as-background-fake))
                    (nthnext in-progress (count content))))
 
+          (metaconstant-prerequisite? in-progress)
+          (let [content (take-arrow-sequence in-progress)]
+            (recur (conj expanded (-> content prerequisite-to-fake))
+                   (nthnext in-progress (count content))))
+          
           (seq-headed-by-setup-teardown-form? in-progress)
           (recur (conj expanded (first in-progress))
                  (rest in-progress))
@@ -105,5 +108,26 @@
     (if (empty? fakes)
       state-wrappers
       (concat state-wrappers (background-fake-wrappers fakes)))))
+
+(defn against-background-wrappers [against-background-form]
+  (background-wrappers (second against-background-form)))
+
+(defn against-background-body [form]
+  `(do ~@(rest (rest form))))
+
+(defn against-background-X-wrappers [filter-fun form]
+  (filter-fun (for-wrapping-target? :contents) (against-background-wrappers form)))
+
+(defn against-background-contents-wrappers [form]
+  (against-background-X-wrappers filter form))
+
+(defn against-background-children-wrappers [form]
+  (remove (for-wrapping-target? :contents) (against-background-wrappers form)))
+
+
+(defn surround-with-background-fakes [forms]
+  `(with-installed-fakes (background-fakes)
+     (do ~@forms)))
+
 
 

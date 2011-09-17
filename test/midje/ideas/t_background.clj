@@ -71,16 +71,22 @@
 
 ;; wrapping
 
-
-
 (fact "human-friendly background forms can be canonicalized appropriately"
   "fakes"
   (prerequisites-to-fakes []) => []
-  (prerequisites-to-fakes '[(f 1) => 2]) =>
-                                 '[(midje.semi-sweet/fake (f 1) => 2 :type :background)]
-  (prerequisites-to-fakes '[   (f 1) => 2 :foo 'bar (f 2) => 33 ]) => 
-                              '[(midje.semi-sweet/fake (f 1) => 2 :foo 'bar :type :background)
-                                (midje.semi-sweet/fake (f 2) => 33 :type :background) ]
+  (prerequisites-to-fakes '[(f 1) => 2]) 
+  => '[(midje.semi-sweet/fake (f 1) => 2 :background :background
+                                         :times (range 0))]
+  (prerequisites-to-fakes '[   (f 1) => 2 :foo 'bar (f 2) => 33 ])
+  => '[(midje.semi-sweet/fake (f 1) => 2 :foo 'bar
+                                         :background :background
+                                         :times (range 0))
+       (midje.semi-sweet/fake (f 2) => 33 :background :background
+                              :times (range 0)) ]
+
+  "data fakes"
+  (prerequisites-to-fakes '[...m... =contains=> {:a 1, :b 2}])
+  => '[(midje.semi-sweet/data-fake ...m... =contains=> {:a 1, :b 2})]
 
   "other types are left alone"
   (prerequisites-to-fakes
@@ -89,10 +95,12 @@
 
  "mixtures"
  (prerequisites-to-fakes
-   '[ (f 1) => 2 (before :checks (swap! test-atom (constantly 0))) (f 2) => 3 ]) =>
-   '[ (midje.semi-sweet/fake (f 1) => 2 :type :background)
+  '[ (f 1) => 2 (before :checks (swap! test-atom (constantly 0))) (f 2) => 3 ])
+ =>'[ (midje.semi-sweet/fake (f 1) => 2 :background :background
+                                        :times (range 0))
       (before :checks (swap! test-atom (constantly 0)))
-      (midje.semi-sweet/fake (f 2) => 3 :type :background) ]
+      (midje.semi-sweet/fake (f 2) => 3 :background :background
+                                        :times (range 0)) ]
  
  "error cases"
  (prerequisites-to-fakes '[ (after anything) ]) => (throws Error)

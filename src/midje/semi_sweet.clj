@@ -23,6 +23,9 @@
         =deny=> :expect*
         =future=> :report-future-fact} (name arrow)))
 
+(defn is-semi-sweet-keyword? [loc]
+  (namespacey-match '(expect fake not-called data-fake) loc))
+
 (defonce
   #^{:doc "True by default.  If set to false, Midje checks are not
      included into production code, whether compiled or loaded."}
@@ -50,18 +53,14 @@
    the result is to be returned. Either form may contain bound variables. 
    Example: (let [a 5] (fake (f a) => a))"
   [& forms]
-  (error-let [ [call-form arrow result & overrides] (validate &form)
-               [var-sym & args] call-form]
-        ;; The (vec args) keeps something like (...o...) from being
-        ;; evaluated as a function call later on. Right approach would
-        ;; seem to be '~args. That causes spurious failures. Debug
-        ;; someday.
-    (make-fake-map var-sym
-                   `{:arg-matchers (map midje.internal-ideas.fakes/arg-matcher-maker ~(vec args))
-                     :call-text-for-failures (str '~call-form)
-                     :result-supplier (make-result-supplier ~arrow ~result)
-                     :type :fake}
-                   overrides)))
+  (error-let [ rest (validate &form)]
+    (fake* rest)))
+
+(defmacro data-fake
+  "Creates a fake map that's used to associate key/value pairs with a metaconstant"
+  [& forms]
+  (error-let [ rest (validate &form)]
+    (data-fake* rest)))
 
 (defmacro not-called
   "Creates an fake map that a function will not be called.
@@ -82,8 +81,7 @@
 ;; but those fail for reasons I don't understand. Bah.
 (defn- fakes-and-overrides [form]
   (let [fake? #(and (seq? %)
-                    (or (= "fake" (name (first %)))
-                        (= "not-called" (name (first %)))))]
+                    (is-semi-sweet-keyword? (first %)))]
     (separate-by fake? form)))
         
 
@@ -104,7 +102,7 @@
     (handling-of-expect-form arrow)))
 
 (defmethod expect-expansion :expect*
-   [call-form arrow expected-result fakes overrides]
+  [call-form arrow expected-result fakes overrides]
   `(let [call# (call-being-tested ~call-form ~arrow ~expected-result ~overrides)]
      (expect* call# (vector ~@fakes))))
 
@@ -131,13 +129,4 @@
         (error-let [_ (spread-error (map validate fakes))]
           (expect-expansion call-form arrow expected-result fakes overrides))))))
 
-(defmulti make-result-supplier (fn [arrow & _]  arrow))
-
-(defmethod make-result-supplier => [arrow result] #(identity result))
-
-(defmethod make-result-supplier =streams=> [arrow result-stream]
-           (let [current-stream (atom result-stream)]
-             #(let [current-result (first @current-stream)]
-                (swap! current-stream rest)
-                current-result)))
 

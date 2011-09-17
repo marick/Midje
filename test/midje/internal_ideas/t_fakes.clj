@@ -38,11 +38,17 @@
   (let [fakes [ (fake (f 1) => 2)
                 (fake (f 2) => 4)
                 (fake (g) => 3)] ]
-    (unique-function-vars fakes) => (contains [#'f #'g] :in-any-order)))
+    (unique-vars fakes) => (contains [#'f #'g] :in-any-order))
+  "Same applies to data-fakes"
+  (let [fakes [ (data-fake ...f... => {:a 2})
+                (data-fake ...f... => {:b 4})
+                (data-fake ...g... => {:d 4})] ]
+    (unique-vars fakes) => (contains [#'...f... #'...g...] :in-any-order)))
+  
 
 (tabular
  (facts "matching calls depend on both function name and arguments"
-   (let [fake {:function 'expected, :arg-matchers [ odd? ] }]
+   (let [fake {:lhs 'expected, :arg-matchers [ odd? ] }]
      (find-matching-call ?faked-fun ?args [fake]) ?arrow fake))
 
  ?faked-fun     ?args   ?arrow
@@ -61,12 +67,24 @@
     (call-faker #'f [2] fakes)    (counts) => [2 0 1]
     (call-faker #'g [1] fakes)    (counts) => [2 1 1]))
 
+(fact "binding maps contain functions that increment a call count"
+  (let [fake (fake (f 1) => 3)
+        result-map (binding-map [fake])]
+    ( (result-map #'f) 1) => 3
+    (fake-count fake) => 1))
+
+(fact "binding maps can also contain Metaconstants to assign"
+  (let [data-fakes [(data-fake ...mc... => {:a 1, :b ...even...})
+                    (data-fake ...mc... => {:c inc})]
+        result-map (binding-map data-fakes)]
+    (result-map #'...mc...) => {:a 1, :b ...even..., :c inc}))
+
 (fact "Unintuitively, earlier binding maps override later"
   (let [fakes [(fake (f 1) => 3 :type :background)
                (fake (f 1) => 4 :type :background)]
         result-map (binding-map fakes)]
 
-    (call-faker (var f) [1] fakes)
+    ( (result-map #'f) 1) => 3
     (map fake-count fakes) => [1 0]))
 
 
@@ -99,7 +117,7 @@
 (defn called-because-mock-checking-requires-it [] nil)
 (defn has-faked-function []
   (called-because-mock-checking-requires-it)
-  (function-tagged-as-fake? called-because-mock-checking-requires-it))
+  (implements-a-fake? called-because-mock-checking-requires-it))
          
 (fact "A faked function can be identified from its metadata"
   (has-faked-function) => falsey
@@ -107,11 +125,18 @@
   (provided
     (called-because-mock-checking-requires-it) => 33))
   
-(fact "make-fake's result has the line number of the arrow form"
-  (let [args `( ~(at-line 789 '(f 1)) => 3)]
-    (:line (meta (make-fake args))) => 789))
+(facts "about result suppliers used"
+  "returns identity for =>"
+  (let [arrow "=>"]
+    ((make-result-supplier arrow [1 2 3])) => [1 2 3])
+             
+  "returns stream for =streams=>"
+  (let [supplier (make-result-supplier "=streams=>" [1 2 3])]
+    (supplier) => 1
+    (supplier) => 2
+    (supplier) => 3))
+                    
 
-     
 
 
 ;; Folded fakes

@@ -3,7 +3,7 @@
 (ns midje.checkers.chatty
   (:use [midje.checkers util]
         [midje.checkers.defining :only [as-checker]]
-        [midje.util.form-utils :only (pairs)]))
+        [midje.util.form-utils :only [pairs quoted?]]))
 
 ;; Note: checkers need to be exported in ../checkers.clj
 
@@ -38,7 +38,7 @@
 (defn chatty-worth-reporting-on? [arg]
   (and (or (list? arg) (seq? arg)) ; what started as a list (fn x y) might now be a seq.
        (> (count arg) 0)
-       (not (= (first arg) 'clojure.core/quote))))
+       (not (quoted? arg))))
 
 (defn chatty-untease [result-symbol arglist]
   (loop [ [current-arg & remainder :as arglist] arglist

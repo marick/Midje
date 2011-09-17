@@ -1,9 +1,9 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.util.form-utils
-  (:use
-    [clojure.set :only [difference]]
-    [ordered.map :only [ordered-map]])
+  (:use [midje.util.treelike :only [tree-variant]]
+        [clojure.set :only [difference]]
+        [ordered.map :only [ordered-map]])
   (:require [clojure.zip :as zip]))
 
 (defn regex? [thing]
@@ -24,6 +24,13 @@
   [form desired]
   (and (sequential? form) (symbol-named? (first form) desired)))
 
+
+(defmulti quoted? tree-variant)
+(defmethod quoted? :zipper [loc]
+  (quoted? (zip/node loc)))
+(defmethod quoted? :form [form]
+  (form-first? form "quote"))
+
 (defn preserve-type
   "If the original form was a vector, make the transformed form a vector too."
   [original-form transformed-form]
@@ -32,12 +39,13 @@
     transformed-form))
 
 (defn separate-by
-  "Like clojure.core/separate, but not lazy, returns nil for empy list."
+  "Like clojure.core/separate, but not lazy, returns nil for empty list."
   ;; TODO: One of those two differences is the difference between
   ;; a blowup in PersistentArrayMap and no blowup. Should investigate.
   [predicate forms]
-  (let [group (group-by predicate forms)]
-    [ (group true) (group false) ]))
+  (let [ensure-truthful (comp not not predicate)]
+    (let [group (group-by ensure-truthful forms)]
+      [ (group true) (group false) ])))
 
 (defn reader-line-number 
   "Find what line number the reader put on the given form or on

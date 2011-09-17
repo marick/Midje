@@ -7,17 +7,17 @@
 
 ;; Arrow groupings
 (def expect-arrows [=> =not=> =deny=> =future=>])
-(def fake-arrows [=> =streams=>])
+(def fake-arrows [=> =contains=> =streams=>])
 (def all-arrows (concat expect-arrows fake-arrows))
 
 
 ;; Recognizing
 
-(defmulti is-start-of-arrow-sequence? tree-variant)
-(defmethod is-start-of-arrow-sequence? :zipper [loc]
+(defmulti is-start-of-checking-arrow-sequence? tree-variant)
+(defmethod is-start-of-checking-arrow-sequence? :zipper [loc]
   (and (zip/right loc)
        (namespacey-match expect-arrows (zip/right loc))))
-(defmethod is-start-of-arrow-sequence? :form [form]
+(defmethod is-start-of-checking-arrow-sequence? :form [form]
   (and (sequential? form)
        (namespacey-match expect-arrows (second form))))
 

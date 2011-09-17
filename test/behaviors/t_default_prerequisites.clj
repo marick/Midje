@@ -1,15 +1,13 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns behaviors.t-default-prerequisites
-  (:use midje.sweet)
-  (:require [clojure.zip :as zip])
-  (:use midje.test-util)
-)
+  (:use [midje sweet test-util]
+        [midje.internal-ideas.fakes :only [tag-as-background-fake]]))
 
 (defn calls-nothing [])
 (unfinished unused)
 
 (fact "background prerequisites don't have to be used"
   (expect (calls-nothing) => nil
-          (fake (unused) => 3 :type :background)))
+          (tag-as-background-fake (fake (unused) => 3 :type :background))))
 

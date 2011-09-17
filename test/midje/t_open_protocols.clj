@@ -8,7 +8,7 @@
 
 (fact "can distinguish a protocol name from a function implementation"
   (#'midje.open-protocols/implementation? 'REDEEMABLE) => falsey
-  (#'midje.open-protocols/implementation? '(fake-me [this f] form1 form2)))
+   (#'midje.open-protocols/implementation? '(fake-me [this f] form1 form2)) => truthy)
 
 
 (defprotocol P (f [this x]))

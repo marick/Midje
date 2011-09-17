@@ -2,7 +2,7 @@
 
 (ns midje.internal-ideas.fakes
   (:use
-    [clojure.contrib.seq :only [find-first]]
+    [clojure.contrib.seq :only [find-first separate]]
     [clojure.test :only [report]]
     [midje.checkers :only [exactly]]
     [midje.checkers.defining :only [checker? checker-makers]]
@@ -16,19 +16,28 @@
     [midje.checkers.extended-equality :only [extended-= extended-list-= extended-fn?]]
     [midje.internal-ideas.file-position :only [user-file-position]]
     [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
-                                               with-pushed-namespace-values]]
-    [midje.internal-ideas.file-position :only [arrow-line-number-from-form]]
-    [midje.internal-ideas.wrapping :only [with-wrapping-target]])
+                                               with-pushed-namespace-values
+                                               with-altered-roots]]
+    [midje.internal-ideas.wrapping :only [with-wrapping-target]]
+    [midje.ideas.arrow-symbols])
   (:require [clojure.zip :as zip]))
 
-(defn tag-function-as-fake [function]
+;;; Questions to ask of fakes // accessors
+
+(defn implements-a-fake? [function] (:midje/faked-function (meta function)))
+(defn function-fake? [form] (form-first? form "fake"))
+(defn data-fake? [form] (form-first? form "data-fake"))
+(defn fake? [form] (or (function-fake? form) (data-fake? form)))
+(defn fake-form-funcall [[fake funcall => value & overrides]] funcall)
+(defn fake-form-funcall-arglist [fake-form] (rest (fake-form-funcall fake-form)))
+
+;;; Creation
+
+(defn fn-that-implements-a-fake [function]
   (vary-meta function assoc :midje/faked-function true))
 
-(defn function-tagged-as-fake? [function]
-  (:midje/faked-function (meta function)))
-
 (defn common-to-all-fakes [var-sym] 
-  `{:function (var ~var-sym)
+  `{:lhs (var ~var-sym)
     :count-atom (atom 0)
     :position (user-file-position)})
 
@@ -39,19 +48,65 @@
    special-to-fake-type
    (apply hash-map-duplicates-ok user-override-pairs)))
 
-(defn unique-function-vars [fakes]
-  (distinct (map #(:function %) fakes)))
+(defn arg-matcher-maker 
+  "Based on an expected value, generates a function that returns true if the 
+   actual value matches it."
+  [expected]
+  (if (and (extended-fn? expected)
+           (not (checker? expected)))
+    (fn [actual] (extended-= actual (exactly expected)))
+    (fn [actual] (extended-= actual expected))))
+
+(defmulti make-result-supplier (fn [arrow & _]  arrow))
+
+(defmethod make-result-supplier => [arrow result] #(identity result))
+
+(defmethod make-result-supplier =streams=> [arrow result-stream]
+           (let [current-stream (atom result-stream)]
+             #(let [current-result (first @current-stream)]
+                (swap! current-stream rest)
+                current-result)))
+
+(defmethod make-result-supplier :default [arrow result-stream]
+  (throw (Error. (str "It's likely you misparenthesized your metaconstant prerequisite."))))
+
+(defn fake* [ [[var-sym & args :as call-form] arrow result & overrides] ]
+  ;; The (vec args) keeps something like (...o...) from being
+  ;; evaluated as a function call later on. Right approach would
+  ;; seem to be '~args. That causes spurious failures. Debug
+  ;; someday.
+  (make-fake-map var-sym
+                 `{:arg-matchers (map midje.internal-ideas.fakes/arg-matcher-maker ~(vec args))
+                   :call-text-for-failures (str '~call-form)
+                   :result-supplier (make-result-supplier ~arrow ~result)
+                   :type :fake}
+                 overrides))
+
+(defn data-fake* [ [metaconstant arrow contained & overrides] ]
+  (make-fake-map metaconstant
+                 `{:contained ~contained
+                  :count-atom (atom 1)  ;; CLUDKJE!
+                  :type :fake
+                  :data-fake :data-fake}
+                 overrides))
+
+(defn tag-as-background-fake [fake]
+  (concat fake
+          '(:background :background)
+          '(:times (range 0))))
+
+;;; Binding
 
 (defmulti matches-call? (fn [fake faked-function args]
                           (:type fake)))
 
 (defmethod matches-call? :not-called
   [fake faked-function args]
-  (= faked-function (fake :function)))
+  (= faked-function (fake :lhs)))
 
 (defmethod matches-call? :default
   [fake faked-function args]
-  (and (= faked-function (fake :function))
+  (and (= faked-function (fake :lhs))
        (= (count args) (count (fake :arg-matchers)))
        (extended-list-= args (fake :arg-matchers))))
 
@@ -64,7 +119,7 @@
     (if-not found 
       (do 
         (clojure.test/report {:type :mock-argument-match-failure
-                 :function faked-function
+                 :lhs faked-function
                  :actual args
                  :position (:position (first fakes))}))
       (do 
@@ -72,13 +127,33 @@
         ((found :result-supplier)))))
   )
 
-(defn binding-map [fakes]
-  (reduce (fn [accumulator function-var] 
-            (let [faker (fn [& actual-args] (call-faker function-var actual-args fakes))
-                  tagged-faker (tag-function-as-fake faker)]
-                (assoc accumulator function-var tagged-faker)))
+
+(defn unique-vars [fakes]
+  (distinct (map :lhs fakes)))
+
+
+(defn binding-map-with-function-fakes [fakes]
+  (reduce (fn [accumulator var] 
+            (let [faker (fn [& actual-args] (call-faker var actual-args fakes))
+                  tagged-faker (fn-that-implements-a-fake faker)]
+                (assoc accumulator var tagged-faker)))
           {}
-          (unique-function-vars fakes)))
+          (unique-vars fakes)))
+
+(defn binding-map-with-data-fakes [fakes]
+  (let [expanded (map (fn [fake] {(:lhs fake) (:contained fake)}) fakes)]
+    (apply merge-with merge expanded)))
+
+(defn binding-map [fakes]
+  (let [[data-fakes function-fakes] (separate :data-fake fakes)]
+    (merge (binding-map-with-function-fakes function-fakes)
+           (binding-map-with-data-fakes data-fakes)
+           )))
+
+(defmacro with-installed-fakes [fakes & forms]
+  `(with-altered-roots (binding-map ~fakes) ~@forms))
+
+;;; Checking
 
 (defn fake-count [fake] (deref (:count-atom fake)))
 
@@ -104,10 +179,6 @@
   [fake]
   (not (zero? (fake-count fake))))
 
-(defmethod call-count-incorrect? :background
-  [fake]
-  false)
-
 (defn check-call-counts [fakes]
   (doseq [fake fakes]
     (when (call-count-incorrect? fake)
@@ -117,42 +188,7 @@
                :position (:position fake)
                :expected (fake :call-text-for-failures)}))))
 
-(defn arg-matcher-maker 
-  "Based on an expected value, generates a function that returns true if the 
-   actual value matches it."
-  [expected]
-  (if (and (extended-fn? expected)
-           (not (checker? expected)))
-    (fn [actual] (extended-= actual (exactly expected)))
-    (fn [actual] (extended-= actual expected))))
 
-;;
-
-(defn make-fake [fake-body]
-  (let [line-number (arrow-line-number-from-form fake-body)]
-    (vary-meta
-     `(midje.semi-sweet/fake ~@fake-body)
-     assoc :line line-number)))
-
-(defn tag-as-background-fake [fake]
-  (concat fake '(:type :background)))
-
-(defn fake? [form] (form-first? form "fake"))
-
-(defn fake-form-funcall [fake-form]
-  (second fake-form))
-
-(defn fake-form-funcall-arglist [fake-form]
-  (rest (fake-form-funcall fake-form)))
-
-
-
-
-;; This walks through a `pending` list that may contain fakes. Each element is
-;; copied to the `finished` list. If it is a suitable fake, its nested 
-;; are flattened (replaced with a metaconstant). If the metaconstant was newly
-;; generated, the fake that describes it is added to the pending list. In that way,
-;; it'll in turn be processed. This allows arbitrarily deep nesting.
 
 ;; Folded prerequisites
 
@@ -209,6 +245,12 @@
   (map (fn [ [funcall metaconstant] ]
          `(midje.semi-sweet/fake ~funcall midje.semi-sweet/=> ~metaconstant ~@overrides))
        substitutions))
+
+;; This walks through a `pending` list that may contain fakes. Each element is
+;; copied to the `finished` list. If it is a suitable fake, its nested 
+;; are flattened (replaced with a metaconstant). If the metaconstant was newly
+;; generated, the fake that describes it is added to the pending list. In that way,
+;; it'll in turn be processed. This allows arbitrarily deep nesting.
 
 (defn unfolding-step [finished pending substitutions]
   (let [target (first pending)]

@@ -18,8 +18,19 @@
         translated '(        (midje.semi-sweet/fake (f 1) => 3) (midje.semi-sweet/fake (f 2) => (+ 1 1)))
         z (zip/seq-zip original)
         loc (zip/down z)]
+    (expand-prerequisites-into-fake-calls loc) => translated)
+  "including metaconstant prerequisites"
+  (let [original '( provided                             ...m... =contains=> {:a 'a})
+        translated '(        (midje.semi-sweet/data-fake ...m... =contains=> {:a 'a}) )
+        z (zip/seq-zip original)
+        loc (zip/down z)]
     (expand-prerequisites-into-fake-calls loc) => translated))
+  
 
+(fact "created fakes have the line number of the arrow form"
+  (let [args `( ~(at-line 789 '(f 1)) => 3)]
+    (:line (meta (prerequisite-to-fake args))) => 789))
+     
 (fact "prerequisite containers are deleted so their contents can be inserted elsewhere"
   (let [original '( (expect (f x) => (+ 1 2)) (provided ...) "next")
         edited   '( (expect (f x) => (+ 1 2))                "next")
