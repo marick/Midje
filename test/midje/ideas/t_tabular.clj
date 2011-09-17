@@ -56,7 +56,7 @@
     (tabular-forms '?forms) => '?expected
     ?forms                       ?expect
     [ fact table ]               [fact table]))
- (fact @reported => (one-of user-error)))
+ (fact @reported => (one-of a-user-error)))
 
 ;; Other tests via midje.sweet API
 
