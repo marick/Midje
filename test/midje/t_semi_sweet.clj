@@ -14,12 +14,16 @@
   [actual]
   (odd? actual))
 
+
+
 (facts "about arrows"
   (let [result (map check-for-arrow
                     '(=> midje.semi-sweet/=> midje.sweet/=>
-                      =not=> midje.semi-sweet/=not=> midje.sweet/=not=>))]
+                      =not=> midje.semi-sweet/=not=> midje.sweet/=not=>
+                      =expands-to=> midje.semi-sweet/=expands-to=> midje.sweet/=expands-to=>))]
     (fact result => [:check-match :check-match :check-match
-                     :check-negated-match :check-negated-match :check-negated-match])))
+                     :check-negated-match :check-negated-match :check-negated-match
+                     :check-match :check-match :check-match])))
 
 (fact "separating overrides of an #expect from fakes"
   ;; The lets are because fact isn't smart enough not to add overrides to fake call otherwise.
@@ -295,4 +299,14 @@
           skippable (-> z zip/down zip/next zip/down)]
       skippable => is-semi-sweet-keyword?)))
 
+(defmacro some-macro [arg] `(+ 100 200 ~arg))
 
+(facts "about =expands-to=>"      
+       (fact "calls blah with quoted code"
+             (some-macro 8) =expands-to=> (clojure.core/+ 100 200 8))
+       (fact "fails if expansion does not match expected list"
+               (after-silently 
+                (expect (some-macro 1) =expands-to=> (clojure.core/- 100 200 1))
+                @reported => (one-of (contains {:type :mock-expected-result-failure
+                                                :actual `(clojure.core/+ 100 200 1)
+                                                :expected `(clojure.core/- 100 200 1)}))))) 
