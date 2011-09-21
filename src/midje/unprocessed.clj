@@ -3,6 +3,7 @@
 (ns midje.unprocessed
   (:use clojure.test
         [midje.internal-ideas.fakes]
+        [midje.ideas.background :only [background-fakes]]
         [midje.util laziness report]
         [midje.checkers.extended-equality :only [extended-=]]
         [midje.checkers.chatty :only [chatty-checker?]]
@@ -69,7 +70,7 @@
   call and a list of maps, each of which describes a secondary call
   the first call is supposed to make. See the documentation at
   http://github.com/marick/Midje."
-  (with-installed-fakes local-fakes
+  (with-installed-fakes (concat (reverse (filter :data-fake (background-fakes))) local-fakes)
     (let [code-under-test-result (capturing-exception
                                   (eagerly
                                    ((call-map :function-under-test))))]

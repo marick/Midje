@@ -3,7 +3,8 @@
 (ns midje.internal-ideas.t-fakes
   (:use [midje sweet test-util]
         midje.internal-ideas.fakes
-        [midje.ideas.metaconstants :only [metaconstant-for-form]]))
+        [midje.ideas.metaconstants :only [metaconstant-for-form]])
+  (:import midje.ideas.metaconstants.Metaconstant))
 
 
 (tabular
@@ -74,10 +75,10 @@
     (fake-count fake) => 1))
 
 (fact "binding maps can also contain Metaconstants to assign"
-  (let [data-fakes [(data-fake ...mc... => {:a 1, :b ...even...})
-                    (data-fake ...mc... => {:c inc})]
+  (let [data-fakes [(data-fake ...mc... =contains=> {:a 1, :b ...even...})
+                    (data-fake ...mc... =contains=> {:c inc})]
         result-map (binding-map data-fakes)]
-    (result-map #'...mc...) => {:a 1, :b ...even..., :c inc}))
+    (.storage (result-map #'...mc...)) => {:a 1, :b ...even..., :c inc}))
 
 (fact "Unintuitively, earlier binding maps override later"
   (let [fakes [(fake (f 1) => 3 :type :background)
@@ -228,4 +229,27 @@
     (set (generate-fakes '{ (g 1) ...g-1..., (h 3) ...h-1... } '(...overrides...)))
     => #{g-fake h-fake}))
 
+
+;;; Internal functions
+
+
+(fact "data-fakes can be converted to metaconstant-bindings"
+  (let [bindings (data-fakes-to-metaconstant-bindings [{:lhs #'name :contained {:a 1}}])
+        _ (fact (count bindings) => 1)
+        binding (first bindings)
+        _ (fact (count binding) => 1)
+        [var metaconstant] (first binding)]
+    (.name metaconstant) => 'name
+    (.storage metaconstant) => {:a 1}))
+
+(declare var-for-merged var-for-irrelevant)
+(fact "metaconstant bindings can have their values merged together"
+  (let [first-half (Metaconstant. 'merged {:retained 1, :replaced 2})
+        second-half (Metaconstant. 'merged {:replaced 222, :extra 3})
+        irrelevant (Metaconstant. 'irrelevant {:retained :FOO :extra :BAR})
+        all [{#'var-for-merged first-half} {#'var-for-merged second-half} {#'var-for-irrelevant irrelevant}]
+        result (merge-metaconstant-bindings all)]
+    
+    (.storage (result #'var-for-merged)) => {:retained 1, :replaced 222, :extra 3}
+    (.storage (result #'var-for-irrelevant)) => {:retained :FOO, :extra :BAR}))
 

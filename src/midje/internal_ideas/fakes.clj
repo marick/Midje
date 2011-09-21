@@ -21,7 +21,8 @@
     [midje.util.exceptions :only [user-error]]
     [midje.internal-ideas.wrapping :only [with-wrapping-target]]
     [midje.ideas.arrow-symbols])
-  (:require [clojure.zip :as zip]))
+  (:require [clojure.zip :as zip])
+  (:import midje.ideas.metaconstants.Metaconstant))
 
 ;;; Questions to ask of fakes // accessors
 
@@ -141,9 +142,21 @@
           {}
           (unique-vars fakes)))
 
+
+(defn data-fakes-to-metaconstant-bindings [fakes]
+  (map (fn [{var :lhs, contents :contained}]
+         (let [name (:name (meta var))]
+           {var (Metaconstant. name contents)}))
+       fakes))
+
+(defn merge-metaconstant-bindings [bindings]
+  (apply merge-with (fn [v1 v2]
+                      (Metaconstant. (.name v1) (merge (.storage v1) (.storage v2))))
+         bindings))
+
+  
 (defn binding-map-with-data-fakes [fakes]
-  (let [expanded (map (fn [fake] {(:lhs fake) (:contained fake)}) fakes)]
-    (apply merge-with merge expanded)))
+  (merge-metaconstant-bindings (data-fakes-to-metaconstant-bindings fakes)))
 
 (defn binding-map [fakes]
   (let [[data-fakes function-fakes] (separate :data-fake fakes)]
