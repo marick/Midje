@@ -15,6 +15,7 @@
   (->> all-strings 
        (remove-matches #"^java\.")
        (remove-matches #"^clojure\.")
+       (remove-matches #"^sun\.")
        (remove-matches #"^swank\.")
        (remove-matches #"^user\$eval")))
   
