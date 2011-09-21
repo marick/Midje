@@ -31,7 +31,7 @@
 
           :else
           (= actual expected))
-    (catch Exception ex false)))
+    (catch Throwable ex false)))
 
 (defn extended-list-= [actual-args checkers]
   "Element-by-element comparison, using extended-= for the right-hand-side values."
