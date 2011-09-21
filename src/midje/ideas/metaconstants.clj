@@ -3,9 +3,11 @@
 (ns midje.ideas.metaconstants
   (:use [midje.util.form-utils :only [quoted? translate form-first?]]
         [midje.util.zip :only [skip-down-then-rightmost-leaf]]
+        [midje.util.thread-safe-var-nesting :only [unbound-marker]]
+        [midje.util.exceptions :only [user-error]]
         [midje.error-handling.monadic :only [user-error-report-form validate]])
-  (:require [clojure.zip :as zip]))
-
+  (:require [clojure.zip :as zip]
+            [midje.util.ecosystem :as ecosystem]))
 
 (defn metaconstant-symbol? [symbol-or-form]
   (and (symbol? symbol-or-form)
@@ -39,22 +41,36 @@
   (entryAt [this key]
            (find storage key))
   (assoc [this key val]
-         (Metaconstant. (.name this) (assoc storage key val)))
+    ;; (Metaconstant. (.name this) (assoc storage key val))) 
+    (throw (user-error 
+            (str "Metaconstants (" (.name this) ") can't have values assoc'd onto them.")
+            "If you have a compelling need for that, please create an issue:"
+            ecosystem/issues-url)))
 
   ;; Next two interfaces are extended by Associative.
-  ;; Defining even the ones I don't think are used
   clojure.lang.Seqable
-  (seq [this] (seq storage))
+  (seq [this] (seq storage))  ; I'm unhappy to define this, but it's needed by count/empty.
 
   clojure.lang.IPersistentCollection
   (count [this]
          (count storage))
   (cons [this o]
-        (Metaconstant. (.name this) (cons storage o)))
+        ;; (Metaconstant. (.name this) (cons storage o)))
+        (throw (user-error
+                (str "Metaconstants (" (.name this) ") can't have values added onto them.")
+                "If you have a compelling need for that, please create an issue:"
+                ecosystem/issues-url)))
   (empty [this]
          (empty? storage))
   (equiv [this that]
-         (.equals this that)))
+         (if (or (symbol? that)
+                 (= (type that) Metaconstant)
+                 (= that unbound-marker))
+           (.equals this that)
+           (throw (user-error 
+                   (str "Metaconstants (" (.name this) ") can't be compared for equality with " (pr-str that) ".")
+                   "If you have a compelling case for equality, please create an issue:"
+                   ecosystem/issues-url)))))
 
 (defmethod print-method Metaconstant [o ^Writer w]
   (print-method (.name o) w))
