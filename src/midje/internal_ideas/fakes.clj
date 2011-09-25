@@ -18,9 +18,11 @@
     [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
                                                with-pushed-namespace-values
                                                with-altered-roots]]
+    [midje.util.exceptions :only [user-error]]
     [midje.internal-ideas.wrapping :only [with-wrapping-target]]
     [midje.ideas.arrow-symbols])
-  (:require [clojure.zip :as zip]))
+  (:require [clojure.zip :as zip])
+  (:import midje.ideas.metaconstants.Metaconstant))
 
 ;;; Questions to ask of fakes // accessors
 
@@ -68,7 +70,7 @@
                 current-result)))
 
 (defmethod make-result-supplier :default [arrow result-stream]
-  (throw (Error. (str "It's likely you misparenthesized your metaconstant prerequisite."))))
+  (throw (user-error (str "It's likely you misparenthesized your metaconstant prerequisite."))))
 
 (defn fake* [ [[var-sym & args :as call-form] arrow result & overrides] ]
   ;; The (vec args) keeps something like (...o...) from being
@@ -140,9 +142,21 @@
           {}
           (unique-vars fakes)))
 
+
+(defn data-fakes-to-metaconstant-bindings [fakes]
+  (map (fn [{var :lhs, contents :contained}]
+         (let [name (:name (meta var))]
+           {var (Metaconstant. name contents)}))
+       fakes))
+
+(defn merge-metaconstant-bindings [bindings]
+  (apply merge-with (fn [v1 v2]
+                      (Metaconstant. (.name v1) (merge (.storage v1) (.storage v2))))
+         bindings))
+
+  
 (defn binding-map-with-data-fakes [fakes]
-  (let [expanded (map (fn [fake] {(:lhs fake) (:contained fake)}) fakes)]
-    (apply merge-with merge expanded)))
+  (merge-metaconstant-bindings (data-fakes-to-metaconstant-bindings fakes)))
 
 (defn binding-map [fakes]
   (let [[data-fakes function-fakes] (separate :data-fake fakes)]

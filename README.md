@@ -1,6 +1,6 @@
 Available via [clojars](http://clojars.org/search?q=midje)   
 Current stable version: [midje "1.2.0"]    
-Development version: HEAD
+Development version: [midje "1.3-alpha2"]
 
 About Midje
 =======================

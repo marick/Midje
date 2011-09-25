@@ -10,6 +10,7 @@
         [clojure.contrib.combinatorics :only [permutations]]
         [midje.util.form-utils :only [regex? tack-on-to record? classic-map?]]
 	[midje.checkers util extended-equality chatty defining]
+        [midje.util.exceptions :only [user-error]]
         [clojure.contrib.str-utils :only [str-join]]))
 
 (def looseness-modifiers #{:in-any-order :gaps-ok})
@@ -314,29 +315,29 @@
   (cond (regex? expected)
 	(cond (and (not (sequential? actual))
 		   (not (empty? looseness)))
-	      (throw (Error. (str "I don't know how to make sense of a "
-				  "regular expression applied "
-				  looseness "."))))
+	      (throw (user-error (str "I don't know how to make sense of a "
+                                      "regular expression applied "
+                                      looseness "."))))
 
 	(not (collection-like? actual))
-	(throw (Error. (str "You can't compare " (pr-str actual) " (" (type actual) 
-			    ") to " (pr-str expected) " (" (type expected) ").")))
+	(throw (user-error (str "You can't compare " (pr-str actual) " (" (type actual) 
+                                ") to " (pr-str expected) " (" (type expected) ").")))
 
         (and (record? expected)
              (map? actual)
              (not (= (class expected) (class actual))))
-        (throw (Error. (str "You expected a " (.getName (class expected))
-                            " but the actual value was a "
-                            (if (classic-map? actual) "map" (.getName (class actual)))
-                            ".")))
+        (throw (user-error (str "You expected a " (.getName (class expected))
+                                " but the actual value was a "
+                                (if (classic-map? actual) "map" (.getName (class actual)))
+                                ".")))
         
 	(and (map? actual)
 	     (not (map? expected)))
 	(try (into {} expected)
 	     (catch Throwable ex
-	       (throw (Error. (str "If " (pr-str actual) " is a map, "
-				   (pr-str expected)
-				   " should look like map entries.")))))))
+	       (throw (user-error (str "If " (pr-str actual) " is a map, "
+                                       (pr-str expected)
+                                       " should look like map entries.")))))))
 
   
 (defn- standardized-arguments [actual expected looseness]

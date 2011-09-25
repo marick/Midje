@@ -1,3 +1,15 @@
+1.3-alpha2
+--------
+* Second stab at data prerequisites.
+  https://github.com/marick/Midje/wiki/Data-prerequisites
+* Default format for metaconstants changed to use
+  dashes instead of dots: ---mc---
+
+1.3-alpha1
+--------
+* First stab at data prerequisites.
+  https://github.com/marick/Midje/wiki/Data-fakes
+
 1.2
 --------
 *   Lein-midje has been split off into a separate project.

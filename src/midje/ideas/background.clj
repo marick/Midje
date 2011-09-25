@@ -4,6 +4,7 @@
   (:use
     [clojure.contrib.seq :only [separate]]
     [midje.util.form-utils :only [form-first? translate symbol-named? separate-by]]
+    [midje.util.exceptions :only [user-error]]
     [midje.ideas.metaconstants :only [define-metaconstants]]
     [midje.ideas.prerequisites :only [prerequisite-to-fake
                                       metaconstant-prerequisite?]]
@@ -87,8 +88,8 @@
                  (rest in-progress))
           
           :else
-          (throw (Error. (str "This doesn't look like part of a background: "
-                              (vec in-progress)))))))
+          (throw (user-error (str "This doesn't look like part of a background: "
+                                  (vec in-progress)))))))
 
 (defn- state-wrapper [state-description]
   (if (some #{(name (first state-description))} '("before" "after" "around"))
@@ -97,7 +98,7 @@
                                    (name (first state-description)))
                            (rest state-description)))
       (second state-description))
-    (throw (Error. (str "Could make nothing of " state-description)))))
+    (throw (user-error (str "Could make nothing of " state-description)))))
 
 ;; Collecting all the background fakes is here for historical reasons:
 ;; it made it easier to eyeball expanded forms and see what was going on.

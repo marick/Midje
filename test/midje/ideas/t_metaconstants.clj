@@ -7,6 +7,9 @@
   (:require [clojure.zip :as zip])
   (:import midje.ideas.metaconstants.Metaconstant))
 
+
+;;; Notation
+
 (tabular 
  (fact "metaconstants begin and end with dots"
    '?candidate ?arrow metaconstant-symbol?)
@@ -20,6 +23,29 @@
  (..foo..)      =not=>)
 
 
+(tabular "or they begin and end with dashes"
+ (fact 
+   '?candidate ?arrow metaconstant-symbol?)
+ ?candidate   ?arrow
+ ---foo---      => 
+ -foo-          => 
+ foo            =not=>
+ -foo           =not=>
+ foo-           =not=>
+ "foo"          =not=>
+ (--foo--)      =not=>)
+
+;; This allows them to be used as function arguments.
+
+(defn f [fun args]
+  (apply fun args))
+
+(fact (f --v-- [1 2 3]) => 8
+  (provided
+    (--v-- 1 2 3) => 8))
+
+
+;;; About the datatype
 
 (let [mc (Metaconstant. '...name... {})]
   (fact "Metaconstants print as their name"
@@ -51,143 +77,28 @@
     (mc :key) => "value"
     (mc :not-key "default") => "default"))
 
-(fact "Metaconstants implement Associative"
+(fact "Metaconstants implement Associative lookup"
   (let [mc (Metaconstant. 'm {:key "value"})]
     (contains? mc :key) => truthy
     (contains? mc :not-key) => falsey
 
-    (find mc :key) => [:key "value"]
-
-    (let [new-mc (assoc mc :new-key "new value")]
-      (type new-mc) => Metaconstant
-      (:new-key new-mc) => "new value"
-      "Note that the new metaconstant is equal to the old!"
-      (= new-mc new-mc))))
+    (find mc :key) => [:key "value"]))
     
-(fact "Associate extends Seqable and IPersistentCollection"
+(fact "Associate extends some of Seqable and IPersistentCollection"
   (let [mc (Metaconstant. 'm {:key "value"})]
-    (seq mc) => (seq {:key "value"})
     (count mc) => 1
     (empty? mc) => falsey
     (.equiv mc mc) => truthy))
 
 
+
+;;;;
+
 (fact "metaconstants print funny"
   (str .mc.) => ".mc."
   (pr-str .mc.) => ".mc.")
 
-(fact "all three types of lookup"
-  (against-background ..mc.. =contains=> {:a 5})
-  (:a ..mc..) => 5
-  (get ..mc.. :a) => 5
-  "Note, reader reads (. ..mc..) as (. .mc..), hence convoluted code below."
-  (apply ..mc.. [:a]) => 5)
-
-(fact "Equality works, but I'm skeptical that using it on two objects that
-       are supposed to be partial descriptions is really a good idea."
-  ;; See below for extended equality
-  (= ..m.. ..n..) => truthy 
-  (provided
-    ..m.. =contains=> {:a 3}
-    ..n.. =contains=> {:a 3}))
-
-
-(fact "assoc works. The result type is a map though,
-       unlike assoc on records.  It'd be creepy to have two things that
-       print the same be different."
-  (against-background ..m.. =contains=> {'a even?})
-  (assoc ..m.. 'b odd?) => {'a even?, 'b odd?}
-  (assoc ..m.. 'b odd?) => map?)
-
-(fact   "merge works. As with assoc, the result is a hash."
-  (against-background ..m.. =contains=> {:a 3}
-                      ..n.. =contains=> {:b 4})
-  (merge ..m.. ..n..) => {:a 3, :b 4}
-  (merge ..m.. ..n..) => map?)
-
-(fact "keys, values, and contains work on metaconstants"
-  (against-background ..m.. =contains=> {:a 3, :b 4})
-  (keys ..m..) => [:a :b]
-  (vals ..m..) => [3 4]
-  (contains? ..m.. :a) => truthy
-  (contains? ..m.. :c) => falsey)
-
-(fact "Map, reduce"
-  (against-background ..m.. =contains=> {:a 1, :b 2, :c 3})
-  (map (fn [[_ value]] value) ..m..) => (just #{1 2 3})
-  (reduce (fn [so-far [_ value]] (+ so-far value))
-          0
-          ..m..) => 6)
-
-(defrecord NoAssocRecord [a b])
-(fact "comparing a metaconstant using a just or contains"
-  (against-background ..m.. =contains=> {:a even? :b odd?})
-
-  {:a even? :b odd?} => {:a even?, :b odd?}
-  (NoAssocRecord. even? odd?) => {:a even?, :b odd?}
-  ..m.. => {:a even?, :b odd?}
-
-  {:a even? :b odd?} => (just {:a (exactly even?), :b (exactly odd?)})
-  (NoAssocRecord. even? odd?) => (just {:a (exactly even?), :b (exactly odd?)})
-  ..m.. => (just {:a (exactly even?), :b (exactly odd?)})
-
-  {:a even? :b odd?} => (contains {:a (exactly even?), :b (exactly odd?)})
-  (NoAssocRecord. even? odd?) => (contains {:a (exactly even?), :b (exactly odd?)})
-  ..m.. => (contains {:a (exactly even?), :b (exactly odd?)}))
-
-
-(defn fullname [person]
-  (str (:given person) " " (:family person)))
-
-(fact
-  (fullname ...person...) => "Brian Marick"
-  (provided
-    ...person... =contains=> {:given "Brian", :family "Marick"}))
-
-(fact "background metaconstants"
-  (against-background ..m.. =contains=> {:a 1})
-  (:a ..m..) => 1)
-
-(fact "metaconstants can be mentioned multiple times"
-  (+ (:a ..m..) (:b ..m..)) => 3
-  (provided
-    ..m.. =contains=> {:a 1}
-    ..m.. =contains=> {:b 2})
-
-  "Later takes precedence over the former."
-  (+ (:a ..m..) (:b ..m..)) => 3
-  (provided
-    ..m.. =contains=> {:a 1, :b 333333}
-    ..m.. =contains=> {:b 2}))
-
-(future-fact "combining background and `provided` prerequisites"
-  (against-background ..m.. =contains=> {:b 2})
-
-  (+ (:a ..m..) (:b ..m..)) => 3
-  (provided
-    ..m.. =contains=> {:a 1})
-
-  "`provided` keys take precedence"
-  (+ (:a ..m..) (:b ..m..)) => 301
-  (provided
-    ..m.. =contains=> {:a 1, :b 300}))
-    
-
-(fact 
-  (:a ..m..) => 1
-  (provided ..m.. =contains=> {:a 1}))
-
-(future-fact "an error case"
-   (against-background ..m.. => {:a 1}))
-
-(defn concer [source] (str (:a source) (:b source) (:c source)))
-(fact
-  (let [c 'c]
-    (concer ...source...) => "abc"
-    (provided
-      ...source... =contains=> '{:a a, :b b}
-      ...source... =contains=> {:c c})))
-  
+;;;  Use with prerequisite functions
 
 
 (unfinished m)
@@ -229,3 +140,124 @@
     (metaconstant-for-form '(metaconstant-for-form))
     => '...metaconstant-for-form-value-1...))
 
+;;; Metaconstants-that-contain: as used in code
+
+(fact "all three types of lookup"
+  (against-background --mc-- =contains=> {:a 5})
+  (:a --mc--) => 5
+  (get --mc-- :a) => 5
+  (--mc-- :a) => 5)
+
+(fact "Equality can be used to compare two metaconstants for identity"
+  (let [aliased-as-function-argument ..m..]
+    (= aliased-as-function-argument ..m..) => truthy)
+  "Contents are not used in a comparison check."
+  (= ..m.. ..n..) => falsey
+  (provided
+    ..m.. =contains=> {:a 4}
+    ..n.. =contains=> {:a 4}))
+
+(fact "It is an error to compare a metaconstant to a map or record."
+  (= ..m.. {:a 4}) => (throws Error))
+
+(fact "It is appropriate to compare a metaconstant to its name."
+  (= '..m.. ..m..) => truthy
+  (= ..m.. '..m..) => truthy
+  (= '..m.. ..nnn..) => falsey
+  (= ..nnn.. '..m..) => falsey)
+
+(fact "Metaconstant equality blows up when given anything else."
+  (= ..m.. "foo") => (throws Error)
+  (= ..m.. :foo) => (throws Error)
+  (= ..m.. 1111) => (throws Error)
+  (= "foo" ..m..) => (throws Error)
+  (= :foo ..m..) => (throws Error)
+  (= 11111 ..m..) => (throws Error))
+
+
+(fact "a good many operations are not allowed"
+  (against-background ..m.. =contains=> {'a even?}
+                      ..n.. =contains=> {:b 4})
+  (assoc ..m.. 'b odd?) => (throws Error)
+  (merge ..m.. ..n..) => (throws Error)
+  (merge {:a 1} ..n..) => {:a 1, :b 4}
+  (merge ..m.. {:a 1}) => (throws Error)
+  (cons [:a 1] ..m..) => [ [:a 1] ['a even?] ]  ; Can't prevent.
+  (conj ..m.. {:a 3}) => (throws Error))
+
+(fact "keys, values, and contains work on metaconstants"
+  (against-background ..m.. =contains=> {:a 3, :b 4})
+  (keys ..m..) => [:a :b]
+  (vals ..m..) => [3 4]
+  (contains? ..m.. :a) => truthy
+  (contains? ..m.. :c) => falsey)
+
+(fact "Map, reduce"
+  (against-background ..m.. =contains=> {:a 1, :b 2, :c 3})
+  (map (fn [[_ value]] value) ..m..) => (just #{1 2 3})
+  (reduce (fn [so-far [_ value]] (+ so-far value))
+          0
+          ..m..) => 6)
+
+(unfinished salutation)
+(defn fullname [person]
+  (str (salutation person) (:given person) " " (:family person)))
+
+(fact
+  (fullname ...person...) => "Mr. Brian Marick"
+  (provided
+    ...person... =contains=> {:given "Brian", :family "Marick"}
+    (salutation ...person...) => "Mr. "))
+
+(defn concer [source] (str (:a source) (:b source) (:c source)))
+(fact
+  (let [c 'c]
+    (concer ...source...) => "abc"
+    (provided
+      ...source... =contains=> '{:a a, :b b}
+      ...source... =contains=> {:c c})))
+  
+;;; Metaconstants and backgrounds
+
+(fact "background metaconstants"
+  (against-background ..m.. =contains=> {:a 1})
+  (:a ..m..) => 1)
+
+(against-background [--mc-- =contains=> {:b 20}]
+  (fact "against-background can provide a containership prerequisite for a metaconstant."
+    (:b --mc--)) => 20)
+
+(background --mc-- =contains=> {:c 300})
+(fact "Background can contain a containership prerequisite for a metaconstant"
+  (:c --mc--) => 300)
+
+(fact "An against-background containership prerequisite takes precedence over a background one."
+  (against-background --mc-- =contains=> {:c 3})
+  (:c --mc--) => 3)
+
+(fact "three sources of containership prerequisites can be combined"
+  (against-background --mc-- =contains=> {:d 4000})
+  (+ (:c --mc--) (:d --mc--) (:e --mc--)) => 54300
+  (provided
+    --mc-- =contains=> {:e 50000}))
+
+(fact "A provided prerequisite takes precedence"
+  (against-background --mc-- =contains=> {:c 4000})
+  (:c --mc--) => 50000
+  (provided
+    --mc-- =contains=> {:c 50000}))
+
+
+
+
+(fact "metaconstants can be mentioned multiple times"
+  (+ (:a ..m..) (:b ..m..)) => 3
+  (provided
+    ..m.. =contains=> {:a 1}
+    ..m.. =contains=> {:b 2})
+
+  "Later takes precedence over the former."
+  (+ (:a ..m..) (:b ..m..)) => 3
+  (provided
+    ..m.. =contains=> {:a 1, :b 333333}
+    ..m.. =contains=> {:b 2}))
