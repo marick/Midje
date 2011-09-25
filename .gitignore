@@ -8,3 +8,5 @@ test/midje/scratch
 *~
 semantic.cache
 .lein-failures
+*.iml
+.idea/
