@@ -6,8 +6,8 @@
         [midje.util form-utils]
         [midje.test-util])
   (:require [clojure.zip :as zip]))
-(testable-privates midje.semi-sweet fakes-and-overrides)
-
+(testable-privates midje.semi-sweet fakes-and-overrides check-for-arrow)
+ 
 (unfinished faked-function mocked-function other-function)
 
 (defchecker odd-checker
