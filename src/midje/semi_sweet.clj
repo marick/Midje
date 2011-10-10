@@ -12,7 +12,7 @@
         [midje.util.exceptions :only [user-error]]
         [midje.production-mode]
         [clojure.pprint]
-        [clojure.contrib.def :only [defmacro-]]
+        [midje.util.old-clojure-contrib.def :only [defmacro-]]
         [clojure.contrib.ns-utils :only [immigrate]]))
 (immigrate 'midje.unprocessed)
 (immigrate 'midje.ideas.arrow-symbols)

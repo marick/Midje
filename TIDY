@@ -1,10 +1,3 @@
-total 64
-drwxr-xr-x   9 marick  marick   306 Jul 26 16:03 checkers/
-drwxr-xr-x   4 marick  marick   136 Jul 26 16:03 error_handling/
-drwxr-xr-x   9 marick  marick   306 Jul 26 17:50 ideas/
-drwxr-xr-x   6 marick  marick   204 Jul 26 17:44 internal_ideas/
-drwxr-xr-x  14 marick  marick   476 Jul 26 16:03 util/
-
 src/midje/checkers:
 total 88
 -rw-r--r--  1 marick  marick   2523 Jul 26 16:03 chatty.clj
