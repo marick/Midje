@@ -9,7 +9,7 @@
   	                            captured-exception-key 
   	                            named 
   	                            throwable-with-class?]]
-        [clojure.contrib.math :only [abs]]))
+        [midje.util.ecosystem :only [clojure-1-3? +M -M *M]]))
 
 (defchecker truthy 
   "Returns precisely true if actual is not nil and not false."
@@ -36,16 +36,21 @@
     (named 'exactly expected
            (checker [actual] (= expected actual))))
 
+(defn- abs [n]
+  (if (pos? n)
+    n
+    (-M n))) ;; -M not strictly necessary, but...
+
 (defchecker roughly
   "With two arguments, accepts a value within delta of the
    expected value. With one argument, the delta is 1/1000th
    of the expected value."
   ([expected delta]
      (checker [actual]
-       (and (>= expected (- actual delta))
-            (<= expected (+ actual delta)))))
+       (and (>= expected (-M actual delta))
+            (<= expected (+M actual delta)))))
   ([expected]
-     (roughly expected (abs (* 0.001 expected)))))
+     (roughly expected (abs (*M 0.001 expected)))))
 
 ;;Concerning Throwables
 

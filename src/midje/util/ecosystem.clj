@@ -5,3 +5,13 @@
 (def issues-url
      "https://github.com/marick/Midje/issues")
 
+(defn clojure-1-3? []
+  (and (= 1 (:major *clojure-version*))
+       (= 3 (:major *clojure-version*))))
+
+
+;; The following works because in 1.2 it's parsed as [+  '1].
+
+(def +M (first [+' 1]))
+(def -M (first [-' 1]))
+(def *M (first [*' 1]))
