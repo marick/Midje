@@ -5,7 +5,6 @@
 ;;; written, but no harm in keeping them around. Delete if they start
 ;;; to annoy.
 
-
 (ns behaviors.t-canary
   (:use [midje.sweet])
   (:use [midje.test-util]))
@@ -76,10 +75,10 @@
 (def fn-map
  {:foo #'another-fn})
 
-(defn some-fn [k arg]
+(defn a-fn [k arg]
  ((get fn-map k) arg))
 
 (fact
-  (some-fn :foo 55) => ...something...
+  (a-fn :foo 55) => ...something...
   (provided
     (another-fn 55) => ...something...))
