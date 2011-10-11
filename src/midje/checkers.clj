@@ -1,6 +1,7 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.checkers)
+(ns midje.checkers
+  (:use [midje.util.thread-safe-var-nesting :only [var-root]]))
 
 (defn republish* [namespace symbols]
   (require namespace)
@@ -8,7 +9,7 @@
     (let [var ( (ns-publics namespace) sym)]
       (let [sym (with-meta sym (assoc (meta var) :ns *ns*))]
         (if (.hasRoot var)
-          (intern *ns* sym (.getRoot var))
+          (intern *ns* sym (var-root var))
           (intern *ns* sym))))))
 
 (defmacro republish [namespace & symbols]

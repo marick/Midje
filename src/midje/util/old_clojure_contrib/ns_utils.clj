@@ -42,7 +42,8 @@
 (ns 
   #^{:author "Stephen C. Gilardi",
      :doc "Namespace utilities"}
-  midje.util.old-clojure-contrib.ns-utils)
+  midje.util.old-clojure-contrib.ns-utils
+  (:use [midje.util.thread-safe-var-nesting :only [var-root]]))
 
 ;; Namespace Utilities
 
@@ -57,5 +58,5 @@
     (doseq [[sym var] (ns-publics ns)]
       (let [sym (with-meta sym (assoc (meta var) :ns *ns*))]
         (if (.hasRoot var)
-          (intern *ns* sym (.getRoot var))
+          (intern *ns* sym (var-root var))
           (intern *ns* sym))))))
