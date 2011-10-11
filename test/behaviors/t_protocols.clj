@@ -4,7 +4,7 @@
   (:use [midje sweet test-util]
         [midje.open-protocols]
         behaviors.t-protocols-support)
-  (:import behaviors.t-protocols-support.OutsideNSFakeableRecord))
+  (:import behaviors.t_protocols_support.OutsideNSFakeableRecord))
 
 (fact "Imported record functions can be faked when called from outside"
   (let [rec (OutsideNSFakeableRecord. 1 3)]
