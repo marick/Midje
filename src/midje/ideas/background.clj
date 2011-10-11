@@ -2,7 +2,7 @@
 
 (ns midje.ideas.background
   (:use
-    [clojure.contrib.seq :only [separate]]
+    [midje.util.old-clojure-contrib.seq :only [separate]]
     [midje.util.form-utils :only [form-first? translate symbol-named? separate-by]]
     [midje.util.exceptions :only [user-error]]
     [midje.ideas.metaconstants :only [define-metaconstants]]

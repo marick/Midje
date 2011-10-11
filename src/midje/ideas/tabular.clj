@@ -2,7 +2,7 @@
 
 (ns midje.ideas.tabular
   (:use 
-    [clojure.contrib.str-utils :only [str-join]]
+    [clojure.string :only [join]]
     [midje.error-handling.monadic :only [error-let user-error-report-form validate]]
     [midje.internal-ideas.file-position :only [form-with-copied-line-numbers]]
     [midje.util.form-utils :only [ordered-zipmap translate pairs]]
@@ -13,7 +13,7 @@
 
 (defn- binding-note [ordered-binding-map]
   (let [entries (map (fn [[variable value]] (str variable " " (pr-str value))) ordered-binding-map)]
-    (str "{" (str-join ", " entries) "}")))
+    (str "{" (join ", " entries) "}")))
 
 (defn add-one-binding-note [expect-containing-form ordered-binding-map]
   (translate expect-containing-form

@@ -1,11 +1,10 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.error-handling.t-monadic
-  
   (:use [midje sweet test-util]
         [midje.error-handling.monadic]
         [midje.internal-ideas.file-position :only [form-position]]
-        [clojure.contrib monads]))
+        [clojure.algo.monads]))
 
 (fact "any form can be turned into a user-error form"
   (meta (as-user-error '(form))) => (contains {:midje-user-error true})

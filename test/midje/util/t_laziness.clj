@@ -4,7 +4,7 @@
   (:use [midje.sweet]
         [midje.util laziness thread-safe-var-nesting]
         [midje.test-util]
-        [clojure.contrib.seq :only [separate]]))
+        [midje.util.old-clojure-contrib.seq :only [separate]]))
 
 ;; Justification for use of eagerly
 (def counter (atom 1))

@@ -16,7 +16,7 @@
         [midje.ideas.prerequisites :only [is-head-of-form-providing-prerequisites?
                                           insert-prerequisites-into-expect-form-as-fakes]]
         [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence?]]
-        [clojure.contrib.seq :only [separate]]
+        [midje.util.old-clojure-contrib.seq :only [separate]]
         [midje.ideas.background :only [surround-with-background-fakes
                                        against-background-body
                                        against-background-contents-wrappers

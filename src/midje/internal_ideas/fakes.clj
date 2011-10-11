@@ -2,7 +2,7 @@
 
 (ns midje.internal-ideas.fakes
   (:use
-    [clojure.contrib.seq :only [find-first separate]]
+    [midje.util.old-clojure-contrib.seq :only [find-first separate]]
     [clojure.test :only [report]]
     [midje.checkers :only [exactly]]
     [midje.checkers.defining :only [checker? checker-makers]]

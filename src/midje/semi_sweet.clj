@@ -13,7 +13,7 @@
         [midje.production-mode]
         [clojure.pprint]
         [midje.util.old-clojure-contrib.def :only [defmacro-]]
-        [clojure.contrib.ns-utils :only [immigrate]]))
+        [midje.util.old-clojure-contrib.ns-utils :only [immigrate]]))
 (immigrate 'midje.unprocessed)
 (immigrate 'midje.ideas.arrow-symbols)
 

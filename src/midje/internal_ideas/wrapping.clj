@@ -3,7 +3,7 @@
 (ns midje.internal-ideas.wrapping
   (:use
     [midje.util.form-utils :only [form-first?]]
-    [clojure.contrib.seq :only [separate]]
+    [midje.util.old-clojure-contrib.seq :only [separate]]
     [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
                                                set-namespace-value
                                                with-pushed-namespace-values]])
