@@ -99,7 +99,8 @@
 
 (defonce
   #^{:doc "True by default.  If set to false, Midje checks are not
-     included into production code, whether compiled or loaded."}
+     included into production code, whether compiled or loaded."
+     :dynamic true}
   *include-midje-checks* true)
 
 

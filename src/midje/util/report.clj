@@ -13,14 +13,14 @@
         [midje.util.exceptions :only [friendly-exception-text]]
         [midje.checkers.util :only [captured-exception? captured-exception-value]]))
 
-(def *renderer* println)
+(def ^{:dynamic true} *renderer* println)
 
 
 ;;; This mechanism is only used to make `fact` return appropriate values of
 ;;; true or false. It doesn't piggyback off clojure.test/*report-counters*
 ;;; partly because that's not normally initialized and partly to reduce
 ;;; dependencies.
-(def *failure-in-fact* false)
+(def ^{:dynamic true} *failure-in-fact* false)
 (defn note-failure-in-fact
   ([] (note-failure-in-fact true))
   ([val] (alter-var-root #'*failure-in-fact* (constantly val))))

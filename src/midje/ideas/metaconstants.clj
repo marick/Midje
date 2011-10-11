@@ -72,7 +72,7 @@
                    "If you have a compelling case for equality, please create an issue:"
                    ecosystem/issues-url)))))
 
-(defmethod print-method Metaconstant [o ^Writer w]
+(defmethod print-method Metaconstant [o ^java.io.Writer w]
   (print-method (.name o) w))
 
 
@@ -82,7 +82,7 @@
       (intern *ns* metaconstant (Metaconstant. metaconstant {})))
     metaconstants))
 
-(def *metaconstant-counts*)
+(def ^{:dynamic true} *metaconstant-counts*)
 
 (defmacro with-fresh-generated-metaconstant-names [& forms]
   `(binding [*metaconstant-counts* (atom {})]
