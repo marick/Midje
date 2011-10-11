@@ -3,7 +3,7 @@
 (ns midje.util.form-utils
   (:use [midje.util.treelike :only [tree-variant]]
         [clojure.set :only [difference]]
-        [ordered.map :only [ordered-map]])
+        [tmp.ordered.map :only [ordered-map]])
   (:require [clojure.zip :as zip]))
 
 (defn regex? [thing]

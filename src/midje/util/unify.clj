@@ -2,7 +2,7 @@
 
 (ns midje.util.unify
   (:use [clojure.walk :only [prewalk]])
-  (:require [me.fogus.unifycle :as unify]))
+  (:require [clojure.core.unify :as unify]))
 
 (defn- variable? [x] (and (symbol? x) (.startsWith (name x) "?")))
 

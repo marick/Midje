@@ -4,7 +4,7 @@
   (:use midje.ideas.tabular
         [midje.error-handling.monadic]
         [midje sweet test-util])
-  (:use [ordered.map :only (ordered-map)]))
+  (:use [tmp.ordered.map :only (ordered-map)]))
 
 ;; Core midje.sweet API
 
