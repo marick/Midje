@@ -4,14 +4,14 @@
 
 (ns midje.checkers.collection
   (:use [clojure.set :only [union]]
-        [clojure.contrib.seq :only [rotations]]
-        [clojure.contrib.def :only [defmacro- defvar-]]
-        [clojure.contrib.pprint :only [cl-format]]
-        [clojure.contrib.combinatorics :only [permutations]]
+        [midje.util.old-clojure-contrib.seq :only [rotations]]
+        [midje.util.old-clojure-contrib.def :only [defmacro- defvar-]]
+        [clojure.pprint :only [cl-format]]
+        [clojure.math.combinatorics :only [permutations]]
         [midje.util.form-utils :only [regex? tack-on-to record? classic-map?]]
 	[midje.checkers util extended-equality chatty defining]
         [midje.util.exceptions :only [user-error]]
-        [clojure.contrib.str-utils :only [str-join]]))
+        [clojure.string :only [join]]))
 
 (def looseness-modifiers #{:in-any-order :gaps-ok})
 
@@ -104,10 +104,10 @@
   (fn [midje-classification elements] midje-classification))
 
 (defmethod collection-string ::map [midje-classification elements]
-   (str "{" (str-join ", " (sort elements)) "}"))
+   (str "{" (join ", " (sort elements)) "}"))
 
 (defmethod collection-string ::not-map [midje-classification elements]
-   (str "[" (str-join " " elements) "]"))
+   (str "[" (join " " elements) "]"))
 ;;-
 
 (defmulti #^{:private true} best-actual-match
@@ -119,7 +119,7 @@
 
 (defmethod best-actual-match ::map [midje-classification comparison]
   (str "Best match found: {"
-       (str-join ", "
+       (join ", "
                       (sort (map (fn [[k v]] (str (pr-str k) " " (pr-str v)))
                                     (:actual-found comparison))))
        "}."))

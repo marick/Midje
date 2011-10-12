@@ -1,7 +1,7 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.util.exceptions
-  (:use [clojure.contrib.str-utils :only [str-join]]))
+  (:use [clojure.string :only [join]]))
 
 
 ;;; Reading
@@ -32,7 +32,7 @@
 	     (without-midje-or-clojure-strings (stacktrace-as-strings ex)))))
 
 (defn friendly-exception-text [ex prefix]
-  (str-join (System/getProperty "line.separator") (friendly-exception-lines ex prefix)))
+  (join (System/getProperty "line.separator") (friendly-exception-lines ex prefix)))
 
 
 ;;; Writing

@@ -1,7 +1,7 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.util.debugging
-  (:require [clojure.contrib.string :as str]))
+  (:require [midje.util.old-clojure-contrib.string :as str]))
 
 ;; Typical sequence:
 ;; (p+ 1)                  > 1

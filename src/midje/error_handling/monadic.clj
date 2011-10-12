@@ -3,7 +3,7 @@
 (ns midje.error-handling.monadic
   (:use
     [clojure.algo.monads :only [defmonad domonad with-monad m-lift]]
-    [clojure.contrib.seq :only [find-first]]
+    [midje.util.old-clojure-contrib.seq :only [find-first]]
     [clojure.test :only [report]]
     [midje.internal-ideas.file-position :only [form-position]]))
 

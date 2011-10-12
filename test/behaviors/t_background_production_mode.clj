@@ -2,7 +2,7 @@
 
 (ns behaviors.t-background-production-mode
   (:use [midje.sweet])
-  (:use clojure.contrib.pprint))
+  (:use clojure.pprint))
 
 (alter-var-root #'*include-midje-checks* (constantly false))
 
