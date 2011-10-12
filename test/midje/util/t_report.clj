@@ -30,7 +30,7 @@
 ;; In the case of the checker (exactly odd?), you want to see failures
 ;; written in terms of a function name instead of some absurdly complicated
 ;; #<core$even_QMARK_ clojure.core$even_QMARK_@15ee9cc3>
-(fact "(exactly odd?) is printed attractively"
+(future-fact "(exactly odd?) is printed attractively"
   (attractively-stringified-form even?) => "a function named 'even?'"
   (attractively-stringified-form (fn [n] 1)) => #"fn__")
 
