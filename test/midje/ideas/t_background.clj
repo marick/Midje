@@ -96,7 +96,7 @@
  "mixtures"
  (prerequisites-to-fakes
   '[ (f 1) => 2 (before :checks (swap! test-atom (constantly 0))) (f 2) => 3 ])
- =>'[ (midje.semi-sweet/fake (f 1) => 2 :background :background
+ => '[ (midje.semi-sweet/fake (f 1) => 2 :background :background
                                         :times (range 0))
       (before :checks (swap! test-atom (constantly 0)))
       (midje.semi-sweet/fake (f 2) => 3 :background :background
