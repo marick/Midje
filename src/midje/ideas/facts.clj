@@ -1,5 +1,5 @@
 (ns midje.ideas.facts
-  (:use [midje.util.form-utils :only [form-first? translate preserve-type quoted?]]
+  (:use [midje.util.form-utils :only [form-first? translate-zipper preserve-type quoted?]]
         [midje.semi-sweet :only [is-semi-sweet-keyword?]]
         [midje.internal-ideas.fakes :only [unfold-fakes]]
 
@@ -47,7 +47,7 @@
    1) Arrow sequences become expect forms.
    2) (provided ...) become fakes inserted into preceding expect."
   [multi-form]
-  (translate multi-form
+  (translate-zipper multi-form
     is-start-of-checking-arrow-sequence?
     wrap-with-expect__then__at-rightmost-expect-leaf
     

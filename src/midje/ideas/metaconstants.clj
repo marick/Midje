@@ -1,7 +1,7 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.ideas.metaconstants
-  (:use [midje.util.form-utils :only [quoted? translate form-first?]]
+  (:use [midje.util.form-utils :only [quoted? translate-zipper form-first?]]
         [midje.util.zip :only [skip-down-then-rightmost-leaf]]
         [midje.util.thread-safe-var-nesting :only [unbound-marker]]
         [midje.util.exceptions :only [user-error]]
