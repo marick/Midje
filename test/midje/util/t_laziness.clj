@@ -8,13 +8,13 @@
 
 ;; Justification for use of eagerly
 (def counter (atom 1))
-(def mocked-function-produces-next-element inc)
+(def ^{:dynamic true} *mocked-function-produces-next-element* inc)
 
 (defn function-under-test-produces-a-lazy-list []
-  (iterate mocked-function-produces-next-element 1))
+  (iterate *mocked-function-produces-next-element* 1))
 
 (defn mock-use []
-  (binding [mocked-function-produces-next-element (fn [n] (swap! counter inc) (inc n))]
+  (binding [*mocked-function-produces-next-element* (fn [n] (swap! counter inc) (inc n))]
     (eagerly (take 5 (function-under-test-produces-a-lazy-list)))))
 
 (fact "eagerly forces evaluation"
