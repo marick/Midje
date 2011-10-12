@@ -9,6 +9,7 @@
         [clojure.pprint :only [cl-format]]
         [clojure.math.combinatorics :only [permutations]]
         [midje.util.form-utils :only [regex? tack-on-to record? classic-map?]]
+        [midje.util.object-utils :only [function-name named-function?]]
 	[midje.checkers util extended-equality chatty defining]
         [midje.util.exceptions :only [user-error]]
         [clojure.string :only [join]]))
@@ -145,8 +146,8 @@
    (best-expected-match-wrapper midje-classification
                                 comparison
                                 expected
-                                #(cond (and (fn? %) (:name (meta %)))
-                                       (:name (meta %))
+                                #(cond (named-function? %)
+                                       (function-name %)
 
                                        :else
                                        (pr-str %))
@@ -157,8 +158,8 @@
                                 comparison
                                 (vals expected)
                                 (fn [[k v]]
-                                  (if (and (fn? v) (:name (meta v)))
-                                    (str (pr-str k) " " (:name (meta v)))
+                                  (if (named-function? v)
+                                    (str (pr-str k) " " (function-name v))
                                     (str (pr-str k) " " (pr-str v))))
                                 ""))
 
@@ -408,7 +409,7 @@
    (checker [& args]
      (let [ [expected looseness] (separate-looseness args)]
        (as-chatty-checker
-        (named name expected
+        (named-as-call name expected
                (fn [actual]
                  (add-actual actual
                              (try (checker-fn actual expected looseness)

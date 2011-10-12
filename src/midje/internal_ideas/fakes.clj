@@ -3,6 +3,7 @@
 (ns midje.internal-ideas.fakes
   (:use
     [midje.util.old-clojure-contrib.seq :only [find-first separate]]
+    [midje.util.object-utils :only [object-name]]
     [clojure.test :only [report]]
     [midje.checkers :only [exactly]]
     [midje.checkers.defining :only [checker? checker-makers]]
@@ -145,8 +146,7 @@
 
 (defn data-fakes-to-metaconstant-bindings [fakes]
   (map (fn [{var :lhs, contents :contained}]
-         (let [name (:name (meta var))]
-           {var (Metaconstant. name contents)}))
+         {var (Metaconstant. (object-name var) contents)})
        fakes))
 
 (defn merge-metaconstant-bindings [bindings]

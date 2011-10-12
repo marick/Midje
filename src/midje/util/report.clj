@@ -10,6 +10,7 @@
   (:use clojure.test
         [clojure.pprint :only [cl-format]]
         [midje.util.form-utils :only [flatten-and-remove-nils]]
+        [midje.util.object-utils :only [function-name function-name-or-spewage named-function?]]
         [midje.util.exceptions :only [friendly-exception-text]]
         [midje.checkers.util :only [captured-exception? captured-exception-value]]))
 
@@ -43,15 +44,14 @@
   `(binding [*renderer* identity] ~@forms))
 
 (defn attractively-stringified-form [form]
-  (let [named-function-name #(and (fn? %) (:name (meta %)))]
-    (cond (named-function-name form)
-          (format "a function named '%s'" (named-function-name form))
-
-          (captured-exception? form)
-          (friendly-exception-text (captured-exception-value form) "              ")
-
-          :else
-          (pr-str form))))
+  (cond (named-function? form)
+        (format "a function named '%s'" (function-name form))
+        
+        (captured-exception? form)
+        (friendly-exception-text (captured-exception-value form) "              ")
+        
+        :else
+        (pr-str form)))
 
 (defn- fail-at [m]
   [(str "\nFAIL at " (midje-position-string (:position m)))
@@ -66,7 +66,9 @@
 (defmethod report-strings :mock-argument-match-failure [m]
    (list
     (fail-at m)
-    (str "You never said " (:name (meta (:lhs m))) " would be needed with these arguments:")
+    (str "You never said "
+         (function-name-or-spewage (:lhs m))
+         " would be needed with these arguments:")
     (str "    " (pr-str (:actual m)))))
 
 (defmethod report-strings :mock-incorrect-call-count [m]

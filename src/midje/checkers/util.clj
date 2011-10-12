@@ -1,11 +1,12 @@
 ;; -*- indent-tabs-mode: nil -*-
 (ns midje.checkers.util
-  (:use [midje.util.form-utils :only [classic-map?]]))
+  (:use [midje.util.form-utils :only [classic-map?]]
+        [midje.util.object-utils :only [name-object]]))
 
-(defn named [name expected function]
+(defn named-as-call [name expected function]
   "Adds a string name that looks like a function call to
-   a functions metadata under :name"
-  (vary-meta function assoc :name (format "(%s %s)" name expected)))
+   a function's metadata under :name"
+  (name-object function (format "(%s %s)" name expected)))
   
 (def captured-exception-key "this Throwable was captured by midje:")
 

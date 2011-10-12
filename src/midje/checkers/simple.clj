@@ -7,7 +7,7 @@
   	[midje.checkers.extended-equality :only [extended-=]]
   	[midje.checkers.util :only [captured-exception? 
   	                            captured-exception-key 
-  	                            named 
+  	                            named-as-call
   	                            throwable-with-class?]]
         [midje.util.ecosystem :only [clojure-1-3? +M -M *M]]))
 
@@ -33,8 +33,8 @@
 (defchecker exactly
   "Checks for equality. Use to avoid default handling of functions."
   [expected]
-    (named 'exactly expected
-           (checker [actual] (= expected actual))))
+    (named-as-call 'exactly expected
+                   (checker [actual] (= expected actual))))
 
 (defn- abs [n]
   (if (pos? n)
