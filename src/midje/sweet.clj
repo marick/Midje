@@ -20,6 +20,10 @@
 )
 (immigrate 'midje.unprocessed)
 (immigrate 'midje.semi-sweet)
+
+;; Following is required because `intern` doesn't transfer "dynamicity".
+(def ^{:dynamic true} *include-midje-checks* *include-midje-checks*)
+
 (intern *ns* 'before #'background/before)
 (intern *ns* 'after #'background/after)
 (intern *ns* 'around #'background/around)
