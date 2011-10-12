@@ -5,7 +5,7 @@
     [clojure.string :only [join]]
     [midje.error-handling.monadic :only [error-let user-error-report-form validate]]
     [midje.internal-ideas.file-position :only [form-with-copied-line-numbers]]
-    [midje.util.form-utils :only [ordered-zipmap translate pairs]]
+    [midje.util.form-utils :only [ordered-zipmap translate-zipper pairs]]
     [midje.util.zip :only [skip-to-rightmost-leaf]]
     [midje.internal-ideas.expect :only [expect?]]
     [midje.ideas.arrows :only [above-arrow-sequence__add-key-value__at-arrow]])
@@ -16,7 +16,7 @@
     (str "{" (join ", " entries) "}")))
 
 (defn add-one-binding-note [expect-containing-form ordered-binding-map]
-  (translate expect-containing-form
+  (translate-zipper expect-containing-form
     expect?
     (fn [loc] (skip-to-rightmost-leaf
       (above-arrow-sequence__add-key-value__at-arrow :binding-note (binding-note ordered-binding-map) loc)))))

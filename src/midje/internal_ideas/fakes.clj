@@ -8,7 +8,7 @@
     [midje.checkers.defining :only [checker? checker-makers]]
     [midje.internal-ideas.expect :only [expect? up-to-full-expect-form]]
     [midje.util.form-utils :only [form-first?
-                                  translate
+                                  translate-zipper
                                   map-difference
                                   hash-map-duplicates-ok]]
     [midje.ideas.metaconstants :only [metaconstant-for-form
@@ -288,7 +288,7 @@
 
 (defn unfold-fakes [form]
   (with-fresh-generated-metaconstant-names
-    (translate form
+    (translate-zipper form
         expect?
         unfold-expect-form__then__stay_put)))
 

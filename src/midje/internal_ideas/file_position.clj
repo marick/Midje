@@ -2,7 +2,7 @@
 
 (ns midje.internal-ideas.file-position
   (:use [midje.util.zip :only [skip-to-rightmost-leaf]]
-        [midje.util.form-utils :only [translate]]
+        [midje.util.form-utils :only [translate-zipper]]
         [midje.util.namespace :only [namespacey-match]]
         [midje.ideas.arrows :only [all-arrows at-arrow__add-key-value-to-end__no-movement]])
   (:require [clojure.zip :as zip]))
@@ -91,7 +91,7 @@
    :position `(line-number-known ~number) loc))
 
 (defn annotate-embedded-arrows-with-line-numbers [form]
-  (translate form
+  (translate-zipper form
     (fn [loc] (namespacey-match all-arrows loc))
     (fn [loc] (at-arrow__add-line-number-to-end__no-movement (arrow-line-number loc) loc))))
 

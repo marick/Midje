@@ -97,18 +97,22 @@
              (next vs))
       m)))
 
-(defn first-true [[pred & more-preds] & args]	
+(defn first-true
+  "returns the first function in a seq of functions
+  that evaluates to true for the given arguments"
+  [[pred & more-preds] & args]
   (when pred
     (if (apply pred args)
-        pred
-        (apply first-true more-preds args))))
+      pred
+      (apply first-true more-preds args))))
 
-;; traverses the zipper; for the first (only the first!) predicate matching a 
-;; node, calls the corresponding translate function. Then, continues traversing.   
-(defn translate [form & preds+translate-fns]
+(defn translate-zipper
+  "traverses the zipper - for the first predicate that evaluates to true for matching a
+  node, calls the corresponding translate function on that node. Then, continues traversing."
+  [form & preds+translate-fns]
   (loop [loc (zip/seq-zip form)]
-      (if (zip/end? loc)
-          (zip/root loc)
-          (if-let [true-fn (first-true (map first (partition 2 preds+translate-fns)) loc)]
-            (recur (zip/next ((get (apply hash-map preds+translate-fns) true-fn) loc)))
-            (recur (zip/next loc))))))
+    (if (zip/end? loc)
+      (zip/root loc)
+      (if-let [true-fn (first-true (map first (partition 2 preds+translate-fns)) loc)]
+        (recur (zip/next ((get (apply hash-map preds+translate-fns) true-fn) loc)))
+        (recur (zip/next loc))))))
