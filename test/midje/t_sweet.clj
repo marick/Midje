@@ -82,17 +82,17 @@
 (fact "key-value pairs can be passed to override normal behavior"
   (always-one 3) => 3 :expected-result 1)
 
-(defn some-fn [n] n)
+(defn a-fun [n] n)
 ; http://github.com/marick/Midje/issues/#issue/5
 (doseq [v (range 5)]
   (fact
     (str "It should be the identity for value " v) ;; doc string needn't be constant
-    (some-fn v) => v))
+    (a-fun v) => v))
 
 ; http://github.com/marick/Midje/issues/#issue/2
 (fact
   (expect (always-one 5) => 1
-          (not-called some-fn)))
+          (not-called a-fun)))
 
 (binding [midje.semi-sweet/*include-midje-checks* false]
   (load "sweet_compile_out"))
@@ -236,23 +236,26 @@
 
 ;;; return values
 
-(def *fact-retval* (fact
+(def ^{:dynamic true}
+     *fact-retval* (fact
                      (+ 1 1) => 2
                      "some random return value"))
 (fact "fact returns true on success"
    *fact-retval* => true)
 
 
-(def *fact-retval* (fact
+(def ^{:dynamic true}
+     *fact-retval* (fact
                      (midje.util.report/note-failure-in-fact)
                      "some random return value"))
 (fact "fact returns false on failure"
   *fact-retval* => false)
 
 
-(def *fact-retval* (fact
-                      (+ 1 1) => 2
-                      "some random return value"))
+(def ^{:dynamic true}
+     *fact-retval* (fact
+                     (+ 1 1) => 2
+                     "some random return value"))
 (fact "a fact's return value is not affected by previous failures"
   *fact-retval* => true)
 
