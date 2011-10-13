@@ -52,8 +52,14 @@
 
 ;; If you're testing something that produces a function, use
 ;; (exactly):
+;(fact (first [even? odd?]) => (exactly odd?))                      (note-expected-failure)
 
-(fact (first [even? odd?]) => (exactly odd?))                      (note-expected-failure)
+;; NOTE: the previous line is commented out because Midje prints the
+;; function name nicely in Clojure 1.2. A breaking change to Clojure
+;; 1.3 makes it harder to accomplish this, so an ugly name that
+;; can vary between runs is printed instead.  Leaving that name in the
+;; output would prevent this from being used as part of the
+;; just-before-release regression test suite.
 
 ;; FAIL at (core_test.clj:56)
 ;; Actual result did not agree with the checking function.

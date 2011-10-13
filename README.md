@@ -1,6 +1,6 @@
 Available via [clojars](http://clojars.org/search?q=midje)   
 Current stable version: [midje "1.2.0"]    
-Development version: [midje "1.3-alpha2"]
+Development version: [midje "1.3-alpha4"] (includes Clojure 1.3 support)
 
 About Midje
 =======================
@@ -64,4 +64,13 @@ You can [download
 everything](http://github.com/marick/Midje/downloads) to get
 more examples.
 
-
+Contributors
+==============
+* Sean T. Allen
+* Alex Baranosky
+* Phillip Calçado
+* Ben Mabey
+* Brian Marick
+* Bob Martin
+* Sébastien RoccaSerra
+* Wilkes Joiner

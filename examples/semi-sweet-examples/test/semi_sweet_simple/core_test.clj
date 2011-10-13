@@ -34,14 +34,6 @@
 ;;     expected function: odd?
 ;;         actual result: 4
 
-;; If you're testing something that produces a function, use
-;; (exactly):
-(deftest example-of-an-exact-function-as-right-hand-side
-  (expect (first [even? odd?]) => (exactly odd?))                      (note-expected))
-;;     Actual result did not pass expected function.
-;;     expected function: (exactly odd?)
-;;         actual result: #<core$even_QMARK___4680 clojure.core$even_QMARK___4680@494b6bed>
-
 ;; There are a number of matching functions available. You can find them all with 
 ;;            (ns-publics 'midje.checkers)
 ;; They have doc strings.
@@ -161,7 +153,6 @@
   (example-of-a-simple-equality-test)
   (example-of-a-simple-equality-test-failure)
   (example-of-a-function-as-right-hand-side)
-  (example-of-an-exact-function-as-right-hand-side)
   (example-of-a-predefined-checker)
   (example-of-a-simple-fake)
   (example-of-a-simple-fake-failure)

@@ -7,34 +7,29 @@ Actual result did not agree with the checking function.
         Actual result: 4
     Checking function: odd?
 ^^^^ The previous failure was expected ^^^^
-FAIL at (core_test.clj:56)
-Actual result did not agree with the checking function.
-        Actual result: a function named 'even?'
-    Checking function: (exactly odd?)
-^^^^ The previous failure was expected ^^^^
-FAIL at (core_test.clj:74)
+FAIL at (core_test.clj:80)
 Actual result did not agree with the checking function.
         Actual result: [3 3 1 2]
     Checking function: (just [1 2 3] :in-any-order)
     The checker said this about the reason:
         Expected three elements. There were four.
 ^^^^ The previous failure was expected ^^^^
-FAIL at (core_test.clj:124)
+FAIL at (core_test.clj:130)
 You claimed the following was needed, but it was never used:
     (alive? ...cell...)
-FAIL at (core_test.clj:125)
+FAIL at (core_test.clj:131)
 You claimed the following was needed, but it was never used:
     (neighbor-count ...cell...)
-FAIL at (core_test.clj:122)
+FAIL at (core_test.clj:128)
 Actual result did not agree with the checking function.
         Actual result: nil
     Checking function: truthy
 ^^^^ The previous three failures were expected ^^^^
-FAIL at (core_test.clj:225)
+FAIL at (core_test.clj:231)
 You claimed the following was needed, but it was never used:
     (property-of ...data-structure-value-1...)
-FAIL at (core_test.clj:225)
+FAIL at (core_test.clj:231)
 You claimed the following was needed, but it was never used:
     (data-structure)
 ^^^^ The previous two failures were expected ^^^^
-FAILURE: 9 facts were not confirmed. (But 14 were.)
+FAILURE: 8 facts were not confirmed. (But 14 were.)

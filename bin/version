@@ -16,13 +16,15 @@ def arg(index, error)
 end
 
 
-$clojure_version = arg(0, "clojure")
-$clojure_contrib_version = arg(1, "clojure_contrib")
-$midje_version = arg(2, "midje")
+$midje_version = arg(0, "midje")
+$clojure_version = arg(1, "clojure")
+$clojure_contrib_version = ARGV[2]
 
 
 $clojure_jar="#{ENV['HOME']}/.m2/repository/org/clojure/clojure/#{$clojure_version}/clojure-#{$clojure_version}.jar"
-$contrib_jar="#{ENV['HOME']}/.m2/repository/org/clojure/clojure-contrib/#{$clojure_contrib_version}/clojure-contrib-#{$clojure_contrib_version}.jar"
+if $clojure_contrib_version
+  $contrib_jar="#{ENV['HOME']}/.m2/repository/org/clojure/clojure-contrib/#{$clojure_contrib_version}/clojure-contrib-#{$clojure_contrib_version}.jar"
+end
 $midje_jar="midje-#{$midje_version}.jar"
 
 def remove_jars(*dirs)
@@ -37,7 +39,7 @@ def install_jars(*dirs)
     libdir = File.join(dir, "lib")
     mkdir(libdir) unless File.exist?(libdir)
     cp $clojure_jar, libdir
-    cp $contrib_jar, libdir
+    cp $contrib_jar, libdir if $clojure_contrib_version
     devdir = File.join(dir, "lib", "dev")
     mkdir(devdir) unless File.exist?(devdir)
     cp $midje_jar, devdir

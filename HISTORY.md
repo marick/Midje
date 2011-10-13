@@ -1,5 +1,6 @@
-1.3-alpha2
+1.3-alpha4
 --------
+* Believed to run under Clojure 1.3
 * Second stab at data prerequisites.
   https://github.com/marick/Midje/wiki/Data-prerequisites
 * Default format for metaconstants changed to use

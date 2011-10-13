@@ -18,7 +18,7 @@ lein_midje_runs = %w{examples/basic
 
 cake_midje_runs = %w{examples/cake-midje}
 
-run_runs = %w{ examples/semi-sweet-examples examples/basic }
+run_runs = %w{  }
 
 def lein_clean; system("lein clean 2>&1 | grep -v 'Cleaning up'"); end
 def lein_deps;  system("lein deps 2>&1 | grep -v 'Copying .* files'"); end
