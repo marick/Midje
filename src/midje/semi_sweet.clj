@@ -123,7 +123,7 @@
 (defmacro not-called
   "Creates an fake map that a function will not be called.
    Example: (not-called f))
-   DEPRECATED: Prefer `:times 0` annotation to `fake`."
+   DEPRECATED: Prefer `:times 0` or `:never` annotation to `fake`."
   [var-sym & overrides]
   (make-fake-map var-sym
                  `{:call-text-for-failures (str '~var-sym " was called.")

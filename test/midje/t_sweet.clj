@@ -232,7 +232,14 @@
      (called anything) => 1 :times 0))
  (fact (contains {:type :mock-incorrect-call-count
                   :actual-count 0})))
-    
+
+(after-silently
+  (fact ":never is an alias for ':times 0'"
+     (called 45) => 3
+     (provided
+       (called anything) => 1 :never))
+  (fact (contains {:type :mock-incorrect-call-count
+                   :actual-count 0})))
 
 ;;; return values
 

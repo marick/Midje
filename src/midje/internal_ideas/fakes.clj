@@ -44,12 +44,19 @@
     :count-atom (atom 0)
     :position (user-file-position)})
 
+(defn- de-sugar-overrides
+  "replace syntactic sugar of `:never` with `:times 0`"
+  [overrides]
+  (if (some #{:never} overrides)
+    (concat (remove #{:never} overrides) `(:times 0))
+    overrides))
+
 (defn make-fake-map 
-  [var-sym special-to-fake-type user-override-pairs]
+  [var-sym special-to-fake-type user-override-pairs] ; if overrides include :never, they won't actually be pairs, until de-sugared
   (merge
    (common-to-all-fakes var-sym)
    special-to-fake-type
-   (apply hash-map-duplicates-ok user-override-pairs)))
+   (apply hash-map-duplicates-ok (de-sugar-overrides user-override-pairs))))
 
 (defn arg-matcher-maker 
   "Based on an expected value, generates a function that returns true if the 
