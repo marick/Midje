@@ -178,7 +178,7 @@
 (tabular (fact ?comment
            (let [line-no-free-original ?original
                  line-no-free-expected ?expected]
-             (add-one-binding-note line-no-free-original (ordered-map '?a 'a))
+             (add-binding-note line-no-free-original (ordered-map '?a 'a))
              => line-no-free-expected))
 
          ?comment ?original ?expected
@@ -202,7 +202,7 @@
          '(do (midje.semi-sweet/expect (a) => b :binding-note "{?a a}" :line 33)))
 
 (fact "binding notes are in the order of the original row - this order is maintained within the ordered-binding-map"
-  (let [actual (add-one-binding-note '(do (expect 1 => 2))
+  (let [actual (add-binding-note '(do (expect 1 => 2))
                                           (ordered-map '?a 1, '?b 2, '?delta "0", '?result 3))
         expected '(do (expect 1 => 2 :binding-note "{?a 1, ?b 2, ?delta \"0\", ?result 3}"))]
     actual => expected))

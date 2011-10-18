@@ -9,9 +9,11 @@
 (defn regex? [thing]
   (= (class thing) java.util.regex.Pattern))
 
-(defn classic-map? [x] (.isInstance clojure.lang.APersistentMap x))
+(defn classic-map? [x]
+  (.isInstance clojure.lang.APersistentMap x))
   
-(defn record? [x]  (and (map? x) (not (classic-map? x))))
+(defn record? [x]
+  (and (map? x) (not (classic-map? x))))
   
 (defn symbol-named?
   "Is the thing a symbol with the name given by the string?"
@@ -97,22 +99,22 @@
              (next vs))
       m)))
 
-(defn first-true
+(defn first-truthy
   "returns the first function in a seq of functions
-  that evaluates to true for the given arguments"
+  that evaluates to truthy for the given arguments"
   [[pred & more-preds] & args]
   (when pred
     (if (apply pred args)
       pred
-      (apply first-true more-preds args))))
+      (apply first-truthy more-preds args))))
 
 (defn translate-zipper
-  "traverses the zipper - for the first predicate that evaluates to true for matching a
+  "traverses the zipper - for the first predicate that evaluates to truthy for matching a
   node, calls the corresponding translate function on that node. Then, continues traversing."
   [form & preds+translate-fns]
   (loop [loc (zip/seq-zip form)]
     (if (zip/end? loc)
       (zip/root loc)
-      (if-let [true-fn (first-true (map first (partition 2 preds+translate-fns)) loc)]
+      (if-let [true-fn (first-truthy (map first (partition 2 preds+translate-fns)) loc)]
         (recur (zip/next ((get (apply hash-map preds+translate-fns) true-fn) loc)))
         (recur (zip/next loc))))))

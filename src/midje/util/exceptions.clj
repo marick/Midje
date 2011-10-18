@@ -4,6 +4,14 @@
   (:use [clojure.string :only [join]]))
 
 
+;;; Writing
+
+(def line-separator (System/getProperty "line.separator"))
+
+(defn user-error [& lines]
+  (Error. (join line-separator lines)))
+
+
 ;;; Reading
 
 (defn stacktrace-as-strings [ex]
@@ -32,12 +40,4 @@
 	     (without-midje-or-clojure-strings (stacktrace-as-strings ex)))))
 
 (defn friendly-exception-text [ex prefix]
-  (join (System/getProperty "line.separator") (friendly-exception-lines ex prefix)))
-
-
-;;; Writing
-
-(def line-separator (System/getProperty "line.separator"))
-
-(defn user-error [& lines]
-  (Error. (apply str (interpose line-separator lines))))
+  (join line-separator (friendly-exception-lines ex prefix)))

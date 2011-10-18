@@ -5,7 +5,7 @@
     [clojure.string :only [join]]
     [midje.error-handling.monadic :only [error-let user-error-report-form validate]]
     [midje.internal-ideas.file-position :only [form-with-copied-line-numbers]]
-    [midje.util.form-utils :only [ordered-zipmap translate-zipper pairs]]
+    [midje.util.form-utils :only [ordered-zipmap translate-zipper]]
     [midje.util.zip :only [skip-to-rightmost-leaf]]
     [midje.internal-ideas.expect :only [expect?]]
     [midje.ideas.arrows :only [above-arrow-sequence__add-key-value__at-arrow]])
@@ -15,15 +15,11 @@
   (let [entries (map (fn [[variable value]] (str variable " " (pr-str value))) ordered-binding-map)]
     (str "{" (join ", " entries) "}")))
 
-(defn add-one-binding-note [expect-containing-form ordered-binding-map]
+(defn add-binding-note [expect-containing-form ordered-binding-map]
   (translate-zipper expect-containing-form
     expect?
     (fn [loc] (skip-to-rightmost-leaf
       (above-arrow-sequence__add-key-value__at-arrow :binding-note (binding-note ordered-binding-map) loc)))))
-
-(defn add-binding-notes [expect-containing-forms ordered-binding-maps]
-  (map (partial apply add-one-binding-note) 
-       (pairs expect-containing-forms ordered-binding-maps)))
 
 
 
@@ -38,7 +34,6 @@
 
 
 
-
 (defn- expander-for [fact-form]
   (comp macroexpand 
         #(form-with-copied-line-numbers % fact-form) 
@@ -49,7 +44,9 @@
               ordered-binding-maps (table-binding-maps table)
               expect-forms (map (expander-for fact-form)
                                 ordered-binding-maps)
-              result (add-binding-notes expect-forms ordered-binding-maps)]
+              result (map add-binding-note
+                          expect-forms
+                          ordered-binding-maps)]
     `(do ~@result)))
 
 (defmethod validate "tabular" [form]

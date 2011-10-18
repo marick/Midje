@@ -65,10 +65,10 @@
   (apply-pairwise [inc dec] [1 1] [2 2]) => [[2 0] [3 1]])
 
 (tabular
-  (fact "returns the first function that is true for the given args"
-    (first-true ?fns :kw)  => (exactly ?first-true-fn))
+  (fact "returns the first function that is truthy for the given args"
+    (first-truthy ?fns :kw)  => (exactly ?first-truthy-fn))
   
-     ?fns                ?first-true-fn
+     ?fns                ?first-truthy-fn
      [string? keyword?]  keyword? 
      []                  nil       
      [keyword? odd?]     keyword? ) ;; shortcircuits when it reaches a match - evaluating (odd? :kw) would have blown up   
