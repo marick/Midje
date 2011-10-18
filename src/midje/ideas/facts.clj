@@ -4,7 +4,6 @@
         [midje.internal-ideas.fakes :only [unfold-fakes]]
 
         [midje.util.laziness :only [eagerly]]
-        [midje.util.namespace :only [namespacey-match]]
         [midje.internal-ideas.expect :only [expect?
                                             wrap-with-expect__then__at-rightmost-expect-leaf]]
         [midje.internal-ideas.file-position :only [annotate-embedded-arrows-with-line-numbers]]

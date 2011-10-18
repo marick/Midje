@@ -1,7 +1,7 @@
 ;; -*- indent-tabs-mode: nil -*-
 (ns midje.internal-ideas.expect
   (:use [midje.util.treelike :only [tree-variant]]
-        [midje.util.namespace :only [namespacey-match]]
+        [midje.util.namespace :only [matches-symbols-in-semi-sweet-or-sweet-ns?]]
         [midje.util.form-utils :only [form-first?]]
         [midje.util.zip :only [skip-to-rightmost-leaf n-times remove-moving-right]]
         [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence? arrow-sequence-overrides]]
@@ -13,11 +13,10 @@
 
 (defmethod expect? :zipper [loc]
   (and (zip/branch? loc)
-       (namespacey-match '(expect) (zip/down loc))))
+       (matches-symbols-in-semi-sweet-or-sweet-ns? '(expect) (zip/down loc))))
 
 (defmethod expect? :form [form]
   (form-first? form "expect"))
-
 
 
 

@@ -20,7 +20,7 @@
 ;;; Misc
 
 (defn is-semi-sweet-keyword? [loc]
-  (namespacey-match '(expect fake not-called data-fake) loc))
+  (matches-symbols-in-semi-sweet-or-sweet-ns? '(expect fake not-called data-fake) loc))
 
 (defn- fakes-and-overrides [form]
   (let [fake? #(and (seq? %)

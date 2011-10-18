@@ -4,7 +4,9 @@
   (:use [clojure.walk :only [prewalk]])
   (:require [clojure.core.unify :as unify]))
 
-(defn- variable? [x] (and (symbol? x) (.startsWith (name x) "?")))
+(defn- variable? [x]
+  (and (symbol? x)
+       (.startsWith (name x) "?")))
 
 ; (def subst unify/subst)
 (def unify unify/unify)

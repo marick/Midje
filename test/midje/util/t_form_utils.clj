@@ -66,7 +66,7 @@
 
 (tabular
   (fact "returns the first function that is truthy for the given args"
-    (first-truthy ?fns :kw)  => (exactly ?first-truthy-fn))
+    (first-truthy-fn ?fns :kw)  => (exactly ?first-truthy-fn))
   
      ?fns                ?first-truthy-fn
      [string? keyword?]  keyword? 

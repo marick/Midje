@@ -4,7 +4,7 @@
   (:use 
     [clojure.pprint :only [cl-format]]
     [midje.error-handling.monadic :only [user-error-report-form validate]]
-    [midje.util.namespace :only [namespacey-match]]
+    [midje.util.namespace :only [matches-symbols-in-semi-sweet-or-sweet-ns?]]
     [midje.ideas.metaconstants :only [metaconstant-symbol?]]
     [midje.ideas.arrow-symbols :only [=contains=>]]))
 
@@ -24,7 +24,7 @@
            form
            "You seem to be assigning values to a metaconstant, but there's no metaconstant.")
 
-          (not= (namespacey-match [arrow] =contains=>))
+          (not= (matches-symbols-in-semi-sweet-or-sweet-ns? '(arrow) =contains=>))
           (user-error-report-form
            form
            "Assigning values to a metaconstant requires =contains=>")

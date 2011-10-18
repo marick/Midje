@@ -99,14 +99,14 @@
              (next vs))
       m)))
 
-(defn first-truthy
+(defn first-truthy-fn
   "returns the first function in a seq of functions
   that evaluates to truthy for the given arguments"
   [[pred & more-preds] & args]
   (when pred
     (if (apply pred args)
       pred
-      (apply first-truthy more-preds args))))
+      (apply first-truthy-fn more-preds args))))
 
 (defn translate-zipper
   "traverses the zipper - for the first predicate that evaluates to truthy for matching a
@@ -115,6 +115,6 @@
   (loop [loc (zip/seq-zip form)]
     (if (zip/end? loc)
       (zip/root loc)
-      (if-let [true-fn (first-truthy (map first (partition 2 preds+translate-fns)) loc)]
+      (if-let [true-fn (first-truthy-fn (map first (partition 2 preds+translate-fns)) loc)]
         (recur (zip/next ((get (apply hash-map preds+translate-fns) true-fn) loc)))
         (recur (zip/next loc))))))

@@ -4,14 +4,13 @@
   (:use [midje.util.namespace])
   (:use midje.sweet)
   (:require [clojure.zip :as zip])
-  (:use midje.test-util)
-)
+  (:use midje.test-util))
 
-(fact "namespacey-match accepts symbols from different midje namespaces"
+(fact "matches-symbols-in-semi-sweet-or-sweet-ns? accepts symbols from different midje namespaces"
   (let [values (zip/seq-zip '(m midje.semi-sweet/expect))
         m-node (zip/down values)
         expect-node (-> values zip/down zip/right)]
-    (expect (namespacey-match '(m) m-node) => truthy)
-    (expect (namespacey-match '(expect) expect-node) => truthy)
-    (expect (namespacey-match '(n) m-node) => falsey)))
+    (expect (matches-symbols-in-semi-sweet-or-sweet-ns? '(m) m-node) => truthy)
+    (expect (matches-symbols-in-semi-sweet-or-sweet-ns? '(expect) expect-node) => truthy)
+    (expect (matches-symbols-in-semi-sweet-or-sweet-ns? '(n) m-node) => falsey)))
 

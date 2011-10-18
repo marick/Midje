@@ -59,7 +59,7 @@
      (str "With table substitutions: " (:binding-note m)))])
 
 (defn- indented [lines]
-  (map (fn [line] (str "        " line)) lines))
+  (map #(str "        " %) lines))
 
 (defmulti report-strings :type)
 

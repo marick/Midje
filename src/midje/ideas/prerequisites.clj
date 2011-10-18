@@ -1,5 +1,5 @@
 (ns midje.ideas.prerequisites
-  (:use [midje.util.namespace :only [namespacey-match]]
+  (:use [midje.util.namespace :only [matches-symbols-in-semi-sweet-or-sweet-ns?]]
         [midje.util.form-utils :only [symbol-named?]]
         [midje.internal-ideas.file-position :only [arrow-line-number-from-form]]
         [midje.ideas.metaconstants :only [metaconstant-for-form
@@ -11,7 +11,7 @@
   (:require [clojure.zip :as zip]))
 
 (defn is-head-of-form-providing-prerequisites? [loc]
-  (namespacey-match '(provided) loc))
+  (matches-symbols-in-semi-sweet-or-sweet-ns? '(provided) loc))
 
 (defn metaconstant-prerequisite? [[lhs arrow rhs & overrides :as fake-body]]
   (symbol-named? arrow =contains=>))

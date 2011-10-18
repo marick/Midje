@@ -3,12 +3,12 @@
   (:require [clojure.zip :as zip]))
 
 
-(defmulti namespacey-match (fn [symbols treelike] (tree-variant treelike)))
+(defmulti matches-symbols-in-semi-sweet-or-sweet-ns? (fn [symbols treelike] (tree-variant treelike)))
 
-(defmethod namespacey-match :zipper [symbols loc]
-   (namespacey-match symbols (zip/node loc)))
+(defmethod matches-symbols-in-semi-sweet-or-sweet-ns? :zipper [symbols loc]
+   (matches-symbols-in-semi-sweet-or-sweet-ns? symbols (zip/node loc)))
 
-(defmethod namespacey-match :form [symbols node]
+(defmethod matches-symbols-in-semi-sweet-or-sweet-ns? :form [symbols node]
   (let [base-names (map name symbols)
         qualified-names (concat (map #(str "midje.semi-sweet/" %) base-names)
                                 (map #(str "midje.sweet/" %) base-names))]
