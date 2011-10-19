@@ -8,7 +8,7 @@
     [midje.checkers :only [exactly]]
     [midje.checkers.defining :only [checker? checker-makers]]
     [midje.internal-ideas.expect :only [expect? up-to-full-expect-form]]
-    [midje.util.form-utils :only [form-first?
+    [midje.util.form-utils :only [first-named?
                                   translate-zipper
                                   map-difference
                                   hash-map-duplicates-ok]]
@@ -27,12 +27,24 @@
 
 ;;; Questions to ask of fakes // accessors
 
-(defn implements-a-fake? [function] (:midje/faked-function (meta function)))
-(defn function-fake? [form] (form-first? form "fake"))
-(defn data-fake? [form] (form-first? form "data-fake"))
-(defn fake? [form] (or (function-fake? form) (data-fake? form)))
-(defn fake-form-funcall [[fake funcall => value & overrides]] funcall)
-(defn fake-form-funcall-arglist [fake-form] (rest (fake-form-funcall fake-form)))
+(defn implements-a-fake? [function]
+  (:midje/faked-function (meta function)))
+
+(defn function-fake? [form]
+  (first-named? form "fake"))
+
+(defn data-fake? [form]
+  (first-named? form "data-fake"))
+
+(defn fake? [form]
+  (or (function-fake? form)
+      (data-fake? form)))
+
+(defn fake-form-funcall [[fake funcall => value & overrides]]
+  funcall)
+
+(defn fake-form-funcall-arglist [fake-form]
+  (rest (fake-form-funcall fake-form)))
 
 ;;; Creation
 

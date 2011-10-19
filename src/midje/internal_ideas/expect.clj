@@ -2,7 +2,7 @@
 (ns midje.internal-ideas.expect
   (:use [midje.util.treelike :only [tree-variant]]
         [midje.util.namespace :only [matches-symbols-in-semi-sweet-or-sweet-ns?]]
-        [midje.util.form-utils :only [form-first?]]
+        [midje.util.form-utils :only [first-named?]]
         [midje.util.zip :only [skip-to-rightmost-leaf n-times remove-moving-right]]
         [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence? arrow-sequence-overrides]]
         [midje.internal-ideas.file-position :only [arrow-line-number]])
@@ -16,7 +16,7 @@
        (matches-symbols-in-semi-sweet-or-sweet-ns? '(expect) (zip/down loc))))
 
 (defmethod expect? :form [form]
-  (form-first? form "expect"))
+  (first-named? form "expect"))
 
 
 

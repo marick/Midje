@@ -3,7 +3,7 @@
 (ns midje.ideas.background
   (:use
     [midje.util.old-clojure-contrib.seq :only [separate]]
-    [midje.util.form-utils :only [form-first? translate-zipper symbol-named? separate-by]]
+    [midje.util.form-utils :only [first-named? translate-zipper symbol-named? separate-by]]
     [midje.util.exceptions :only [user-error]]
     [midje.ideas.metaconstants :only [define-metaconstants]]
     [midje.ideas.prerequisites :only [prerequisite-to-fake
@@ -20,7 +20,8 @@
   (:require [midje.util.unify :as unify :only [bindings-map-or-nil ?form]]
             [clojure.zip :as zip]))
 
-(defn against-background? [form] (form-first? form "against-background"))
+(defn against-background? [form]
+  (first-named? form "against-background"))
 
 (defn- ensure-correct-form-variable [form]
   (translate-zipper form

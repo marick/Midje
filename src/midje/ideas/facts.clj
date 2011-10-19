@@ -1,5 +1,5 @@
 (ns midje.ideas.facts
-  (:use [midje.util.form-utils :only [form-first? translate-zipper preserve-type quoted?]]
+  (:use [midje.util.form-utils :only [first-named? translate-zipper preserve-type quoted?]]
         [midje.semi-sweet :only [is-semi-sweet-keyword?]]
         [midje.internal-ideas.fakes :only [unfold-fakes]]
 
@@ -28,17 +28,18 @@
 (declare midjcoexpand)
 
 (defn fact? [form]
-  (or (form-first? form "fact")
-      (form-first? form "facts")))
+  (or (first-named? form "fact")
+      (first-named? form "facts")))
+
 (defn future-fact? [form]
-  (or (form-first? form "future-fact")
-      (form-first? form "future-facts")
-      (form-first? form "pending-fact")
-      (form-first? form "pending-facts")
-      (form-first? form "incipient-fact")
-      (form-first? form "incipient-facts")
-      (form-first? form "antiterminologicaldisintactitudinarian-fact")
-      (form-first? form "antiterminologicaldisintactitudinarian-facts")))
+  (or (first-named? form "future-fact")
+      (first-named? form "future-facts")
+      (first-named? form "pending-fact")
+      (first-named? form "pending-facts")
+      (first-named? form "incipient-fact")
+      (first-named? form "incipient-facts")
+      (first-named? form "antiterminologicaldisintactitudinarian-fact")
+      (first-named? form "antiterminologicaldisintactitudinarian-facts")))
 
 
 (defn to-semi-sweet

@@ -21,17 +21,17 @@
   (and (symbol? thing)
        (= (name thing) string)))
 
-(defn form-first?
+(defn first-named?
   "Is the form's first element a symbol whose name is the desired string?"
   [form desired]
-  (and (sequential? form) (symbol-named? (first form) desired)))
-
+  (and (sequential? form)
+       (symbol-named? (first form) desired)))
 
 (defmulti quoted? tree-variant)
 (defmethod quoted? :zipper [loc]
   (quoted? (zip/node loc)))
 (defmethod quoted? :form [form]
-  (form-first? form "quote"))
+  (first-named? form "quote"))
 
 (defn preserve-type
   "If the original form was a vector, make the transformed form a vector too."

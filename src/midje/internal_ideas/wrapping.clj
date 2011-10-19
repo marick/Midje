@@ -2,7 +2,7 @@
 
 (ns midje.internal-ideas.wrapping
   (:use
-    [midje.util.form-utils :only [form-first?]]
+    [midje.util.form-utils :only [first-named?]]
     [midje.util.old-clojure-contrib.seq :only [separate]]
     [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
                                                set-namespace-value
@@ -15,7 +15,9 @@
    code-that-produces-the-value."
   [value] value)
 
-(defn wrapped? [form] (form-first? form "midje-wrapped"))
+(defn wrapped? [form]
+  (first-named? form "midje-wrapped"))
+
 (def already-wrapped? wrapped?)
 
 (defn multiwrap [form [wrapper & more-wrappers]]
