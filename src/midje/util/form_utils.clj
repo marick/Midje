@@ -119,18 +119,8 @@
         (recur (zip/next ((get (apply hash-map preds+translate-fns) true-fn) loc)))
         (recur (zip/next loc))))))
 
-(defn indices-of
-  "All indices of seq that match given predicate"
-  [pred coll]
-  (keep-indexed #(if (pred %2) %1 nil) coll))
-
-(defn replace-first-match
-  "Returns a seq with the first match to the predicate in the coll replaced by replacement-seq,
-   or the original coll if no match"
+(defn replace-matches
+  "Returns a seq with each match to the predicate in the coll replaced by replacement-seq,
+   or the just returns the original coll if no match"
   [coll pred replacement-seq]
-  (if-let [matching-indices (seq (indices-of pred coll))]
-    (let [idx (first matching-indices)]
-      (concat (take idx coll)
-              replacement-seq
-              (drop (inc idx) coll)))
-    coll))
+  (mapcat #(if (pred %) replacement-seq [%]) coll))

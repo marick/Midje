@@ -3,7 +3,7 @@
 (ns midje.ideas.arrows
   (:use midje.ideas.arrow-symbols)
   (:use [midje.util treelike namespace]
-        [midje.util.form-utils :only (replace-first-match)])
+        [midje.util.form-utils :only (replace-matches)])
   (:require [clojure.zip :as zip]))
 
 ;; Arrow groupings
@@ -30,7 +30,7 @@
 (defn- never->times-0
   "replace syntactic sugar of `:never` with `:times 0`"
   [overrides]
-  (replace-first-match overrides #(= % :never ) `(:times 0)))
+  (replace-matches overrides #(= % :never ) `(:times 0)))
 
 (def ^{:private true} length-of-override-key-val-pair 2)
 
