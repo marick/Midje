@@ -4,7 +4,7 @@
         [midje.util.namespace :only [matches-symbols-in-semi-sweet-or-sweet-ns?]]
         [midje.util.form-utils :only [first-named?]]
         [midje.util.zip :only [skip-to-rightmost-leaf n-times remove-moving-right]]
-        [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence? arrow-sequence-overrides]]
+        [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence? take-arrow-sequence-overrides]]
         [midje.internal-ideas.file-position :only [arrow-line-number]])
   (:require [clojure.zip :as zip]))
   
@@ -46,7 +46,7 @@
   (assert (is-start-of-checking-arrow-sequence? loc))
   (let [right-hand (-> loc zip/right zip/right)
         arrow-sequence (-> loc zip/right zip/node)
-	additions (arrow-sequence-overrides (zip/rights right-hand))
+	[additions _] (take-arrow-sequence-overrides (zip/rights right-hand))
         line-number (arrow-line-number (zip/right loc))
 	edited-loc (zip/edit loc
 			     (fn [loc]

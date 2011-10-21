@@ -56,19 +56,12 @@
     :count-atom (atom 0)
     :position (user-file-position)})
 
-(defn- de-sugar-overrides
-  "replace syntactic sugar of `:never` with `:times 0`"
-  [overrides]
-  (if (some #{:never} overrides)
-    (concat (remove #{:never} overrides) `(:times 0))
-    overrides))
-
 (defn make-fake-map 
-  [var-sym special-to-fake-type user-override-pairs] ; if overrides include :never, they won't actually be pairs, until de-sugared
+  [var-sym special-to-fake-type user-override-pairs]
   (merge
    (common-to-all-fakes var-sym)
    special-to-fake-type
-   (apply hash-map-duplicates-ok (de-sugar-overrides user-override-pairs))))
+   (apply hash-map-duplicates-ok user-override-pairs)))
 
 (defn arg-matcher-maker 
   "Based on an expected value, generates a function that returns true if the 
@@ -297,7 +290,9 @@
         [ (conj finished flattened-target)
           (concat generated-fakes (rest pending))
           augmented-substitutions])
-    [(conj finished target), (rest pending), substitutions])))
+    [ (conj finished target)
+      (rest pending)
+      substitutions])))
   
 (defn unfold-expect-form__then__stay_put [loc]
   (loop [ [finished pending substitutions] [ [] (zip/node loc) {} ]]

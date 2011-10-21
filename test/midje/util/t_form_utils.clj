@@ -77,3 +77,12 @@
   (separate-by odd? [1 2 3]) => [ [1 3] [2] ]
   "works for predicates that don't return true or false"
   (separate-by #(if (odd? %) nil %) [1 2 3]) => [[2] [1 3]])
+
+(fact "gives indices of each match to predicate"
+  (indices-of #(= 3 %) [1 2 3 4 3 2 1]) => '(2 4)
+  (indices-of #(= 99 %) [1 2 3 4 3 2 1]) => '()
+  (indices-of #(= 99 %) []) => '())
+
+(fact "can replace first match in seq"
+  (replace-first-match [1 2 3 4 5] #(= 3 %) '(9 9 9)) => '(1 2 9 9 9 4 5)
+  (replace-first-match [1 2 3 4 5] #(= 99 %) '(9 9 9)) => '(1 2 3 4 5))

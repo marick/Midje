@@ -75,14 +75,14 @@
           expanded
 
           (is-start-of-checking-arrow-sequence? in-progress)
-          (let [content (take-arrow-sequence in-progress)]
+          (let [[content length-taken] (take-arrow-sequence in-progress)]
             (recur (conj expanded (-> content prerequisite-to-fake tag-as-background-fake))
-                   (nthnext in-progress (count content))))
+                   (nthnext in-progress length-taken)))
 
           (metaconstant-prerequisite? in-progress)
-          (let [content (take-arrow-sequence in-progress)]
+          (let [[content length-taken] (take-arrow-sequence in-progress)]
             (recur (conj expanded (-> content prerequisite-to-fake))
-                   (nthnext in-progress (count content))))
+                   (nthnext in-progress length-taken)))
           
           (seq-headed-by-setup-teardown-form? in-progress)
           (recur (conj expanded (first in-progress))

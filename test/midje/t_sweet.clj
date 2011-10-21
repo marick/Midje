@@ -241,7 +241,23 @@
   (fact (contains {:type :mock-incorrect-call-count
                    :actual-count 0})))
 
-;;; return values
+(defn the-called [n] nil)
+(defn the-called2 [n] nil)
+(defn caller [n] n)
+
+(fact ":never is an alias for ':times 0'"
+  (caller 5) => 5
+  (provided
+    (called anything) => anything :never))
+
+(fact "multiple provided arrow forms can function ably with :never"
+  (caller 5) => 5
+  (provided
+    (called anything) => anything :never
+    (the-called anything) => anything :never
+    (the-called2 anything) => anything :never ))
+
+;;; return values
 
 (def ^{:dynamic true}
      *fact-retval* (fact
@@ -265,7 +281,3 @@
                      "some random return value"))
 (fact "a fact's return value is not affected by previous failures"
   *fact-retval* => true)
-
-
-
-
