@@ -28,7 +28,7 @@
 ;; Dissecting
 
 (defn- never->times-0
-  "replace syntactic sugar of `:never` with `:times 0`"
+  "Replace syntactic sugar of `:never` with `:times 0`"
   [overrides]
   (replace-matches overrides #(= % :never ) `(:times 0)))
 

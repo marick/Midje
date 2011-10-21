@@ -64,7 +64,7 @@
   (vec (concat (subvec v 0 index) (subvec v (inc index)))))
 
 (defn tack-on-to [hashmap & kvs]
-  "conj new values onto appropriate keys of a map"
+  "Conj new values onto appropriate keys of a map"
   (merge-with conj hashmap (apply (partial assoc {}) kvs)))
 
 (defn pairs [first-seq second-seq]
@@ -89,7 +89,7 @@
   (select-keys bigger (difference (set (keys bigger)) (set (keys smaller)))))
 
 (defn ordered-zipmap [keys vals]
-  "like zipmap, but guarantees order of the entries"
+  "Like zipmap, but guarantees order of the entries"
   (loop [m (ordered-map)
          ks (seq keys)
          vs (seq vals)]
@@ -100,7 +100,7 @@
       m)))
 
 (defn first-truthy-fn
-  "returns the first function in a seq of functions
+  "Returns the first function in a seq of functions
   that evaluates to truthy for the given arguments"
   [[pred & more-preds] & args]
   (when pred
@@ -109,7 +109,7 @@
       (apply first-truthy-fn more-preds args))))
 
 (defn translate-zipper
-  "traverses the zipper - for the first predicate that evaluates to truthy for matching a
+  "Traverses the zipper - for the first predicate that evaluates to truthy for matching a
   node, calls the corresponding translate function on that node. Then, continues traversing."
   [form & preds+translate-fns]
   (loop [loc (zip/seq-zip form)]

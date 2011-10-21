@@ -2,8 +2,7 @@
 
 (ns midje.util.ecosystem)
 
-(def issues-url
-     "https://github.com/marick/Midje/issues")
+(def issues-url "https://github.com/marick/Midje/issues")
 
 (defn clojure-1-3? []
   (and (= 1 (:major *clojure-version*))
