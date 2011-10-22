@@ -3,6 +3,7 @@
   /Let Over Lambda/. (via Phil Calçado)
   https://github.com/marick/Midje/wiki/Macros
 * You can write (f) => anything :never instead :times 0.
+   Alex Baranovsky
 
 1.3-alpha4
 --------
