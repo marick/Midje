@@ -38,6 +38,7 @@
 ;; but those fail for reasons I don't understand. Bah.
 (defn- check-for-arrow [arrow]
   (get {=> :check-match
+        =expands-to=> :check-match
         =not=> :check-negated-match
         =deny=> :check-negated-match} (name arrow)))
 
@@ -57,6 +58,7 @@
   (get {=> :expect*
         =not=> :expect*
         =deny=> :expect*
+        =expands-to=> :expect-macro*
         =future=> :report-future-fact} (name arrow)))
 
 (defmulti ^{:private true} expect-expansion handling-of-check-part)
@@ -65,6 +67,12 @@
   [call-form arrow expected-result fakes overrides]
   `(let [check# (unprocessed-check ~call-form ~arrow ~expected-result ~overrides)]
      (expect* check# (vector ~@fakes))))
+
+(defmethod expect-expansion :expect-macro*
+  [call-form arrow expected-result fakes overrides]
+  (let [expanded-macro `(macroexpand-1 '~call-form)
+        escaped-expected-result `(quote ~expected-result)]
+    (expect-expansion expanded-macro => escaped-expected-result fakes overrides)))
 
 (defmethod expect-expansion :report-future-fact
    [call-form arrow expected-result fakes overrides]

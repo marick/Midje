@@ -4,6 +4,7 @@
 (def =not=> "=not=>")
 (def =deny=> "=deny=>")
 (def =streams=> "=streams=>")
+(def =expands-to=> "=expands-to=>")
 (def =future=> "=future=>")
 (def =contains=> "=contains=>")
 
