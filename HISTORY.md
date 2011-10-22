@@ -1,3 +1,9 @@
+1.3-alpha5
+* =expands-to=> for testing macros (in a style derived from
+  /Let Over Lambda/. (via Phil Calçado)
+  https://github.com/marick/Midje/wiki/Macros
+* You can write (f) => anything :never instead :times 0.
+
 1.3-alpha4
 --------
 * Believed to run under Clojure 1.3
