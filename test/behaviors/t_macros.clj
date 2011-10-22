@@ -1,6 +1,15 @@
 (ns behaviors.t-macros
   (:use [midje sweet test-util]))
 
+;; Example from wiki
+(defmacro my-if [test true-branch false-branch]
+  `(cond ~test ~true-branch :else ~false-branch))
+
+(fact
+  (my-if (odd? 1) 1 2) =expands-to=> (clojure.core/cond (odd? 1) 1 :else 2))
+
+
+
 (defmacro macro-with-expander [arg1 & other-args]
   (let [modified (str arg1 "-suffix")]
     `(str ~modified "(was " ~arg1 ")"
@@ -26,3 +35,4 @@
        (fact "macros calling other macros are macroexpand-1"
              (macro-calling-other-macro 999 [ 10 20 30]) =>  "999100"
              (macro-calling-other-macro 999 [ 10 20 30]) =expands-to=> (clojure.core/str 999 (clojure.core/first (behaviors.t-macros/macro-with-only-expansion (clojure.core/list 10 20 30))))))
+
