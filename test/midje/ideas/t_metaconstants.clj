@@ -65,9 +65,18 @@
   (= (Metaconstant. '...name... {}) '...not-name...) => falsey
   "... which has this implication:"
   (list 'a (Metaconstant. '...name... {})) => '(a ...name...)
+
   "And, because Clojure moves Associative elements to the left side:"
   '(a ...name...) => (list 'a (Metaconstant. '...name... {})))
 
+(fact "Metaconstants are equal no matter how many dots/dashes they have - with exs analagous to the above fact"
+  (Metaconstant. '.name.. {}) => (Metaconstant. '...name... {})
+  (Metaconstant. '.NAME. {:key "value"}) =not=> (Metaconstant. '...name... {:key "value"})
+  (Metaconstant. '.name.. {}) => '...name...
+  (list 'a (Metaconstant. '.name. {})) => '(a ...name...)
+  [.name.] => [(Metaconstant. '...name... {})]
+  (Metaconstant. '-name-- {}) => (Metaconstant. '---name--- {})
+  (Metaconstant. '-name-- {}) =not=> (Metaconstant. '...name... {}))
 
 (fact "Metaconstants implement ILookup"
   (let [mc (Metaconstant. 'm {:key "value"})]
@@ -150,7 +159,7 @@
 
 (fact "Equality can be used to compare two metaconstants for identity"
   (let [aliased-as-function-argument ..m..]
-    (= aliased-as-function-argument ..m..) => truthy)
+    (= aliased-as-function-argument ..m....) => truthy)
   "Contents are not used in a comparison check."
   (= ..m.. ..n..) => falsey
   (provided
@@ -164,7 +173,13 @@
   (= '..m.. ..m..) => truthy
   (= ..m.. '..m..) => truthy
   (= '..m.. ..nnn..) => falsey
-  (= ..nnn.. '..m..) => falsey)
+  (= ..nnn.. '..m..) => falsey
+
+  "even if the number of .'s is not exactly the same"
+  (= '..m.. ...m...) => truthy
+  (= ..m.. '...m...) => truthy
+  (= 'm ..m..) => falsey
+  (= ..m.. 'm) => falsey)
 
 (fact "Metaconstant equality blows up when given anything else."
   (= ..m.. "foo") => (throws Error)

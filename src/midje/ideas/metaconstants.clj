@@ -9,10 +9,28 @@
   (:require [clojure.zip :as zip]
             [midje.util.ecosystem :as ecosystem]))
 
+(def dot-regex #"^(\.+)(.+?)(\.+)$")
+(def dash-regex #"^(-+)(.+?)(-+)$")
+
 (defn metaconstant-symbol? [symbol-or-form]
   (and (symbol? symbol-or-form)
-       (or (re-matches #"^\.+.+\.+" (name symbol-or-form))
-           (re-matches #"^-+.+-+" (name symbol-or-form)))))
+       (some #(re-matches % (name symbol-or-form)) [dot-regex dash-regex ])))
+
+(defn normalized-symbol
+  "turns '..m. to \"...m...\""
+  [mc-symbol]
+  (if
+    (.startsWith (name mc-symbol) ".")
+    (let [[_ _prefix_ value _suffix_] (re-matches dot-regex (name mc-symbol))]
+      (str "..." value "..."))
+
+    (let [[_ _prefix_ value _suffix_] (re-matches dash-regex (name mc-symbol))]
+      (str "---" value "---"))))
+
+(defn normalized-metaconstant-name
+  "turns (Metaconstant. '..m.) to \"...m...\""
+  [metaconstant]
+  (normalized-symbol (.name metaconstant)))
 
 (deftype Metaconstant [name storage]
   Object
@@ -20,8 +38,8 @@
             (.toString (.name this)))
   (equals [this that]
          (if (instance? (class this) that)
-           (= (.name this) (.name that))
-           (= (.name this) that)))
+           (= (normalized-metaconstant-name this) (normalized-metaconstant-name that))
+           (= (normalized-metaconstant-name this) (normalized-symbol that))))
 
   clojure.lang.ILookup
   (valAt [this key]
@@ -67,7 +85,7 @@
                  (= (type that) Metaconstant)
                  (= that unbound-marker))
            (.equals this that)
-           (throw (user-error 
+           (throw (user-error
                    (str "Metaconstants (" (.name this) ") can't be compared for equality with " (pr-str that) ".")
                    "If you have a compelling case for equality, please create an issue:"
                    ecosystem/issues-url)))))
