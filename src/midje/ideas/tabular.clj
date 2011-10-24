@@ -25,18 +25,16 @@
 
 (defn- remove-pipes+where [table]
   (let [strip-off-where #(if (contains? #{:where 'where} (first %)) (rest %) % )]
-    (->> table strip-off-where (remove #(= % '|)))))	
+    (->> table strip-off-where (remove #(= % '|)))))
 
 (defn table-binding-maps [table]
   (let [[variables values] (split-with #(.startsWith (pr-str %) "?") (remove-pipes+where table))
         value-lists (partition (count variables) values)]
     (map (partial ordered-zipmap variables) value-lists)))
 
-
-
 (defn- expander-for [fact-form]
-  (comp macroexpand 
-        #(form-with-copied-line-numbers % fact-form) 
+  (comp macroexpand
+        (partial form-with-copied-line-numbers fact-form)
         (partial unify/subst fact-form)))
 
 (defn tabular* [forms]
@@ -44,10 +42,10 @@
               ordered-binding-maps (table-binding-maps table)
               expect-forms (map (expander-for fact-form)
                                 ordered-binding-maps)
-              result (map add-binding-note
-                          expect-forms
-                          ordered-binding-maps)]
-    `(do ~@result)))
+              expect-forms-with-binding-notes (map add-binding-note
+                                                   expect-forms
+                                                   ordered-binding-maps)]
+    `(do ~@expect-forms-with-binding-notes)))
 
 (defmethod validate "tabular" [form]
   (loop [forms (rest form)]

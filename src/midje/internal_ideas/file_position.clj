@@ -64,7 +64,7 @@
                            (dissoc (m loc) :line))]
     (zip/replace loc (with-meta (zip/node loc) transferred-meta))))
 
-(defn form-with-copied-line-numbers [form line-number-source]
+(defn form-with-copied-line-numbers [line-number-source form]
   (loop [loc (zip/seq-zip form)
          line-loc (zip/seq-zip line-number-source)]
     (cond (zip/end? line-loc)

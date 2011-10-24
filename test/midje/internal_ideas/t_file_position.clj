@@ -127,7 +127,7 @@
         form-source '(The line  
                       (numbers of this)
                       (tree differ))
-        result (form-with-copied-line-numbers form-source line-number-source)]
+        result (form-with-copied-line-numbers line-number-source form-source)]
 
     line-number-source =not=> form-source
     result => form-source
@@ -149,7 +149,7 @@
                       (something (deeply (nested)))
                       (that)
                       (something (deeply (nested))))
-        result (form-with-copied-line-numbers form-source line-number-source)]
+        result (form-with-copied-line-numbers line-number-source form-source)]
 
     line-number-source =not=> form-source
     result => form-source
@@ -173,7 +173,7 @@
                       ~(with-meta
                          '(something (deeply (nested)))
                          {:meta :data, :line 33}))
-        result (form-with-copied-line-numbers form-source line-number-source)]
+        result (form-with-copied-line-numbers line-number-source form-source)]
     (lineno result 1) => (lineno line-number-source 1)
     (:meta (meta (nth result 1))) => :data))
 
