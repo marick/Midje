@@ -7,7 +7,7 @@
   (:require [clojure.zip :as zip]))
 
 ;; Arrow groupings
-(def expect-arrows [=> =not=> =deny=> =future=>])
+(def expect-arrows [=> =not=> =deny=> =future=> =expands-to=>])
 (def fake-arrows [=> =contains=> =streams=>])
 (def all-arrows (concat expect-arrows fake-arrows))
 
