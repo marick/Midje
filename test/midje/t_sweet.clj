@@ -253,9 +253,9 @@
 (fact "multiple provided arrow forms can function ably with :never"
   (caller 5) => 5
   (provided
-    (called anything) => anything :never
-    (the-called anything) => anything :never
-    (the-called2 anything) => anything :never ))
+    (called any) => any :never
+    (the-called any) => any :never
+    (the-called2 any) => any :never ))
 
 ;;; return values
 

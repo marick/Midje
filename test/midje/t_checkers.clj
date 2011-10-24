@@ -10,6 +10,7 @@
   1 => truthy
   nil => falsey
   'foo => anything
+  'foo => any
   odd? => (exactly odd?)
   (throw (Error.)) => (throws Error))
 

@@ -29,6 +29,7 @@
   [actual]
   (not (captured-exception? actual)))
 (def irrelevant anything)
+(def any anything)
 
 (defchecker exactly
   "Checks for equality. Use to avoid default handling of functions."
