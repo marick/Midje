@@ -57,12 +57,12 @@
 
 (facts "the run-on string of arrow forms can be grouped into a list of arrow sequences"
   ;; Use of let is to prevent #'fact from slapping a line number onto the results.
-  (let [result (group-arrow-sequences '(   (f 1) => 2    (g 1) => 3))]
-    result =>                         '(  [(f 1) => 2]  [(g 1) => 3] ))
+  (let [result (parse-prerequisites-arrow-seqs '(   (f 1) => 2    (g 1) => 3))]
+    result =>                                  '(  [(f 1) => 2]  [(g 1) => 3] ))
 
-  (let [result (group-arrow-sequences '(  (f 1) => 2 :key value   (g 1) => 3))]
-    result =>                         '( [(f 1) => 2 :key value] [(g 1) => 3]))
+  (let [result (parse-prerequisites-arrow-seqs '(  (f 1) => 2 :key value   (g 1) => 3))]
+    result =>                                  '( [(f 1) => 2 :key value] [(g 1) => 3]))
 
-  (let [result (group-arrow-sequences '(  (f 1) => 2 :never     (g 1) => 3))]
-    result =>                         '( [(f 1) => 2 :times 0] [(g 1) => 3])))
+  (let [result (parse-prerequisites-arrow-seqs '(  (f 1) => 2 :never     (g 1) => 3))]
+    result =>                                  '( [(f 1) => 2 :times 0] [(g 1) => 3])))
 

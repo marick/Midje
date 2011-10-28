@@ -58,9 +58,9 @@
         length-taken-to-read-arrow-seq (+ length-of-constant-part override-length-taken)]
     [arrow-seq length-taken-to-read-arrow-seq]))
 
-(defn group-arrow-sequences
+(defn parse-prerequisites-arrow-seqs
   ([fakes]
-     (group-arrow-sequences [] fakes))
+     (parse-prerequisites-arrow-seqs [] fakes))
   ([so-far remainder]
     (if (empty? remainder)
       so-far
