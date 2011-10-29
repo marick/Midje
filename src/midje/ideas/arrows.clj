@@ -1,9 +1,8 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.ideas.arrows
-  (:use midje.ideas.arrow-symbols)
-  (:use [midje.util treelike namespace]
-        [midje.util.form-utils :only (replace-matches)])
+  (:use midje.ideas.arrow-symbols
+        [midje.util treelike namespace])
   (:require [clojure.zip :as zip]))
 
 ;; Arrow groupings
@@ -24,50 +23,27 @@
   (and (sequential? form)
        (matches-symbols-in-semi-sweet-or-sweet-ns? expect-arrows (second form))))
 
-
 ;; Dissecting
 
-(defn- never->times-0
-  "Replace syntactic sugar of `:never` with `:times 0`"
-  [overrides]
-  (replace-matches overrides #(= % :never ) `(:times 0)))
-
-(def ^{:private true} length-of-override-key-val-pair 2)
-
-(defn take-arrow-sequence-overrides [forms]
-  "Extract key-value overrides from the arrow sequence;
-   note: length taken can be one less than length of override,
-         if :never was included in overrides"
-  (let [overrides (->> forms
-                       never->times-0
-                       (partition length-of-override-key-val-pair)
-                       (take-while (comp keyword? first))
-                       (apply concat))
-        length-taken (if (some #{:never } forms)
-                         (- (count overrides) 1)
-                         (count overrides))]
-    [overrides length-taken]))
-
-(def ^{:private true} length-of-constant-part 3)
+(defn arrow-sequence-overrides [forms]
+  "Extract key-value overrides from the arrow sequence"
+  (apply concat (take-while (comp keyword? first) (partition 2 forms))))
 
 (defn take-arrow-sequence [forms]
   "Extract the next arrow sequence from a longer sequence of forms."
-  (let [constant-part (take length-of-constant-part forms)
-        [overrides override-length-taken] (take-arrow-sequence-overrides (nthnext forms length-of-constant-part))
-        arrow-seq (concat constant-part overrides)
-        length-taken-to-read-arrow-seq (+ length-of-constant-part override-length-taken)]
-    [arrow-seq length-taken-to-read-arrow-seq]))
+  (let [constant-part (take 3 forms)
+        overrides (arrow-sequence-overrides (nthnext forms 3))]
+    (concat constant-part overrides)))
 
-(defn parse-prerequisites-arrow-seqs
+(defn group-arrow-sequences
   ([fakes]
-     (parse-prerequisites-arrow-seqs [] fakes))
+     (group-arrow-sequences [] fakes))
   ([so-far remainder]
     (if (empty? remainder)
       so-far
-      (let [[arrow-seq length-taken] (take-arrow-sequence remainder)]
-        (recur (conj so-far arrow-seq)
-               (nthnext remainder length-taken))))))
-
+      (let [whole-body (take-arrow-sequence remainder)]
+        (recur (conj so-far whole-body)
+               (nthnext remainder (count whole-body)))))))
 
 ;; Editing
 

@@ -118,9 +118,3 @@
       (if-let [true-fn (first-truthy-fn (map first (partition 2 preds+translate-fns)) loc)]
         (recur (zip/next ((get (apply hash-map preds+translate-fns) true-fn) loc)))
         (recur (zip/next loc))))))
-
-(defn replace-matches
-  "Returns a seq with each match to the predicate in the coll replaced by replacement-seq,
-   or the just returns the original coll if no match"
-  [coll pred replacement-seq]
-  (mapcat #(if (pred %) replacement-seq [%]) coll))

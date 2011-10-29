@@ -290,9 +290,7 @@
         [ (conj finished flattened-target)
           (concat generated-fakes (rest pending))
           augmented-substitutions])
-    [ (conj finished target)
-      (rest pending)
-      substitutions])))
+    [(conj finished target), (rest pending), substitutions])))
   
 (defn unfold-expect-form__then__stay_put [loc]
   (loop [ [finished pending substitutions] [ [] (zip/node loc) {} ]]

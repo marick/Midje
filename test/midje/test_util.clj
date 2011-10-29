@@ -4,12 +4,14 @@
   (:use [clojure.test])
   (:use midje.checkers)
   (:use [midje.util.old-clojure-contrib.string :only [substring?]])
-  (:use [clojure.set :only [subset?]]))
+  (:use [clojure.set :only [subset?]])
+)
 
 (defmacro testable-privates [namespace & symbols]
   (let [make-form (fn [symbol] `(def ~symbol (intern '~namespace '~symbol)))
         forms (map make-form symbols)]
-  `(do ~@forms)) )
+  `(do ~@forms))
+)
 
 (def reported (atom []))
 
