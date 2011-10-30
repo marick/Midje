@@ -11,28 +11,24 @@
     [midje.ideas.arrows :only [above-arrow-sequence__add-key-value__at-arrow]])
 (:require [midje.util.unify :as unify]))
 
-(defn- binding-note [ordered-binding-map]
-  (let [entries (map (fn [[variable value]] (str variable " " (pr-str value))) ordered-binding-map)]
-    (str "{" (join ", " entries) "}")))
-
 (defn add-binding-note [expect-containing-form ordered-binding-map]
   (translate-zipper expect-containing-form
     expect?
     (fn [loc] (skip-to-rightmost-leaf
-      (above-arrow-sequence__add-key-value__at-arrow :binding-note (binding-note ordered-binding-map) loc)))))
-
-
+      (above-arrow-sequence__add-key-value__at-arrow :binding-note (pr-str ordered-binding-map) loc)))))
 
 (defn- remove-pipes+where [table]
-  (let [strip-off-where #(if (contains? #{:where 'where} (first %)) (rest %) % )]
+  (let [strip-off-where #(if (#{:where 'where} (first %)) (rest %) % )]
     (->> table strip-off-where (remove #(= % '|)))))
 
-(defn table-binding-maps [table]
-  (let [[variables values] (split-with #(.startsWith (pr-str %) "?") (remove-pipes+where table))
-        value-lists (partition (count variables) values)]
-    (map (partial ordered-zipmap variables) value-lists)))
+(defn- table-variable? [s] (.startsWith (pr-str s) "?"))
 
-(defn- expander-for [fact-form]
+(defn table-binding-maps [table]
+  (let [[variables-row values] (split-with table-variable? (remove-pipes+where table))
+        value-rows (partition (count variables-row) values)]
+    (map (partial ordered-zipmap variables-row) value-rows)))
+
+(defn- macroexpander-for [fact-form]
   (comp macroexpand
         (partial form-with-copied-line-numbers fact-form)
         (partial unify/subst fact-form)))
@@ -40,24 +36,16 @@
 (defn tabular* [forms]
   (error-let [[fact-form table] (validate forms)
               ordered-binding-maps (table-binding-maps table)
-              expect-forms (map (expander-for fact-form)
+              expect-forms (map (macroexpander-for fact-form)
                                 ordered-binding-maps)
               expect-forms-with-binding-notes (map add-binding-note
                                                    expect-forms
                                                    ordered-binding-maps)]
     `(do ~@expect-forms-with-binding-notes)))
 
-(defmethod validate "tabular" [form]
-  (loop [forms (rest form)]
-    (cond (string? (first forms))
-          (recur (rest forms))
-
-          (empty? (rest forms))
-          (user-error-report-form
-           form
-           "There's no table. (Misparenthesized form?)")
-          
-          :else
-          [ (first forms) (rest forms) ])))
-
-
+(defmethod validate "tabular" [[_tabular_ & form]]
+  (let [form-sans-leading-strings (drop-while string? form)]
+    (let [[fact-form & table] form-sans-leading-strings]
+      (if (empty? table)
+        (user-error-report-form form "There's no table. (Misparenthesized form?)")
+        [fact-form table] ))))

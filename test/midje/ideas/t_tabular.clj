@@ -30,23 +30,23 @@
    (str ?a ?b ?c) => ?result)
  
  ?a  | ?b  | ?c  | ?result
- "a" | "|" | "c" | "a|c" )
+ "a" | "b" | "c" | "abc" )
 
 (tabular
- (fact "will ignore an optional ':where' above the table"
-   (str ?a ?b) => ?result)
- 
- :where
- ?a     | ?b     | ?result
- 'where | :where | "where:where") ;; just to makes sure
+  (fact "will ignore an optional 'where' above the table"
+    (+ ?a ?b) => ?result)
+
+  where
+  ?a | ?b | ?result
+  1  | 2  | 3)
 
 (tabular
- (fact "will ignore an optional 'where' above the table"
-   (+ ?a ?b) => ?result)
- 
- where
- ?a | ?b | ?result
- 1  | 2  | 3)
+  (fact "will ignore an optional ':where' above the table"
+    (str ?a ?b) => ?result)
+
+  :where
+  ?a     | ?b     | ?result
+  'where | :where | "where:where") ;; just to makes sure
 
 ;; Error handling
 
