@@ -44,8 +44,7 @@
     `(do ~@expect-forms-with-binding-notes)))
 
 (defmethod validate "tabular" [[_tabular_ & form]]
-  (let [form-sans-leading-strings (drop-while string? form)]
-    (let [[fact-form & table] form-sans-leading-strings]
-      (if (empty? table)
-        (user-error-report-form form "There's no table. (Misparenthesized form?)")
-        [fact-form table] ))))
+  (let [[fact-form & table] (drop-while string? form)]
+    (if (empty? table)
+      (user-error-report-form form "There's no table. (Misparenthesized form?)")
+      [fact-form table])))
