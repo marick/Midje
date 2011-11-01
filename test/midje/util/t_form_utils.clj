@@ -77,7 +77,3 @@
   (separate-by odd? [1 2 3]) => [ [1 3] [2] ]
   "works for predicates that don't return true or false"
   (separate-by #(if (odd? %) nil %) [1 2 3]) => [[2] [1 3]])
-
-(fact "can replace each match in seq"
-  (replace-matches [1 2 3 2 5] #(= 2 %) '(9 9 9)) => '(1 9 9 9 3 9 9 9 5)
-  (replace-matches [1 2 3 4 5] #(= 99 %) '(9 9 9)) => '(1 2 3 4 5))

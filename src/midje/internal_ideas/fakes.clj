@@ -2,7 +2,7 @@
 
 (ns midje.internal-ideas.fakes
   (:use
-    [midje.util.old-clojure-contrib.seq :only [find-first separate]]
+    [midje.util.old-clojure-contrib.seq :only [separate]]
     [midje.util.object-utils :only [object-name]]
     [clojure.test :only [report]]
     [midje.checkers :only [exactly]]
@@ -126,7 +126,7 @@
        (extended-list-= args (fake :arg-matchers))))
 
 (defn find-matching-call [faked-function args fakes]
-  (find-first #(matches-call? % faked-function args) fakes))
+  (first (filter #(matches-call? % faked-function args) fakes)))
 
 (defn call-faker [faked-function args fakes]
   "This is the function that handles all mocked calls."
@@ -290,9 +290,7 @@
         [ (conj finished flattened-target)
           (concat generated-fakes (rest pending))
           augmented-substitutions])
-    [ (conj finished target)
-      (rest pending)
-      substitutions])))
+    [(conj finished target), (rest pending), substitutions])))
   
 (defn unfold-expect-form__then__stay_put [loc]
   (loop [ [finished pending substitutions] [ [] (zip/node loc) {} ]]
