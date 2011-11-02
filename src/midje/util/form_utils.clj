@@ -115,6 +115,6 @@
   (loop [loc (zip/seq-zip form)]
     (if (zip/end? loc)
       (zip/root loc)
-      (if-let [true-fn (first-truthy-fn (map first (partition 2 preds+translate-fns)) loc)]
-        (recur (zip/next ((get (apply hash-map preds+translate-fns) true-fn) loc)))
+      (if-let [truthy-fn (first-truthy-fn (take-nth 2 preds+translate-fns) loc)]
+        (recur (zip/next ((get (apply hash-map preds+translate-fns) truthy-fn) loc)))
         (recur (zip/next loc))))))
