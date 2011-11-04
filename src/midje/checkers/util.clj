@@ -15,6 +15,7 @@
 
 (defn captured-exception? [value]
   (and (classic-map? value)
+       (not (sorted? value)) ; Cannot dereference sorted maps with obj of diff. type than key.
        (value captured-exception-key)))
 
 (defn captured-exception-value [captured-exception]
