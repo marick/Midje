@@ -4,7 +4,9 @@
   (:use 
     [clojure.string :only [join]]
     [midje.error-handling.monadic :only [error-let user-error-report-form validate]]
-    [midje.internal-ideas.file-position :only [form-with-copied-line-numbers]]
+    [midje.internal-ideas.file-position :only [form-with-copied-line-numbers
+                                               form-position]] ; for deprecation
+    [midje.util.report :only [midje-position-string]] ; for deprecation
     [midje.util.form-utils :only [ordered-zipmap translate-zipper]]
     [midje.util.zip :only [skip-to-rightmost-leaf]]
     [midje.internal-ideas.expect :only [expect?]]
@@ -17,7 +19,15 @@
     (fn [loc] (skip-to-rightmost-leaf
       (above-arrow-sequence__add-key-value__at-arrow :binding-note (pr-str ordered-binding-map) loc)))))
 
+(def deprecation-hack:file-position (atom ""))
+
 (defn- remove-pipes+where [table]
+  (when (#{:where 'where} (first table))
+    (println "The `where` syntactic sugar for tabular facts is deprecated and will be removed in Midje 1.4." @deprecation-hack:file-position))
+
+  (when (some #(= % '|) table)
+    (println "The `|` syntactic sugar for tabular facts is deprecated and will be removed in Midje 1.4." @deprecation-hack:file-position))
+             
   (let [strip-off-where #(if (#{:where 'where} (first %)) (rest %) % )]
     (->> table strip-off-where (remove #(= % '|)))))
 
@@ -35,6 +45,8 @@
 
 (defn tabular* [forms]
   (error-let [[fact-form table] (validate forms)
+              _ (swap! deprecation-hack:file-position
+                       (constantly (midje-position-string (form-position fact-form))))
               ordered-binding-maps (table-binding-maps table)
               expect-forms (map (macroexpander-for fact-form)
                                 ordered-binding-maps)

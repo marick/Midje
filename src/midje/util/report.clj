@@ -37,7 +37,7 @@
 
 
 
-(defn- midje-position-string [position-pair]
+(defn midje-position-string [position-pair]
   (format "(%s:%s)" (first position-pair) (second position-pair)))
 
 (defmacro with-identity-renderer [& forms]   ; for testing
