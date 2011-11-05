@@ -112,24 +112,24 @@
 
 ;;; Binding
 
-(defmulti matches-call? (fn [fake faked-function args]
+(defmulti matches-call? (fn [fake function-var actual-args]
                           (:type fake)))
 
 (defmethod matches-call? :not-called
-  [fake faked-function args]
-  (= faked-function (fake :lhs)))
+  [fake function-var actual-args]
+  (= function-var (fake :lhs)))
 
 (defmethod matches-call? :default
-  [fake faked-function args]
-  (and (= faked-function (fake :lhs))
-       (= (count args) (count (fake :arg-matchers)))
-       (extended-list-= args (fake :arg-matchers))))
+  [fake function-var actual-args]
+  (and (= function-var (fake :lhs))
+       (= (count actual-args) (count (fake :arg-matchers)))
+       (extended-list-= actual-args (fake :arg-matchers))))
 
-(defn find-matching-call [faked-function args fakes]
-  (first (filter #(matches-call? % faked-function args) fakes)))
+(defn find-matching-call [function-var actual-args fakes]
+  (first (filter #(matches-call? % function-var actual-args) fakes)))
 
-(defn best-call-action [faked-var args fakes]
-  (let [found (find-matching-call faked-var args fakes)]
+(defn best-call-action [function-var actual-args fakes]
+  (let [found (find-matching-call function-var actual-args fakes)]
     (cond found
           {:use-fake true :matching-fake found}
 
@@ -137,14 +137,14 @@
           {:fail true})))
 
 
-(defn call-faker [faked-function args fakes]
+(defn call-faker [function-var actual-args fakes]
   "This is the function that handles all mocked calls."
-  (let [found (find-matching-call faked-function args fakes)]
+  (let [found (find-matching-call function-var actual-args fakes)]
     (if-not found 
       (do 
         (clojure.test/report {:type :mock-argument-match-failure
-                 :lhs faked-function
-                 :actual args
+                 :lhs function-var
+                 :actual actual-args
                  :position (:position (first fakes))}))
       (do 
         (swap! (found :count-atom) inc)
