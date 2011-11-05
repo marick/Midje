@@ -128,6 +128,15 @@
 (defn find-matching-call [faked-function args fakes]
   (first (filter #(matches-call? % faked-function args) fakes)))
 
+(defn best-call-action [faked-var args fakes]
+  (let [found (find-matching-call faked-var args fakes)]
+    (cond found
+          {:use-fake true :matching-fake found}
+
+          :else
+          {:fail true})))
+
+
 (defn call-faker [faked-function args fakes]
   "This is the function that handles all mocked calls."
   (let [found (find-matching-call faked-function args fakes)]

@@ -45,18 +45,36 @@
                 (data-fake ...f... => {:b 4})
                 (data-fake ...g... => {:d 4})] ]
     (unique-vars fakes) => (contains [#'...f... #'...g...] :in-any-order)))
-  
 
-(tabular
- (facts "matching calls depend on both function name and arguments"
-   (let [fake {:lhs 'expected, :arg-matchers [ odd? ] }]
-     (find-matching-call ?faked-fun ?args [fake]) ?arrow fake))
+;;; Different behaviors appropriate to fake lookup.
 
- ?faked-fun     ?args   ?arrow
- 'not-expected  [3]     =not=>  ; function name
- 'expected      [3 3]   =not=>  ; arg count
- 'expected      [4]     =not=>  ; arg value
- 'expected      [3]     =>)
+(def var-to-be-fully-faked)
+(defn var-with-default-function [x] 3333)
+(def var-without-function 3)
+(unfinished unfinished-var)
+
+
+(let [fully-fake (fake (var-to-be-fully-faked (as-checker odd?)) => -3)
+      default-fake (fake (var-with-default-function 3) => -4)]
+  (tabular "finding best call actions"
+    (fact (best-call-action ?var ?args [fully-fake default-fake]) => ?result)
+
+    ?var                        ?args           ?result
+
+    ;; A full match provides the fake
+    #'var-to-be-fully-faked      [3]             {:use-fake true, :matching-fake fully-fake}
+    #'var-with-default-function  [3]             {:use-fake true, :matching-fake default-fake}
+
+    ;; If there's a function "behind" the fake, use it in case of poor matches
+;    #'var-with-default-function  [4]             {:use-default true, :matching-fake default-fake}
+
+    ;; If nothing realistically callable, all that's left is failure
+    #'var-to-be-fully-faked      [4]             {:fail true}  ; bad arg
+    #'var-to-be-fully-faked      [3 3]           {:fail true}  ; bad arg count
+
+    #'var-without-function      [3]              {:fail true}
+    #'unfinished-var            [3]              {:fail true}
+))
 
 (fact "fakes keep track of their call counts"
   (let [fakes [(fake (f 1) => 3)
