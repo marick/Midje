@@ -8,14 +8,15 @@
     [midje.ideas.metaconstants :only [metaconstant-symbol?]]
     [midje.ideas.arrow-symbols :only [=contains=>]]))
 
-(defmethod validate "fake" [form]
-  (cond (not (list? (second form)))
-        (user-error-report-form
-          form
-          "The left-hand-side of a prerequisite must look like a function call."
-          (cl-format nil "`~S` doesn't." (second form)))
-        :else
-        (rest form)))
+(defmethod validate "fake" [[_fake_ & fake-form :as form]]
+  (let [funcall (first fake-form)]
+    (cond (not (list? funcall))
+          (user-error-report-form
+            form
+            "The left-hand-side of a prerequisite must look like a function call."
+            (cl-format nil "`~S` doesn't." funcall))
+          :else
+          fake-form)))
 
 (defmethod validate "data-fake" [[header metaconstant arrow hash & remainder :as form]]
   (cond (not (metaconstant-symbol? metaconstant))
