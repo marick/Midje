@@ -258,5 +258,13 @@
   *fact-retval* => true)
 
 
+;;; Prerequisites
 
+(defn internal [x] 33)
+(defn external [x] (+ (internal x) (internal (inc x))))
 
+(fact "calls not mentioned in prerequisites are passed through to real code"
+  (external 1) => 0
+  (provided
+    (internal 1) => -33))
+  

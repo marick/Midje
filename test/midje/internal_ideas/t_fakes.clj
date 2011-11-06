@@ -8,7 +8,7 @@
 
 
 (tabular
- (facts "the arg matcher maker hadles functions specially"
+ (facts "the arg matcher maker handles functions specially"
    ((arg-matcher-maker ?expected) ?actual) => ?result)
  ?expected              ?actual         ?result
  1                      1               TRUTHY
@@ -48,33 +48,86 @@
 
 ;;; Different behaviors appropriate to fake lookup.
 
-(def var-to-be-fully-faked)
-(defn var-with-default-function [x] 3333)
-(def var-without-function 3)
-(unfinished unfinished-var)
 
+(defn ^{:dynamic true} function-symbol-of-interest [n] n)
+(defn other-function-symbol)
 
-(let [fully-fake (fake (var-to-be-fully-faked (as-checker odd?)) => -3)
-      default-fake (fake (var-with-default-function 3) => -4)]
-  (tabular "finding best call actions"
-    (fact (best-call-action ?var ?args [fully-fake default-fake]) => ?result)
+(fact "best-call-action returns nil [failure], fake [to get value], or default-function"
+  (let [matching-fake (fake (function-symbol-of-interest 3) => 4)]
+    (best-call-action #'function-symbol-of-interest [3] [matching-fake]) => matching-fake
 
-    ?var                        ?args           ?result
+    (best-call-action #'other-function-symbol [] [matching-fake]) => nil
 
-    ;; A full match provides the fake
-    #'var-to-be-fully-faked      [3]             {:use-fake true, :matching-fake fully-fake}
-    #'var-with-default-function  [3]             {:use-fake true, :matching-fake default-fake}
+    (best-call-action #'function-symbol-of-interest [:mismatch] [matching-fake]) => nil
+    (provided (usable-default-function? matching-fake) => false)
 
-    ;; If there's a function "behind" the fake, use it in case of poor matches
-;    #'var-with-default-function  [4]             {:use-default true, :matching-fake default-fake}
+    (best-call-action #'function-symbol-of-interest [:mismatch] [matching-fake])
+    => function-symbol-of-interest
+    (provided (usable-default-function? matching-fake) => true)
 
-    ;; If nothing realistically callable, all that's left is failure
-    #'var-to-be-fully-faked      [4]             {:fail true}  ; bad arg
-    #'var-to-be-fully-faked      [3 3]           {:fail true}  ; bad arg count
+    ;; This demonstrates that its the default in effect at the time of
+    ;; *fake-making* that is used as default, not the value of the function
+    ;; (which, after all, is being rebound in the process of mocking).
+    (binding [function-symbol-of-interest cons]
+      (best-call-action #'function-symbol-of-interest [:mismatch] [matching-fake]))
+    => function-symbol-of-interest
+    (provided (usable-default-function? matching-fake) => true)))
 
-    #'var-without-function      [3]              {:fail true}
-    #'unfinished-var            [3]              {:fail true}
-))
+              
+  (def a-function (fn [x] x))
+
+"When is a var's function (as stashed in fake) usable as a default?"
+(fact "It must have had a value at fake-define time"
+  (def var-to-be-fully-faked)
+  (usable-default-function? (fake (var-to-be-fully-faked 3) => 1)) => falsey)
+(fact "That value must have been a function."
+  (def not-a-function 3)
+  (usable-default-function? (fake (not-a-function 3) => 1)) => falsey
+  (usable-default-function? (fake (a-function 3) => 1)) => truthy)
+(fact "It may not have been marked `unfinished`"
+  (unfinished tbd)
+  (usable-default-function? (fake (tbd 3) => 1)) => falsey
+  ;; However, an unfinished-then-redefined function is allowed
+  (unfinished forget-to-remove)
+  (def forget-to-remove (fn [x] (+ 3 (* 3 x))))
+  (usable-default-function? (fake (forget-to-remove 3) => 1)) => truthy)
+(fact "It can be a multimethod"
+  (defmulti multimethod type)
+  (defmethod multimethod java.lang.String [x] "string me!")
+  (usable-default-function? (fake (multimethod 3) => 3)) => truthy)
+
+;; (with-bindings {#'rebound new-value-for-rebound}
+;;   (tabular "What does `default function` mean?"
+;;     (fact (retrieve-default-function ?var) => (exactly ?expected))
+;;     ?var                          ?expected
+;;     #'var-to-be-fully-faked       nil
+;;     #'var-with-default-function   var-with-default-function
+;;     #'unfinished-then-defined     unfinished-then-defined
+;;     #'multimethod                 multimethod
+;;     #'var-without-function        nil
+;;     #'unfinished-var              nil
+;;     #'rebound                     new-value-for-rebound))
+
+;; (let [fully-fake (fake (var-to-be-fully-faked (as-checker odd?)) => -3)
+;;       default-fake (fake (var-with-default-function 3) => -4)]
+;;   (tabular "finding best call actions"
+;;     (fact (best-call-action ?var ?args [fully-fake default-fake]) => ?result)
+
+;;     ?var                        ?args           ?result
+
+;;     ;; A full match provides the fake
+;;     #'var-to-be-fully-faked      [3]             fully-fake
+;;     #'var-with-default-function  [3]             default-fake
+
+;;     ;; If there's a function "behind" the fake, use it in case of poor matches
+;;     #'var-with-default-function  [4]             var-with-default-function
+
+;;     ;; If nothing realistically callable, all that's left is failure
+;;     #'var-to-be-fully-faked      [4]             nil  ; bad arg
+;;     #'var-to-be-fully-faked      [3 3]           nil  ; bad arg count
+
+;;     #'var-without-function      [3]              nil
+;;     #'unfinished-var            [3]              nil))
 
 (fact "fakes keep track of their call counts"
   (let [fakes [(fake (f 1) => 3)
@@ -85,6 +138,13 @@
     (call-faker #'f [1] fakes)    (counts) => [2 0 0]
     (call-faker #'f [2] fakes)    (counts) => [2 0 1]
     (call-faker #'g [1] fakes)    (counts) => [2 1 1]))
+
+
+(defmulti multimethod type)
+(defmethod multimethod java.lang.String [x] "string me!")
+(fact "fakes can call default functions"
+  (call-faker #'multimethod ["some string"] [(fake (multimethod 4) => 3)])
+  => (multimethod "some string"))
 
 (fact "binding maps contain functions that increment a call count"
   (let [fake (fake (f 1) => 3)
@@ -154,8 +214,19 @@
     (supplier) => 1
     (supplier) => 2
     (supplier) => 3))
-                    
 
+
+(def unbound-var)
+(def bound-var 3)
+(def ^{:dynamic true} rebound)
+     
+(fact "fakes contain the value of their function-var at moment of binding"
+  (:value-at-time-of-faking (fake (unbound-var) => 2)) => nil
+  (:value-at-time-of-faking (fake (bound-var) => 888)) => 3
+  (binding [rebound 88]
+    (:value-at-time-of-faking (fake (rebound) => 3)) => 88))
+
+  
 
 
 ;; Folded fakes
