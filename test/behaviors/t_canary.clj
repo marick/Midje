@@ -82,3 +82,15 @@
   (a-fn :foo 55) => ...something...
   (provided
     (another-fn 55) => ...something...))
+
+
+(def unique (atom 0))
+(def unique? (partial = unique))
+
+(defn f [xs] (every? unique? xs))
+
+(fact (f [1 2 3]) => falsey)
+
+(future-fact "can avoid overdefining every?"
+  (f ..xs..) => truthy
+  (provided (every? unique? ..xs..) => true))

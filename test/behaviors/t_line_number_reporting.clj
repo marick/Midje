@@ -111,7 +111,7 @@
      (provided
        (name (favorite-animal)) => "betsy"))
    (fact
-     @reported => (just [ (contains {:type :mock-argument-match-failure
+     @reported =future=> (just [ (contains {:type :mock-argument-match-failure
 				     :lhs #'clojure.core/name
 				     :position ["t_line_number_reporting.clj" (+ line-number 5)]
 				     :actual '("fred")})
