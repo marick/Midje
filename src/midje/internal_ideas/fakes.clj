@@ -151,7 +151,27 @@
             (not= unfinished-fun stashed-value)))))
 
 
+(def ^{:dynamic true} *call-action-count* (atom 0))
+(defmacro counting-nested-calls-calls [& forms]
+  `(try
+     (swap! *call-action-count* inc) 
+     ~@forms
+     (finally (swap! *call-action-count* dec))))
+
+
+
 (defn best-call-action [function-var actual-args fakes]
+  (if (= 2 @*call-action-count*)
+    (throw (user-error "You seem to have created a prerequisite for"
+                       (str (pr-str function-var) " that interferes with that function's use in Midje's")
+                       (str "own code. To fix, define a function of your own that uses "
+                            (or (:name (meta function-var)) function-var) ", then")
+                       "describe that function in a provided clause. For example, instead of this:"
+                       "  (provided (every? even? ..xs..) => true)"
+                       "do this:"
+                       "  (def all-even? (partial every? even?))"
+                       "  ;; ..."
+                       "  (provided (all-even? ..xs..) => true)")))
   (let [possible-fakes (fakes-for-var fakes function-var)
         found (first (fakes-for-call possible-fakes function-var actual-args))]
     (cond found
@@ -169,7 +189,7 @@
 
 (defn call-faker [function-var actual-args fakes]
   "This is the function that handles all mocked calls."
-  (let [action (best-call-action function-var actual-args fakes)]
+  (let [action (counting-nested-calls-calls (best-call-action function-var actual-args fakes))]
     (cond (nil? action)
           (clojure.test/report {:type :mock-argument-match-failure
                                 :lhs function-var
