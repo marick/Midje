@@ -111,10 +111,10 @@
      (provided
        (name (favorite-animal)) => "betsy"))
    (fact
-     @reported => (just [ (contains {:type :mock-argument-match-failure
-				     :lhs #'clojure.core/name
-				     :position ["t_line_number_reporting.clj" (+ line-number 5)]
-				     :actual '("fred")})
+     @reported => (just [
+              ;; This used to produce a :mock-argument-match-failure because of
+              ;; (name "fred"). Since the name function actually exists, it's
+              ;; used.
 			  (contains {:type :mock-incorrect-call-count
 				     :position ["t_line_number_reporting.clj" (+ line-number 5)]
 				     :expected-call "(name ...favorite-animal-value-1...)"})

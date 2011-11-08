@@ -93,6 +93,7 @@
   (make-fake-map var-sym
                  `{:arg-matchers (map midje.internal-ideas.fakes/arg-matcher-maker ~(vec args))
                    :call-text-for-failures (str '~call-form)
+                   :value-at-time-of-faking (if (bound? (var ~var-sym)) ~var-sym)
                    :result-supplier (make-result-supplier ~arrow ~result)
                    :type :fake}
                  overrides))
@@ -112,36 +113,96 @@
 
 ;;; Binding
 
-(defmulti matches-call? (fn [fake faked-function args]
-                          (:type fake)))
 
-(defmethod matches-call? :not-called
-  [fake faked-function args]
-  (= faked-function (fake :lhs)))
+(defn var-handled-by-fake? [function-var fake]
+  (= function-var (fake :lhs)))
 
-(defmethod matches-call? :default
-  [fake faked-function args]
-  (and (= faked-function (fake :lhs))
-       (= (count args) (count (fake :arg-matchers)))
-       (extended-list-= args (fake :arg-matchers))))
+(defn- fakes-for-var [fakes function-var]
+  (filter (partial var-handled-by-fake? function-var) fakes))
 
-(defn find-matching-call [faked-function args fakes]
-  (first (filter #(matches-call? % faked-function args) fakes)))
+(defmulti call-handled-by-fake? (fn [function-var actual-args fake] (:type fake)))
 
-(defn call-faker [faked-function args fakes]
+(defmethod call-handled-by-fake? :not-called
+  [function-var actual-args fake]
+  (var-handled-by-fake? function-var fake))
+
+(defmethod call-handled-by-fake? :default
+  [function-var actual-args fake]
+  (and (var-handled-by-fake? function-var fake)
+       (= (count actual-args) (count (fake :arg-matchers)))
+       (extended-list-= actual-args (fake :arg-matchers))))
+
+(defn fakes-for-call [fakes function-var actual-args]
+  (filter (partial call-handled-by-fake? function-var actual-args) fakes))
+
+(defn usable-default-function? [fake]
+  (if (not (bound? (:lhs fake)))
+    false
+    (let [function-var (:lhs fake)
+          stashed-value (var-get function-var)
+          unfinished-fun (:midje/unfinished-fun (meta function-var))]
+      (cond (not (extended-fn? stashed-value))
+            false
+
+            (nil? unfinished-fun)
+            true
+
+            :else
+            (not= unfinished-fun stashed-value)))))
+
+
+(def ^{:dynamic true} *call-action-count* (atom 0))
+(defmacro counting-nested-calls-calls [& forms]
+  `(try
+     (swap! *call-action-count* inc) 
+     ~@forms
+     (finally (swap! *call-action-count* dec))))
+
+
+
+(defn best-call-action [function-var actual-args fakes]
+  (if (= 2 @*call-action-count*)
+    (throw (user-error "You seem to have created a prerequisite for"
+                       (str (pr-str function-var) " that interferes with that function's use in Midje's")
+                       (str "own code. To fix, define a function of your own that uses "
+                            (or (:name (meta function-var)) function-var) ", then")
+                       "describe that function in a provided clause. For example, instead of this:"
+                       "  (provided (every? even? ..xs..) => true)"
+                       "do this:"
+                       "  (def all-even? (partial every? even?))"
+                       "  ;; ..."
+                       "  (provided (all-even? ..xs..) => true)")))
+  (let [possible-fakes (fakes-for-var fakes function-var)
+        found (first (fakes-for-call possible-fakes function-var actual-args))]
+    (cond found
+          found
+
+          (empty? possible-fakes)
+          nil
+
+          ;; For finding a default, any possible fake is as good as any other
+          (not (usable-default-function? (first possible-fakes)))
+          nil
+
+          :else
+          (:value-at-time-of-faking (first possible-fakes)))))
+
+(defn call-faker [function-var actual-args fakes]
   "This is the function that handles all mocked calls."
-  (let [found (find-matching-call faked-function args fakes)]
-    (if-not found 
-      (do 
-        (clojure.test/report {:type :mock-argument-match-failure
-                 :lhs faked-function
-                 :actual args
-                 :position (:position (first fakes))}))
-      (do 
-        (swap! (found :count-atom) inc)
-        ((found :result-supplier)))))
-  )
+  (let [action (counting-nested-calls-calls (best-call-action function-var actual-args fakes))]
+    (cond (nil? action)
+          (clojure.test/report {:type :mock-argument-match-failure
+                                :lhs function-var
+                                :actual actual-args
+                                :position (:position (first fakes))})
 
+          (extended-fn? action)
+          (apply action actual-args)
+
+          :else
+          (do
+            (swap! (action :count-atom) inc)
+            ((action :result-supplier))))))
 
 (defn unique-vars [fakes]
   (distinct (map :lhs fakes)))

@@ -8,7 +8,7 @@
 
 
 (tabular
- (facts "the arg matcher maker hadles functions specially"
+ (facts "the arg matcher maker handles functions specially"
    ((arg-matcher-maker ?expected) ?actual) => ?result)
  ?expected              ?actual         ?result
  1                      1               TRUTHY
@@ -45,28 +45,8 @@
                 (data-fake ...f... => {:b 4})
                 (data-fake ...g... => {:d 4})] ]
     (unique-vars fakes) => (contains [#'...f... #'...g...] :in-any-order)))
-  
 
-(tabular
- (facts "matching calls depend on both function name and arguments"
-   (let [fake {:lhs 'expected, :arg-matchers [ odd? ] }]
-     (find-matching-call ?faked-fun ?args [fake]) ?arrow fake))
 
- ?faked-fun     ?args   ?arrow
- 'not-expected  [3]     =not=>  ; function name
- 'expected      [3 3]   =not=>  ; arg count
- 'expected      [4]     =not=>  ; arg value
- 'expected      [3]     =>)
-
-(fact "fakes keep track of their call counts"
-  (let [fakes [(fake (f 1) => 3)
-               (fake (g 1) => 4)
-               (fake (f 2) => 5)]
-        counts #(map fake-count fakes)]
-    (call-faker #'f [1] fakes)    (counts) => [1 0 0]
-    (call-faker #'f [1] fakes)    (counts) => [2 0 0]
-    (call-faker #'f [2] fakes)    (counts) => [2 0 1]
-    (call-faker #'g [1] fakes)    (counts) => [2 1 1]))
 
 (fact "binding maps contain functions that increment a call count"
   (let [fake (fake (f 1) => 3)
@@ -136,7 +116,120 @@
     (supplier) => 1
     (supplier) => 2
     (supplier) => 3))
-                    
+
+
+;;; Handling of default values for fakes
+
+;; In this example, one call to `internal` is faked and one is left alone.
+
+(defn internal [x] 33)
+(defn external [x] (+ (internal x) (internal (inc x))))
+
+(fact "calls not mentioned in prerequisites are passed through to real code"
+  (external 1) => 0
+  (provided
+    (internal 1) => -33))
+
+;; The same thing can be done with clojure.core functions
+
+(defn double-partition [first-seq second-seq]
+  (concat (partition-all 1 first-seq) (partition-all 1 second-seq)))
+
+(fact (double-partition [1 2] [3 4]) => [ [1] [2] [3] [4] ])
+
+(fact
+  (double-partition [1 2] ..xs..) => [[1] [2] [..x1..] [..x2..]]
+  (provided (partition-all 1 ..xs..) => [ [..x1..] [..x2..] ]))
+
+;; However you can't override functions that are used by Midje itself
+
+(defn all-even? [xs] (every? even? xs))
+
+(after-silently 
+ (fact "get a user error from nested call to faked `every?`"
+   (all-even? ..xs..) => truthy
+   (provided (every? even? ..xs..) => true))
+ (let [important-error (first (filter #(= (:type %) :mock-expected-result-functional-failure)
+                                      @reported))
+       text (clojure.string/join " " (:actual important-error))]
+   
+   (fact
+     text => #"seem to have created a prerequisite"
+     text => #"clojure\.core/every\?"
+     text => #"interferes with.*Midje")))
+
+;; How it works
+
+(defn ^{:dynamic true} function-symbol-of-interest [n] n)
+(defn other-function-symbol)
+
+(fact "best-call-action returns nil [failure], fake [to get value], or default-function"
+  (let [matching-fake (fake (function-symbol-of-interest 3) => 4)]
+    (best-call-action #'function-symbol-of-interest [3] [matching-fake]) => matching-fake
+
+    (best-call-action #'other-function-symbol [] [matching-fake]) => nil
+
+    (best-call-action #'function-symbol-of-interest [:mismatch] [matching-fake]) => nil
+    (provided (usable-default-function? matching-fake) => false)
+
+    (best-call-action #'function-symbol-of-interest [:mismatch] [matching-fake])
+    => function-symbol-of-interest
+    (provided (usable-default-function? matching-fake) => true)
+
+    ;; This demonstrates that its the default in effect at the time of
+    ;; *fake-making* that is used as default, not the value of the function
+    ;; (which, after all, is being rebound in the process of mocking).
+    (binding [function-symbol-of-interest cons]
+      (best-call-action #'function-symbol-of-interest [:mismatch] [matching-fake]))
+    => function-symbol-of-interest
+    (provided (usable-default-function? matching-fake) => true)))
+
+"When is a var's function (as stashed in fake) usable as a default?"
+(fact "It must have had a value at fake-define time"
+  (def var-to-be-fully-faked)
+  (usable-default-function? (fake (var-to-be-fully-faked 3) => 1)) => falsey)
+(fact "That value must have been a function."
+  (def not-a-function 3)
+  (def a-function (fn [x] x))
+  (usable-default-function? (fake (not-a-function 3) => 1)) => falsey
+  (usable-default-function? (fake (a-function 3) => 1)) => truthy)
+(fact "It may not have been marked `unfinished`"
+  (unfinished tbd)
+  (usable-default-function? (fake (tbd 3) => 1)) => falsey
+  ;; However, an unfinished-then-redefined function is allowed
+  (unfinished forget-to-remove)
+  (def forget-to-remove (fn [x] (+ 3 (* 3 x))))
+  (usable-default-function? (fake (forget-to-remove 3) => 1)) => truthy)
+(fact "It can be a multimethod"
+  (defmulti multimethod type)
+  (defmethod multimethod java.lang.String [x] "string me!")
+  (usable-default-function? (fake (multimethod 3) => 3)) => truthy)
+
+(defmulti multimethod type)
+(defmethod multimethod java.lang.String [x] "string me!")
+(fact "fakes can call default functions"
+  (call-faker #'multimethod ["some string"] [(fake (multimethod 4) => 3)])
+  => (multimethod "some string"))
+
+(fact "fakes keep track of their call counts"
+  (let [fakes [(fake (f 1) => 3)
+               (fake (g 1) => 4)
+               (fake (f 2) => 5)]
+        counts #(map fake-count fakes)]
+    (call-faker #'f [1] fakes)    (counts) => [1 0 0]
+    (call-faker #'f [1] fakes)    (counts) => [2 0 0]
+    (call-faker #'f [2] fakes)    (counts) => [2 0 1]
+    (call-faker #'g [1] fakes)    (counts) => [2 1 1]))
+
+(def unbound-var)
+(def bound-var 3)
+(def ^{:dynamic true} rebound)
+     
+(fact "fakes contain the value of their function-var at moment of binding"
+  (:value-at-time-of-faking (fake (unbound-var) => 2)) => nil
+  (:value-at-time-of-faking (fake (bound-var) => 888)) => 3
+  (binding [rebound 88]
+    (:value-at-time-of-faking (fake (rebound) => 3)) => 88))
 
 
 
