@@ -25,11 +25,6 @@
 
 ;;; Full-bore tests.
 
-(defmacro user-error-with-notes [& notes]
-  `(just (contains {:notes (just ~@notes)
-                    :type :user-error})))
-  
-
 (after-silently
  (expect (+ 1 2) =>)
  (expect @reported => (user-error-with-notes

@@ -68,3 +68,8 @@
 
 (defn at-line [line-no form] (with-meta form {:line line-no}))
 
+(defmacro user-error-with-notes [& notes]
+  `(just (contains {:notes (just ~@notes)
+                    :type :user-error})))
+  
+

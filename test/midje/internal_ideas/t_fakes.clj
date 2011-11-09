@@ -158,6 +158,17 @@
      text => #"clojure\.core/every\?"
      text => #"interferes with.*Midje")))
 
+;; And inlined functions can't be faked
+
+(defn doubler [n] (+ n n))
+
+(after-silently
+ (fact
+   (doubler 3) => 0
+   (provided
+     (+ 3 3) => 0))
+  (fact @reported => (user-error-with-notes #"inlined")))
+
 ;; How it works
 
 (defn ^{:dynamic true} function-symbol-of-interest [n] n)
