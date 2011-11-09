@@ -99,14 +99,18 @@
              (next vs))
       m)))
 
+(defn unchunk
+  "force a lazy sequence not to use size 32 chunks - we want size-1 units!"
+  [s]
+  (lazy-seq (when-let [s (seq s)]
+              (cons (first s) (unchunk (rest s))))))
+
 (defn first-truthy-fn
   "Returns the first function in a seq of functions
-  that evaluates to truthy for the given arguments"
-  [[pred & more-preds] & args]
-  (when pred
-    (if (apply pred args)
-      pred
-      (apply first-truthy-fn more-preds args))))
+  that evaluates to truthy for the given arguments - it shortcicuits,
+  only evaluating the minimum number of functions necessary to evaluate"
+  [preds & args]
+  (first (filter #(apply % args) (unchunk preds))))
 
 (defn translate-zipper
   "Traverses the zipper - for the first predicate that evaluates to truthy for matching a
