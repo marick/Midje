@@ -11,5 +11,6 @@
   (captured-exception? (captured-exception (Throwable.))) => truthy
   "and are not fooled by maps or records"
   (captured-exception? {}) => falsey
+  (captured-exception? (sorted-map :a 3)) => falsey
   (captured-exception? (R. 1)) => falsey)
 

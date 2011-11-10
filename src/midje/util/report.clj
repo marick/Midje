@@ -1,11 +1,4 @@
 ;; -*- indent-tabs-mode: nil -*-
-
-(when (= (class clojure.test/report) clojure.lang.MultiFn)
-  (eval
-   '(do (require 'clojure.test)
-        (ns clojure.test)
-        (defonce old-report clojure.test/report))))
-
 (ns midje.util.report
   (:use clojure.test
         [clojure.pprint :only [cl-format]]
@@ -13,6 +6,10 @@
         [midje.util.object-utils :only [function-name function-name-or-spewage named-function?]]
         [midje.util.exceptions :only [friendly-exception-text]]
         [midje.checkers.util :only [captured-exception? captured-exception-value]]))
+
+(let [the-var (intern (the-ns 'clojure.test) 'old-report)]
+  (when-not (.hasRoot the-var)
+    (.bindRoot the-var clojure.test/report)))
 
 (def ^{:dynamic true} *renderer* println)
 
@@ -37,7 +34,7 @@
 
 
 
-(defn- midje-position-string [position-pair]
+(defn midje-position-string [position-pair]
   (format "(%s:%s)" (first position-pair) (second position-pair)))
 
 (defmacro with-identity-renderer [& forms]   ; for testing

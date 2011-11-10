@@ -69,7 +69,8 @@
     (first-truthy-fn ?fns :kw)  => (exactly ?first-truthy-fn))
   
      ?fns                ?first-truthy-fn
-     [string? keyword?]  keyword? 
+     [string? keyword?]  keyword?
+     [string? nil?]      nil
      []                  nil       
      [keyword? odd?]     keyword? ) ;; shortcircuits when it reaches a match - evaluating (odd? :kw) would have blown up   
 

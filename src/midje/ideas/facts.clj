@@ -22,6 +22,7 @@
                                        against-background-children-wrappers
                                        against-background?]]
         [midje.ideas.metaconstants :only [define-metaconstants]]
+        [midje.util.form-utils :only [first-truthy-fn]]
         [midje.util.zip :only [skip-to-rightmost-leaf]])
   (:require [clojure.zip :as zip])
   (:require [midje.util.report :as report]))
@@ -64,10 +65,7 @@
 (defn midjcoexpand
   "Descend form, macroexpanding *only* midje forms and placing background wrappers where appropriate."
   [form]
-  (cond (already-wrapped? form)
-        form
-
-        (quoted? form)
+  (cond (first-truthy-fn [already-wrapped? quoted?] form)
         form
 
         (future-fact? form)

@@ -258,5 +258,3 @@
   *fact-retval* => true)
 
 
-
-

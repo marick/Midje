@@ -111,42 +111,35 @@
      (provided
        (name (favorite-animal)) => "betsy"))
    (fact
-     @reported => (just [ (contains {
-                                      :type :mock-argument-match-failure
-                                      :lhs #'clojure.core/name
-                                      :position ["t_line_number_reporting.clj" (+ line-number 5)]
-                                      :actual '("fred")})
-                          (contains {
-                                      :type :mock-incorrect-call-count
-                                      :position ["t_line_number_reporting.clj" (+ line-number 5)]
-                                      :expected-call "(name ...favorite-animal-value-1...)"})
-                          (contains {
-                                      :type :mock-incorrect-call-count
-                                      :position ["t_line_number_reporting.clj" (+ line-number 5)]
-                                      :expected-call "(favorite-animal)"})
-                          (contains {
-                                      :type :mock-expected-result-failure
-                                      :position ["t_line_number_reporting.clj" (+ line-number 3)]})
-                          ])))
+     @reported => (just [
+              ;; This used to produce a :mock-argument-match-failure because of
+              ;; (name "fred"). Since the name function actually exists, it's
+              ;; used.
+			  (contains {:type :mock-incorrect-call-count
+				     :position ["t_line_number_reporting.clj" (+ line-number 5)]
+				     :expected-call "(name ...favorite-animal-value-1...)"})
+			  (contains {:type :mock-incorrect-call-count
+				     :position ["t_line_number_reporting.clj" (+ line-number 5)]
+				     :expected-call "(favorite-animal)"})
+			  (contains {:type :mock-expected-result-failure
+				     :position ["t_line_number_reporting.clj" (+ line-number 3)]})])))
 
 
-  (def line-number 133)
-;  (after-silently
-;   (fact
-;     (favorite-animal-one-call) => "betsy"
-;     (provided
-;       (name (favorite-animal 1)) => "betsy"
-;       (name (favorite-animal 2)) => "jake")) ;; a folded prerequisite can have two errors.
-;   (fact
-;     @reported => (just [(contains {:type :mock-incorrect-call-count
-;				     :position ["t_line_number_reporting.clj" (+ line-number 6)]
-;				     :expected-call "(name ...favorite-animal-value-2...)"})
-;                         (contains {:type :mock-incorrect-call-count
-;				     :position ["t_line_number_reporting.clj" (+ line-number 6)]
-;				     :expected-call "(favorite-animal 2)"})
-;			  pass ])))
-
-  )
+  (def line-number 128)
+  (after-silently
+   (fact
+     (favorite-animal-one-call) => "betsy"
+     (provided
+       (name (favorite-animal 1)) => "betsy"
+       (name (favorite-animal 2)) => "jake")) ;; a folded prerequisite can have two errors.
+   (fact
+     @reported => (just [(contains {:type :mock-incorrect-call-count
+				     :position ["t_line_number_reporting.clj" (+ line-number 6)]
+				     :expected-call "(name ...favorite-animal-value-2...)"})
+                         (contains {:type :mock-incorrect-call-count
+				     :position ["t_line_number_reporting.clj" (+ line-number 6)]
+				     :expected-call "(favorite-animal 2)"})
+			  pass ]))))
 
 (def line-number-separate 144)
 (unfinished outermost middlemost innermost)

@@ -25,29 +25,6 @@
  ?a    ?b      ?result
  1     2       3)
 
-(tabular
- (fact "will ignore optional pipes separating table columns"
-   (str ?a ?b ?c) => ?result)
- 
- ?a  | ?b  | ?c  | ?result
- "a" | "b" | "c" | "abc" )
-
-(tabular
-  (fact "will ignore an optional 'where' above the table"
-    (+ ?a ?b) => ?result)
-
-  where
-  ?a | ?b | ?result
-  1  | 2  | 3)
-
-(tabular
-  (fact "will ignore an optional ':where' above the table"
-    (str ?a ?b) => ?result)
-
-  :where
-  ?a     | ?b     | ?result
-  'where | :where | "where:where") ;; just to makes sure
-
 ;; Error handling
 
 (after-silently
@@ -59,14 +36,6 @@
  (fact @reported => (one-of a-user-error)))
 
 ;; Other tests via midje.sweet API
-
-(tabular
- (fact "can have different forms of where or pipe in the data, no problem"
-   (str ?a ?b ?c ?d) => ?result)
- 
- where
- ?a     | ?b  | ?c     | ?d | ?result
- :where | "|" | 'where | '| | ":where|where|")
 
 (unfinished g)
 (defn f [n] (inc (g n)))
@@ -124,6 +93,7 @@
  ?result ?n ?intermediate
  (+ a 1)       1      1)
 
+
 (after-silently
  (tabular
   (future-fact (inc ?int) => ?int)
@@ -139,29 +109,6 @@
   (table-binding-maps (list '?a  '?b '?result
                               1   2   3))
     => [ (ordered-map '?a 1, '?b 2, '?result 3) ])
- 
-(fact "ignores pipes"
-  (table-binding-maps (list '?a '| '?b '| '?result
-                              1 '|  2  '|  3))
-    => [ (ordered-map '?a 1, '?b 2, '?result 3) ])
- 
-(fact "ignores symbol - where"
-  (table-binding-maps (list 'where
-  		            '?a '?b '?result
-                              1   2   3))
-    => [ (ordered-map '?a 1, '?b 2, '?result 3) ])
- 
-(fact "ignores keyword - :where"
-  (table-binding-maps (list :where
-  		            '?a '?b '?result
-                              1   2   3))
-    => [ (ordered-map '?a 1, '?b 2, '?result 3) ])
- 
-(fact "no trouble with :where or where in the data"
-  (table-binding-maps (list :where
-  		            '?a      '?b      '?result
-                             'where   :where   "where:where"))
-    => [ (ordered-map '?a 'where, '?b :where, '?result "where:where") ])
 
 ;; Util: validate
 

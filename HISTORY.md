@@ -1,9 +1,12 @@
 1.3-alpha5
+* Prevents you from overriding functions that the compiler inlines.
+* Now works properly with aot-compilation. More properly, at least.
+* partial prerequisites
+  https://github.com/marick/Midje/wiki/Partial-prerequisites
+* Alternate syntax for tables (|) deprecated
 * =expands-to=> for testing macros (in a style derived from
   /Let Over Lambda/. (via Phil Calçado)
   https://github.com/marick/Midje/wiki/Macros
-* You can write (f) => anything :never instead :times 0.
-   Alex Baranovsky
 
 1.3-alpha4
 --------

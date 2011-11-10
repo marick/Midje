@@ -85,8 +85,12 @@
 
 (defn- unfinished* [names]
   (let [declarations (map (fn [name] 
-                              `(defn ~name [& args#] 
-                                 (throw (user-error (str "#'" '~name " has no implementation. It's used as a prerequisite in Midje tests.")))))
+                              `(do
+                                 (defn ~name [& args#] 
+                                   (throw (user-error (str "#'" '~name " has no implementation. It's used as a prerequisite in Midje tests."))))
+                                 ;; A reliable way of determining if an `unfinished` function
+                                 ;; has since been defined.
+                                 (alter-meta! (var ~name) assoc :midje/unfinished-fun ~name)))
                           names)]
     `(do ~@declarations)))
 
