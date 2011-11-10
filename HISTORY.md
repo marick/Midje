@@ -1,5 +1,6 @@
 1.3-alpha5
 * Prevents you from overriding functions that the compiler inlines.
+  https://github.com/marick/Midje/issues/60
 * Now works properly with aot-compilation. More properly, at least.
 * partial prerequisites
   https://github.com/marick/Midje/wiki/Partial-prerequisites

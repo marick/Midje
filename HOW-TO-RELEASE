@@ -16,7 +16,7 @@ manual.
 * Rake upload
 * DO NOT CLEAN.
 * bin/gather-downloads
-* Update README.md
+* Update README.md (including version number)
 * Commit
 * git tag -a -m "message" v.x.x.x   ;; git push --tags
 * Push to github
