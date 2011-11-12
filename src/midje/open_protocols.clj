@@ -21,11 +21,11 @@
        (do ~@body))))
 
 (defn- defx-openly [x name fields specs]
-  (let [revised-specs (map #(if (and (implementation? %)
-                                     (user-desires-checking?))
-                              (open-spec %)
-                              %)
-                           specs)]
+  (let [revised-specs (for [spec specs]
+                        (if (and (implementation? spec)
+                              (user-desires-checking?))
+                          (open-spec spec)
+                          spec))]
     (list* x name fields revised-specs)))
 
 (defmacro deftype-openly [name fields & specs]

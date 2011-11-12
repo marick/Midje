@@ -121,9 +121,9 @@
 (defmethod best-actual-match ::map [midje-classification comparison]
   (str "Best match found: {"
        (join ", "
-                      (sort (map (fn [[k v]] (str (pr-str k) " " (pr-str v)))
-                                    (:actual-found comparison))))
-       "}."))
+             (sort (for [[k v] (:actual-found comparison)] 
+                     (str (pr-str k) " " (pr-str v)))))
+    "}."))
 ;;-
 
 
@@ -487,8 +487,9 @@
 (defmacro- of-functions []
   (let [names {1 "one", 2 "two", 3 "three", 4 "four", 5 "five", 6 "six", 7 "seven",
                8 "eight", 9 "nine", 10 "ten"}
-        defns (map (fn [key] `(defchecker ~(symbol (str (get names key) "-of")) [expected-checker#]
-                                (n-of expected-checker# ~key)))
-                   (keys names))]
+        defns (for [key (keys names)] 
+                `(defchecker ~(symbol (str (get names key) "-of")) [expected-checker#]
+                   (n-of expected-checker# ~key)))]
     `(do ~@defns)))
+
 (of-functions)

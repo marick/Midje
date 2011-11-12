@@ -15,7 +15,7 @@
 ;;; Reading
 
 (defn stacktrace-as-strings [ex]
-  (map (fn [elt] (.toString elt)) (.getStackTrace ex)))
+  (map #(.toString %) (.getStackTrace ex)))
 
 (defn remove-matches [re strings] (remove #(re-find re %) strings))
 

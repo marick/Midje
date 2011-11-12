@@ -325,13 +325,12 @@
             needed-keys)))
 
 (defn flatten-fake [ [fake [fun & args] & rest] substitutions]
-  (let [new-args (map (fn [arg] (get substitutions arg arg)) args)]
+  (let [new-args (for [a args] (get substitutions a a))]
     `(~fake (~fun ~@new-args) ~@rest)))
 
 (defn generate-fakes [substitutions overrides]
-  (map (fn [ [funcall metaconstant] ]
-         `(midje.semi-sweet/fake ~funcall midje.semi-sweet/=> ~metaconstant ~@overrides))
-       substitutions))
+  (for [[funcall metaconstant] substitutions]
+    `(midje.semi-sweet/fake ~funcall midje.semi-sweet/=> ~metaconstant ~@overrides)))
 
 ;; This walks through a `pending` list that may contain fakes. Each element is
 ;; copied to the `finished` list. If it is a suitable fake, its nested 

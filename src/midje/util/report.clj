@@ -98,9 +98,9 @@
    (str "    Checking function: " (pr-str (:expected m)))
    (if (:intermediate-results m)
      (cons "    During checking, these intermediate values were seen:"
-           (map (fn [[form value]] (str "       " (pr-str form) " => " (pr-str value)))
-                (:intermediate-results m))))
-   (if (:notes m)
+           (for [[form value] (:intermediate-results m)] 
+             (str "       " (pr-str form) " => " (pr-str value)))))
+    (if (:notes m)
      (cons "    The checker said this about the reason:"
            (indented (:notes m))))))
 
