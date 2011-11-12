@@ -484,12 +484,13 @@
          (every? #(extended-= % expected) actual))))
 
 
-(defmacro- of-functions []
-  (let [names {1 "one", 2 "two", 3 "three", 4 "four", 5 "five", 6 "six", 7 "seven",
-               8 "eight", 9 "nine", 10 "ten"}
-        defns (for [key (keys names)] 
-                `(defchecker ~(symbol (str (get names key) "-of")) [expected-checker#]
-                   (n-of expected-checker# ~key)))]
+(defmacro- generate-n-of-checkers []
+  (let [int->checker-name { 1 "one", 2 "two", 3 "three", 4 "four", 5 "five", 
+                            6 "six", 7 "seven", 8 "eight", 9 "nine", 10 "ten"}
+        defns (for [[int checker-name] int->checker-name] 
+                (let [name (symbol (str checker-name "-of"))]
+                  `(defchecker ~name [expected-checker#]
+                     (n-of expected-checker# ~int))))]
     `(do ~@defns)))
 
-(of-functions)
+(generate-n-of-checkers)
