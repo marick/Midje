@@ -20,16 +20,15 @@
        (apply ~name ~args)
        (do ~@body))))
 
-(defn- defx-openly [x name fields specs]
-  (let [revised-specs (for [spec specs]
-                        (if (and (implementation? spec)
-                              (user-desires-checking?))
-                          (open-spec spec)
-                          spec))]
-    (list* x name fields revised-specs)))
+(defn- revised-specs [specs]
+  (for [spec specs]
+    (if (and (implementation? spec) (user-desires-checking?))
+      (open-spec spec)
+      spec)))
 
 (defmacro deftype-openly [name fields & specs]
-  (defx-openly 'deftype name fields specs))
+  `(~'deftype ~name ~fields ~@(revised-specs specs)))
+
 (defmacro defrecord-openly [name fields & specs]
-  (defx-openly 'defrecord name fields specs))
+  `(~'defrecord ~name ~fields ~@(revised-specs specs)))
 
