@@ -3,8 +3,7 @@
 (ns midje.util.t-laziness
   (:use [midje.sweet]
         [midje.util laziness thread-safe-var-nesting]
-        [midje.test-util]
-        [midje.util.old-clojure-contrib.seq :only [separate]]))
+        [midje.test-util]))
 
 ;; Justification for use of eagerly
 (def counter (atom 1))

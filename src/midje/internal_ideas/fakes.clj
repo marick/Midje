@@ -2,7 +2,7 @@
 
 (ns midje.internal-ideas.fakes
   (:use
-    [midje.util.old-clojure-contrib.seq :only [separate]]
+    [utilize.seq :only (separate)]
     [midje.util.object-utils :only [object-name]]
     [clojure.test :only [report]]
     [midje.checkers :only [exactly]]

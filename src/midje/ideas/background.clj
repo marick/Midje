@@ -2,7 +2,6 @@
 
 (ns midje.ideas.background
   (:use
-    [midje.util.old-clojure-contrib.seq :only [separate]]
     [midje.util.form-utils :only [first-named? translate-zipper symbol-named? separate-by]]
     [midje.util.exceptions :only [user-error]]
     [midje.ideas.metaconstants :only [define-metaconstants]]
@@ -16,7 +15,8 @@
                                        fake?]]
     [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out with-pushed-namespace-values]]
     [midje.internal-ideas.wrapping :only [with-wrapping-target
-                                          for-wrapping-target?]])
+                                          for-wrapping-target?]]
+    [utilize.seq :only (separate)])
   (:require [midje.util.unify :as unify :only [bindings-map-or-nil ?form]]
             [clojure.zip :as zip]))
 

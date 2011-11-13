@@ -35,10 +35,3 @@
        (lazy-cat (drop n x) (take n x)))
      (iterate inc 0) x)
     (list nil)))
-
-(defn separate
-  "Returns a vector:
-   [ (filter f s), (filter (complement f) s) ]"
-  [f s]
-  [(filter f s) (filter (complement f) s)])
-
