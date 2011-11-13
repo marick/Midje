@@ -3,7 +3,8 @@
 (ns midje.internal-ideas.t-fakes
   (:use [midje sweet test-util]
         midje.internal-ideas.fakes
-        [midje.ideas.metaconstants :only [metaconstant-for-form]])
+        [midje.ideas.metaconstants :only [metaconstant-for-form]]
+        [utilize.seq :only (find-first)])
   (:import midje.ideas.metaconstants.Metaconstant))
 
 
@@ -149,8 +150,8 @@
  (fact "get a user error from nested call to faked `every?`"
    (all-even? ..xs..) => truthy
    (provided (every? even? ..xs..) => true))
- (let [important-error (first (filter #(= (:type %) :mock-expected-result-functional-failure)
-                                      @reported))
+ (let [important-error (find-first #(= (:type %) :mock-expected-result-functional-failure)
+                                   @reported)
        text (clojure.string/join " " (:actual important-error))]
    
    (fact

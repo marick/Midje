@@ -4,7 +4,8 @@
   (:use
     [clojure.algo.monads :only [defmonad domonad with-monad m-lift]]
     [clojure.test :only [report]]
-    [midje.internal-ideas.file-position :only [form-position]]))
+    [midje.internal-ideas.file-position :only [form-position]]
+    [utilize.seq :only (find-first)]))
 
 (defn as-user-error [form]
   (vary-meta form assoc :midje-user-error true))
@@ -32,7 +33,7 @@
      ~@body))
 
 (defn spread-error [collection]
-  (or (first (filter user-error-form? collection))
+  (or (find-first user-error-form? collection)
       collection))
 
 ;; This is a pretty dubious addition. Not using it now - found
