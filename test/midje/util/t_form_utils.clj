@@ -64,16 +64,6 @@
 (fact "apply each function to each corresponding arg" 
   (apply-pairwise [inc dec] [1 1] [2 2]) => [[2 0] [3 1]])
 
-(tabular
-  (fact "returns the first function that is truthy for the given args"
-    (first-truthy-fn ?fns :kw)  => (exactly ?first-truthy-fn))
-  
-     ?fns                ?first-truthy-fn
-     [string? keyword?]  keyword?
-     [string? nil?]      nil
-     []                  nil       
-     [keyword? odd?]     keyword? ) ;; shortcircuits when it reaches a match - evaluating (odd? :kw) would have blown up   
-
 (fact "can a seq into two pieces, one for true predicate one for false"
   (separate-by odd? [1 2 3]) => [ [1 3] [2] ]
   "works for predicates that don't return true or false"

@@ -21,8 +21,8 @@
                                        against-background-children-wrappers
                                        against-background?]]
         [midje.ideas.metaconstants :only [define-metaconstants]]
-        [midje.util.form-utils :only [first-truthy-fn]]
-        [midje.util.zip :only [skip-to-rightmost-leaf]])
+        [midje.util.zip :only [skip-to-rightmost-leaf]]
+        [utilize.seq :only (first-truthy-fn)])
   (:require [clojure.zip :as zip])
   (:require [midje.util.report :as report]))
 (declare midjcoexpand)
