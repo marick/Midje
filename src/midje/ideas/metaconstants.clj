@@ -1,36 +1,30 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.ideas.metaconstants
-  (:use [midje.util.form-utils :only [quoted? translate-zipper]]
+  (:use [midje.util.form-utils :only [quoted? translate-zipper first-truthy-fn]]
         [midje.util.zip :only [skip-down-then-rightmost-leaf]]
         [midje.util.thread-safe-var-nesting :only [unbound-marker]]
         [midje.util.exceptions :only [user-error]]
-        [midje.error-handling.monadic :only [user-error-report-form validate]])
+        [midje.error-handling.monadic :only [user-error-report-form validate]]
+        [utilize.seq :only (find-first)]
+        [midje.util.old-clojure-contrib.core :only (-?>>)])
   (:require [clojure.zip :as zip]
             [midje.util.ecosystem :as ecosystem]))
 
-(def dot-regex #"^(\.+)(.+?)(\.+)$")
-(def dash-regex #"^(-+)(.+?)(-+)$")
+(defn- normalize [re metaconstant-format mc-symbol]
+  (-?>> mc-symbol name (re-matches re) second (format metaconstant-format)))
+
+(def ^{:private true} dot-metaconstant  (partial normalize #"^\.+(.+?)\.+$" "...%s..."))
+(def ^{:private true} dash-metaconstant (partial normalize #"^-+(.+?)-+$"   "---%s---"))
+
+(defn- normalized-metaconstant
+  "Turns '..m. to \"...m...\""
+  [mc-symbol]
+  (->> mc-symbol ((juxt dot-metaconstant dash-metaconstant)) (find-first identity)))  
 
 (defn metaconstant-symbol? [symbol-or-form]
-  (and (symbol? symbol-or-form)
-       (some #(re-matches % (name symbol-or-form)) [dot-regex dash-regex ])))
-
-(defn normalized-symbol
-  "turns '..m. to \"...m...\""
-  [mc-symbol]
-  (if
-    (.startsWith (name mc-symbol) ".")
-    (let [[_ _prefix_ value _suffix_] (re-matches dot-regex (name mc-symbol))]
-      (str "..." value "..."))
-
-    (let [[_ _prefix_ value _suffix_] (re-matches dash-regex (name mc-symbol))]
-      (str "---" value "---"))))
-
-(defn normalized-metaconstant-name
-  "turns (Metaconstant. '..m.) to \"...m...\""
-  [metaconstant]
-  (normalized-symbol (.name metaconstant)))
+  (and (symbol? symbol-or-form)                                               
+       (-> symbol-or-form normalized-metaconstant not not)))
 
 (deftype Metaconstant [name storage]
   Object
@@ -38,8 +32,8 @@
             (.toString (.name this)))
   (equals [this that]
          (if (instance? (class this) that)
-           (= (normalized-metaconstant-name this) (normalized-metaconstant-name that))
-           (= (normalized-metaconstant-name this) (normalized-symbol that))))
+           (= (normalized-metaconstant (.name this)) (normalized-metaconstant (.name that)))
+           (= (normalized-metaconstant (.name this)) (normalized-metaconstant that))))
 
   clojure.lang.ILookup
   (valAt [this key]
