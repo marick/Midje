@@ -93,16 +93,16 @@
 				                             :position ["t_line_number_reporting.clj" (+ line-number 3)]})])))
 
   (def line-number 95)
-;  (after-silently
-;   (fact
-;     (favorite-animal-only-animal) => "betsy"
-;     (provided
-;       (name (favorite-animal)) => "betsy"))
-;   (fact
-;     @reported => (just [ (contains {:type :mock-incorrect-call-count
-;				                              :position ["t_line_number_reporting.clj" (+ line-number 5)]})
-;			                     (contains {:type :mock-expected-result-failure
-;			                    	          :position ["t_line_number_reporting.clj" (+ line-number 3)]})])))
+  (after-silently
+   (fact
+     (favorite-animal-only-animal) => "betsy"
+     (provided
+       (name (favorite-animal)) => "betsy"))
+   (fact
+     @reported => (just [ (contains {:type :mock-incorrect-call-count
+				                              :position ["t_line_number_reporting.clj" (+ line-number 5)]})
+			                     (contains {:type :mock-expected-result-failure
+			                    	          :position ["t_line_number_reporting.clj" (+ line-number 3)]})])))
 
   (def line-number 107)
   (after-silently
