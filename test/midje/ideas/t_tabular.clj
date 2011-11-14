@@ -25,6 +25,37 @@
  ?a    ?b      ?result
  1     2       3)
 
+(tabular
+ (fact "will ignore optional pipes separating table columns"
+   (str ?a ?b ?c) => ?result)
+
+ ?a  | ?b  | ?c  | ?result
+ "a" | "|" | "c" | "a|c" )
+
+(tabular
+ (fact "will ignore an optional ':where' above the table"
+   (str ?a ?b) => ?result)
+
+ :where
+ ?a     | ?b     | ?result
+ 'where | :where | "where:where") ;; just to makes sure
+
+(tabular
+ (fact "will ignore an optional 'where' above the table"
+   (+ ?a ?b) => ?result)
+
+ where
+ ?a | ?b | ?result
+ 1  | 2  | 3)
+
+(tabular
+ (fact "can have different forms of where or pipe in the data, no problem"
+   (str ?a ?b ?c ?d) => ?result)
+
+ where
+ ?a     | ?b  | ?c     | ?d | ?result
+ :where | "|" | 'where | '| | ":where|where|")
+
 ;; Error handling
 
 (after-silently
