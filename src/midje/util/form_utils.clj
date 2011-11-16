@@ -3,7 +3,7 @@
 (ns midje.util.form-utils
   (:use [midje.util.treelike :only [tree-variant]]
         [clojure.set :only [difference]]
-        [tmp.ordered.map :only [ordered-map]]
+        [ordered.map :only [ordered-map]]
         [utilize.seq :only (first-truthy-fn)])
   (:require [clojure.zip :as zip]))
 
