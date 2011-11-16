@@ -1,7 +1,7 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.util.debugging
-  (:require [midje.util.old-clojure-contrib.string :as str]))
+  (:use [utilize.string :only (but-last-str)]))
 
 ;; Typical sequence:
 ;; (p+ 1)                  > 1
@@ -22,7 +22,7 @@
 (defn p+ [& tags]
   "Increase the indent level, then print tags, indented, with prn."
   (swap! indent-count inc)
-  (swap! indent #(str (str/butlast 1 %) @indent-count ">"))
+  (swap! indent #(str (but-last-str 1 %) @indent-count ">"))
   (apply p tags))
 
 (defn pret [val]
@@ -30,7 +30,7 @@
   (p val)
   (when (> @indent-count 0)
     (swap! indent-count dec)
-    (swap! indent #(str (str/butlast 2 %) ">")))
+    (swap! indent #(str (but-last-str 2 %) ">")))
   val)
 
 (defn nopret
