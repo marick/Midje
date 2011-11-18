@@ -57,6 +57,9 @@
   (or (:line (meta form))
       (some (comp :line meta) form)
       "0 (no line info)"))
+  
+(defn flatten-and-remove-nils [seq]
+  (->> seq flatten (remove nil?)))
 
 (defn vector-without-element-at-index [index v]
   (vec (concat (subvec v 0 index) (subvec v (inc index)))))

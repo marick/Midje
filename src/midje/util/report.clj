@@ -2,6 +2,7 @@
 (ns midje.util.report
   (:use clojure.test
         [clojure.pprint :only [cl-format]]
+        [midje.util.form-utils :only [flatten-and-remove-nils]]
         [midje.util.object-utils :only [function-name function-name-or-spewage named-function?]]
         [midje.util.exceptions :only [friendly-exception-text]]
         [midje.checkers.util :only [captured-exception? captured-exception-value]]))
@@ -131,7 +132,7 @@
     (indented (:exception-lines m))))
   
 (defn render [m]
-  (doall (keep *renderer* (flatten (report-strings m)))))
+  (doall (map *renderer* (flatten-and-remove-nils (report-strings m)))))
 
 (defmethod clojure.test/old-report :default [m]
    (inc-report-counter :fail)
