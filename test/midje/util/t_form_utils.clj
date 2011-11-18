@@ -27,10 +27,6 @@
   "or a default value"
   (reader-line-number (with-meta '(fact "text") {})) => "0 (no line info)")
 
-(facts "sometimes it's useful to flatten and remove nils"
-  (flatten-and-remove-nils '()) => []
-  (flatten-and-remove-nils '(nil "foo" ("bar" nil "baz"))) => ["foo" "bar" "baz"])
-
 (facts "extract elements from vectors and return remainder"
   (vector-without-element-at-index 0 [0 1 2]) => vector?
   (vector-without-element-at-index 0 [0 1 2]) => [1 2]
