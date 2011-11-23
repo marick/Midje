@@ -32,8 +32,8 @@
        ~test-form
        (fact-checks-out?)))
 
-(defn midje-position-string [position-pair]
-  (format "(%s:%s)" (first position-pair) (second position-pair)))
+(defn midje-position-string [[filename line-num]]
+  (format "(%s:%s)" filename line-num))
 
 (defmacro with-identity-renderer [& forms]   ; for testing
   `(binding [*renderer* identity] ~@forms))
