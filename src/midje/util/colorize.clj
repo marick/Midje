@@ -4,7 +4,7 @@
 
 (let [colorize-env-var (getenv "MIDJE_COLORIZE") ;; keep to just one env var lookup
       midje-colorize (fn [colorize-fn]
-                       (if (or (nil? (getenv "MIDJE_COLORIZE")) (Boolean/valueOf colorize-env-var))
+                       (if (or (nil? colorize-env-var) (Boolean/valueOf colorize-env-var))
                          colorize-fn
                          identity))]
 

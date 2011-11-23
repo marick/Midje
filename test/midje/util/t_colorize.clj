@@ -7,10 +7,10 @@
 (tabular
   (fact "wraps string in ascii color when env variable is not explicitly set to FALSE"
     (do
-      (require '[midje.util.colorize :as c] :reload )
+      (require '[midje.util.colorize :as c] :reload ) ;; enables 'provided' to take
       (?color-fn "string")) => ?result
     (provided
-      (getenv "MIDJE_COLORIZE") => ?env-var))
+      (getenv "MIDJE_COLORIZE") => ?env-var :times 1))
 
   ?color-fn ?env-var ?result
   c/red     "FALSE" "string"
