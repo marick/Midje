@@ -4,7 +4,8 @@
         [clojure.pprint :only [cl-format]]
         [midje.util.object-utils :only [function-name function-name-or-spewage named-function?]]
         [midje.util.exceptions :only [friendly-exception-text]]
-        [midje.checkers.util :only [captured-exception? captured-exception-value]]))
+        [midje.checkers.util :only [captured-exception? captured-exception-value]]
+        [midje.util.colorize :only [red yellow]]))
 
 (let [the-var (intern (the-ns 'clojure.test) 'old-report)]
   (when-not (.hasRoot the-var)
@@ -31,8 +32,6 @@
        ~test-form
        (fact-checks-out?)))
 
-
-
 (defn midje-position-string [position-pair]
   (format "(%s:%s)" (first position-pair) (second position-pair)))
 
@@ -50,7 +49,7 @@
         (pr-str form)))
 
 (defn- fail-at [m]
-  [(str "\nFAIL at " (midje-position-string (:position m)))
+  [(red (str "\nFAIL at " (midje-position-string (:position m))))
    (when (:binding-note m)
      (str "With table substitutions: " (:binding-note m)))])
 
@@ -112,7 +111,7 @@
 
 (defmethod report-strings :future-fact [m]
   (list
-   (str "\nWORK TO DO: "
+   (str (yellow "\nWORK TO DO: ")
         (:description m)
         (midje-position-string (:position m)))))
   
