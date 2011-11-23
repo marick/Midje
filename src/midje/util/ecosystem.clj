@@ -18,3 +18,8 @@
 (def +M (first [+' 1]))
 (def -M (first [-' 1]))
 (def *M (first [*' 1]))
+
+;;
+
+(defn getenv [var] 
+  (System/getenv var))
