@@ -48,9 +48,6 @@
 
 ;;; Creation
 
-(defn fn-that-implements-a-fake [function]
-  (vary-meta function assoc :midje/faked-function true))
-
 (defn common-to-all-fakes [var-sym] 
   `{:lhs (var ~var-sym)
     :count-atom (atom 0)
@@ -207,18 +204,17 @@
 (defn unique-vars [fakes]
   (distinct (map :lhs fakes)))
 
-
 (defn binding-map-with-function-fakes [fakes]
-  (reduce (fn [accumulator var] 
-            (let [faker (fn [& actual-args] (call-faker var actual-args fakes))
-                  tagged-faker (fn-that-implements-a-fake faker)]
-                (assoc accumulator var tagged-faker)))
-          {}
-          (unique-vars fakes)))
-
+  (letfn [(fn-that-implements-a-fake [function]
+            (vary-meta function assoc :midje/faked-function true))
+          (make-faker [var]
+            (fn-that-implements-a-fake (fn [& actual-args] (call-faker var actual-args fakes))))]
+    (into {}
+      (for [var (unique-vars fakes)]
+        {var (make-faker var)}))))
 
 (defn data-fakes-to-metaconstant-bindings [fakes]
-  (for [{ var :lhs, contents :contained } fakes]
+  (for [{var :lhs, contents :contained} fakes]
     {var (Metaconstant. (object-name var) contents)}))
 
 (defn merge-metaconstant-bindings [bindings]
@@ -226,15 +222,13 @@
                       (Metaconstant. (.name v1) (merge (.storage v1) (.storage v2))))
          bindings))
 
-  
-(defn binding-map-with-data-fakes [fakes]
+(defn- binding-map-with-data-fakes [fakes]
   (merge-metaconstant-bindings (data-fakes-to-metaconstant-bindings fakes)))
 
 (defn binding-map [fakes]
   (let [[data-fakes function-fakes] (separate :data-fake fakes)]
     (merge (binding-map-with-function-fakes function-fakes)
-           (binding-map-with-data-fakes data-fakes)
-           )))
+           (binding-map-with-data-fakes data-fakes))))
 
 (defmacro with-installed-fakes [fakes & forms]
   `(with-altered-roots (binding-map ~fakes) ~@forms))
