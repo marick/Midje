@@ -10,7 +10,8 @@
                  [utilize "0.1.2"]
                  [colorize "0.1.1"]]
   :dev-dependencies [[swank-clojure "1.2.1"]
-                     [slamhound "1.1.1"]]
+                     [slamhound "1.1.1"]
+                     [org.clojars.ninjudd/lazytest "1.1.3-SNAPSHOT"]]
   ;; automatically detects when your :dependencies key changes and runs
   ;; lein deps behind the scenes when necessary.
   :checksum-deps true)
