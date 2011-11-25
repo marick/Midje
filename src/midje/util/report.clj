@@ -97,7 +97,7 @@
    (if (:intermediate-results m)
      (cons "    During checking, these intermediate values were seen:"
            (for [[form value] (:intermediate-results m)] 
-             (str "       " (pr-str form) " => " (pr-str value)))))
+             (format "       %s => %s" (pr-str form) (pr-str value)))))
     (if (:notes m)
      (cons "    The checker said this about the reason:"
            (indented (:notes m))))))

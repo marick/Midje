@@ -218,9 +218,8 @@
 
 
 (defn data-fakes-to-metaconstant-bindings [fakes]
-  (map (fn [{var :lhs, contents :contained}]
-         {var (Metaconstant. (object-name var) contents)})
-       fakes))
+  (for [{ var :lhs, contents :contained } fakes]
+    {var (Metaconstant. (object-name var) contents)}))
 
 (defn merge-metaconstant-bindings [bindings]
   (apply merge-with (fn [v1 v2]
