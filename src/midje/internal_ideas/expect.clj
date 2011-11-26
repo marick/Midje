@@ -46,15 +46,14 @@
   (assert (is-start-of-checking-arrow-sequence? loc))
   (let [right-hand (-> loc zip/right zip/right)
         arrow-sequence (-> loc zip/right zip/node)
-	additions (arrow-sequence-overrides (zip/rights right-hand))
+        additions (arrow-sequence-overrides (zip/rights right-hand))
         line-number (arrow-line-number (zip/right loc))
-	edited-loc (zip/edit loc
-			     (fn [loc]
-                               (vary-meta 
-                                 `(midje.semi-sweet/expect ~loc ~arrow-sequence ~(zip/node right-hand) ~@additions)
-                                 assoc :line line-number)))]
+        edited-loc (zip/edit loc
+                      (fn [loc]
+                        (vary-meta
+                          `(midje.semi-sweet/expect ~loc ~arrow-sequence ~(zip/node right-hand) ~@additions)
+                          assoc :line line-number)))]
     (->> edited-loc
-	 zip/right
-	 (n-times (+ 1 (count additions)) remove-moving-right)
-	 zip/remove)))
-
+      zip/right
+      (n-times (+ 1 (count additions)) remove-moving-right)
+      zip/remove)))

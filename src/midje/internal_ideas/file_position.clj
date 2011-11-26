@@ -24,10 +24,9 @@
     (catch Throwable ex nil)))
   
 (defn arrow-line-number [arrow-loc]
-  (let [raw-lineno (raw-arrow-line-number arrow-loc)]
-    (if raw-lineno
-      (reset! fallback-line-number raw-lineno)
-      (swap! fallback-line-number inc))))
+  (if-let [raw-lineno (raw-arrow-line-number arrow-loc)]
+    (reset! fallback-line-number raw-lineno)
+    (swap! fallback-line-number inc)))
 
 (defn arrow-line-number-from-form [form]
   "Form is of the form [ <function-call> => .* ]"

@@ -23,15 +23,10 @@
 (defn against-background? [form]
   (first-named? form "against-background"))
 
-(defn- ensure-correct-form-variable [form]
-  (translate-zipper form
-      (fn [loc] (symbol-named? (zip/node loc) "?form"))
-      (fn [loc] (zip/replace loc (unify/?form)))))
-
 (defn background-fakes []
   (namespace-values-inside-out :midje/background-fakes))
 
-(defn background-fake-wrappers [fakes]
+(defn- background-fake-wrappers [fakes]
   (let [around-facts-and-checks `(with-pushed-namespace-values
                                    :midje/background-fakes
                                    ~fakes ~(unify/?form))]
@@ -49,18 +44,22 @@
   (unify/bindings-map-or-nil form
                              '(?key ?when ?first-form ?after ?second-form)))
 
+(letfn [(ensure-correct-form-variable [form]
+          (translate-zipper form
+            (fn [loc] (symbol-named? (zip/node loc) "?form"))
+            (fn [loc] (zip/replace loc (unify/?form)))))]
 
-(defmacro before [wrapping-target before-form & [_ after-form & _ ] ]
-  (ensure-correct-form-variable `(try
-                                  ~before-form
-                                  ?form
-                                  (finally ~after-form))))
+  (defmacro before [wrapping-target before-form & [_ after-form & _]]
+    (ensure-correct-form-variable `(try
+                                     ~before-form
+                                     ?form
+                                     (finally ~after-form))))
 
-(defmacro after [wrapping-target after-form]
-  (ensure-correct-form-variable `(try ?form (finally ~after-form))))
+  (defmacro after [wrapping-target after-form]
+    (ensure-correct-form-variable `(try ?form (finally ~after-form))))
 
-(defmacro around [wrapping-target around-form]
-  (ensure-correct-form-variable around-form))
+  (defmacro around [wrapping-target around-form]
+    (ensure-correct-form-variable around-form)))
 
 (defn seq-headed-by-setup-teardown-form? [forms]
   (when-let [bindings (setup-teardown-bindings (first forms))]
@@ -111,25 +110,18 @@
       state-wrappers
       (concat state-wrappers (background-fake-wrappers fakes)))))
 
-(defn against-background-wrappers [against-background-form]
-  (background-wrappers (second against-background-form)))
-
 (defn against-background-body [form]
   `(do ~@(rest (rest form))))
 
-(defn against-background-X-wrappers [filter-fun form]
-  (filter-fun (for-wrapping-target? :contents) (against-background-wrappers form)))
+(letfn [(against-background-wrappers [against-background-form]
+          (background-wrappers (second against-background-form)))]
 
-(defn against-background-contents-wrappers [form]
-  (against-background-X-wrappers filter form))
+  (defn against-background-contents-wrappers [form]
+    (filter (for-wrapping-target? :contents ) (against-background-wrappers form)))
 
-(defn against-background-children-wrappers [form]
-  (remove (for-wrapping-target? :contents) (against-background-wrappers form)))
-
+  (defn against-background-children-wrappers [form]
+    (remove (for-wrapping-target? :contents ) (against-background-wrappers form))))
 
 (defn surround-with-background-fakes [forms]
   `(with-installed-fakes (background-fakes)
-     (do ~@forms)))
-
-
-
+     (do ~@forms)))                                               
