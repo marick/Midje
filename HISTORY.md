@@ -8,6 +8,9 @@
 * =expands-to=> for testing macros (in a style derived from
   /Let Over Lambda/. (via Phil Calçado)
   https://github.com/marick/Midje/wiki/Macros
+* Now considers metaconstants with different numbers of dots
+  to be the same. That is: `(fact (f ..x..) => ...x..)` has
+  two instances of the same metaconstant.
 
 1.3-alpha4
 --------
