@@ -1,7 +1,7 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.internal-ideas.fakes
-  (:use [utilize.seq :only (separate)]
+  (:use [utilize.seq :only (separate find-first)]
         [midje.util.object-utils :only [object-name]]
         [clojure.test :only [report]]
         [midje.checkers :only [exactly]]
@@ -113,9 +113,6 @@
     (= (count actual-args) (count (fake :arg-matchers )))
     (extended-list-= actual-args (fake :arg-matchers ))))
 
-(defn- fakes-for-call [fakes function-var actual-args]
-  (filter (partial call-handled-by-fake? function-var actual-args) fakes))
-
 (defn usable-default-function? [fake]
   (if (not (bound? (:lhs fake)))
     false
@@ -138,11 +135,8 @@
      ~@forms
      (finally (swap! *call-action-count* dec))))
 
-(defn- fakes-for-var [fakes function-var]
-  (filter (partial var-handled-by-fake? function-var) fakes))
-
 (defn best-call-action [function-var actual-args fakes]
-  (if (= 2 @*call-action-count*)
+  (when (= 2 @*call-action-count*)
     (throw (user-error "You seem to have created a prerequisite for"
              (str (pr-str function-var) " that interferes with that function's use in Midje's")
              (str "own code. To fix, define a function of your own that uses "
@@ -153,19 +147,18 @@
              "  (def all-even? (partial every? even?))"
              "  ;; ..."
              "  (provided (all-even? ..xs..) => true)")))
-  (let [possible-fakes (fakes-for-var fakes function-var)
-        found (first (fakes-for-call possible-fakes function-var actual-args))]
-    (cond found
-      found
-
-      (empty? possible-fakes)
-      nil
-
-      ;; For finding a default, any possible fake is as good as any other
-      (not (usable-default-function? (first possible-fakes)))
-      nil
-
-      :else (:value-at-time-of-faking (first possible-fakes)))))
+  (if-let [found (find-first (partial call-handled-by-fake? function-var actual-args)
+                             fakes)]
+    found
+    (let [possible-fakes (filter (partial var-handled-by-fake? function-var) fakes)]
+      (cond (empty? possible-fakes)
+        nil
+  
+        ;; For finding a default, any possible fake is as good as any other
+        (not (usable-default-function? (first possible-fakes)))
+        nil
+  
+        :else (:value-at-time-of-faking (first possible-fakes))))))
 
 (defn call-faker [function-var actual-args fakes]
   "This is the function that handles all mocked calls."
@@ -330,4 +323,3 @@
     (translate-zipper form
       expect?
       unfold-expect-form__then__stay_put)))
-
