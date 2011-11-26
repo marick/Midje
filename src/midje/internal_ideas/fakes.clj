@@ -33,11 +33,9 @@
   (some true? (map (partial first-named? form) 
                    ["fake" "data-fake"])))
 
-(defn- fake-form-funcall [[fake funcall => value & overrides]]
-  funcall)
-
-(defn- fake-form-funcall-arglist [fake-form]
-  (rest (fake-form-funcall fake-form)))
+(defn- fake-form-funcall-arglist 
+  [[fake funcall => value & overrides :as _fake-form_]]
+  (rest funcall))
 
 ;;; Creation
 
