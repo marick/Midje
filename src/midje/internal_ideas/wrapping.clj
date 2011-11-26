@@ -8,17 +8,15 @@
                                                set-namespace-value
                                                with-pushed-namespace-values]])
   (:require [clojure.zip :as zip] 
-  	    [midje.util.unify :as unify]))
+  	        [midje.util.unify :as unify]))
 
 (defn midje-wrapped
-  "This is used prevent later wrapping passes from processing the
-   code-that-produces-the-value."
+  "This is used to prevent later wrapping passes from processing 
+   the code-that-produces-the-value."
   [value] value)
 
-(defn wrapped? [form]
+(defn already-wrapped? [form]
   (first-named? form "midje-wrapped"))
-
-(def already-wrapped? wrapped?)
 
 (defn multiwrap [form [wrapper & more-wrappers]]
   (if wrapper
@@ -26,9 +24,6 @@
     `(midje-wrapped ~form)))
 
 ;; stashing wrapping targets
-
-(defn set-wrappers [wrappers]
-  (set-namespace-value :midje/wrappers (list wrappers)))
 
 (defn wrappers []
   (namespace-values-inside-out :midje/wrappers))
@@ -46,9 +41,8 @@
 (defn put-wrappers-into-effect [wrappers]
   (let [[immediates deferred] (separate (for-wrapping-target? :contents)
                                       wrappers)]
-    (set-wrappers deferred)
+    (set-namespace-value :midje/wrappers (list wrappers))
     (multiwrap "unimportant-value" immediates)))
 
 (defn forms-to-wrap-around [wrapping-target]
   (filter (for-wrapping-target? wrapping-target) (wrappers)))
-
