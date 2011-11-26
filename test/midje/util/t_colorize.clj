@@ -13,19 +13,19 @@
       (getenv "MIDJE_COLORIZE") => ?env-var :times 1))
 
   ?color-fn ?env-var ?result
-  c/red     "FALSE" "string"
-  c/red     "TRUE"  "\u001b[31mstring\u001b[0m"
-  c/red      nil    "\u001b[31mstring\u001b[0m"
+  c/fail-color     "FALSE" "string"
+  c/fail-color     "TRUE"  "\u001b[31mstring\u001b[0m"
+  c/fail-color      nil    "\u001b[31mstring\u001b[0m"
 
-  c/yellow  "FALSE" "string"
-  c/yellow  "TRUE"  "\u001b[33mstring\u001b[0m"
-  c/yellow   nil    "\u001b[33mstring\u001b[0m")
+  c/note-color  "FALSE" "string"
+  c/note-color  "TRUE"  "\u001b[33mstring\u001b[0m"
+  c/note-color   nil    "\u001b[33mstring\u001b[0m")
 
 (fact "access environment vars only when namespace is loaded"
   (do
-    (red "a")
-    (yellow "b")
-    (red "c")
-    (yellow "d")) => anything
+    (fail-color "a")
+    (note-color "b")
+    (fail-color "c")
+    (note-color "d")) => anything
   (provided
     (getenv "MIDJE_COLORIZE") => anything :times 0))

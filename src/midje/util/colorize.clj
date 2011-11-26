@@ -8,5 +8,6 @@
                          colorize-fn
                          identity))]
 
-  (def red (midje-colorize color/red))
-  (def yellow (midje-colorize color/yellow)))
+  (def fail-color (midje-colorize color/red))
+  (def note-color (midje-colorize color/yellow)))
+  
