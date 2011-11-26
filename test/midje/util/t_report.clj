@@ -1,12 +1,12 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.util.t-report
-  (:use midje.util.report
+  (:use [midje.util.report :only [midje-position-string with-identity-renderer ]]
         [midje.checkers.util :only [captured-exception]]
         [midje sweet test-util]))
 
 
-(testable-privates midje.util.report)
+(testable-privates midje.util.report attractively-stringified-form)
 
 
 ;; This set of tests generate failures. The following code prevents

@@ -11,14 +11,14 @@
   (when-not (.hasRoot the-var)
     (.bindRoot the-var clojure.test/report)))
 
-(def ^{:dynamic true} *renderer* println)
+(def ^{:dynamic true :private true} *renderer* println)
 
 
 ;;; This mechanism is only used to make `fact` return appropriate values of
 ;;; true or false. It doesn't piggyback off clojure.test/*report-counters*
 ;;; partly because that's not normally initialized and partly to reduce
 ;;; dependencies.
-(def ^{:dynamic true} *failure-in-fact* false)
+(def ^{:dynamic true :private true} *failure-in-fact* false)
 (defn note-failure-in-fact
   ([] (note-failure-in-fact true))
   ([val] (alter-var-root #'*failure-in-fact* (constantly val))))
@@ -38,7 +38,7 @@
 (defmacro with-identity-renderer [& forms]   ; for testing
   `(binding [*renderer* identity] ~@forms))
 
-(defn attractively-stringified-form [form]
+(defn- attractively-stringified-form [form]
   (cond (named-function? form)
         (format "a function named '%s'" (function-name form))
         
@@ -129,16 +129,13 @@
     (str "      " "This stack trace *might* help:")
     (indented (:exception-lines m))))
   
-(defn render [m]
-  (->> m report-strings flatten (remove nil?) (map *renderer*) doall))
+(letfn [(render [m]
+          (->> m report-strings flatten (remove nil?) (map *renderer*) doall))]
 
-(defmethod clojure.test/old-report :default [m]
-   (inc-report-counter :fail)
-   (note-failure-in-fact)
-   (render m))
+  (defmethod clojure.test/old-report :default [m]
+    (inc-report-counter :fail )
+    (note-failure-in-fact)
+    (render m))
 
-(defmethod clojure.test/old-report :future-fact [m]
-   (render m))
-
-
-   
+  (defmethod clojure.test/old-report :future-fact [m]
+    (render m)))
