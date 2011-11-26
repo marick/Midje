@@ -11,20 +11,20 @@
   (:require [clojure.zip :as zip]
             [midje.util.ecosystem :as ecosystem]))
 
-(defn- normalize [re metaconstant-format mc-symbol]
-  (-?>> mc-symbol name (re-matches re) second (format metaconstant-format)))
+(let [normalize (fn [re metaconstant-format mc-symbol]
+                  (-?>> mc-symbol name (re-matches re) second (format metaconstant-format)))
 
-(def ^{:private true} dot-metaconstant  (partial normalize #"^\.+(.+?)\.+$" "...%s..."))
-(def ^{:private true} dash-metaconstant (partial normalize #"^-+(.+?)-+$"   "---%s---"))
+      dot-metaconstant  (partial normalize #"^\.+(.+?)\.+$" "...%s...")
+      dash-metaconstant (partial normalize #"^-+(.+?)-+$"   "---%s---")]
 
-(defn- normalized-metaconstant
-  "Turns '..m. to \"...m...\""
-  [mc-symbol]
-  (->> mc-symbol ((juxt dot-metaconstant dash-metaconstant)) (find-first identity)))  
+  (defn- normalized-metaconstant
+    "Turns '..m. to \"...m...\""
+    [mc-symbol]
+    (->> mc-symbol ((juxt dot-metaconstant dash-metaconstant)) (find-first identity)))
 
-(defn metaconstant-symbol? [symbol-or-form]
-  (and (symbol? symbol-or-form)                                               
-       (-> symbol-or-form normalized-metaconstant not not)))
+  (defn metaconstant-symbol? [symbol-or-form]
+    (and (symbol? symbol-or-form)
+      (-> symbol-or-form normalized-metaconstant not not))))
 
 (deftype Metaconstant [name storage]
   Object
