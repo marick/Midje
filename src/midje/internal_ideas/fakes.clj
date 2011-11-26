@@ -29,15 +29,13 @@
 (defn implements-a-fake? [function]
   (:midje/faked-function (meta function)))
 
-(defn- function-fake? [form]
-  (first-named? form "fake"))
-
-(defn- data-fake? [form]
-  (first-named? form "data-fake"))
-
 (defn fake? [form]
-  (or (function-fake? form)
-    (data-fake? form)))
+  (letfn [(function-fake? [form]
+            (first-named? form "fake"))
+          (data-fake? [form]
+            (first-named? form "data-fake"))]
+    (or (function-fake? form)
+      (data-fake? form))))
 
 (defn- fake-form-funcall [[fake funcall => value & overrides]]
   funcall)
