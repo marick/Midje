@@ -16,8 +16,8 @@
                                   complete-fact-transformation]])
   (:require [midje.ideas.background :as background])
   (:require midje.checkers)
-  (:require [midje.util.report :as report])
-)
+  (:require [midje.util.report :as report]))
+
 (immigrate 'midje.unprocessed)
 (immigrate 'midje.semi-sweet)
 

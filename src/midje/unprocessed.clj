@@ -8,14 +8,15 @@
         [midje.checkers.extended-equality :only [extended-=]]
         [midje.checkers.chatty :only [chatty-checker?]]
         [midje.checkers.util]
-        [midje.util.old-clojure-contrib.ns-utils :only [immigrate]]))
+        [midje.util.old-clojure-contrib.ns-utils :only [immigrate]]
+        [clojure.tools.macro :only [macrolet]]))
 (immigrate 'midje.checkers)
 
 
-(defmulti check-result (fn [actual call]
+(defmulti ^{:private true} check-result (fn [actual call]
                          (:desired-check call)))
 
-(defmethod check-result :check-match [actual call]
+(defmethod ^{:private true} check-result :check-match [actual call]
   (cond (extended-= actual (call :expected-result))
         (report {:type :pass})
 
@@ -42,7 +43,7 @@
                  :actual actual
                  :expected (call :expected-result) })))
 
-(defmethod check-result :check-negated-match [actual call]
+(defmethod ^{:private true} check-result :check-negated-match [actual call]
    (cond (not (extended-= actual (call :expected-result)))
          (report {:type :pass})
 
@@ -60,20 +61,19 @@
                  :expected (call :expected-result-text-for-failures) 
                  :actual actual})))
 
-(defmacro capturing-exception [form]
-  `(try ~form
-        (catch Throwable e#
-          (captured-exception e#))))
-
 (defn expect* [call-map local-fakes]
   "The core function in unprocessed Midje. Takes a map describing a
   call and a list of maps, each of which describes a secondary call
   the first call is supposed to make. See the documentation at
   http://github.com/marick/Midje."
-  (with-installed-fakes (concat (reverse (filter :data-fake (background-fakes))) local-fakes)
-    (let [code-under-test-result (capturing-exception
-                                  (eagerly
-                                   ((call-map :function-under-test))))]
-      (check-call-counts local-fakes)
-      (check-result code-under-test-result call-map)
-      :irrelevant-return-value)))
+  (macrolet [(capturing-exception [form]
+               `(try ~form
+                  (catch Throwable e#
+                    (captured-exception e#))))]
+    (with-installed-fakes (concat (reverse (filter :data-fake (background-fakes))) local-fakes)
+      (let [code-under-test-result (capturing-exception
+                                    (eagerly
+                                     ((call-map :function-under-test))))]
+        (check-call-counts local-fakes)
+        (check-result code-under-test-result call-map)
+        :irrelevant-return-value))))
