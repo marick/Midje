@@ -18,8 +18,8 @@
   c/fail-color      nil    "\u001b[31mstring\u001b[0m"
 
   c/note-color  "FALSE" "string"
-  c/note-color  "TRUE"  "\u001b[33mstring\u001b[0m"
-  c/note-color   nil    "\u001b[33mstring\u001b[0m")
+  c/note-color  "TRUE"  "\u001b[36mstring\u001b[0m"
+  c/note-color   nil    "\u001b[36mstring\u001b[0m")
 
 (fact "access environment vars only when namespace is loaded"
   (do

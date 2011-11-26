@@ -9,5 +9,5 @@
                          identity))]
 
   (def fail-color (midje-colorize color/red))
-  (def note-color (midje-colorize color/yellow)))
+  (def note-color (midje-colorize color/cyan)))
   
