@@ -270,17 +270,13 @@
     (some mockable-funcall? (fake-form-funcall-arglist form))))
 
 (defn augment-substitutions [substitutions fake-form]
-  (let [needed-keys (filter mockable-funcall?
-    (fake-form-funcall-arglist fake-form))]
-    (reduce (fn [substitutions needed-key]
-              ;; Note: because I like for a function's metaconstants to be
-              ;; easily mappable to the original fake, I don't make one
-              ;; unless I'm sure I need it.
-              (if (get substitutions needed-key)
-                substitutions
-                (assoc substitutions needed-key (metaconstant-for-form needed-key))))
-      substitutions
-      needed-keys)))
+  (let [needed-keys (filter mockable-funcall? (fake-form-funcall-arglist fake-form))]
+    ;; Note: because I like for a function's metaconstants to be    
+    ;; easily mappable to the original fake, I don't make one       
+    ;; unless I'm sure I need it.                                   
+    (into substitutions (for [needed-key needed-keys 
+                              :when (nil? (get substitutions needed-key))]
+                          [needed-key (metaconstant-for-form needed-key)]))))
 
 (defn flatten-fake [[fake [fun & args] & rest] substitutions]
   (let [new-args (for [a args] (get substitutions a a))]
