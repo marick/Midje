@@ -133,7 +133,7 @@
      ~@forms
      (finally (swap! *call-action-count* dec))))
 
-(defn best-call-action [function-var actual-args fakes]
+(defn- best-call-action [function-var actual-args fakes]
   (when (= 2 @*call-action-count*)
     (throw (user-error "You seem to have created a prerequisite for"
              (str (pr-str function-var) " that interferes with that function's use in Midje's")
@@ -158,7 +158,7 @@
   
         :else (:value-at-time-of-faking (first possible-fakes))))))
 
-(defn call-faker [function-var actual-args fakes]
+(defn- call-faker [function-var actual-args fakes]
   "This is the function that handles all mocked calls."
   (let [action (counting-nested-calls-calls (best-call-action function-var actual-args fakes))]
     (cond (nil? action)
@@ -174,7 +174,7 @@
               (swap! (action :count-atom ) inc)
               ((action :result-supplier ))))))
 
-(defn unique-vars [fakes]
+(defn- unique-vars [fakes]
   (distinct (map :lhs fakes)))
 
 (defn- binding-map-with-function-fakes [fakes]
@@ -186,11 +186,11 @@
       (for [var (unique-vars fakes)]
         [var (make-faker var)]))))
 
-(defn data-fakes-to-metaconstant-bindings [fakes]
+(defn- data-fakes-to-metaconstant-bindings [fakes]
   (for [{var :lhs, contents :contained} fakes]
     {var (Metaconstant. (object-name var) contents)}))
 
-(defn merge-metaconstant-bindings [bindings]
+(defn- merge-metaconstant-bindings [bindings]
   (apply merge-with (fn [v1 v2]
                       (Metaconstant. (.name v1) (merge (.storage v1) (.storage v2))))
     bindings))
@@ -251,7 +251,7 @@
 ;; mapping. These substitutions are used both to "flatten" a fake form and also
 ;; to generate new fakes.
 
-(defn mockable-funcall? [thing]
+(defn- mockable-funcall? [thing]
   (let [constructor? (fn [symbol]
                        (.endsWith (name symbol) "."))
         special-forms '[quote fn let new]
@@ -292,7 +292,7 @@
 ;; generated, the fake that describes it is added to the pending list. In that way,
 ;; it'll in turn be processed. This allows arbitrarily deep nesting.
 
-(defn unfolding-step [finished pending substitutions]
+(defn- unfolding-step [finished pending substitutions]
   (let [target (first pending)]
     (if (folded-fake? target)
       (let [overrides (nthnext target 4)

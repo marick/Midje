@@ -1,12 +1,25 @@
 ;; -*- indent-tabs-mode: nil -*-
 
+;(def private-fns [folded-fake? augment-substitutions 
+;  flatten-fake generate-fakes mockable-funcall? unfolding-step merge-metaconstant-bindings
+;  data-fakes-to-metaconstant-bindings binding-map-with-function-fakes unique-vars
+;  call-faker best-call-action usable-default-function? arg-matcher-maker make-result-supplier])
+
 (ns midje.internal-ideas.t-fakes
   (:use [midje sweet test-util]
-        midje.internal-ideas.fakes
+        [midje.internal-ideas.fakes :except [mockable-funcall? 
+  unfolding-step merge-metaconstant-bindings
+  data-fakes-to-metaconstant-bindings binding-map-with-function-fakes unique-vars
+  call-faker best-call-action ]]
         [midje.ideas.metaconstants :only [metaconstant-for-form]]
-        [utilize.seq :only (find-first)])
+        [utilize.seq :only (find-first)]
+        [midje.test-util])
   (:import midje.ideas.metaconstants.Metaconstant))
 
+(testable-privates midje.internal-ideas.fakes  
+  mockable-funcall? unfolding-step merge-metaconstant-bindings
+  data-fakes-to-metaconstant-bindings binding-map-with-function-fakes unique-vars
+  call-faker best-call-action) 
 
 (tabular
  (facts "the arg matcher maker handles functions specially"
