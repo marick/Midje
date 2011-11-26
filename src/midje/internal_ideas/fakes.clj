@@ -232,7 +232,7 @@ actual value matches it."
 (defmethod call-count-incorrect? :fake [fake]
   (let [method (or (:times fake) :default )
         count (fake-count fake)]
-    (cond (= method :defaul t )
+    (cond (= method :default )
       (zero? count)
 
       (number? method)
