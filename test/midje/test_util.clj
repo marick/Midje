@@ -3,14 +3,12 @@
 (ns midje.test-util
   (:use [clojure.test])
   (:use midje.checkers)
-  (:use [clojure.set :only [subset?]])
-)
+  (:use [clojure.set :only [subset?]]))
 
 (defmacro testable-privates [namespace & symbols]
-  (let [make-form (fn [symbol] `(def ~symbol (intern '~namespace '~symbol)))
-        forms (map make-form symbols)]
-  `(do ~@forms))
-)
+  (let [forms (for [sym symbols]
+                `(def ~sym (intern '~namespace '~sym)))]
+  `(do ~@forms)))
 
 (def reported (atom []))
 
