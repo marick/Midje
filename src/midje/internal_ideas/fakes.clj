@@ -30,12 +30,8 @@
   (:midje/faked-function (meta function)))
 
 (defn fake? [form]
-  (letfn [(function-fake? [form]
-            (first-named? form "fake"))
-          (data-fake? [form]
-            (first-named? form "data-fake"))]
-    (or (function-fake? form)
-      (data-fake? form))))
+  (some true? (map (partial first-named? form) 
+                   ["fake" "data-fake"])))
 
 (defn- fake-form-funcall [[fake funcall => value & overrides]]
   funcall)
@@ -45,21 +41,19 @@
 
 ;;; Creation
 
-(defn- common-to-all-fakes [var-sym]
-  `{:lhs (var ~var-sym)
-    :count-atom (atom 0)
-    :position (user-file-position)})
-
 (defn make-fake-map
   [var-sym special-to-fake-type user-override-pairs]
-  (merge
-    (common-to-all-fakes var-sym)
-    special-to-fake-type
-    (apply hash-map-duplicates-ok user-override-pairs)))
+  (let [common-to-all-fakes `{:lhs (var ~var-sym)
+                             :count-atom (atom 0)
+                             :position (user-file-position)}]
+    (merge
+      common-to-all-fakes
+      special-to-fake-type
+      (apply hash-map-duplicates-ok user-override-pairs))))
 
 (defn arg-matcher-maker
-  "Based on an expected value, generates a function that returns true if the 
-actual value matches it."
+  "Based on an expected value, generates a function that returns 
+  true if the actual value matches it."
   [expected]
   (if (and (extended-fn? expected)
         (not (checker? expected)))
