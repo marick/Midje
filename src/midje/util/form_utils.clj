@@ -61,10 +61,6 @@
 (defn vector-without-element-at-index [index v]
   (vec (concat (subvec v 0 index) (subvec v (inc index)))))
 
-(defn tack-on-to [hashmap & kvs]
-  "Conj new values onto appropriate keys of a map"
-  (merge-with conj hashmap (apply (partial assoc {}) kvs)))
-
 (defn pairs [first-seq second-seq]
   "Return [ (first first-seq) (first second-seq)] ..."
   (partition 2 (interleave first-seq second-seq)))
@@ -73,7 +69,11 @@
   "Like hash-map, except duplicate keys are OK. Last one takes precedence."
   (if (empty? keys-and-vals)
     {}
-    (apply (partial assoc {}) keys-and-vals)))
+    (apply assoc {} keys-and-vals)))     
+
+(defn tack-on-to [hashmap & kvs]
+  "Conj new values onto appropriate keys of a map"
+  (merge-with conj hashmap (apply hash-map-duplicates-ok kvs)))
 
 (defn apply-pairwise [ functions & arglists ]
   "(apply-pairwise [inc dec] [1 1] [2 2]) => [ [2 0] [3 1] ]
