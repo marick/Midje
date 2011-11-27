@@ -223,6 +223,14 @@
   (do (called 1) (called 1)) => 1
   (provided
     (called 1) => 1))
+
+(defn f [x] (inc x))
+(defn g [x] (* x (f x)))
+
+(future-fact "can fake vars directly"
+  (#'g 2) => 6
+  (provided
+    (#'f 2) => 2))
   
 ;; Possibly the most common case
 (after-silently
