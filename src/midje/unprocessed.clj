@@ -16,18 +16,18 @@
 (defmulti ^{:private true} check-result (fn [actual call]
                          (:desired-check call)))
 
-(defmethod ^{:private true} check-result :check-match [actual call]
-  (cond (extended-= actual (call :expected-result))
+(defmethod check-result :check-match [actual call]
+  (cond (extended-= actual (:expected-result call))
         (report {:type :pass})
 
         (fn? (call :expected-result))
         (report (merge {:type :mock-expected-result-functional-failure
-                        :binding-note (call :binding-note)
-                        :position (call :position)
-                        :expected (call :expected-result-text-for-failures) }
-                       (if (chatty-checker? (call :expected-result))
+                        :binding-note (:binding-note call)
+                        :position (:position call)
+                        :expected (:expected-result-text-for-failures call) }
+                       (if (chatty-checker? (:expected-result call))
                          (do
-                           (let [chatty-result ((call :expected-result) actual)]
+                           (let [chatty-result ((:expected-result call) actual)]
                              (if (map? chatty-result)
                                chatty-result
                                {:actual actual
@@ -38,30 +38,30 @@
                          {:actual actual})))
         :else
         (report {:type :mock-expected-result-failure
-                 :position (call :position)
-                 :binding-note (call :binding-note)
+                 :position (:position call)
+                 :binding-note (:binding-note call)
                  :actual actual
-                 :expected (call :expected-result) })))
+                 :expected (:expected-result call) })))
 
-(defmethod ^{:private true} check-result :check-negated-match [actual call]
-   (cond (not (extended-= actual (call :expected-result)))
+(defmethod check-result :check-negated-match [actual call]
+   (cond (not (extended-= actual (:expected-result call)))
          (report {:type :pass})
 
         (fn? (call :expected-result))
         (report {:type :mock-actual-inappropriately-matches-checker
-                 :binding-note (call :binding-note)
-                 :position (call :position)
-                 :expected (call :expected-result-text-for-failures)
+                 :binding-note (:binding-note call)
+                 :position (:position call)
+                 :expected (:expected-result-text-for-failures call)
                  :actual actual})
 
         :else
         (report {:type :mock-expected-result-inappropriately-matched
-                 :binding-note (call :binding-note)
-                 :position (call :position)
-                 :expected (call :expected-result-text-for-failures) 
+                 :binding-note (:binding-note call)
+                 :position (:position call)
+                 :expected (:expected-result-text-for-failures call) 
                  :actual actual})))
 
-(defn expect* [call-map local-fakes]
+(defn expect* [unprocessed-check local-fakes]
   "The core function in unprocessed Midje. Takes a map describing a
   call and a list of maps, each of which describes a secondary call
   the first call is supposed to make. See the documentation at
@@ -73,7 +73,7 @@
     (with-installed-fakes (concat (reverse (filter :data-fake (background-fakes))) local-fakes)
       (let [code-under-test-result (capturing-exception
                                     (eagerly
-                                     ((call-map :function-under-test))))]
+                                     ((:function-under-test unprocessed-check))))]
         (check-call-counts local-fakes)
-        (check-result code-under-test-result call-map)
+        (check-result code-under-test-result unprocessed-check)
         :irrelevant-return-value))))
