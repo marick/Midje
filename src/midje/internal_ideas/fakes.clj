@@ -263,12 +263,6 @@
     (and (list? thing)
       (mockable-function-symbol? (first thing)))))
 
-(defn folded-fake? [form]
-  (and (sequential? form)
-    (= 'midje.semi-sweet/fake (first form))
-    ;; We now know this: (fake (f ...arg... ...arg...) ...)
-    (some mockable-funcall? (fake-form-funcall-arglist form))))
-
 (defn augment-substitutions [substitutions fake-form]
   (let [needed-keys (filter mockable-funcall? (fake-form-funcall-arglist fake-form))]
     ;; Note: because I like for a function's metaconstants to be    
@@ -284,27 +278,30 @@
 
 (defn generate-fakes [substitutions overrides]
   (for [[funcall metaconstant] substitutions]
-    `(midje.semi-sweet/fake ~funcall midje.semi-sweet/=> ~metaconstant ~@overrides)))
+    `(midje.semi-sweet/fake ~funcall midje.semi-sweet/=> ~metaconstant ~@overrides))) 
 
-;; This walks through a `pending` list that may contain fakes. Each element is
-;; copied to the `finished` list. If it is a suitable fake, its nested 
-;; are flattened (replaced with a metaconstant). If the metaconstant was newly
-;; generated, the fake that describes it is added to the pending list. In that way,
-;; it'll in turn be processed. This allows arbitrarily deep nesting.
+(defn folded-fake? [form]
+  (and (sequential? form)
+    (= 'midje.semi-sweet/fake (first form))
+    ;; We now know this: (fake (f ...arg... ...arg...) ...)
+    (some mockable-funcall? (fake-form-funcall-arglist form))))
 
-(defn- unfolding-step [finished pending substitutions]
+(defn- unfolding-step
+  "This walks through a `pending` list that may contain fakes. Each element is
+   copied to the `finished` list. If it is a suitable fake, its nested 
+   are flattened (replaced with a metaconstant). If the metaconstant was newly
+   generated, the fake that describes it is added to the pending list. In that way,
+   it'll in turn be processed. This allows arbitrarily deep nesting." 
+  [finished pending substitutions]
   (let [target (first pending)]
-    (if (folded-fake? target)
-      (let [overrides (nthnext target 4)
+    (if-not (folded-fake? target)
+      [(conj finished target), (rest pending), substitutions]
+    
+      (let [overrides (drop 4 target)
             augmented-substitutions (augment-substitutions substitutions target)
             flattened-target (flatten-fake target augmented-substitutions)
-            generated-fakes (generate-fakes
-          (map-difference augmented-substitutions substitutions)
-          overrides)]
-        [(conj finished flattened-target)
-         (concat generated-fakes (rest pending))
-         augmented-substitutions])
-      [(conj finished target), (rest pending), substitutions])))
+            generated-fakes (generate-fakes (map-difference augmented-substitutions substitutions) overrides)]
+        [(conj finished flattened-target), (concat generated-fakes (rest pending)), augmented-substitutions]))))
 
 (defn- unfold-expect-form__then__stay_put [loc]
   (loop [[finished pending substitutions] [[] (zip/node loc) {}]]
