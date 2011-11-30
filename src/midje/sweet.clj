@@ -75,4 +75,4 @@
 (defmacro antiterminologicaldisintactitudinarian-facts [& forms] (future-fact-1 &form))
 
 (defmacro tabular [& _]
-  (tabular* &form))
+  (tabular* (keys &env) &form))

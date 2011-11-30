@@ -31,10 +31,11 @@
   (let [strip-off-where #(if (#{:where 'where} (first %)) (rest %) % )]
     (->> table strip-off-where (remove #(= % '|)))))
 
-(defn- table-variable? [s] (.startsWith (pr-str s) "?"))
 
-(defn- table-binding-maps [table]
-  (let [[variables-row values] (split-with table-variable? (remove-pipes+where table))
+(defn- table-binding-maps [table locals]
+  (let [table-variable? (fn [s]
+                          (and (symbol? s) (not ((set locals) s))))
+        [variables-row values] (split-with table-variable? (remove-pipes+where table))
         value-rows (partition (count variables-row) values)]
     (map (partial ordered-zipmap variables-row) value-rows)))
 
@@ -43,13 +44,12 @@
         (partial form-with-copied-line-numbers fact-form)
         (partial unify/subst fact-form)))
 
-(defn tabular* [forms]
+(defn tabular* [locals forms]
   (error-let [[fact-form table] (validate forms)
               _ (swap! deprecation-hack:file-position
                        (constantly (midje-position-string (form-position fact-form))))
-              ordered-binding-maps (table-binding-maps table)
-              expect-forms (map (macroexpander-for fact-form)
-                                ordered-binding-maps)
+              ordered-binding-maps (table-binding-maps table locals)
+              expect-forms (map (macroexpander-for fact-form) ordered-binding-maps)
               expect-forms-with-binding-notes (map add-binding-note
                                                    expect-forms
                                                    ordered-binding-maps)]

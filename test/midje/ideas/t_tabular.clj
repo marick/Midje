@@ -8,6 +8,8 @@
 
 (testable-privates midje.ideas.tabular add-binding-note table-binding-maps)
 
+;; Core midje.sweet API
+
 (tabular
  (fact (+ ?a ?b) => ?result )
  ?a    ?b      ?result
@@ -17,6 +19,12 @@
  (fact "some information about that"
    (+ ?a ?b) => ?result)
  ?a    ?b      ?result
+ 1     2       3)
+
+(tabular
+ (fact "no longer need to prefix table variables with '?'"
+   (+ a b) => result )
+ a     b       result
  1     2       3)
 
 (tabular "The tabular form can have a doc string"
@@ -138,8 +146,15 @@
  
 (fact "gets the bindings off fact table"
   (table-binding-maps (list '?a  '?b '?result
-                              1   2   3))
+                              1   2   3), [])
     => [ (ordered-map '?a 1, '?b 2, '?result 3) ])
+ 
+(fact "won't count as table variables any specified local symbols"
+  (table-binding-maps (list '?a  
+                            '?result ; it thinks of '?result as just any old symbol
+                             1   
+                             3), ['?result])
+    => [ (ordered-map '?a '?result) (ordered-map '?a 1) (ordered-map '?a 3) ])
 
 ;; Util: validate
 

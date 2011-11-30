@@ -9,6 +9,11 @@
   (subst '(?without-binding (?nil-binding (?other-binding)))
          '{?nil-binding nil, ?other-binding 1})
   => '(?without-binding (nil (1))))
+
+(fact "unify works w/ symbols that don't start with '?'"
+  (subst '(without-binding (nil-binding (other-binding)))
+         '{nil-binding nil, other-binding 1})
+  => '(without-binding (nil (1))))
   
 
 (fact "There can be missing arguments"

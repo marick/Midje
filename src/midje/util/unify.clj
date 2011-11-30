@@ -4,11 +4,6 @@
   (:use [clojure.walk :only [prewalk]])
   (:require [clojure.core.unify :as unify]))
 
-(defn- variable? [x]
-  (and (symbol? x)
-       (.startsWith (name x) "?")))
-
-; (def subst unify/subst)
 (def unify unify/unify)
 
 (defn bindings-map-or-nil [first-form second-form]
@@ -17,6 +12,22 @@
     (catch IllegalArgumentException ex nil)))
 
 (defn subst
+  "Attempts to substitute the bindings in the appropriate locations in the given form."
+  [form bindings]
+  (prewalk (fn [expr] 
+                  (if (and (symbol? expr)
+                           (not= (get bindings expr 'not-found) 'not-found))
+                    (bindings expr)
+                    expr)) 
+                form))
+
+
+(defn- variable? [x]
+  (and (symbol? x)
+    (.startsWith (name x) "?")))
+
+;; TODO: Alex - Nov 29, 2011: see if I can get rid of this once tests are all passing.
+(defn old-subst
   "Attempts to substitute the bindings in the appropriate locations in the given expression."
   [x binds]
   (prewalk (fn [expr] 
@@ -29,7 +40,4 @@
 (defn ?form [] (symbol (name (ns-name *ns*)) "?form")) ; this cannot be right
 
 (defn inject-form [outer-form inner-form]
-  (subst outer-form {(?form) inner-form}))
-
-
-
+  (old-subst outer-form {(?form) inner-form}))
