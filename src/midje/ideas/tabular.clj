@@ -10,7 +10,8 @@
     [midje.util.form-utils :only [ordered-zipmap translate-zipper]]
     [midje.util.zip :only [skip-to-rightmost-leaf]]
     [midje.internal-ideas.expect :only [expect?]]
-    [midje.ideas.arrows :only [above-arrow-sequence__add-key-value__at-arrow]])
+    [midje.ideas.arrows :only [above-arrow-sequence__add-key-value__at-arrow]]
+    [midje.ideas.metaconstants :only [metaconstant-symbol?]])
 (:require [midje.util.unify :as unify]))
 
 (defn- add-binding-note [expect-containing-form ordered-binding-map]
@@ -34,7 +35,10 @@
 
 (defn- table-binding-maps [table locals]
   (let [table-variable? (fn [s]
-                          (and (symbol? s) (not ((set locals) s))))
+                          (and (symbol? s) 
+                               (not (metaconstant-symbol? s))
+                               (not (resolve s)) 
+                               (not ((set locals) s))))
         [variables-row values] (split-with table-variable? (remove-pipes+where table))
         value-rows (partition (count variables-row) values)]
     (map (partial ordered-zipmap variables-row) value-rows)))

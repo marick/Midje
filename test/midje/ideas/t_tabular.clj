@@ -2,6 +2,7 @@
 
 (ns midje.ideas.t-tabular
   (:use [midje.ideas.tabular :except [add-binding-note table-binding-maps]]
+        [midje.ideas.metaconstants :only [metaconstant-symbol?]]
         [midje.error-handling.monadic]
         [midje sweet test-util]
         [ordered.map :only (ordered-map)]))
@@ -21,11 +22,36 @@
  ?a    ?b      ?result
  1     2       3)
 
-(tabular
- (fact "no longer need to prefix table variables with '?'"
-   (+ a b) => result )
- a     b       result
- 1     2       3)
+(tabular "no longer need to prefix table variables with '?'"
+ (fact (+ a b) => result )
+
+     a     b       result
+     1     2       (fn [actual] (= 3 actual))
+     3     4       (as-checker odd?)
+     2     1       (as-checker (fn [actual] (= 3 actual))))
+
+(let [c 1]
+  (tabular "considers local bindings to be table values, not headings"
+    (fact (+ a b) => result )
+  
+       a  b      result
+       c  2      3       ;; need second row, else this mis-parsing  
+       4  5      9))     ;; tabular will think there are 0 rows     
+
+(defn f? [x] true)
+
+(tabular "won't consider bound resolvable fns as table heading var"
+  (fact (+ a b) => result)    
+     result  a   b
+     f?      1   2    ;; needs second row, like above 
+     17      8   9)
+                      
+(tabular "won't think of metaconstants as unbound symbols, and thus 
+          won't try to make them table heading variables"
+  (fact 'candidate arrow metaconstant-symbol?)
+     candidate   arrow
+     ---foo---     => 
+     -foo-         => )
 
 (tabular "The tabular form can have a doc string"
  (fact 

@@ -41,9 +41,9 @@
       ( (just (set-of-sets expected)) (set-of-sets actual)))))
 
 (after-silently 
- (fact 
+(fact 
    [ [1] [2 3] ] => (as-sets [ [1] ]))
- (future-fact "Failures from chatty-checkers-within-functions propagate chatty information"
+(future-fact "Failures from chatty-checkers-within-functions propagate chatty information"
    (first @reported) => (contains {:type :mock-expected-result-functional-failure
                                    :actual [ [1] [2 3]]
                                    :expected '(as-sets [[1]])
@@ -53,44 +53,45 @@
 ;; The behavior of checkers is different in prerequisites
 
 (tabular
- (fact ?actual ?arrow ?expected)
-
- ?expected                      ?actual ?arrow
- odd?                           3       =>
- odd?                           odd?    =not=>
-
- (exactly odd?)                 3       =not=>
- (exactly odd?)                 odd?    =>
-
- (as-checker odd?)              3       =>
- (as-checker odd?)              odd?    =not=>
-
- (fn [actual] (= 3 actual))     3       =>
- (fn [actual] (= 3 actual))     odd?    =not=>)
+  (fact ?actual ?arrow ?expected)
+  
+  ?expected                      ?actual ?arrow
+  odd?                           3       =>             ;; why does this ONLY blwo up when I uncomment all rows of the table?
+  odd?                           odd?    =not=>
+                                                        ;; fuck an a dude.
+  (exactly odd?)                 3       =not=>
+  (exactly odd?)                 odd?    =>
+  
+  (as-checker odd?)              3       =>     
+  (as-checker odd?)              odd?    =not=>  
+  
+  (fn [actual] (= 3 actual))     3       =>
+  (fn [actual] (= 3 actual))     odd?    =not=>
+  )
 
 (unfinished inner)
 (defn outer [n] (inner n))
 
 (tabular
- (after-silently 
+(after-silently 
   (fact
     (outer ?actual) => "expected"
     (provided 
       (inner ?expected) => "expected"))
   (fact @reported ?arrow (one-of pass)))
 
- ?expected                      ?actual ?arrow
- odd?                           3       =not=>   ;; different
- odd?                           odd?    =>       ;; different
+?expected                      ?actual ?arrow
+odd?                           3       =not=>   ;; different
+odd?                           odd?    =>       ;; different
 
- (exactly odd?)                 3       =not=>
- (exactly odd?)                 odd?    =>
+(exactly odd?)                 3       =not=>
+(exactly odd?)                 odd?    =>
 
- (as-checker odd?)              3       =>
- (as-checker odd?)              odd?    =not=>
+(as-checker odd?)              3       =>
+(as-checker odd?)              odd?    =not=>
 
- (fn [actual] (= 3 actual))     3       =not=>  ;; different
- (fn [actual] (= 3 actual))     odd?    =not=>  ;; different
+(fn [actual] (= 3 actual))     3       =not=>  ;; different
+(fn [actual] (= 3 actual))     odd?    =not=>  ;; different
 
- (as-checker (fn [actual] (= 3 actual)))     3       =>
- (as-checker (fn [actual] (= 3 actual)))     odd?    =not=>)
+(as-checker (fn [actual] (= 3 actual)))     3       =>
+(as-checker (fn [actual] (= 3 actual)))     odd?    =not=>)

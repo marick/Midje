@@ -12,7 +12,7 @@
     (catch IllegalArgumentException ex nil)))
 
 (defn subst
-  "Attempts to substitute the bindings in the appropriate locations in the given form."
+  "Attempts to substitute the bindings into any symbol in the given form."
   [form bindings]
   (prewalk (fn [expr] 
                   (if (and (symbol? expr)
@@ -21,21 +21,18 @@
                     expr)) 
                 form))
 
-
-(defn- variable? [x]
-  (and (symbol? x)
-    (.startsWith (name x) "?")))
-
-;; TODO: Alex - Nov 29, 2011: see if I can get rid of this once tests are all passing.
+;; TODO: Alex - Dec 8, 2011: see if I can get rid of this
 (defn old-subst
-  "Attempts to substitute the bindings in the appropriate locations in the given expression."
+  "Attempts to substitute the bindings into any symbol beginning with '?' in the given expression."
   [x binds]
-  (prewalk (fn [expr] 
-                  (if (and (variable? expr)
-                           (not= (get binds expr 'not-found) 'not-found))
-                    (binds expr)
-                    expr)) 
-                x))
+  (letfn [(variable? [x] (and (symbol? x)
+                              (.startsWith (name x) "?")))]
+    (prewalk (fn [expr] 
+                    (if (and (variable? expr)
+                             (not= (get binds expr 'not-found) 'not-found))
+                      (binds expr)
+                      expr)) 
+                  x)))
 
 (defn ?form [] (symbol (name (ns-name *ns*)) "?form")) ; this cannot be right
 
