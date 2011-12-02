@@ -1,12 +1,12 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.ideas.t-tabular
-  (:use midje.ideas.tabular
+  (:use [midje.ideas.tabular :except [add-binding-note table-binding-maps]]
         [midje.error-handling.monadic]
-        [midje sweet test-util])
-  (:use [ordered.map :only (ordered-map)]))
+        [midje sweet test-util]
+        [ordered.map :only (ordered-map)]))
 
-;; Core midje.sweet API
+(testable-privates midje.ideas.tabular add-binding-note table-binding-maps)
 
 (tabular
  (fact (+ ?a ?b) => ?result )

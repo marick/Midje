@@ -13,13 +13,13 @@
     [midje.ideas.arrows :only [above-arrow-sequence__add-key-value__at-arrow]])
 (:require [midje.util.unify :as unify]))
 
-(defn add-binding-note [expect-containing-form ordered-binding-map]
+(defn- add-binding-note [expect-containing-form ordered-binding-map]
   (translate-zipper expect-containing-form
     expect?
     (fn [loc] (skip-to-rightmost-leaf
       (above-arrow-sequence__add-key-value__at-arrow :binding-note (pr-str ordered-binding-map) loc)))))
 
-(def deprecation-hack:file-position (atom ""))
+(def ^{:private true} deprecation-hack:file-position (atom ""))
 
 (defn- remove-pipes+where [table]
   (when (and false (#{:where 'where} (first table)))
@@ -33,7 +33,7 @@
 
 (defn- table-variable? [s] (.startsWith (pr-str s) "?"))
 
-(defn table-binding-maps [table]
+(defn- table-binding-maps [table]
   (let [[variables-row values] (split-with table-variable? (remove-pipes+where table))
         value-rows (partition (count variables-row) values)]
     (map (partial ordered-zipmap variables-row) value-rows)))
