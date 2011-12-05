@@ -1,0 +1,17 @@
+MIDJE_VERSION=$1
+if [ "" = "$MIDJE_VERSION" ]; then
+   echo "No midje version given."
+   exit 1
+fi
+
+set -e
+set -x
+
+bin/version $MIDJE_VERSION 1.2.0 1.2.0
+bin/run-tests
+
+bin/version $MIDJE_VERSION 1.2.1 1.2.0
+bin/run-tests
+
+bin/version $MIDJE_VERSION 1.3.0
+bin/run-tests

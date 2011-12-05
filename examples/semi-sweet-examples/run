@@ -1,2 +1,2 @@
 cd test
-java -cp ../lib/clojure-1.3.0.jar:../lib/dev:../lib/dev/algo.monads-0.1.0.jar:../lib/dev/core.unify-0.5.1.jar:../lib/dev/math.combinatorics-0.0.1.jar:../lib/dev/midje-1.3-alpha5.jar:../lib/dev/tools.macro-0.1.0.jar clojure.main -i semi_sweet_simple/core_test.clj -e '(ns semi-sweet-simple.core-test)(run-tests)'
+java -cp ../lib/clojure-1.3.0.jar:../lib/dev:../lib/dev/algo.monads-0.1.0.jar:../lib/dev/colorize-0.1.1.jar:../lib/dev/core.unify-0.5.1.jar:../lib/dev/joda-time-2.0.jar:../lib/dev/math.combinatorics-0.0.1.jar:../lib/dev/midje-1.3.0-SNAPSHOT.jar:../lib/dev/ordered-1.0.0.jar:../lib/dev/tools.macro-0.1.1.jar:../lib/dev/utilize-0.1.3.jar clojure.main -i semi_sweet_simple/core_test.clj -e '(ns semi-sweet-simple.core-test)(run-tests)'

@@ -26,7 +26,6 @@ desc "Test a fresh build, manual checking for now"
 task :fresh do
      doit("lein clean")
      doit("lein jar")
-     puts "bin/version and bin/run-tests"
 end
 
 task :jar_name do 

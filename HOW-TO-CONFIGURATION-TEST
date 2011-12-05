@@ -1,0 +1,15 @@
+The process is too manual. 
+
+Assumptions:
+* The midje-version is something like 1.3.0-SNAPSHOT
+
+Process: 
+
+* bin/update-project-files <midje-version>
+* rake fresh
+* rake upload
+* bin/compatibility <midje-version>
+
+Examine the results.
+
+

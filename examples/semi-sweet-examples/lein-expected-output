@@ -1,13 +1,17 @@
+
 Testing semi-sweet-simple.core-test
+
 FAIL at (core_test.clj:25)
     Expected: 3
       Actual: 4
 ^^^^ The previous failure was expected ^^^^
+
 FAIL at (core_test.clj:30)
 Actual result did not agree with the checking function.
         Actual result: 4
     Checking function: odd?
 ^^^^ The previous failure was expected ^^^^
+
 FAIL at (core_test.clj:43)
 Actual result did not agree with the checking function.
         Actual result: [3 3 1 2]
@@ -15,9 +19,11 @@ Actual result did not agree with the checking function.
     The checker said this about the reason:
         Expected three elements. There were four.
 ^^^^ The previous failure was expected ^^^^
+
 FAIL at (core_test.clj:70)
 You claimed the following was needed, but it was never used:
     (first-fake 3)
 ^^^^ The previous failure was expected ^^^^
+
 Ran 10 tests containing 16 assertions.
 4 failures, 0 errors.

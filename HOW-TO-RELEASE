@@ -2,18 +2,10 @@ The process for pushing a new version is too complicated and
 manual. 
 
 * Update HISTORY
-* bin/update-project-files <midje-version>
-* Rake fresh
-* bin/version <midje-version> 1.2.0 1.2.0
-* bin/run-tests
+* Run configuration tests (HOW_TO_RUN_CONFIGURATION_TESTS)
+  with midje-version set to a non-snapshot value.
+  (Note that this uploads.)
 
-* bin/version <midje-version> 1.2.1 1.2.0
-* bin/run-tests
-
-* bin/version <midje-version> 1.3.0
-* bin/run-tests
-
-* Rake upload
 * DO NOT CLEAN.
 * bin/gather-downloads
 * Update README.md (including version number)

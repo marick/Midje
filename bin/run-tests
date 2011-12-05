@@ -3,6 +3,7 @@
 require 'fileutils'
 include FileUtils
 
+ENV["MIDJE_COLORIZE"]="false"
 
 ### IMPORTANT
 ### If you add any new test directories here,
@@ -18,14 +19,17 @@ lein_midje_runs = %w{examples/basic
 
 cake_midje_runs = %w{examples/cake-midje}
 
-run_runs = %w{  }
+run_runs = %w{  }   # I doubt these are worthwhile any more.
 
 def lein_clean; system("lein clean 2>&1 | grep -v 'Cleaning up'"); end
 def lein_deps;  system("lein deps 2>&1 | grep -v 'Copying .* files'"); end
 
 puts "++++++++++++++++++++                                      Main Tests"
 # system("ls lib")
+puts "   lein test"
 system("lein test | grep failure")
+puts "   lein midje"
+system("lein midje | grep FAILURE")
 
 puts "++++++++++++++++++++                                      Lein test tests"
 lein_test_runs.each do | dir | 
