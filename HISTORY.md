@@ -1,34 +1,23 @@
-1.3.0-RC2
+1.3.0
 --------
-* Syntax coloring
-* Lazytest/autotest behavior
-
-1.3.0-alpha5
---------
-* Prevents you from overriding functions that the compiler inlines.
-  https://github.com/marick/Midje/issues/60
-* Now works properly with aot-compilation. More properly, at least.
-* partial prerequisites
-  https://github.com/marick/Midje/wiki/Partial-prerequisites
-* =expands-to=> for testing macros (in a style derived from
-  /Let Over Lambda/. (via Phil Calçado)
-  https://github.com/marick/Midje/wiki/Macros
+* Supports Clojure 1.3
+* Alternate format for metaconstants uses dashes instead of dots: ---mc---
+  This is useful if the metaconstant is to represent a function.
 * Now considers metaconstants with different numbers of dots
   to be the same. That is: `(fact (f ..x..) => ...x..)` has
   two instances of the same metaconstant.
-
-1.3-alpha4
---------
-* Believed to run under Clojure 1.3
-* Second stab at data prerequisites.
+* Partial prerequisites
+  https://github.com/marick/Midje/wiki/Partial-prerequisites
+* Data prerequisites.
   https://github.com/marick/Midje/wiki/Data-prerequisites
-* Default format for metaconstants changed to use
-  dashes instead of dots: ---mc---
-
-1.3-alpha1
---------
-* First stab at data prerequisites.
-  https://github.com/marick/Midje/wiki/Data-fakes
+* Syntax coloring
+* Lazytest/autotest behavior
+* Now works properly with aot-compilation. More properly, at least.
+* Prevents you from overriding functions that the compiler inlines.
+  https://github.com/marick/Midje/issues/60
+* =expands-to=> for testing macros (in a style derived from
+  /Let Over Lambda/. (via Phil Calçado)
+  https://github.com/marick/Midje/wiki/Macros
 
 1.2
 --------
