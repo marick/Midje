@@ -1,4 +1,4 @@
-1.3-alpha5
+1.3.0-RC2
 --------
 * Prevents you from overriding functions that the compiler inlines.
   https://github.com/marick/Midje/issues/60

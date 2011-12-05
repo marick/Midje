@@ -5,14 +5,16 @@ require 'rake'
 
 def jar_name
   text = File.read('project.clj')
-  unless /midje\s+"(\d+\.\d+\.\d+(-[A-Z]+)?)"/ =~ text ||
+  unless /midje\s+"(\d+\.\d+\.\d+(-RC\d+)?)"/ =~ text ||
+         /midje\s+"(\d+\.\d+(\.\d+)*-SNAPSHOT)"/ =~ text || 
          /midje\s+"(\d+\.\d-alpha\d)"/ =~ text || 
          /midje\s+"(\d+\.\d-beta\d)"/ =~ text
     puts "Couldn't find version in project file."
     exit 1
   end
-  puts "jar name: #{$1}"
-   "midje-#{$1}.jar"
+  jar = "midje-#{$1}.jar"
+  puts "jar name: #{jar}"
+  jar
 end
 
 def doit(text)
