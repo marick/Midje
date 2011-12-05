@@ -1,5 +1,10 @@
 1.3.0-RC2
 --------
+* Syntax coloring
+* Lazytest/autotest behavior
+
+1.3.0-alpha5
+--------
 * Prevents you from overriding functions that the compiler inlines.
   https://github.com/marick/Midje/issues/60
 * Now works properly with aot-compilation. More properly, at least.
