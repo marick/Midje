@@ -10,7 +10,7 @@
       (require '[midje.util.colorize :as c] :reload ) ;; enables 'provided' to take
       (?color-fn "string")) => ?result
     (provided
-      (getenv "MIDJE_COLORIZE") => ?env-var :times 1))
+      (getenv "MIDJE_COLORIZE") => ?env-var))
 
   ?color-fn ?env-var ?result
   c/fail-color     "FALSE" "string"
@@ -20,6 +20,10 @@
   c/note-color  "FALSE" "string"
   c/note-color  "TRUE"  "\u001b[36mstring\u001b[0m"
   c/note-color   nil    "\u001b[36mstring\u001b[0m")
+
+;; Reset to user's default colorization.
+(require '[midje.util.colorize] :reload )
+
 
 (fact "access environment vars only when namespace is loaded"
   (do

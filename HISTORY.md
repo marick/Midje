@@ -1,3 +1,9 @@
+1.3.1-SNAPSHOT
+-------------
+* Colorizing supports a reverse-video option:
+  setenv MIDJE_COLORIZE=reverse
+
+
 1.3.0
 --------
 * Supports Clojure 1.3
