@@ -2,7 +2,7 @@ The process for pushing a new version is too complicated and
 manual. 
 
 * Update HISTORY
-* Run configuration tests (HOW_TO_RUN_CONFIGURATION_TESTS)
+* Run configuration tests (HOW-TO-CONFIGURATION-TEST
   with midje-version set to a non-snapshot value.
   (Note that this uploads.)
 
