@@ -1,6 +1,6 @@
 Available via [clojars](http://clojars.org/search?q=midje)   
 Current stable version: [midje "1.2.0"]    
-Development version: [midje "1.3.0-RC2"] (includes Clojure 1.3 support)
+Development version, including Clojure 1.3 support: [midje "1.3.0-RC2"]
 
 About Midje
 =======================

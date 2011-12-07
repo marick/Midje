@@ -10,5 +10,5 @@
   :dev-dependencies
   [[lein-run "1.0.0"]
    [lein-midje "[1.0.0,)"]
-   [midje "1.3.0-RC2"]
+   [midje "1.3.1-SNAPSHOT"]
    ])

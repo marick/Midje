@@ -1,4 +1,4 @@
-(defproject midje "1.3.0-RC2"
+(defproject midje "1.3.1-SNAPSHOT"
   :description "A TDD library for Clojure, with an emphasis on mocks"
   :url "https://github.com/marick/Midje"
   :dependencies [[org.clojure/clojure "[1.2.0],[1.2.1],[1.3.0]"]

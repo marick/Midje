@@ -49,7 +49,7 @@
         (pr-str form)))
 
 (defn- fail-at [m]
-  [(fail-color (str "\nFAIL at " (midje-position-string (:position m))))
+  [(str "\n" (fail-color "FAIL") " at " (midje-position-string (:position m)))
    (when (:binding-note m)
      (str "With table substitutions: " (:binding-note m)))])
 
@@ -111,7 +111,7 @@
 
 (defmethod report-strings :future-fact [m]
   (list
-   (str (note-color "\nWORK TO DO: ")
+   (str "\n" (note-color "WORK TO DO:") " "
         (:description m)
         (midje-position-string (:position m)))))
   
