@@ -2,11 +2,12 @@
 
 (ns midje.util.colorize
   (:require [colorize.core :as color])
-  (:use [midje.util.ecosystem :only [getenv]]))
+  (:use [midje.util.ecosystem :only [getenv on-windows?]]))
 
 
 (defn- colorize-choice []
-  (.toUpperCase (or (getenv "MIDJE_COLORIZE") "true")))
+  (.toUpperCase (or (getenv "MIDJE_COLORIZE")
+                    (str (not (on-windows?))))))
 
 (defn- default-color-choice? []
   (= (colorize-choice) "TRUE"))
@@ -16,16 +17,19 @@
 
 (cond (default-color-choice?)
       (do
-        (def fail-color color/red)
-        (def note-color color/cyan))
+        (def fail color/red)
+        (def pass color/green)
+        (def note color/cyan))
 
       (reverse-color-choice?)
       (do
-        (def fail-color color/red-bg)
-        (def note-color color/cyan-bg))
+        (def fail color/red-bg)
+        (def pass color/green-bg)
+        (def note color/cyan-bg))
 
       :else
       (do
-        (def fail-color identity)
-        (def note-color identity)))
+        (def fail identity)
+        (def pass identity)
+        (def note identity)))
       

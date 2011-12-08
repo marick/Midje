@@ -23,3 +23,6 @@
 
 (defn getenv [var] 
   (System/getenv var))
+
+(defn on-windows? []
+  (re-find #"[Ww]in" (System/getProperty "os.name")))
