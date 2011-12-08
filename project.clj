@@ -1,5 +1,5 @@
 (defproject midje "1.3.1-SNAPSHOT"
-  :description "A TDD library for Clojure, with an emphasis on mocks"
+  :description "A TDD library for Clojure that supports top-down ('mockish') TDD, encourages readable tests, provides a smooth migration path from clojure.test, balances abstraction and concreteness, and strives for graciousness."
   :url "https://github.com/marick/Midje"
   :dependencies [[org.clojure/clojure "[1.2.0],[1.2.1],[1.3.0]"]
                  [ordered "1.0.0"]
