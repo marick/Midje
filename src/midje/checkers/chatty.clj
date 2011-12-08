@@ -41,30 +41,24 @@
        (not (quoted? arg))))
 
 (defn chatty-untease [result-symbol arglist]
-  (loop [ [current-arg & remainder :as arglist] arglist
-          complex-forms []
-          substituted-arglist []]
-    (cond (empty? arglist)
-          [complex-forms substituted-arglist]
-
-          (chatty-worth-reporting-on? current-arg)
-          (recur remainder (conj complex-forms current-arg)
-                 (conj substituted-arglist `(~result-symbol ~(count complex-forms))))
-
-          :else
-          (recur remainder complex-forms (conj substituted-arglist current-arg)))))
+  (reduce (fn [[complex-forms substituted-args] current-arg]
+              (if (chatty-worth-reporting-on? current-arg)
+                [ (conj complex-forms current-arg), 
+                  (conj substituted-args `(~result-symbol ~(count complex-forms))) ]
+                [complex-forms, (conj substituted-args current-arg)]))
+      [[] []]
+      arglist))
           
 (defmacro chatty-checker
   "Create a function that returns either true or a detailed description of a failure."
-  [ [binding-var] [function & arglist] ]
+  [ [binding-var] [f & args] ]
   (let [result-symbol (gensym "chatty-intermediate-results-")
-        [complex-forms substituted-arglist] (chatty-untease result-symbol arglist)]
+        [complex-forms substituted-args] (chatty-untease result-symbol args)]
     `(as-chatty-checker
       (fn [~binding-var]
         (let [~result-symbol (vector ~@complex-forms)]
-          (if (chattily-false? (~function ~@substituted-arglist))
+          (if (chattily-false? (~f ~@substituted-args))
             (let [pairs# (pairs '~complex-forms ~result-symbol)]
               (as-chatty-falsehood {:actual ~binding-var,
                                     :intermediate-results pairs#}))
             true))))))
-
