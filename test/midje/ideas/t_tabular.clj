@@ -35,8 +35,8 @@
     (fact (+ a b) => result )
   
        a  b      result
-       c  2      3       ;; need second row, else this mis-parsing  
-       4  5      9))     ;; tabular will think there are 0 rows     
+       c  2      3       ;; need second row, else (in the failure case) this  
+       4  5      9))     ;; mis-parsing tabular will think there are 0 rows     
 
 (defn f? [x] true)
 
@@ -61,33 +61,33 @@
 
 (tabular
  (fact "will ignore optional pipes separating table columns"
-   (str ?a ?b ?c) => ?result)
+   (str a b c) => result)
 
- ?a  | ?b  | ?c  | ?result
+ a   | b   | c   | result
  "a" | "|" | "c" | "a|c" )
 
 (tabular
  (fact "will ignore an optional ':where' above the table"
-   (str ?a ?b) => ?result)
+   (str a b) => result)
 
  :where
- ?a     | ?b     | ?result
+ a      | b      | result
  'where | :where | "where:where") ;; just to makes sure
 
 (tabular
  (fact "will ignore an optional 'where' above the table"
-   (+ ?a ?b) => ?result)
+   (+ a b) => result)
 
  where
- ?a | ?b | ?result
+ a  |  b | result
  1  | 2  | 3)
 
 (tabular
  (fact "can have different forms of where or pipe in the data, no problem"
-   (str ?a ?b ?c ?d) => ?result)
+   (str a b c d) => result)
 
  where
- ?a     | ?b  | ?c     | ?d | ?result
+ a      | b   | c      | d  | result
  :where | "|" | 'where | '| | ":where|where|")
 
 ;; Error handling
