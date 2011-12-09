@@ -11,7 +11,7 @@
     (unify/unify first-form second-form)
     (catch IllegalArgumentException ex nil)))
 
-(defn subst
+(defn substitute
   "Attempts to substitute the bindings into any symbol in the given form."
   [form bindings]
   (prewalk (fn [expr] 
@@ -24,4 +24,4 @@
 (defn ?form [] (symbol (name (ns-name *ns*)) "?form")) ; this cannot be right
 
 (defn inject-form [outer-form inner-form]
-  (subst outer-form {(?form) inner-form}))
+  (substitute outer-form {(?form) inner-form}))

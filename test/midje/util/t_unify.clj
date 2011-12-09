@@ -6,12 +6,12 @@
         midje.test-util))
 
 (fact "unify works with nil bindings"
-  (subst '(?without-binding (?nil-binding (?other-binding)))
+  (substitute '(?without-binding (?nil-binding (?other-binding)))
          '{?nil-binding nil, ?other-binding 1})
   => '(?without-binding (nil (1))))
 
 (fact "unify works w/ symbols that don't start with '?'"
-  (subst '(without-binding (nil-binding (other-binding)))
+  (substitute '(without-binding (nil-binding (other-binding)))
          '{nil-binding nil, other-binding 1})
   => '(without-binding (nil (1))))
   

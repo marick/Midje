@@ -46,7 +46,7 @@
 (defn- macroexpander-for [fact-form]
   (comp macroexpand
         (partial form-with-copied-line-numbers fact-form)
-        (partial unify/subst fact-form)))
+        (partial unify/substitute fact-form)))
 
 (defn tabular* [locals forms]
   (error-let [[fact-form table] (validate forms)
