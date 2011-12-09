@@ -175,15 +175,13 @@
 ;; There are some incommensurable utility behaviors
 (defn- compare-one-map-permutation [actual expected keys]
   ;;  (prn "map-comparison" actual expected)
-  (reduce (fn [so-far key]
-            (if (and (find actual key)
-                     (extended-= (get actual key) (get expected key)))
-              (merge-with merge so-far {:actual-found {key (get actual key)}
-                                        :expected-found {key (get expected key)} })
-              so-far))
-          {:actual-found {} :expected-found {} :expected expected}
-          keys))
-
+  (apply merge-with merge
+      { :actual-found {} :expected-found {} :expected expected }
+      (for [k keys
+            :when (and (find actual k)
+                       (extended-= (get actual k) (get expected k)))]
+        { :actual-found { k (get actual k) }
+          :expected-found { k (get expected k) }})))
 
 (defn- compare-one-seq-permutation
   "Compare actual elements to expected, which is one of perhaps many
