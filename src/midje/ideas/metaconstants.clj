@@ -102,12 +102,11 @@
 
 (defn metaconstant-for-form [[function-symbol & _ :as inner-form]]
   (let [swap-fn (fn [current-value function-symbol]
-                  (if (current-value function-symbol)
-                    (assoc current-value function-symbol
-                           (inc (current-value function-symbol)))
+                  (if-let [cur-val (current-value function-symbol)]
+                    (assoc current-value function-symbol (inc cur-val)) 
                     (assoc current-value function-symbol 1)))
         number ((swap! *metaconstant-counts* swap-fn function-symbol)
-                function-symbol)]
+                  function-symbol)]
     (symbol (format "...%s-value-%s..." (name function-symbol) number))))
 
         
