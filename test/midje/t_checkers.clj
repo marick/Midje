@@ -56,9 +56,9 @@
   (fact ?actual ?arrow ?expected)
   
   ?expected                      ?actual ?arrow
-  odd?                           3       =>             ;; why does this ONLY blwo up when I uncomment all rows of the table?
+  odd?                           3       =>             
   odd?                           odd?    =not=>
-                                                        ;; fuck an a dude.
+                                                     
   (exactly odd?)                 3       =not=>
   (exactly odd?)                 odd?    =>
   
