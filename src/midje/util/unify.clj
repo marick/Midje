@@ -15,26 +15,13 @@
   "Attempts to substitute the bindings into any symbol in the given form."
   [form bindings]
   (prewalk (fn [expr] 
-                  (if (and (symbol? expr)
-                           (not= (get bindings expr 'not-found) 'not-found))
-                    (bindings expr)
-                    expr)) 
+                (if (and (symbol? expr)
+                         (contains? bindings expr))
+                  (bindings expr)
+                  expr)) 
                 form))
-
-;; TODO: Alex - Dec 8, 2011: see if I can get rid of this
-(defn old-subst
-  "Attempts to substitute the bindings into any symbol beginning with '?' in the given expression."
-  [x binds]
-  (letfn [(variable? [x] (and (symbol? x)
-                              (.startsWith (name x) "?")))]
-    (prewalk (fn [expr] 
-                    (if (and (variable? expr)
-                             (not= (get binds expr 'not-found) 'not-found))
-                      (binds expr)
-                      expr)) 
-                  x)))
 
 (defn ?form [] (symbol (name (ns-name *ns*)) "?form")) ; this cannot be right
 
 (defn inject-form [outer-form inner-form]
-  (old-subst outer-form {(?form) inner-form}))
+  (subst outer-form {(?form) inner-form}))
