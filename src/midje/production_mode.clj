@@ -3,10 +3,9 @@
 (ns midje.production-mode)
 
 (defn- value-within [namespace-symbol variable-symbol]
-  (let [namespace (find-ns namespace-symbol)]
-    (if namespace
-      (var-get ((ns-map namespace) variable-symbol))
-      true)))
+  (if-let [namespace (find-ns namespace-symbol)]
+    (var-get ((ns-map namespace) variable-symbol))
+    true))
 
 (defn user-desires-checking? []
   (and (value-within 'clojure.test '*load-tests*)

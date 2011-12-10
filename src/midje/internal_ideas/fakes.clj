@@ -71,7 +71,7 @@
 (defmethod make-result-supplier :default [arrow result-stream]
   (throw (user-error (str "It's likely you misparenthesized your metaconstant prerequisite."))))
 
-(defn fake* [[[var-sym & args :as call-form] arrow result & overrides]]
+(defn fake* [ [[var-sym & args :as call-form] arrow result & overrides] ]
   ;; The (vec args) keeps something like (...o...) from being
   ;; evaluated as a function call later on. Right approach would
   ;; seem to be '~args. That causes spurious failures. Debug
@@ -99,31 +99,25 @@
 
 
 (defn- var-handled-by-fake? [function-var fake]
-  (= function-var (fake :lhs )))
+  (= function-var (:lhs fake)))
 
 (defmulti ^{:private true} call-handled-by-fake? (fn [function-var actual-args fake] (:type fake)))
 
-(defmethod ^{:private true} call-handled-by-fake? :not-called [function-var actual-args fake]
+(defmethod call-handled-by-fake? :not-called [function-var actual-args fake]
   (var-handled-by-fake? function-var fake))
 
-(defmethod ^{:private true} call-handled-by-fake? :default [function-var actual-args fake]
+(defmethod call-handled-by-fake? :default [function-var actual-args fake]
   (and (var-handled-by-fake? function-var fake)
-    (= (count actual-args) (count (fake :arg-matchers )))
-    (extended-list-= actual-args (fake :arg-matchers ))))
+       (= (count actual-args) (count (:arg-matchers fake)))
+       (extended-list-= actual-args (:arg-matchers fake))))
 
 (defn usable-default-function? [fake]
-  (if (not (bound? (:lhs fake)))
-    false
-    (let [function-var (:lhs fake)
-          stashed-value (var-get function-var)
-          unfinished-fun (:midje/unfinished-fun (meta function-var))]
-      (cond (not (extended-fn? stashed-value))
-        false
-
-        (nil? unfinished-fun)
-        true
-
-        :else (not= unfinished-fun stashed-value)))))
+  (and (bound? (:lhs fake))
+       (let [stashed-value (var-get (:lhs fake))
+             unfinished-fun (:midje/unfinished-fun (meta (:lhs fake)))]
+         (and (extended-fn? stashed-value)
+              (or (nil? unfinished-fun)
+                  (not= unfinished-fun stashed-value))))))
 
 
 (def ^{:dynamic true :private true} *call-action-count* (atom 0))

@@ -26,14 +26,13 @@
      assoc :line line-number)))
 
 (defn expand-prerequisites-into-fake-calls [provided-loc]
-  (let [fakes (rest (zip/node (zip/up provided-loc)))
+  (let [fakes (-> provided-loc zip/up zip/node rest)
         fake-bodies (group-arrow-sequences fakes)]
     (map prerequisite-to-fake fake-bodies)))
 
 (defn delete_prerequisite_form__then__at-previous-full-expect-form [loc]
   (assert (is-head-of-form-providing-prerequisites? loc))
-  (let [x (-> loc zip/up zip/remove)]
-    (up-to-full-expect-form x)))
+  (-> loc zip/up zip/remove up-to-full-expect-form))
 
 (defn insert-prerequisites-into-expect-form-as-fakes [loc]
   (let [fake-calls (expand-prerequisites-into-fake-calls loc)
