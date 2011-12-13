@@ -103,6 +103,7 @@
   "Defines a list of names as functions that have no implementation yet. They will
    throw Errors if ever called.
    DEPRECATED: Prefer `unfinished`."
+  {:deprecated "1.3-alpha2"}
   [& names] (unfinished* names))
 
 
@@ -136,6 +137,7 @@
   "Creates an fake map that a function will not be called.
    Example: (not-called f))
    DEPRECATED: Prefer `:times 0` annotation to `fake`, ex. (provided (f) => 4 :times 0))"
+  {:deprecated "1.3-alpha2"}
   [var-sym & overrides]
   (make-fake-map var-sym
                  `{:call-text-for-failures (str '~var-sym " was called.")
