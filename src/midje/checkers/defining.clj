@@ -29,9 +29,10 @@
                                (arglist-finder bodies-and-arglists)
                                bodies-and-arglists))))
 
-(defmacro defchecker [checker-name & stuff]
+(defmacro defchecker
   "Like defn, but tags the variable created and the function it refers to
    as checkers."
+  [checker-name & stuff]
   (if (string? (first stuff))
     (working-with-bodies-and-arglists checker-name (first stuff) (rest stuff))
     (working-with-bodies-and-arglists checker-name nil stuff)))

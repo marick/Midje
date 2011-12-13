@@ -152,8 +152,9 @@
   
         :else (:value-at-time-of-faking (first possible-fakes))))))
 
-(defn- call-faker [function-var actual-args fakes]
-  "This is the function that handles all mocked calls."
+(defn- call-faker
+  "This is the function that handles all mocked calls." 
+  [function-var actual-args fakes]
   (let [action (counting-nested-calls-calls (best-call-action function-var actual-args fakes))]
     (cond (nil? action)
       (clojure.test/report {:type :mock-argument-match-failure

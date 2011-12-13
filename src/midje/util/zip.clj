@@ -1,16 +1,18 @@
 (ns midje.util.zip
   (:require [clojure.zip :as zip]))
   
-(defn skip-to-rightmost-leaf [loc]
+(defn skip-to-rightmost-leaf
   "When positioned at leftmost position of branch, move to the end form.
    In a tree, that's the rightmost leaf."
+  [loc]
   (let [end-form (zip/rightmost loc)]
     (if (zip/branch? end-form)
       (recur (zip/down end-form))
       end-form)))
 
-(defn skip-down-then-rightmost-leaf [loc]
+(defn skip-down-then-rightmost-leaf
   "When positioned at a branch, move into it and then to the rightmost leaf."
+  [loc]
   (skip-to-rightmost-leaf (zip/down loc)))
 
 (defn n-times [n zip-fn loc]

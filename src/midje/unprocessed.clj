@@ -61,11 +61,12 @@
                  :expected (:expected-result-text-for-failures call) 
                  :actual actual})))
 
-(defn expect* [unprocessed-check local-fakes]
+(defn expect*
   "The core function in unprocessed Midje. Takes a map describing a
   call and a list of maps, each of which describes a secondary call
   the first call is supposed to make. See the documentation at
   http://github.com/marick/Midje."
+  [unprocessed-check local-fakes]
   (macrolet [(capturing-exception [form]
                `(try ~form
                   (catch Throwable e#

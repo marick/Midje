@@ -309,8 +309,10 @@
 
 ;; Initial argument processing
 
-(defn- compatibility-check [actual expected looseness]
+(defn- compatibility-check
   "Fling an error of the combination of actual, expected, and looseness won't work."
+  [actual expected looseness]
+
   ;; Throwing Errors is just an implementation convenience.
   (cond (regex? expected)
 	(cond (and (not (sequential? actual))
@@ -340,10 +342,10 @@
                                        " should look like map entries.")))))))
 
   
-(defn- standardized-arguments [actual expected looseness]
+(defn- standardized-arguments
   "Reduce arguments to standard forms so there are fewer combinations to
    consider. Also blow up for some incompatible forms."
-
+  [actual expected looseness]
   (compatibility-check actual expected looseness)
   (cond (sequential? actual)
 	(cond (set? expected)

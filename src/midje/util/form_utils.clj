@@ -61,23 +61,27 @@
 (defn vector-without-element-at-index [index v]
   (vec (concat (subvec v 0 index) (subvec v (inc index)))))
 
-(defn pairs [first-seq second-seq]
+(defn pairs
   "Return [ (first first-seq) (first second-seq)] ..."
+  [first-seq second-seq]
   (partition 2 (interleave first-seq second-seq)))
 
-(defn hash-map-duplicates-ok [& keys-and-vals]
-  "Like hash-map, except duplicate keys are OK. Last one takes precedence."
+(defn hash-map-duplicates-ok
+  "Like hash-map, except duplicate keys are OK. Last one takes precedence." 
+  [& keys-and-vals]
   (if (empty? keys-and-vals)
     {}
     (apply assoc {} keys-and-vals)))     
 
-(defn tack-on-to [hashmap & kvs]
-  "Conj new values onto appropriate keys of a map"
+(defn tack-on-to
+  "Conj new values onto appropriate keys of a map" 
+  [hashmap & kvs]
   (merge-with conj hashmap (apply hash-map-duplicates-ok kvs)))
 
-(defn apply-pairwise [ functions & arglists ]
+(defn apply-pairwise
   "(apply-pairwise [inc dec] [1 1] [2 2]) => [ [2 0] [3 1] ]
-   Note that the functions must take only a single argument."
+   Note that the functions must take only a single argument." 
+  [functions & arglists]
   (map (partial map 
   		(fn [f arg] (f arg)) 
   		functions) 
@@ -86,8 +90,9 @@
 (defn map-difference [bigger smaller]
   (select-keys bigger (difference (set (keys bigger)) (set (keys smaller)))))
 
-(defn ordered-zipmap [keys vals]
+(defn ordered-zipmap
   "Like zipmap, but guarantees order of the entries"
+  [keys vals]
   (loop [m (ordered-map)
          ks (seq keys)
          vs (seq vals)]

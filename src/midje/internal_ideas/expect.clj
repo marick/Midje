@@ -22,9 +22,10 @@
 
 ;; Moving around
 
-(defn up-to-full-expect-form [loc]
+(defn up-to-full-expect-form
   "From anywhere (recursively) within an expect form, move so that
-   loc is at the full form (so that zip/down is 'expect)."
+   loc is at the full form (so that zip/down is 'expect)." 
+  [loc]
   (if (expect? loc)
     loc
     (recur (zip/up loc))))

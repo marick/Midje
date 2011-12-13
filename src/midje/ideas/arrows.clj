@@ -6,6 +6,7 @@
   (:require [clojure.zip :as zip]))
 
 ;; Arrow groupings
+
 (def expect-arrows [=> =not=> =deny=> =future=> =expands-to=>])
 (def fake-arrows [=> =contains=> =streams=>])
 (def all-arrows (concat expect-arrows fake-arrows))
@@ -25,12 +26,14 @@
 
 ;; Dissecting
 
-(defn arrow-sequence-overrides [forms]
+(defn arrow-sequence-overrides
   "Extract key-value overrides from the arrow sequence"
+  [forms]
   (apply concat (take-while (comp keyword? first) (partition 2 forms))))
 
-(defn take-arrow-sequence [forms]
+(defn take-arrow-sequence
   "Extract the next arrow sequence from a longer sequence of forms."
+  [forms]
   (let [constant-part (take 3 forms)
         overrides (arrow-sequence-overrides (nthnext forms 3))]
     (concat constant-part overrides)))

@@ -42,10 +42,11 @@
         =not=> :check-negated-match
         =deny=> :check-negated-match} (name arrow)))
 
-(defmacro unprocessed-check [call-form arrow expected-result overrides]
+(defmacro unprocessed-check
   "Creates a map that contains a function-ized version of the form being 
    tested, an expected result, and the file position to refer to in case of 
    failure. See 'expect*'."
+  [call-form arrow expected-result overrides]
   `(merge
     {:function-under-test (fn [] ~call-form)
      :expected-result ~expected-result

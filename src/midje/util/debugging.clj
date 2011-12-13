@@ -15,18 +15,21 @@
 (def indent-count (atom 0))
 (def indent (atom ""))
 
-(defn p [& tags]
+(defn p
   "Print, indented, with prn."
+  [& tags]
   (apply (partial prn @indent) tags))
 
-(defn p+ [& tags]
+(defn p+
   "Increase the indent level, then print tags, indented, with prn."
+  [& tags]
   (swap! indent-count inc)
   (swap! indent #(str (but-last-str 1 %) @indent-count ">"))
   (apply p tags))
 
-(defn pret [val]
+(defn pret
   "Print the given value at current indent level, then decrease the level"
+  [val]
   (p val)
   (when (> @indent-count 0)
     (swap! indent-count dec)
@@ -35,4 +38,5 @@
 
 (defn nopret
   "A no-op. Adding 'no' is easier than deleting a 'pret'."
-  [val] val)
+  [val] 
+  val)

@@ -33,6 +33,7 @@
           (= actual expected))
     (catch Throwable ex false)))
 
-(defn extended-list-= [actual-args checkers]
+(defn extended-list-=
   "Element-by-element comparison, using extended-= for the right-hand-side values."
+  [actual-args checkers]
   (every? (partial apply extended-=) (pairs actual-args checkers)))
