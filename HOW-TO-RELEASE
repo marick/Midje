@@ -7,6 +7,10 @@ manual.
   (Note that this uploads.)
 
 * DO NOT CLEAN.
+* Use bin/update-project-files and bin/version to set the examples
+  appropriately. For example:
+      bin/update-project-files 1.3.0
+      bin/version 1.3.0 1.2.1 1.2.0
 * bin/gather-downloads
 * Update README.md (including version number)
 * Commit

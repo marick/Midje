@@ -1,12 +1,14 @@
 1.3.1-SNAPSHOT
 -------------
-* Colorizing supports a reverse-video option:
-  setenv MIDJE_COLORIZE=reverse
 
 
 1.3.0
 --------
 * Supports Clojure 1.3
+* Syntax coloring
+   https://github.com/marick/Midje/wiki/Colorizing
+* Lazytest/autotest behavior
+  https://github.com/marick/Midje/wiki/Lein-midje
 * Alternate format for metaconstants uses dashes instead of dots: ---mc---
   This is useful if the metaconstant is to represent a function.
 * Now considers metaconstants with different numbers of dots
@@ -16,8 +18,6 @@
   https://github.com/marick/Midje/wiki/Partial-prerequisites
 * Data prerequisites.
   https://github.com/marick/Midje/wiki/Data-prerequisites
-* Syntax coloring
-* Lazytest/autotest behavior
 * Now works properly with aot-compilation. More properly, at least.
 * Prevents you from overriding functions that the compiler inlines.
   https://github.com/marick/Midje/issues/60
