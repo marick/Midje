@@ -23,19 +23,6 @@
   (or (extended-fn? checker)
       (regex? checker)))
 
-(defn- feasible-permutations 
-  "Permute the given list if it contains inexact checkers.
-   Only produces all permutations for short lists."
-  [checkers]
-  (cond (not-any? inexact-checker? checkers)
-        [checkers]
-
-        (<= (count checkers) 4)
-        (permutations checkers)
-
-        :else
-        (rotations checkers)))
-
 (defn- total-match?
   "Have all the expected elements have been discovered?"
   [comparison]
@@ -246,22 +233,35 @@
           (recur (rest expected-permutations)
                  (better-of comparison best-so-far)))))))
 
-(defmethod compare-results ::map [actual expected looseness]
-  (order-free-compare-results expected 
-                              (feasible-permutations (keys expected))
-                              (fn [permutation]
-                                (compare-one-map-permutation actual
-                                                             expected
-                                                             permutation))))
+(letfn [(feasible-permutations 
+  ;; "Permute the given list if it contains inexact checkers.
+  ;;  Only produces all permutations for short lists."
+  [checkers]
+  (cond (not-any? inexact-checker? checkers)
+        [checkers]
 
-(defmethod compare-results [::not-map :in-any-order]
-  [actual expected looseness]
-  (order-free-compare-results expected 
-                              (feasible-permutations expected)
-                              (fn [permutation]
-                                (compare-one-seq-permutation actual
-                                                             permutation
-                                                             looseness))))
+        (<= (count checkers) 4)
+        (permutations checkers)
+
+        :else
+        (rotations checkers)))]
+  
+  (defmethod compare-results ::map [actual expected looseness]
+    (order-free-compare-results expected 
+                                (feasible-permutations (keys expected))
+                                (fn [permutation]
+                                  (compare-one-map-permutation actual
+                                                               expected
+                                                               permutation))))
+  
+  (defmethod compare-results [::not-map :in-any-order]
+    [actual expected looseness]
+    (order-free-compare-results expected 
+                                (feasible-permutations expected)
+                                (fn [permutation]
+                                  (compare-one-seq-permutation actual
+                                                               permutation
+                                                               looseness)))))
 
 (defmethod compare-results [::not-map :strict-order]
   [actual expected looseness]
