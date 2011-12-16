@@ -2,7 +2,7 @@
 
 (ns midje.sweet
   (:use clojure.test
-        [midje.util.old-clojure-contrib.ns-utils :only [immigrate]])
+        [midje.util.namespace :only [immigrate]])
          
   (:use midje.production-mode
         midje.error-handling.monadic

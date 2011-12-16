@@ -8,7 +8,7 @@
         [midje.checkers.extended-equality :only [extended-=]]
         [midje.checkers.chatty :only [chatty-checker?]]
         [midje.checkers.util]
-        [midje.util.old-clojure-contrib.ns-utils :only [immigrate]]
+        [midje.util.namespace :only [immigrate]]
         [clojure.tools.macro :only [macrolet]]))
 (immigrate 'midje.checkers)
 

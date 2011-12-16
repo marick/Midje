@@ -11,8 +11,7 @@
         [midje.error-handling monadic semi-sweet-errors]
         [midje.util.exceptions :only [user-error]]
         [midje.production-mode]
-        [clojure.pprint]
-        [midje.util.old-clojure-contrib.ns-utils :only [immigrate]]))
+        [clojure.pprint]))
 (immigrate 'midje.unprocessed)
 (immigrate 'midje.ideas.arrow-symbols)
 
