@@ -7,7 +7,7 @@
         [midje.util.exceptions :only [user-error]]
         [midje.error-handling.monadic :only [user-error-report-form validate]]
         [utilize.seq :only (find-first)]
-        [midje.util.old-clojure-contrib.core :only (-?>>)])
+        [clojure.core.incubator :only [-?>>]])
   (:require [clojure.zip :as zip]
             [midje.util.ecosystem :as ecosystem]))
 
