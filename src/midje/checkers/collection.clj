@@ -5,7 +5,6 @@
 (ns midje.checkers.collection
   (:use [clojure.set :only [union]]
         [midje.util.old-clojure-contrib.seq :only [rotations]]
-        [midje.util.old-clojure-contrib.def :only [defvar-]]
         [clojure.pprint :only [cl-format]]
         [clojure.math.combinatorics :only [permutations]]
         [midje.util.form-utils :only [regex? tack-on-to record? classic-map?]]
