@@ -29,13 +29,7 @@ making private definitions more succinct."}
   ([name init doc]
      (list `def (with-meta name (assoc (meta name) :doc doc)) init)))
 
-(defmacro defmacro-
-  "Same as defmacro but yields a private definition"
-  [name & decls]
-  (list* `defmacro (with-meta name (assoc (meta name) :private true)) decls))
-
 (defmacro defvar-
   "Same as defvar but yields a private definition"
   [name & decls]
   (list* `defvar (with-meta name (assoc (meta name) :private true)) decls))
-

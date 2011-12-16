@@ -5,7 +5,7 @@
 (ns midje.checkers.collection
   (:use [clojure.set :only [union]]
         [midje.util.old-clojure-contrib.seq :only [rotations]]
-        [midje.util.old-clojure-contrib.def :only [defmacro- defvar-]]
+        [midje.util.old-clojure-contrib.def :only [defvar-]]
         [clojure.pprint :only [cl-format]]
         [clojure.math.combinatorics :only [permutations]]
         [midje.util.form-utils :only [regex? tack-on-to record? classic-map?]]
@@ -484,7 +484,7 @@
     (and (= (count actual) expected-count)
          (every? #(extended-= % expected) actual))))
 
-(defmacro- generate-n-of-checkers []
+(defmacro ^{:private true} generate-n-of-checkers []
   (macro-do [[int checker-name]]
     `(defchecker ~(symbol (str checker-name "-of")) [expected-checker#]
        (n-of expected-checker# ~int))
