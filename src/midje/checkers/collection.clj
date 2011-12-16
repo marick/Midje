@@ -4,10 +4,9 @@
 
 (ns midje.checkers.collection
   (:use [clojure.set :only [union]]
-        [midje.util.old-clojure-contrib.seq :only [rotations]]
         [clojure.pprint :only [cl-format]]
         [clojure.math.combinatorics :only [permutations]]
-        [midje.util.form-utils :only [regex? tack-on-to record? classic-map?]]
+        [midje.util.form-utils :only [regex? tack-on-to record? classic-map? rotations]]
         [midje.util.object-utils :only [function-name named-function?]]
       	[midje.checkers util extended-equality chatty defining]
         [midje.util.exceptions :only [user-error]]

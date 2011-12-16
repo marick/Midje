@@ -112,3 +112,13 @@
       (if-let [truthy-fn (first-truthy-fn (take-nth 2 preds+translate-fns) loc)]
         (recur (zip/next ((get (apply hash-map preds+translate-fns) truthy-fn) loc)))
         (recur (zip/next loc))))))
+
+(defn rotations
+  "Returns a lazy seq of all rotations of a seq"
+  [x]
+  (if (seq x)
+    (map
+     (fn [n _]
+       (lazy-cat (drop n x) (take n x)))
+     (iterate inc 0) x)
+    (list nil)))
