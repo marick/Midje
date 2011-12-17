@@ -7,10 +7,8 @@
         [midje.checkers :only [exactly]]
         [midje.checkers.defining :only [checker? checker-makers]]
         [midje.internal-ideas.expect :only [expect? up-to-full-expect-form]]
-        [midje.util.form-utils :only [first-named?
-                                      translate-zipper
-                                      map-difference
-                                      hash-map-duplicates-ok]]
+        [midje.util.form-utils :only [first-named? translate-zipper map-difference
+                                      hash-map-duplicates-ok pred-cond]]
         [midje.ideas.metaconstants :only [metaconstant-for-form
                                           with-fresh-generated-metaconstant-names]]
         [midje.checkers.extended-equality :only [extended-= extended-list-= extended-fn?]]
@@ -210,17 +208,11 @@
 (defmethod call-count-incorrect? :fake [fake]
   (let [method (or (:times fake) :default )
         count (fake-count fake)]
-    (cond (= method :default )
-      (zero? count)
-
-      (number? method)
-      (not= method count)
-
-      (coll? method)
-      (not (some #{count} method))
-
-      (fn? method)
-      (not (method count)))))
+    (pred-cond method 
+      #(= % :default) (zero? count)
+      number?         (not= method count)
+      coll?           (not (some #{count} method))
+      fn?             (not (method count)))))
 
 (defmethod call-count-incorrect? :not-called [fake]
   (not (zero? (fake-count fake))))

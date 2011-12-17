@@ -67,12 +67,16 @@
 
 (fact "checks each pred against the result of the first expression, returning if it finds a match" 
 
-  (pred-cond (do "abcde") 
+  (pred-cond "abcde" 
     #(.contains % "xyz") "contains 'xyz'" 
     string? "string"
     :else "neither") => "string"
 
-  (pred-cond (do 1) 
+  (pred-cond 1 
     even? "even" 
     string? "string"
-    :else "neither") => "neither")
+    :else "neither") => "neither"
+  
+  "Don't need an :else"
+  (pred-cond 1 
+    even? "even") => nil)

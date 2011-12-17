@@ -6,7 +6,7 @@
   (:use [clojure.set :only [union]]
         [clojure.pprint :only [cl-format]]
         [clojure.math.combinatorics :only [permutations]]
-        [midje.util.form-utils :only [regex? tack-on-to record? classic-map? rotations]]
+        [midje.util.form-utils :only [regex? tack-on-to record? classic-map? rotations pred-cond]]
         [midje.util.object-utils :only [function-name named-function?]]
       	[midje.checkers util extended-equality chatty defining]
         [midje.util.exceptions :only [user-error]]
@@ -345,37 +345,30 @@
    consider. Also blow up for some incompatible forms."
   [actual expected looseness]
   (compatibility-check actual expected looseness)
-  (cond (sequential? actual)
-	(cond (set? expected)
-	      [actual (vec expected) (union looseness #{:in-any-order})]
-	      
-	      (right-hand-singleton? expected)
-	      [actual [expected] (union looseness #{:in-any-order})]
+  (pred-cond actual
+    sequential?
+    (pred-cond expected 
+      set?                   [actual (vec expected) (union looseness #{:in-any-order })]
+      right-hand-singleton?  [actual [expected] (union looseness #{:in-any-order })]
+      :else                  [actual expected looseness])
 
-	      :else
-	      [actual expected looseness])
+    map?
+    (pred-cond expected
+      map?   [actual expected looseness]
+      :else  [actual (into {} expected) looseness])
 
-	(map? actual)
-	(cond (map? expected)
-	      [actual expected looseness]
+    set?
+    (recur (vec actual) expected looseness-modifiers)
 
-	      :else
-	      [actual (into {} expected) looseness])
-	
-	(set? actual)
-	(recur (vec actual) expected looseness-modifiers)
-	
-	(string? actual)
-	(cond (and (not (string? expected))
-		   (not (regex? expected)))
-	      (recur (vec actual) expected looseness)
-	      :else
-	      [ actual expected looseness])
+    string?
+    (pred-cond expected 
+      (every-pred (complement string?) (complement regex?))  (recur (vec actual) expected looseness)
+      :else                                                  [actual expected looseness])
 
-	:else
-	[actual expected looseness]))
+    :else 
+    [actual expected looseness]))
 
-;;
+;;
 
 
 (defn- match? [actual expected looseness]
@@ -441,25 +434,21 @@
 
 (defn- has-xfix [x-name pattern-fn take-fn]
   (checker [actual expected looseness]
-    (cond (set? actual)
-          (noted-falsehood (format "Sets don't have %ses." x-name))
-
-          (map? actual)
-          (noted-falsehood (format "Maps don't have %ses." x-name))
-          
-          :else
-          (let [ [actual expected looseness] (standardized-arguments actual expected looseness)]
-            (cond (regex? expected)
-                  (try-re (pattern-fn expected) actual re-find)
-                  
-                  (expected-fits? actual expected)
-                  (match?(take-fn (count expected) actual) expected looseness)
-
-                  :else
-                  (noted-falsehood
-                   (cl-format nil
-                              "A collection with ~R element~:P cannot match a ~A of size ~R."
-                              (count actual) x-name (count expected))))))))
+    (pred-cond actual
+      set?   (noted-falsehood (format "Sets don't have %ses." x-name))
+      map?   (noted-falsehood (format "Maps don't have %ses." x-name))
+      :else  (let [ [actual expected looseness] (standardized-arguments actual expected looseness)]
+               (cond (regex? expected)
+                     (try-re (pattern-fn expected) actual re-find)
+                     
+                     (expected-fits? actual expected)
+                     (match?(take-fn (count expected) actual) expected looseness)
+             
+                     :else
+                     (noted-falsehood
+                      (cl-format nil
+                                 "A collection with ~R element~:P cannot match a ~A of size ~R."
+                                 (count actual) x-name (count expected))))))))
 
 (def ^{:midje/checker true} has-prefix
      (container-checker-maker 'has-prefix

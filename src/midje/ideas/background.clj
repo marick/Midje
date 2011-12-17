@@ -2,7 +2,7 @@
 
 (ns midje.ideas.background
   (:use
-    [midje.util.form-utils :only [first-named? translate-zipper symbol-named? separate-by]]
+    [midje.util.form-utils :only [first-named? translate-zipper symbol-named? separate-by pred-cond]]
     [midje.util.exceptions :only [user-error]]
     [midje.ideas.metaconstants :only [define-metaconstants]]
     [midje.ideas.prerequisites :only [prerequisite-to-fake
@@ -62,26 +62,25 @@
 (defn- prerequisites-to-fakes [forms]
   (loop [expanded []
          in-progress forms]
-    (cond (empty? in-progress)
-          expanded
+    (pred-cond in-progress
+      empty? expanded
 
-          (is-start-of-checking-arrow-sequence? in-progress)
-          (let [content (take-arrow-sequence in-progress)]
-            (recur (conj expanded (-> content prerequisite-to-fake tag-as-background-fake))
-                   (nthnext in-progress (count content))))
+      is-start-of-checking-arrow-sequence?
+      (let [content (take-arrow-sequence in-progress)]
+        (recur (conj expanded (-> content prerequisite-to-fake tag-as-background-fake))
+          (nthnext in-progress (count content))))
 
-          (metaconstant-prerequisite? in-progress)
-          (let [content (take-arrow-sequence in-progress)]
-            (recur (conj expanded (-> content prerequisite-to-fake))
-                   (nthnext in-progress (count content))))
-          
-          (seq-headed-by-setup-teardown-form? in-progress)
-          (recur (conj expanded (first in-progress))
-                 (rest in-progress))
-          
-          :else
-          (throw (user-error (str "This doesn't look like part of a background: "
-                                  (vec in-progress)))))))
+      metaconstant-prerequisite?
+      (let [content (take-arrow-sequence in-progress)]
+        (recur (conj expanded (-> content prerequisite-to-fake))
+          (nthnext in-progress (count content))))
+
+      seq-headed-by-setup-teardown-form?
+      (recur (conj expanded (first in-progress))
+        (rest in-progress))
+
+      :else (throw (user-error (str "This doesn't look like part of a background: "
+                                 (vec in-progress)))))))
 
 (defn- state-wrapper [state-description]
   (if (some #{(name (first state-description))} '("before" "after" "around"))

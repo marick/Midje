@@ -1,5 +1,5 @@
 (ns midje.ideas.facts
-  (:use [midje.util.form-utils :only [first-named? translate-zipper preserve-type quoted?]]
+  (:use [midje.util.form-utils :only [first-named? translate-zipper preserve-type quoted? pred-cond]]
         [midje.semi-sweet :only [is-semi-sweet-keyword?]]
         [midje.internal-ideas.fakes :only [unfold-fakes]]
 
@@ -21,8 +21,7 @@
                                        against-background-children-wrappers
                                        against-background?]]
         [midje.ideas.metaconstants :only [define-metaconstants]]
-        [midje.util.zip :only [skip-to-rightmost-leaf]]
-        [utilize.seq :only (first-truthy-fn)])
+        [midje.util.zip :only [skip-to-rightmost-leaf]] )
   (:require [clojure.zip :as zip])
   (:require [midje.util.report :as report]))
 (declare midjcoexpand)
@@ -64,30 +63,18 @@
 (defn midjcoexpand
   "Descend form, macroexpanding *only* midje forms and placing background wrappers where appropriate."
   [form]
-  (cond (first-truthy-fn [already-wrapped? quoted?] form)
-        form
-
-        (future-fact? form)
-        (macroexpand form)
-
-        (against-background? form)
-        (-> (expand-against-background (against-background-body form)
-                                       (against-background-children-wrappers form))
-            (multiwrap (against-background-contents-wrappers form)))
-        
-        (expect? form)
-        (multiwrap form
-                   (forms-to-wrap-around :checks))
-
-        (fact? form)
-        (multiwrap (midjcoexpand (macroexpand form))
-                   (forms-to-wrap-around :facts))
-
-        (sequential? form)
-        (preserve-type form (eagerly (map midjcoexpand form)))
-
-        :else
-        form))
+  (pred-cond form
+    already-wrapped?     form
+    quoted?              form
+    future-fact?         (macroexpand form)
+    against-background?  (-> (expand-against-background (against-background-body form)
+                               (against-background-children-wrappers form))
+                           (multiwrap (against-background-contents-wrappers form)))
+    expect?      (multiwrap form (forms-to-wrap-around :checks ))
+    fact?        (multiwrap (midjcoexpand (macroexpand form)) 
+                            (forms-to-wrap-around :facts ))
+    sequential?  (preserve-type form (eagerly (map midjcoexpand form)))
+    :else        form))
 
 
 (defn complete-fact-transformation [forms]

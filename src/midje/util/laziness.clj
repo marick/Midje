@@ -1,6 +1,7 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.util.laziness)
+(ns midje.util.laziness
+  (:use [midje.util.form-utils :only [pred-cond]]))
 
 (defn eagerly
   "Descend form, converting all lazy seqs into lists.
@@ -11,19 +12,10 @@
   ;; Modified from clojure.walk/walk
   [form]
   (let [m #(with-meta % (meta form))]
-    (cond (or (seq? form) (list? form))
-          (m (apply list (map eagerly form)))
-                          
-          (vector? form)
-          (m (vec (map eagerly form)))
-
-          (map? form)
-          (m (into form (map eagerly form)))
-
-          (set? form)
-          (m (into (if (sorted? form) (sorted-set) #{}) (map eagerly form)))
-
-          :else
-          form)))
-
+    (pred-cond form
+      (some-fn seq? list?)  (m (apply list (map eagerly form)))
+      vector?               (m (vec (map eagerly form)))
+      map?                  (m (into form (map eagerly form)))
+      set?                  (m (into (if (sorted? form) (sorted-set) #{}) (map eagerly form)))
+      :else                 form)))
 
