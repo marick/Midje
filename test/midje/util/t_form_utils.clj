@@ -64,3 +64,15 @@
   (separate-by odd? [1 2 3]) => [ [1 3] [2] ]
   "works for predicates that don't return true or false"
   (separate-by #(if (odd? %) nil %) [1 2 3]) => [[2] [1 3]])
+
+(fact "checks each pred against the result of the first expression, returning if it finds a match" 
+
+  (pred-cond (do "abcde") 
+    #(.contains % "xyz") "contains 'xyz'" 
+    string? "string"
+    :else "neither") => "string"
+
+  (pred-cond (do 1) 
+    even? "even" 
+    string? "string"
+    :else "neither") => "neither")

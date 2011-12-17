@@ -122,3 +122,10 @@
        (lazy-cat (drop n x) (take n x)))
      (iterate inc 0) x)
     (list nil)))
+
+(defmacro pred-cond [item pred result & preds+results]
+  (if (= pred :else )
+    result
+    `(if (~pred ~item)
+       ~result
+       (pred-cond ~item ~@preds+results))))
