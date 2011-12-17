@@ -30,13 +30,19 @@
 (intern *ns* 'around #'background/around)
 
 (defmacro background 
-  ""
+  "Runs facts against setup code which is run before, around, or after 
+   :contents, :facts or :checks. Optionally, contains one or more provided forms 
+   that apply for all facts run within the against-background form. 
+   Runs against the rest of the file."
   [& forms]
   (when (user-desires-checking?)
     (put-wrappers-into-effect (background/background-wrappers forms))))
 
 (defmacro against-background 
-  "Runs facts against setup code whch is run before :contents, :facts or :checks."
+  "Runs facts against setup code which is run before, around, or after 
+   :contents, :facts or :checks. Optionally, contains one or more provided forms 
+   that apply for all facts run within the against-background form. 
+   Runs against the code it surrounds."
   [background-forms & foreground-forms]
   (if (user-desires-checking?)
     (midjcoexpand `(against-background ~background-forms ~@foreground-forms))
