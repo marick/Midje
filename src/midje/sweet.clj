@@ -12,6 +12,7 @@
         [midje.internal-ideas.wrapping :only [put-wrappers-into-effect]]
         [midje.internal-ideas.file-position :only [set-fallback-line-number-from]]
         [midje.ideas.tabular :only [tabular*]]
+        [utilize.macro :only [macro-do]]
         [midje.ideas.facts :only [midjcoexpand
                                   complete-fact-transformation]])
   (:require [midje.ideas.background :as background])
@@ -28,16 +29,22 @@
 (intern *ns* 'after #'background/after)
 (intern *ns* 'around #'background/around)
 
-(defmacro background [& forms]
+(defmacro background 
+  ""
+  [& forms]
   (when (user-desires-checking?)
     (put-wrappers-into-effect (background/background-wrappers forms))))
 
-(defmacro against-background [background-forms & foreground-forms]
+(defmacro against-background 
+  "Runs facts against setup code whch is run before :contents, :facts or :checks."
+  [background-forms & foreground-forms]
   (if (user-desires-checking?)
     (midjcoexpand `(against-background ~background-forms ~@foreground-forms))
     `(do ~@foreground-forms)))
     
-(defmacro fact [& forms]
+(defmacro fact 
+  ""
+  [& forms]
   (when (user-desires-checking?)
     (try
       (set-fallback-line-number-from &form)
@@ -53,10 +60,12 @@
                                  :position (midje.internal-ideas.file-position/line-number-known ~(:line (meta &form)))})
            false)))))
 
-(defmacro facts [& forms]
+(defmacro facts 
+  "Alias for fact."
+  [& forms]
   (with-meta `(fact ~@forms) (meta &form)))
 
-(defn- future-fact-1 [forms]
+(defn- future-fact* [forms]
   (let [lineno (reader-line-number forms)
         description (if (string? (second forms))
                       (str (second forms) " ")
@@ -65,14 +74,24 @@
                            :description ~description
                            :position (midje.internal-ideas.file-position/line-number-known ~lineno)})))
 
-(defmacro future-fact [& forms] (future-fact-1 &form))
-(defmacro future-facts [& forms] (future-fact-1 &form))
-(defmacro pending-fact [& forms] (future-fact-1 &form))
-(defmacro pending-facts [& forms] (future-fact-1 &form))
-(defmacro incipient-fact [& forms] (future-fact-1 &form))
-(defmacro incipient-facts [& forms] (future-fact-1 &form))
-(defmacro antiterminologicaldisintactitudinarian-fact [& forms] (future-fact-1 &form))
-(defmacro antiterminologicaldisintactitudinarian-facts [& forms] (future-fact-1 &form))
+(defn- generate-future-fact-variants []
+  (macro-do [name]
+    `(defmacro ~(symbol name)
+       "Fact that will not be run. Generates 'WORK TO DO' report output as a reminder."
+       [& forms#]
+       (future-fact* ~'&form))
+    "future-fact"
+    "future-facts"
+    "pending-fact"
+    "pending-facts"
+    "incipient-fact"
+    "incipient-facts"
+    "antiterminologicaldisintactitudinarian-fact"
+    "antiterminologicaldisintactitudinarian-facts" ))
 
-(defmacro tabular [& _]
+(generate-future-fact-variants)
+
+(defmacro tabular 
+  "Generate a table of related facts."
+  [& _]
   (tabular* (keys &env) &form))
