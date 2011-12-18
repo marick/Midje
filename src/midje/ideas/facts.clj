@@ -1,9 +1,7 @@
 (ns midje.ideas.facts
-  (:use [midje.util.form-utils :only [first-named? translate-zipper preserve-type quoted? pred-cond]]
-        [midje.semi-sweet :only [is-semi-sweet-keyword?]]
+  (:use [midje.semi-sweet :only [is-semi-sweet-keyword?]]
         [midje.internal-ideas.fakes :only [unfold-fakes]]
 
-        [midje.util.laziness :only [eagerly]]
         [midje.internal-ideas.expect :only [expect?
                                             wrap-with-expect__then__at-rightmost-expect-leaf]]
         [midje.internal-ideas.file-position :only [annotate-embedded-arrows-with-line-numbers]]
@@ -20,7 +18,10 @@
                                        against-background-contents-wrappers
                                        against-background-children-wrappers
                                        against-background?]]
-        [midje.ideas.metaconstants :only [define-metaconstants]]
+        [midje.ideas.metaconstants :only [define-metaconstants]] 
+        [midje.util.form-utils :only [first-named? translate-zipper preserve-type quoted? 
+                                      pred-cond reader-line-number]]
+        [midje.util.laziness :only [eagerly]]
         [midje.util.zip :only [skip-to-rightmost-leaf]] )
   (:require [clojure.zip :as zip])
   (:require [midje.util.report :as report]))
@@ -40,6 +41,14 @@
       (first-named? form "antiterminologicaldisintactitudinarian-fact")
       (first-named? form "antiterminologicaldisintactitudinarian-facts")))
 
+(defn future-fact* [[_name_ doc-string? & _rest_ :as forms]]
+  (let [lineno (reader-line-number forms)
+        description (if (string? doc-string?)
+                      (str doc-string? " ")
+                      "")]
+    `(clojure.test/report {:type :future-fact
+                           :description ~description
+                           :position (midje.internal-ideas.file-position/line-number-known ~lineno)})))
 
 (defn to-semi-sweet
   "Convert sweet keywords into their semi-sweet equivalents.

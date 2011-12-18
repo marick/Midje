@@ -7,14 +7,12 @@
   (:use midje.production-mode
         midje.error-handling.monadic
         midje.util.debugging
-        [midje.util.form-utils :only [reader-line-number]]
         [midje.util.exceptions :only [user-error-exception-lines]]
         [midje.internal-ideas.wrapping :only [put-wrappers-into-effect]]
         [midje.internal-ideas.file-position :only [set-fallback-line-number-from]]
         [midje.ideas.tabular :only [tabular*]]
         [utilize.macro :only [macro-do]]
-        [midje.ideas.facts :only [midjcoexpand
-                                  complete-fact-transformation]])
+        [midje.ideas.facts :only [complete-fact-transformation future-fact* midjcoexpand]])
   (:require [midje.ideas.background :as background])
   (:require midje.checkers)
   (:require [midje.util.report :as report]))
@@ -70,15 +68,6 @@
   "Alias for fact."
   [& forms]
   (with-meta `(fact ~@forms) (meta &form)))
-
-(defn- future-fact* [forms]
-  (let [lineno (reader-line-number forms)
-        description (if (string? (second forms))
-                      (str (second forms) " ")
-                      "")]
-    `(clojure.test/report {:type :future-fact
-                           :description ~description
-                           :position (midje.internal-ideas.file-position/line-number-known ~lineno)})))
 
 (defn- generate-future-fact-variants []
   (macro-do [name]
