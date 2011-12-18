@@ -2,9 +2,8 @@
 
 (ns midje.sweet
   (:use clojure.test
-        [midje.util.namespace :only [immigrate]])
-         
-  (:use midje.production-mode
+        [midje.util.namespace :only [immigrate]]
+        midje.production-mode
         midje.error-handling.monadic
         midje.util.debugging
         [midje.util.form-utils :only [macro-for]]
@@ -12,11 +11,11 @@
         [midje.internal-ideas.wrapping :only [put-wrappers-into-effect]]
         [midje.internal-ideas.file-position :only [set-fallback-line-number-from]]
         [midje.ideas.tabular :only [tabular*]]
-        [utilize.macro :only [macro-do]]
-        [midje.ideas.facts :only [complete-fact-transformation future-fact* midjcoexpand future-fact-variant-names]])
-  (:require [midje.ideas.background :as background])
-  (:require midje.checkers)
-  (:require [midje.util.report :as report]))
+        [midje.ideas.facts :only [complete-fact-transformation future-fact* midjcoexpand 
+                                  future-fact-variant-names]])
+  (:require [midje.ideas.background :as background]
+            midje.checkers
+            [midje.util.report :as report]))
 
 (immigrate 'midje.unprocessed)
 (immigrate 'midje.semi-sweet)

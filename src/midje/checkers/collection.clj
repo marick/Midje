@@ -6,12 +6,11 @@
   (:use [clojure.set :only [union]]
         [clojure.pprint :only [cl-format]]
         [clojure.math.combinatorics :only [permutations]]
-        [midje.util.form-utils :only [regex? tack-on-to record? classic-map? rotations pred-cond]]
+        [midje.util.form-utils :only [regex? tack-on-to record? classic-map? rotations pred-cond macro-for]]
         [midje.util.object-utils :only [function-name named-function?]]
       	[midje.checkers util extended-equality chatty defining]
         [midje.util.exceptions :only [user-error]]
-        [clojure.string :only [join]]
-        [utilize.macro :only (macro-do)]))
+        [clojure.string :only [join]]))
 
 (def looseness-modifiers #{:in-any-order :gaps-ok})
 
@@ -472,18 +471,9 @@
          (every? #(extended-= % expected) actual))))
 
 (defmacro ^{:private true} generate-n-of-checkers []
-  (macro-do [[int checker-name]]
+  (macro-for [[int checker-name] [[1 "one"] [2 "two"] [3 "three"] [4 "four"] [5 "five"]
+                                  [6 "six"] [7 "seven"] [8 "eight"] [9 "nine"] [10 "ten"]]]
     `(defchecker ~(symbol (str checker-name "-of")) [expected-checker#]
-       (n-of expected-checker# ~int))
-    [1 "one"]
-    [2 "two"]
-    [3 "three"]
-    [4 "four"]
-    [5 "five"]
-    [6 "six"]
-    [7 "seven"]
-    [8 "eight"]
-    [9 "nine"]
-    [10 "ten"]))
+       (n-of expected-checker# ~int))))
 
 (generate-n-of-checkers)
