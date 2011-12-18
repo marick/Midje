@@ -31,15 +31,17 @@
   (or (first-named? form "fact")
       (first-named? form "facts")))
 
+(def future-fact-variant-names [ "future-fact" 
+                             "future-facts" 
+                             "pending-fact" 
+                             "pending-facts" 
+                             "incipient-fact" 
+                             "incipient-facts" 
+                             "antiterminologicaldisintactitudinarian-fact"
+                             "antiterminologicaldisintactitudinarian-facts" ])
+
 (defn future-fact? [form]
-  (or (first-named? form "future-fact")
-      (first-named? form "future-facts")
-      (first-named? form "pending-fact")
-      (first-named? form "pending-facts")
-      (first-named? form "incipient-fact")
-      (first-named? form "incipient-facts")
-      (first-named? form "antiterminologicaldisintactitudinarian-fact")
-      (first-named? form "antiterminologicaldisintactitudinarian-facts")))
+  (some (partial first-named? form) future-fact-variant-names ))
 
 (defn future-fact* [[_name_ doc-string? & _rest_ :as forms]]
   (let [lineno (reader-line-number forms)

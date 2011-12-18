@@ -7,12 +7,13 @@
   (:use midje.production-mode
         midje.error-handling.monadic
         midje.util.debugging
+        [midje.util.form-utils :only [macro-for]]
         [midje.util.exceptions :only [user-error-exception-lines]]
         [midje.internal-ideas.wrapping :only [put-wrappers-into-effect]]
         [midje.internal-ideas.file-position :only [set-fallback-line-number-from]]
         [midje.ideas.tabular :only [tabular*]]
         [utilize.macro :only [macro-do]]
-        [midje.ideas.facts :only [complete-fact-transformation future-fact* midjcoexpand]])
+        [midje.ideas.facts :only [complete-fact-transformation future-fact* midjcoexpand future-fact-variant-names]])
   (:require [midje.ideas.background :as background])
   (:require midje.checkers)
   (:require [midje.util.report :as report]))
@@ -69,20 +70,12 @@
   [& forms]
   (with-meta `(fact ~@forms) (meta &form)))
 
-(defn- generate-future-fact-variants []
-  (macro-do [name]
+(defmacro ^{:private true} generate-future-fact-variants []
+  (macro-for [name future-fact-variant-names]
     `(defmacro ~(symbol name)
        "Fact that will not be run. Generates 'WORK TO DO' report output as a reminder."
        [& forms#]
-       (future-fact* ~'&form))
-    "future-fact"
-    "future-facts"
-    "pending-fact"
-    "pending-facts"
-    "incipient-fact"
-    "incipient-facts"
-    "antiterminologicaldisintactitudinarian-fact"
-    "antiterminologicaldisintactitudinarian-facts" ))
+       (future-fact* ~'&form))))
 
 (generate-future-fact-variants)
 

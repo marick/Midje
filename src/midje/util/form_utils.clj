@@ -133,3 +133,8 @@
         :else `(if (~pred ~item)
                  ~result
                  (pred-cond ~item ~@preds+results))))
+
+(defmacro macro-for [bindings body] 
+  `(let [macros# (for [~@bindings]
+                     ~body)]
+    `(do ~@macros#)))
