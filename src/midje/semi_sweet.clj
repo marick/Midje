@@ -77,7 +77,7 @@
    [call-form arrow expected-result fakes overrides]
   `(let [check# (unprocessed-check ~call-form ~arrow ~expected-result ~overrides)]
     (clojure.test/report {:type :future-fact
-                          :description ~(str call-form " ")
+                          :description ~(str call-form)
                           :position (:position check#)})))
 
 ;;; Interface: unfinished
