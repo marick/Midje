@@ -109,7 +109,7 @@
 (defmethod report-strings :future-fact [m]
   (list
    (str "\n" (color/note "WORK TO DO:") " "
-        (:description m)
+        (:description m) " "
         (midje-position-string (:position m)))))
   
 (defmethod report-strings :user-error [m]

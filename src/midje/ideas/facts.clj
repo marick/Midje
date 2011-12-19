@@ -45,9 +45,7 @@
 
 (defn future-fact* [[_name_ doc-string? & _rest_ :as forms]]
   (let [lineno (reader-line-number forms)
-        description (if (string? doc-string?)
-                      (str doc-string? " ")
-                      "")]
+        description (if (string? doc-string?) doc-string? "")]
     `(clojure.test/report {:type :future-fact
                            :description ~description
                            :position (midje.internal-ideas.file-position/line-number-known ~lineno)})))
