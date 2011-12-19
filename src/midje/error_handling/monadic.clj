@@ -7,7 +7,7 @@
     [midje.internal-ideas.file-position :only [form-position]]
     [utilize.seq :only (find-first)]))
 
-(defn as-user-error [form]
+(defn- as-user-error [form]
   (vary-meta form assoc :midje-user-error true))
 
 (defn user-error-form? [form]
