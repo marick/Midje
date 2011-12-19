@@ -22,10 +22,10 @@
            :position (:position call)
            :actual actual })]
 
-  (defn- failure-result [type actual call]
+  (defn- failure [type actual call]
     (assoc (base-result type actual call) :expected (:expected-result-text-for-failures call)))
 
-  (defn- success-result [type actual call]
+  (defn- success [type actual call]
     (assoc (base-result type actual call) :expected (:expected-result call) )))
 
 (defmethod check-result :check-match [actual call]
@@ -33,7 +33,7 @@
         (report {:type :pass})
 
         (fn? (:expected-result call))
-        (report (merge (failure-result :mock-expected-result-functional-failure actual call)
+        (report (merge (failure :mock-expected-result-functional-failure actual call)
                        (if (chatty-checker? (:expected-result call))
                          (do
                            (let [chatty-result ((:expected-result call) actual)]
@@ -46,17 +46,17 @@
                                              " instead of a map.")]})))
                          {:actual actual})))
         :else
-        (report (success-result :mock-expected-result-failure actual call))))
+        (report (success :mock-expected-result-failure actual call))))
 
 (defmethod check-result :check-negated-match [actual call]
    (cond (not (extended-= actual (:expected-result call)))
          (report {:type :pass})
 
         (fn? (:expected-result call))
-        (report (failure-result :mock-actual-inappropriately-matches-checker actual call))
+        (report (failure :mock-actual-inappropriately-matches-checker actual call))
 
         :else
-        (report (failure-result :mock-expected-result-inappropriately-matched actual call))))
+        (report (failure :mock-expected-result-inappropriately-matched actual call))))
 
 (defn expect*
   "The core function in unprocessed Midje. Takes a map describing a
