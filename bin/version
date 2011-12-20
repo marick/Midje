@@ -2,7 +2,8 @@
 
 $directories = %w{examples/adder-webapp examples/basic examples/cake-midje
                   examples/compound-checkers examples/leiningen-midje
-                  examples/leiningen-test examples/semi-sweet-examples} 
+                  examples/leiningen-test examples/semi-sweet-examples
+                  .} 
 
 require 'fileutils'
 include FileUtils
