@@ -23,7 +23,7 @@
                    'midje.semi-sweet/fake)]
     (vary-meta
      `(~fake-tag ~@fake-body)
-     assoc :line line-number)))
+     assoc :line (Integer. line-number))))
 
 (defn expand-prerequisites-into-fake-calls [provided-loc]
   (let [fakes (-> provided-loc zip/up zip/node rest)

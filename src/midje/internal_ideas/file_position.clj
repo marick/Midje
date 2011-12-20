@@ -11,10 +11,10 @@
 ;; For annotating forms with information retrieved at runtime.
 ;; For reporting syntax errors
 
-(def fallback-line-number (atom 0))
+(def fallback-line-number (atom (Integer. 0)))
 
 (defn set-fallback-line-number-from [form]
-  (reset! fallback-line-number (or (:line (meta form)) 0)))
+  (reset! fallback-line-number (or (:line (meta form)) (Integer. 0))))
 
 (defn- raw-arrow-line-number [arrow-loc]
   (try

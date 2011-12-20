@@ -12,7 +12,7 @@
  ;; In version with bug, the following is required to make this work.
  ;; (background (f) => 1)
 
-(future-fact
+(fact
  1 => 1
  (provided
    ..service.. =contains=> {:status 200}))
