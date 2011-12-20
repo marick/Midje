@@ -112,14 +112,11 @@
 (defn against-background-body [form]
   `(do ~@(rest (rest form))))
 
-(letfn [(against-background-wrappers [against-background-form]
-          (background-wrappers (second against-background-form)))]
+(defn against-background-contents-wrappers [[_against-background_ background-forms & _]]
+  (filter (for-wrapping-target? :contents ) (background-wrappers background-forms)))
 
-  (defn against-background-contents-wrappers [form]
-    (filter (for-wrapping-target? :contents ) (against-background-wrappers form)))
-
-  (defn against-background-children-wrappers [form]
-    (remove (for-wrapping-target? :contents ) (against-background-wrappers form))))
+(defn against-background-children-wrappers [[_against-background_ background-forms & _]]
+  (remove (for-wrapping-target? :contents ) (background-wrappers background-forms)))
 
 (defn surround-with-background-fakes [forms]
   `(with-installed-fakes (background-fakes)
