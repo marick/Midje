@@ -6,6 +6,8 @@
         [midje.internal-ideas.file-position :only [form-position]]
         [clojure.algo.monads]))
 
+(testable-privates midje.error-handling.monadic as-user-error)
+
 (fact "any form can be turned into a user-error form"
   (meta (as-user-error '(form))) => (contains {:midje-user-error true})
   (as-user-error '(form)) => user-error-form?)

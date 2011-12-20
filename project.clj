@@ -6,7 +6,7 @@
                  [org.clojure/math.combinatorics "0.0.1"]
                  [org.clojure/algo.monads "0.1.0"]
                  [org.clojure/core.unify "0.5.1"]
-                 [utilize "0.1.3"]
+                 [utilize "0.2.0"]
                  [colorize "0.1.1"]
                  [org.clojure/tools.macro "0.1.1"]
                  [org.clojure/core.incubator "0.1.0"]]

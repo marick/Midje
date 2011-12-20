@@ -29,7 +29,7 @@
   [actual]
   (not (captured-exception? actual)))
 (def irrelevant anything)
-(def any anything)
+(def ^{:deprecated "1.3.0"} any anything)
 
 (defchecker exactly
   "Checks for equality. Use to avoid default handling of functions."

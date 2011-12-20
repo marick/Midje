@@ -22,7 +22,7 @@
    (+ 1 1) => 2)
  (fact @reported => (just bad-result
                           (contains {:type :future-fact
-                                     :description "(+ 1 \"1\") "})
+                                     :description "(+ 1 \"1\")"})
                           pass)))
                                      
    

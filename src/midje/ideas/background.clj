@@ -2,7 +2,8 @@
 
 (ns midje.ideas.background
   (:use
-    [midje.util.form-utils :only [first-named? translate-zipper symbol-named? separate-by pred-cond]]
+    [midje.util.form-utils :only [first-named? translate-zipper symbol-named? separate-by 
+                                  pred-cond map-first]]
     [midje.util.exceptions :only [user-error]]
     [midje.ideas.metaconstants :only [define-metaconstants]]
     [midje.ideas.prerequisites :only [prerequisite-to-fake
@@ -82,13 +83,13 @@
       :else (throw (user-error (str "This doesn't look like part of a background: "
                                  (vec in-progress)))))))
 
-(defn- state-wrapper [state-description]
-  (if (some #{(name (first state-description))} '("before" "after" "around"))
+;; valid wrapping targets - :facts, :contents, or :checks
+
+(defn- state-wrapper [[before-after-or-around wrapping-target & _  :as state-description]]
+  (if (#{"before" "after" "around"} (name before-after-or-around))
     (with-wrapping-target
-      (macroexpand-1 (cons (symbol "midje.ideas.background"
-                                   (name (first state-description)))
-                           (rest state-description)))
-      (second state-description))
+      (macroexpand-1 (map-first #(symbol "midje.ideas.background" (name %)) state-description))
+      wrapping-target)
     (throw (user-error (str "Could make nothing of " state-description)))))
 
 (letfn [(background-fake-wrappers [fakes]
@@ -108,17 +109,14 @@
         state-wrappers
         (concat state-wrappers (background-fake-wrappers fakes))))))
 
-(defn against-background-body [form]
-  `(do ~@(rest (rest form))))
+(defn body-of-against-background [[_against-background_ background-forms & background-body]]
+  `(do ~@background-body))
 
-(letfn [(against-background-wrappers [against-background-form]
-          (background-wrappers (second against-background-form)))]
+(defn against-background-contents-wrappers [[_against-background_ background-forms & _]]
+  (filter (for-wrapping-target? :contents ) (background-wrappers background-forms)))
 
-  (defn against-background-contents-wrappers [form]
-    (filter (for-wrapping-target? :contents ) (against-background-wrappers form)))
-
-  (defn against-background-children-wrappers [form]
-    (remove (for-wrapping-target? :contents ) (against-background-wrappers form))))
+(defn against-background-children-wrappers [[_against-background_ background-forms & _]]
+  (remove (for-wrapping-target? :contents ) (background-wrappers background-forms)))
 
 (defn surround-with-background-fakes [forms]
   `(with-installed-fakes (background-fakes)
