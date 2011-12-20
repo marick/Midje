@@ -109,8 +109,8 @@
         state-wrappers
         (concat state-wrappers (background-fake-wrappers fakes))))))
 
-(defn against-background-body [form]
-  `(do ~@(rest (rest form))))
+(defn body-of-against-background [[_against-background_ background-forms & background-body]]
+  `(do ~@background-body))
 
 (defn against-background-contents-wrappers [[_against-background_ background-forms & _]]
   (filter (for-wrapping-target? :contents ) (background-wrappers background-forms)))

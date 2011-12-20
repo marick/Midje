@@ -14,7 +14,7 @@
                                           insert-prerequisites-into-expect-form-as-fakes]]
         [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence?]]
         [midje.ideas.background :only [surround-with-background-fakes
-                                       against-background-body
+                                       body-of-against-background
                                        against-background-contents-wrappers
                                        against-background-children-wrappers
                                        against-background?]]
@@ -76,7 +76,7 @@
     already-wrapped?     form
     quoted?              form
     future-fact?         (macroexpand form)
-    against-background?  (-> (expand-against-background (against-background-body form)
+    against-background?  (-> (expand-against-background (body-of-against-background form)
                                (against-background-children-wrappers form))
                            (multiwrap (against-background-contents-wrappers form)))
     expect?      (multiwrap form (forms-to-wrap-around :checks ))
