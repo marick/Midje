@@ -32,9 +32,7 @@
   false => anything
   even? => anything
   "irrelevant is a synonym"
-  1 => irrelevant
-  "any is also a synonym"
-  1 => any)
+  1 => irrelevant)
 
 (facts "about exactly"
   #'exactly => checker?
