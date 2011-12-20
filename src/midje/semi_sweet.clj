@@ -83,14 +83,12 @@
 ;;; Interface: unfinished
 
 (defn- unfinished* [names]
-  (let [declarations (for [name names] 
-                      `(do
-                         (defn ~name [& args#] 
-                           (throw (user-error (str "#'" '~name " has no implementation. It's used as a prerequisite in Midje tests."))))
-                         ;; A reliable way of determining if an `unfinished` function
-                         ;; has since been defined.
-                         (alter-meta! (var ~name) assoc :midje/unfinished-fun ~name)))]
-    `(do ~@declarations)))
+  (macro-for [name names] 
+    `(do
+       (defn ~name [& args#] 
+         (throw (user-error (str "#'" '~name " has no implementation. It's used as a prerequisite in Midje tests."))))
+       ;; A reliable way of determining if an `unfinished` function has since been defined.
+       (alter-meta! (var ~name) assoc :midje/unfinished-fun ~name))))
 
 (defmacro unfinished
   "Defines a list of names as functions that have no implementation yet. They will
