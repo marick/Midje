@@ -1,3 +1,10 @@
+1.3.1
+--------
+
+* Bugfix: The line numbers Midje generated were Longs, which
+  caused a compiler meltdown in some cases.
+  
+
 1.3.0
 --------
 * Supports Clojure 1.3
