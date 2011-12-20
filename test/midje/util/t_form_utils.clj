@@ -70,3 +70,6 @@
   "Don't need an :else"
   (pred-cond 1 
     even? "even") => nil)
+
+(fact 
+  (map-first str [1 2 3]) => ["1" 2 3])

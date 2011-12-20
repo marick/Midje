@@ -128,3 +128,6 @@
   `(let [macros# (for [~@bindings]
                      ~body)]
     `(do ~@macros#)))
+
+(defn map-first [f x]
+  (cons (f (first x)) (rest x)))
