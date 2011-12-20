@@ -47,16 +47,6 @@
 (fact "map-difference"
   (map-difference {:a 1, :b 2} {:a 1, :c 3}) => {:b 2})
 
-(fact "zips two seqs together into a map - maintaining/guaranteeing order matches the original order"
-  (keys (ordered-zipmap [:a :b :c :d :e :f :g :h] [1 2 3 4 5 6 7 8])) 
-    => [:a :b :c :d :e :f :g :h]
-  (vals (ordered-zipmap [:a :b :c :d :e :f :g :h] [1 2 3 4 5 6 7 8])) 
-    => [1 2 3 4 5 6 7 8] )
-
-(fact "shortens to the smallest of the two seqs"
-  (ordered-zipmap [:a] [1 2 3 4]) => {:a 1}
-  (ordered-zipmap [:a :b :c :d] [1]) => {:a 1} )	
-
 (fact "apply each function to each corresponding arg" 
   (apply-pairwise [inc dec] [1 1] [2 2]) => [[2 0] [3 1]])
 

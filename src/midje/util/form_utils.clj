@@ -3,7 +3,6 @@
 (ns midje.util.form-utils
   (:use [midje.util.treelike :only [tree-variant]]
         [clojure.set :only [difference]]
-        [ordered.map :only [ordered-map]]
         [utilize.seq :only (first-truthy-fn)])
   (:require [clojure.zip :as zip]))
 
@@ -89,18 +88,6 @@
 
 (defn map-difference [bigger smaller]
   (select-keys bigger (difference (set (keys bigger)) (set (keys smaller)))))
-
-(defn ordered-zipmap
-  "Like zipmap, but guarantees order of the entries"
-  [keys vals]
-  (loop [m (ordered-map)
-         ks (seq keys)
-         vs (seq vals)]
-    (if (and ks vs)
-      (recur (assoc m (first ks) (first vs)) 
-             (next ks)
-             (next vs))
-      m)))
 
 (defn translate-zipper
   "Traverses the zipper - for the first predicate that evaluates to truthy for matching a

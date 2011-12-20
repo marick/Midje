@@ -7,11 +7,12 @@
     [midje.internal-ideas.file-position :only [form-with-copied-line-numbers
                                                form-position]] ; for deprecation
     [midje.util.report :only [midje-position-string]] ; for deprecation
-    [midje.util.form-utils :only [ordered-zipmap translate-zipper]]
+    [midje.util.form-utils :only [translate-zipper]]
     [midje.util.zip :only [skip-to-rightmost-leaf]]
     [midje.internal-ideas.expect :only [expect?]]
     [midje.ideas.arrows :only [above-arrow-sequence__add-key-value__at-arrow]]
-    [midje.ideas.metaconstants :only [metaconstant-symbol?]])
+    [midje.ideas.metaconstants :only [metaconstant-symbol?]]
+    [utilize.map :only [ordered-zipmap]])
 (:require [midje.util.unify :as unify]))
 
 (defn- add-binding-note [expect-containing-form ordered-binding-map]
