@@ -14,5 +14,9 @@
                      [com.intelie/lazytest "1.0.0-SNAPSHOT" :exclusions [swank-clojure]]]
   ;; automatically detects when your :dependencies key changes and runs
   ;; lein deps behind the scenes when necessary.
-  :checksum-deps true)
+  :checksum-deps true
+
+  ;; For Clojure snapshots
+  :repositories {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"})
+
 
