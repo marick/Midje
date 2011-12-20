@@ -8,11 +8,12 @@
 (defn verify-service [service]
  true)
 
-(declare f g)
- (background (f) => 1 
-             (g) => 33)
+(declare f)
+ ;; In version with bug, the following is required to make this work.
+ ;; (background (f) => 1)
 
-(fact
+(future-fact
  1 => 1
  (provided
-   ..service.. =contains=> {:status 200}))))
+   ..service.. =contains=> {:status 200}))
+
