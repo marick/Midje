@@ -64,7 +64,8 @@
   (loop [expanded []
          in-progress forms]
     (pred-cond in-progress
-      empty? expanded
+      empty? 
+      expanded
 
       is-start-of-checking-arrow-sequence?
       (let [content (take-arrow-sequence in-progress)]

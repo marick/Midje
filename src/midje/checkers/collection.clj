@@ -361,8 +361,8 @@
 
     string?
     (pred-cond expected 
-      (every-pred (complement string?) (complement regex?))  (recur (vec actual) expected looseness)
-      :else                                                  [actual expected looseness])
+      #(and (not (string? %)) (not (regex? %)))   (recur (vec actual) expected looseness)
+      :else                                   [actual expected looseness])
 
     :else 
     [actual expected looseness]))
