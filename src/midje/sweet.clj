@@ -30,8 +30,8 @@
 (defmacro background 
   "Runs facts against setup code which is run before, around, or after 
    :contents, :facts or :checks. Optionally, contains one or more provided forms 
-   that apply for all facts run within the against-background form. 
-   Runs against the rest of the file."
+   that apply for all facts until the end of the file. 
+   All effects of `background` last until the end of the file."
   [& forms]
   (when (user-desires-checking?)
     (put-wrappers-into-effect (background/background-wrappers forms))))
@@ -40,7 +40,7 @@
   "Runs facts against setup code which is run before, around, or after 
    :contents, :facts or :checks. Optionally, contains one or more provided forms 
    that apply for all facts run within the against-background form. 
-   Runs against the code it surrounds."
+   All effects of `against-background` last until the end of the scope it surrounds."
   [background-forms & foreground-forms]
   (if (user-desires-checking?)
     (midjcoexpand `(against-background ~background-forms ~@foreground-forms))
