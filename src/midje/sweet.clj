@@ -57,8 +57,8 @@
   (defn g [x] nil)
   (defn f [x] (+ (g x) (g x)))
   
-  (fact \"f of some arg, named ..x.. calls g twice w/ the 
-          same arg as was sent to f, and adds up the results\"
+  (fact \"f of some arg, ..x.. calls g twice w/ the same arg,
+          (..x..), that was sent to f, and adds up the results\"
     (f ..x..) => 12 
     (provided (g ..x..) => 6 :times 2))
     
