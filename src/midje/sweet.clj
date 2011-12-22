@@ -47,7 +47,23 @@
     `(do ~@foreground-forms)))
     
 (defmacro fact 
-  ""
+  "A fact is a statement about code:
+  
+  (fact \"one plus one is two\"
+    (+ 1 1) => 2)
+        
+  You can make facts relative to other information:
+  
+  (defn g [x] nil)
+  (defn f [x] (+ (g x) (g x)))
+  
+  (fact \"f of some arg, named ..x.. calls g twice w/ the 
+          same arg as was sent to f, and adds up the results\"
+    (f ..x..) => 12 
+    (provided (g ..x..) => 6 :times 2))
+    
+  For more info, see on the wiki: 
+  metaconstants, checkers, arrows and specifying call counts"
   [& forms]
   (when (user-desires-checking?)
     (try
