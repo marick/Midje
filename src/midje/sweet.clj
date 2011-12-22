@@ -95,6 +95,14 @@
 (generate-future-fact-variants)
 
 (defmacro tabular 
-  "Generate a table of related facts."
+  "Generate a table of related facts.
+  
+   Ex. (tabular \"table of simple math\" 
+         (fact (+ a b) => c)
+           
+           a b      c
+           1 2      3
+           3 4      7
+           9 10     19 )"
   [& _]
   (tabular* (keys &env) &form))
