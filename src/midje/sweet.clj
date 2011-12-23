@@ -66,19 +66,20 @@
   metaconstants, checkers, arrows and specifying call counts"
   [& forms]
   (when (user-desires-checking?)
-    (try
-      (set-fallback-line-number-from &form)
-      (let [[background remainder] (background/separate-background-forms forms)]
-        (if (seq background)
-          `(against-background ~background (midje.sweet/fact ~@remainder))        	
-          (complete-fact-transformation remainder)))
-      (catch Exception ex
-        `(do
-           (clojure.test/report {:type :exceptional-user-error
-                                 :macro-form '~&form
-                                 :exception-lines '~(user-error-exception-lines ex)
-                                 :position (midje.internal-ideas.file-position/line-number-known ~(:line (meta &form)))})
-           false)))))
+    (let [description (when (string? (first forms)) (first forms))]
+      (try
+        (set-fallback-line-number-from &form)
+        (let [[background remainder] (background/separate-background-forms forms)]
+          (if (seq background)
+            `(against-background ~background (midje.sweet/fact ~@remainder))        	
+            (complete-fact-transformation description remainder)))
+        (catch Exception ex
+          `(do
+             (clojure.test/report {:type :exceptional-user-error
+                                   :macro-form '~&form
+                                   :exception-lines '~(user-error-exception-lines ex)
+                                   :position (midje.internal-ideas.file-position/line-number-known ~(:line (meta &form)))})
+             false))))))
 
 (defmacro facts 
   "Alias for fact."

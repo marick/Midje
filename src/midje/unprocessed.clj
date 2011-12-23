@@ -3,6 +3,7 @@
 (ns midje.unprocessed
   (:use clojure.test
         [midje.internal-ideas.fakes]
+        [midje.internal-ideas.fact-context :only [nested-fact-description]]
         [midje.ideas.background :only [background-fakes]]
         [midje.util laziness report]
         [midje.checkers.extended-equality :only [extended-=]]
@@ -18,6 +19,7 @@
 
 (defn- fail [type actual call]
   {:type type
+   :description (nested-fact-description)
    :binding-note (:binding-note call)
    :position (:position call)
    :actual actual

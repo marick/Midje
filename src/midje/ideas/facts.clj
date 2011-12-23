@@ -5,6 +5,7 @@
         [midje.internal-ideas.expect :only [expect?
                                             wrap-with-expect__then__at-rightmost-expect-leaf]]
         [midje.internal-ideas.file-position :only [annotate-embedded-arrows-with-line-numbers]]
+        [midje.internal-ideas.fact-context :only [within-fact-context]]
         [midje.internal-ideas.wrapping :only [already-wrapped?
                                               multiwrap
                                               with-additional-wrappers
@@ -66,8 +67,7 @@
     skip-to-rightmost-leaf))
 
 (defn- expand-against-background [form wrappers]
-  (with-additional-wrappers wrappers
-    (midjcoexpand form)))
+  (with-additional-wrappers wrappers (midjcoexpand form)))
 
 (defn midjcoexpand
   "Descend form, macroexpanding *only* midje forms and placing background wrappers where appropriate."
@@ -76,17 +76,17 @@
     already-wrapped?     form
     quoted?              form
     future-fact?         (macroexpand form)
-    against-background?  (-> (expand-against-background (body-of-against-background form)
-                               (against-background-children-wrappers form))
-                           (multiwrap (against-background-contents-wrappers form)))
+    against-background?  (-> (body-of-against-background form) 
+                             (expand-against-background (against-background-children-wrappers form))
+                             (multiwrap (against-background-contents-wrappers form)))
+  
     expect?      (multiwrap form (forms-to-wrap-around :checks ))
     fact?        (multiwrap (midjcoexpand (macroexpand form)) 
                             (forms-to-wrap-around :facts ))
     sequential?  (preserve-type form (eagerly (map midjcoexpand form)))
     :else        form))
 
-
-(defn complete-fact-transformation [forms]
+(defn complete-fact-transformation [description forms]
   (let [form-to-run (-> forms
                         annotate-embedded-arrows-with-line-numbers
                         to-semi-sweet
@@ -95,4 +95,6 @@
                         midjcoexpand
                         (multiwrap (forms-to-wrap-around :facts)))]
     (define-metaconstants form-to-run)
-    (report/form-providing-friendly-return-value form-to-run)))
+    (report/form-providing-friendly-return-value 
+      `(within-fact-context ~description ~form-to-run))))
+

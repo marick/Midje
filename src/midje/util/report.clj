@@ -46,9 +46,11 @@
     :else               (pr-str form)))
 
 (defn- fail-at [m]
-  [(str "\n" (color/fail "FAIL") " at " (midje-position-string (:position m)))
-   (when (:binding-note m)
-     (str "With table substitutions: " (:binding-note m)))])
+  [(str "\n" (color/fail "FAIL:") " " 
+     (when-let [doc (:description m)] (str (pr-str doc) " "))
+     "at " (midje-position-string (:position m)))
+   (when-let [substitutions (:binding-note m)]
+     (str "With table substitutions: " substitutions))])
 
 (defn- indented [lines]
   (map #(str "        " %) lines))

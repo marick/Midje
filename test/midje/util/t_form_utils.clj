@@ -50,7 +50,7 @@
 (fact "apply each function to each corresponding arg" 
   (apply-pairwise [inc dec] [1 1] [2 2]) => [[2 0] [3 1]])
 
-(fact "can a seq into two pieces, one for true predicate one for false"
+(fact "divide seq into two seqs: items that pass a predicate and a items the fail"
   (separate-by odd? [1 2 3]) => [ [1 3] [2] ]
   "works for predicates that don't return true or false"
   (separate-by #(if (odd? %) nil %) [1 2 3]) => [[2] [1 3]])

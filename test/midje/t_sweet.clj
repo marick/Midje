@@ -123,6 +123,15 @@
  (fact (+ 1 2) =not=> odd?)
  (fact @reported => (one-of inappropriate-checker)))
 
+;; Fact descriptions nest themselves when reported
+
+(after-silently
+  (facts "level 1"
+    (fact "level 2"
+      (fact "level 3"
+        (+ 1 2) => 1)
+      (fact @reported => (contains {:description #"level 1, level 2, level 3"} )))))
+
 ;; Background prerequisites
 (unfinished check-f check-g check-h)
 (defn ander [n]
