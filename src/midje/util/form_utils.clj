@@ -129,5 +129,7 @@
                      ~body)]
     `(do ~@macros#)))
 
-(defn map-first [f x]
+(defn map-first
+  "Like map, but applies f to only the first element of the seq"
+  [f x]
   (cons (f (first x)) (rest x)))
