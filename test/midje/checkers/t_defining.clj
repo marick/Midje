@@ -11,8 +11,8 @@
   #'magic-number => checker?
   587 => magic-number
   (magic-number 8) => falsey
-  (:arglists (meta #'magic-number)) => '([actual])
-  (:doc (meta #'magic-number)) => "magic number docstring")
+  (meta #'magic-number) => (contains { :doc "magic number docstring"
+                                       :arglists '([actual])} ))
 
 (defchecker undocumented-magic-number [actual] (= 587 actual))
 (fact "checker without a docstring"
