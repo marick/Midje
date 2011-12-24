@@ -5,17 +5,12 @@
 (defn as-checker [function]
   (vary-meta function merge {:midje/checker true}))
 
-
 (defn- make-checker-definition [checker-name docstring arglists bodies-and-arglists]
-  (let [core-function `(fn ~checker-name ~@bodies-and-arglists)
-        core-metavars {:midje/checker true :arglists `'~arglists}
-        metavars-to-add (if docstring
-                          (assoc core-metavars :doc docstring)
-                          core-metavars)
-        name (vary-meta checker-name merge metavars-to-add)]
-    `(def ~name (.withMeta ~core-function
-                     (assoc (.meta (var ~checker-name)) :midje/checker true)))))
-
+  (let [metavars (merge {:midje/checker true :arglists `'~arglists}
+                        (when docstring {:doc docstring}))
+        name (vary-meta checker-name merge metavars)
+        checker-fn `(as-checker (fn ~checker-name ~@bodies-and-arglists))]
+    `(def ~name ~checker-fn)))
 
 (defn- working-with-bodies-and-arglists [checker-name docstring bodies-and-arglists]
                                         ;  (prn checker-name docstring bodies-and-arglists)
