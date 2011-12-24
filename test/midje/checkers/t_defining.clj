@@ -5,14 +5,15 @@
         [midje.checkers.defining :only [checker?]]
         midje.test-util))
 
-(defchecker magic-number "magic number docstring" [actual] (= 587 actual))
+(defchecker magic-number "magic number docstring" {:meta-data :foo} [actual] (= 587 actual))
 (fact "checker with a doc string"
   magic-number => checker?
   #'magic-number => checker?
   587 => magic-number
   (magic-number 8) => falsey
   (meta #'magic-number) => (contains { :doc "magic number docstring"
-                                       :arglists '([actual])} ))
+                                       :arglists '([actual])
+                                       :meta-data :foo } ))
 
 (defchecker undocumented-magic-number [actual] (= 587 actual))
 (fact "checker without a docstring"
@@ -22,6 +23,16 @@
   (undocumented-magic-number 8) => falsey
   (:arglists (meta #'undocumented-magic-number)) => '([actual])
   (:doc (meta #'undocumented-magic-number)) => nil)
+
+(defchecker magic-number-with-metadata {:meta-data :foo} [actual] (= 587 actual))
+(fact "checker without a docstring"
+  magic-number-with-metadata => checker?
+  #'magic-number-with-metadata => checker?
+  587 => magic-number-with-metadata
+  (magic-number-with-metadata 8) => falsey
+  (:arglists (meta #'magic-number-with-metadata)) => '([actual])
+  (:doc (meta #'magic-number-with-metadata)) => nil
+  (meta #'magic-number-with-metadata) => (contains (:meta-data :foo)))
 
 (defchecker double-magic-number "double docstring"
   ([actual] (= 587 actual))
