@@ -4,6 +4,17 @@
   (:use [midje sweet test-util]))
 
 (after-silently 
- (fact =>)
+ (fact "description" =>)
  (fact @reported => (just (contains {:type :exceptional-user-error
-                                     :macro-form '(fact =>)}))))
+                                     :description "description"
+                                     :macro-form '(fact "description" =>)}))))
+
+;; report ONLY top level fact's description when there's a error in nested facts
+
+(after-silently
+  (fact "fine"
+    (fact "description" =>))
+ (fact @reported => (just (contains {:type :exceptional-user-error
+                                     :description "fine"
+                                     :macro-form '(fact "fine"
+                                                    (fact "description" =>))}))))

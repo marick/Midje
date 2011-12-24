@@ -9,6 +9,7 @@
         [midje.util.form-utils :only [macro-for]]
         [midje.util.exceptions :only [user-error-exception-lines]]
         [midje.internal-ideas.wrapping :only [put-wrappers-into-effect]]
+        [midje.internal-ideas.fact-context :only [nested-fact-description]]
         [midje.internal-ideas.file-position :only [set-fallback-line-number-from]]
         [midje.ideas.tabular :only [tabular*]]
         [midje.ideas.facts :only [complete-fact-transformation future-fact* midjcoexpand 
@@ -76,6 +77,7 @@
         (catch Exception ex
           `(do
              (clojure.test/report {:type :exceptional-user-error
+                                   :description ~description
                                    :macro-form '~&form
                                    :exception-lines '~(user-error-exception-lines ex)
                                    :position (midje.internal-ideas.file-position/line-number-known ~(:line (meta &form)))})

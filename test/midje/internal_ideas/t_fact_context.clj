@@ -34,6 +34,3 @@
   (within-fact-context nil 
     (reset! some-atom (nested-fact-description)))
   (is (= @some-atom nil)))
-
-
-;; TODO: Alex - consider what happens if exception is thrown inside the within-fact-context lexical scope.
