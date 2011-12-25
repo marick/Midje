@@ -29,18 +29,17 @@
   (namespace-values-inside-out :midje/wrappers))
 
 (defn with-wrapping-target [what target]
-  (with-meta what (merge (meta what) {:midje/wrapping-target target})))
+  (vary-meta what merge {:midje/wrapping-target target}))
 
 (defn for-wrapping-target? [target]
-  (fn [actual] (= (:midje/wrapping-target (meta actual)) target)))
+  (fn [actual] (= target (:midje/wrapping-target (meta actual)))))
 
 (defmacro with-additional-wrappers [final-wrappers form]
   `(with-pushed-namespace-values :midje/wrappers ~final-wrappers
     ~form))
 
 (defn put-wrappers-into-effect [wrappers]
-  (let [[immediates deferred] (separate (for-wrapping-target? :contents)
-                                      wrappers)]
+  (let [[immediates deferred] (separate (for-wrapping-target? :contents) wrappers)]
     (set-namespace-value :midje/wrappers (list wrappers))
     (multiwrap "unimportant-value" immediates)))
 

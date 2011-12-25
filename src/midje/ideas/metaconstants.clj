@@ -5,7 +5,6 @@
         [midje.util.zip :only [skip-down-then-rightmost-leaf]]
         [midje.util.thread-safe-var-nesting :only [unbound-marker]]
         [midje.util.exceptions :only [user-error]]
-        [midje.error-handling.monadic :only [user-error-report-form validate]]
         [utilize.seq :only (find-first)]
         [clojure.core.incubator :only [-?>>]])
   (:require [clojure.zip :as zip]
