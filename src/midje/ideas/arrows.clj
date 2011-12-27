@@ -38,15 +38,15 @@
         overrides (arrow-sequence-overrides (nthnext forms 3))]
     (concat constant-part overrides)))
 
-(defn group-arrow-sequences
+(defn pull-all-arrow-seqs-from
   ([fakes]
-     (group-arrow-sequences [] fakes))
+     (pull-all-arrow-seqs-from [] fakes))
   ([so-far remainder]
     (if (empty? remainder)
       so-far
-      (let [whole-body (take-arrow-sequence remainder)]
-        (recur (conj so-far whole-body)
-               (nthnext remainder (count whole-body)))))))
+      (let [arrow-seq (take-arrow-sequence remainder)]
+        (recur (conj so-far arrow-seq)
+               (nthnext remainder (count arrow-seq)))))))
 
 ;; Editing
 

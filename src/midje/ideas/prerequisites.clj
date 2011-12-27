@@ -5,7 +5,7 @@
         [midje.ideas.metaconstants :only [metaconstant-for-form
                                           with-fresh-generated-metaconstant-names]]
         midje.ideas.arrow-symbols
-        [midje.ideas.arrows :only [group-arrow-sequences]]
+        [midje.ideas.arrows :only [pull-all-arrow-seqs-from]]
         [midje.internal-ideas.expect :only [up-to-full-expect-form
                                             tack-on__then__at-rightmost-expect-leaf]])
   (:require [clojure.zip :as zip]))
@@ -27,7 +27,7 @@
 
 (defn expand-prerequisites-into-fake-calls [provided-loc]
   (let [fakes (-> provided-loc zip/up zip/node rest)
-        fake-bodies (group-arrow-sequences fakes)]
+        fake-bodies (pull-all-arrow-seqs-from fakes)]
     (map prerequisite-to-fake fake-bodies)))
 
 (defn delete_prerequisite_form__then__at-previous-full-expect-form [loc]
