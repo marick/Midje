@@ -17,4 +17,4 @@
 
 (defn nested-fact-description []
   (when-let [non-nil (seq (remove nil? @nested-descriptions))]  
-    (join ", " non-nil)))
+    (join " - " non-nil)))

@@ -12,7 +12,7 @@
     (within-fact-context "level 2"
       (within-fact-context "level 3"
         (reset! some-atom (nested-fact-description)))))
-    (is (= @some-atom "level 1, level 2, level 3")))
+    (is (= @some-atom "level 1 - level 2 - level 3")))
   
 (reset! some-atom nil)
 
@@ -21,7 +21,7 @@
       (within-fact-context nil
         (within-fact-context "level 3"
           (reset! some-atom (nested-fact-description)))))
-      (is (= @some-atom "level 1, level 3")))
+      (is (= @some-atom "level 1 - level 3")))
 
 (reset! some-atom nil)
 
