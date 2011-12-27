@@ -46,11 +46,11 @@
   (defmacro before 
     "Code to run before a given wrapping target (:facts, :contents, :checks).
      Used with background and against-background"
-    [wrapping-target before-form & [_ after-form & _]]
+    [wrapping-target before-form & {:keys [after]}]
     (ensure-correct-form-variable `(try
                                      ~before-form
                                      ?form
-                                     (finally ~after-form))))
+                                     (finally ~after))))
 
   (defmacro after 
     "Code to run after a given wrapping target (:facts, :contents, :checks).
