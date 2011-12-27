@@ -4,12 +4,13 @@
   (:use
     [midje.util.form-utils :only [first-named? translate-zipper symbol-named? separate-by 
                                   pred-cond map-first]]
-    [midje.util.exceptions :only [user-error]]
+    [midje.util.exceptions :only [user-error]]   
+    [midje.error-handling.monadic :only [user-error-report-form validate]]  
+    [clojure.pprint :only [cl-format]]
     [midje.ideas.metaconstants :only [define-metaconstants]]
     [midje.ideas.prerequisites :only [prerequisite-to-fake
                                       metaconstant-prerequisite?]]
-    [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence?
-                               take-arrow-sequence]]
+    [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence? take-arrow-sequence]]
     [midje.util.laziness :only [eagerly]]
     [midje.internal-ideas.fakes :only [with-installed-fakes
                                        tag-as-background-fake
@@ -17,7 +18,7 @@
     [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out with-pushed-namespace-values]]
     [midje.internal-ideas.wrapping :only [with-wrapping-target
                                           for-wrapping-target?]]
-    [utilize.seq :only (separate)])
+    [utilize.seq :only (separate find-first)])
   (:require [midje.util.unify :as unify :only [bindings-map-or-nil ?form]]
             [clojure.zip :as zip]))
 
@@ -101,10 +102,43 @@
       :else (throw (user-error (str "This doesn't look like part of a background: "
                                  (vec in-progress)))))))
 
-;; valid wrapping targets - :facts, :contents, or :checks
+(def ^{:private true} valid-wrapping-targets #{:facts, :contents, :checks })
+
+(defn validate-state-description [[state-description wrapping-target expression :as form]]
+  (cond 
+      (and (#{"after" "around"} (name state-description)) (not= 3 (count form)))
+      (user-error-report-form form
+        (cl-format nil "    ~A form should be have a length of 3: ~A" form (name state-description))) 
+  
+      (and (= "before" (name state-description)) 
+           (not= 3 (count form))
+           (or (not= 5 (count form))
+               (and (= 5 (count form)) 
+                    (not= :after (nth form 3)))))
+      (user-error-report-form form
+        (cl-format nil "    ~A form should be have a length of 3 or 5: ~A" form (name state-description))) 
+  
+      ((complement valid-wrapping-targets) wrapping-target)
+      (user-error-report-form form
+        (cl-format nil "    In this form: ~A" form)
+        (cl-format nil "The second element (~A) should be one of: :facts, :contents, or :checks" wrapping-target))
+    
+      :else
+      (rest form)))   
+
+(def ^{:private true } all-state-descriptions #{"before" "after" "around"})
+
+(defmethod validate "before" [forms]
+  (validate-state-description forms))
+
+(defmethod validate "after" [forms]
+  (validate-state-description forms))
+
+(defmethod validate "around" [forms]
+  (validate-state-description forms))
 
 (defn- state-wrapper [[before-after-or-around wrapping-target & _  :as state-description]]
-  (if (#{"before" "after" "around"} (name before-after-or-around))
+  (if (all-state-descriptions (name before-after-or-around))
     (with-wrapping-target
       (macroexpand-1 (map-first #(symbol "midje.ideas.background" (name %)) state-description))
       wrapping-target)

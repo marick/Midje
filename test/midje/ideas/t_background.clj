@@ -5,6 +5,7 @@
   (:use [midje sweet test-util]
         [midje.internal-ideas.wrapping :only [for-wrapping-target?]]
         [midje.util unify]
+        [midje.error-handling monadic]
         [midje.ideas.background :only [separate-background-forms setup-teardown-bindings
                                  seq-headed-by-setup-teardown-form? background-wrappers]]))
 (testable-privates midje.ideas.background
@@ -142,4 +143,27 @@
   (first (second '(midje.semi-sweet.expect (midje.sweet.fact 1 => 2)))) => 'midje.sweet.fact
   (set? #{1 'do}) => truthy)
 
+(tabular
+  (facts "before, after and around validation"
+    (fact "valid, then return rest of form"
+      (validate (cons ?wrapper `(:facts (do "something")))) => `(:facts (do "something")))
+  
+    (fact "wrapper's must use either :facts, :contents, or checks as their wrapping targets"
+      (validate (cons ?wrapper `(:abc (do "something")))) => user-error-form?)
+    
+    (fact "correct form length" 
+      (validate (cons ?wrapper `(:facts (do "something") (do "another thing")))) => user-error-form?
+      (validate (list ?wrapper)) => user-error-form? ))
 
+    ?wrapper
+    'before 
+    'after  
+    'around)
+
+(fact "before gets an optional :after param"
+  (validate `(before :contents (do "something") :after (do "another thing"))) =not=> user-error-form?
+  (validate `(before :contents (do "something") :around (do "another thing"))) => user-error-form?)
+
+(fact "after and around don't get extra params - length should be 3"
+  (validate `(after :contents (do "something") :after (do "another thing"))) => user-error-form?
+  (validate `(around :contents (do "something") :after (do "another thing"))) => user-error-form?)
