@@ -43,16 +43,32 @@
             (fn [loc] (symbol-named? (zip/node loc) "?form"))
             (fn [loc] (zip/replace loc (unify/?form)))))]
 
-  (defmacro before [wrapping-target before-form & [_ after-form & _]]
+  (defmacro before 
+    "Code to run before a given wrapping target (:facts, :contents, :checks).
+     Used with background and against-background"
+    [wrapping-target before-form & [_ after-form & _]]
     (ensure-correct-form-variable `(try
                                      ~before-form
                                      ?form
                                      (finally ~after-form))))
 
-  (defmacro after [wrapping-target after-form]
+  (defmacro after 
+    "Code to run after a given wrapping target (:facts, :contents, :checks).
+     Used with background and against-background"
+    [wrapping-target after-form]
     (ensure-correct-form-variable `(try ?form (finally ~after-form))))
 
-  (defmacro around [wrapping-target around-form]
+  (defmacro around 
+    "Code to run around a given wrapping target (:facts, :contents, :checks).
+     Use the symbol '?form' tp denote the code that is being wrapped around.
+     
+     ex.
+     (around :contents (let [a 999] 
+                         ?form
+                         (print a))) 
+     
+     Used with background and against-background"
+    [wrapping-target around-form]
     (ensure-correct-form-variable around-form)))
 
 (defn seq-headed-by-setup-teardown-form? [forms]
