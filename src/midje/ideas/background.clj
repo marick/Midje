@@ -5,7 +5,7 @@
     [midje.util.form-utils :only [first-named? translate-zipper symbol-named? separate-by 
                                   pred-cond map-first]]
     [midje.util.exceptions :only [user-error]]   
-    [midje.error-handling.monadic :only [user-error-report-form validate]]  
+    [midje.error-handling.monadic :only [user-error-report-form validate spread-error error-let]]  
     [clojure.pprint :only [cl-format]]
     [midje.ideas.metaconstants :only [define-metaconstants]]
     [midje.ideas.prerequisites :only [prerequisite-to-fake
@@ -136,6 +136,17 @@
 
 (defmethod validate "around" [forms]
   (validate-state-description forms))
+
+(defmethod validate "against-background" [[_against-background_ & forms]]
+  (let [state-descriptions (first forms)]
+    (if (vector? state-descriptions) 
+      (error-let [before-after+arounds (filter #(and (sequential? %) (#{'midje.sweet/around 'midje.sweet/before 'midje.sweet/after} (first %)))   
+                                               state-descriptions)
+                  _ (spread-error (map validate before-after+arounds))]
+        forms)
+      
+      (error-let [_ (validate state-descriptions)]
+        forms))))
 
 (defn- state-wrapper [[before-after-or-around wrapping-target & _  :as state-description]]
   (if (all-state-descriptions (name before-after-or-around))

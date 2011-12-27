@@ -167,3 +167,22 @@
 (fact "after and around don't get extra params - length should be 3"
   (validate `(after :contents (do "something") :after (do "another thing"))) => user-error-form?
   (validate `(around :contents (do "something") :after (do "another thing"))) => user-error-form?)
+
+(facts "against-background validation"
+
+  (fact "valid, then return rest of form"
+    (validate `(against-background [(before :contents (do "something")) 
+                                    (after :checks (do "something"))]
+                 "something else")) => `([(before :contents (do "something")) 
+                                          (after :checks (do "something"))] "something else")
+  
+    (validate `(against-background (before :contents (do "something"))
+                 "something else")) => `( (before :contents (do "something"))
+                                           "something else") )
+
+  (fact "invalid if any state-description invalid"
+    (validate `(against-background [(before :contents (do "something"))
+                                    (after :BAD (do "something"))]
+                 "something else")) => user-error-form?
+    (validate `(against-background (before :BAD (do "something"))
+                 "something else")) => user-error-form? ) )
