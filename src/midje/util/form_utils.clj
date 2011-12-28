@@ -133,3 +133,6 @@
   "Like map, but applies f to only the first element of the seq"
   [f x]
   (cons (f (first x)) (rest x)))
+
+(defn named? [thing]
+  (instance? clojure.lang.Named thing))

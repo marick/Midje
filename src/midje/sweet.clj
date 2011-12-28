@@ -43,9 +43,10 @@
    that apply for all facts run within the against-background form. 
    All effects of `against-background` last until the end of the scope it surrounds."
   [background-forms & foreground-forms]
-  (if (user-desires-checking?)
-    (midjcoexpand `(against-background ~background-forms ~@foreground-forms))
-    `(do ~@foreground-forms)))
+  (error-let [_ (validate &form)]
+    (if (user-desires-checking?)
+      (midjcoexpand `(against-background ~background-forms ~@foreground-forms))
+     `(do ~@foreground-forms))))
     
 (defmacro fact 
   "A fact is a statement about code:

@@ -73,3 +73,20 @@
 
 (fact 
   (map-first str [1 2 3]) => ["1" 2 3])
+
+(defrecord ExampleNamed []
+  clojure.lang.Named
+  (getName [this] "name")
+  (getNamespace [this] "namespace"))
+
+(tabular
+  (fact "can tell if a thing is Named"
+    (named? ?thing) => ?result)
+  
+  ?thing           ?result
+  'a               truthy
+  :keyword         truthy
+  (ExampleNamed.)  truthy
+  "a"              falsey
+  1                falsey
+  \c               falsey)

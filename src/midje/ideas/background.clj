@@ -3,7 +3,7 @@
 (ns midje.ideas.background
   (:use
     [midje.util.form-utils :only [first-named? translate-zipper symbol-named? separate-by 
-                                  pred-cond map-first]]
+                                  pred-cond map-first named?]]
     [midje.util.exceptions :only [user-error]]   
     [midje.error-handling.monadic :only [user-error-report-form validate spread-error error-let]]  
     [clojure.pprint :only [cl-format]]
@@ -139,14 +139,19 @@
 
 (defmethod validate "against-background" [[_against-background_ & forms]]
   (let [state-descriptions (first forms)]
-    (if (vector? state-descriptions) 
-      (error-let [before-after+arounds (filter #(and (sequential? %) (#{'midje.sweet/around 'midje.sweet/before 'midje.sweet/after} (first %)))   
+    (cond 
+      (vector? state-descriptions) 
+      (error-let [befores-afters+arounds (filter #(and (sequential? %) (#{'midje.sweet/around 'midje.sweet/before 'midje.sweet/after} (first %)))   
                                                state-descriptions)
-                  _ (spread-error (map validate before-after+arounds))]
+                  _ (spread-error (map validate befores-afters+arounds))]
         forms)
-      
+    
+      (and (sequential? state-descriptions) (named? (first state-descriptions)))
       (error-let [_ (validate state-descriptions)]
-        forms))))
+        forms)
+
+      :else
+      forms)))
 
 (defn- state-wrapper [[before-after-or-around wrapping-target & _  :as state-description]]
   (if (all-state-descriptions (name before-after-or-around))

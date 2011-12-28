@@ -178,11 +178,10 @@
   
     (validate `(against-background (before :contents (do "something"))
                  "something else")) => `( (before :contents (do "something"))
-                                           "something else") )
-
+                                           "something else"))
+    
   (fact "invalid if any state-description invalid"
     (validate `(against-background [(before :contents (do "something"))
                                     (after :BAD (do "something"))]
                  "something else")) => user-error-form?
-    (validate `(against-background (before :BAD (do "something"))
-                 "something else")) => user-error-form? ) )
+    (validate `(against-background (before :BAD (do "something")) "something else")) => user-error-form? ) )
