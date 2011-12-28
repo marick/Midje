@@ -250,6 +250,8 @@
     (and (list? thing)
       (mockable-function-symbol? (first thing)))))
 
+;; TODO: Alex Dec 27, 2011 - rename, in what WAY are these substitutions augmented??? -there's the new name! 
+
 (defn augment-substitutions [substitutions fake-form]
   (let [needed-keys (filter mockable-funcall? (fake-form-funcall-arglist fake-form))]
     ;; Note: because I like for a function's metaconstants to be    
@@ -269,9 +271,8 @@
 
 (defn folded-fake? [form]
   (and (sequential? form)
-    (= 'midje.semi-sweet/fake (first form))
-    ;; We now know this: (fake (f ...arg... ...arg...) ...)
-    (some mockable-funcall? (fake-form-funcall-arglist form))))
+       (= 'midje.semi-sweet/fake (first form))
+       (some mockable-funcall? (fake-form-funcall-arglist form))))
 
 (defn- unfolding-step
   "This walks through a `pending` list that may contain fakes. Each element is
