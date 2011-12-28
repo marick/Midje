@@ -176,12 +176,18 @@
                  "something else")) => `([(before :contents (do "something")) 
                                           (after :checks (do "something"))] "something else")
   
-    (validate `(against-background (before :contents (do "something"))
-                 "something else")) => `( (before :contents (do "something"))
-                                           "something else"))
+    (validate `(against-background (before :contents (do "something")))) 
+    => 
+    `( (before :contents (do "something"))))
     
   (fact "invalid if any state-description invalid"
     (validate `(against-background [(before :contents (do "something"))
                                     (after :BAD (do "something"))]
                  "something else")) => user-error-form?
-    (validate `(against-background (before :BAD (do "something")) "something else")) => user-error-form? ) )
+    (validate `(against-background (before :BAD (do "something")))) => user-error-form? ) )
+
+(after-silently
+  (against-background [(before :invalid-wrapping-target (do "something"))] "something else")
+  
+  (fact 
+    @reported => (one-of (contains {:type :user-error}))))

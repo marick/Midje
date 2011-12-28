@@ -119,11 +119,11 @@
         (cl-format nil "    ~A form should look like: (before :contents/:facts/:checks (your-code)) or" form (name state-description))
         (cl-format nil "    (before :contents/:facts/:checks (your-code) :after (final-code))"))
 
-    ((complement valid-wrapping-targets) wrapping-target)
+      ((complement valid-wrapping-targets) wrapping-target)
       (user-error-report-form form
         (cl-format nil "    In this form: ~A" form)
         (cl-format nil "The second element (~A) should be one of: :facts, :contents, or :checks" wrapping-target))
-    
+
       :else
       (rest form)))   
 
@@ -142,7 +142,7 @@
   (let [state-descriptions (first forms)]
     (cond 
       (vector? state-descriptions) 
-      (error-let [befores-afters+arounds (filter #(and (sequential? %) (#{'midje.sweet/around 'midje.sweet/before 'midje.sweet/after} (first %)))   
+      (error-let [befores-afters+arounds (filter #(and (sequential? %) (all-state-descriptions (name (first %))))   
                                                state-descriptions)
                   _ (spread-error (map validate befores-afters+arounds))]
         forms)
@@ -178,8 +178,9 @@
         state-wrappers
         (concat state-wrappers (background-fake-wrappers fakes))))))
 
-(defn body-of-against-background [[_against-background_ background-forms & background-body]]
-  `(do ~@background-body))
+(defn body-of-against-background [[_against-background_ background-forms & background-body :as form]]
+  (error-let [_ (validate form)]
+    `(do ~@background-body)))
 
 (defn against-background-contents-wrappers [[_against-background_ background-forms & _]]
   (filter (for-wrapping-target? :contents ) (background-wrappers background-forms)))
