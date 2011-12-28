@@ -108,7 +108,7 @@
   (cond 
       (and (#{"after" "around"} (name state-description)) (not= 3 (count form)))
       (user-error-report-form form
-        (cl-format nil "    ~A form should be have a length of 3: ~A" form (name state-description))) 
+        (cl-format nil "    ~A form should look like: (~A :contents/:facts/:checks (your-code))" form (name state-description))) 
   
       (and (= "before" (name state-description)) 
            (not= 3 (count form))
@@ -116,9 +116,10 @@
                (and (= 5 (count form)) 
                     (not= :after (nth form 3)))))
       (user-error-report-form form
-        (cl-format nil "    ~A form should be have a length of 3 or 5: ~A" form (name state-description))) 
-  
-      ((complement valid-wrapping-targets) wrapping-target)
+        (cl-format nil "    ~A form should look like: (before :contents/:facts/:checks (your-code)) or" form (name state-description))
+        (cl-format nil "    (before :contents/:facts/:checks (your-code) :after (final-code))"))
+
+    ((complement valid-wrapping-targets) wrapping-target)
       (user-error-report-form form
         (cl-format nil "    In this form: ~A" form)
         (cl-format nil "The second element (~A) should be one of: :facts, :contents, or :checks" wrapping-target))
