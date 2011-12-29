@@ -7,6 +7,7 @@
   (:use clojure.test
         midje.internal-ideas.fakes
         midje.internal-ideas.file-position
+        [midje.internal-ideas.fact-context :only [within-fact-context]]
         [midje.util debugging form-utils namespace]
         [midje.error-handling monadic semi-sweet-errors]
         [midje.util.exceptions :only [user-error]]
@@ -75,10 +76,11 @@
 
 (defmethod expect-expansion :report-future-fact
    [call-form arrow expected-result fakes overrides]
-  `(let [check# (unprocessed-check ~call-form ~arrow ~expected-result ~overrides)]
-    (clojure.test/report {:type :future-fact
-                          :description ~(str call-form)
-                          :position (:position check#)})))
+   `(let [check# (unprocessed-check ~call-form ~arrow ~expected-result ~overrides)]
+      (within-fact-context ~(str call-form)  
+        (clojure.test/report {:type :future-fact
+                              :description (midje.internal-ideas.fact-context/nested-fact-description)
+                              :position (:position check#)}))))
 
 ;;; Interface: unfinished
 
