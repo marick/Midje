@@ -18,7 +18,8 @@
     (first list-like-thing)))
 
 (defchecker only-maps-containing 
-  "Each map in the argument(s) contains some map in the expected
+  "DEPRECATED: use (just [ (contains {..}) ]) instead.
+   Each map in the argument(s) contains some map in the expected
    result. There may be no extra maps in either the argument(s) or expected result.
 
    You can call this with either (only-maps-containing {..} {..}) or
@@ -30,7 +31,8 @@
     (just subfunctions :in-any-order)))
   
 (defchecker maps-containing 
-  "Each map in the argument(s) contains contains some map in the expected
+  "DEPRECATED: use (contains [ (contains {..}) ] instead.
+   Each map in the argument(s) contains contains some map in the expected
    result. There may be extra maps in the actual result.
 
    You can call this with either (maps-containing {..} {..}) or
