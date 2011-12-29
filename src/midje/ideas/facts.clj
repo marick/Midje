@@ -33,23 +33,24 @@
       (first-named? form "facts")))
 
 (def future-fact-variant-names [ "future-fact" 
-                             "future-facts" 
-                             "pending-fact" 
-                             "pending-facts" 
-                             "incipient-fact" 
-                             "incipient-facts" 
-                             "antiterminologicaldisintactitudinarian-fact"
-                             "antiterminologicaldisintactitudinarian-facts" ])
+                                 "future-facts" 
+                                 "pending-fact" 
+                                 "pending-facts" 
+                                 "incipient-fact" 
+                                 "incipient-facts" 
+                                 "antiterminologicaldisintactitudinarian-fact"
+                                 "antiterminologicaldisintactitudinarian-facts" ])
 
 (defn future-fact? [form]
   (some (partial first-named? form) future-fact-variant-names ))
 
 (defn future-fact* [[_name_ doc-string? & _rest_ :as forms]]
   (let [lineno (reader-line-number forms)
-        description (if (string? doc-string?) doc-string? "")]
-    `(clojure.test/report {:type :future-fact
-                           :description ~description
-                           :position (midje.internal-ideas.file-position/line-number-known ~lineno)})))
+        description (when (string? doc-string?) doc-string?)]
+    `(within-fact-context ~description 
+       (clojure.test/report {:type :future-fact
+                             :description (midje.internal-ideas.fact-context/nested-fact-description)
+                             :position (midje.internal-ideas.file-position/line-number-known ~lineno)}))))
 
 (defn to-semi-sweet
   "Convert sweet keywords into their semi-sweet equivalents.

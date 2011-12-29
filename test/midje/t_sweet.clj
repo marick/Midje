@@ -123,7 +123,7 @@
  (fact (+ 1 2) =not=> odd?)
  (fact @reported => (one-of inappropriate-checker)))
 
-;; Fact descriptions nest themselves when reported
+;; fact and future-fact descriptions nest themselves when reported
 
 (after-silently
   (facts "A"
@@ -136,7 +136,13 @@
     (fact "level 2"
       (fact "level 3"
         (throw (Exception. "BOOM")) => anything)))
-  (fact @reported => (one-of (contains {:description "level 1 - level 2 - level 3"} ))))
+  (fact @reported => (one-of (contains {:description "level 1 - level 2 - level 3"} )))) 
+
+(after-silently
+  (facts "about mathemtics"
+    (future-fact "do in future"
+      nil => 1))
+  (fact @reported => (one-of (contains {:description "about mathemtics - do in future"} ))))
 
 ;; Background prerequisites
 (unfinished check-f check-g check-h)
