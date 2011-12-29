@@ -57,6 +57,12 @@
 
 (defmulti report-strings :type)
 
+(defmethod report-strings :future-fact [m]
+  (list
+   (str "\n" (color/note "WORK TO DO:") " "
+        (when-let [doc (:description m)] (str (pr-str doc) " "))
+        "at " (midje-position-string (:position m)))))
+
 (defmethod report-strings :mock-argument-match-failure [m]
    (list
     (fail-at m)
@@ -107,12 +113,6 @@
    "Actual result was NOT supposed to agree with the checking function."
    (str "        Actual result: " (attractively-stringified-form (:actual m)))
    (str "    Checking function: " (pr-str (:expected m)))))
-
-(defmethod report-strings :future-fact [m]
-  (list
-   (str "\n" (color/note "WORK TO DO:") " "
-        (:description m) " "
-        (midje-position-string (:position m)))))
   
 (defmethod report-strings :user-error [m]
    (list
