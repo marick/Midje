@@ -102,65 +102,7 @@
       :else (throw (user-error (str "This doesn't look like part of a background: "
                                  (vec in-progress)))))))
 
-(def ^{:private true} valid-wrapping-targets #{:facts, :contents, :checks })
-
-(defn- validate-state-description [[state-description wrapping-target expression :as form]]
-  (cond 
-      (and (#{"after" "around"} (name state-description)) (not= 3 (count form)))
-      (user-error-report-form form
-        (cl-format nil "    ~A form should look like: (~A :contents/:facts/:checks (your-code))" form (name state-description))) 
-  
-      (and (= "before" (name state-description)) 
-           (not= 3 (count form))
-           (or (not= 5 (count form))
-               (and (= 5 (count form)) 
-                    (not= :after (nth form 3)))))
-      (user-error-report-form form
-        (cl-format nil "    ~A form should look like: (before :contents/:facts/:checks (your-code)) or" form (name state-description))
-        (cl-format nil "    (before :contents/:facts/:checks (your-code) :after (final-code))"))
-
-      ((complement valid-wrapping-targets) wrapping-target)
-      (user-error-report-form form
-        (cl-format nil "    In this form: ~A" form)
-        (cl-format nil "The second element (~A) should be one of: :facts, :contents, or :checks" wrapping-target))
-
-      :else
-      (rest form)))   
-
-(def ^{:private true } all-state-descriptions #{"before" "after" "around"})   
-
-(defn- state-description? [form]
-  (and (sequential? form) 
-       (all-state-descriptions (name (first form)))))
-
-(defmethod validate "before" [forms]
-  (validate-state-description forms))
-
-(defmethod validate "after" [forms]
-  (validate-state-description forms))
-
-(defmethod validate "around" [forms]
-  (validate-state-description forms))
-
-(defmethod validate "against-background" [[_against-background_ & forms]]
-  (let [state-descriptions (first forms)]
-    (cond 
-      (vector? state-descriptions) 
-      (error-let [befores-afters+arounds (filter state-description? state-descriptions)
-                  _ (spread-error (map validate befores-afters+arounds))]
-        forms)
-    
-      (and (sequential? state-descriptions) (named? (first state-descriptions)))
-      (error-let [_ (validate state-descriptions)]
-        forms)
-
-      :else
-      forms)))
-
-(defmethod validate "background" [[_background_ & forms]]
-  (error-let [befores-afters+arounds (filter state-description? forms)
-              _ (spread-error (map validate befores-afters+arounds))]
-        forms))
+(def ^{:private true } all-state-descriptions #{"before" "after" "around"}) 
 
 (defn- state-wrapper [[before-after-or-around wrapping-target & _  :as state-description]]
   (if (all-state-descriptions (name before-after-or-around))
@@ -198,4 +140,65 @@
 
 (defn surround-with-background-fakes [forms]
   `(with-installed-fakes (background-fakes)
-     (do ~@forms)))                                               
+     (do ~@forms)))   
+
+
+ ;; Validations
+
+(def ^{:private true} valid-wrapping-targets #{:facts, :contents, :checks })
+
+(defn- validate-state-description [[state-description wrapping-target expression :as form]]
+  (cond 
+      (and (#{"after" "around"} (name state-description)) (not= 3 (count form)))
+      (user-error-report-form form
+        (cl-format nil "    ~A form should look like: (~A :contents/:facts/:checks (your-code))" form (name state-description))) 
+  
+      (and (= "before" (name state-description)) 
+           (not= 3 (count form))
+           (or (not= 5 (count form))
+               (and (= 5 (count form)) 
+                    (not= :after (nth form 3)))))
+      (user-error-report-form form
+        (cl-format nil "    ~A form should look like: (before :contents/:facts/:checks (your-code)) or" form (name state-description))
+        (cl-format nil "    (before :contents/:facts/:checks (your-code) :after (final-code))"))
+
+      ((complement valid-wrapping-targets) wrapping-target)
+      (user-error-report-form form
+        (cl-format nil "    In this form: ~A" form)
+        (cl-format nil "The second element (~A) should be one of: :facts, :contents, or :checks" wrapping-target))
+
+      :else
+      (rest form)))   
+
+(defn- state-description? [form]
+  (and (sequential? form) 
+       (all-state-descriptions (name (first form)))))
+
+(defmethod validate "before" [forms]
+  (validate-state-description forms))
+
+(defmethod validate "after" [forms]
+  (validate-state-description forms))
+
+(defmethod validate "around" [forms]
+  (validate-state-description forms))
+
+(defmethod validate "against-background" [[_against-background_ & forms]]
+  (let [state-descriptions (first forms)]
+    (cond 
+      (vector? state-descriptions) 
+      (error-let [befores-afters+arounds (filter state-description? state-descriptions)
+                  _ (spread-error (map validate befores-afters+arounds))]
+        forms)
+    
+      (and (sequential? state-descriptions) (named? (first state-descriptions)))
+      (error-let [_ (validate state-descriptions)]
+        forms)
+
+      :else
+      forms)))
+
+(defmethod validate "background" [[_background_ & forms]]
+  (error-let [befores-afters+arounds (filter state-description? forms)
+              _ (spread-error (map validate befores-afters+arounds))]
+        forms))

@@ -143,6 +143,8 @@
   (first (second '(midje.semi-sweet.expect (midje.sweet.fact 1 => 2)))) => 'midje.sweet.fact
   (set? #{1 'do}) => truthy)
 
+ ;; Validations
+
 (tabular
   (facts "before, after and around validation"
     (fact "valid, then return rest of form"
