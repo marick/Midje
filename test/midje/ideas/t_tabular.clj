@@ -135,19 +135,20 @@
         :else
         (some #{neighbor-count} #{2 3})))
 
-     (tabular
-      (fact "The rules of Conway's life"
-        (alive? ?cell-status ?neighbor-count) => ?expected)
-      ?cell-status   ?neighbor-count   ?expected
-      :alive         1                 FALSEY        ; underpopulation
-      :alive         2                 truthy       
-      :alive         3                 truthy
-      :alive         4                 FALSEY        ; overpopulation
-     
-      ;; A newborn cell has three parents
-      :dead          2                 FALSEY
-      :dead          3                 truthy
-      :dead          4                 FALSEY)
+(tabular
+  (fact "The rules of Conway's life"
+    (alive? ?cell-status ?neighbor-count) => ?expected)
+
+  ?cell-status   ?neighbor-count   ?expected
+  :alive         1                 FALSEY        ; underpopulation
+  :alive         2                 truthy       
+  :alive         3                 truthy
+  :alive         4                 FALSEY        ; overpopulation
+  
+  ;; A newborn cell has three parents
+  :dead          2                 FALSEY
+  :dead          3                 truthy
+  :dead          4                 FALSEY)
 
 (tabular
  (fact "nice fact properties are retained"
@@ -189,10 +190,10 @@
    (let [s "string"]
      (validate '?forms) => '?expected))
    ?forms                               ?expected
-   (tabular fact table...)              [fact [table...]]
-   (tabular "string" fact table...)     [fact [table...]]
+   (tabular fact table...)              [nil fact [table...]]
+   (tabular "string" fact table...)     ["string" fact [table...]]
    ;; Doesn't work with non-literal strings
-   (tabular s fact table...)            [s [fact table...]])
+   (tabular s fact table...)            [nil s [fact table...]])
 
 (tabular (fact ?comment
            (let [line-no-free-original ?original
@@ -226,3 +227,30 @@
         expected '(do (expect 1 => 2 :binding-note "{?a 1, ?b 2, ?delta \"0\", ?result 3}"))]
     actual => expected))
     
+;; tabular doc-string prints in report
+
+(after-silently
+  (tabular "table of results"
+    (fact "add stuff"
+      (+ a b) => result)
+    
+      a    b   result
+      2    4   999     )  ;; WRONG!!
+  (fact @reported => (one-of (contains {:description "table of results - add stuff"} ))))
+
+(after-silently
+  (tabular "table of results"
+    (fact (+ a b) => result)
+    
+      a    b   result
+      2    4   999     )  ;; WRONG!!
+  (fact @reported => (one-of (contains {:description "table of results"} ))))
+
+(after-silently
+  (tabular
+    (fact "add stuff"
+      (+ a b) => result)
+    
+      a    b   result
+      2    4   999     )  ;; WRONG!!
+  (fact @reported => (one-of (contains {:description "add stuff"} ))))

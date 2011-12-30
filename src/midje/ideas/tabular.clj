@@ -50,7 +50,7 @@
         (partial unify/substitute fact-form)))
 
 (defn tabular* [locals forms]
-  (error-let [[fact-form table] (validate forms)
+  (error-let [[description? fact-form table] (validate forms)
               _ (swap! deprecation-hack:file-position
                        (constantly (midje-position-string (form-position fact-form))))
               ordered-binding-maps (table-binding-maps table locals)
@@ -58,10 +58,12 @@
               expect-forms-with-binding-notes (map add-binding-note
                                                    expect-forms
                                                    ordered-binding-maps)]
-    `(do ~@expect-forms-with-binding-notes)))
+     (if description?
+      `(midje.sweet/facts ~description? ~@expect-forms-with-binding-notes)
+      `(midje.sweet/facts               ~@expect-forms-with-binding-notes))))
 
 (defmethod validate "tabular" [[_tabular_ & form]]
-  (let [[fact-form & table] (drop-while string? form)]
+  (let [[[description? & _] [fact-form & table]] (split-with string? form)]
     (if (empty? table)
       (user-error-report-form form "There's no table. (Misparenthesized form?)")
-      [fact-form table])))
+      [description? fact-form table])))
