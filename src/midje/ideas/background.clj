@@ -184,15 +184,15 @@
   (validate-state-description forms))
 
 (defmethod validate "against-background" [[_against-background_ & forms]]
-  (let [state-descriptions (first forms)]
-    (cond 
-      (vector? state-descriptions) 
-      (when-valid (filter state-description? state-descriptions) forms)
-    
-      (and (sequential? state-descriptions) (named? (first state-descriptions)))
-      (when-valid state-descriptions forms)
-
-      :else
+  (let [state-descriptions+fakes (first forms)]
+    (pred-cond state-descriptions+fakes
+      vector?                                    
+      (when-valid (filter state-description? state-descriptions+fakes) forms)
+      
+      #(and (sequential? %) (named? (first %)))  
+      (when-valid state-descriptions+fakes forms)
+      
+      :else                                      
       forms)))
 
 (defmethod validate "background" [[_background_ & forms]]
