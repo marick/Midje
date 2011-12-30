@@ -313,7 +313,7 @@
   ;; Throwing Errors is just an implementation convenience.
   (cond (regex? expected)
 	(cond (and (not (sequential? actual))
-		   (not (empty? looseness)))
+		       (not (empty? looseness)))
 	      (throw (user-error (str "I don't know how to make sense of a "
                                       "regular expression applied "
                                       looseness "."))))

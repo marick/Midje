@@ -183,17 +183,21 @@
   (and (sequential? form) 
        (all-state-descriptions (name (first form)))))
 
-(defmethod validate "against-background" [[_against-background_ state-descriptions+fakes & _body_ :as forms]]
-  (pred-cond state-descriptions+fakes
-    vector?                                    
+(defmethod validate "against-background" [[_against-background_ state-descriptions+fakes & _body_ :as form]]
+  (cond (< (count form) 3)
+    (user-error-report-form form
+        "    against-background form looks like it is missing background fakes or state descriptions:"
+        (str form))
+    
+    (vector? state-descriptions+fakes)                                    
     (when-valid (filter state-description? state-descriptions+fakes) 
-      (rest forms))
-    
-    #(and (sequential? %) (named? (first %)))  
-    (when-valid state-descriptions+fakes (rest forms))
-    
+      (rest form))
+      
+    (and (sequential? state-descriptions+fakes) (named? (first state-descriptions+fakes)))
+    (when-valid state-descriptions+fakes (rest form))
+      
     :else                                      
-    (rest forms)))
+    (rest form)))
 
 (defmethod validate "background" [[_background_ & forms]]
   (when-valid (filter state-description? forms) forms))

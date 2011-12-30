@@ -178,15 +178,26 @@
                  "body")) => `([(before :contents (do "something")) 
                                           (after :checks (do "something"))] "body")
   
-    (validate `(against-background (before :contents (do "something")))) 
+    (validate `(against-background (before :contents (do "something")) 
+                 "body")) 
     => 
-    `( (before :contents (do "something"))))
+    `( (before :contents (do "something")) 
+         "body") )
     
   (fact "invalid if any state-description invalid"
     (validate `(against-background [(before :contents (do "something"))
                                     (after :BAD (do "something"))]
                  "body")) => user-error-form?
-    (validate `(against-background (before :BAD (do "something")))) => user-error-form? ) )
+    (validate `(against-background (before :BAD (do "something"))
+                 "body")) => user-error-form? ) 
+  
+  (fact "invalid when the second in form is not state-descriptions and/or bckground fakes" 
+    (validate `(against-background :incorrect-type-here "body")) =future=> user-error-form? )
+  
+  (fact "invalid when form has less than 3 elements" 
+    (validate `(against-background [(before :contents (do "something"))
+                                    (after :BAD (do "something"))])) => user-error-form? 
+    (validate `(against-background (before :contents (do "something")))) => user-error-form? ))
 
 (after-silently
   (against-background [(before :invalid-wrapping-target (do "something"))] 
