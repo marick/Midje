@@ -170,10 +170,6 @@
       :else
       (rest form)))   
 
-(defn- state-description? [form]
-  (and (sequential? form) 
-       (all-state-descriptions (name (first form)))))
-
 (defmethod validate "before" [forms]
   (validate-state-description forms))
 
@@ -183,17 +179,21 @@
 (defmethod validate "around" [forms]
   (validate-state-description forms))
 
-(defmethod validate "against-background" [[_against-background_ & forms]]
-  (let [state-descriptions+fakes (first forms)]
-    (pred-cond state-descriptions+fakes
-      vector?                                    
-      (when-valid (filter state-description? state-descriptions+fakes) forms)
-      
-      #(and (sequential? %) (named? (first %)))  
-      (when-valid state-descriptions+fakes forms)
-      
-      :else                                      
-      forms)))
+(defn- state-description? [form]
+  (and (sequential? form) 
+       (all-state-descriptions (name (first form)))))
+
+(defmethod validate "against-background" [[_against-background_ state-descriptions+fakes & _body_ :as forms]]
+  (pred-cond state-descriptions+fakes
+    vector?                                    
+    (when-valid (filter state-description? state-descriptions+fakes) 
+      (rest forms))
+    
+    #(and (sequential? %) (named? (first %)))  
+    (when-valid state-descriptions+fakes (rest forms))
+    
+    :else                                      
+    (rest forms)))
 
 (defmethod validate "background" [[_background_ & forms]]
   (when-valid (filter state-description? forms) forms))
