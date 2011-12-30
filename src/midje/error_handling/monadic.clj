@@ -57,5 +57,7 @@
 (defmethod validate :default [form] (rest form))
 
 (defmacro when-valid [validatable-form-or-forms & body-to-execute-if-valid]
-  `(error-let [_# (validate ~validatable-form-or-forms)]
-     ~@body-to-execute-if-valid))
+  `(let [result# (validate ~validatable-form-or-forms)]
+     (if (user-error-form? result#)
+       result#
+       (do ~@body-to-execute-if-valid))))
