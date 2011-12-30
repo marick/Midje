@@ -33,9 +33,10 @@
    :contents, :facts or :checks. Optionally, contains one or more provided forms 
    that apply for all facts until the end of the file. 
    All effects of `background` last until the end of the file."
-  [& forms]
+  [& state-descriptions]
   (when (user-desires-checking?)
-    (put-wrappers-into-effect (background/background-wrappers forms))))
+    (error-let [_ (validate &form)]
+      (put-wrappers-into-effect (background/background-wrappers state-descriptions)))))
 
 (defmacro against-background 
   "Runs facts against setup code which is run before, around, or after 

@@ -104,7 +104,7 @@
 
 (def ^{:private true} valid-wrapping-targets #{:facts, :contents, :checks })
 
-(defn validate-state-description [[state-description wrapping-target expression :as form]]
+(defn- validate-state-description [[state-description wrapping-target expression :as form]]
   (cond 
       (and (#{"after" "around"} (name state-description)) (not= 3 (count form)))
       (user-error-report-form form
@@ -127,7 +127,11 @@
       :else
       (rest form)))   
 
-(def ^{:private true } all-state-descriptions #{"before" "after" "around"})
+(def ^{:private true } all-state-descriptions #{"before" "after" "around"})   
+
+(defn- state-description? [form]
+  (and (sequential? form) 
+       (all-state-descriptions (name (first form)))))
 
 (defmethod validate "before" [forms]
   (validate-state-description forms))
@@ -142,8 +146,7 @@
   (let [state-descriptions (first forms)]
     (cond 
       (vector? state-descriptions) 
-      (error-let [befores-afters+arounds (filter #(and (sequential? %) (all-state-descriptions (name (first %))))   
-                                               state-descriptions)
+      (error-let [befores-afters+arounds (filter state-description? state-descriptions)
                   _ (spread-error (map validate befores-afters+arounds))]
         forms)
     
@@ -153,6 +156,11 @@
 
       :else
       forms)))
+
+(defmethod validate "background" [[_background_ & forms]]
+  (error-let [befores-afters+arounds (filter state-description? forms)
+              _ (spread-error (map validate befores-afters+arounds))]
+        forms))
 
 (defn- state-wrapper [[before-after-or-around wrapping-target & _  :as state-description]]
   (if (all-state-descriptions (name before-after-or-around))

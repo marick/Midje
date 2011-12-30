@@ -173,8 +173,8 @@
   (fact "valid, then return rest of form"
     (validate `(against-background [(before :contents (do "something")) 
                                     (after :checks (do "something"))]
-                 "something else")) => `([(before :contents (do "something")) 
-                                          (after :checks (do "something"))] "something else")
+                 "body")) => `([(before :contents (do "something")) 
+                                          (after :checks (do "something"))] "body")
   
     (validate `(against-background (before :contents (do "something")))) 
     => 
@@ -183,11 +183,36 @@
   (fact "invalid if any state-description invalid"
     (validate `(against-background [(before :contents (do "something"))
                                     (after :BAD (do "something"))]
-                 "something else")) => user-error-form?
+                 "body")) => user-error-form?
     (validate `(against-background (before :BAD (do "something")))) => user-error-form? ) )
 
 (after-silently
-  (against-background [(before :invalid-wrapping-target (do "something"))] "something else")
+  (against-background [(before :invalid-wrapping-target (do "something"))] 
+    "body")
+
+  (fact 
+    @reported => (one-of (contains {:type :user-error}))))
+
+(facts "background validation"
+
+  (fact "valid, then return rest of form"
+    (validate `(background (before :contents (do "something")) 
+                           (after :checks (do "something")))) 
+    
+    => `( (before :contents (do "something")) 
+          (after :checks (do "something")))
+  
+    (validate `(background (before :contents (do "something")))) 
+    => 
+    `( (before :contents (do "something"))))
+    
+  (fact "invalid if any state-description invalid"
+    (validate `(background (before :contents (do "something"))
+                           (after :BAD (do "something")))) => user-error-form?
+    (validate `(background (before :BAD (do "something")))) => user-error-form? ) )
+
+(after-silently
+  (background (before :invalid-wrapping-target (do "something")))
   
   (fact 
     @reported => (one-of (contains {:type :user-error}))))
