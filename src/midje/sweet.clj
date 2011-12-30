@@ -35,7 +35,7 @@
    All effects of `background` last until the end of the file."
   [& state-descriptions]
   (when (user-desires-checking?)
-    (error-let [_ (validate &form)]
+    (when-valid &form
       (put-wrappers-into-effect (background/background-wrappers state-descriptions)))))
 
 (defmacro against-background 

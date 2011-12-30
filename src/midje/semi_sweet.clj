@@ -122,14 +122,12 @@
    the result is to be returned. Either form may contain bound variables. 
    Example: (let [a 5] (fake (f a) => a))"
   [& forms]
-  (error-let [ rest (validate &form)]
-    (fake* rest)))
+  (when-valid &form (fake* forms)))
 
 (defmacro data-fake
   "Creates a fake map that's used to associate key/value pairs with a metaconstant"
   [& forms]
-  (error-let [ rest (validate &form)]
-    (data-fake* rest)))
+  (when-valid &form (data-fake* forms)))
 
 (defmacro not-called
   "Creates an fake map that a function will not be called.
@@ -152,11 +150,10 @@
    To strip tests from production code, set either clojure.test/*load-tests*
    or midje.semi-sweet/*check* to false."
   [& args]
-  (error-let [[call-form arrow expected-result & other-stuff]
-              (validate &form)]
+  (error-let [[call-form arrow expected-result & other-stuff]   (validate &form)]
     (when (user-desires-checking?)
       (let [ [fakes overrides] (fakes-and-overrides other-stuff)]
-        (error-let [_ (validate-many fakes)]
+        (when-valid fakes
           (expect-expansion call-form arrow expected-result fakes overrides))))))
 
 

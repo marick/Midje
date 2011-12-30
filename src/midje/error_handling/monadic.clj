@@ -5,6 +5,7 @@
     [clojure.algo.monads :only [defmonad domonad with-monad m-lift]]
     [clojure.test :only [report]]
     [midje.internal-ideas.file-position :only [form-position]]
+    [midje.util.form-utils :only [named?]]
     [utilize.seq :only (find-first)]))
 
 (defn- as-user-error [form]
@@ -32,21 +33,29 @@
   `( (with-monad midje-maybe-m (m-lift ~(count body) ~fn))
      ~@body))
 
-(defn spread-error [collection]
+(defn- spread-error [collection]
   (or (find-first user-error-form? collection)
       collection))
 
 ;; This is a pretty dubious addition. Not using it now - found
 ;; a better way - but might need it later.
 (defmacro with-valid [symbol & body]
-  `(let [~symbol (spread-error ~symbol)]
+  `(let [~symbol (#'spread-error ~symbol)]
      (if (user-error-form? ~symbol)
        (eval ~symbol)
        (do ~@body))))
 
 
-(defmulti validate (fn [form] (name (first form))))
+(defmulti validate (fn [form] 
+                     (if (named? (first form)) 
+                       (name (first form)) 
+                       :validate-many)))
+
+(defmethod validate :validate-many [form] 
+  (spread-error (map validate form)))
+
 (defmethod validate :default [form] (rest form))
 
-(defn validate-many [validatables]
-    (spread-error (map validate validatables)))
+(defmacro when-valid [validatable-form-or-forms & body-to-execute-if-valid]
+  `(error-let [_# (validate ~validatable-form-or-forms)]
+     ~@body-to-execute-if-valid))

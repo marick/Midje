@@ -5,7 +5,7 @@
     [midje.util.form-utils :only [first-named? translate-zipper symbol-named? separate-by 
                                   pred-cond map-first named?]]
     [midje.util.exceptions :only [user-error]]   
-    [midje.error-handling.monadic :only [user-error-report-form validate validate-many error-let]]  
+    [midje.error-handling.monadic :only [user-error-report-form validate when-valid]]  
     [clojure.pprint :only [cl-format]]
     [midje.ideas.metaconstants :only [define-metaconstants]]
     [midje.ideas.prerequisites :only [prerequisite-to-fake
@@ -129,7 +129,7 @@
         (concat state-wrappers (background-fake-wrappers fakes))))))
 
 (defn body-of-against-background [[_against-background_ background-forms & background-body :as form]]
-  (error-let [_ (validate form)]
+  (when-valid form
     `(do ~@background-body)))
 
 (defn against-background-contents-wrappers [[_against-background_ background-forms & _]]
@@ -187,18 +187,13 @@
   (let [state-descriptions (first forms)]
     (cond 
       (vector? state-descriptions) 
-      (error-let [befores-afters+arounds (filter state-description? state-descriptions)
-                  _ (validate-many befores-afters+arounds)]
-        forms)
+      (when-valid (filter state-description? state-descriptions) forms)
     
       (and (sequential? state-descriptions) (named? (first state-descriptions)))
-      (error-let [_ (validate state-descriptions)]
-        forms)
+      (when-valid state-descriptions forms)
 
       :else
       forms)))
 
 (defmethod validate "background" [[_background_ & forms]]
-  (error-let [befores-afters+arounds (filter state-description? forms)
-              _ (validate-many befores-afters+arounds)]
-        forms))
+  (when-valid (filter state-description? forms) forms))
