@@ -5,7 +5,7 @@
     [midje.util.form-utils :only [first-named? translate-zipper symbol-named? separate-by 
                                   pred-cond map-first named?]]
     [midje.util.exceptions :only [user-error]]   
-    [midje.error-handling.monadic :only [user-error-report-form validate spread-error error-let]]  
+    [midje.error-handling.monadic :only [user-error-report-form validate validate-many error-let]]  
     [clojure.pprint :only [cl-format]]
     [midje.ideas.metaconstants :only [define-metaconstants]]
     [midje.ideas.prerequisites :only [prerequisite-to-fake
@@ -188,7 +188,7 @@
     (cond 
       (vector? state-descriptions) 
       (error-let [befores-afters+arounds (filter state-description? state-descriptions)
-                  _ (spread-error (map validate befores-afters+arounds))]
+                  _ (validate-many befores-afters+arounds)]
         forms)
     
       (and (sequential? state-descriptions) (named? (first state-descriptions)))
@@ -200,5 +200,5 @@
 
 (defmethod validate "background" [[_background_ & forms]]
   (error-let [befores-afters+arounds (filter state-description? forms)
-              _ (spread-error (map validate befores-afters+arounds))]
+              _ (validate-many befores-afters+arounds)]
         forms))

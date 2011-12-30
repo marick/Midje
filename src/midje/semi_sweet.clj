@@ -156,7 +156,7 @@
               (validate &form)]
     (when (user-desires-checking?)
       (let [ [fakes overrides] (fakes-and-overrides other-stuff)]
-        (error-let [_ (spread-error (map validate fakes))]
+        (error-let [_ (validate-many fakes)]
           (expect-expansion call-form arrow expected-result fakes overrides))))))
 
 

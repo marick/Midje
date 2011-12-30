@@ -47,3 +47,6 @@
 
 (defmulti validate (fn [form] (name (first form))))
 (defmethod validate :default [form] (rest form))
+
+(defn validate-many [validatables]
+    (spread-error (map validate validatables)))
