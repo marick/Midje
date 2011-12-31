@@ -19,6 +19,9 @@
                            :notes '~notes
                            :position '~(form-position form)})))
 
+(defmacro simple-user-error-report-form [form & notes]
+  `(user-error-report-form ~form ~@notes (str ~form)))
+
 (defmonad midje-maybe-m
    "Monad describing form processing with possible failures. Failure
    is represented by any form with metadata :midje-user-error"

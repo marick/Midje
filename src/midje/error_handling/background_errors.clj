@@ -3,7 +3,8 @@
 (ns midje.error-handling.background-errors
   (:use
     [clojure.pprint :only [cl-format]]
-    [midje.error-handling.monadic :only [user-error-report-form validate when-valid]]
+    [midje.error-handling.monadic :only [simple-user-error-report-form user-error-report-form 
+                                         validate when-valid]]
     [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence? take-arrow-sequence]]
     [midje.ideas.background :only [all-state-descriptions seq-headed-by-setup-teardown-form?]]
     [midje.ideas.prerequisites :only [metaconstant-prerequisite?]]
@@ -67,49 +68,41 @@
 
 (defmethod validate "against-background" [[_against-background_ state-descriptions+fakes & _body_ :as form]]
   (cond (< (count form) 3)
-        (user-error-report-form form
-          "You need a minimum of three elements to an against-background form:"
-          (str form))
+        (simple-user-error-report-form form
+          "You need a minimum of three elements to an against-background form:")
      
         (vector? state-descriptions+fakes)                                    
         (when-valid (filter state-description? state-descriptions+fakes)
-          (cond (not (valid-state-descriptions+fakes? state-descriptions+fakes))
-                (user-error-report-form form
-                  "Badly formatted against-background fakes:"
-                  (str form))
-                
-                (empty? state-descriptions+fakes)
-                (user-error-report-form form
-                  "You didn't enter any background fakes or wrappers:"
-                  (str form))
+          (pred-cond state-descriptions+fakes   
+            empty?
+            (simple-user-error-report-form form
+              "You didn't enter any background fakes or wrappers:")
           
-                :else
-                (rest form)))
+            (comp not valid-state-descriptions+fakes?)
+            (simple-user-error-report-form form
+              "Badly formatted against-background fakes:")
+      
+            :else
+            (rest form)))
           
         (sequential? state-descriptions+fakes)
-        (cond (named? (first state-descriptions+fakes))
-              (when-valid state-descriptions+fakes (rest form))
-        
-              :else
-              (rest form))
+        (if (named? (first state-descriptions+fakes))
+          (when-valid state-descriptions+fakes (rest form))
+          (rest form))
           
         :else                                      
-        (user-error-report-form form 
+        (simple-user-error-report-form form 
           "Malformed against-background. against-background requires"
-          "at least one background fake or background wrapper: "
-          (str form))))
+          "at least one background fake or background wrapper: " )))
 
 (defmethod validate "background" [[_background_ & state-descriptions+fakes :as form]]
   (when-valid (filter state-description? state-descriptions+fakes) 
-    (cond (empty? state-descriptions+fakes) 
-          (user-error-report-form form
-            "You didn't enter any background fakes or wrappers:"
-            (str form))
+    (pred-cond state-descriptions+fakes 
+      empty?
+      (simple-user-error-report-form form "You didn't enter any background fakes or wrappers:")
+  
+      (comp not valid-state-descriptions+fakes?)
+      (simple-user-error-report-form form "Badly formatted background fakes:")
       
-          (not (valid-state-descriptions+fakes? state-descriptions+fakes))
-          (user-error-report-form form 
-            "Badly formatted background fakes:"
-            (str form))
-          
-          :else
-          state-descriptions+fakes)))
+      :else
+      state-descriptions+fakes)))

@@ -57,4 +57,13 @@
 
   (user-error-report-form '(whatever)) => user-error-form?)
 
+(fact "can produce a basic error-reporting form, w/ form always as final note"
+  (simple-user-error-report-form '(anything) "note 1" "note 2")
+  => '(clojure.test/report {:type :user-error
+                            :notes '["note 1" "note 2" "(anything)"]
+                            :position '...form-position... })
+  (provided
+    (form-position '(anything)) => ...form-position...)
+
+  (simple-user-error-report-form '(whatever)) => user-error-form?)
 
