@@ -99,7 +99,7 @@
       (recur (conj expanded (first in-progress))
         (rest in-progress)))))
 
-(def ^{:private true } all-state-descriptions #{"before" "after" "around"}) 
+(def all-state-descriptions #{"before" "after" "around"}) 
 
 (defn- state-wrapper [[before-after-or-around wrapping-target & _  :as state-description]]
   (if (all-state-descriptions (name before-after-or-around))
@@ -136,112 +136,4 @@
 
 (defn surround-with-background-fakes [forms]
   `(with-installed-fakes (background-fakes)
-     (do ~@forms)))   
-
-
- ;; Validations
-
-(def ^{:private true} valid-wrapping-targets #{:facts, :contents, :checks })
-
-(defn- validate-state-description [[state-description wrapping-target expression :as form]]
-  (cond 
-      (and (#{"after" "around"} (name state-description)) (not= 3 (count form)))
-      (user-error-report-form form
-        (cl-format nil "    In this form: ~A" form)
-        (cl-format nil "~A forms should look like: (~A :contents/:facts/:checks (your-code))" (name state-description) (name state-description))) 
-  
-      (and (= "before" (name state-description)) 
-           (not= 3 (count form))
-           (or (not= 5 (count form))
-               (and (= 5 (count form)) 
-                    (not= :after (nth form 3)))))
-      (user-error-report-form form
-        (cl-format nil "    In this form: ~A" form)      
-        "before forms should look like: (before :contents/:facts/:checks (your-code)) or "
-        "(before :contents/:facts/:checks (your-code) :after (final-code))")
-
-      ((complement valid-wrapping-targets) wrapping-target)
-      (user-error-report-form form
-        (cl-format nil "    In this form: ~A" form)
-        (cl-format nil "The second element (~A) should be one of: :facts, :contents, or :checks" wrapping-target))
-
-      :else
-      (rest form)))   
-
-(defmethod validate "before" [forms]
-  (validate-state-description forms))
-
-(defmethod validate "after" [forms]
-  (validate-state-description forms))
-
-(defmethod validate "around" [forms]
-  (validate-state-description forms))
-
-(defn- valid-state-descriptions+fakes? [forms]
-  (loop [in-progress forms]
-    (pred-cond in-progress
-      empty? 
-      true
-
-      (some-fn is-start-of-checking-arrow-sequence? metaconstant-prerequisite?) 
-      (let [arrow-seq (take-arrow-sequence in-progress)]
-        (recur (drop (count arrow-seq) in-progress)))
-      
-      seq-headed-by-setup-teardown-form?
-      (recur (rest in-progress))
-      
-      :else
-      false)))
-
-(defn- state-description? [form]
-  (and (sequential? form) 
-       (all-state-descriptions (name (first form)))))
-
-(defmethod validate "against-background" [[_against-background_ state-descriptions+fakes & _body_ :as form]]
-  (cond (< (count form) 3)
-        (user-error-report-form form
-          "You need a minimum of three elements to an against-background form:"
-          (str form))
-     
-        (vector? state-descriptions+fakes)                                    
-        (when-valid (filter state-description? state-descriptions+fakes)
-          (cond (not (valid-state-descriptions+fakes? state-descriptions+fakes))
-                (user-error-report-form form
-                  "Badly formatted against-background fakes:"
-                  (str form))
-                
-                (empty? state-descriptions+fakes)
-                (user-error-report-form form
-                  "You didn't enter any background fakes or wrappers:"
-                  (str form))
-          
-                :else
-                (rest form)))
-          
-        (sequential? state-descriptions+fakes)
-        (cond (named? (first state-descriptions+fakes))
-              (when-valid state-descriptions+fakes (rest form))
-        
-              :else
-              (rest form))
-          
-        :else                                      
-        (user-error-report-form form 
-          "Malformed against-background. against-background requires"
-          "at least one background fake or background wrapper: "
-          (str form))))
-
-(defmethod validate "background" [[_background_ & state-descriptions+fakes :as form]]
-  (when-valid (filter state-description? state-descriptions+fakes) 
-    (cond (empty? state-descriptions+fakes) 
-          (user-error-report-form form
-            "You didn't enter any background fakes or wrappers:"
-            (str form))
-      
-          (not (valid-state-descriptions+fakes? state-descriptions+fakes))
-          (user-error-report-form form 
-            "Badly formatted background fakes:"
-            (str form))
-          
-          :else
-          state-descriptions+fakes)))
+     (do ~@forms)))
