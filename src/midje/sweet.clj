@@ -7,7 +7,7 @@
         midje.error-handling.monadic
         midje.util.debugging
         [midje.util.form-utils :only [macro-for]]
-        [midje.util.exceptions :only [user-error-exception-lines]]
+        [midje.util.exceptions :only [friendly-exception-text]]
         [midje.internal-ideas.wrapping :only [put-wrappers-into-effect]]
         [midje.internal-ideas.fact-context :only [nested-fact-description]]
         [midje.internal-ideas.file-position :only [set-fallback-line-number-from]]
@@ -80,7 +80,7 @@
              (clojure.test/report {:type :exceptional-user-error
                                    :description ~description
                                    :macro-form '~&form
-                                   :exception-lines '~(user-error-exception-lines ex)
+                                   :stacktrace ~(friendly-exception-text ex)
                                    :position (midje.internal-ideas.file-position/line-number-known ~(:line (meta &form)))})
              false))))))
 

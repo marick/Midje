@@ -6,7 +6,6 @@
     [midje.ideas.prerequisites :only [metaconstant-prerequisite? prerequisite-to-fake]]
     [midje.internal-ideas.fakes :only [fake? tag-as-background-fake with-installed-fakes]]
     [midje.internal-ideas.wrapping :only [for-wrapping-target? with-wrapping-target]]
-    [midje.util.exceptions :only [user-error]]
     [midje.util.form-utils :only [first-named? map-first pred-cond separate-by
                                   symbol-named? translate-zipper]]
     [midje.util.laziness :only [eagerly]]

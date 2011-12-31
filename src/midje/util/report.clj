@@ -42,7 +42,7 @@
 (defn- attractively-stringified-form [form]
   (pred-cond form
     named-function?     (format "a function named '%s'" (function-name form))  
-    captured-exception? (friendly-exception-text (captured-exception-value form) "              ")
+    captured-exception? (friendly-exception-text (captured-exception-value form))
     :else               (pr-str form)))
 
 (defn- fail-at [m]
@@ -126,7 +126,7 @@
     (str "    Midje caught an exception when translating this form:")
     (str "      " (pr-str (:macro-form m)))
     (str "      " "This stack trace *might* help:")
-    (indented (:exception-lines m))))
+    (:stacktrace m)))
   
 (letfn [(render [m]
           (->> m report-strings flatten (remove nil?) (map *renderer*) doall))]
