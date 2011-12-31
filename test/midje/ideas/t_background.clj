@@ -189,7 +189,7 @@
                  "body")) => user-error-form? ) 
   
   (fact "invalid when the second in form is not state-descriptions and/or bckground fakes" 
-    (validate `(against-background :incorrect-type-here "body")) =future=> user-error-form? )
+    (validate `(against-background :incorrect-type-here "body")) => user-error-form? )
   
   (fact "invalid when form has less than 3 elements" 
     (validate `(against-background [(before :contents (do "something"))
@@ -302,24 +302,21 @@
 ;; invalid when anything doesn't look like a state-description or background fake
 (after-silently
   (background (before :contents (do "something")) 
-              (:not-a-state-description-or-fake)
-    (fact 1 => 1))
+              (:not-a-state-description-or-fake))
 
   (fact 
     @reported => (one-of (contains {:type :user-error}))))
 
 ; invalid when one thing isn't a state-description or background fake
 (after-silently
-  (background :invalid-stuff-here
-    (fact 1 => 1))
+  (background :invalid-stuff-here)
 
   (fact 
     @reported => (one-of (contains {:type :user-error}))))
 
 ;; invalid if missing background fakes or state descriptions 
 (after-silently
-  (background
-    (fact 1 => 1))
+  (background)
 
   (fact 
     @reported => (one-of (contains {:type :user-error}))))

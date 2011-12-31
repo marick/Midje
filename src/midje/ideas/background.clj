@@ -200,7 +200,7 @@
 (defmethod validate "against-background" [[_against-background_ state-descriptions+fakes & _body_ :as form]]
   (cond (< (count form) 3)
         (user-error-report-form form
-          "against-background form has no background fakes or state descriptions:"
+          "You need a minimum of three elements to an against-background form:"
           (str form))
      
         (vector? state-descriptions+fakes)                                    
@@ -226,12 +226,22 @@
               (rest form))
           
         :else                                      
-        (user-error-report-form form "boom")))
+        (user-error-report-form form 
+          "Malformed against-background. against-background requires"
+          "at least one background fake or background wrapper: "
+          (str form))))
 
 (defmethod validate "background" [[_background_ & state-descriptions+fakes :as form]]
   (when-valid (filter state-description? state-descriptions+fakes) 
-    (if (valid-state-descriptions+fakes? state-descriptions+fakes)
-      state-descriptions+fakes
-      (user-error-report-form form 
-        (cl-format nil "Badly formatted background fakes:")
-        (str form)))))
+    (cond (empty? state-descriptions+fakes) 
+          (user-error-report-form form
+            "You didn't enter any background fakes or wrappers:"
+            (str form))
+      
+          (not (valid-state-descriptions+fakes? state-descriptions+fakes))
+          (user-error-report-form form 
+            "Badly formatted background fakes:"
+            (str form))
+          
+          :else
+          state-descriptions+fakes)))
