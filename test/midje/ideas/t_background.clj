@@ -9,7 +9,7 @@
         [midje.ideas.background :only [separate-background-forms setup-teardown-bindings
                                  seq-headed-by-setup-teardown-form? background-wrappers]]))
 (testable-privates midje.ideas.background
-                   prerequisites-to-fakes state-wrapper)
+                   extract-state-descriptions+fakes state-wrapper)
 
 (unfinished unused used)
 (defn calls-nothing [] )
@@ -74,11 +74,11 @@
 
 (fact "human-friendly background forms can be canonicalized appropriately"
   "fakes"
-  (prerequisites-to-fakes []) => []
-  (prerequisites-to-fakes '[(f 1) => 2]) 
+  (extract-state-descriptions+fakes []) => []
+  (extract-state-descriptions+fakes '[(f 1) => 2]) 
   => '[(midje.semi-sweet/fake (f 1) => 2 :background :background
                                          :times (range 0))]
-  (prerequisites-to-fakes '[   (f 1) => 2 :foo 'bar (f 2) => 33 ])
+  (extract-state-descriptions+fakes '[   (f 1) => 2 :foo 'bar (f 2) => 33 ])
   => '[(midje.semi-sweet/fake (f 1) => 2 :foo 'bar
                                          :background :background
                                          :times (range 0))
@@ -86,25 +86,22 @@
                               :times (range 0)) ]
 
   "data fakes"
-  (prerequisites-to-fakes '[...m... =contains=> {:a 1, :b 2}])
+  (extract-state-descriptions+fakes '[...m... =contains=> {:a 1, :b 2}])
   => '[(midje.semi-sweet/data-fake ...m... =contains=> {:a 1, :b 2})]
 
   "other types are left alone"
-  (prerequisites-to-fakes
+  (extract-state-descriptions+fakes
    '[ (before :checks (swap! test-atom (constantly 0))) ]) =>
    '[ (before :checks (swap! test-atom (constantly 0))) ]
 
  "mixtures"
- (prerequisites-to-fakes
+ (extract-state-descriptions+fakes
   '[ (f 1) => 2 (before :checks (swap! test-atom (constantly 0))) (f 2) => 3 ])
  => '[ (midje.semi-sweet/fake (f 1) => 2 :background :background
                                         :times (range 0))
       (before :checks (swap! test-atom (constantly 0)))
       (midje.semi-sweet/fake (f 2) => 3 :background :background
                                         :times (range 0)) ]
- 
- "error cases"
- (prerequisites-to-fakes '[ (after anything) ]) => (throws Error)
  )
 
 (defn guard-special-form [bindings]
@@ -143,7 +140,7 @@
   (first (second '(midje.semi-sweet.expect (midje.sweet.fact 1 => 2)))) => 'midje.sweet.fact
   (set? #{1 'do}) => truthy)
 
- ;; Validations
+ ;; Validation unit facts
 
 (tabular
   (facts "before, after and around validation"
@@ -199,13 +196,6 @@
                                     (after :BAD (do "something"))])) => user-error-form? 
     (validate `(against-background (before :contents (do "something")))) => user-error-form? ))
 
-(after-silently
-  (against-background [(before :invalid-wrapping-target (do "something"))] 
-    "body")
-
-  (fact 
-    @reported => (one-of (contains {:type :user-error}))))
-
 (facts "background validation"
 
   (fact "valid, then return rest of form"
@@ -222,10 +212,55 @@
   (fact "invalid if any state-description invalid"
     (validate `(background (before :contents (do "something"))
                            (after :BAD (do "something")))) => user-error-form?
-    (validate `(background (before :BAD (do "something")))) => user-error-form? ) )
+    (validate `(background (before :BAD (do "something")))) => user-error-form? ) )  
 
+ ;; Validation end-to-end facts
+
+
+;;;;;;;;;;;;;;;;;;;;;;;; ** `against-background` ** ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; check invalid wrapping targets
+(after-silently
+  (against-background [(before :invalid-wrapping-target (do "something"))] 
+    "body")
+
+  (fact 
+    @reported => (one-of (contains {:type :user-error}))))
+
+;; check for vectors w/ no state-descriptions or background fakes
+(after-silently
+  (against-background [:not-a-state-description-or-fake]
+    (fact nil => nil))
+
+  (fact 
+    @reported => (one-of (contains {:type :user-error}))))
+
+(defn f [] )
+
+;; check for vectors w/ one thing that isn't a state-description or background fake
+(after-silently
+  (against-background [(before :contents (do "something")) (f) => 5 :other-odd-stuff]
+    (fact nil => nil))
+
+  (fact 
+    @reported => (one-of (contains {:type :user-error}))))
+
+;; check for 
+(after-silently
+  (against-background []
+    (fact nil => nil))
+
+  (fact 
+    @reported => (one-of (contains {:type :user-error}))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; ** `background` ** ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; check invalid wrapping targets
 (after-silently
   (background (before :invalid-wrapping-target (do "something")))
   
   (fact 
     @reported => (one-of (contains {:type :user-error}))))
+
+

@@ -23,7 +23,8 @@
         [midje.util.form-utils :only [first-named? translate-zipper preserve-type quoted? 
                                       pred-cond reader-line-number]]
         [midje.util.laziness :only [eagerly]]
-        [midje.util.zip :only [skip-to-rightmost-leaf]] )
+        [midje.util.zip :only [skip-to-rightmost-leaf]]
+        [midje.error-handling.monadic :only [when-valid]])
   (:require [clojure.zip :as zip])
   (:require [midje.util.report :as report]))
 (declare midjcoexpand)
@@ -77,9 +78,10 @@
     already-wrapped?     form
     quoted?              form
     future-fact?         (macroexpand form)
-    against-background?  (-> (body-of-against-background form) 
-                             (expand-against-background (against-background-children-wrappers form))
-                             (multiwrap (against-background-contents-wrappers form)))
+    against-background?  (when-valid form
+                             (-> (body-of-against-background form) 
+                                 (expand-against-background (against-background-children-wrappers form))
+                                 (multiwrap (against-background-contents-wrappers form))))
   
     expect?      (multiwrap form (forms-to-wrap-around :checks ))
     fact?        (multiwrap (midjcoexpand (macroexpand form)) 

@@ -78,7 +78,7 @@
     (and (bindings '?first-form)
          (or (not (bindings '?after)) (bindings '?second-form)))))
 
-(defn- prerequisites-to-fakes [forms]
+(defn- extract-state-descriptions+fakes [forms]
   (loop [expanded []
          in-progress forms]
     (pred-cond in-progress
@@ -97,10 +97,7 @@
 
       seq-headed-by-setup-teardown-form?
       (recur (conj expanded (first in-progress))
-        (rest in-progress))
-
-      :else (throw (user-error (str "This doesn't look like part of a background: "
-                                 (vec in-progress)))))))
+        (rest in-progress)))))
 
 (def ^{:private true } all-state-descriptions #{"before" "after" "around"}) 
 
@@ -122,15 +119,14 @@
   ;; it made it easier to eyeball expanded forms and see what was going on.
   (defn background-wrappers [background-forms]
     (define-metaconstants background-forms)
-    (let [[fakes state-descriptions] (separate-by fake? (prerequisites-to-fakes background-forms))
+    (let [[fakes state-descriptions] (separate-by fake? (extract-state-descriptions+fakes background-forms))
           state-wrappers (eagerly (map state-wrapper state-descriptions))]
       (if (empty? fakes)
         state-wrappers
         (concat state-wrappers (background-fake-wrappers fakes))))))
 
 (defn body-of-against-background [[_against-background_ background-forms & background-body :as form]]
-  (when-valid form
-    `(do ~@background-body)))
+  `(do ~@background-body))
 
 (defn against-background-contents-wrappers [[_against-background_ background-forms & _]]
   (filter (for-wrapping-target? :contents ) (background-wrappers background-forms)))
@@ -179,25 +175,52 @@
 (defmethod validate "around" [forms]
   (validate-state-description forms))
 
+(defn- valid-state-descriptions+fakes? [forms]
+  (loop [in-progress forms]
+    (pred-cond in-progress
+      empty? 
+      true
+
+      (some-fn is-start-of-checking-arrow-sequence? metaconstant-prerequisite?) 
+      (let [arrow-seq (take-arrow-sequence in-progress)]
+        (recur (drop (count arrow-seq) in-progress)))
+      
+      seq-headed-by-setup-teardown-form?
+      (recur (rest in-progress))
+      
+      :else
+      false)))
+
 (defn- state-description? [form]
   (and (sequential? form) 
        (all-state-descriptions (name (first form)))))
 
 (defmethod validate "against-background" [[_against-background_ state-descriptions+fakes & _body_ :as form]]
   (cond (< (count form) 3)
-    (user-error-report-form form
-        "    against-background form looks like it is missing background fakes or state descriptions:"
-        (str form))
-    
-    (vector? state-descriptions+fakes)                                    
-    (when-valid (filter state-description? state-descriptions+fakes) 
-      (rest form))
-      
-    (and (sequential? state-descriptions+fakes) (named? (first state-descriptions+fakes)))
-    (when-valid state-descriptions+fakes (rest form))
-      
-    :else                                      
-    (rest form)))
+        (user-error-report-form form
+          "    against-background form looks like it is missing background fakes or state descriptions:"
+          (str form))
+     
+        (vector? state-descriptions+fakes)                                    
+        (when-valid (filter state-description? state-descriptions+fakes)
+          (cond (not (valid-state-descriptions+fakes? state-descriptions+fakes))
+                (user-error-report-form form
+                  "    somethign doesn't look like a state-desccription or a background fake:"
+                  (str form))
+                
+                (empty? state-descriptions+fakes)
+                (user-error-report-form form
+                  "    can't be empty:"
+                  (str form))
+          
+                :else
+                (rest form)))
+          
+        (and (sequential? state-descriptions+fakes) (named? (first state-descriptions+fakes)))
+        (when-valid state-descriptions+fakes (rest form))
+          
+        :else                                      
+        (rest form)))
 
 (defmethod validate "background" [[_background_ & forms]]
   (when-valid (filter state-description? forms) forms))
