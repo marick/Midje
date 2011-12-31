@@ -9,33 +9,24 @@
   (.toUpperCase (or (getenv "MIDJE_COLORIZE")
                     (str (not (on-windows?))))))
 
-(defn- default-color-choice? []
-  (= (colorize-choice) "TRUE"))
-
-(defn reverse-color-choice? []
-  (= (colorize-choice) "REVERSE"))
-
 (defn colorizing? [] 
   (not (= (colorize-choice) "FALSE")))
 
-(cond (default-color-choice?)
-      (do
-        (def fail color/red)
-        (def pass color/green)
-        (def note color/cyan))
+(case (colorize-choice)
+  "TRUE" (do
+           (def fail color/red)
+           (def pass color/green)
+           (def note color/cyan))
 
-      (reverse-color-choice?)
-      (do
-        (def fail color/red-bg)
-        (def pass color/green-bg)
-        (def note color/cyan-bg))
+  "REVERSE" (do
+              (def fail color/red-bg)
+              (def pass color/green-bg)
+              (def note color/cyan-bg))
 
-      :else
-      (do
-        (def fail identity)
-        (def pass identity)
-        (def note identity)))
+  (do
+    (def fail identity)
+    (def pass identity)
+    (def note identity)))
 
 (defn colorized? [s] 
   (.startsWith s "\033["))
-      
