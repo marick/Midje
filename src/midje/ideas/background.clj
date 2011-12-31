@@ -147,7 +147,8 @@
   (cond 
       (and (#{"after" "around"} (name state-description)) (not= 3 (count form)))
       (user-error-report-form form
-        (cl-format nil "    ~A form should look like: (~A :contents/:facts/:checks (your-code))" form (name state-description))) 
+        (cl-format nil "    In this form: ~A" form)
+        (cl-format nil "~A forms should look like: (~A :contents/:facts/:checks (your-code))" (name state-description) (name state-description))) 
   
       (and (= "before" (name state-description)) 
            (not= 3 (count form))
@@ -155,8 +156,9 @@
                (and (= 5 (count form)) 
                     (not= :after (nth form 3)))))
       (user-error-report-form form
-        (cl-format nil "    ~A form should look like: (before :contents/:facts/:checks (your-code)) or" form (name state-description))
-        (cl-format nil "    (before :contents/:facts/:checks (your-code) :after (final-code))"))
+        (cl-format nil "    In this form: ~A" form)      
+        "before forms should look like: (before :contents/:facts/:checks (your-code)) or "
+        "(before :contents/:facts/:checks (your-code) :after (final-code))")
 
       ((complement valid-wrapping-targets) wrapping-target)
       (user-error-report-form form
@@ -198,19 +200,19 @@
 (defmethod validate "against-background" [[_against-background_ state-descriptions+fakes & _body_ :as form]]
   (cond (< (count form) 3)
         (user-error-report-form form
-          "    against-background form looks like it is missing background fakes or state descriptions:"
+          "against-background form has no background fakes or state descriptions:"
           (str form))
      
         (vector? state-descriptions+fakes)                                    
         (when-valid (filter state-description? state-descriptions+fakes)
           (cond (not (valid-state-descriptions+fakes? state-descriptions+fakes))
                 (user-error-report-form form
-                  "    something doesn't look like a state-desccription or a background fake:"
+                  "Badly formatted against-background fakes:"
                   (str form))
                 
                 (empty? state-descriptions+fakes)
                 (user-error-report-form form
-                  "    can't be empty:"
+                  "You didn't enter any background fakes or wrappers:"
                   (str form))
           
                 :else
@@ -230,4 +232,6 @@
   (when-valid (filter state-description? state-descriptions+fakes) 
     (if (valid-state-descriptions+fakes? state-descriptions+fakes)
       state-descriptions+fakes
-      (user-error-report-form form "boom"))))
+      (user-error-report-form form 
+        (cl-format nil "Badly formatted background fakes:")
+        (str form)))))
