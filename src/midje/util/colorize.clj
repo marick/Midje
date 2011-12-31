@@ -5,7 +5,7 @@
   (:use [midje.util.ecosystem :only [getenv on-windows?]]))
 
 
-(defn- colorize-choice []
+(defn colorize-choice []
   (.toUpperCase (or (getenv "MIDJE_COLORIZE")
                     (str (not (on-windows?))))))
 
@@ -14,6 +14,14 @@
 
 (defn reverse-color-choice? []
   (= (colorize-choice) "REVERSE"))
+
+(defn colorizing? [] 
+  (let [default (default-color-choice?)
+        reverse (reverse-color-choice?)]
+    (or default reverse)))
+
+(defn colorizing? [] 
+  (not (= (colorize-choice) "FALSE")))
 
 (cond (default-color-choice?)
       (do
@@ -32,4 +40,7 @@
         (def fail identity)
         (def pass identity)
         (def note identity)))
+
+(defn colorized? [s] 
+  (.startsWith s "\033["))
       

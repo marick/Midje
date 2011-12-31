@@ -38,3 +38,14 @@
     (color/note "d")) => anything
   (provided
     (getenv "MIDJE_COLORIZE") => anything :times 0))
+
+(tabular 
+  (fact 
+    (colorizing?) => ?result
+    (provided 
+      (colorize-choice) => ?choice ))
+  
+    ?choice    ?result
+    "TRUE"     truthy
+    "REVERSE"  truthy
+    "FALSE"    falsey  )

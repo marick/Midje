@@ -2,7 +2,8 @@
 
 (ns midje.util.exceptions
   (:use [clojure.string :only [join]]
-        [clj-stacktrace.repl :only [pst+]]))
+        [clj-stacktrace.repl :only [pst+ pst-str]]
+        [midje.util.colorize :only [colorizing?]]))
 
 
 (def line-separator ^{:private true} (System/getProperty "line.separator"))
@@ -11,4 +12,6 @@
   (Error. (join line-separator lines)))
 
 (defn friendly-stacktrace [ex]
-  (with-out-str (pst+ ex)))
+  (if (colorizing?)
+    (with-out-str (pst+ ex))
+    (pst-str ex)))
