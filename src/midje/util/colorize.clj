@@ -16,11 +16,6 @@
   (= (colorize-choice) "REVERSE"))
 
 (defn colorizing? [] 
-  (let [default (default-color-choice?)
-        reverse (reverse-color-choice?)]
-    (or default reverse)))
-
-(defn colorizing? [] 
   (not (= (colorize-choice) "FALSE")))
 
 (cond (default-color-choice?)
