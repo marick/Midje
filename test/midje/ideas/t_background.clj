@@ -221,7 +221,7 @@
 
 ;; ~~ Vectory
 
-;; check invalid wrapping targets
+;; invalid wrapping targets
 (after-silently
   (against-background [(before :invalid-wrapping-target (do "something"))] 
     "body")
@@ -247,7 +247,7 @@
   (fact 
     @reported => (one-of (contains {:type :user-error}))))
 
-;; check for 
+;; invalid if missing background fakes or state descriptions 
 (after-silently
   (against-background []
     (fact nil => nil))
@@ -257,7 +257,7 @@
 
 ;; ~~Sequency 
 
-;; check invalid wrapping targets
+;; invalid wrapping targets
 (after-silently
   (against-background (before :invalid-wrapping-target (do "something")) 
     "body")
@@ -265,7 +265,7 @@
   (fact 
     @reported => (one-of (contains {:type :user-error}))))
 
-;; check for vectors w/ no state-descriptions or background fakes
+;; invalid when list w/ no state-descriptions or background fakes
 (after-silently
   (against-background (:not-a-state-description-or-fake)
     (fact nil => nil))
@@ -273,7 +273,7 @@
   (fact 
     @reported =future=> (one-of (contains {:type :user-error}))))
 
-; check for vectors w/ one thing that isn't a state-description or background fake
+; check for one thing that isn't a state-description or background fake
 (after-silently
   (against-background :invalid-stuff-here
     (fact nil => nil))
@@ -281,7 +281,7 @@
   (fact 
     @reported => (one-of (contains {:type :user-error}))))
 
-;; check for 
+;; invalid if missing background fakes or state descriptions 
 (after-silently
   (against-background
     (fact nil => nil))
@@ -292,11 +292,35 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; ** `background` end-to-end ** ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; check invalid wrapping targets
+;; invalid wrapping targets
 (after-silently
   (background (before :invalid-wrapping-target (do "something")))
   
   (fact 
     @reported => (one-of (contains {:type :user-error}))))
 
+;; invalid when anything doesn't look like a state-description or background fake
+(after-silently
+  (background (before :contents (do "something")) 
+              (:not-a-state-description-or-fake)
+    (fact 1 => 1))
+
+  (fact 
+    @reported => (one-of (contains {:type :user-error}))))
+
+; invalid when one thing isn't a state-description or background fake
+(after-silently
+  (background :invalid-stuff-here
+    (fact 1 => 1))
+
+  (fact 
+    @reported => (one-of (contains {:type :user-error}))))
+
+;; invalid if missing background fakes or state descriptions 
+(after-silently
+  (background
+    (fact 1 => 1))
+
+  (fact 
+    @reported => (one-of (contains {:type :user-error}))))
 

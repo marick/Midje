@@ -226,5 +226,8 @@
         :else                                      
         (user-error-report-form form "boom")))
 
-(defmethod validate "background" [[_background_ & forms]]
-  (when-valid (filter state-description? forms) forms))
+(defmethod validate "background" [[_background_ & state-descriptions+fakes :as form]]
+  (when-valid (filter state-description? state-descriptions+fakes) 
+    (if (valid-state-descriptions+fakes? state-descriptions+fakes)
+      state-descriptions+fakes
+      (user-error-report-form form "boom"))))
