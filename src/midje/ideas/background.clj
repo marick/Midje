@@ -95,12 +95,10 @@
 
 (def all-state-descriptions #{"before" "after" "around"}) 
 
-(defn- state-wrapper [[before-after-or-around wrapping-target & _  :as state-description]]
-  (if (all-state-descriptions (name before-after-or-around))
-    (with-wrapping-target
-      (macroexpand-1 (map-first #(symbol "midje.ideas.background" (name %)) state-description))
-      wrapping-target)
-    (throw (user-error (str "Could make nothing of " state-description)))))
+(defn- state-wrapper [[_before-after-or-around_ wrapping-target & _  :as state-description]]
+  (with-wrapping-target
+    (macroexpand-1 (map-first #(symbol "midje.ideas.background" (name %)) state-description))
+    wrapping-target))
 
 (letfn [(background-fake-wrappers [fakes]
           (let [around-facts-and-checks `(with-pushed-namespace-values
