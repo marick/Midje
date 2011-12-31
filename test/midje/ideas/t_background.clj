@@ -217,7 +217,9 @@
  ;; Validation end-to-end facts
 
 
-;;;;;;;;;;;;;;;;;;;;;;;; ** `against-background` ** ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;; ** `against-background` end-to-end ** ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ~~ Vectory
 
 ;; check invalid wrapping targets
 (after-silently
@@ -253,8 +255,34 @@
   (fact 
     @reported => (one-of (contains {:type :user-error}))))
 
+;; ~~Sequency 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; ** `background` ** ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; check invalid wrapping targets
+(after-silently
+  (against-background (before :invalid-wrapping-target (do "something")) 
+    "body")
+
+  (fact 
+    @reported => (one-of (contains {:type :user-error}))))
+
+; check for vectors w/ one thing that isn't a state-description or background fake
+(after-silently
+  (against-background :invalid-stuff-here
+    (fact nil => nil))
+
+  (fact 
+    @reported => (one-of (contains {:type :user-error}))))
+
+;; check for 
+(after-silently
+  (against-background
+    (fact nil => nil))
+
+  (fact 
+    @reported => (one-of (contains {:type :user-error}))))
+           
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; ** `background` end-to-end ** ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; check invalid wrapping targets
 (after-silently

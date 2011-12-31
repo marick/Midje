@@ -205,7 +205,7 @@
         (when-valid (filter state-description? state-descriptions+fakes)
           (cond (not (valid-state-descriptions+fakes? state-descriptions+fakes))
                 (user-error-report-form form
-                  "    somethign doesn't look like a state-desccription or a background fake:"
+                  "    something doesn't look like a state-desccription or a background fake:"
                   (str form))
                 
                 (empty? state-descriptions+fakes)
@@ -216,11 +216,20 @@
                 :else
                 (rest form)))
           
-        (and (sequential? state-descriptions+fakes) (named? (first state-descriptions+fakes)))
-        (when-valid state-descriptions+fakes (rest form))
+        (sequential? state-descriptions+fakes)
+        (cond (named? (first state-descriptions+fakes))
+              (when-valid state-descriptions+fakes (rest form))
+                   
+;              (not (valid-state-descriptions+fakes? [state-descriptions+fakes]))
+;                (user-error-report-form form
+;                  "    something doesn't look like a state-desccription or a background fake:"
+;                  (str form))
+        
+              :else
+              (rest form))
           
         :else                                      
-        (rest form)))
+        (user-error-report-form form "boom")))
 
 (defmethod validate "background" [[_background_ & forms]]
   (when-valid (filter state-description? forms) forms))
