@@ -10,7 +10,7 @@
                  [colorize "0.1.1"]
                  [org.clojure/tools.macro "0.1.1"]
                  [org.clojure/core.incubator "0.1.0"]]
-  :dev-dependencies [[slamhound "1.1.1"]
+  :dev-dependencies [[slamhound "1.2.0"]
                      [com.intelie/lazytest "1.0.0-SNAPSHOT" :exclusions [swank-clojure]]
                      [codox "0.3.1"]]
   ;; automatically detects when your :dependencies key changes and runs

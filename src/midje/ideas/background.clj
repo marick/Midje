@@ -1,26 +1,20 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.ideas.background
-  (:use
-    [midje.util.form-utils :only [first-named? translate-zipper symbol-named? separate-by 
-                                  pred-cond map-first named?]]
-    [midje.util.exceptions :only [user-error]]   
-    [midje.error-handling.monadic :only [user-error-report-form validate when-valid]]  
-    [clojure.pprint :only [cl-format]]
+  (:use [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence? take-arrow-sequence]]
     [midje.ideas.metaconstants :only [define-metaconstants]]
-    [midje.ideas.prerequisites :only [prerequisite-to-fake
-                                      metaconstant-prerequisite?]]
-    [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence? take-arrow-sequence]]
+    [midje.ideas.prerequisites :only [metaconstant-prerequisite? prerequisite-to-fake]]
+    [midje.internal-ideas.fakes :only [fake? tag-as-background-fake with-installed-fakes]]
+    [midje.internal-ideas.wrapping :only [for-wrapping-target? with-wrapping-target]]
+    [midje.util.exceptions :only [user-error]]
+    [midje.util.form-utils :only [first-named? map-first pred-cond separate-by
+                                  symbol-named? translate-zipper]]
     [midje.util.laziness :only [eagerly]]
-    [midje.internal-ideas.fakes :only [with-installed-fakes
-                                       tag-as-background-fake
-                                       fake?]]
-    [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out with-pushed-namespace-values]]
-    [midje.internal-ideas.wrapping :only [with-wrapping-target
-                                          for-wrapping-target?]]
-    [utilize.seq :only (separate find-first)])
-  (:require [midje.util.unify :as unify :only [bindings-map-or-nil ?form]]
-            [clojure.zip :as zip]))
+    [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
+                                               with-pushed-namespace-values]]
+    [utilize.seq :only [separate]])
+  (:require [clojure.zip :as zip] 
+            [midje.util.unify :as unify]))
 
 (defn against-background? [form]
   (first-named? form "against-background"))

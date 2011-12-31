@@ -2,26 +2,12 @@
 
 (ns midje.error-handling.background-errors
   (:use
-    [midje.util.form-utils :only [first-named? translate-zipper symbol-named? separate-by 
-                                  pred-cond map-first named?]]
-    [midje.util.exceptions :only [user-error]]   
-    [midje.error-handling.monadic :only [user-error-report-form validate when-valid]]  
     [clojure.pprint :only [cl-format]]
-    [midje.ideas.metaconstants :only [define-metaconstants]]
-    [midje.ideas.background :only [all-state-descriptions seq-headed-by-setup-teardown-form?]]
-    [midje.ideas.prerequisites :only [prerequisite-to-fake
-                                      metaconstant-prerequisite?]]
+    [midje.error-handling.monadic :only [user-error-report-form validate when-valid]]
     [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence? take-arrow-sequence]]
-    [midje.util.laziness :only [eagerly]]
-    [midje.internal-ideas.fakes :only [with-installed-fakes
-                                       tag-as-background-fake
-                                       fake?]]
-    [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out with-pushed-namespace-values]]
-    [midje.internal-ideas.wrapping :only [with-wrapping-target
-                                          for-wrapping-target?]]
-    [utilize.seq :only (separate find-first)])
-  (:require [midje.util.unify :as unify :only [bindings-map-or-nil ?form]]
-            [clojure.zip :as zip]))
+    [midje.ideas.background :only [all-state-descriptions seq-headed-by-setup-teardown-form?]]
+    [midje.ideas.prerequisites :only [metaconstant-prerequisite?]]
+    [midje.util.form-utils :only [named? pred-cond]]))
 
 (def ^{:private true} valid-wrapping-targets #{:facts, :contents, :checks })
 
