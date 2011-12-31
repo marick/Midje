@@ -219,11 +219,6 @@
         (sequential? state-descriptions+fakes)
         (cond (named? (first state-descriptions+fakes))
               (when-valid state-descriptions+fakes (rest form))
-                   
-;              (not (valid-state-descriptions+fakes? [state-descriptions+fakes]))
-;                (user-error-report-form form
-;                  "    something doesn't look like a state-desccription or a background fake:"
-;                  (str form))
         
               :else
               (rest form))

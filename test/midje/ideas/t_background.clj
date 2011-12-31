@@ -265,6 +265,14 @@
   (fact 
     @reported => (one-of (contains {:type :user-error}))))
 
+;; check for vectors w/ no state-descriptions or background fakes
+(after-silently
+  (against-background (:not-a-state-description-or-fake)
+    (fact nil => nil))
+
+  (fact 
+    @reported =future=> (one-of (contains {:type :user-error}))))
+
 ; check for vectors w/ one thing that isn't a state-description or background fake
 (after-silently
   (against-background :invalid-stuff-here
