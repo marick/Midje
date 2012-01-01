@@ -67,7 +67,7 @@
        current-result)))
 
 (defmethod make-result-supplier :default [arrow result-stream]
-  (throw (user-error (str "It's likely you misparenthesized your metaconstant prerequisite."))))
+  (throw (user-error "It's likely you misparenthesized your metaconstant prerequisite.")))
 
 (defn fake* [ [[var-sym & args :as call-form] arrow result & overrides] ]
   ;; The (vec args) keeps something like (...o...) from being
@@ -166,6 +166,8 @@
       :else (do
               (swap! (action :count-atom ) inc)
               ((action :result-supplier ))))))
+
+;; Binding map related
 
 (defn- unique-vars [fakes]
   (distinct (map :lhs fakes)))
