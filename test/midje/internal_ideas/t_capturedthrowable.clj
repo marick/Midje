@@ -1,8 +1,8 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.internal-ideas.capturedthrowable
+(ns midje.internal-ideas.t_capturedthrowable
   (:use midje.sweet
-        [midje.checkers util]
+        midje.internal-ideas.capturedthrowable
         midje.test-util))
 
 (defrecord R [a])
