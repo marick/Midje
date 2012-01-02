@@ -88,48 +88,33 @@
 ;; ~~ Vectory
 
 ;; invalid wrapping targets
-(after-silently
+(causes-validation-error
   (against-background [(before :invalid-wrapping-target (do "something"))] 
-    "body")
-
-  (fact 
-    @reported => (one-of (contains {:type :user-error}))))
+    "body"))
 
 ;; check for vectors w/ no state-descriptions or background fakes
-(after-silently
+(causes-validation-error
   (against-background [:not-a-state-description-or-fake]
-    (fact nil => nil))
-
-  (fact 
-    @reported => (one-of (contains {:type :user-error}))))
+    (fact nil => nil)))
 
 (defn f [] )
 
 ;; check for vectors w/ one thing that isn't a state-description or background fake
-(after-silently
+(causes-validation-error
   (against-background [(before :contents (do "something")) (f) => 5 :other-odd-stuff]
-    (fact nil => nil))
-
-  (fact 
-    @reported => (one-of (contains {:type :user-error}))))
+    (fact nil => nil)))
 
 ;; invalid if missing background fakes or state descriptions 
-(after-silently
+(causes-validation-error
   (against-background []
-    (fact nil => nil))
-
-  (fact 
-    @reported => (one-of (contains {:type :user-error}))))
+    (fact nil => nil)))
 
 ;; ~~Sequency 
 
 ;; invalid wrapping targets
-(after-silently
+(causes-validation-error
   (against-background (before :invalid-wrapping-target (do "something")) 
-    "body")
-
-  (fact 
-    @reported => (one-of (contains {:type :user-error}))))
+    "body"))
 
 ;; invalid when list w/ no state-descriptions or background fakes
 (after-silently
@@ -140,50 +125,31 @@
     @reported =future=> (one-of (contains {:type :user-error}))))
 
 ; check for one thing that isn't a state-description or background fake
-(after-silently
+(causes-validation-error
   (against-background :invalid-stuff-here
-    (fact nil => nil))
-
-  (fact 
-    @reported => (one-of (contains {:type :user-error}))))
+    (fact nil => nil)))
 
 ;; invalid if missing background fakes or state descriptions 
-(after-silently
+(causes-validation-error
   (against-background
-    (fact nil => nil))
-
-  (fact 
-    @reported => (one-of (contains {:type :user-error}))))
+    (fact nil => nil)))
            
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; ** `background` end-to-end ** ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; invalid wrapping targets
-(after-silently
-  (background (before :invalid-wrapping-target (do "something")))
-  
-  (fact 
-    @reported => (one-of (contains {:type :user-error}))))
+(causes-validation-error
+  (background (before :invalid-wrapping-target (do "something"))))
 
 ;; invalid when anything doesn't look like a state-description or background fake
-(after-silently
+(causes-validation-error
   (background (before :contents (do "something")) 
-              (:not-a-state-description-or-fake))
-
-  (fact 
-    @reported => (one-of (contains {:type :user-error}))))
+              (:not-a-state-description-or-fake)))
 
 ; invalid when one thing isn't a state-description or background fake
-(after-silently
-  (background :invalid-stuff-here)
-
-  (fact 
-    @reported => (one-of (contains {:type :user-error}))))
+(causes-validation-error
+  (background :invalid-stuff-here))
 
 ;; invalid if missing background fakes or state descriptions 
-(after-silently
-  (background)
-
-  (fact 
-    @reported => (one-of (contains {:type :user-error}))))
-
+(causes-validation-error
+  (background))
