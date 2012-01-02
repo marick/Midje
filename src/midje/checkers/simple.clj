@@ -6,9 +6,7 @@
   (:use [midje.checkers.defining :only [checker defchecker]]
   	[midje.checkers.extended-equality :only [extended-=]]
   	[midje.checkers.util :only [captured-exception? 
-  	                            captured-exception-key 
-  	                            named-as-call
-  	                            throwable-with-class?]]
+  	                            named-as-call]]
         [midje.util.ecosystem :only [clojure-1-3? +M -M *M]]))
 
 (defchecker truthy 
@@ -58,9 +56,10 @@
   "Checks that Throwable of named class was thrown and, optionally, that
    the message is as desired."
   ([expected-exception-class]
-     (checker [wrapped-throwable] (throwable-with-class? wrapped-throwable expected-exception-class)))
+     (checker [wrapped-throwable] 
+       (= expected-exception-class (class (.throwable wrapped-throwable)))))
   ([expected-exception-class message]
      (checker [wrapped-throwable]
-       (and (throwable-with-class? wrapped-throwable expected-exception-class)
-            (extended-= (.getMessage (wrapped-throwable captured-exception-key))
+       (and (= expected-exception-class (class (.throwable wrapped-throwable)))
+            (extended-= (.getMessage (.throwable wrapped-throwable))
                         message)))))

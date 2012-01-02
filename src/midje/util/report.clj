@@ -4,7 +4,7 @@
         [clojure.pprint :only [cl-format]]
         [midje.util.object-utils :only [function-name function-name-or-spewage named-function?]]
         [midje.util.exceptions :only [friendly-stacktrace]]
-        [midje.checkers.util :only [captured-exception? captured-exception-value]]
+        [midje.checkers.util :only [captured-exception?]]
         [midje.util.form-utils :only [pred-cond]])
   (:require [midje.util.colorize :as color]))
 
@@ -42,7 +42,7 @@
 (defn- attractively-stringified-form [form]
   (pred-cond form
     named-function?     (format "a function named '%s'" (function-name form))  
-    captured-exception? (friendly-stacktrace (captured-exception-value form))
+    captured-exception? (friendly-stacktrace (.throwable form))
     :else               (pr-str form)))
 
 (defn- fail-at [m]

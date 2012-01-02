@@ -9,19 +9,17 @@
   [name expected function]
   (name-object function (format "(%s %s)" name expected)))
   
-(def captured-exception-key "this Throwable was captured by midje:")
+;; capturedthrowable.clj
 
-(defn captured-exception [e] 
-  {captured-exception-key e})
+(defprotocol ICapturedThrowable
+  (throwable [this]))
+                       ;; TODO: Alex Jan 1, 2011: rename all this stuff to 'throwable...'
+(deftype CapturedThrowable [ex] 
+  ICapturedThrowable 
+  (throwable [this] ex))
 
-(defn captured-exception? [value]
-  (and (classic-map? value)
-       (not (sorted? value)) ; Cannot dereference sorted maps with obj of diff. type than key.
-       (value captured-exception-key)))
+(defn captured-exception [ex] 
+  (CapturedThrowable. ex))
 
-(defn captured-exception-value [captured-exception]
-  (captured-exception captured-exception-key))
-
-(defn throwable-with-class? [wrapped-throwable expected-class]
-  (and (map? wrapped-throwable)
-       (= expected-class (class (wrapped-throwable captured-exception-key)))))
+(defn captured-exception? [x]
+  (satisfies? ICapturedThrowable x))

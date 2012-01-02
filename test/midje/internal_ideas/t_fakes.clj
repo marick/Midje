@@ -155,17 +155,17 @@
 (defn all-even? [xs] (every? even? xs))
 
 (after-silently 
- (fact "get a user error from nested call to faked `every?`"
-   (all-even? ..xs..) => truthy
-   (provided (every? even? ..xs..) => true))
- (let [important-error (find-first #(= (:type %) :mock-expected-result-functional-failure)
-                                   @reported)
-       text (clojure.string/join " " (:actual important-error))]
-   
-   (fact
-     text => #"seem to have created a prerequisite"
-     text => #"clojure\.core/every\?"
-     text => #"interferes with.*Midje")))
+  (fact "get a user error from nested call to faked `every?`"
+     (all-even? ..xs..) => truthy
+     (provided (every? even? ..xs..) => true))
+  (let [important-error (find-first #(= (:type %) :mock-expected-result-functional-failure)
+                                     @reported)
+         text (.getMessage (.throwable (:actual important-error)))]
+     
+     (fact
+       text => #"seem to have created a prerequisite"
+       text => #"clojure\.core/every\?"
+       text => #"interferes with.*Midje")))
 
 ;; And inlined functions can't be faked
 
