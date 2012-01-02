@@ -65,7 +65,7 @@
   (macrolet [(capturing-exception [form]
                `(try ~form
                   (catch Throwable e#
-                    (captured-exception e#))))]
+                    (captured-throwable e#))))]
     (with-installed-fakes (concat (reverse (filter :data-fake (background-fakes))) local-fakes)
       (let [code-under-test-result (capturing-exception
                                     (eagerly

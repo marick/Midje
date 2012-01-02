@@ -13,13 +13,13 @@
 
 (defprotocol ICapturedThrowable
   (throwable [this]))
-                       ;; TODO: Alex Jan 1, 2011: rename all this stuff to 'throwable...'
+                       
 (deftype CapturedThrowable [ex] 
   ICapturedThrowable 
   (throwable [this] ex))
 
-(defn captured-exception [ex] 
+(defn captured-throwable [ex] 
   (CapturedThrowable. ex))
 
-(defn captured-exception? [x]
+(defn captured-throwable? [x]
   (satisfies? ICapturedThrowable x))

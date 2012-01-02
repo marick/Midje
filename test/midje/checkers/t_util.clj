@@ -8,9 +8,9 @@
 (defrecord R [a])
 
 (fact "captured exceptions can be recognized"
-  (captured-exception? (captured-exception (Throwable.))) => truthy
+  (captured-throwable? (captured-throwable (Throwable.))) => truthy
   "and are not fooled by maps or records"
-  (captured-exception? {}) => falsey
-  (captured-exception? (sorted-map :a 3)) => falsey
-  (captured-exception? (R. 1)) => falsey)
+  (captured-throwable? {}) => falsey
+  (captured-throwable? (sorted-map :a 3)) => falsey
+  (captured-throwable? (R. 1)) => falsey)
 

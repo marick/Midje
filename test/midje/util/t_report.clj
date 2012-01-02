@@ -2,7 +2,7 @@
 
 (ns midje.util.t-report
   (:use [midje.util.report :only [midje-position-string with-identity-renderer ]]
-        [midje.checkers.util :only [captured-exception]]
+        [midje.checkers.util :only [captured-throwable]]
         [midje sweet test-util]))
 
 
@@ -165,7 +165,7 @@
   (let [failure-map {:type :mock-expected-result-failure
                      :description "some description"
                      :position ["foo.clj" 3]
-                     :actual (captured-exception (Error. "message"))
+                     :actual (captured-throwable (Error. "message"))
                      :expected "hi"}
         raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
     ;; Because midje stack traces are filtered out, there's not much more to check.
