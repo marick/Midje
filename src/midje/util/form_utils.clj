@@ -6,8 +6,8 @@
         [utilize.seq :only (first-truthy-fn)])
   (:require [clojure.zip :as zip]))
 
-(defn regex? [thing]
-  (= (class thing) java.util.regex.Pattern))
+(defn regex? [x]
+  (= (class x) java.util.regex.Pattern))
 
 (defn classic-map? [x]
   (.isInstance clojure.lang.APersistentMap x))
@@ -17,9 +17,9 @@
   
 (defn symbol-named?
   "Is the thing a symbol with the name given by the string?"
-  [thing string]
-  (and (symbol? thing)
-       (= (name thing) string)))
+  [x string]
+  (and (symbol? x)
+       (= (name x) string)))
 
 (defn first-named?
   "Is the form's first element a symbol whose name is the desired string?"
@@ -134,5 +134,5 @@
   [f x]
   (cons (f (first x)) (rest x)))
 
-(defn named? [thing]
-  (instance? clojure.lang.Named thing))
+(defn named? [x]
+  (instance? clojure.lang.Named x))
