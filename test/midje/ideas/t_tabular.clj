@@ -92,13 +92,20 @@
 
 ;; Error handling
 
-(after-silently
- (tabular
-  (fact "A misparenthesization that results in no table is noticed."
-    (tabular-forms '?forms) => '?expected
-    ?forms                       ?expect
-    [ fact table ]               [fact table]))
- (fact @reported => (one-of a-user-error)))
+(causes-validation-error #"There's no table\. \(Misparenthesized form\?\)"
+  (tabular "A misparenthesization that results in no table is noticed."
+    (fact 
+      (tabular-forms '?forms) => '?expected
+      ?forms                       ?expect
+      [ fact table ]               [fact table])))
+
+(causes-validation-error #"There's no table\. \(Misparenthesized form\?\)"
+  (tabular 
+    (fact nil => nil)))
+
+(causes-validation-error #"There's no table\. \(Misparenthesized form\?\)"
+  (tabular "doc string present"
+    (fact nil => nil)))
 
 ;; Other tests via midje.sweet API
 
