@@ -88,31 +88,31 @@
 ;; ~~ Vectory
 
 ;; invalid wrapping targets
-(causes-validation-error
+(causes-validation-error #"second element \(:invalid-wrapping-target\) should be one of: :facts, :contents, or :checks"
   (against-background [(before :invalid-wrapping-target (do "something"))] 
     "body"))
 
 ;; check for vectors w/ no state-descriptions or background fakes
-(causes-validation-error
+(causes-validation-error #"Badly formatted against-background fakes"
   (against-background [:not-a-state-description-or-fake]
     (fact nil => nil)))
 
 (defn f [] )
 
 ;; check for vectors w/ one thing that isn't a state-description or background fake
-(causes-validation-error
+(causes-validation-error #"Badly formatted against-background fakes"
   (against-background [(before :contents (do "something")) (f) => 5 :other-odd-stuff]
     (fact nil => nil)))
 
 ;; invalid if missing background fakes or state descriptions 
-(causes-validation-error
+(causes-validation-error #"You didn't enter any background fakes or wrappers"
   (against-background []
     (fact nil => nil)))
 
 ;; ~~Sequency 
 
 ;; invalid wrapping targets
-(causes-validation-error
+(causes-validation-error #"second element \(:invalid-wrapping-target\) should be one of: :facts, :contents, or :checks"
   (against-background (before :invalid-wrapping-target (do "something")) 
     "body"))
 
@@ -125,12 +125,12 @@
     @reported =future=> (one-of (contains {:type :user-error}))))
 
 ; check for one thing that isn't a state-description or background fake
-(causes-validation-error
+(causes-validation-error #"at least one background fake or background wrapper"
   (against-background :invalid-stuff-here
     (fact nil => nil)))
 
 ;; invalid if missing background fakes or state descriptions 
-(causes-validation-error
+(causes-validation-error #"need a minimum of three elements to an against-background form"
   (against-background
     (fact nil => nil)))
            
@@ -138,18 +138,18 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; ** `background` end-to-end ** ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; invalid wrapping targets
-(causes-validation-error
+(causes-validation-error #"second element \(:invalid-wrapping-target\) should be one of: :facts, :contents, or :checks"
   (background (before :invalid-wrapping-target (do "something"))))
 
 ;; invalid when anything doesn't look like a state-description or background fake
-(causes-validation-error
+(causes-validation-error #"Badly formatted background fakes"
   (background (before :contents (do "something")) 
               (:not-a-state-description-or-fake)))
 
 ; invalid when one thing isn't a state-description or background fake
-(causes-validation-error
+(causes-validation-error #"Badly formatted background fakes"
   (background :invalid-stuff-here))
 
 ;; invalid if missing background fakes or state descriptions 
-(causes-validation-error
+(causes-validation-error #"You didn't enter any background fakes or wrappers"
   (background))

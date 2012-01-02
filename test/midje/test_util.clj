@@ -65,8 +65,9 @@
   `(just (contains {:notes (just ~@notes)
                     :type :user-error})))
 
-(defmacro causes-validation-error [& body]
+(defmacro causes-validation-error [error-msg & body]
   `(after-silently
     ~@body  
     (midje.sweet/fact 
-      @reported midje.sweet/=> (one-of (contains {:type :user-error})))))
+      @reported midje.sweet/=> (one-of (contains {:type :user-error 
+                                                  :notes (contains ~error-msg)})))))

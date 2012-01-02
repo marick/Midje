@@ -40,7 +40,7 @@
     (to-semi-sweet form) => form))
 
 ;; invalid if fact form is too short 
-(causes-validation-error 
+(causes-validation-error #"Looks like you forgot to fill in your"
   (fact))
-(causes-validation-error 
+(causes-validation-error #"Looks like you forgot to fill in your" 
   (fact "test it"))
