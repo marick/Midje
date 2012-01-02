@@ -13,12 +13,12 @@
       (on-windows?) => ?on-windows :times (range)
       (getenv "MIDJE_COLORIZE") => ?env-var))
 
-  ?color-fn         ?env-var  ?on-windows     ?result
-  color/fail     "FALSE"    false           "string"
-  color/fail     "TRUE"     false           "\u001b[31mstring\u001b[0m"
-  color/fail     "reverse"  false           "\u001b[41mstring\u001b[0m"
-  color/fail      nil       false           "\u001b[31mstring\u001b[0m"
-  color/fail      nil       true            "string"
+  ?color-fn   ?env-var      ?on-windows     ?result
+  color/fail  "FALSE"       false           "string"
+  color/fail  "TRUE"        false           "\u001b[31mstring\u001b[0m"
+  color/fail  "reverse"     false           "\u001b[41mstring\u001b[0m"
+  color/fail   nil          false           "\u001b[31mstring\u001b[0m"
+  color/fail   nil          true            "string"
 
   color/note  "FALSE"       false           "string"
   color/note  "TRUE"        false           "\u001b[36mstring\u001b[0m"
@@ -49,3 +49,21 @@
     "TRUE"     truthy
     "REVERSE"  truthy
     "FALSE"    falsey  )
+
+(fact 
+  (colorize-deftest-output "FAIL in deftest failure message") 
+     => "\u001b[31mFAIL\u001b[0m in deftest failure message"
+  (provided 
+      (fail "FAIL") => "\u001b[31mFAIL\u001b[0m" ))
+
+(fact 
+  (colorize-deftest-output "ERROR in deftest failure message") 
+     => "\u001b[31mERROR\u001b[0m in deftest failure message"
+  (provided 
+      (fail "ERROR") => "\u001b[31mERROR\u001b[0m" ))
+
+(fact 
+  (colorize-deftest-output "ERROR in deftest failure message ERROR") 
+     =not=> "\u001b[31mERROR\u001b[0m in deftest failure message \u001b[31mERROR\u001b[0m"
+  (provided 
+      (fail "ERROR") => "\u001b[31mERROR\u001b[0m" ))

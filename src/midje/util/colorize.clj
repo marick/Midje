@@ -1,7 +1,8 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.util.colorize
-  (:require [colorize.core :as color])
+  (:require [colorize.core :as color]
+            [clojure.string :as str])
   (:use [midje.util.ecosystem :only [getenv on-windows?]]))
 
 
@@ -30,3 +31,8 @@
 
 (defn colorized? [s] 
   (.startsWith s "\033["))
+
+(defn colorize-deftest-output [s]
+  (-> s 
+      (str/replace #"^FAIL" (fail "FAIL"))
+      (str/replace #"^ERROR" (fail "ERROR"))))
