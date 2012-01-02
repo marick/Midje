@@ -28,8 +28,8 @@
   (:midje/faked-function (meta function)))
 
 (defn fake? [form]
-  (some true? (map (partial first-named? form) 
-                   ["fake" "data-fake"])))
+  (or (first-named? form "fake") 
+      (first-named? form "data-fake")))
 
 (defn- fake-form-funcall-arglist 
   [[fake funcall => value & overrides :as _fake-form_]]
