@@ -58,8 +58,15 @@
 (def a-user-error (contains {:type :user-error}))
 
 
-(defn at-line [line-no form] (with-meta form {:line line-no}))
+(defn at-line [line-no form] 
+  (with-meta form {:line line-no}))
 
 (defmacro user-error-with-notes [& notes]
   `(just (contains {:notes (just ~@notes)
                     :type :user-error})))
+
+(defmacro causes-validation-error [& body]
+  `(after-silently
+    ~@body  
+    (midje.sweet/fact 
+      @reported midje.sweet/=> (one-of (contains {:type :user-error})))))

@@ -1,5 +1,6 @@
 (ns midje.ideas.facts
-  (:use [midje.semi-sweet :only [is-semi-sweet-keyword?]]
+  (:use [midje.error-handling.monadic :only [simple-user-error-report-form validate]]
+        [midje.semi-sweet :only [is-semi-sweet-keyword?]]
         [midje.internal-ideas.fakes :only [unfold-fakes]]
 
         [midje.internal-ideas.expect :only [expect?
@@ -101,3 +102,15 @@
     (report/form-providing-friendly-return-value 
       `(within-fact-context ~description ~form-to-run))))
 
+(defn- validate-fact [[fact & _ :as form]]
+  (if (or (= 1 (count form))
+          (and (= 2 (count form)) (string? (second form))))
+      (simple-user-error-report-form form
+        (format "Looks like you forgot to fill in your %s form:" (name fact)))
+    (rest form)))
+
+(defmethod validate "fact" [form] 
+  (validate-fact form))
+
+(defmethod validate "facts" [form]
+  (validate-fact form))
