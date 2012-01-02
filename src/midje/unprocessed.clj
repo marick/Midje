@@ -9,8 +9,7 @@
         [midje.checkers.extended-equality :only [extended-=]]
         [midje.checkers.chatty :only [chatty-checker?]]
         [midje.internal-ideas.capturedthrowable :only [captured-throwable]]
-        [midje.util.namespace :only [immigrate]]
-        [clojure.tools.macro :only [macrolet]]))
+        [midje.util.namespace :only [immigrate]]))
 (immigrate 'midje.checkers)
 
 
@@ -62,14 +61,12 @@
   the first call is supposed to make. See the documentation at
   http://github.com/marick/Midje."
   [unprocessed-check local-fakes]
-  (macrolet [(capturing-throwable [form]
-               `(try ~form
-                  (catch Throwable e#
-                    (captured-throwable e#))))]
-    (with-installed-fakes (concat (reverse (filter :data-fake (background-fakes))) local-fakes)
-      (let [code-under-test-result (capturing-throwable
-                                    (eagerly
-                                     ((:function-under-test unprocessed-check))))]
-        (check-call-counts local-fakes)
-        (check-result code-under-test-result unprocessed-check)
-        :irrelevant-return-value))))
+  (with-installed-fakes (concat (reverse (filter :data-fake (background-fakes))) local-fakes)
+    (let [code-under-test-result (try
+                                   (eagerly
+                                     ((:function-under-test unprocessed-check)))
+                                  (catch Throwable ex
+                                    (captured-throwable ex)))]
+      (check-call-counts local-fakes)
+      (check-result code-under-test-result unprocessed-check)
+      :irrelevant-return-value)))
