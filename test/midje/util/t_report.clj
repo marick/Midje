@@ -2,7 +2,7 @@
 
 (ns midje.util.t-report
   (:use [midje.util.report :only [midje-position-string with-identity-renderer ]]
-        [midje.checkers.util :only [captured-throwable]]
+        [midje.internal-ideas.capturedthrowable :only [captured-throwable]]
         [midje sweet test-util]))
 
 

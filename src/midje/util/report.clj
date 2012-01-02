@@ -4,7 +4,7 @@
         [clojure.pprint :only [cl-format]]
         [midje.util.object-utils :only [function-name function-name-or-spewage named-function?]]
         [midje.util.exceptions :only [friendly-stacktrace]]
-        [midje.checkers.util :only [captured-throwable?]]
+        [midje.internal-ideas.capturedthrowable :only [captured-throwable?]]
         [midje.util.form-utils :only [pred-cond]])
   (:require [midje.util.colorize :as color]))
 

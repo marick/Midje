@@ -1,13 +1,13 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.checkers.t-util
+(ns midje.internal-ideas.capturedthrowable
   (:use midje.sweet
         [midje.checkers util]
         midje.test-util))
 
 (defrecord R [a])
 
-(fact "captured exceptions can be recognized"
+(fact "captured throwables can be recognized"
   (captured-throwable? (captured-throwable (Throwable.))) => truthy
   "and are not fooled by maps or records"
   (captured-throwable? {}) => falsey
