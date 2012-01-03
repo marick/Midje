@@ -58,7 +58,7 @@
 
 (defmulti make-result-supplier (fn [arrow & _] arrow))
 
-(defmethod make-result-supplier => [arrow result] #(identity result))
+(defmethod make-result-supplier => [arrow result] (constantly result))
 
 (defmethod make-result-supplier =streams=> [arrow result-stream]
   (let [current-stream (atom result-stream)]
