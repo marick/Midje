@@ -104,6 +104,11 @@
  (fact 
    @reported => (two-of checker-fails)))
 
+(fact "can give a predicate that the exception must satisfy" 
+  (throw-exception "msg") => (throws #(= "msg" (.getMessage %)))
+  (throw-exception "msg") => (throws Error #(= "msg" (.getMessage %)))
+  (throw-exception "msg") => (throws Error "msg" #(= "msg" (.getMessage %))))
+
 ;; Unexpected exceptions
 (after-silently
  (facts

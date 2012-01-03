@@ -54,12 +54,22 @@
 
 (defchecker throws
   "Checks that Throwable of named class was thrown and, optionally, that
-   the message is as desired."
-  ([expected-exception-class]
-     (checker [wrapped-throwable] 
-       (= expected-exception-class (class (.throwable wrapped-throwable)))))
-  ([expected-exception-class message]
+   the message is as desired. Takes an optional predicate the
+   exception must satisfy."
+  ([expected-ex-class-or-pred]
+      (if (fn? expected-ex-class-or-pred)
+        (checker [wrapped-throwable]
+          (expected-ex-class-or-pred (.throwable wrapped-throwable)))    
+        (throws expected-ex-class-or-pred (constantly true))))
+  ([expected-ex-class msg-or-pred]
+       (if (fn? msg-or-pred)
+         (checker [wrapped-throwable]
+           (and (= expected-ex-class (class (.throwable wrapped-throwable)))
+                (msg-or-pred (.throwable wrapped-throwable))))
+         (throws expected-ex-class msg-or-pred (constantly true)))) 
+  ([expected-ex-class msg pred]
      (checker [wrapped-throwable]
-       (and (= expected-exception-class (class (.throwable wrapped-throwable)))
-            (extended-= (.getMessage (.throwable wrapped-throwable))
-                        message)))))
+         (and (= expected-ex-class (class (.throwable wrapped-throwable)))
+              (pred (.throwable wrapped-throwable)))
+              (extended-= (.getMessage (.throwable wrapped-throwable))
+                          msg))))
