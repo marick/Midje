@@ -4,6 +4,7 @@
   (:use 
     [clojure.string :only [join]]
     [midje.error-handling.monadic :only [error-let user-error-report-form validate]]
+    [midje.internal-ideas.fact-context :only [within-fact-context]]
     [midje.internal-ideas.file-position :only [form-with-copied-line-numbers
                                                form-position]] ; for deprecation
     [midje.util.report :only [midje-position-string]] ; for deprecation
@@ -58,9 +59,8 @@
               expect-forms-with-binding-notes (map add-binding-note
                                                    expect-forms
                                                    ordered-binding-maps)]
-     (if description?
-      `(midje.sweet/facts ~description? ~@expect-forms-with-binding-notes)
-      `(midje.sweet/facts               ~@expect-forms-with-binding-notes))))
+     `(within-fact-context ~description?
+         ~@expect-forms-with-binding-notes)))
 
 (defmethod validate "tabular" [[_tabular_ & form]]
   (let [[[description? & _] [fact-form & table]] (split-with string? form)]

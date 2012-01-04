@@ -43,4 +43,6 @@
 (causes-validation-error #"Looks like you forgot to fill in your fact form"
   (fact))
 (causes-validation-error #"Looks like you forgot to fill in your facts form" 
-  (facts "test it"))
+  (facts 1))
+(causes-validation-error #"Looks like you forgot to fill in your fact form" 
+  (fact "vector fact" [1 2 3 4] (contains 3)))

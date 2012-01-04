@@ -161,13 +161,13 @@
 ;; future facts
 (after-silently
  (future-fact "text")
- (fact (just (contains {:position '("t_line_number_reporting.clj" 163)
-			:description "text " }))))
+ (fact @reported => (just (contains {:position '("t_line_number_reporting.clj" 163)
+			                               :description "text" }))))
 
 (after-silently
  (pending-fact (+ 1 1) => 2)
- (fact (just (contains {:position '("t_line_number_reporting.clj" 169)
-			:description "" }))))
+ (fact @reported => (just (contains {:position '("t_line_number_reporting.clj" 168)
+		                               	:description nil }))))
 
 
 ;; Improved error handling for pathological cases

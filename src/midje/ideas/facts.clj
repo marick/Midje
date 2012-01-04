@@ -14,7 +14,7 @@
         [midje.util.debugging :only [nopret]]
         [midje.ideas.prerequisites :only [is-head-of-form-providing-prerequisites?
                                           insert-prerequisites-into-expect-form-as-fakes]]
-        [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence?]]
+        [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence? expect-arrows]]
         [midje.ideas.background :only [surround-with-background-fakes
                                        body-of-against-background
                                        against-background-contents-wrappers
@@ -22,7 +22,7 @@
                                        against-background?]]
         [midje.ideas.metaconstants :only [define-metaconstants]] 
         [midje.util.form-utils :only [first-named? translate-zipper preserve-type quoted? 
-                                      pred-cond reader-line-number]]
+                                      pred-cond reader-line-number named?]]
         [midje.util.laziness :only [eagerly]]
         [midje.util.zip :only [skip-to-rightmost-leaf]]
         [midje.error-handling.monadic :only [when-valid]])
@@ -103,11 +103,11 @@
       `(within-fact-context ~description ~form-to-run))))
 
 (defn- validate-fact [[fact & _ :as form]]
-  (if (or (= 1 (count form))
-          (and (= 2 (count form)) (string? (second form))))
-      (simple-user-error-report-form form
-        (format "Looks like you forgot to fill in your %s form:" (name fact)))
-    (rest form)))
+  (let [named-form-leaves (map name (filter named? (flatten (rest form))))]
+    (if (not-any? expect-arrows named-form-leaves)
+        (simple-user-error-report-form form
+          (format "Looks like you forgot to fill in your %s form:" (name fact)))
+      (rest form))))
 
 (defmethod validate "fact" [form] 
   (validate-fact form))

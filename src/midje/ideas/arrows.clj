@@ -2,14 +2,15 @@
 
 (ns midje.ideas.arrows
   (:use midje.ideas.arrow-symbols
+        [clojure.set :only [union]]
         [midje.util treelike namespace])
   (:require [clojure.zip :as zip]))
 
 ;; Arrow groupings
 
-(def expect-arrows [=> =not=> =deny=> =future=> =expands-to=>])
-(def fake-arrows [=> =contains=> =streams=>])
-(def all-arrows (concat expect-arrows fake-arrows))
+(def expect-arrows #{=> =not=> =deny=> =future=> =expands-to=>})
+(def fake-arrows #{=> =contains=> =streams=>})
+(def all-arrows (union expect-arrows fake-arrows))
 
 
 ;; Recognizing

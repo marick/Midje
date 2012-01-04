@@ -89,8 +89,9 @@
 (defmacro facts 
   "Alias for fact."
   [& forms]
-  (when-valid &form
-    (with-meta `(fact ~@forms) (meta &form))))
+  (when (user-desires-checking?)
+    (when-valid &form
+      (with-meta `(fact ~@forms) (meta &form)))))
 
 (defmacro ^{:private true} generate-future-fact-variants []
   (macro-for [name future-fact-variant-names]
