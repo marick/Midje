@@ -23,6 +23,17 @@
           (reset! some-atom (nested-fact-description)))))
       (is (= @some-atom "level 1 - level 3")))
 
+(deftest non-existant-context-descriptions-are-ignored-when-printed
+  (within-fact-context "level 1"
+    (try
+      (within-fact-context "level 2"
+        (throw (Exception. "boom")))
+      (catch Exception e nil))
+
+    (reset! some-atom (nested-fact-description)))
+
+  (is (= @some-atom "level 1")))
+
 (reset! some-atom nil)
 
 (deftest outside-of-the-contexts-there-is-no-fact-description-at-all 

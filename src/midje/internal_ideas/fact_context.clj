@@ -10,10 +10,11 @@
   (swap! nested-descriptions #(vec (butlast %))))
 
 (defmacro within-fact-context [description & body]
-  `(do
+  `(try
      (#'enter-context ~description)
      ~@body
-     (#'leave-context)))
+     (finally
+       (#'leave-context))))
 
 (defn nested-fact-description []
   (when-let [non-nil (seq (remove nil? @nested-descriptions))]  
