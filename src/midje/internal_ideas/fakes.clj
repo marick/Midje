@@ -62,9 +62,12 @@
 
 (defmethod make-result-supplier =streams=> [arrow result-stream]
   (let [current-stream (atom result-stream)]
-    #(let [current-result (first @current-stream)]
-       (swap! current-stream rest)
-       current-result)))
+    (fn []
+      (when (empty? @current-stream)
+        (throw (user-error "Your =stream=> ran out of values.")))
+      (let [current-result (first @current-stream)]
+        (swap! current-stream rest)
+        current-result))))
 
 (defmethod make-result-supplier :default [arrow result-stream]
   (throw (user-error "It's likely you misparenthesized your metaconstant prerequisite.")))
