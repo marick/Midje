@@ -1,4 +1,6 @@
-(ns midje.internal-ideas.capturedthrowable)
+(ns midje.internal-ideas.capturedthrowable
+  "When a fact throws an Exception or Error it gets wrapped
+   in this deftype")
 
 (defprotocol ICapturedThrowable
   (throwable [this]))
@@ -11,4 +13,4 @@
   (CapturedThrowable. ex))
 
 (defn captured-throwable? [x]
-  (satisfies? ICapturedThrowable x))
+  (instance? CapturedThrowable x))
