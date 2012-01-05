@@ -372,11 +372,11 @@
   => (contains {:actual 1 :notes (just #"#\"ab\$\" can't be used on 1")})
 
   (chatty-falsehood-to-map ( (contains {:a 1, :b 2}) {:a 1}))
-  => (contains {:actual {:a 1} :notes (just "Best match found: {:a 1}.")})
+  => (contains {:actual {:a 1} :notes (just "Best match found: {:a 1}")})
   (chatty-falsehood-to-map ( (just {:a 1, :b 2}) {:a 1}))
   => (contains {:actual {:a 1} :notes (just #"Expected two elements.*one")})
   (chatty-falsehood-to-map ( (contains {:a {:b 1}}) {:a 1}) )
-  => (contains {:actual {:a 1} :notes (just "Best match found: {}.")})
+  => (contains {:actual {:a 1} :notes (just "Best match found: {}")})
 
   ;; Won't work in Clojure 1.3 without some major rework.
   (chatty-falsehood-to-map ( (contains {:a odd?, :f odd? :g odd?}) {:f 3, :g 6, :a 1}) )

@@ -90,3 +90,6 @@
   "a"              falsey
   1                falsey
   \c               falsey)
+
+(fact "sort a map"
+  (sort-map {:z 26 :b 2 :a 1}) => {:a 1 :b 2 :z 26})

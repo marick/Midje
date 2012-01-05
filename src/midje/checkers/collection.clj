@@ -6,7 +6,8 @@
   (:use [clojure.set :only [union]]
         [clojure.pprint :only [cl-format]]
         [clojure.math.combinatorics :only [permutations]]
-        [midje.util.form-utils :only [regex? tack-on-to record? classic-map? rotations pred-cond macro-for]]
+        [midje.util.form-utils :only [regex? tack-on-to record? classic-map? rotations 
+                                      pred-cond macro-for sort-map]]
         [midje.util.object-utils :only [function-name named-function?]]
       	[midje.checkers util extended-equality chatty defining]
         [midje.util.exceptions :only [user-error]]
@@ -104,13 +105,7 @@
   (str "Best match found: " (pr-str (:actual-found comparison))))
 
 (defmethod best-actual-match ::map [midje-classification comparison]
-  (str "Best match found: {"
-       (join ", "
-             (sort (for [[k v] (:actual-found comparison)] 
-                     (str (pr-str k) " " (pr-str v)))))
-    "}."))
-;;-
-
+  (str "Best match found: " (pr-str (sort-map (:actual-found comparison)))))
 
 (defmulti #^{:private true} best-expected-match
   "Describe the best list of expected values found in the comparison."
@@ -158,7 +153,6 @@
 
 ;; There are some incommensurable utility behaviors
 (defn- compare-one-map-permutation [actual expected keys]
-  ;;  (prn "map-comparison" actual expected)
   (apply merge-with merge
       { :actual-found {} :expected-found {} :expected expected }
       (for [k keys

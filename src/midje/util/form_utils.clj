@@ -136,3 +136,6 @@
 
 (defn named? [x]
   (instance? clojure.lang.Named x))
+
+(defn sort-map [m]
+  (into (sorted-map) m))
