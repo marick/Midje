@@ -23,7 +23,7 @@
         
           (regex? expected)
           (if (regex? actual)
-            (= (.toString actual) (.toString expected))
+            (= (str actual) (str expected))
             (re-find expected actual))
 
           (and (record? actual) (classic-map? expected))

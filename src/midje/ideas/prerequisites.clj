@@ -17,7 +17,7 @@
   (symbol-named? arrow =contains=>))
 
 (defn prerequisite-to-fake [fake-body]
-  (let [line-number (arrow-line-number-from-form fake-body)
+  (let [^Integer line-number (arrow-line-number-from-form fake-body)
         fake-tag (if (metaconstant-prerequisite? fake-body)
                    'midje.semi-sweet/data-fake
                    'midje.semi-sweet/fake)]

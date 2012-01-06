@@ -7,7 +7,8 @@
   	[midje.checkers.extended-equality :only [extended-=]]
   	[midje.checkers.util :only [named-as-call]]
   	[midje.internal-ideas.capturedthrowable :only [captured-throwable?]]
-    [midje.util.ecosystem :only [clojure-1-3? +M -M *M]]))
+    [midje.util.ecosystem :only [clojure-1-3? +M -M *M]])
+  (:import [midje.internal_ideas.capturedthrowable ICapturedThrowable]))
 
 (defchecker truthy 
   "Returns precisely true if actual is not nil and not false."
@@ -58,18 +59,18 @@
    exception must satisfy."
   ([expected-ex-class-or-pred]
       (if (fn? expected-ex-class-or-pred)
-        (checker [wrapped-throwable]
+        (checker [^ICapturedThrowable wrapped-throwable]
           (expected-ex-class-or-pred (.throwable wrapped-throwable)))    
         (throws expected-ex-class-or-pred (constantly true))))
   ([expected-ex-class msg-or-pred]
        (if (fn? msg-or-pred)
-         (checker [wrapped-throwable]
+         (checker [^ICapturedThrowable wrapped-throwable]
            (and (= expected-ex-class (class (.throwable wrapped-throwable)))
                 (msg-or-pred (.throwable wrapped-throwable))))
          (throws expected-ex-class msg-or-pred (constantly true)))) 
   ([expected-ex-class msg pred]
-     (checker [wrapped-throwable]
+     (checker [^ICapturedThrowable wrapped-throwable]
          (and (= expected-ex-class (class (.throwable wrapped-throwable)))
               (pred (.throwable wrapped-throwable)))
-              (extended-= (.getMessage (.throwable wrapped-throwable))
+              (extended-= (.getMessage ^Throwable (.throwable wrapped-throwable))
                           msg))))

@@ -6,7 +6,7 @@
 (defn republish* [namespace symbols]
   (require namespace)
   (doseq [sym symbols]
-    (let [var ( (ns-publics namespace) sym)]
+    (let [^clojure.lang.Var var ( (ns-publics namespace) sym)]
       (let [sym (with-meta sym (assoc (meta var) :ns *ns*))]
         (if (.hasRoot var)
           (intern *ns* sym (var-root var))

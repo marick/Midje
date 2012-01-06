@@ -189,7 +189,7 @@
     {var (Metaconstant. (object-name var) contents)}))
 
 (defn- merge-metaconstant-bindings [bindings]
-  (apply merge-with (fn [v1 v2]
+  (apply merge-with (fn [^Metaconstant v1 ^Metaconstant v2]
                       (Metaconstant. (.name v1) (merge (.storage v1) (.storage v2))))
     bindings))
 

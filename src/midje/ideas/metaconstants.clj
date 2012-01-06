@@ -25,13 +25,13 @@
   (and (symbol? symbol-or-form)
     (-> symbol-or-form normalized-metaconstant not not)))
 
-(deftype Metaconstant [name storage]
+(deftype Metaconstant [name ^clojure.lang.Associative storage]
   Object
   (toString [this]
             (.toString (.name this)))
-  (equals [this that]
+  (equals [^Metaconstant this that]
          (if (instance? (class this) that)
-           (= (normalized-metaconstant (.name this)) (normalized-metaconstant (.name that)))
+           (= (normalized-metaconstant (.name this)) (normalized-metaconstant (.name ^Metaconstant that)))
            (= (normalized-metaconstant (.name this)) (normalized-metaconstant that))))
 
   clojure.lang.ILookup
@@ -83,7 +83,7 @@
                    "If you have a compelling case for equality, please create an issue:"
                    ecosystem/issues-url)))))
 
-(defmethod print-method Metaconstant [o ^java.io.Writer w]
+(defmethod print-method Metaconstant [^Metaconstant o ^java.io.Writer w]
   (print-method (.name o) w))
 
 

@@ -7,7 +7,7 @@
 
 
 (defn colorize-choice []
-  (.toUpperCase (or (getenv "MIDJE_COLORIZE")
+  (str/upper-case (or (getenv "MIDJE_COLORIZE")
                     (str (not (on-windows?))))))
 
 (defn colorizing? [] 
@@ -29,7 +29,7 @@
     (def pass identity)
     (def note identity)))
 
-(defn colorized? [s] 
+(defn colorized? [^String s] 
   (.startsWith s "\033["))
 
 (defn colorize-deftest-output [s]

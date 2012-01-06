@@ -444,11 +444,12 @@
                                  (count actual) x-name (count expected))))))))
 
 (def ^{:midje/checker true} has-prefix
-     (container-checker-maker 'has-prefix
-      (has-xfix "prefix" #(re-pattern (str "^" (.toString %))) take)))
+  (container-checker-maker 'has-prefix
+    (has-xfix "prefix" #(re-pattern (str "^" %)) take)))
+
 (def ^{:midje/checker true} has-suffix
-     (container-checker-maker 'has-suffix
-      (has-xfix "suffix" #(re-pattern (str (.toString %) "$" )) take-last)))
+  (container-checker-maker 'has-suffix
+    (has-xfix "suffix" #(re-pattern (str % "$")) take-last)))
                             
 (defchecker has [quantifier predicate]
   (checker [actual]

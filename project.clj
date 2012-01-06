@@ -6,17 +6,17 @@
                  [org.clojure/math.combinatorics "0.0.1"]
                  [org.clojure/algo.monads "0.1.0"]
                  [org.clojure/core.unify "0.5.1"]
-                 [utilize "0.2.0"]
+                 [utilize "0.2.2"]
                  [colorize "0.1.1"]
                  [org.clojure/tools.macro "0.1.1"]
                  [org.clojure/core.incubator "0.1.0"]
                  [clj-stacktrace "0.2.4"]]
   :dev-dependencies [[slamhound "1.2.0"]
-                     [com.intelie/lazytest "1.0.0-SNAPSHOT" :exclusions [swank-clojure]]
-                     [codox "0.3.1"]]
+                     [com.intelie/lazytest "1.0.0-SNAPSHOT" :exclusions [swank-clojure]]]
   ;; automatically detects when your :dependencies key changes and runs
   ;; lein deps behind the scenes when necessary.
   :checksum-deps true
+;;  :warn-on-reflection true      ;; turn on to check production code for reflection
 
   ;; For Clojure snapshots
   :repositories {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"})

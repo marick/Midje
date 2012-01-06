@@ -19,12 +19,12 @@
 ;; Variables that might not be bound
 (def unbound-marker :midje/special-midje-unbound-marker)
 
-(defn restore-one-root [[variable new-value]]
+(defn restore-one-root [[^clojure.lang.Var variable new-value]]
   (if (= new-value unbound-marker)
     (.unbindRoot variable)
     (alter-var-root variable (fn [current-value] new-value))))
 
-(defn alter-one-root [[variable new-value]]
+(defn alter-one-root [[^clojure.lang.Var variable new-value]]
    (if (bound? variable) 
      (let [old-value (deref variable)]
        (alter-var-root variable (fn [current-value] new-value))
