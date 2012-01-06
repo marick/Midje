@@ -10,7 +10,7 @@
         [midje.internal-ideas.fact-context :only [within-fact-context]]
         [midje.util debugging form-utils namespace]
         [midje.error-handling monadic semi-sweet-errors]
-        [midje.util.exceptions :only [user-error]]
+        [midje.error-handling.exceptions :only [user-error]]
         [midje.production-mode]
         [clojure.pprint]))
 (immigrate 'midje.unprocessed)

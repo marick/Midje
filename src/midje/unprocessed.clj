@@ -8,7 +8,7 @@
         [midje.util laziness report]
         [midje.checkers.extended-equality :only [extended-=]]
         [midje.checkers.chatty :only [chatty-checker?]]
-        [midje.internal-ideas.capturedthrowable :only [captured-throwable]]
+        [midje.error-handling.exceptions :only [captured-throwable]]
         [midje.util.namespace :only [immigrate]]))
 (immigrate 'midje.checkers)
 

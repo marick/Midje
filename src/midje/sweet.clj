@@ -4,10 +4,10 @@
   (:use clojure.test
         [midje.util.namespace :only [immigrate]]
         midje.production-mode
+        midje.error-handling.exceptions
         midje.error-handling.monadic
         midje.util.debugging
         [midje.util.form-utils :only [macro-for]]
-        [midje.util.exceptions :only [friendly-stacktrace]]
         [midje.internal-ideas.wrapping :only [put-wrappers-into-effect]]
         [midje.internal-ideas.fact-context :only [nested-fact-description]]
         [midje.internal-ideas.file-position :only [set-fallback-line-number-from]]

@@ -4,7 +4,7 @@
   (:use [midje.util.form-utils :only [quoted? translate-zipper]]
         [midje.util.zip :only [skip-down-then-rightmost-leaf]]
         [midje.util.thread-safe-var-nesting :only [unbound-marker]]
-        [midje.util.exceptions :only [user-error]]
+        [midje.error-handling.exceptions :only [user-error]]
         [utilize.seq :only (find-first)]
         [clojure.core.incubator :only [-?>>]])
   (:require [clojure.zip :as zip]

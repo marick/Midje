@@ -10,7 +10,7 @@
                                       pred-cond macro-for sort-map]]
         [midje.util.object-utils :only [function-name named-function?]]
       	[midje.checkers util extended-equality chatty defining]
-        [midje.util.exceptions :only [user-error]]
+        [midje.error-handling.exceptions :only [user-error]]
         [clojure.string :only [join]]))
 
 (def looseness-modifiers #{:in-any-order :gaps-ok})

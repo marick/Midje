@@ -3,11 +3,9 @@
   (:use clojure.test
         [clojure.pprint :only [cl-format]]
         [midje.util.object-utils :only [function-name function-name-or-spewage named-function?]]
-        [midje.util.exceptions :only [friendly-stacktrace]]
-        [midje.internal-ideas.capturedthrowable :only [captured-throwable?]]
+        midje.error-handling.exceptions
         [midje.util.form-utils :only [pred-cond]])
-  (:require [midje.util.colorize :as color])
-  (:import [midje.internal_ideas.capturedthrowable ICapturedThrowable]))
+  (:require [midje.util.colorize :as color]))
 
 (let [^clojure.lang.Var the-var (intern (the-ns 'clojure.test) 'old-report)]
   (when-not (.hasRoot the-var)
@@ -43,7 +41,7 @@
 (defn- attractively-stringified-form [form]
   (pred-cond form
     named-function?     (format "a function named '%s'" (function-name form))  
-    captured-throwable? (friendly-stacktrace (.throwable ^ICapturedThrowable form))
+    captured-throwable? (friendly-stacktrace form)
     :else               (pr-str form)))
 
 (defn- fail-at [m]

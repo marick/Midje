@@ -16,7 +16,7 @@
         [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out
                                                    with-pushed-namespace-values
                                                    with-altered-roots]]
-        [midje.util.exceptions :only [user-error]]
+        [midje.error-handling.exceptions :only [user-error]]
         [midje.internal-ideas.wrapping :only [with-wrapping-target]]
         [midje.ideas.arrow-symbols])
   (:require [clojure.zip :as zip])

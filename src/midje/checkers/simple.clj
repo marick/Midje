@@ -6,9 +6,9 @@
   (:use [midje.checkers.defining :only [checker defchecker]]
   	[midje.checkers.extended-equality :only [extended-=]]
   	[midje.checkers.util :only [named-as-call]]
-  	[midje.internal-ideas.capturedthrowable :only [captured-throwable?]]
+  	[midje.error-handling.exceptions :only [captured-throwable?]]
     [midje.util.ecosystem :only [clojure-1-3? +M -M *M]])
-  (:import [midje.internal_ideas.capturedthrowable ICapturedThrowable]))
+  (import [midje.error_handling.exceptions ICapturedThrowable]))
 
 (defchecker truthy 
   "Returns precisely true if actual is not nil and not false."
