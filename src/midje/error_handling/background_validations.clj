@@ -1,6 +1,6 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.error-handling.background-errors
+(ns midje.error-handling.background-validations
   (:use
     [clojure.pprint :only [cl-format]]
     [midje.error-handling.monadic :only [simple-user-error-report-form user-error-report-form 

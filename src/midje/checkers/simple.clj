@@ -62,12 +62,14 @@
         (checker [^ICapturedThrowable wrapped-throwable]
           (expected-ex-class-or-pred (.throwable wrapped-throwable)))    
         (throws expected-ex-class-or-pred (constantly true))))
+
   ([expected-ex-class msg-or-pred]
        (if (fn? msg-or-pred)
          (checker [^ICapturedThrowable wrapped-throwable]
            (and (= expected-ex-class (class (.throwable wrapped-throwable)))
                 (msg-or-pred (.throwable wrapped-throwable))))
          (throws expected-ex-class msg-or-pred (constantly true)))) 
+
   ([expected-ex-class msg pred]
      (checker [^ICapturedThrowable wrapped-throwable]
          (and (= expected-ex-class (class (.throwable wrapped-throwable)))

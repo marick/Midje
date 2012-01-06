@@ -1,12 +1,12 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.error-handling.t-background-errors
+(ns midje.error-handling.t_background_validations
   (:require [clojure.zip :as zip])
   (:use [midje sweet test-util]
         [midje.internal-ideas.wrapping :only [for-wrapping-target?]]
         [midje.util unify]
         [midje.error-handling monadic]
-        [midje.error-handling.background-errors]))
+        [midje.error-handling.background-validations]))
 
 (tabular
   (facts "before, after and around validation"
