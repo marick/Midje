@@ -1,8 +1,8 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.error-handling.t-semi-sweet-errors
+(ns midje.error-handling.t_semi_sweet_validations
   (:use [midje.sweet]
-        [midje.error-handling monadic semi-sweet-errors]
+        [midje.error-handling monadic semi-sweet-validations]
         [midje.internal-ideas.file-position :only [form-position]]
         [midje.test-util]))
 

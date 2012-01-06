@@ -1,6 +1,6 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.error-handling.semi-sweet-errors
+(ns midje.error-handling.semi-sweet-validations
   (:use 
     [clojure.pprint :only [cl-format]]
     [midje.error-handling.monadic :only [user-error-report-form validate]]

@@ -9,7 +9,7 @@
         midje.internal-ideas.file-position
         [midje.internal-ideas.fact-context :only [within-fact-context]]
         [midje.util debugging form-utils namespace]
-        [midje.error-handling monadic semi-sweet-errors]
+        [midje.error-handling monadic semi-sweet-validations]
         [midje.error-handling.exceptions :only [user-error]]
         [midje.production-mode]
         [clojure.pprint]))
