@@ -1,12 +1,12 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.error-handling.t-monadic
+(ns midje.error-handling.t-validation-errors
   (:use [midje sweet test-util]
-        [midje.error-handling.monadic]
+        [midje.error-handling.validation-errors]
         [midje.internal-ideas.file-position :only [form-position]]
         [clojure.algo.monads]))
 
-(testable-privates midje.error-handling.monadic as-validation-error spread-validation-error)
+(testable-privates midje.error-handling.validation-errors as-validation-error spread-validation-error)
 
 (fact "any form can be turned into a validation-error form"
   (meta (as-validation-error '(form))) => (contains {:midje-validation-error true})

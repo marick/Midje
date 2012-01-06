@@ -5,7 +5,7 @@
   (:use [midje sweet test-util]
         [midje.internal-ideas.wrapping :only [for-wrapping-target?]]
         [midje.util unify]
-        [midje.error-handling monadic]
+        [midje.error-handling validation-errors]
         [midje.error-handling.background-validations]))
 
 (tabular

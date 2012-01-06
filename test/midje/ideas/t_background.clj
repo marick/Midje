@@ -5,7 +5,7 @@
   (:use [midje sweet test-util]
         [midje.internal-ideas.wrapping :only [for-wrapping-target?]]
         [midje.util unify]
-        [midje.error-handling monadic]
+        [midje.error-handling validation-errors]
         [midje.ideas.background :only [separate-background-forms setup-teardown-bindings
                                  seq-headed-by-setup-teardown-form? background-wrappers]]))
 (testable-privates midje.ideas.background

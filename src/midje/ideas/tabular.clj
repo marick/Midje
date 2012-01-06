@@ -3,7 +3,7 @@
 (ns midje.ideas.tabular
   (:use 
     [clojure.string :only [join]]
-    [midje.error-handling.monadic :only [valid-let report-validation-error validate]]
+    [midje.error-handling.validation-errors :only [valid-let report-validation-error validate]]
     [midje.internal-ideas.fact-context :only [within-fact-context]]
     [midje.internal-ideas.file-position :only [form-with-copied-line-numbers
                                                form-position]] ; for deprecation

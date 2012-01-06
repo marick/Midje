@@ -3,7 +3,7 @@
 (ns midje.error-handling.background-validations
   (:use
     [clojure.pprint :only [cl-format]]
-    [midje.error-handling.monadic :only [simple-report-validation-error report-validation-error 
+    [midje.error-handling.validation-errors :only [simple-report-validation-error report-validation-error 
                                          validate when-valid]]
     [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence? take-arrow-sequence]]
     [midje.ideas.background :only [all-state-descriptions seq-headed-by-setup-teardown-form?]]

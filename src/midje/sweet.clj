@@ -5,7 +5,7 @@
         [midje.util.namespace :only [immigrate]]
         midje.production-mode
         midje.error-handling.exceptions
-        midje.error-handling.monadic
+        midje.error-handling.validation-errors
         midje.util.debugging
         [midje.util.form-utils :only [macro-for]]
         [midje.internal-ideas.wrapping :only [put-wrappers-into-effect]]

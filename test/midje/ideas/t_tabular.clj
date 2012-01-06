@@ -3,7 +3,7 @@
 (ns midje.ideas.t-tabular
   (:use [midje.ideas.tabular :except [add-binding-note table-binding-maps]]
         [midje.ideas.metaconstants :only [metaconstant-symbol?]]
-        [midje.error-handling.monadic]
+        [midje.error-handling.validation-errors]
         [midje sweet test-util]
         [ordered.map :only (ordered-map)]))
 

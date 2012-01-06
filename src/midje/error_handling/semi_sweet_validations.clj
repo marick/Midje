@@ -3,7 +3,7 @@
 (ns midje.error-handling.semi-sweet-validations
   (:use 
     [clojure.pprint :only [cl-format]]
-    [midje.error-handling.monadic :only [report-validation-error validate]]
+    [midje.error-handling.validation-errors :only [report-validation-error validate]]
     [midje.util.namespace :only [matches-symbols-in-semi-sweet-or-sweet-ns?]]
     [midje.ideas.metaconstants :only [metaconstant-symbol?]]
     [midje.ideas.arrow-symbols :only [=contains=>]]))

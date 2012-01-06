@@ -1,5 +1,5 @@
 (ns midje.ideas.facts
-  (:use [midje.error-handling.monadic :only [simple-report-validation-error validate]]
+  (:use [midje.error-handling.validation-errors :only [simple-report-validation-error validate]]
         [midje.semi-sweet :only [is-semi-sweet-keyword?]]
         [midje.internal-ideas.fakes :only [unfold-fakes]]
 
@@ -25,7 +25,7 @@
                                       pred-cond reader-line-number named?]]
         [midje.util.laziness :only [eagerly]]
         [midje.util.zip :only [skip-to-rightmost-leaf]]
-        [midje.error-handling.monadic :only [when-valid]])
+        [midje.error-handling.validation-errors :only [when-valid]])
   (:require [clojure.zip :as zip])
   (:require [midje.util.report :as report]))
 (declare midjcoexpand)

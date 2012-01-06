@@ -1,12 +1,15 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.error-handling.monadic
+(ns midje.error-handling.validation-errors
   (:use
     [clojure.algo.monads :only [defmonad domonad with-monad m-lift]]
     [clojure.test :only [report]]
     [midje.internal-ideas.file-position :only [form-position]]
     [midje.util.form-utils :only [named?]]
     [utilize.seq :only (find-first)]))
+                           
+
+;; Making validation errors
 
 (defn- as-validation-error [form]
   (vary-meta form assoc :midje-validation-error true))
@@ -23,8 +26,7 @@
   `(report-validation-error ~form ~@notes (str ~form)))
 
 
-
-
+;; Special validation control flow macros
 
 (defmonad midje-maybe-m
    "Monad describing form processing with possible failures. Failure
@@ -52,6 +54,14 @@
        (eval ~symbol)
        (do ~@body))))
 
+(defmacro when-valid [validatable-form-or-forms & body-to-execute-if-valid]
+  `(let [result# (validate ~validatable-form-or-forms)]
+     (if (validation-error-form? result#)
+       result#
+       (do ~@body-to-execute-if-valid))))
+
+
+;; Validate
 
 (defmulti validate (fn [form] 
                      (if (named? (first form)) 
@@ -62,9 +72,3 @@
   (spread-validation-error (map validate form)))
 
 (defmethod validate :default [form] (rest form))
-
-(defmacro when-valid [validatable-form-or-forms & body-to-execute-if-valid]
-  `(let [result# (validate ~validatable-form-or-forms)]
-     (if (validation-error-form? result#)
-       result#
-       (do ~@body-to-execute-if-valid))))
