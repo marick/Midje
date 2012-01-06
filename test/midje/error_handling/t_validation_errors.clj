@@ -32,9 +32,6 @@
               b (inc a)]
     b) => my-favorite-error-form)
 
-(fact "safely turns a function application into one that propagates errors."
-  (safely concat my-favorite-error-form '()) => my-favorite-error-form)
-
 (fact "errors can spread to infect whole collections"
   (spread-validation-error [1 2 3]) => '(1 2 3)
   (spread-validation-error [1 my-favorite-error-form]) => my-favorite-error-form)

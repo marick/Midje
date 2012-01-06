@@ -38,10 +38,6 @@
 (defmacro valid-let [let-vector & body]
   `(domonad midje-maybe-m [~@let-vector] ~@body))
 
-(defmacro safely [fn & body]
-  `( (with-monad midje-maybe-m (m-lift ~(count body) ~fn))
-     ~@body))
-
 (defn- spread-validation-error [collection]
   (or (find-first validation-error-form? collection)
       collection))
