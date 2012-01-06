@@ -3,7 +3,7 @@
 (ns midje.ideas.tabular
   (:use 
     [clojure.string :only [join]]
-    [midje.error-handling.monadic :only [error-let user-error-report-form validate]]
+    [midje.error-handling.monadic :only [valid-let report-validation-error validate]]
     [midje.internal-ideas.fact-context :only [within-fact-context]]
     [midje.internal-ideas.file-position :only [form-with-copied-line-numbers
                                                form-position]] ; for deprecation
@@ -51,7 +51,7 @@
         (partial unify/substitute fact-form)))
 
 (defn tabular* [locals forms]
-  (error-let [[description? fact-form table] (validate forms)
+  (valid-let [[description? fact-form table] (validate forms)
               _ (swap! deprecation-hack:file-position
                        (constantly (midje-position-string (form-position fact-form))))
               ordered-binding-maps (table-binding-maps table locals)
@@ -65,5 +65,5 @@
 (defmethod validate "tabular" [[_tabular_ & form]]
   (let [[[description? & _] [fact-form & table]] (split-with string? form)]
     (if (empty? table)
-      (user-error-report-form form "There's no table. (Misparenthesized form?)")
+      (report-validation-error form "There's no table. (Misparenthesized form?)")
       [description? fact-form table])))

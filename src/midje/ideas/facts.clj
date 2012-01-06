@@ -1,5 +1,5 @@
 (ns midje.ideas.facts
-  (:use [midje.error-handling.monadic :only [simple-user-error-report-form validate]]
+  (:use [midje.error-handling.monadic :only [simple-report-validation-error validate]]
         [midje.semi-sweet :only [is-semi-sweet-keyword?]]
         [midje.internal-ideas.fakes :only [unfold-fakes]]
 
@@ -105,7 +105,7 @@
 (defn- validate-fact [[fact & _ :as form]]
   (let [named-form-leaves (map name (filter named? (flatten (rest form))))]
     (if (not-any? expect-arrows named-form-leaves)
-        (simple-user-error-report-form form
+        (simple-report-validation-error form
           (format "Looks like you forgot to fill in your %s form:" (name fact)))
       (rest form))))
 

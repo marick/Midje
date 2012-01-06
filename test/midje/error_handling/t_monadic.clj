@@ -6,13 +6,13 @@
         [midje.internal-ideas.file-position :only [form-position]]
         [clojure.algo.monads]))
 
-(testable-privates midje.error-handling.monadic as-user-error spread-error)
+(testable-privates midje.error-handling.monadic as-validation-error spread-validation-error)
 
 (fact "any form can be turned into a user-error form"
-  (meta (as-user-error '(form))) => (contains {:midje-user-error true})
-  (as-user-error '(form)) => user-error-form?)
+  (meta (as-validation-error '(form))) => (contains {:midje-validation-error true})
+  (as-validation-error '(form)) => validation-error-form?)
 
-(def my-favorite-error-form (as-user-error '(error form)))
+(def my-favorite-error-form (as-validation-error '(error form)))
 
 (fact "there is an error monad for Midje"
   (domonad midje-maybe-m
@@ -25,10 +25,10 @@
                          b (inc a)]
                         b)]
     result => my-favorite-error-form
-    result => user-error-form?))
+    result => validation-error-form?))
 
 (fact "there is syntactic sugar for it"
-  (error-let [a my-favorite-error-form
+  (valid-let [a my-favorite-error-form
               b (inc a)]
     b) => my-favorite-error-form)
 
@@ -36,34 +36,34 @@
   (safely concat my-favorite-error-form '()) => my-favorite-error-form)
 
 (fact "errors can spread to infect whole collections"
-  (spread-error [1 2 3]) => '(1 2 3)
-  (spread-error [1 my-favorite-error-form]) => my-favorite-error-form)
+  (spread-validation-error [1 2 3]) => '(1 2 3)
+  (spread-validation-error [1 my-favorite-error-form]) => my-favorite-error-form)
 
 (fact "you can insist a collection of items be fully valid"
   (let [suspect [1 2 3]]
     (with-valid suspect (second suspect)) => 2)
-  (let [suspect [1 (as-user-error '(str "this would report an error"))]]
+  (let [suspect [1 (as-validation-error '(str "this would report an error"))]]
     (with-valid suspect "this is the wrong return value") => "this would report an error"))
     
 
 
 (fact "there is a helper function that produces error-reporting forms"
-  (user-error-report-form '(anything) "note 1" "note 2")
+  (report-validation-error '(anything) "note 1" "note 2")
   => '(clojure.test/report {:type :user-error
                             :notes '["note 1" "note 2"]
                             :position '...form-position... })
   (provided
     (form-position '(anything)) => ...form-position...)
 
-  (user-error-report-form '(whatever)) => user-error-form?)
+  (report-validation-error '(whatever)) => validation-error-form?)
 
 (fact "can produce a basic error-reporting form, w/ form always as final note"
-  (simple-user-error-report-form '(anything) "note 1" "note 2")
+  (simple-report-validation-error '(anything) "note 1" "note 2")
   => '(clojure.test/report {:type :user-error
                             :notes '["note 1" "note 2" "(anything)"]
                             :position '...form-position... })
   (provided
     (form-position '(anything)) => ...form-position...)
 
-  (simple-user-error-report-form '(whatever)) => user-error-form?)
+  (simple-report-validation-error '(whatever)) => validation-error-form?)
 

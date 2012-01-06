@@ -8,7 +8,7 @@
 
 (facts "expect validation returns tail part of structure"
   (let [correct '(expect (f 1) => 3)]
-    (validate correct) =not=> user-error-form?
+    (validate correct) =not=> validation-error-form?
     (validate correct) => '[(f 1) => 3]))
 
 ; Duplication of validate is because of bug in against-background.
@@ -16,11 +16,11 @@
   (against-background (form-position anything) => ...position...)
 
   (let [too-short '(expect (f 1) =>)]
-    (validate too-short) => user-error-form?
+    (validate too-short) => validation-error-form?
     (str (validate too-short)) => (contains "...position..."))
   
   (let [bad-left-side '(fake a => 3)]
-    (validate bad-left-side) => user-error-form?
+    (validate bad-left-side) => validation-error-form?
     (str (validate bad-left-side)) => (contains "...position...")))
 
 ;;; Full-bore tests.

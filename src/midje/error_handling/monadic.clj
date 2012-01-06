@@ -8,43 +8,47 @@
     [midje.util.form-utils :only [named?]]
     [utilize.seq :only (find-first)]))
 
-(defn- as-user-error [form]
-  (vary-meta form assoc :midje-user-error true))
+(defn- as-validation-error [form]
+  (vary-meta form assoc :midje-validation-error true))
 
-(defn user-error-form? [form]
-  (:midje-user-error (meta form)))
+(defn validation-error-form? [form]
+  (:midje-validation-error (meta form)))
 
-(defn user-error-report-form [form & notes]
-  (as-user-error `(report {:type :user-error
-                           :notes '~notes
-                           :position '~(form-position form)})))
+(defn report-validation-error [form & notes]
+  (as-validation-error `(report {:type :user-error
+                                 :notes '~notes
+                                 :position '~(form-position form)})))
 
-(defmacro simple-user-error-report-form [form & notes]
-  `(user-error-report-form ~form ~@notes (str ~form)))
+(defmacro simple-report-validation-error [form & notes]
+  `(report-validation-error ~form ~@notes (str ~form)))
+
+
+
+
 
 (defmonad midje-maybe-m
    "Monad describing form processing with possible failures. Failure
-   is represented by any form with metadata :midje-user-error"
+   is represented by any form with metadata :midje-validation-error"
    [m-result identity
-    m-bind   (fn [mv f] (if (user-error-form? mv) mv (f mv)))
+    m-bind   (fn [mv f] (if (validation-error-form? mv) mv (f mv)))
     ])
 
-(defmacro error-let [let-vector & body]
+(defmacro valid-let [let-vector & body]
   `(domonad midje-maybe-m [~@let-vector] ~@body))
 
 (defmacro safely [fn & body]
   `( (with-monad midje-maybe-m (m-lift ~(count body) ~fn))
      ~@body))
 
-(defn- spread-error [collection]
-  (or (find-first user-error-form? collection)
+(defn- spread-validation-error [collection]
+  (or (find-first validation-error-form? collection)
       collection))
 
 ;; This is a pretty dubious addition. Not using it now - found
 ;; a better way - but might need it later.
 (defmacro with-valid [symbol & body]
-  `(let [~symbol (#'spread-error ~symbol)]
-     (if (user-error-form? ~symbol)
+  `(let [~symbol (#'spread-validation-error ~symbol)]
+     (if (validation-error-form? ~symbol)
        (eval ~symbol)
        (do ~@body))))
 
@@ -52,15 +56,15 @@
 (defmulti validate (fn [form] 
                      (if (named? (first form)) 
                        (name (first form)) 
-                       :validate-many)))
+                       :validate-seq)))
 
-(defmethod validate :validate-many [form] 
-  (spread-error (map validate form)))
+(defmethod validate :validate-seq [form] 
+  (spread-validation-error (map validate form)))
 
 (defmethod validate :default [form] (rest form))
 
 (defmacro when-valid [validatable-form-or-forms & body-to-execute-if-valid]
   `(let [result# (validate ~validatable-form-or-forms)]
-     (if (user-error-form? result#)
+     (if (validation-error-form? result#)
        result#
        (do ~@body-to-execute-if-valid))))

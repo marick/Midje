@@ -14,11 +14,11 @@
       (validate (cons ?wrapper `(:facts (do "something")))) => `(:facts (do "something")))
   
     (fact "wrapper's must use either :facts, :contents, or checks as their wrapping targets"
-      (validate (cons ?wrapper `(:abc (do "something")))) => user-error-form?)
+      (validate (cons ?wrapper `(:abc (do "something")))) => validation-error-form?)
     
     (fact "correct form length" 
-      (validate (cons ?wrapper `(:facts (do "something") (do "another thing")))) => user-error-form?
-      (validate (list ?wrapper)) => user-error-form? ))
+      (validate (cons ?wrapper `(:facts (do "something") (do "another thing")))) => validation-error-form?
+      (validate (list ?wrapper)) => validation-error-form? ))
 
     ?wrapper
     'before 
@@ -26,12 +26,12 @@
     'around)
 
 (fact "before gets an optional :after param"
-  (validate `(before :contents (do "something") :after (do "another thing"))) =not=> user-error-form?
-  (validate `(before :contents (do "something") :around (do "another thing"))) => user-error-form?)
+  (validate `(before :contents (do "something") :after (do "another thing"))) =not=> validation-error-form?
+  (validate `(before :contents (do "something") :around (do "another thing"))) => validation-error-form?)
 
 (fact "after and around don't get extra params - length should be 3"
-  (validate `(after :contents (do "something") :after (do "another thing"))) => user-error-form?
-  (validate `(around :contents (do "something") :after (do "another thing"))) => user-error-form?)
+  (validate `(after :contents (do "something") :after (do "another thing"))) => validation-error-form?
+  (validate `(around :contents (do "something") :after (do "another thing"))) => validation-error-form?)
 
 (facts "against-background validation"
 
@@ -50,17 +50,17 @@
   (fact "invalid if any state-description invalid"
     (validate `(against-background [(before :contents (do "something"))
                                     (after :BAD (do "something"))]
-                 "body")) => user-error-form?
+                 "body")) => validation-error-form?
     (validate `(against-background (before :BAD (do "something"))
-                 "body")) => user-error-form? ) 
+                 "body")) => validation-error-form? ) 
   
   (fact "invalid when the second in form is not state-descriptions and/or bckground fakes" 
-    (validate `(against-background :incorrect-type-here "body")) => user-error-form? )
+    (validate `(against-background :incorrect-type-here "body")) => validation-error-form? )
   
   (fact "invalid when form has less than 3 elements" 
     (validate `(against-background [(before :contents (do "something"))
-                                    (after :BAD (do "something"))])) => user-error-form? 
-    (validate `(against-background (before :contents (do "something")))) => user-error-form? ))
+                                    (after :BAD (do "something"))])) => validation-error-form? 
+    (validate `(against-background (before :contents (do "something")))) => validation-error-form? ))
 
 (facts "background validation"
 
@@ -77,8 +77,8 @@
     
   (fact "invalid if any state-description invalid"
     (validate `(background (before :contents (do "something"))
-                           (after :BAD (do "something")))) => user-error-form?
-    (validate `(background (before :BAD (do "something")))) => user-error-form? ) )  
+                           (after :BAD (do "something")))) => validation-error-form?
+    (validate `(background (before :BAD (do "something")))) => validation-error-form? ) )  
 
  ;; Validation end-to-end facts
 
