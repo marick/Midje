@@ -122,7 +122,7 @@
     (fact nil => nil))
 
   (fact 
-    @reported =future=> (one-of (contains {:type :user-error}))))
+    @reported =future=> (one-of (contains {:type :validation-error}))))
 
 ; check for one thing that isn't a state-description or background fake
 (causes-validation-error #"at least one background fake or background wrapper"

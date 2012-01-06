@@ -8,7 +8,7 @@
 
 (testable-privates midje.error-handling.monadic as-validation-error spread-validation-error)
 
-(fact "any form can be turned into a user-error form"
+(fact "any form can be turned into a validation-error form"
   (meta (as-validation-error '(form))) => (contains {:midje-validation-error true})
   (as-validation-error '(form)) => validation-error-form?)
 
@@ -49,7 +49,7 @@
 
 (fact "there is a helper function that produces error-reporting forms"
   (report-validation-error '(anything) "note 1" "note 2")
-  => '(clojure.test/report {:type :user-error
+  => '(clojure.test/report {:type :validation-error
                             :notes '["note 1" "note 2"]
                             :position '...form-position... })
   (provided
@@ -59,7 +59,7 @@
 
 (fact "can produce a basic error-reporting form, w/ form always as final note"
   (simple-report-validation-error '(anything) "note 1" "note 2")
-  => '(clojure.test/report {:type :user-error
+  => '(clojure.test/report {:type :validation-error
                             :notes '["note 1" "note 2" "(anything)"]
                             :position '...form-position... })
   (provided

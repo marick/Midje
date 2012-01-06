@@ -176,7 +176,7 @@
    (doubler 3) => 0
    (provided
      (+ 3 3) => 0))
-  (fact @reported => (user-error-with-notes #"inlined")))
+  (fact @reported => (validation-error-with-notes #"inlined")))
 
 ;; How it works
 

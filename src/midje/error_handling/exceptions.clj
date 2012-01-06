@@ -4,7 +4,9 @@
         [midje.util.colorize :only [colorizing?]]))
 
 
-(defn user-error [& lines]
+(defn user-error 
+  "Used when a user does something off-limits or incompatible"
+  [& lines]
   (Error. (join (System/getProperty "line.separator") lines)))
 
 ;; Beautiful, ergonomic stacktraces

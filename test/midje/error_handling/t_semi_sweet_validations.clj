@@ -27,25 +27,25 @@
 
 (after-silently
  (expect (+ 1 2) =>)
- (expect @reported => (user-error-with-notes
+ (expect @reported => (validation-error-with-notes
                         (contains "(expect (+ 1 2) =>")
                         (contains "(expect <actual> => <expected>"))))
 
 (after-silently
  (fake a => 3)
- (expect @reported => (user-error-with-notes
+ (expect @reported => (validation-error-with-notes
                         #"must look like a function call"
                         #"`a` doesn't")))
 
 (after-silently
  (expect (throw "should not be evaluated") => 3 (fake a => 3))
- (expect @reported => (user-error-with-notes
+ (expect @reported => (validation-error-with-notes
                         #"must look like a function call"
                         #"`a` doesn't")))
 
 (after-silently
  (data-fake (f 1) =contains=> {:a 1})
- (expect @reported => (user-error-with-notes #"no metaconstant")))
+ (expect @reported => (validation-error-with-notes #"no metaconstant")))
 
 (future-fact "handle case where =contains=> is left out"
   (+ 1 1) => 2

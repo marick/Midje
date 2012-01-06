@@ -175,7 +175,7 @@
   (/ 1 0) => (throws ArithmeticException))
 
 (facts "about reporting specific user errors"
-  (let [failure-map {:type :user-error
+  (let [failure-map {:type :validation-error
                      :description "some description"
                      :notes ["message"]
                      :position ["foo.clj" 3]}

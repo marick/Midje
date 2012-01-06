@@ -113,7 +113,7 @@
    (str "        Actual result: " (attractively-stringified-form (:actual m)))
    (str "    Checking function: " (pr-str (:expected m)))))
   
-(defmethod report-strings :user-error [m]
+(defmethod report-strings :validation-error [m]
    (list
     (fail-at m)
     (str "    Midje could not understand something you wrote: ")

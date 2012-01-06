@@ -55,19 +55,19 @@
 (def pass (contains {:type :pass}))
 (def checker-fails (contains {:type :mock-expected-result-functional-failure}))
 (def wrong-call-count (contains {:type :mock-incorrect-call-count}))
-(def a-user-error (contains {:type :user-error}))
+(def a-validation-error (contains {:type :validation-error}))
 
 
 (defn at-line [line-no form] 
   (with-meta form {:line line-no}))
 
-(defmacro user-error-with-notes [& notes]
+(defmacro validation-error-with-notes [& notes]
   `(just (contains {:notes (just ~@notes)
-                    :type :user-error})))
+                    :type :validation-error})))
 
 (defmacro causes-validation-error [error-msg & body]
   `(after-silently
     ~@body  
     (midje.sweet/fact 
-      @reported midje.sweet/=> (one-of (contains {:type :user-error 
+      @reported midje.sweet/=> (one-of (contains {:type :validation-error 
                                                   :notes (contains ~error-msg)})))))
