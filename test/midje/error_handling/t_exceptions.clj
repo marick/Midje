@@ -8,13 +8,9 @@
 (def red "\033[31m")
 (def red-bg "\033[41m")
 
-(defchecker begins-with [chars]
-  (checker [s] 
-    (.startsWith s chars)))
-
 (tabular "colorizes stacktraces by default"
   (fact  
-    (friendly-stacktrace (Exception. "boom")) => (begins-with ?begins-with)
+    (friendly-stacktrace (Exception. "boom")) => (has-prefix ?begins-with)
     (provided (colorize-choice) => ?chosen))
   
   ?chosen    ?begins-with
