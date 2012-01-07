@@ -59,12 +59,12 @@
 
 ;; Validate
 
-(defmulti validate (fn [form] 
+(defmulti validate (fn [form & options] 
                      (if (named? (first form)) 
                        (name (first form)) 
                        :validate-seq)))
 
-(defmethod validate :validate-seq [form] 
+(defmethod validate :validate-seq [form & options] 
   (spread-validation-error (map validate form)))
 
-(defmethod validate :default [form] (rest form))
+(defmethod validate :default [form & options] (rest form))
