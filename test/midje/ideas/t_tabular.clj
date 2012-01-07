@@ -90,7 +90,19 @@
  a      | b   | c      | d  | result
  :where | "|" | 'where | '| | ":where|where|")
 
-;; Error handling
+
+;; Validate
+
+(tabular "can split apart fact forms with optional doc-string"
+ (fact 
+   (let [s "string"]
+     (validate '?forms []) => '?expected))
+   ?forms                               ?expected
+   (tabular fact ?a ?b 1 1)              [nil fact [?a ?b 1 1]]
+   (tabular "string" fact ?a ?b 1 1)    ["string" fact [?a ?b 1 1]]
+   ;; Doesn't work with non-literal strings
+   (tabular s fact table...)            [nil s [fact table...]])
+
 
 (causes-validation-error #"There's no table\. \(Misparenthesized form\?\)"
   (tabular "A misparenthesization that results in no table is noticed."
@@ -107,7 +119,12 @@
   (tabular "doc string present"
     (fact nil => nil)))
 
-;; Other tests via midje.sweet API
+(causes-validation-error #"It looks like the table has headings, but no data rows:"
+  (tabular
+    (fact ?a => ?b)
+    ?a   ?b))
+
+;; Other tests via midje.sweet API
 
 (unfinished g)
 (defn f [n] (inc (g n)))
@@ -189,18 +206,6 @@
                              1   
                              3), ['?result])
     => [ (ordered-map '?a '?result) (ordered-map '?a 1) (ordered-map '?a 3) ])
-
-;; Util: validate
-
-(tabular "can split apart fact forms with optional doc-string"
- (fact 
-   (let [s "string"]
-     (validate '?forms) => '?expected))
-   ?forms                               ?expected
-   (tabular fact table...)              [nil fact [table...]]
-   (tabular "string" fact table...)     ["string" fact [table...]]
-   ;; Doesn't work with non-literal strings
-   (tabular s fact table...)            [nil s [fact table...]])
 
 (tabular (fact ?comment
            (let [line-no-free-original ?original

@@ -3,7 +3,7 @@
 (ns midje.ideas.tabular
   (:use 
     [clojure.string :only [join]]
-    [midje.error-handling.validation-errors :only [valid-let report-validation-error validate]]
+    [midje.error-handling.validation-errors :only [valid-let simple-report-validation-error validate]]
     [midje.internal-ideas.fact-context :only [within-fact-context]]
     [midje.internal-ideas.file-position :only [form-with-copied-line-numbers
                                                form-position]] ; for deprecation
@@ -34,14 +34,14 @@
   (let [strip-off-where #(if (#{:where 'where} (first %)) (rest %) % )]
     (->> table strip-off-where (remove #(= % '|)))))
 
+(defn- table-variable? [locals s] 
+  (and (symbol? s) 
+       (not (metaconstant-symbol? s))
+       (not (resolve s)) 
+       (not ((set locals) s))))
 
 (defn- table-binding-maps [table locals]
-  (let [table-variable? (fn [s]
-                          (and (symbol? s) 
-                               (not (metaconstant-symbol? s))
-                               (not (resolve s)) 
-                               (not ((set locals) s))))
-        [variables-row values] (split-with table-variable? (remove-pipes+where table))
+  (let [[variables-row values] (split-with (partial table-variable? locals) (remove-pipes+where table))
         value-rows (partition (count variables-row) values)]
     (map (partial ordered-zipmap variables-row) value-rows)))
 
@@ -50,8 +50,8 @@
         (partial form-with-copied-line-numbers fact-form)
         (partial unify/substitute fact-form)))
 
-(defn tabular* [locals forms]
-  (valid-let [[description? fact-form table] (validate forms)
+(defn tabular* [locals form]
+  (valid-let [[description? fact-form table] (validate form locals)
               _ (swap! deprecation-hack:file-position
                        (constantly (midje-position-string (form-position fact-form))))
               ordered-binding-maps (table-binding-maps table locals)
@@ -62,8 +62,13 @@
      `(within-fact-context ~description?
          ~@expect-forms-with-binding-notes)))
 
-(defmethod validate "tabular" [[_tabular_ & form]]
-  (let [[[description? & _] [fact-form & table]] (split-with string? form)]
-    (if (empty? table)
-      (report-validation-error form "There's no table. (Misparenthesized form?)")
-      [description? fact-form table])))
+(defmethod validate "tabular" [[_tabular_ & form] locals]
+  (let [[[description? & _] [fact-form & table]]  (split-with string? form)]
+    (cond (empty? table)
+          (simple-report-validation-error form "There's no table. (Misparenthesized form?)")
+    
+          (empty? (remove (partial table-variable? locals) table))
+          (simple-report-validation-error form "It looks like the table has headings, but no data rows:")
+                                                 
+          :else
+          [description? fact-form table])))
