@@ -91,15 +91,17 @@
  :where | "|" | 'where | '| | ":where|where|")
 
 
-;; Validate
+;; Validate
 
 (tabular "can split apart fact forms with optional doc-string"
-(fact 
+ (fact 
    (let [s "string"]
      (validate '?forms []) => '?expected))
-   ?forms                                         ?expected
+   ?forms                               ?expected
    (tabular fact ?a ?b 1 1)              [nil fact [?a ?b 1 1]]
-   (tabular "string" fact ?a ?b 1 1)     ["string" fact [?a ?b 1 1]])
+   (tabular "string" fact ?a ?b 1 1)    ["string" fact [?a ?b 1 1]]
+   ;; Doesn't work with non-literal strings
+   (tabular s fact table...)            [nil s [fact table...]])
 
 
 (causes-validation-error #"There's no table\. \(Misparenthesized form\?\)"
@@ -121,17 +123,6 @@
   (tabular
     (fact ?a => ?b)
     ?a   ?b))
-
-(causes-validation-error #"Table rows don't appear to be the right length:"
-  (tabular
-    (fact ?a => ?b)
-    ?a   ?b
-    1     2
-    3))
-
-;; not totally easy to get it to point out that we used a non-literal string in the doc-string
-(causes-validation-error #"It looks like the table has headings, but no data rows:"
-  (tabular s fact ?a ?b 1 1))
 
 ;; Other tests via midje.sweet API
 

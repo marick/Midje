@@ -63,17 +63,12 @@
          ~@expect-forms-with-binding-notes)))
 
 (defmethod validate "tabular" [[_tabular_ & form] locals]
-  (let [[[description? & _] [fact-form & table]]  (split-with string? form)
-        [variables-row values] (split-with (partial table-variable? locals) (remove-pipes+where table))]
+  (let [[[description? & _] [fact-form & table]]  (split-with string? form)]
     (cond (empty? table)
           (simple-report-validation-error form "There's no table. (Misparenthesized form?)")
     
-          (empty? values)
+          (empty? (remove (partial table-variable? locals) table))
           (simple-report-validation-error form "It looks like the table has headings, but no data rows:")
-    
-          (and (not= 0 (count variables-row)) 
-               (not= 0 (mod (count values) (count variables-row))))
-          (simple-report-validation-error form "Table rows don't appear to be the right length:")
                                                  
           :else
           [description? fact-form table])))
