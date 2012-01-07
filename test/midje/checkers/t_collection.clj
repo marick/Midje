@@ -462,24 +462,44 @@
   (str (:actual ( (has-prefix 5) [#{{1 2}} 2 3 4]))) => "[#{{1 2}} 2 3 4]"
   )
 
-(facts "about of-functions"
-  [ 33 33 ] => (two-of 33)
+(facts "n-of functions"
+  (fact "pass w/ correct # of matching results"
+    [33 33 ] => (two-of 33)
+    
+    [1 3 ] => (n-of odd? 2)
+    ["ab" "aab" "aaab"] => (n-of #"a+b" 3)
+    ( (n-of odd? 1) [1 3]) => chatty-checker-falsehood?
+    ( (n-of odd? 3) [1 2 3]) => chatty-checker-falsehood?
   
-  [ 1 3 ] => (n-of odd? 2)
-  [ "ab" "aab" "aaab"] => (n-of #"a+b" 3)
-  ( (n-of odd? 1) [1 3]) => chatty-checker-falsehood?
-  ( (n-of odd? 3) [1 2 3]) => chatty-checker-falsehood?
-
-  [1 1 3 3 5 5 7 7 9 9] => (ten-of odd?)
-  [1 1 3 3 5 5 7 7 9] => (nine-of odd?)
-  [1 1 3 3 5 5 7 7] => (eight-of odd?)
-  [1 1 3 3 5 5 7] => (seven-of odd?)
-  [1 1 3 3 5 5] => (six-of odd?)
-  [1 1 3 3 5] => (five-of odd?)
-  [1 1 3 3] => (four-of odd?)
-  [1 1 3] => (three-of odd?)
-  [1 1] => (two-of odd?)
-  [1] => (one-of odd?))
+    [1 1 3 3 5 5 7 7 9 9] => (ten-of odd?)
+    [1 1 3 3 5 5 7 7 9] => (nine-of odd?)
+    [1 1 3 3 5 5 7 7] => (eight-of odd?)
+    [1 1 3 3 5 5 7] => (seven-of odd?)
+    [1 1 3 3 5 5] => (six-of odd?)
+    [1 1 3 3 5] => (five-of odd?)
+    [1 1 3 3] => (four-of odd?)
+    [1 1 3] => (three-of odd?)
+    [1 1] => (two-of odd?)
+    [1] => (one-of odd?))
+  
+  (fact "fail w/ wrong # of matching results"
+    [33 33 22] =not=> (two-of 33)
+    
+    [1 3 2] =not=> (n-of odd? 2)
+    ["ab" "aab" "aaab" "ccc"] =not=> (n-of #"a+b" 3)
+    ( (n-of odd? 1) [1]) =not=> chatty-checker-falsehood?
+    ( (n-of odd? 3) [1 3 5]) =not=> chatty-checker-falsehood?
+  
+    [1 1 3 3 5 5 7 7 9 9 11] =not=> (ten-of odd?)
+    [1 1 3 3 5 5 7 7 9 9] =not=> (nine-of odd?)
+    [1 1 3 3 5 5 7 7 9] =not=> (eight-of odd?)
+    [1 1 3 3 5 5 7 7] =not=> (seven-of odd?)
+    [1 1 3 3 5 5 7] =not=> (six-of odd?)
+    [1 1 3 3 5 5] =not=> (five-of odd?)
+    [1 1 3 3 5] =not=> (four-of odd?)
+    [1 1 3 3] =not=> (three-of odd?)
+    [1 1 3] =not=> (two-of odd?)
+    [1 1] =not=> (one-of odd?)))
 
 (facts "about separating looseness from arguments"
   (separate-looseness [1]) => [ 1 [] ]
