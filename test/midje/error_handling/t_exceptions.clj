@@ -2,16 +2,25 @@
 
 (ns midje.error-handling.t-exceptions
   (:use [midje.error-handling.exceptions]
-        [midje.util.colorize :only [colorized? colorizing?]]
+        [midje.util.colorize :only [colorize-choice]]
 	      [midje sweet test-util]))
 
-(fact "colorizes stacktraces by default" 
-  (friendly-stacktrace (Exception. "boom")) => colorized?
-  (provided (colorizing?) => true))
+(def red "\033[31m")
+(def red-bg "\033[41m")
 
-(fact "black and white stacktraes when colorization turned off" 
-  (friendly-stacktrace (Exception. "boom")) =not=> colorized?
-  (provided (colorizing?) => false))
+(defchecker begins-with [chars]
+  (checker [s] 
+    (.startsWith s chars)))
+
+(tabular "colorizes stacktraces by default"
+  (fact  
+    (friendly-stacktrace (Exception. "boom")) => (begins-with ?begins-with)
+    (provided (colorize-choice) => ?chosen))
+  
+  ?chosen    ?begins-with
+  "TRUE"     red
+  "REVERSE"  red   ;; will be red-bg, once I get Phil to make colors configurable in clj-stacktrace
+  "FALSE"    "java.lang.Exception: boom")
 
 (defrecord R [a])
 

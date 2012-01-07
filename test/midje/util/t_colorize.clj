@@ -39,17 +39,6 @@
   (provided
     (getenv "MIDJE_COLORIZE") => anything :times 0))
 
-(tabular 
-  (fact 
-    (colorizing?) => ?result
-    (provided 
-      (colorize-choice) => ?choice ))
-  
-    ?choice    ?result
-    "TRUE"     truthy
-    "REVERSE"  truthy
-    "FALSE"    falsey  )
-
 (fact 
   (colorize-deftest-output "FAIL in deftest failure message") 
      => "\u001b[31mFAIL\u001b[0m in deftest failure message"

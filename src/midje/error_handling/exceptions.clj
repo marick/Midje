@@ -1,7 +1,7 @@
 (ns midje.error-handling.exceptions
   (:use [clojure.string :only [join]]
-        [clj-stacktrace.repl :only [pst+ pst-str]]
-        [midje.util.colorize :only [colorizing?]]))
+        [clj-stacktrace.repl :only [pst+ pst]]
+        [midje.util.colorize :only [colorize-choice]]))
 
 
 (defn user-error 
@@ -17,9 +17,9 @@
 (extend-protocol FriendlyStacktrace
   Throwable
   (friendly-stacktrace [this] 
-    (if (colorizing?)
-      (with-out-str (pst+ this))
-      (pst-str this))))  
+    (if (= "FALSE" (colorize-choice))
+      (with-out-str (pst this))
+      (with-out-str (pst+ this)))))
 
 
 ;; When a fact throws an Exception or Error it gets wrapped

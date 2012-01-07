@@ -10,9 +10,6 @@
   (str/upper-case (or (getenv "MIDJE_COLORIZE")
                     (str (not (on-windows?))))))
 
-(defn colorizing? [] 
-  (not (= (colorize-choice) "FALSE")))
-
 (case (colorize-choice)
   "TRUE" (do
            (def fail color/red)
@@ -28,9 +25,6 @@
     (def fail identity)
     (def pass identity)
     (def note identity)))
-
-(defn colorized? [^String s] 
-  (.startsWith s "\033["))
 
 (defn colorize-deftest-output [s]
   (-> s 
