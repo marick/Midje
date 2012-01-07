@@ -294,9 +294,6 @@
   ;; don't unfold a constructor.
   (f (java.util.Date. 1 1 1))           =not=>
   (f (new java.util.Date 1 2 2))        =not=>
-  
-  "Macros are surprisingly hard to get right"
-;  '(f 1 (some-macro 33))  =not=> folded-fake?
   )
 ;; unfolding prerequisites
 (facts "about each step of unfolding"
