@@ -56,34 +56,30 @@
 
 ;; Concerning Throwables
 
-(defmulti throws 
-    (fn [& args]
-      (let [arg-types (map #(pred-cond %, fn? :pred, (some-fn-m string? regex?) :msg, class? :ex) args)]
-        (case arg-types
-          [:pred]      :predicate
-          [:msg]       :message
-          [:ex]        :throwable
-          [:ex :pred]  :throwable+predicate
-          [:ex :msg]   :throwable+message
-          [:ex :msg :pred]  :throwable+message+predicate))))
+(defmulti throws (fn [& args]
+                   (for [arg args]
+                     (pred-cond arg
+                       fn?                        :predicate
+                       (some-fn-m string? regex?) :message
+                       class?                     :throwable ))))
 
-(defmethod throws :message [msg]
+(defmethod throws [:message] [msg]
   (checker [^ICapturedThrowable wrapped-throwable]
     (extended-= (.getMessage ^Throwable (.throwable wrapped-throwable)) msg)))
 
-(defmethod throws :predicate [pred?]
+(defmethod throws [:predicate] [pred]
   (checker [^ICapturedThrowable wrapped-throwable]
-    (pred? (.throwable wrapped-throwable))))
+    (pred (.throwable wrapped-throwable))))
 
-(defmethod throws :throwable [clazz]
+(defmethod throws [:throwable] [clazz]
   (checker [^ICapturedThrowable wrapped-throwable]
     (= clazz (class (.throwable wrapped-throwable)))))
 
-(defmethod throws :throwable+predicate [clazz pred?]
-  (as-checker (every-pred-m (throws clazz) (throws pred?))))
+(defmethod throws [:throwable :predicate] [clazz pred]
+  (as-checker (every-pred-m (throws clazz) (throws pred))))
 
-(defmethod throws :throwable+message [clazz msg]
+(defmethod throws [:throwable :message] [clazz msg]
   (as-checker (every-pred-m (throws clazz) (throws msg))))
 
-(defmethod throws :throwable+message+predicate [clazz msg pred?]
-  (as-checker (every-pred-m (throws clazz) (throws msg) (throws pred?))))
+(defmethod throws [:throwable :message :predicate] [clazz msg pred]
+  (as-checker (every-pred-m (throws clazz) (throws msg) (throws pred))))
