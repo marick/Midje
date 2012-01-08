@@ -3,7 +3,7 @@
 (ns midje.checkers.chatty
   (:use [midje.checkers util]
         [midje.checkers.defining :only [as-checker]]
-        [midje.util.form-utils :only [pairs quoted?]]))
+        [midje.util.form-utils :only [pairs quoted? single-arg-into-form-and-name]]))
 
 ;; Note: checkers need to be exported in ../checkers.clj
 
@@ -48,17 +48,18 @@
                 [complex-forms, (conj substituted-args current-arg)]))
       [[] []]
       arglist))
-          
+
 (defmacro chatty-checker
   "Create a function that returns either true or a detailed description of a failure."
-  [ [binding-var] [f & args] ]
+  [ [actual-arg] [f & args] ]
   (let [result-symbol (gensym "chatty-intermediate-results-")
-        [complex-forms substituted-args] (chatty-untease result-symbol args)]
+        [complex-forms substituted-args] (chatty-untease result-symbol args)
+        [arg-form arg-name] (single-arg-into-form-and-name actual-arg)]
     `(as-chatty-checker
-      (fn [~binding-var]
+      (fn [~arg-form]
         (let [~result-symbol (vector ~@complex-forms)]
           (if (chattily-false? (~f ~@substituted-args))
             (let [pairs# (pairs '~complex-forms ~result-symbol)]
-              (as-chatty-falsehood {:actual ~binding-var,
+              (as-chatty-falsehood {:actual ~arg-name,
                                     :intermediate-results pairs#}))
             true))))))

@@ -34,8 +34,9 @@
     '(f)   truthy
     ''(f)  falsey
     '[f]   falsey )
-  
 
+
+  
 ;; The form of chatty checkers
 
 (def actual-plus-one-equals-4 (chatty-checker [actual] (= (inc actual) 4)))
@@ -61,8 +62,36 @@
     result => {:actual 4
               :intermediate-results [ ['(inc actual) 5] ['(+ 2 actual) 6] ]}))
 
+;; Destructuring arguments
 
+(def actual-plus-one-equals-4 (chatty-checker [actual] (= (inc actual) 4)))
 
+(def structured-checker
+     (chatty-checker [ [a b & c]]
+        (and (= a 1)
+             (= b 2)
+             (= c [3 4]))))
+
+(fact "chatty checkers can use a destructuring argument"
+  ;; Note: Can't use extended-equality because it swallows chatty-failures
+  (= (structured-checker [1 2 3 4]) true) => truthy)
+
+(tabular 
+  (fact "different parts are in fact checked"
+    (let [result (structured-checker ?actual)]
+      (= result true) => falsey
+      (:actual result) => ?actual))
+  ?actual       
+  ['x 2 3 4]    
+  [1 'x 3 4]    
+  [1 2 3 4 'x])
+
+(fact "folded results are still shown"
+  (:intermediate-results (structured-checker ['x 2 3 4]))
+  => '(    ((= a 1) false)
+           ((= b 2) true)
+           ((= c [3 4]) true) ))
+  
 ;; Chatty checkers: interaction with checkers that return chatty-failures.
 (defn rows-in [rows] rows)
 (defn has-rows [rows]

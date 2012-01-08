@@ -73,3 +73,21 @@
 
 (fact 
   (map-first str [1 2 3]) => ["1" 2 3])
+
+
+(tabular
+  (fact "A single argument can be converted into a structured-form and a arg-value-name"
+    (against-background (unique-argument-name) => 'unique-3)
+    (let [[form name] (single-arg-into-form-and-name ?original)]
+      form => ?form
+      name => ?name))
+  ?original            ?form                      ?name
+  'a                   'a                         'a
+  '[a b]               '[a b :as unique-3]        'unique-3
+  '[a b & c :as all]   '[a b & c :as all]         'all
+  ;; pathological cases
+  '[a]                 '[a :as unique-3]          'unique-3
+  '[a :as b]           '[a :as b]                 'b)
+
+
+

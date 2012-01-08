@@ -1,6 +1,10 @@
-1.3.1-SNAPSHOT
+1.3.2-SNAPSHOT
 -------------
+* Chatty checkers can destructure their single argument.
 
+1.3.1 
+* Fix mysterious type conversion error in some cases
+  when midje has to try really hard to guess the line number.
 
 1.3.0
 --------

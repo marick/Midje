@@ -6,6 +6,23 @@
         [utilize.seq :only (first-truthy-fn)])
   (:require [clojure.zip :as zip]))
 
+
+(defn unique-argument-name []
+  (gensym 'symbol-for-destructured-arg))
+
+(defn single-arg-into-form-and-name [arg-form]
+  (cond (not (vector? arg-form))
+        [arg-form arg-form]
+
+        (= :as (second (reverse arg-form)))  ; use existing as
+        [ arg-form (last arg-form)]
+
+        :else
+        (let [as-symbol (unique-argument-name)]
+          [ (-> arg-form (conj :as) (conj as-symbol))
+            as-symbol])))
+
+
 (defn regex? [thing]
   (= (class thing) java.util.regex.Pattern))
 
