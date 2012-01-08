@@ -88,8 +88,6 @@
 )
 
 (facts "about throws"
-  #'throws => checker?
-  throws => checker?
   (throws NullPointerException) => checker?
   (throws NullPointerException "hi") => checker?
   
@@ -104,15 +102,13 @@
  (fact 
    @reported => (two-of checker-fails)))
 
-(fact "throws accepts many varieties of arglists" 
-  (throw-exception "msg") => (throws #(= "msg" (.getMessage %)))
-  (throw-exception "msg") => (throws Error #(= "msg" (.getMessage %)))
-  (throw-exception "msg") => (throws Error "msg" #(= "msg" (.getMessage %)))
-  (throw-exception "msg") => (throws Error "msg")
-                             
+(fact "throws accepts many varieties of arglists"
   (throw-exception "msg") => (throws Error)
-                             
-  (throw-exception "msg") => (throws "msg"))
+  (throw-exception "msg") => (throws "msg") 
+  (throw-exception "msg") => (throws #(= "msg" (.getMessage %)))
+  (throw-exception "msg") => (throws Error "msg")
+  (throw-exception "msg") => (throws Error #(= "msg" (.getMessage %)))
+  (throw-exception "msg") => (throws Error "msg" #(= "msg" (.getMessage %))))
 
 ;; Unexpected exceptions
 (after-silently

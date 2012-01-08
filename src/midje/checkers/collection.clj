@@ -6,6 +6,7 @@
   (:use [clojure.set :only [union]]
         [clojure.pprint :only [cl-format]]
         [clojure.math.combinatorics :only [permutations]]
+        [midje.util.backwards-compatible-utils :only [every-pred-m]] 
         [midje.util.form-utils :only [regex? tack-on-to record? classic-map? rotations 
                                       pred-cond macro-for sort-map]]
         [midje.util.object-utils :only [function-name named-function?]]
@@ -355,8 +356,8 @@
 
     string?
     (pred-cond expected 
-      #(and (not (string? %)) (not (regex? %)))   (recur (vec actual) expected looseness)
-      :else                                   [actual expected looseness])
+      (every-pred-m (complement string?) (complement regex?))  (recur (vec actual) expected looseness)
+      :else [actual expected looseness])
 
     :else 
     [actual expected looseness]))
