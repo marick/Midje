@@ -7,7 +7,8 @@
   	[midje.checkers.extended-equality :only [extended-=]]
   	[midje.checkers.util :only [named-as-call]]
   	[midje.error-handling.exceptions :only [captured-throwable?]]
-    [midje.util.ecosystem :only [clojure-1-3? +M -M *M]])
+    [midje.util.ecosystem :only [clojure-1-3? +M -M *M]]
+    [midje.util.form-utils :only [pred-cond]])
   (import [midje.error_handling.exceptions ICapturedThrowable]))
 
 (defchecker truthy 
@@ -57,11 +58,13 @@
   "Checks that Throwable of named class was thrown and, optionally, that
    the message is as desired. Takes an optional predicate the
    exception must satisfy."
-  ([expected-ex-class-or-pred]
-      (if (fn? expected-ex-class-or-pred)
-        (checker [^ICapturedThrowable wrapped-throwable]
-          (expected-ex-class-or-pred (.throwable wrapped-throwable)))    
-        (throws expected-ex-class-or-pred (constantly true))))
+  ([expected-ex-class-or-pred-or-msg]
+      (pred-cond expected-ex-class-or-pred-or-msg
+        fn?      (checker [^ICapturedThrowable wrapped-throwable]
+                   (expected-ex-class-or-pred-or-msg (.throwable wrapped-throwable)))
+        string?  (checker [^ICapturedThrowable wrapped-throwable]
+                   (= expected-ex-class-or-pred-or-msg (.getMessage (.throwable wrapped-throwable))))
+        :else    (throws expected-ex-class-or-pred-or-msg (constantly true))))
 
   ([expected-ex-class msg-or-pred]
        (if (fn? msg-or-pred)

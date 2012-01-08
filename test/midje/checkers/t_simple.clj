@@ -104,10 +104,15 @@
  (fact 
    @reported => (two-of checker-fails)))
 
-(fact "can give a predicate that the exception must satisfy" 
+(fact "throws accepts many varieties of arglists" 
   (throw-exception "msg") => (throws #(= "msg" (.getMessage %)))
   (throw-exception "msg") => (throws Error #(= "msg" (.getMessage %)))
-  (throw-exception "msg") => (throws Error "msg" #(= "msg" (.getMessage %))))
+  (throw-exception "msg") => (throws Error "msg" #(= "msg" (.getMessage %)))
+  (throw-exception "msg") => (throws Error "msg")
+                             
+  (throw-exception "msg") => (throws Error)
+                             
+  (throw-exception "msg") => (throws "msg"))
 
 ;; Unexpected exceptions
 (after-silently
