@@ -8,7 +8,8 @@
     [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence? take-arrow-sequence]]
     [midje.ideas.background :only [all-state-descriptions seq-headed-by-setup-teardown-form?]]
     [midje.ideas.prerequisites :only [metaconstant-prerequisite?]]
-    [midje.util.form-utils :only [named? pred-cond]]))
+    [midje.util.form-utils :only [named? pred-cond]]
+    [midje.util.backwards-compatible-utils :only [some-fn-m]]))
 
 (def ^{:private true} valid-wrapping-targets #{:facts, :contents, :checks })
 
@@ -52,7 +53,7 @@
       empty? 
       true
 
-      (some-fn is-start-of-checking-arrow-sequence? metaconstant-prerequisite?) 
+      (some-fn-m is-start-of-checking-arrow-sequence? metaconstant-prerequisite?) 
       (let [arrow-seq (take-arrow-sequence in-progress)]
         (recur (drop (count arrow-seq) in-progress)))
       

@@ -80,10 +80,10 @@
     (= clazz (class (.throwable wrapped-throwable)))))
 
 (defmethod throws :throwable+predicate [clazz pred?]
-  (as-checker (every-pred (throws clazz) (throws pred?))))
+  (as-checker (every-pred-m (throws clazz) (throws pred?))))
 
 (defmethod throws :throwable+message [clazz msg]
-  (as-checker (every-pred (throws clazz) (throws msg))))
+  (as-checker (every-pred-m (throws clazz) (throws msg))))
 
 (defmethod throws :throwable+message+predicate [clazz msg pred?]
-  (as-checker (every-pred (throws clazz) (throws msg) (throws pred?))))
+  (as-checker (every-pred-m (throws clazz) (throws msg) (throws pred?))))
