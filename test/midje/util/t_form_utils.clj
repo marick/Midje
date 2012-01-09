@@ -50,7 +50,7 @@
 (fact "apply each function to each corresponding arg" 
   (apply-pairwise [inc dec] [1 1] [2 2]) => [[2 0] [3 1]])
 
-(fact "can a seq into two pieces, one for true predicate one for false"
+(fact "divide seq into two seqs: items that pass a predicate and a items the fail"
   (separate-by odd? [1 2 3]) => [ [1 3] [2] ]
   "works for predicates that don't return true or false"
   (separate-by #(if (odd? %) nil %) [1 2 3]) => [[2] [1 3]])
@@ -74,7 +74,6 @@
 (fact 
   (map-first str [1 2 3]) => ["1" 2 3])
 
-
 (tabular
   (fact "A single argument can be converted into a structured-form and a arg-value-name"
     (against-background (unique-argument-name) => 'unique-3)
@@ -90,4 +89,22 @@
   '[a :as b]           '[a :as b]                 'b)
 
 
+(defrecord ExampleNamed []
+  clojure.lang.Named
+  (getName [this] "name")
+  (getNamespace [this] "namespace"))
 
+(tabular
+  (fact "can tell if a thing is Named"
+    (named? ?thing) => ?result)
+  
+  ?thing           ?result
+  'a               truthy
+  :keyword         truthy
+  (ExampleNamed.)  truthy
+  "a"              falsey
+  1                falsey
+  \c               falsey)
+
+(fact "sort a map"
+  (sort-map {:z 26 :b 2 :a 1}) => {:a 1 :b 2 :z 26})

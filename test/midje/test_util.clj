@@ -1,34 +1,29 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.test-util
-  (:use [clojure.test])
-  (:use midje.checkers)
-  (:use [clojure.set :only [subset?]]))
+  (:use [clojure.test]
+        midje.checkers
+        [clojure.set :only [subset?]]
+        [midje.util.form-utils :only [macro-for]]))
 
 (defmacro testable-privates [namespace & symbols]
-  (let [forms (for [sym symbols]
-                `(def ~sym (intern '~namespace '~sym)))]
-  `(do ~@forms)))
+  (macro-for [sym symbols]
+    `(def ~sym (intern '~namespace '~sym))))
 
 (def reported (atom []))
-
-(defmacro run-silently [run-form]
-  `(run-without-reporting (fn [] ~run-form)))
 
 (defn run-without-reporting [function] 
   (binding [report (fn [report-map#] (swap! reported conj report-map#))]
     (reset! reported [])
     (function)))
 
-(defn run-and-check [run-form check-forms]
-  `(do
-     (run-without-reporting (fn [] ~run-form))
+(defmacro run-silently [run-form]
+  `(run-without-reporting (fn [] ~run-form)))
+
+(defmacro after-silently [example-form & check-forms]
+   `(do
+     (run-without-reporting (fn [] ~example-form))
      ~@check-forms))
-
-(defmacro after-silently
-  [example-form & check-forms]
-  (run-and-check example-form check-forms))
-
 
 (defn only-passes? [expected-count]
   (cond (not (= (count @reported) expected-count))
@@ -60,13 +55,19 @@
 (def pass (contains {:type :pass}))
 (def checker-fails (contains {:type :mock-expected-result-functional-failure}))
 (def wrong-call-count (contains {:type :mock-incorrect-call-count}))
-(def a-user-error (contains {:type :user-error}))
+(def a-validation-error (contains {:type :validation-error}))
 
 
-(defn at-line [line-no form] (with-meta form {:line line-no}))
+(defn at-line [line-no form] 
+  (with-meta form {:line line-no}))
 
-(defmacro user-error-with-notes [& notes]
+(defmacro validation-error-with-notes [& notes]
   `(just (contains {:notes (just ~@notes)
-                    :type :user-error})))
-  
+                    :type :validation-error})))
 
+(defmacro causes-validation-error [error-msg & body]
+  `(after-silently
+    ~@body  
+    (midje.sweet/fact 
+      @reported midje.sweet/=> (one-of (contains {:type :validation-error 
+                                                  :notes (contains ~error-msg)})))))

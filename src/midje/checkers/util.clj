@@ -8,20 +8,3 @@
    a function's metadata under :name"
   [name expected function]
   (name-object function (format "(%s %s)" name expected)))
-  
-(def captured-exception-key "this Throwable was captured by midje:")
-
-(defn captured-exception [e] 
-  {captured-exception-key e})
-
-(defn captured-exception? [value]
-  (and (classic-map? value)
-       (not (sorted? value)) ; Cannot dereference sorted maps with obj of diff. type than key.
-       (value captured-exception-key)))
-
-(defn captured-exception-value [captured-exception]
-  (captured-exception captured-exception-key))
-
-(defn throwable-with-class? [wrapped-throwable expected-class]
-  (and (map? wrapped-throwable)
-       (= expected-class (class (wrapped-throwable captured-exception-key)))))

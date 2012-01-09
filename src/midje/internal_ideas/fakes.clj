@@ -16,7 +16,7 @@
         [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out
                                                    with-pushed-namespace-values
                                                    with-altered-roots]]
-        [midje.util.exceptions :only [user-error]]
+        [midje.error-handling.exceptions :only [user-error]]
         [midje.internal-ideas.wrapping :only [with-wrapping-target]]
         [midje.ideas.arrow-symbols])
   (:require [clojure.zip :as zip])
@@ -28,8 +28,8 @@
   (:midje/faked-function (meta function)))
 
 (defn fake? [form]
-  (some true? (map (partial first-named? form) 
-                   ["fake" "data-fake"])))
+  (or (first-named? form "fake") 
+      (first-named? form "data-fake")))
 
 (defn- fake-form-funcall-arglist 
   [[fake funcall => value & overrides :as _fake-form_]]
@@ -58,16 +58,19 @@
 
 (defmulti make-result-supplier (fn [arrow & _] arrow))
 
-(defmethod make-result-supplier => [arrow result] #(identity result))
+(defmethod make-result-supplier => [arrow result] (constantly result))
 
 (defmethod make-result-supplier =streams=> [arrow result-stream]
   (let [current-stream (atom result-stream)]
-    #(let [current-result (first @current-stream)]
-       (swap! current-stream rest)
-       current-result)))
+    (fn []
+      (when (empty? @current-stream)
+        (throw (user-error "Your =stream=> ran out of values.")))
+      (let [current-result (first @current-stream)]
+        (swap! current-stream rest)
+        current-result))))
 
 (defmethod make-result-supplier :default [arrow result-stream]
-  (throw (user-error (str "It's likely you misparenthesized your metaconstant prerequisite."))))
+  (throw (user-error "It's likely you misparenthesized your metaconstant prerequisite.")))
 
 (defn fake* [ [[var-sym & args :as call-form] arrow result & overrides] ]
   ;; The (vec args) keeps something like (...o...) from being
@@ -167,6 +170,8 @@
               (swap! (action :count-atom ) inc)
               ((action :result-supplier ))))))
 
+;; Binding map related
+
 (defn- unique-vars [fakes]
   (distinct (map :lhs fakes)))
 
@@ -184,7 +189,7 @@
     {var (Metaconstant. (object-name var) contents)}))
 
 (defn- merge-metaconstant-bindings [bindings]
-  (apply merge-with (fn [v1 v2]
+  (apply merge-with (fn [^Metaconstant v1 ^Metaconstant v2]
                       (Metaconstant. (.name v1) (merge (.storage v1) (.storage v2))))
     bindings))
 
@@ -250,6 +255,8 @@
     (and (list? thing)
       (mockable-function-symbol? (first thing)))))
 
+;; TODO: Alex Dec 27, 2011 - rename, in what WAY are these substitutions augmented??? -there's the new name! 
+
 (defn augment-substitutions [substitutions fake-form]
   (let [needed-keys (filter mockable-funcall? (fake-form-funcall-arglist fake-form))]
     ;; Note: because I like for a function's metaconstants to be    
@@ -269,9 +276,8 @@
 
 (defn folded-fake? [form]
   (and (sequential? form)
-    (= 'midje.semi-sweet/fake (first form))
-    ;; We now know this: (fake (f ...arg... ...arg...) ...)
-    (some mockable-funcall? (fake-form-funcall-arglist form))))
+       (= 'midje.semi-sweet/fake (first form))
+       (some mockable-funcall? (fake-form-funcall-arglist form))))
 
 (defn- unfolding-step
   "This walks through a `pending` list that may contain fakes. Each element is

@@ -3,7 +3,7 @@
 (ns midje.ideas.t-tabular
   (:use [midje.ideas.tabular :except [add-binding-note table-binding-maps]]
         [midje.ideas.metaconstants :only [metaconstant-symbol?]]
-        [midje.error-handling.monadic]
+        [midje.error-handling.validation-errors]
         [midje sweet test-util]
         [ordered.map :only (ordered-map)]))
 
@@ -90,17 +90,41 @@
  a      | b   | c      | d  | result
  :where | "|" | 'where | '| | ":where|where|")
 
-;; Error handling
 
-(after-silently
- (tabular
-  (fact "A misparenthesization that results in no table is noticed."
-    (tabular-forms '?forms) => '?expected
-    ?forms                       ?expect
-    [ fact table ]               [fact table]))
- (fact @reported => (one-of a-user-error)))
+;; Validate
 
-;; Other tests via midje.sweet API
+(tabular "can split apart fact forms with optional doc-string"
+ (fact 
+   (let [s "string"]
+     (validate '?forms []) => '?expected))
+   ?forms                               ?expected
+   (tabular fact ?a ?b 1 1)              [nil fact [?a ?b 1 1]]
+   (tabular "string" fact ?a ?b 1 1)    ["string" fact [?a ?b 1 1]]
+   ;; Doesn't work with non-literal strings
+   (tabular s fact table...)            [nil s [fact table...]])
+
+
+(causes-validation-error #"There's no table\. \(Misparenthesized form\?\)"
+  (tabular "A misparenthesization that results in no table is noticed."
+    (fact 
+      (tabular-forms '?forms) => '?expected
+      ?forms                       ?expect
+      [ fact table ]               [fact table])))
+
+(causes-validation-error #"There's no table\. \(Misparenthesized form\?\)"
+  (tabular 
+    (fact nil => nil)))
+
+(causes-validation-error #"There's no table\. \(Misparenthesized form\?\)"
+  (tabular "doc string present"
+    (fact nil => nil)))
+
+(causes-validation-error #"It looks like the table has headings, but no data rows:"
+  (tabular
+    (fact ?a => ?b)
+    ?a   ?b))
+
+;; Other tests via midje.sweet API
 
 (unfinished g)
 (defn f [n] (inc (g n)))
@@ -135,19 +159,20 @@
         :else
         (some #{neighbor-count} #{2 3})))
 
-     (tabular
-      (fact "The rules of Conway's life"
-        (alive? ?cell-status ?neighbor-count) => ?expected)
-      ?cell-status   ?neighbor-count   ?expected
-      :alive         1                 FALSEY        ; underpopulation
-      :alive         2                 truthy       
-      :alive         3                 truthy
-      :alive         4                 FALSEY        ; overpopulation
-     
-      ;; A newborn cell has three parents
-      :dead          2                 FALSEY
-      :dead          3                 truthy
-      :dead          4                 FALSEY)
+(tabular
+  (fact "The rules of Conway's life"
+    (alive? ?cell-status ?neighbor-count) => ?expected)
+
+  ?cell-status   ?neighbor-count   ?expected
+  :alive         1                 FALSEY        ; underpopulation
+  :alive         2                 truthy       
+  :alive         3                 truthy
+  :alive         4                 FALSEY        ; overpopulation
+  
+  ;; A newborn cell has three parents
+  :dead          2                 FALSEY
+  :dead          3                 truthy
+  :dead          4                 FALSEY)
 
 (tabular
  (fact "nice fact properties are retained"
@@ -182,18 +207,6 @@
                              3), ['?result])
     => [ (ordered-map '?a '?result) (ordered-map '?a 1) (ordered-map '?a 3) ])
 
-;; Util: validate
-
-(tabular "can split apart fact forms with optional doc-string"
- (fact 
-   (let [s "string"]
-     (validate '?forms) => '?expected))
-   ?forms                               ?expected
-   (tabular fact table...)              [fact [table...]]
-   (tabular "string" fact table...)     [fact [table...]]
-   ;; Doesn't work with non-literal strings
-   (tabular s fact table...)            [s [fact table...]])
-
 (tabular (fact ?comment
            (let [line-no-free-original ?original
                  line-no-free-expected ?expected]
@@ -226,3 +239,30 @@
         expected '(do (expect 1 => 2 :binding-note "{?a 1, ?b 2, ?delta \"0\", ?result 3}"))]
     actual => expected))
     
+;; tabular doc-string prints in report
+
+(after-silently
+  (tabular "table of results"
+    (fact "add stuff"
+      (+ a b) => result)
+    
+      a    b   result
+      2    4   999     )  ;; WRONG!!
+  (fact @reported => (one-of (contains {:description "table of results - add stuff"} ))))
+
+(after-silently
+  (tabular "table of results"
+    (fact (+ a b) => result)
+    
+      a    b   result
+      2    4   999     )  ;; WRONG!!
+  (fact @reported => (one-of (contains {:description "table of results"} ))))
+
+(after-silently
+  (tabular
+    (fact "add stuff"
+      (+ a b) => result)
+    
+      a    b   result
+      2    4   999     )  ;; WRONG!!
+  (fact @reported => (one-of (contains {:description "add stuff"} ))))

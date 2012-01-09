@@ -29,7 +29,7 @@
 
 (defn add-actual [actual result]
   (if (chatty-checker-falsehood? result)
-    (merge result {:actual actual})
+    (assoc result :actual actual)
     result))
   
 (defn chatty-checker? [fn]

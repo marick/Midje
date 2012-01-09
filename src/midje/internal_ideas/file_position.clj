@@ -44,8 +44,8 @@
   "Guesses the file position (basename and line number) that the user is
    most likely to be interested in if a test fails."
   []
-  (second (map #(list (.getFileName %) (.getLineNumber %))
-               (.getStackTrace (Throwable.)))))
+  (second (for [^StackTraceElement elem (.getStackTrace (Throwable.))] 
+            (list (.getFileName elem) (.getLineNumber elem)))))
 
 (defmacro line-number-known 
   "Guess the filename of a file position, but use the given line number."

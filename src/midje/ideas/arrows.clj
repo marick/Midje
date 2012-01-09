@@ -2,14 +2,15 @@
 
 (ns midje.ideas.arrows
   (:use midje.ideas.arrow-symbols
+        [clojure.set :only [union]]
         [midje.util treelike namespace])
   (:require [clojure.zip :as zip]))
 
 ;; Arrow groupings
 
-(def expect-arrows [=> =not=> =deny=> =future=> =expands-to=>])
-(def fake-arrows [=> =contains=> =streams=>])
-(def all-arrows (concat expect-arrows fake-arrows))
+(def expect-arrows #{=> =not=> =deny=> =future=> =expands-to=>})
+(def fake-arrows #{=> =contains=> =streams=>})
+(def all-arrows (union expect-arrows fake-arrows))
 
 
 ;; Recognizing
@@ -38,15 +39,15 @@
         overrides (arrow-sequence-overrides (nthnext forms 3))]
     (concat constant-part overrides)))
 
-(defn group-arrow-sequences
+(defn pull-all-arrow-seqs-from
   ([fakes]
-     (group-arrow-sequences [] fakes))
+     (pull-all-arrow-seqs-from [] fakes))
   ([so-far remainder]
     (if (empty? remainder)
       so-far
-      (let [whole-body (take-arrow-sequence remainder)]
-        (recur (conj so-far whole-body)
-               (nthnext remainder (count whole-body)))))))
+      (let [arrow-seq (take-arrow-sequence remainder)]
+        (recur (conj so-far arrow-seq)
+               (nthnext remainder (count arrow-seq)))))))
 
 ;; Editing
 

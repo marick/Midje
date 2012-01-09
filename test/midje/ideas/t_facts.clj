@@ -17,7 +17,7 @@
     (to-semi-sweet form) => form)
 
   "arrow sequences are wrapped with expect"
-  (let [form '(                              (f 1)                  => [2]                           (f 2)                  => (+ 1 2) )
+  (let [form '(                              (f 1) => [2]                           (f 2) => (+ 1 2) )
         expected '( (midje.semi-sweet/expect (f 1) => [2]) (midje.semi-sweet/expect (f 2) => (+ 1 2)))]
     (expect (to-semi-sweet form) => expected))
 
@@ -39,3 +39,10 @@
                                       (fake (m 1) => 33))]
     (to-semi-sweet form) => form))
 
+;; invalid if fact form is too short 
+(causes-validation-error #"Looks like you forgot to fill in your fact form"
+  (fact))
+(causes-validation-error #"Looks like you forgot to fill in your facts form" 
+  (facts 1))
+(causes-validation-error #"Looks like you forgot to fill in your fact form" 
+  (fact "vector fact" [1 2 3 4] (contains 3)))

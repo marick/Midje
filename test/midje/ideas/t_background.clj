@@ -5,10 +5,11 @@
   (:use [midje sweet test-util]
         [midje.internal-ideas.wrapping :only [for-wrapping-target?]]
         [midje.util unify]
+        [midje.error-handling validation-errors]
         [midje.ideas.background :only [separate-background-forms setup-teardown-bindings
                                  seq-headed-by-setup-teardown-form? background-wrappers]]))
 (testable-privates midje.ideas.background
-                   prerequisites-to-fakes state-wrapper)
+                   extract-state-descriptions+fakes state-wrapper)
 
 (unfinished unused used)
 (defn calls-nothing [] )
@@ -73,11 +74,11 @@
 
 (fact "human-friendly background forms can be canonicalized appropriately"
   "fakes"
-  (prerequisites-to-fakes []) => []
-  (prerequisites-to-fakes '[(f 1) => 2]) 
+  (extract-state-descriptions+fakes []) => []
+  (extract-state-descriptions+fakes '[(f 1) => 2]) 
   => '[(midje.semi-sweet/fake (f 1) => 2 :background :background
                                          :times (range 0))]
-  (prerequisites-to-fakes '[   (f 1) => 2 :foo 'bar (f 2) => 33 ])
+  (extract-state-descriptions+fakes '[   (f 1) => 2 :foo 'bar (f 2) => 33 ])
   => '[(midje.semi-sweet/fake (f 1) => 2 :foo 'bar
                                          :background :background
                                          :times (range 0))
@@ -85,25 +86,22 @@
                               :times (range 0)) ]
 
   "data fakes"
-  (prerequisites-to-fakes '[...m... =contains=> {:a 1, :b 2}])
+  (extract-state-descriptions+fakes '[...m... =contains=> {:a 1, :b 2}])
   => '[(midje.semi-sweet/data-fake ...m... =contains=> {:a 1, :b 2})]
 
   "other types are left alone"
-  (prerequisites-to-fakes
+  (extract-state-descriptions+fakes
    '[ (before :checks (swap! test-atom (constantly 0))) ]) =>
    '[ (before :checks (swap! test-atom (constantly 0))) ]
 
  "mixtures"
- (prerequisites-to-fakes
+ (extract-state-descriptions+fakes
   '[ (f 1) => 2 (before :checks (swap! test-atom (constantly 0))) (f 2) => 3 ])
  => '[ (midje.semi-sweet/fake (f 1) => 2 :background :background
                                         :times (range 0))
       (before :checks (swap! test-atom (constantly 0)))
       (midje.semi-sweet/fake (f 2) => 3 :background :background
                                         :times (range 0)) ]
- 
- "error cases"
- (prerequisites-to-fakes '[ (after anything) ]) => (throws Error)
  )
 
 (defn guard-special-form [bindings]
@@ -141,5 +139,3 @@
   (map? {1 'do}) => truthy
   (first (second '(midje.semi-sweet.expect (midje.sweet.fact 1 => 2)))) => 'midje.sweet.fact
   (set? #{1 'do}) => truthy)
-
-

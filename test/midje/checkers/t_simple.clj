@@ -32,9 +32,7 @@
   false => anything
   even? => anything
   "irrelevant is a synonym"
-  1 => irrelevant
-  "any is also a synonym"
-  1 => any)
+  1 => irrelevant)
 
 (facts "about exactly"
   #'exactly => checker?
@@ -90,8 +88,6 @@
 )
 
 (facts "about throws"
-  #'throws => checker?
-  throws => checker?
   (throws NullPointerException) => checker?
   (throws NullPointerException "hi") => checker?
   
@@ -105,6 +101,14 @@
    (throw-exception "throws Error") => (throws Error "bye"))
  (fact 
    @reported => (two-of checker-fails)))
+
+(fact "throws accepts many varieties of arglists"
+  (throw-exception "msg") => (throws Error)
+  (throw-exception "msg") => (throws "msg") 
+  (throw-exception "msg") => (throws #(= "msg" (.getMessage %)))
+  (throw-exception "msg") => (throws Error "msg")
+  (throw-exception "msg") => (throws Error #(= "msg" (.getMessage %)))
+  (throw-exception "msg") => (throws Error "msg" #(= "msg" (.getMessage %))))
 
 ;; Unexpected exceptions
 (after-silently

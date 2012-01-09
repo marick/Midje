@@ -1,8 +1,8 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.util.laziness
-  (:use [midje.util.form-utils :only [pred-cond]]))
-
+  (:use [midje.util.form-utils :only [pred-cond]]
+        [midje.util.backwards-compatible-utils :only [some-fn-m]])) 
 (defn eagerly
   "Descend form, converting all lazy seqs into lists.
    Metadata is preserved. In the result all non-collections
@@ -13,7 +13,7 @@
   [form]
   (let [m #(with-meta % (meta form))]
     (pred-cond form
-      (some-fn seq? list?)  (m (apply list (map eagerly form)))
+      (some-fn-m seq? list?)  (m (apply list (map eagerly form)))
       vector?               (m (vec (map eagerly form)))
       map?                  (m (into form (map eagerly form)))
       set?                  (m (into (if (sorted? form) (sorted-set) #{}) (map eagerly form)))

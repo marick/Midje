@@ -372,11 +372,11 @@
   => (contains {:actual 1 :notes (just #"#\"ab\$\" can't be used on 1")})
 
   (chatty-falsehood-to-map ( (contains {:a 1, :b 2}) {:a 1}))
-  => (contains {:actual {:a 1} :notes (just "Best match found: {:a 1}.")})
+  => (contains {:actual {:a 1} :notes (just "Best match found: {:a 1}")})
   (chatty-falsehood-to-map ( (just {:a 1, :b 2}) {:a 1}))
   => (contains {:actual {:a 1} :notes (just #"Expected two elements.*one")})
   (chatty-falsehood-to-map ( (contains {:a {:b 1}}) {:a 1}) )
-  => (contains {:actual {:a 1} :notes (just "Best match found: {}.")})
+  => (contains {:actual {:a 1} :notes (just "Best match found: {}")})
 
   ;; Won't work in Clojure 1.3 without some major rework.
   (chatty-falsehood-to-map ( (contains {:a odd?, :f odd? :g odd?}) {:f 3, :g 6, :a 1}) )
@@ -462,24 +462,44 @@
   (str (:actual ( (has-prefix 5) [#{{1 2}} 2 3 4]))) => "[#{{1 2}} 2 3 4]"
   )
 
-(facts "about of-functions"
-  [ 33 33 ] => (two-of 33)
+(facts "n-of functions"
+  (fact "pass w/ correct # of matching results"
+    [33 33 ] => (two-of 33)
+    
+    [1 3 ] => (n-of odd? 2)
+    ["ab" "aab" "aaab"] => (n-of #"a+b" 3)
+    ( (n-of odd? 1) [1 3]) => chatty-checker-falsehood?
+    ( (n-of odd? 3) [1 2 3]) => chatty-checker-falsehood?
   
-  [ 1 3 ] => (n-of odd? 2)
-  [ "ab" "aab" "aaab"] => (n-of #"a+b" 3)
-  ( (n-of odd? 1) [1 3]) => chatty-checker-falsehood?
-  ( (n-of odd? 3) [1 2 3]) => chatty-checker-falsehood?
-
-  [1 1 3 3 5 5 7 7 9 9] => (ten-of odd?)
-  [1 1 3 3 5 5 7 7 9] => (nine-of odd?)
-  [1 1 3 3 5 5 7 7] => (eight-of odd?)
-  [1 1 3 3 5 5 7] => (seven-of odd?)
-  [1 1 3 3 5 5] => (six-of odd?)
-  [1 1 3 3 5] => (five-of odd?)
-  [1 1 3 3] => (four-of odd?)
-  [1 1 3] => (three-of odd?)
-  [1 1] => (two-of odd?)
-  [1] => (one-of odd?))
+    [1 1 3 3 5 5 7 7 9 9] => (ten-of odd?)
+    [1 1 3 3 5 5 7 7 9] => (nine-of odd?)
+    [1 1 3 3 5 5 7 7] => (eight-of odd?)
+    [1 1 3 3 5 5 7] => (seven-of odd?)
+    [1 1 3 3 5 5] => (six-of odd?)
+    [1 1 3 3 5] => (five-of odd?)
+    [1 1 3 3] => (four-of odd?)
+    [1 1 3] => (three-of odd?)
+    [1 1] => (two-of odd?)
+    [1] => (one-of odd?))
+  
+  (fact "fail w/ wrong # of matching results"
+    [33 33 22] =not=> (two-of 33)
+    
+    [1 3 2] =not=> (n-of odd? 2)
+    ["ab" "aab" "aaab" "ccc"] =not=> (n-of #"a+b" 3)
+    ( (n-of odd? 1) [1]) =not=> chatty-checker-falsehood?
+    ( (n-of odd? 3) [1 3 5]) =not=> chatty-checker-falsehood?
+  
+    [1 1 3 3 5 5 7 7 9 9 11] =not=> (ten-of odd?)
+    [1 1 3 3 5 5 7 7 9 9] =not=> (nine-of odd?)
+    [1 1 3 3 5 5 7 7 9] =not=> (eight-of odd?)
+    [1 1 3 3 5 5 7 7] =not=> (seven-of odd?)
+    [1 1 3 3 5 5 7] =not=> (six-of odd?)
+    [1 1 3 3 5 5] =not=> (five-of odd?)
+    [1 1 3 3 5] =not=> (four-of odd?)
+    [1 1 3 3] =not=> (three-of odd?)
+    [1 1 3] =not=> (two-of odd?)
+    [1 1] =not=> (one-of odd?)))
 
 (facts "about separating looseness from arguments"
   (separate-looseness [1]) => [ 1 [] ]

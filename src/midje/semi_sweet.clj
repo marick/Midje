@@ -7,9 +7,10 @@
   (:use clojure.test
         midje.internal-ideas.fakes
         midje.internal-ideas.file-position
+        [midje.internal-ideas.fact-context :only [within-fact-context]]
         [midje.util debugging form-utils namespace]
-        [midje.error-handling monadic semi-sweet-errors]
-        [midje.util.exceptions :only [user-error]]
+        [midje.error-handling validation-errors semi-sweet-validations]
+        [midje.error-handling.exceptions :only [user-error]]
         [midje.production-mode]
         [clojure.pprint]))
 (immigrate 'midje.unprocessed)
@@ -75,10 +76,11 @@
 
 (defmethod expect-expansion :report-future-fact
    [call-form arrow expected-result fakes overrides]
-  `(let [check# (unprocessed-check ~call-form ~arrow ~expected-result ~overrides)]
-    (clojure.test/report {:type :future-fact
-                          :description ~(str call-form)
-                          :position (:position check#)})))
+   `(let [check# (unprocessed-check ~call-form ~arrow ~expected-result ~overrides)]
+      (within-fact-context ~(str call-form)  
+        (clojure.test/report {:type :future-fact
+                              :description (midje.internal-ideas.fact-context/nested-fact-description)
+                              :position (:position check#)}))))
 
 ;;; Interface: unfinished
 
@@ -120,14 +122,12 @@
    the result is to be returned. Either form may contain bound variables. 
    Example: (let [a 5] (fake (f a) => a))"
   [& forms]
-  (error-let [ rest (validate &form)]
-    (fake* rest)))
+  (when-valid &form (fake* forms)))
 
 (defmacro data-fake
   "Creates a fake map that's used to associate key/value pairs with a metaconstant"
   [& forms]
-  (error-let [ rest (validate &form)]
-    (data-fake* rest)))
+  (when-valid &form (data-fake* forms)))
 
 (defmacro not-called
   "Creates an fake map that a function will not be called.
@@ -150,11 +150,10 @@
    To strip tests from production code, set either clojure.test/*load-tests*
    or midje.semi-sweet/*check* to false."
   [& args]
-  (error-let [[call-form arrow expected-result & other-stuff]
-              (validate &form)]
+  (valid-let [[call-form arrow expected-result & other-stuff]   (validate &form)]
     (when (user-desires-checking?)
       (let [ [fakes overrides] (fakes-and-overrides other-stuff)]
-        (error-let [_ (spread-error (map validate fakes))]
+        (when-valid fakes
           (expect-expansion call-form arrow expected-result fakes overrides))))))
 
 

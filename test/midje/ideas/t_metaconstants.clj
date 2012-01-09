@@ -240,7 +240,7 @@
 
 (against-background [--mc-- =contains=> {:b 20}]
   (fact "against-background can provide a containership prerequisite for a metaconstant."
-    (:b --mc--)) => 20)
+    (:b --mc--) => 20))
 
 (background --mc-- =contains=> {:c 300})
 (fact "Background can contain a containership prerequisite for a metaconstant"

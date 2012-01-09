@@ -24,8 +24,23 @@
                           (contains {:type :future-fact
                                      :description "(+ 1 \"1\")"})
                           pass)))
-                                     
-   
+
+(defn number [] )
+(defn two-numbers [] 
+  (+ (number) (number)))
+
+(defn- stream-overflow-exception? [captured-throwable]
+  (= "Your =stream=> ran out of values." (.getMessage (.throwable captured-throwable))))
+
+(after-silently ;; streams give sensible error when they run dry
+  (fact
+    (two-numbers) => 2
+    (provided
+      (number) =streams=> [1]))
+
+  (fact @reported => (just (contains {:type :mock-expected-result-failure
+                                      :actual stream-overflow-exception? } ))))
+
 
 (facts "this is a doc string"
   (+ 10 10) => 20
@@ -123,6 +138,27 @@
  (fact (+ 1 2) =not=> odd?)
  (fact @reported => (one-of inappropriate-checker)))
 
+;; fact and future-fact descriptions nest themselves when reported
+
+(after-silently
+  (facts "A"
+    (fact "B"
+      (+ 1 2) => 1))
+  (fact @reported => (one-of (contains {:description "A - B"} ))))
+
+(after-silently
+  (facts "level 1"
+    (fact "level 2"
+      (fact "level 3"
+        (throw (Exception. "BOOM")) => anything)))
+  (fact @reported => (one-of (contains {:description "level 1 - level 2 - level 3"} )))) 
+
+(after-silently
+  (facts "about mathemtics"
+    (future-fact "do in future"
+      nil => 1))
+  (fact @reported => (one-of (contains {:description "about mathemtics - do in future"} ))))
+
 ;; Background prerequisites
 (unfinished check-f check-g check-h)
 (defn ander [n]
@@ -135,7 +171,7 @@
      (ander 1) => falsey (provided (check-f 1) => false)
      (ander 1) => falsey (provided (check-g 1) => false)
      (ander 1) => falsey (provided (check-h 1) => false)))
- (fact (four-of pass)))
+ (fact @reported => (four-of pass)))
 
 
 (unfinished h g i j)
@@ -199,16 +235,16 @@
    (called 1) => 1
    (provided
      (called 1) => 1 :times 2))
- (fact (contains {:type :mock-incorrect-call-count
-                  :actual-count 1})))
+ (fact @reported => (contains (contains {:type :mock-incorrect-call-count
+                             :actual-count 1}))))
   
 (after-silently
  (fact
    (called 1) => 1
    (provided
      (called 1) => 1 :times (range 2 8)))
- (fact (contains {:type :mock-incorrect-call-count
-                  :actual-count 1})))
+ (fact @reported => (contains (contains {:type :mock-incorrect-call-count
+                             :actual-count 1}))))
  
 
 (after-silently
@@ -216,8 +252,8 @@
    (do (called 1) (called 1) (called 1)) => 1
    (provided
      (called 1) => 1 :times even?))
- (fact (contains {:type :mock-incorrect-call-count
-                  :actual-count 3})))
+ (fact @reported => (contains (contains {:type :mock-incorrect-call-count
+                                         :actual-count 3}))))
   
 (fact
   (do (called 1) (called 1)) => 1
@@ -238,8 +274,8 @@
    (called 45) => 3
    (provided
      (called anything) => 1 :times 0))
- (fact (contains {:type :mock-incorrect-call-count
-                  :actual-count 0})))
+ (fact @reported => (contains (contains {:type :mock-incorrect-call-count
+                                         :actual-count 1}))))
     
 
 (def ^{:dynamic true}
@@ -252,6 +288,7 @@
 
 (def ^{:dynamic true}
      *fact-retval* (fact
+                     (+ 1 1) => 2
                      (midje.util.report/note-failure-in-fact)
                      "some random return value"))
 (fact "fact returns false on failure"

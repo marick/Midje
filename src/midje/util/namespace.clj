@@ -23,7 +23,7 @@
   [& ns-names]
   (doseq [ns ns-names]
     (require ns)
-    (doseq [[sym var] (ns-publics ns)]
+    (doseq [[sym ^clojure.lang.Var var] (ns-publics ns)]
       (let [sym (with-meta sym (assoc (meta var) :ns *ns*))]
         (if (.hasRoot var)
           (intern *ns* sym (var-root var))

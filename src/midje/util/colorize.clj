@@ -1,35 +1,32 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.util.colorize
-  (:require [colorize.core :as color])
+  (:require [colorize.core :as color]
+            [clojure.string :as str])
   (:use [midje.util.ecosystem :only [getenv on-windows?]]))
 
 
-(defn- colorize-choice []
-  (.toUpperCase (or (getenv "MIDJE_COLORIZE")
+(defn colorize-choice []
+  (str/upper-case (or (getenv "MIDJE_COLORIZE")
                     (str (not (on-windows?))))))
 
-(defn- default-color-choice? []
-  (= (colorize-choice) "TRUE"))
+(case (colorize-choice)
+  "TRUE" (do
+           (def fail color/red)
+           (def pass color/green)
+           (def note color/cyan))
 
-(defn reverse-color-choice? []
-  (= (colorize-choice) "REVERSE"))
+  "REVERSE" (do
+              (def fail color/red-bg)
+              (def pass color/green-bg)
+              (def note color/cyan-bg))
 
-(cond (default-color-choice?)
-      (do
-        (def fail color/red)
-        (def pass color/green)
-        (def note color/cyan))
+  (do
+    (def fail identity)
+    (def pass identity)
+    (def note identity)))
 
-      (reverse-color-choice?)
-      (do
-        (def fail color/red-bg)
-        (def pass color/green-bg)
-        (def note color/cyan-bg))
-
-      :else
-      (do
-        (def fail identity)
-        (def pass identity)
-        (def note identity)))
-      
+(defn colorize-deftest-output [s]
+  (-> s 
+      (str/replace #"^FAIL" (fail "FAIL"))
+      (str/replace #"^ERROR" (fail "ERROR"))))

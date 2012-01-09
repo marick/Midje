@@ -3,12 +3,11 @@
   (:use clojure.test
         [clojure.pprint :only [cl-format]]
         [midje.util.object-utils :only [function-name function-name-or-spewage named-function?]]
-        [midje.util.exceptions :only [friendly-exception-text]]
-        [midje.checkers.util :only [captured-exception? captured-exception-value]]
+        midje.error-handling.exceptions
         [midje.util.form-utils :only [pred-cond]])
   (:require [midje.util.colorize :as color]))
 
-(let [the-var (intern (the-ns 'clojure.test) 'old-report)]
+(let [^clojure.lang.Var the-var (intern (the-ns 'clojure.test) 'old-report)]
   (when-not (.hasRoot the-var)
     (.bindRoot the-var clojure.test/report)))
 
@@ -42,18 +41,26 @@
 (defn- attractively-stringified-form [form]
   (pred-cond form
     named-function?     (format "a function named '%s'" (function-name form))  
-    captured-exception? (friendly-exception-text (captured-exception-value form) "              ")
+    captured-throwable? (friendly-stacktrace form)
     :else               (pr-str form)))
 
 (defn- fail-at [m]
-  [(str "\n" (color/fail "FAIL") " at " (midje-position-string (:position m)))
-   (when (:binding-note m)
-     (str "With table substitutions: " (:binding-note m)))])
+  [(str "\n" (color/fail "FAIL:") " " 
+     (when-let [doc (:description m)] (str (pr-str doc) " "))
+     "at " (midje-position-string (:position m)))
+   (when-let [substitutions (:binding-note m)]
+     (str "With table substitutions: " substitutions))])
 
 (defn- indented [lines]
   (map #(str "        " %) lines))
 
 (defmulti report-strings :type)
+
+(defmethod report-strings :future-fact [m]
+  (list
+   (str "\n" (color/note "WORK TO DO:") " "
+        (when-let [doc (:description m)] (str (pr-str doc) " "))
+        "at " (midje-position-string (:position m)))))
 
 (defmethod report-strings :mock-argument-match-failure [m]
    (list
@@ -105,14 +112,8 @@
    "Actual result was NOT supposed to agree with the checking function."
    (str "        Actual result: " (attractively-stringified-form (:actual m)))
    (str "    Checking function: " (pr-str (:expected m)))))
-
-(defmethod report-strings :future-fact [m]
-  (list
-   (str "\n" (color/note "WORK TO DO:") " "
-        (:description m) " "
-        (midje-position-string (:position m)))))
   
-(defmethod report-strings :user-error [m]
+(defmethod report-strings :validation-error [m]
    (list
     (fail-at m)
     (str "    Midje could not understand something you wrote: ")
@@ -124,7 +125,7 @@
     (str "    Midje caught an exception when translating this form:")
     (str "      " (pr-str (:macro-form m)))
     (str "      " "This stack trace *might* help:")
-    (indented (:exception-lines m))))
+    (:stacktrace m)))
   
 (letfn [(render [m]
           (->> m report-strings flatten (remove nil?) (map *renderer*) doall))]

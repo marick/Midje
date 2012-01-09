@@ -6,7 +6,7 @@
 (defn republish* [namespace symbols]
   (require namespace)
   (doseq [sym symbols]
-    (let [var ( (ns-publics namespace) sym)]
+    (let [^clojure.lang.Var var ( (ns-publics namespace) sym)]
       (let [sym (with-meta sym (assoc (meta var) :ns *ns*))]
         (if (.hasRoot var)
           (intern *ns* sym (var-root var))
@@ -20,7 +20,7 @@
 (republish midje.checkers.chatty
            chatty-checker)
 (republish midje.checkers.simple
-           truthy falsey TRUTHY FALSEY anything irrelevant any exactly throws roughly)
+           truthy falsey TRUTHY FALSEY anything irrelevant exactly throws roughly)
 (republish midje.checkers.collection
            has has-suffix has-prefix just contains
            one-of two-of three-of four-of five-of six-of seven-of eight-of nine-of ten-of
