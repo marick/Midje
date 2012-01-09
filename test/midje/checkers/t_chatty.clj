@@ -66,19 +66,35 @@
 
 (def actual-plus-one-equals-4 (chatty-checker [actual] (= (inc actual) 4)))
 
-(def structured-checker
+(def vec-structured-checker
      (chatty-checker [ [a b & c]]
         (and (= a 1)
              (= b 2)
              (= c [3 4]))))
 
+(def map-structured-checker
+     (chatty-checker [{:keys [a b]}]
+        (and (= a 1)
+             (= b 2))))
+
+(def map-structured-checker-with-as
+     (chatty-checker [{:keys [a b] :as both}]
+        (and (= a 1)
+             (= b 2))))
+
 (fact "chatty checkers can use a destructuring argument"
   ;; Note: Can't use extended-equality because it swallows chatty-failures
-  (= (structured-checker [1 2 3 4]) true) => truthy)
+  (= (vec-structured-checker [1 2 3 4]) true) => truthy
+
+  (= (map-structured-checker {:a 1 :b 2}) true) => truthy
+  (= (map-structured-checker {:a 10 :b 10}) true) => falsey
+
+  (= (map-structured-checker-with-as {:a 1 :b 2}) true) => truthy
+  (= (map-structured-checker-with-as {:a 10 :b 10}) true) => falsey)
 
 (tabular 
   (fact "different parts are in fact checked"
-    (let [result (structured-checker ?actual)]
+    (let [result (vec-structured-checker ?actual)]
       (= result true) => falsey
       (:actual result) => ?actual))
   ?actual       
@@ -87,10 +103,18 @@
   [1 2 3 4 'x])
 
 (fact "folded results are still shown"
-  (:intermediate-results (structured-checker ['x 2 3 4]))
+  (:intermediate-results (vec-structured-checker ['x 2 3 4]))
   => '(    ((= a 1) false)
            ((= b 2) true)
-           ((= c [3 4]) true) ))
+           ((= c [3 4]) true) )
+
+  (:intermediate-results (map-structured-checker {:a 10 :b 2}))
+  => '(    ((= a 1) false) 
+           ((= b 2) true)) 
+
+  (:intermediate-results (map-structured-checker-with-as {:a 10 :b 2}))
+  => '(    ((= a 1) false) 
+           ((= b 2) true)) )
   
 ;; Chatty checkers: interaction with checkers that return chatty-failures.
 (defn rows-in [rows] rows)

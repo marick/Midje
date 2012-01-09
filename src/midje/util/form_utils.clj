@@ -10,16 +10,22 @@
   (gensym 'symbol-for-destructured-arg))
 
 (defn single-arg-into-form-and-name [arg-form]
-  (cond (not (vector? arg-form))
-        [arg-form arg-form]
-
-        (= :as (second (reverse arg-form)))  ; use existing as
-        [ arg-form (last arg-form)]
-
-        :else
-        (let [as-symbol (unique-argument-name)]
-          [ (-> arg-form (conj :as) (conj as-symbol))
-            as-symbol])))
+  (cond (vector? arg-form)
+        (if (= :as (second (reverse arg-form)))  ; use existing as
+          [ arg-form (last arg-form)]
+          (let [as-symbol (unique-argument-name)]
+            [ (-> arg-form (conj :as) (conj as-symbol))
+              as-symbol]))
+    
+        (map? arg-form)
+        (if (contains? arg-form :as)
+          [ arg-form (:as arg-form)]
+          (let [as-symbol (unique-argument-name)]
+            [ (assoc arg-form :as as-symbol)
+              as-symbol]))        
+       
+        :else 
+        [arg-form arg-form]))
 
 
 (defn regex? [x]
