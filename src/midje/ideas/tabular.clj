@@ -40,7 +40,7 @@
        (not (resolve s)) 
        (not ((set locals) s))))
 
-(defn headings-rows+values [table locals]
+(defn- headings-rows+values [table locals]
   (split-with (partial table-variable? locals) (remove-pipes+where table)))
 
 (defn- table-binding-maps [table locals]
