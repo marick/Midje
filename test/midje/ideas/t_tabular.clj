@@ -91,7 +91,7 @@
  :where | "|" | 'where | '| | ":where|where|")
 
 
-;; Validate
+;; Table Validation
 
 (tabular "can split apart fact forms with optional doc-string"
  (fact 
@@ -99,13 +99,11 @@
      (validate '?forms []) => '?expected))
    ?forms                               ?expected
    (tabular fact ?a ?b 1 1)              [nil fact [?a ?b 1 1]]
-   (tabular "string" fact ?a ?b 1 1)    ["string" fact [?a ?b 1 1]]
-   ;; Doesn't work with non-literal strings
-   (tabular s fact table...)            [nil s [fact table...]])
+   (tabular "string" fact ?a ?b 1 1)    ["string" fact [?a ?b 1 1]] )
 
 
 (causes-validation-error #"There's no table\. \(Misparenthesized form\?\)"
-  (tabular "A misparenthesization that results in no table is noticed."
+  (tabular
     (fact 
       (tabular-forms '?forms) => '?expected
       ?forms                       ?expect
@@ -119,10 +117,25 @@
   (tabular "doc string present"
     (fact nil => nil)))
 
-(causes-validation-error #"It looks like the table has headings, but no data rows:"
+(causes-validation-error #"It looks like the table has headings, but no values:"
   (tabular
     (fact ?a => ?b)
     ?a   ?b))
+
+(causes-validation-error #"It looks like the table has no headings"
+  (tabular
+    (fact
+      (+ a b) => result)
+      2    4   999     ))
+
+ ; non-literal strings attempted to be used by tabular cause validation trouble
+(def s "non-literal string")
+(causes-validation-error #"a non-literal string for the doc-string"
+  (tabular s
+    (fact
+      (+ a b) => result)
+      a    b   result
+      2    4   999     ))
 
 ;; Other tests via midje.sweet API
 

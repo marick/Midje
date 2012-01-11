@@ -40,10 +40,13 @@
        (not (resolve s)) 
        (not ((set locals) s))))
 
+(defn headings-rows+values [table locals]
+  (split-with (partial table-variable? locals) (remove-pipes+where table)))
+
 (defn- table-binding-maps [table locals]
-  (let [[variables-row values] (split-with (partial table-variable? locals) (remove-pipes+where table))
-        value-rows (partition (count variables-row) values)]
-    (map (partial ordered-zipmap variables-row) value-rows)))
+  (let [[headings-row values] (headings-rows+values table locals)
+        value-rows (partition (count headings-row) values)]
+    (map (partial ordered-zipmap headings-row) value-rows)))
 
 (defn- macroexpander-for [fact-form]
   (comp macroexpand
@@ -63,12 +66,17 @@
          ~@expect-forms-with-binding-notes)))
 
 (defmethod validate "tabular" [[_tabular_ & form] locals]
-  (let [[[description? & _] [fact-form & table]]  (split-with string? form)]
+  (let [[[description? & _] [fact-form & table]]  (split-with string? form)
+        [headings-row values] (headings-rows+values table locals)]
     (cond (empty? table)
           (simple-report-validation-error form "There's no table. (Misparenthesized form?)")
     
-          (empty? (remove (partial table-variable? locals) table))
-          (simple-report-validation-error form "It looks like the table has headings, but no data rows:")
+          (empty? values)
+          (simple-report-validation-error form "It looks like the table has headings, but no values:")
+    
+          (empty? headings-row)
+          (simple-report-validation-error form "It looks like the table has no headings, or perhaps you"  
+                                                "tried to use a non-literal string for the doc-string?:")
                                                  
           :else
           [description? fact-form table])))
