@@ -1,6 +1,17 @@
 1.3.2-SNAPSHOT
 -------------
-* Chatty checkers can destructure their single argument.
+* Chatty checkers can destructure their single argument.                                           
+* tabular no longer requires variables names to begin with '?'
+* friendlier stacktraces with clj-stacktrace
+* throws checker takes an optional predicate
+* many more common syntactial mistakes give helpful error messages
+* prevented an infinite loop caused by ill-formed tabular facts
+* fact doc-strings now show in report output
+  i. nested facts show nested doc-strings
+  ii. tabular's doc-sting shows in a similar manner
+* =stream=> prerequisites give helpful error messages when they run out of items to return
+* removed reflection warnings
+
 
 1.3.1 
 * Fix mysterious type conversion error in some cases
