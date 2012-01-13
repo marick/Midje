@@ -82,15 +82,24 @@
         (and (= a 1)
              (= b 2))))
 
+(def other-map-structured-checker
+     (chatty-checker [{a :a b :b}]
+        (and (= a 1)
+             (= b 2))))
+
 (fact "chatty checkers can use a destructuring argument"
   ;; Note: Can't use extended-equality because it swallows chatty-failures
-  (= (vec-structured-checker [1 2 3 4]) true) => truthy
+  (= (vec-structured-checker [1 2 3 4]) true) => truthy )
 
-  (= (map-structured-checker {:a 1 :b 2}) true) => truthy
-  (= (map-structured-checker {:a 10 :b 10}) true) => falsey
-
-  (= (map-structured-checker-with-as {:a 1 :b 2}) true) => truthy
-  (= (map-structured-checker-with-as {:a 10 :b 10}) true) => falsey)
+(tabular "chatty checkers can use a map destructuring argument"
+  (fact 
+      (= (?structured-checker {:a 1 :b 2}) true) => truthy
+      (= (?structured-checker {:a 10 :b 10}) true) => falsey)
+  
+  ?structured-checker
+  map-structured-checker
+  map-structured-checker-with-as
+  other-map-structured-checker )
 
 (tabular 
   (fact "different parts are in fact checked"
@@ -106,15 +115,18 @@
   (:intermediate-results (vec-structured-checker ['x 2 3 4]))
   => '(    ((= a 1) false)
            ((= b 2) true)
-           ((= c [3 4]) true) )
+           ((= c [3 4]) true) ) )
 
-  (:intermediate-results (map-structured-checker {:a 10 :b 2}))
+(tabular "map structured checkers still work"
+  (fact (:intermediate-results (?structured-checker {:a 10 :b 2}))
   => '(    ((= a 1) false) 
-           ((= b 2) true)) 
+           ((= b 2) true) ))
+  
+  ?structured-checker
+  map-structured-checker
+  map-structured-checker-with-as
+  other-map-structured-checker )
 
-  (:intermediate-results (map-structured-checker-with-as {:a 10 :b 2}))
-  => '(    ((= a 1) false) 
-           ((= b 2) true)) )
   
 ;; Chatty checkers: interaction with checkers that return chatty-failures.
 (defn rows-in [rows] rows)
