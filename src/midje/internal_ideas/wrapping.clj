@@ -29,7 +29,7 @@
   (namespace-values-inside-out :midje/wrappers))
 
 (defn with-wrapping-target [what target]
-  (vary-meta what merge {:midje/wrapping-target target}))
+  (vary-meta what assoc :midje/wrapping-target target))
 
 (defn for-wrapping-target? [target]
   (fn [actual] (= target (:midje/wrapping-target (meta actual)))))

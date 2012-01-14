@@ -19,7 +19,7 @@
       (:midje/chatty-checker-falsehood (meta value))))
 
 (defn as-chatty-checker [function]
-  (as-checker (vary-meta function merge {:midje/chatty-checker true})))
+  (as-checker (vary-meta function assoc :midje/chatty-checker true)))
 
 (defn chatty-falsehood-to-map [value]
   (with-meta value {}))

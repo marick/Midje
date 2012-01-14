@@ -3,7 +3,7 @@
 (ns midje.checkers.defining)
 
 (defn as-checker [function]
-  (vary-meta function merge {:midje/checker true}))
+  (vary-meta function assoc :midje/checker true))
 
 (letfn [(make-checker-definition [checker-name docstring attr-map arglists arglists+bodies]
           (let [metavars (merge {:midje/checker true :arglists `'~arglists}

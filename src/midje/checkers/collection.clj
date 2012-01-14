@@ -204,7 +204,7 @@
               (recur (rest walking-actual)
                      (concat (:expected-skipped-over candidate) walking-expected)
                      (better-of candidate best-so-far)
-                     (merge candidate {:expected-skipped-over []}))
+                     (assoc candidate :expected-skipped-over []))
 
               ;; This actual is blown. Try the next one.
               (recur (rest (concat (:actual-found candidate) walking-actual))
