@@ -13,7 +13,7 @@
             [midje.util.ecosystem :as ecosystem]))
 
 (defn- normalized-metaconstant
-  "Turns '..m. to \"...m...\""
+  "Turns '..m. to \"...m...\", or nil if mc-symbol isn't a valid metaconstant symbol"
   [mc-symbol]
   (let [normalize (fn [re metaconstant-format mc-symbol]
                     (-?>> mc-symbol name (re-matches re) second (format metaconstant-format)))
@@ -23,9 +23,9 @@
 
     (->> mc-symbol ((juxt dot-metaconstant dash-metaconstant)) (find-first identity))))
 
-(defn metaconstant-symbol? [symbol-or-form]
-  (and (symbol? symbol-or-form)
-    (-> symbol-or-form normalized-metaconstant not not)))
+(defn metaconstant-symbol? [x]
+  (and (symbol? x)
+    (-> x normalized-metaconstant not not)))
 
 (deftype Metaconstant [name ^clojure.lang.Associative storage]
   Object
