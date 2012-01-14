@@ -1,4 +1,5 @@
-(ns midje.error-handling.exceptions
+(ns ^{:doc "Functions for Midje to deal elegantly with exceptions."}
+  midje.error-handling.exceptions
   (:use [clojure.string :only [join]]
         [clj-stacktrace.repl :only [pst+ pst]]
         [midje.util.colorize :only [colorize-choice]]))

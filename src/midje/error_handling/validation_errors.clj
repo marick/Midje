@@ -1,6 +1,8 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.error-handling.validation-errors
+(ns ^{:doc "Code for identifying invalid Midje syntax. Includes control 
+            flow macros, validation error creation, etc."}
+  midje.error-handling.validation-errors
   (:use
     [clojure.algo.monads :only [defmonad domonad with-monad m-lift]]
     [clojure.test :only [report]]
