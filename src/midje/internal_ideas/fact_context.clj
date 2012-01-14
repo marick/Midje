@@ -1,4 +1,6 @@
-(ns midje.internal-ideas.fact-context
+(ns ^{:doc "A way to keep track of the pertinent context of the current nested fact.
+            Currently, that is only the fact's description/doc-string"}
+  midje.internal-ideas.fact-context
   (:use [clojure.string :only [join]]))
 
 (def ^{:private true} nested-descriptions (atom []))

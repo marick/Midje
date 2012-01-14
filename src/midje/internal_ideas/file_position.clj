@@ -1,6 +1,7 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.internal-ideas.file-position
+(ns ^{:doc "Functions to help in finding the lines you care about."}
+  midje.internal-ideas.file-position
   (:use [midje.util.zip :only [skip-to-rightmost-leaf]]
         [midje.util.form-utils :only [translate-zipper]]
         [midje.util.namespace :only [matches-symbols-in-semi-sweet-or-sweet-ns?]]

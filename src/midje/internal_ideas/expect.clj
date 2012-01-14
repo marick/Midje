@@ -1,5 +1,7 @@
 ;; -*- indent-tabs-mode: nil -*-
-(ns midje.internal-ideas.expect
+(ns ^{:doc "Mostly functions for identifying semi-sweet expects, and for converting 
+            midje.sweet arrow forms into semi-sweet expcet forms."}
+  midje.internal-ideas.expect
   (:use [midje.util.treelike :only [tree-variant]]
         [midje.util.namespace :only [matches-symbols-in-semi-sweet-or-sweet-ns?]]
         [midje.util.form-utils :only [first-named?]]

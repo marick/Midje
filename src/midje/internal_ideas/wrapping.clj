@@ -1,9 +1,11 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.internal-ideas.wrapping
+(ns ^{:doc "midje.background uses these to wrap extra code around 
+            :contents, :facts, or :expects"}
+  midje.internal-ideas.wrapping
   (:use
     [midje.util.form-utils :only [first-named?]]
-    [utilize.seq :only (separate)]
+    [utilize.seq :only [separate]]
     [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
                                                set-namespace-value
                                                with-pushed-namespace-values]])

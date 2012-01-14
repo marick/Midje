@@ -1,6 +1,7 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.internal-ideas.fakes
+(ns ^{:doc "The semi-sweet representation of provided forms."}
+  midje.internal-ideas.fakes
   (:use [utilize.seq :only (separate find-first)]
         [midje.util.object-utils :only [object-name]]
         [clojure.test :only [report]]
