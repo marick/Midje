@@ -3,7 +3,9 @@
 ;;; This namespace is mainly responsible for converting particular macros
 ;;; into the arguments used by midje.unprocessed's `expect*`.
 
-(ns midje.semi-sweet
+(ns ^{:doc "Macros that provide less syntactic sugaring than those 
+            from midje.sweet. midje.sweet is built on top of it."}
+  midje.semi-sweet
   (:use clojure.test
         midje.internal-ideas.fakes
         midje.internal-ideas.file-position

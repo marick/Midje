@@ -1,6 +1,8 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.checkers
+(ns ^{:doc "Checkers are for checking results of expectations, or checking 
+            that appropriate arguments are passed to prerequisites"} 
+  midje.checkers
   (:use [midje.util.thread-safe-var-nesting :only [var-root]]))
 
 (defn republish* [namespace symbols]

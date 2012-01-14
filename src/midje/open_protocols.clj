@@ -1,6 +1,7 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.open-protocols
+(ns ^{:doc "Macros for using protocols in prerequisites"}
+  midje.open-protocols
   (:use [midje.production-mode :only [user-desires-checking?]]
         [midje.internal-ideas.fakes :only [implements-a-fake?]]))
 
