@@ -1,6 +1,7 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.checkers.chatty
+(ns ^{:doc "Checkers that explain more about a failure."}
+  midje.checkers.chatty
   (:use [midje.checkers util]
         [midje.checkers.defining :only [as-checker]]
         [midje.util.form-utils :only [pairs quoted? single-arg-into-form-and-name]]))

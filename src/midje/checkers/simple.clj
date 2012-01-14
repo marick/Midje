@@ -2,7 +2,8 @@
 
 ;; Note: checkers need to be exported in ../checkers.clj
 
-(ns midje.checkers.simple
+(ns ^{:doc "Prepackaged functions that perform common checks."}
+  midje.checkers.simple
   (:use [midje.checkers.defining :only [as-checker checker defchecker]]
   	[midje.checkers.extended-equality :only [extended-=]]
   	[midje.checkers.util :only [named-as-call]]

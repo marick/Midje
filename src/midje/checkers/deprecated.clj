@@ -1,4 +1,5 @@
-(ns midje.checkers.deprecated
+(ns ^{:doc "Deprecated checkers."}
+  midje.checkers.deprecated
   (:use [midje.checkers.defining :only [defchecker]]
   	[midje.checkers.collection :only [just contains]]))
 

@@ -1,6 +1,7 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.checkers.defining)
+(ns ^{:doc "Various ways to define checkers."}
+  midje.checkers.defining)
 
 (defn as-checker [function]
   (vary-meta function assoc :midje/checker true))

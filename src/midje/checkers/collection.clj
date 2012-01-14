@@ -2,7 +2,8 @@
 
 ;; Note: checkers need to be exported in ../checkers.clj
 
-(ns midje.checkers.collection
+(ns ^{:doc "Checkers for collections and strings."}
+  midje.checkers.collection
   (:use [clojure.set :only [union]]
         [clojure.pprint :only [cl-format]]
         [clojure.math.combinatorics :only [permutations]]
