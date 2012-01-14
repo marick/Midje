@@ -1,5 +1,6 @@
 ;; -*- indent-tabs-mode: nil -*-
-(ns midje.util.report
+(ns ^{:doc "Renders the various reported fact evaluation results."}
+  midje.util.report
   (:use clojure.test
         [clojure.pprint :only [cl-format]]
         [midje.util.object-utils :only [function-name function-name-or-spewage named-function?]]

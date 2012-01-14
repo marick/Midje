@@ -1,6 +1,7 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.util.thread-safe-var-nesting)
+(ns ^{:doc "Code used to swap out vars for faking prerequisites."}
+  midje.util.thread-safe-var-nesting)
 
 ;; This peculiar construction works in both Clojure 1.2 and 1.3
 

@@ -1,6 +1,8 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.util.backwards-compatible-utils)
+(ns ^{:doc "Functions grabbed from newer versions of Clojure, 
+            so we can maintain backwards compatibility."}
+  midje.util.backwards-compatible-utils)
 
 (defn every-pred-m
   "Takes a set of predicates and returns a function f that returns true if all of its

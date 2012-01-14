@@ -1,6 +1,7 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.util.form-utils
+(ns ^{:doc "Utility functions dealing with checking or tranforming forms."}
+  midje.util.form-utils
   (:use [midje.util.treelike :only [tree-variant]]
         [clojure.set :only [difference]]
         [utilize.seq :only (first-truthy-fn)])

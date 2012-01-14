@@ -1,8 +1,7 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-;;; Functions having to do with looking at an object at runtime.
-
-(ns midje.util.object-utils)
+(ns ^{:doc "Functions having to do with looking at an object at runtime."}
+  midje.util.object-utils)
 
 (defn named-function? [thing]
   (:name (meta thing)))

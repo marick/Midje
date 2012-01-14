@@ -1,4 +1,5 @@
-(ns midje.util.zip
+(ns ^{:doc "Zipper util functions."}
+  midje.util.zip
   (:require [clojure.zip :as zip]))
   
 (defn skip-to-rightmost-leaf
