@@ -1,4 +1,5 @@
-(ns midje.ideas.arrow-symbols)
+(ns ^{:doc "Lexicon of all Midje arrows, both expect arrows and prerequisite arrows."}
+  midje.ideas.arrow-symbols)
 
 (def => "=>")
 (def =not=> "=not=>")

@@ -1,4 +1,5 @@
-(ns midje.ideas.facts
+(ns ^{:doc "Facts are the core abstraction of Midje."}
+  midje.ideas.facts
   (:use [midje.error-handling.validation-errors :only [simple-report-validation-error validate]]
         [midje.semi-sweet :only [is-semi-sweet-keyword?]]
         [midje.internal-ideas.fakes :only [unfold-fakes]]

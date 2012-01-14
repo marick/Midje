@@ -1,6 +1,8 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.ideas.background
+(ns ^{:doc "Code to be run before, after or around facts. Also, 
+            prerequisites that pertain to a group of facts."} 
+  midje.ideas.background
   (:use [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence? take-arrow-sequence]]
     [midje.ideas.metaconstants :only [define-metaconstants]]
     [midje.ideas.prerequisites :only [metaconstant-prerequisite? prerequisite-to-fake]]

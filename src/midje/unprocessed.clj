@@ -1,6 +1,7 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.unprocessed
+(ns ^{:doc "Core Midje functions that process expects and reports on their results."} 
+  midje.unprocessed 
   (:use clojure.test
         [midje.internal-ideas.fakes]
         [midje.internal-ideas.fact-context :only [nested-fact-description]]

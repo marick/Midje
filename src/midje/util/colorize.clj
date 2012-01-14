@@ -1,6 +1,8 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.util.colorize
+(ns ^{:doc "Functions dealing with making various forms of 
+            Midje output be ergonomically colorful."}
+  midje.util.colorize
   (:require [colorize.core :as color]
             [clojure.string :as str])
   (:use [midje.util.ecosystem :only [getenv on-windows?]]))

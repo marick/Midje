@@ -1,6 +1,8 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns midje.ideas.metaconstants
+(ns ^{:doc "A notation that avoids confusion between what’s essential 
+            about data and what’s accidental. A stand in for constant data."}
+  midje.ideas.metaconstants
   (:use [midje.util.form-utils :only [quoted? translate-zipper]]
         [midje.util.zip :only [skip-down-then-rightmost-leaf]]
         [midje.util.thread-safe-var-nesting :only [unbound-marker]]
