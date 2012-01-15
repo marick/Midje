@@ -162,3 +162,11 @@
 
 (defn sort-map [m]
   (into (sorted-map) m))
+
+(defmacro defmanymultis 
+  "Create multiple multimethods with different dispatch values 
+   but the same implementation"
+  [name dispatch-vals args & body] 
+  (macro-for [dval dispatch-vals]
+    `(defmethod ~name ~dval ~args
+       ~@body)))
