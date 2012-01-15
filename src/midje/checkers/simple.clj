@@ -9,7 +9,7 @@
   	[midje.checkers.util :only [named-as-call]]
   	[midje.error-handling.exceptions :only [captured-throwable?]]
     [midje.util.ecosystem :only [clojure-1-3? +M -M *M]]
-    [midje.util.form-utils :only [pred-cond regex? defmanymultis]]
+    [midje.util.form-utils :only [pred-cond regex? def-many-methods]]
     [midje.util.backwards-compatible-utils :only [every-pred-m some-fn-m]])
   (:import [midje.error_handling.exceptions ICapturedThrowable]))
 
@@ -77,6 +77,6 @@
   (checker [^ICapturedThrowable wrapped-throwable]
     (= clazz (class (.throwable wrapped-throwable)))))
 
-(defmanymultis throws [#{:throwable :predicate}, #{:message :predicate },
-                       #{:throwable :message}, #{:throwable :message :predicate}] [& args]
+(def-many-methods throws [#{:throwable :predicate}, #{:message :predicate },
+                          #{:throwable :message}, #{:throwable :message :predicate}] [& args]
   (as-checker (apply every-pred-m (map throws args))))

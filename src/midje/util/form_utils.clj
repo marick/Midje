@@ -163,7 +163,7 @@
 (defn sort-map [m]
   (into (sorted-map) m))
 
-(defmacro defmanymultis 
+(defmacro def-many-methods 
   "Create multiple multimethods with different dispatch values 
    but the same implementation"
   [name dispatch-vals args & body] 
