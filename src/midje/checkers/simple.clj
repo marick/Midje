@@ -58,29 +58,33 @@
 ;; Concerning Throwables
 
 (defmulti throws (fn [& args]
-                   (for [arg args]
-                     (pred-cond arg
-                       fn?                        :predicate
-                       (some-fn-m string? regex?) :message
-                       class?                     :throwable ))))
+                   (set (for [arg args]
+                          (pred-cond arg
+                            fn?                        :predicate
+                            (some-fn-m string? regex?) :message
+                            class?                     :throwable )))))
 
-(defmethod throws [:message] [msg]
+(defmethod throws #{:message } [& expected-msgs]
   (checker [^ICapturedThrowable wrapped-throwable]
-    (extended-= (.getMessage ^Throwable (.throwable wrapped-throwable)) msg)))
+    (let [actual-msg (.getMessage ^Throwable (.throwable wrapped-throwable))]
+      (every? (partial extended-= actual-msg) expected-msgs))))
 
-(defmethod throws [:predicate] [pred]
+(defmethod throws #{:predicate} [& preds]
   (checker [^ICapturedThrowable wrapped-throwable]
-    (pred (.throwable wrapped-throwable))))
+    ((apply every-pred-m preds) (.throwable wrapped-throwable))))
 
-(defmethod throws [:throwable] [clazz]
+(defmethod throws #{:throwable} [clazz]
   (checker [^ICapturedThrowable wrapped-throwable]
     (= clazz (class (.throwable wrapped-throwable)))))
 
-(defmethod throws [:throwable :predicate] [clazz pred]
-  (as-checker (every-pred-m (throws clazz) (throws pred))))
+(defmethod throws #{:throwable :predicate} [& args]
+  (as-checker (apply every-pred-m (map throws args))))
 
-(defmethod throws [:throwable :message] [clazz msg]
-  (as-checker (every-pred-m (throws clazz) (throws msg))))
+(defmethod throws #{:message :predicate} [& args]
+  (as-checker (apply every-pred-m (map throws args))))
 
-(defmethod throws [:throwable :message :predicate] [clazz msg pred]
-  (as-checker (every-pred-m (throws clazz) (throws msg) (throws pred))))
+(defmethod throws #{:throwable :message} [& args]
+  (as-checker (apply every-pred-m (map throws args))))
+
+(defmethod throws #{:throwable :message :predicate} [& args]
+  (as-checker (apply every-pred-m (map throws args))))

@@ -104,11 +104,32 @@
 
 (fact "throws accepts many varieties of arglists"
   (throw-exception "msg") => (throws Error)
-  (throw-exception "msg") => (throws "msg") 
+  (throw-exception "msg") => (throws "msg")
   (throw-exception "msg") => (throws #(= "msg" (.getMessage %)))
-  (throw-exception "msg") => (throws Error "msg")
-  (throw-exception "msg") => (throws Error #(= "msg" (.getMessage %)))
-  (throw-exception "msg") => (throws Error "msg" #(= "msg" (.getMessage %))))
+
+  (throw-exception "msg") => (throws Error "msg" )
+  (throw-exception "msg") => (throws #(= "msg" (.getMessage %)) Error)
+  (throw-exception "msg") => (throws Error #(= "msg" (.getMessage %)) )
+  (throw-exception "msg") => (throws #(= "msg" (.getMessage %)) "msg")
+  (throw-exception "msg") => (throws "msg" #(= "msg" (.getMessage %)))
+  (throw-exception "msg") => (throws "msg" Error )
+
+  (throw-exception "msg") => (throws Error "msg" #(= "msg" (.getMessage %)))
+  (throw-exception "msg") => (throws #(= "msg" (.getMessage %)) Error "msg")
+  (throw-exception "msg") => (throws Error #(= "msg" (.getMessage %)) "msg")
+  (throw-exception "msg") => (throws #(= "msg" (.getMessage %)) "msg" Error)
+  (throw-exception "msg") => (throws "msg" #(= "msg" (.getMessage %)) Error)
+  (throw-exception "msg") => (throws "msg" Error #(= "msg" (.getMessage %))) )
+
+(fact "`throws` can even accept multiple predicates"
+  (throw-exception "msg") => (throws #(= "msg" (.getMessage %)) #(= "msg" (.getMessage %)) #(= "msg" (.getMessage %)))
+  (throw-exception "msg") => (throws "msg" #(= "msg" (.getMessage %)) #(= "msg" (.getMessage %)) #(= "msg" (.getMessage %)))
+  (throw-exception "msg") => (throws Error #(= "msg" (.getMessage %)) #(= "msg" (.getMessage %)) #(= "msg" (.getMessage %)))
+  (throw-exception "msg") => (throws "msg" Error #(= "msg" (.getMessage %)) #(= "msg" (.getMessage %)) #(= "msg" (.getMessage %))))
+
+(fact "`throws` can accept multiple messages - imagine regexs for large error mesages"
+  (throw-exception "msg") => (throws #"^m" #"g$")
+  (throw-exception "msg") => (throws Error #"^m" #"g$"))
 
 ;; Unexpected exceptions
 (after-silently
