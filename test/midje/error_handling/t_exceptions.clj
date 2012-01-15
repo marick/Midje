@@ -15,7 +15,7 @@
   
   ?chosen    ?begins-with
   "TRUE"     red
-  "REVERSE"  red
+  "REVERSE"  "java.lang.Exception: boom"
   "FALSE"    "java.lang.Exception: boom")
 
 (defrecord R [a])
