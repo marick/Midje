@@ -15,7 +15,7 @@
   
   ?chosen    ?begins-with
   "TRUE"     red
-  "REVERSE"  red   ;; will be red-bg, once I get Phil to make colors configurable in clj-stacktrace
+  "REVERSE"  red
   "FALSE"    "java.lang.Exception: boom")
 
 (defrecord R [a])

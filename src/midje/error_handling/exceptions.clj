@@ -10,6 +10,7 @@
   [& lines]
   (Error. (join (System/getProperty "line.separator") lines)))
 
+
 ;; Beautiful, ergonomic stacktraces
 
 (defprotocol FriendlyStacktrace 
@@ -17,10 +18,11 @@
 
 (extend-protocol FriendlyStacktrace
   Throwable
-  (friendly-stacktrace [this] 
-    (if (= "FALSE" (colorize-choice))
-      (with-out-str (pst this))
-      (with-out-str (pst+ this)))))
+  (friendly-stacktrace [this]
+      (case (colorize-choice)
+        "TRUE"    (with-out-str (pst+ this))
+        "FALSE"   (with-out-str (pst this))
+        "REVERSE" (with-out-str (pst this)))))
 
 
 ;; When a fact throws an Exception or Error it gets wrapped
