@@ -21,8 +21,8 @@
   (friendly-stacktrace [this]
       (case (colorize-choice)
         "TRUE"    (with-out-str (pst+ this))
-        "FALSE"   (with-out-str (pst this))
-        "REVERSE" (with-out-str (pst this)))))
+        "REVERSE" (with-out-str (pst+ this))
+        "FALSE"   (with-out-str (pst this)))))
 
 
 ;; When a fact throws an Exception or Error it gets wrapped
