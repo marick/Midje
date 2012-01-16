@@ -94,8 +94,6 @@
       (recur (conj expanded (first in-progress))
         (rest in-progress)))))
 
-(def all-state-descriptions #{"before" "after" "around"}) 
-
 (defn- state-wrapper [[_before-after-or-around_ wrapping-target & _  :as state-description]]
   (with-wrapping-target
     (macroexpand-1 (map-first #(symbol "midje.ideas.background" (name %)) state-description))

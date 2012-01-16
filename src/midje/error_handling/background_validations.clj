@@ -7,7 +7,7 @@
     [midje.error-handling.validation-errors :only [simple-report-validation-error report-validation-error 
                                          validate when-valid]]
     [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence? take-arrow-sequence]]
-    [midje.ideas.background :only [all-state-descriptions seq-headed-by-setup-teardown-form?]]
+    [midje.ideas.background :only [seq-headed-by-setup-teardown-form?]]
     [midje.ideas.prerequisites :only [metaconstant-prerequisite?]]
     [midje.util.form-utils :only [named? pred-cond]]
     [midje.util.backwards-compatible-utils :only [some-fn-m]]))
@@ -64,9 +64,11 @@
       :else
       false)))
 
+(def ^:private valid-state-descriptions #{"before" "after" "around"}) 
+
 (defn- state-description? [form]
   (and (sequential? form) 
-       (all-state-descriptions (name (first form)))))
+       (valid-state-descriptions (name (first form)))))
 
 (defmethod validate "against-background" [[_against-background_ state-descriptions+fakes & _body_ :as form]]
   (cond (< (count form) 3)
