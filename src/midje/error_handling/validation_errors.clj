@@ -38,7 +38,7 @@
     ])
 
 (defmacro valid-let [let-vector & body]
-  `(domonad midje-maybe-m [~@let-vector] ~@body))
+  `(domonad midje-maybe-m ~let-vector ~@body))
 
 (defn- spread-validation-error [collection]
   (or (find-first validation-error-form? collection)

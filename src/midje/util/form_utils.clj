@@ -148,7 +148,7 @@
   "Macroexpands the body once for each of the elements in the 
    right-side argument of the bindings, which should be a seq"
   [bindings body] 
-  `(let [macros# (for [~@bindings]
+  `(let [macros# (for ~bindings
                      ~body)]
     `(do ~@macros#)))
 
