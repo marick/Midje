@@ -3,7 +3,7 @@
   midje.internal-ideas.fact-context
   (:use [clojure.string :only [join]]))
 
-(def ^{:private true} nested-descriptions (atom []))
+(def ^:private nested-descriptions (atom []))
 
 (defn- enter-context [description]
   (swap! nested-descriptions conj description))

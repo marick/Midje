@@ -34,7 +34,7 @@
       (.getMessage ex) => "override"))
   root => "root")
 
-(def ^{:dynamic true} var-with-root :original-value)
+(def ^:dynamic var-with-root :original-value)
 (fact "can get the root value in both Clojure 1.3 and 1.2"
   (var-root #'var-with-root) => :original-value
   (binding [var-with-root "some other value"]

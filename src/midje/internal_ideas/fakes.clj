@@ -103,7 +103,7 @@
 (defn- var-handled-by-fake? [function-var fake]
   (= function-var (:lhs fake)))
 
-(defmulti ^{:private true} call-handled-by-fake? (fn [function-var actual-args fake] (:type fake)))
+(defmulti ^:private call-handled-by-fake? (fn [function-var actual-args fake] (:type fake)))
 
 (defmethod call-handled-by-fake? :not-called [function-var actual-args fake]
   (var-handled-by-fake? function-var fake))
@@ -122,8 +122,8 @@
                   (not= unfinished-fun stashed-value))))))
 
 
-(def ^{:dynamic true :private true} *call-action-count* (atom 0))
-(defmacro ^{:private true} counting-nested-calls-calls [& forms]
+(def ^:dynamic ^:private *call-action-count* (atom 0))
+(defmacro ^:private counting-nested-calls-calls [& forms]
   `(try
      (swap! *call-action-count* inc)
      ~@forms

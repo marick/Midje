@@ -87,7 +87,7 @@
 
 (defn- midje-classification [thing] (if (map? thing) ::map ::not-map))
 
-(defmulti #^{:private true} collection-string
+(defmulti #^:private collection-string
   "Given a list of stringified elements, convert them into appropriate
    collection text."
   (fn [midje-classification elements] midje-classification))
@@ -99,7 +99,7 @@
    (str "[" (join " " elements) "]"))
 ;;-
 
-(defmulti #^{:private true} best-actual-match
+(defmulti #^:private best-actual-match
   "Describe the best actuals found in the comparison."
   (fn [midje-classification comparison] midje-classification))
 
@@ -109,7 +109,7 @@
 (defmethod best-actual-match ::map [midje-classification comparison]
   (str "Best match found: " (pr-str (sort-map (:actual-found comparison)))))
 
-(defmulti #^{:private true} best-expected-match
+(defmulti #^:private best-expected-match
   "Describe the best list of expected values found in the comparison."
   (fn [midje-classification comparison expected] midje-classification))
 
@@ -147,7 +147,7 @@
 
 ;;-
 
-(defmulti #^{:private true} compare-results
+(defmulti #^:private compare-results
   (fn [actual expected looseness]
     (if (= ::map (midje-classification actual))
       (midje-classification actual)
@@ -403,7 +403,7 @@
                                   (catch Error ex
                                     (noted-falsehood (.getMessage ex)))))))))))
 
-(def ^{:midje/checker true} contains (container-checker-maker 'contains
+(def ^:midje/checker contains (container-checker-maker 'contains
     (fn [actual expected looseness]
       (let [ [actual expected looseness] (standardized-arguments actual expected looseness)]
         (cond (regex? expected)
@@ -412,7 +412,7 @@
               :else
               (match? actual expected looseness))))))
 
-(def ^{:midje/checker true} just (container-checker-maker 'just
+(def ^:midje/checker just (container-checker-maker 'just
     (fn [actual expected looseness]
       (let [ [actual expected looseness] (standardized-arguments actual expected looseness)]
         (cond (regex? expected)
@@ -445,11 +445,11 @@
                                  "A collection with ~R element~:P cannot match a ~A of size ~R."
                                  (count actual) x-name (count expected))))))))
 
-(def ^{:midje/checker true} has-prefix
+(def ^:midje/checker has-prefix
   (container-checker-maker 'has-prefix
     (has-xfix "prefix" #(re-pattern (str "^" %)) take)))
 
-(def ^{:midje/checker true} has-suffix
+(def ^:midje/checker has-suffix
   (container-checker-maker 'has-suffix
     (has-xfix "suffix" #(re-pattern (str % "$")) take-last)))
                             
@@ -467,7 +467,7 @@
     (and (= (count actual) expected-count)
          (every? #(extended-= % expected) actual))))
 
-(defmacro ^{:private true} generate-n-of-checkers []
+(defmacro ^:private generate-n-of-checkers []
   (macro-for [[int checker-name] [[1 "one"] [2 "two"] [3 "three"] [4 "four"] [5 "five"]
                                   [6 "six"] [7 "seven"] [8 "eight"] [9 "nine"] [10 "ten"]]]
     `(defchecker ~(symbol (str checker-name "-of")) [expected-checker#]

@@ -3,7 +3,7 @@
         clojure.test
         midje.test-util))
 
-(def ^{:private true} some-atom (atom nil))
+(def ^:private some-atom (atom nil))
 
 ;"creates nested doc-strings from each surrounding context"   
 

@@ -180,7 +180,7 @@
 
 ;; How it works
 
-(defn ^{:dynamic true} function-symbol-of-interest [n] n)
+(defn ^:dynamic function-symbol-of-interest [n] n)
 (defn other-function-symbol)
 
 (fact "best-call-action returns nil [failure], fake [to get value], or default-function"
@@ -243,7 +243,7 @@
 
 (def unbound-var)
 (def bound-var 3)
-(def ^{:dynamic true} rebound)
+(def ^:dynamic rebound)
      
 (fact "fakes contain the value of their function-var at moment of binding"
   (:value-at-time-of-faking (fake (unbound-var) => 2)) => nil

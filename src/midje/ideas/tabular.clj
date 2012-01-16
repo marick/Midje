@@ -23,7 +23,7 @@
     (fn [loc] (skip-to-rightmost-leaf
       (above-arrow-sequence__add-key-value__at-arrow :binding-note (pr-str ordered-binding-map) loc)))))
 
-(def ^{:private true} deprecation-hack:file-position (atom ""))
+(def ^:private deprecation-hack:file-position (atom ""))
 
 (defn- remove-pipes+where [table]
   (when (and false (#{:where 'where} (first table)))

@@ -12,7 +12,7 @@
     [midje.util.form-utils :only [named? pred-cond]]
     [midje.util.backwards-compatible-utils :only [some-fn-m]]))
 
-(def ^{:private true} valid-wrapping-targets #{:facts, :contents, :checks })
+(def ^:private valid-wrapping-targets #{:facts, :contents, :checks })
 
 (defn- validate-state-description [[state-description wrapping-target expression :as form]]
   (cond 
