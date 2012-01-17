@@ -1,15 +1,15 @@
-1.3.2-SNAPSHOT
+1.3.2-alpha1
 -------------
 * Chatty checkers can destructure their single argument.                                           
 * tabular no longer requires variables names to begin with '?'
 * friendlier stacktraces with clj-stacktrace
 * throws checker has been updated: args are now any combination, in
   any order of messages (or regexes), predicates, or 0 or 1 Throwable classes
-* many more common syntactial mistakes give helpful error messages
+* many more common syntax mistakes give helpful error messages
 * prevented an infinite loop caused by ill-formed tabular facts
 * fact doc-strings now show in report output
   i. nested facts show nested doc-strings
-  ii. tabular's doc-sting shows in a similar manner
+  ii. tabular's doc-string shows in a similar manner
 * =stream=> prerequisites give helpful error messages when they run out of items to return
 * removed reflection warnings
 
