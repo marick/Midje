@@ -14,6 +14,13 @@
        (= 2 (:minor *clojure-version*))
        (= 0 (:incremental *clojure-version*))))
 
+(defmacro unless-1-2-0
+  "Skip body completely - including 'Unable to resolve classname' errors."
+  [& body]
+  (if (clojure-1-2-0?)
+    nil
+    `(do ~@body)))
+
 ;; The following works because in 1.2 it's parsed as [+  '1].
 
 (def +M (first [+' 1]))

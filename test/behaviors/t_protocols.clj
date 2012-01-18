@@ -3,23 +3,30 @@
 (ns behaviors.t-protocols
   (:use [midje sweet test-util]
         [midje.open-protocols]
+        midje.util.ecosystem
         behaviors.t-protocols-support)
-  (:import behaviors.t_protocols_support.OutsideNSFakeableRecord))
+  (:require behaviors.t_protocols_support))
 
-(fact "Imported record functions can be faked when called from outside"
-  (let [rec (OutsideNSFakeableRecord. 1 3)]
-    (fake-me rec inc) => [1 3 2]
-    (outside-double-inc-fake-me rec) => [1 3 2 1 3 2]
-    (outside-double-inc-fake-me rec) => [1 1]
-    (provided
-      (fake-me rec inc) => [1])))
 
-(fact "Imported record functions can be faked when called from inside"
-  (let [rec (OutsideNSFakeableRecord. 1 3)]
-    (call-fake-me rec) => [1 3 2]
-    (call-fake-me rec) => :faked
-    (provided
-      (fake-me rec inc) => :faked)))
+
+(unless-1-2-0
+  (import 'behaviors.t_protocols_support.OutsideNSFakeableRecord)
+
+  (fact "Imported record functions can be faked when called from outside"
+    (let [rec (OutsideNSFakeableRecord. 1 3)]
+      (fake-me rec inc) => [1 3 2]
+      (outside-double-inc-fake-me rec) => [1 3 2 1 3 2]
+      (outside-double-inc-fake-me rec) => [1 1]
+      (provided
+        (fake-me rec inc) => [1])))
+
+  (fact "Imported record functions can be faked when called from inside"
+    (let [rec (OutsideNSFakeableRecord. 1 3)]
+      (call-fake-me rec) => [1 3 2]
+      (call-fake-me rec) => :faked
+      (provided
+        (fake-me rec inc) => :faked)))
+)
 
 
 (defrecord-openly InNSFakeableRecord [a b]
