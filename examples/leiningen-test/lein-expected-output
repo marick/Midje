@@ -1,21 +1,21 @@
 
 Testing lein-test.test.deftest
 
-FAIL at (deftest.clj:10)
+FAIL: at (deftest.clj:10)
     Expected: 4
       Actual: 3
 
-FAIL at (deftest.clj:11)
+FAIL: at (deftest.clj:11)
     Expected: 4
       Actual: 5
 
-FAIL at (deftest.clj:7)
+FAIL: at (deftest.clj:7)
     Expected: 3
       Actual: 2
 
 Testing lein-test.test.with-test
 
-FAIL at (with_test.clj:8)
+FAIL: at (with_test.clj:8)
     Expected: 3
       Actual: 2
 
