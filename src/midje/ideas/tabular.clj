@@ -32,7 +32,7 @@
   (when (and false (some #(= % '|) table))
     (println "The `|` syntactic sugar for tabular facts is deprecated and will be removed in Midje 1.4." @deprecation-hack:file-position))
              
-  (let [strip-off-where #(if (#{:where 'where} (first %)) (rest %) % )]
+  (letfn [(strip-off-where [x] (if (#{:where 'where} (first x)) (rest x) x))]
     (->> table strip-off-where (remove #(= % '|)))))
 
 (defn- table-variable? [locals s] 
