@@ -1,4 +1,4 @@
-1.3.2-alpha1
+1.3.2-SNAPSHOT
 -------------
 * Chatty checkers can destructure their single argument.                                           
 * tabular no longer requires variables names to begin with '?'
