@@ -128,6 +128,14 @@
       (+ a b) => result)
       2    4   999     ))
 
+;; this fact is ensuring that LazySeqs print properly
+(causes-validation-error #"\(\+ 2 4\) 999\)"
+  (tabular
+    (fact
+      (+ a b) result)
+      a    b   result
+      2    4   999     ))
+
  ; non-literal strings attempted to be used by tabular cause validation trouble
 (def s "non-literal string")
 (causes-validation-error #"a non-literal string for the doc-string"

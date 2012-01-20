@@ -25,7 +25,7 @@
                                  :position '~(form-position form)})))
 
 (defn simple-report-validation-error [form & notes]
-  (apply report-validation-error form (conj (vec notes) (str form))))
+  (apply report-validation-error form (conj (vec notes) (pr-str form))))
 
 
 ;; Special validation control flow macros
