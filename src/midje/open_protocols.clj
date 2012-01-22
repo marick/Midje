@@ -1,14 +1,14 @@
 ;; -*- indent-tabs-mode: nil -*-
 
-(ns ^{:doc "Macros for using protocols in prerequisites"}
+(ns ^{:doc "Macros for using protocols in prerequisites.
+
+  The strategy for open protocols is to rewrite each function defined in the
+  deftype/defrecord so that it checks whether its corresponding symbol is
+  currently faked out. If so, it uses that function definition instead of
+  continuing on with its own implementation."}
   midje.open-protocols
   (:use [midje.production-mode :only [user-desires-checking?]]
         [midje.internal-ideas.fakes :only [implements-a-fake?]]))
-
-;;; The strategy for open protocols is to rewrite each function defined in the
-;;; deftype/defrecord so that it checks whether its corresponding symbol is
-;;; currently faked out. If so, it uses that function definition instead of
-;;; continuing on with its own implementation.
 
 (defn- implementation?
   "Is this thing a protocol or a function definition?" 
@@ -23,15 +23,15 @@
        (apply ~name ~args)
        (do ~@body))))
 
-(defn- revised-specs [specs]
-  (for [spec specs]
-    (if (and (implementation? spec) (user-desires-checking?))
+(defn- revised-specs [specifications]
+  (for [spec specifications]
+    (if (and (user-desires-checking?) (implementation? spec))
       (open-spec spec)
       spec)))
 
 (defmacro deftype-openly [name fields & specs]
-  `(~'deftype ~name ~fields ~@(revised-specs specs)))
+  `(deftype ~name ~fields ~@(revised-specs specs)))
 
 (defmacro defrecord-openly [name fields & specs]
-  `(~'defrecord ~name ~fields ~@(revised-specs specs)))
+  `(defrecord ~name ~fields ~@(revised-specs specs)))
 

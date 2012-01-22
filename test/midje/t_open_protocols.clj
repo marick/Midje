@@ -14,9 +14,9 @@
 (defprotocol P (f [this x]))
 (let [type-or-record-tail '([a b c] P (f [this x] (+ x a b c)))
       in-typ             (list* 'deftype-openly 'T type-or-record-tail)
-      unexpanded-out-typ (list* 'deftype        'T type-or-record-tail)
+      unexpanded-out-typ (list* 'clojure.core/deftype        'T type-or-record-tail)
       in-rec             (list* 'defrecord-openly 'R type-or-record-tail)
-      unexpanded-out-rec (list* 'defrecord        'R type-or-record-tail)]
+      unexpanded-out-rec (list* 'clojure.core/defrecord        'R type-or-record-tail)]
   (fact "normally, types and records are rewritten"
     (macroexpand-1 in-typ) =not=> unexpanded-out-typ
     (macroexpand-1 in-rec) =not=> unexpanded-out-rec
