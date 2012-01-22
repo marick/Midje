@@ -403,7 +403,7 @@
                                   (catch Error ex
                                     (noted-falsehood (.getMessage ex)))))))))))
 
-(def ^:midje/checker contains (container-checker-maker 'contains
+(def ^{:midje/checker true} contains (container-checker-maker 'contains
     (fn [actual expected looseness]
       (let [ [actual expected looseness] (standardized-arguments actual expected looseness)]
         (cond (regex? expected)
@@ -412,7 +412,7 @@
               :else
               (match? actual expected looseness))))))
 
-(def ^:midje/checker just (container-checker-maker 'just
+(def ^{:midje/checker true} just (container-checker-maker 'just
     (fn [actual expected looseness]
       (let [ [actual expected looseness] (standardized-arguments actual expected looseness)]
         (cond (regex? expected)
@@ -445,11 +445,11 @@
                                  "A collection with ~R element~:P cannot match a ~A of size ~R."
                                  (count actual) x-name (count expected))))))))
 
-(def ^:midje/checker has-prefix
+(def ^{:midje/checker true} has-prefix
   (container-checker-maker 'has-prefix
     (has-xfix "prefix" #(re-pattern (str "^" %)) take)))
 
-(def ^:midje/checker has-suffix
+(def ^{:midje/checker true} has-suffix
   (container-checker-maker 'has-suffix
     (has-xfix "suffix" #(re-pattern (str % "$")) take-last)))
                             
