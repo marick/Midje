@@ -38,21 +38,21 @@
     (named-as-call 'exactly expected
                    (checker [actual] (= expected actual))))
 
-(defn- abs [n]
-  (if (pos? n)
-    n
-    (-M n))) ;; -M not strictly necessary, but...
+(letfn [(abs [n]
+          (if (pos? n)
+            n
+            (-M n)))] ;; -M not strictly necessary, but...
 
-(defchecker roughly
-  "With two arguments, accepts a value within delta of the
-   expected value. With one argument, the delta is 1/1000th
-   of the expected value."
-  ([expected delta]
-     (checker [actual]
-       (and (>= expected (-M actual delta))
-            (<= expected (+M actual delta)))))
-  ([expected]
-     (roughly expected (abs (*M 0.001 expected)))))
+  (defchecker roughly
+    "With two arguments, accepts a value within delta of the
+     expected value. With one argument, the delta is 1/1000th
+     of the expected value."
+    ([expected delta]
+       (checker [actual]
+         (and (>= expected (-M actual delta))
+              (<= expected (+M actual delta)))))
+    ([expected]
+       (roughly expected (abs (*M 0.001 expected))))))
 
 
 ;; Concerning Throwables

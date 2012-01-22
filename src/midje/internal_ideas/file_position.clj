@@ -17,17 +17,17 @@
 (defn set-fallback-line-number-from [form]
   (reset! fallback-line-number (or (:line (meta form)) (Integer. 0))))
 
-(defn- raw-arrow-line-number [arrow-loc]
-  (try
-      (or (-> arrow-loc zip/left zip/node meta :line)
-          (-> arrow-loc zip/right zip/node meta :line)
-          (inc (-> arrow-loc zip/prev zip/left zip/node meta :line)))
-    (catch Throwable ex nil)))
-  
-(defn arrow-line-number [arrow-loc]
-  (if-let [raw-lineno (raw-arrow-line-number arrow-loc)]
-    (reset! fallback-line-number raw-lineno)
-    (swap! fallback-line-number inc)))
+(letfn [(raw-arrow-line-number [arrow-loc]
+          (try
+            (or (-> arrow-loc zip/left zip/node meta :line )
+              (-> arrow-loc zip/right zip/node meta :line )
+              (inc (-> arrow-loc zip/prev zip/left zip/node meta :line )))
+            (catch Throwable ex nil)))]
+
+  (defn arrow-line-number [arrow-loc]
+    (if-let [raw-lineno (raw-arrow-line-number arrow-loc)]
+      (reset! fallback-line-number raw-lineno)
+      (swap! fallback-line-number inc))))
 
 (defn arrow-line-number-from-form [form]
   "Form is of the form [ <function-call> => .* ]"
@@ -54,36 +54,32 @@
   `[(first (user-file-position)) ~number])
 
 
-
-
-
-(defn- replace-loc-line [loc loc-with-line]
-  (let [m (fn [loc] (meta (zip/node loc)))
-        transferred-meta (if (contains? (m loc-with-line) :line)
-                           (assoc (m loc) :line (:line (m loc-with-line)))
-                           (dissoc (m loc) :line))]
-    (zip/replace loc (with-meta (zip/node loc) transferred-meta))))
-
-(defn form-with-copied-line-numbers [line-number-source form]
-  (loop [loc (zip/seq-zip form)
-         line-loc (zip/seq-zip line-number-source)]
-    (cond (zip/end? line-loc)
-          (zip/root loc)
-
-          (zip/branch? line-loc)
-          (recur (zip/next (replace-loc-line loc line-loc))
-                 (zip/next line-loc))
-
-          ;; the form has a tree in place of a non-tree
-          (zip/branch? loc)
-            (recur (zip/next
-                    (skip-to-rightmost-leaf (zip/down (replace-loc-line loc line-loc))))
+(letfn [(replace-loc-line [loc loc-with-line]
+          (let [m (fn [loc] (meta (zip/node loc)))
+                transferred-meta (if (contains? (m loc-with-line) :line )
+                                   (assoc (m loc) :line (:line (m loc-with-line)))
+                                   (dissoc (m loc) :line ))]
+            (zip/replace loc (with-meta (zip/node loc) transferred-meta))))]
+  
+  (defn form-with-copied-line-numbers [line-number-source form]
+    (loop [loc (zip/seq-zip form)
+           line-loc (zip/seq-zip line-number-source)]
+      (cond (zip/end? line-loc)
+            (zip/root loc)
+  
+            (zip/branch? line-loc)
+            (recur (zip/next (replace-loc-line loc line-loc))
                    (zip/next line-loc))
-
-          :else
-          (recur (zip/next loc)
-                 (zip/next line-loc)))))
-
+  
+            ;; the form has a tree in place of a non-tree
+            (zip/branch? loc)
+              (recur (zip/next
+                      (skip-to-rightmost-leaf (zip/down (replace-loc-line loc line-loc))))
+                     (zip/next line-loc))
+  
+            :else
+            (recur (zip/next loc)
+                   (zip/next line-loc))))))
 
 
 (defn at-arrow__add-line-number-to-end__no-movement [number loc]

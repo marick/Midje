@@ -17,44 +17,44 @@
 (defmulti ^:private check-result (fn [actual call] 
                                    (:desired-check call)))
 
-(defn- fail [type actual call]
-  {:type type
-   :description (nested-fact-description)
-   :binding-note (:binding-note call)
-   :position (:position call)
-   :actual actual
-   :expected (:expected-result-text-for-failures call)})
-
-(defmethod check-result :check-match [actual call]
-  (cond (extended-= actual (:expected-result call))
-        (report {:type :pass})
+(letfn [(fail [type actual call]
+          {:type type
+           :description (nested-fact-description)
+           :binding-note (:binding-note call)
+           :position (:position call)
+           :actual actual
+           :expected (:expected-result-text-for-failures call)})]
   
-        (chatty-checker? (:expected-result call))
-        (report (merge (fail :mock-expected-result-functional-failure actual call)
-                       (let [chatty-result ((:expected-result call) actual)]
-                         (if (map? chatty-result)
-                           chatty-result
-                           {:notes ["Midje program error. Please report."
-                                    (str "A chatty checker returned "
-                                      (pr-str chatty-result)
-                                      " instead of a map.")]}))))
-
-        (fn? (:expected-result call))
-        (report (fail :mock-expected-result-functional-failure actual call))
+  (defmethod check-result :check-match [actual call]
+    (cond (extended-= actual (:expected-result call))
+          (report {:type :pass})
+    
+          (chatty-checker? (:expected-result call))
+          (report (merge (fail :mock-expected-result-functional-failure actual call)
+                         (let [chatty-result ((:expected-result call) actual)]
+                           (if (map? chatty-result)
+                             chatty-result
+                             {:notes ["Midje program error. Please report."
+                                      (str "A chatty checker returned "
+                                        (pr-str chatty-result)
+                                        " instead of a map.")]}))))
   
-        :else 
-        (report (assoc (fail :mock-expected-result-failure actual call) 
-                        :expected (:expected-result call) ))))
-
-(defmethod check-result :check-negated-match [actual call]
-   (cond (not (extended-= actual (:expected-result call)))
-         (report {:type :pass})
-
-        (fn? (:expected-result call))
-        (report (fail :mock-actual-inappropriately-matches-checker actual call))
-
-        :else
-        (report (fail :mock-expected-result-inappropriately-matched actual call))))
+          (fn? (:expected-result call))
+          (report (fail :mock-expected-result-functional-failure actual call))
+    
+          :else 
+          (report (assoc (fail :mock-expected-result-failure actual call) 
+                          :expected (:expected-result call) ))))
+  
+  (defmethod check-result :check-negated-match [actual call]
+     (cond (not (extended-= actual (:expected-result call)))
+           (report {:type :pass})
+  
+          (fn? (:expected-result call))
+          (report (fail :mock-actual-inappropriately-matches-checker actual call))
+  
+          :else
+          (report (fail :mock-expected-result-inappropriately-matched actual call)))))
 
 (defn expect*
   "The core function in unprocessed Midje. Takes a map describing a

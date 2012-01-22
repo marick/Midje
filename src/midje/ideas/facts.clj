@@ -70,26 +70,26 @@
     is-semi-sweet-keyword?
     skip-to-rightmost-leaf))
 
-(defn- expand-against-background [form wrappers]
-  (with-additional-wrappers wrappers (midjcoexpand form)))
-
-(defn midjcoexpand
-  "Descend form, macroexpanding *only* midje forms and placing background wrappers where appropriate."
-  [form]
-  (pred-cond form
-    already-wrapped?     form
-    quoted?              form
-    future-fact?         (macroexpand form)
-    against-background?  (when-valid form
-                             (-> (body-of-against-background form) 
-                                 (expand-against-background (against-background-children-wrappers form))
-                                 (multiwrap (against-background-contents-wrappers form))))
+(letfn [(expand-against-background [form wrappers]
+          (with-additional-wrappers wrappers (midjcoexpand form)))]
   
-    expect?      (multiwrap form (forms-to-wrap-around :checks ))
-    fact?        (multiwrap (midjcoexpand (macroexpand form)) 
-                            (forms-to-wrap-around :facts ))
-    sequential?  (preserve-type form (eagerly (map midjcoexpand form)))
-    :else        form))
+  (defn midjcoexpand
+    "Descend form, macroexpanding *only* midje forms and placing background wrappers where appropriate."
+    [form]
+    (pred-cond form
+      already-wrapped?     form
+      quoted?              form
+      future-fact?         (macroexpand form)
+      against-background?  (when-valid form
+                               (-> (body-of-against-background form) 
+                                   (expand-against-background (against-background-children-wrappers form))
+                                   (multiwrap (against-background-contents-wrappers form))))
+    
+      expect?      (multiwrap form (forms-to-wrap-around :checks ))
+      fact?        (multiwrap (midjcoexpand (macroexpand form)) 
+                              (forms-to-wrap-around :facts ))
+      sequential?  (preserve-type form (eagerly (map midjcoexpand form)))
+      :else        form)))
 
 (defn complete-fact-transformation [description forms]
   (let [form-to-run (-> forms
@@ -103,15 +103,15 @@
     (report/form-providing-friendly-return-value 
       `(within-fact-context ~description ~form-to-run))))
 
-(defn- validate-fact [[fact & _ :as form]]
-  (let [named-form-leaves (map name (filter named? (flatten (rest form))))]
-    (if (not-any? expect-arrows named-form-leaves)
-        (simple-report-validation-error form
-          (format "Looks like you forgot to fill in your %s form:" (name fact)))
-      (rest form))))
-
-(defmethod validate "fact" [form] 
-  (validate-fact form))
-
-(defmethod validate "facts" [form]
-  (validate-fact form))
+(letfn [(validate-fact [[fact & _ :as form]]
+          (let [named-form-leaves (map name (filter named? (flatten (rest form))))]
+            (if (not-any? expect-arrows named-form-leaves)
+              (simple-report-validation-error form
+                (format "Looks like you forgot to fill in your %s form:" (name fact)))
+              (rest form))))]
+  
+  (defmethod validate "fact" [form] 
+    (validate-fact form))
+  
+  (defmethod validate "facts" [form]
+    (validate-fact form)))

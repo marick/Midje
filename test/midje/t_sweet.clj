@@ -29,17 +29,17 @@
 (defn two-numbers [] 
   (+ (number) (number)))
 
-(defn- stream-overflow-exception? [captured-throwable]
-  (= "Your =stream=> ran out of values." (.getMessage (.throwable captured-throwable))))
+(letfn [(stream-overflow-exception? [captured-throwable]
+          (= "Your =stream=> ran out of values." (.getMessage (.throwable captured-throwable))))]
 
-(after-silently ;; streams give sensible error when they run dry
-  (fact
-    (two-numbers) => 2
-    (provided
-      (number) =streams=> [1]))
-
-  (fact @reported => (just (contains {:type :mock-expected-result-failure
-                                      :actual stream-overflow-exception? } ))))
+  (after-silently ;; streams give sensible error when they run dry
+    (fact
+      (two-numbers) => 2
+      (provided
+        (number) =streams=> [1]))
+  
+    (fact @reported => (just (contains {:type :mock-expected-result-failure
+                                        :actual stream-overflow-exception? } )))))
 
 
 (facts "this is a doc string"

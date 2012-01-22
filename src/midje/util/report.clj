@@ -39,94 +39,94 @@
 (defmacro with-identity-renderer [& forms]   ; for testing
   `(binding [*renderer* identity] ~@forms))
 
-(defn- attractively-stringified-form [form]
-  (pred-cond form
-    named-function?     (format "a function named '%s'" (function-name form))  
-    captured-throwable? (friendly-stacktrace form)
-    :else               (pr-str form)))
+(letfn [(attractively-stringified-form [form]
+          (pred-cond form
+            named-function? (format "a function named '%s'" (function-name form))
+            captured-throwable? (friendly-stacktrace form)
+            :else (pr-str form)))
 
-(defn- fail-at [m]
-  [(str "\n" (color/fail "FAIL:") " " 
-     (when-let [doc (:description m)] (str (pr-str doc) " "))
-     "at " (midje-position-string (:position m)))
-   (when-let [substitutions (:binding-note m)]
-     (str "With table substitutions: " substitutions))])
+        (fail-at [m]
+          [(str "\n" (color/fail "FAIL:") " "
+             (when-let [doc (:description m)] (str (pr-str doc) " "))
+             "at " (midje-position-string (:position m)))
+           (when-let [substitutions (:binding-note m)]
+             (str "With table substitutions: " substitutions))])
+       
+        (indented [lines]
+          (map (partial str "        ") lines))]
 
-(defn- indented [lines]
-  (map #(str "        " %) lines))
+  (defmulti report-strings :type)
 
-(defmulti report-strings :type)
-
-(defmethod report-strings :future-fact [m]
-  (list
-   (str "\n" (color/note "WORK TO DO:") " "
-        (when-let [doc (:description m)] (str (pr-str doc) " "))
-        "at " (midje-position-string (:position m)))))
-
-(defmethod report-strings :mock-argument-match-failure [m]
-   (list
-    (fail-at m)
-    (str "You never said "
-         (function-name-or-spewage (:lhs m))
-         " would be needed with these arguments:")
-    (str "    " (pr-str (:actual m)))))
-
-(defmethod report-strings :mock-incorrect-call-count [m]
-   (list
-    (fail-at m)
-    (if (zero? (:actual-count m))
-      "You claimed the following was needed, but it was never used:"
-      (cl-format nil
-                 "The following prerequisite was used ~R time~:P. That's not what you predicted."
-                 (:actual-count m)))
-    (str "    " (:expected m))))
-
-(defmethod report-strings :mock-expected-result-failure [m]
-   (list
-    (fail-at m)
-    (str "    Expected: " (pr-str (:expected m)))
-    (str "      Actual: " (attractively-stringified-form (:actual m)))))
-
-(defmethod report-strings :mock-expected-result-inappropriately-matched [m]
-   (list
-    (fail-at m)
-    (str "    Expected: Anything BUT " (pr-str (:expected m)))
-    (str "      Actual: " (attractively-stringified-form (:actual m)))))
-
-(defmethod report-strings :mock-expected-result-functional-failure [m]
-  (list
-   (fail-at m)
-   "Actual result did not agree with the checking function."
-   (str "        Actual result: " (attractively-stringified-form (:actual m)))
-   (str "    Checking function: " (pr-str (:expected m)))
-   (if (:intermediate-results m)
-     (cons "    During checking, these intermediate values were seen:"
-           (for [[form value] (:intermediate-results m)] 
-             (format "       %s => %s" (pr-str form) (pr-str value)))))
-    (if (:notes m)
-     (cons "    The checker said this about the reason:"
-           (indented (:notes m))))))
-
-(defmethod report-strings :mock-actual-inappropriately-matches-checker [m]
-  (list
-   (fail-at m)
-   "Actual result was NOT supposed to agree with the checking function."
-   (str "        Actual result: " (attractively-stringified-form (:actual m)))
-   (str "    Checking function: " (pr-str (:expected m)))))
+  (defmethod report-strings :mock-expected-result-failure [m]
+    (list
+      (fail-at m)
+      (str "    Expected: " (pr-str (:expected m)))
+      (str "      Actual: " (attractively-stringified-form (:actual m)))))
   
-(defmethod report-strings :validation-error [m]
-   (list
-    (fail-at m)
-    (str "    Midje could not understand something you wrote: ")
-    (indented (:notes m))))
+  (defmethod report-strings :mock-expected-result-inappropriately-matched [m]
+    (list
+      (fail-at m)
+      (str "    Expected: Anything BUT " (pr-str (:expected m)))
+      (str "      Actual: " (attractively-stringified-form (:actual m)))))
   
-(defmethod report-strings :exceptional-user-error [m]
-   (list
-    (fail-at m)
-    (str "    Midje caught an exception when translating this form:")
-    (str "      " (pr-str (:macro-form m)))
-    (str "      " "This stack trace *might* help:")
-    (:stacktrace m)))
+  (defmethod report-strings :mock-expected-result-functional-failure [m]
+    (list
+      (fail-at m)
+      "Actual result did not agree with the checking function."
+      (str "        Actual result: " (attractively-stringified-form (:actual m)))
+      (str "    Checking function: " (pr-str (:expected m)))
+      (if (:intermediate-results m)
+        (cons "    During checking, these intermediate values were seen:"
+          (for [[form value] (:intermediate-results m)]
+            (format "       %s => %s" (pr-str form) (pr-str value)))))
+      (if (:notes m)
+        (cons "    The checker said this about the reason:"
+          (indented (:notes m))))))
+  
+  (defmethod report-strings :mock-actual-inappropriately-matches-checker [m]
+    (list
+      (fail-at m)
+      "Actual result was NOT supposed to agree with the checking function."
+      (str "        Actual result: " (attractively-stringified-form (:actual m)))
+      (str "    Checking function: " (pr-str (:expected m)))))
+
+  (defmethod report-strings :future-fact [m]
+    (list
+     (str "\n" (color/note "WORK TO DO:") " "
+          (when-let [doc (:description m)] (str (pr-str doc) " "))
+          "at " (midje-position-string (:position m)))))
+  
+  (defmethod report-strings :mock-argument-match-failure [m]
+     (list
+      (fail-at m)
+      (str "You never said "
+           (function-name-or-spewage (:lhs m))
+           " would be needed with these arguments:")
+      (str "    " (pr-str (:actual m)))))
+  
+  (defmethod report-strings :mock-incorrect-call-count [m]
+     (list
+      (fail-at m)
+      (if (zero? (:actual-count m))
+        "You claimed the following was needed, but it was never used:"
+        (cl-format nil
+                   "The following prerequisite was used ~R time~:P. That's not what you predicted."
+                   (:actual-count m)))
+      (str "    " (:expected m))))
+    
+  (defmethod report-strings :validation-error [m]
+     (list
+      (fail-at m)
+      (str "    Midje could not understand something you wrote: ")
+      (indented (:notes m))))
+    
+  (defmethod report-strings :exceptional-user-error [m]
+     (list
+      (fail-at m)
+      (str "    Midje caught an exception when translating this form:")
+      (str "      " (pr-str (:macro-form m)))
+      (str "      " "This stack trace *might* help:")
+      (:stacktrace m))))
   
 (letfn [(render [m]
           (->> m report-strings flatten (remove nil?) (map *renderer*) doall))]

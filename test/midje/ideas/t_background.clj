@@ -113,26 +113,26 @@
 
 ;; The magical symbol that's used in wrapper substitution can't be used in
 ;; a fact because it gets substituted. So we let the caller use "danger" instead.
-(defn- form-matching? [expected]
-  (fn [actual] (= actual
-                  (substitute expected {'?danger 'midje.ideas.t-background/?form}))))
+(letfn [(form-matching? [expected]
+          (fn [actual] (= actual
+                         (substitute expected {'?danger 'midje.ideas.t-background/?form}))))]
 
-(fact "canonicalized setup/teardown wrappers can be put into final form"
-  (let [final (state-wrapper '(before :checks (do-something)))]
-    final => (form-matching? '(try (do-something) ?danger (finally nil)))
-    final => (for-wrapping-target? :checks))
-
-  (let [final (state-wrapper '(before :facts (do-something) :after (finish)))]
-    final => (form-matching? '(try (do-something) ?danger (finally (finish))))
-    final => (for-wrapping-target? :facts))
-
-  (let [final (state-wrapper '(after :all (do-something)))]
-    final => (form-matching? '(try ?danger (finally (do-something))))
-    final => (for-wrapping-target? :all))
-
-  (let [final (state-wrapper '(around :checks (let [x 1] ?form)))]
-    final => (form-matching? '(let [x 1] ?danger))
-    final => (for-wrapping-target? :checks))
+  (fact "canonicalized setup/teardown wrappers can be put into final form"
+    (let [final (state-wrapper '(before :checks (do-something)))]
+      final => (form-matching? '(try (do-something) ?danger (finally nil)))
+      final => (for-wrapping-target? :checks))
+  
+    (let [final (state-wrapper '(before :facts (do-something) :after (finish)))]
+      final => (form-matching? '(try (do-something) ?danger (finally (finish))))
+      final => (for-wrapping-target? :facts))
+  
+    (let [final (state-wrapper '(after :all (do-something)))]
+      final => (form-matching? '(try ?danger (finally (do-something))))
+      final => (for-wrapping-target? :all))
+  
+    (let [final (state-wrapper '(around :checks (let [x 1] ?form)))]
+      final => (form-matching? '(let [x 1] ?danger))
+      final => (for-wrapping-target? :checks)))
 )
 
 (facts "about safe expansion of weird forms"

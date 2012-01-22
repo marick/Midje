@@ -10,28 +10,28 @@
   (:use [midje.production-mode :only [user-desires-checking?]]
         [midje.internal-ideas.fakes :only [implements-a-fake?]]))
 
-(defn- implementation?
-  "Is this thing a protocol or a function definition?" 
+(defn- #^:tested-private implementation?
+  "Is this thing a protocol or a function definition?"
   [name-or-impl]
   (not (symbol? name-or-impl)))
 
-(defn- open-spec 
-  "Return function that checks if its name has been bound to a fake-function."
-  [[name args & body]]
-  `(~name ~args
-     (if (implements-a-fake? ~name)
-       (apply ~name ~args)
-       (do ~@body))))
+(letfn [(open-spec
+          ;;Return function that checks if its name has been bound to a fake-function.
+          [[name args & body]]
+          `(~name ~args
+             (if (implements-a-fake? ~name)
+               (apply ~name ~args)
+               (do ~@body))))
 
-(defn- revised-specs [specifications]
-  (for [spec specifications]
-    (if (and (user-desires-checking?) (implementation? spec))
-      (open-spec spec)
-      spec)))
+        (revised-specs [specifications]
+          (for [spec specifications]
+            (if (and (user-desires-checking?) (implementation? spec))
+              (open-spec spec)
+              spec)))]
 
-(defmacro deftype-openly [name fields & specs]
-  `(deftype ~name ~fields ~@(revised-specs specs)))
+  (defmacro deftype-openly [name fields & specs]
+    `(deftype ~name ~fields ~@(revised-specs specs)))
 
-(defmacro defrecord-openly [name fields & specs]
-  `(defrecord ~name ~fields ~@(revised-specs specs)))
+  (defmacro defrecord-openly [name fields & specs]
+    `(defrecord ~name ~fields ~@(revised-specs specs))))
 

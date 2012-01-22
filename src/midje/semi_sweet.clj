@@ -32,7 +32,7 @@
 ;;
 ;; FURTHERMORE, I wanted to use set operations to check for fake and not-called,
 ;; but those fail for reasons I don't understand. Bah.
-(defn- check-for-arrow [arrow]
+(defn- #^:tested-private check-for-arrow [arrow]
   (get {=> :check-match
         =expands-to=> :check-match
         =not=> :check-negated-match
@@ -51,14 +51,14 @@
      :position (user-file-position)}
     (hash-map-duplicates-ok ~@overrides)))
 
-(defn- handling-of-check-part [call-form arrow & _]
-  (get {=> :expect*
-        =not=> :expect*
-        =deny=> :expect*
-        =expands-to=> :expect-macro*
-        =future=> :report-future-fact} (name arrow)))
+(letfn [(how-to-handle-check [call-form arrow & _]
+          (get {=> :expect*
+                =not=> :expect*
+                =deny=> :expect*
+                =expands-to=> :expect-macro*
+                =future=> :report-future-fact} (name arrow)))]
 
-(defmulti ^:private expect-expansion handling-of-check-part)
+  (defmulti ^:private expect-expansion how-to-handle-check))
 
 (defmethod expect-expansion :expect*
   [call-form arrow expected-result fakes overrides]
@@ -81,25 +81,26 @@
 
 ;;; Interface: unfinished
 
-(defn- unfinished* [names]
-  (macro-for [name names] 
-    `(do
-       (defn ~name [& args#] 
-         (throw (user-error (str "#'" '~name " has no implementation. It's used as a prerequisite in Midje tests."))))
-       ;; A reliable way of determining if an `unfinished` function has since been defined.
-       (alter-meta! (var ~name) assoc :midje/unfinished-fun ~name))))
+(letfn [(unfinished* [names]
+          (macro-for [name names]
+            `(do
+               (defn ~name [& args#]
+                 (throw (user-error (str "#'" '~name 
+                                      " has no implementation. It's used as a prerequisite in Midje tests."))))
+               ;; A reliable way of determining if an `unfinished` function has since been defined.
+               (alter-meta! (var ~name) assoc :midje/unfinished-fun ~name))))]
 
-(defmacro unfinished
-  "Defines a list of names as functions that have no implementation yet. They will
-   throw Errors if ever called."
-  [& names] (unfinished* names))
-
-(defmacro only-mocked 
-  "Defines a list of names as functions that have no implementation yet. They will
-   throw Errors if ever called.
-   DEPRECATED: Prefer `unfinished`."
-  {:deprecated "1.3-alpha2"}
-  [& names] (unfinished* names))
+  (defmacro unfinished
+    "Defines a list of names as functions that have no implementation yet. They will
+     throw Errors if ever called."
+    [& names] (unfinished* names))
+  
+  (defmacro only-mocked 
+    "Defines a list of names as functions that have no implementation yet. They will
+     throw Errors if ever called.
+     DEPRECATED: Prefer `unfinished`."
+    {:deprecated "1.3-alpha2"}
+    [& names] (unfinished* names)))
 
 
 
@@ -138,7 +139,7 @@
                    :type :not-called}         
                  overrides))
 
-(defn- a-fake? [x]
+(defn- #^:tested-private a-fake? [x]
   (and (seq? x)
     (is-semi-sweet-keyword? (first x))))
 
