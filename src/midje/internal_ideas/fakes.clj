@@ -32,10 +32,6 @@
   (or (first-named? form "fake") 
       (first-named? form "data-fake")))
 
-(defn- fake-form-funcall-arglist 
-  [[fake funcall => value & overrides :as _fake-form_]]
-  (rest funcall))
-
 ;;; Creation
 
 (defn make-fake-map
@@ -100,59 +96,60 @@
 ;;; Binding
 
 
-(defn- var-handled-by-fake? [function-var fake]
-  (= function-var (:lhs fake)))
+(letfn [(var-handled-by-fake? [function-var fake]
+          (= function-var (:lhs fake)))]
+  
+  (defmulti ^:private call-handled-by-fake? (fn [function-var actual-args fake] (:type fake)))
+  
+  (defmethod call-handled-by-fake? :not-called [function-var actual-args fake]
+    (var-handled-by-fake? function-var fake))
+  
+  (defmethod call-handled-by-fake? :default [function-var actual-args fake]
+    (and (var-handled-by-fake? function-var fake)
+         (= (count actual-args) (count (:arg-matchers fake)))
+         (extended-list-= actual-args (:arg-matchers fake))))
+  
+  (defn #^:tested-private usable-default-function? [fake]
+    (and (bound? (:lhs fake))
+         (let [stashed-value (var-get (:lhs fake))
+               unfinished-fun (:midje/unfinished-fun (meta (:lhs fake)))]
+           (and (extended-fn? stashed-value)
+                (or (nil? unfinished-fun)
+                    (not= unfinished-fun stashed-value))))))
+  
+  
+  (def ^:dynamic ^:private *call-action-count* (atom 0))
+  
+  (defn- best-call-action [function-var actual-args fakes]
+    (when (= 2 @*call-action-count*)
+      (throw (user-error "You seem to have created a prerequisite for"
+               (str (pr-str function-var) " that interferes with that function's use in Midje's")
+               (str "own code. To fix, define a function of your own that uses "
+                 (or (:name (meta function-var)) function-var) ", then")
+               "describe that function in a provided clause. For example, instead of this:"
+               "  (provided (every? even? ..xs..) => true)"
+               "do this:"
+               "  (def all-even? (partial every? even?))"
+               "  ;; ..."
+               "  (provided (all-even? ..xs..) => true)")))
+    (if-let [found (find-first (partial call-handled-by-fake? function-var actual-args)
+                               fakes)]
+      found
+      (let [possible-fakes (filter (partial var-handled-by-fake? function-var) fakes)]
+        (cond (empty? possible-fakes)
+          nil
+    
+          ;; For finding a default, any possible fake is as good as any other
+          (not (usable-default-function? (first possible-fakes)))
+          nil
+    
+          :else (:value-at-time-of-faking (first possible-fakes)))))))
 
-(defmulti ^:private call-handled-by-fake? (fn [function-var actual-args fake] (:type fake)))
-
-(defmethod call-handled-by-fake? :not-called [function-var actual-args fake]
-  (var-handled-by-fake? function-var fake))
-
-(defmethod call-handled-by-fake? :default [function-var actual-args fake]
-  (and (var-handled-by-fake? function-var fake)
-       (= (count actual-args) (count (:arg-matchers fake)))
-       (extended-list-= actual-args (:arg-matchers fake))))
-
-(defn usable-default-function? [fake]
-  (and (bound? (:lhs fake))
-       (let [stashed-value (var-get (:lhs fake))
-             unfinished-fun (:midje/unfinished-fun (meta (:lhs fake)))]
-         (and (extended-fn? stashed-value)
-              (or (nil? unfinished-fun)
-                  (not= unfinished-fun stashed-value))))))
-
-
-(def ^:dynamic ^:private *call-action-count* (atom 0))
 (defmacro ^:private counting-nested-calls-calls [& forms]
   `(try
      (swap! *call-action-count* inc)
      ~@forms
      (finally (swap! *call-action-count* dec))))
-
-(defn- best-call-action [function-var actual-args fakes]
-  (when (= 2 @*call-action-count*)
-    (throw (user-error "You seem to have created a prerequisite for"
-             (str (pr-str function-var) " that interferes with that function's use in Midje's")
-             (str "own code. To fix, define a function of your own that uses "
-               (or (:name (meta function-var)) function-var) ", then")
-             "describe that function in a provided clause. For example, instead of this:"
-             "  (provided (every? even? ..xs..) => true)"
-             "do this:"
-             "  (def all-even? (partial every? even?))"
-             "  ;; ..."
-             "  (provided (all-even? ..xs..) => true)")))
-  (if-let [found (find-first (partial call-handled-by-fake? function-var actual-args)
-                             fakes)]
-    found
-    (let [possible-fakes (filter (partial var-handled-by-fake? function-var) fakes)]
-      (cond (empty? possible-fakes)
-        nil
-  
-        ;; For finding a default, any possible fake is as good as any other
-        (not (usable-default-function? (first possible-fakes)))
-        nil
-  
-        :else (:value-at-time-of-faking (first possible-fakes))))))
 
 (defn- call-faker
   "This is the function that handles all mocked calls." 
@@ -173,10 +170,10 @@
 
 ;; Binding map related
 
-(defn- unique-vars [fakes]
+(defn- #^:tested-private unique-vars [fakes]
   (distinct (map :lhs fakes)))
 
-(defn- binding-map-with-function-fakes [fakes]
+(defn- #^:tested-private binding-map-with-function-fakes [fakes]
   (letfn [(fn-that-implements-a-fake [function]
             (vary-meta function assoc :midje/faked-function true))
           (make-faker [var]
@@ -185,22 +182,22 @@
       (for [var (unique-vars fakes)]
         [var (make-faker var)]))))
 
-(defn- data-fakes-to-metaconstant-bindings [fakes]
-  (for [{var :lhs, contents :contained} fakes]
-    {var (Metaconstant. (object-name var) contents)}))
-
-(defn- merge-metaconstant-bindings [bindings]
+(defn- #^:tested-private merge-metaconstant-bindings [bindings]
   (apply merge-with (fn [^Metaconstant v1 ^Metaconstant v2]
                       (Metaconstant. (.name v1) (merge (.storage v1) (.storage v2))))
     bindings))
 
-(defn- binding-map-with-data-fakes [data-fakes]
-  (merge-metaconstant-bindings (data-fakes-to-metaconstant-bindings data-fakes)))
+(defn- #^:tested-private data-fakes-to-metaconstant-bindings [fakes]
+  (for [{var :lhs, contents :contained} fakes]
+    {var (Metaconstant. (object-name var) contents)}))
 
-(defn binding-map [fakes]
-  (let [[data-fakes function-fakes] (separate :data-fake fakes)]
-    (merge (binding-map-with-function-fakes function-fakes)
-      (binding-map-with-data-fakes data-fakes))))
+(letfn [(binding-map-with-data-fakes [data-fakes]
+          (merge-metaconstant-bindings (data-fakes-to-metaconstant-bindings data-fakes)))]
+  
+  (defn binding-map [fakes]
+    (let [[data-fakes function-fakes] (separate :data-fake fakes)]
+      (merge (binding-map-with-function-fakes function-fakes)
+        (binding-map-with-data-fakes data-fakes)))))
 
 (defmacro with-installed-fakes [fakes & forms]
   `(with-altered-roots (binding-map ~fakes) ~@forms))
@@ -244,7 +241,7 @@
 ;; mapping. These substitutions are used both to "flatten" a fake form and also
 ;; to generate new fakes.
 
-(defn- mockable-funcall? [thing]
+(defn- #^:tested-private mockable-funcall? [thing]
   (let [constructor? (fn [symbol]
                        (.endsWith (name symbol) "."))
         special-forms '[quote fn let new]
@@ -256,31 +253,32 @@
     (and (list? thing)
       (mockable-function-symbol? (first thing)))))
 
-;; TODO: Alex Dec 27, 2011 - rename, in what WAY are these substitutions augmented??? -there's the new name! 
+(letfn [(fake-form-funcall-arglist [[fake funcall => value & overrides :as _fake-form_]]
+          (rest funcall))]
 
-(defn augment-substitutions [substitutions fake-form]
-  (let [needed-keys (filter mockable-funcall? (fake-form-funcall-arglist fake-form))]
-    ;; Note: because I like for a function's metaconstants to be    
-    ;; easily mappable to the original fake, I don't make one       
-    ;; unless I'm sure I need it.                                   
-    (into substitutions (for [needed-key needed-keys 
-                              :when (nil? (get substitutions needed-key))]
-                          [needed-key (metaconstant-for-form needed-key)]))))
+  (defn augment-substitutions [substitutions fake-form]
+    (let [needed-keys (filter mockable-funcall? (fake-form-funcall-arglist fake-form))]
+      ;; Note: because I like for a function's metaconstants to be    
+      ;; easily mappable to the original fake, I don't make one       
+      ;; unless I'm sure I need it.                                   
+      (into substitutions (for [needed-key needed-keys 
+                                :when (nil? (get substitutions needed-key))]
+                            [needed-key (metaconstant-for-form needed-key)]))))
+  
+  (defn folded-fake? [form]
+    (and (sequential? form)
+         (= 'midje.semi-sweet/fake (first form))
+         (some mockable-funcall? (fake-form-funcall-arglist form)))))
+
+(defn generate-fakes [substitutions overrides]
+  (for [[funcall metaconstant] substitutions]
+    `(midje.semi-sweet/fake ~funcall midje.semi-sweet/=> ~metaconstant ~@overrides)))
 
 (defn flatten-fake [[fake [fun & args] & rest] substitutions]
   (let [new-args (for [a args] (get substitutions a a))]
     `(~fake (~fun ~@new-args) ~@rest)))
 
-(defn generate-fakes [substitutions overrides]
-  (for [[funcall metaconstant] substitutions]
-    `(midje.semi-sweet/fake ~funcall midje.semi-sweet/=> ~metaconstant ~@overrides))) 
-
-(defn folded-fake? [form]
-  (and (sequential? form)
-       (= 'midje.semi-sweet/fake (first form))
-       (some mockable-funcall? (fake-form-funcall-arglist form))))
-
-(defn- unfolding-step
+(defn- #^:tested-private unfolding-step
   "This walks through a `pending` list that may contain fakes. Each element is
    copied to the `finished` list. If it is a suitable fake, its nested 
    are flattened (replaced with a metaconstant). If the metaconstant was newly
@@ -289,22 +287,26 @@
   [finished pending substitutions]
   (let [target (first pending)]
     (if-not (folded-fake? target)
-      [(conj finished target), (rest pending), substitutions]
+      [(conj finished target), 
+       (rest pending), 
+       substitutions]
     
       (let [overrides (drop 4 target)
             augmented-substitutions (augment-substitutions substitutions target)
             flattened-target (flatten-fake target augmented-substitutions)
             generated-fakes (generate-fakes (map-difference augmented-substitutions substitutions) overrides)]
-        [(conj finished flattened-target), (concat generated-fakes (rest pending)), augmented-substitutions]))))
+        [(conj finished flattened-target), 
+         (concat generated-fakes (rest pending)), 
+         augmented-substitutions]))))
 
-(defn- unfold-expect-form__then__stay_put [loc]
-  (loop [[finished pending substitutions] [[] (zip/node loc) {}]]
-    (if (empty? pending)
-      (zip/replace loc (apply list finished))
-      (recur (unfolding-step finished pending substitutions)))))
+(letfn [(unfold-expect-form__then__stay_put [loc]
+          (loop [[finished pending substitutions] [[] (zip/node loc) {}]]
+            (if (empty? pending)
+              (zip/replace loc (apply list finished))
+              (recur (unfolding-step finished pending substitutions)))))]
 
-(defn unfold-fakes [form]
-  (with-fresh-generated-metaconstant-names
-    (translate-zipper form
-      expect?
-      unfold-expect-form__then__stay_put)))
+  (defn unfold-fakes [form]
+    (with-fresh-generated-metaconstant-names
+      (translate-zipper form
+        expect?
+        unfold-expect-form__then__stay_put))))
