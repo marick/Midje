@@ -19,7 +19,8 @@
                                                    with-altered-roots]]
         [midje.error-handling.exceptions :only [user-error]]
         [midje.internal-ideas.wrapping :only [with-wrapping-target]]
-        [midje.ideas.arrow-symbols])
+        [midje.ideas.arrow-symbols]
+        [clojure.tools.macro :only [macrolet]])
   (:require [clojure.zip :as zip])
   (:import midje.ideas.metaconstants.Metaconstant))
 
@@ -93,8 +94,16 @@
 (defn tag-as-background-fake [fake]
   (concat fake `(:background :background :times (~'range 0))))
 
+
 ;;; Binding
 
+(defn #^:tested-private usable-default-function? [fake]
+  (and (bound? (:lhs fake))
+    (let [stashed-value (var-get (:lhs fake))
+          unfinished-fun (:midje/unfinished-fun (meta (:lhs fake)))]
+      (and (extended-fn? stashed-value)
+        (or (nil? unfinished-fun)
+          (not= unfinished-fun stashed-value))))))
 
 (letfn [(var-handled-by-fake? [function-var fake]
           (= function-var (:lhs fake)))]
@@ -109,18 +118,10 @@
          (= (count actual-args) (count (:arg-matchers fake)))
          (extended-list-= actual-args (:arg-matchers fake))))
   
-  (defn #^:tested-private usable-default-function? [fake]
-    (and (bound? (:lhs fake))
-         (let [stashed-value (var-get (:lhs fake))
-               unfinished-fun (:midje/unfinished-fun (meta (:lhs fake)))]
-           (and (extended-fn? stashed-value)
-                (or (nil? unfinished-fun)
-                    (not= unfinished-fun stashed-value))))))
-  
   
   (def ^:dynamic ^:private *call-action-count* (atom 0))
   
-  (defn- best-call-action [function-var actual-args fakes]
+  (defn- #^:tested-private best-call-action [function-var actual-args fakes]
     (when (= 2 @*call-action-count*)
       (throw (user-error "You seem to have created a prerequisite for"
                (str (pr-str function-var) " that interferes with that function's use in Midje's")
@@ -145,28 +146,28 @@
     
           :else (:value-at-time-of-faking (first possible-fakes)))))))
 
-(defmacro ^:private counting-nested-calls-calls [& forms]
-  `(try
-     (swap! *call-action-count* inc)
-     ~@forms
-     (finally (swap! *call-action-count* dec))))
-
-(defn- call-faker
-  "This is the function that handles all mocked calls." 
+(defn- #^:tested-private call-faker
+  "This is the function that handles all mocked calls."
   [function-var actual-args fakes]
-  (let [action (counting-nested-calls-calls (best-call-action function-var actual-args fakes))]
-    (cond (nil? action)
-      (clojure.test/report {:type :mock-argument-match-failure
-                            :lhs function-var
-                            :actual actual-args
-                            :position (:position (first fakes))})
+  (macrolet [(counting-nested-calls [& forms]
+               `(try
+                  (swap! *call-action-count* inc)
+                  ~@forms
+                  (finally (swap! *call-action-count* dec))))]
 
-      (extended-fn? action)
-      (apply action actual-args)
+    (let [action (counting-nested-calls (best-call-action function-var actual-args fakes))]
+      (cond (nil? action)
+        (clojure.test/report {:type :mock-argument-match-failure
+                              :lhs function-var
+                              :actual actual-args
+                              :position (:position (first fakes))})
 
-      :else (do
-              (swap! (action :count-atom ) inc)
-              ((action :result-supplier ))))))
+        (extended-fn? action)
+        (apply action actual-args)
+
+        :else (do
+                (swap! (action :count-atom ) inc)
+                ((action :result-supplier )))))))
 
 ;; Binding map related
 
