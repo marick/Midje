@@ -6,7 +6,7 @@
         [midje.util form-utils]
         [midje.test-util])
   (:require [clojure.zip :as zip]))
-(testable-privates midje.semi-sweet fakes-and-overrides check-for-arrow)
+(testable-privates midje.semi-sweet a-fake? check-for-arrow)
  
 (unfinished faked-function mocked-function other-function)
 
@@ -25,24 +25,24 @@
 
 (fact "separating overrides of an #expect from fakes"
   ;; The lets are because fact isn't smart enough not to add overrides to fake call otherwise.
-  (let [actual (fakes-and-overrides '( (fake (f 1) => 2) :key 'value))]
+  (let [actual (separate-by a-fake?  '( (fake (f 1) => 2) :key 'value))]
     actual => [  '[(fake (f 1) => 2)]
                  '[:key 'value] ])
 
-  (let [actual (fakes-and-overrides '( (not-called some-function) :key 'value))]
+  (let [actual (separate-by a-fake?  '( (not-called some-function) :key 'value))]
     actual => [ '[(not-called some-function)]
                 '[:key 'value] ])
 
   ;; often passed a seq.
-  (let [actual (fakes-and-overrides (seq '( (fake (f 1) => 2) :key 'value)))]
+  (let [actual (separate-by a-fake?  (seq '( (fake (f 1) => 2) :key 'value)))]
     actual => [  '[(fake (f 1) => 2)]
                  '[:key 'value] ])
 
-  (let [actual (fakes-and-overrides '())]
+  (let [actual (separate-by a-fake?  '())]
     actual => (just empty? empty?))
 
   "data fakes too"
-  (let [actual (fakes-and-overrides '((data-fake ..m.. =contains=> {:a 1}) :key 'value))]
+  (let [actual (separate-by a-fake?  '((data-fake ..m.. =contains=> {:a 1}) :key 'value))]
     actual => [  '[(data-fake ..m.. =contains=> {:a 1})]
                  '[:key 'value] ]))
 

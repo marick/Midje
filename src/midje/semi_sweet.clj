@@ -23,11 +23,6 @@
 (defn is-semi-sweet-keyword? [loc]
   (matches-symbols-in-semi-sweet-or-sweet-ns? '(expect fake not-called data-fake) loc))
 
-(defn- fakes-and-overrides [form]
-  (let [fake? #(and (seq? %)
-                    (is-semi-sweet-keyword? (first %)))]
-    (separate-by fake? form)))
-
 ;;; Conversions to unprocessed form
 
 ;; I want to use resolve() to compare calls to fake, rather than the string
@@ -140,8 +135,12 @@
   (make-fake-map var-sym
                  `{:call-text-for-failures (str '~var-sym " was called.")
                    :result-supplier (fn [] nil)
-                   :type :not-called}
+                   :type :not-called}         
                  overrides))
+
+(defn- a-fake? [x]
+  (and (seq? x)
+    (is-semi-sweet-keyword? (first x))))
 
 (defmacro expect 
   "Run the call form, check that all the mocks defined in the fakes 
@@ -154,7 +153,7 @@
   [& args]
   (when (user-desires-checking?)
     (valid-let [[call-form arrow expected-result & fakes+overrides] (validate &form)
-                [fakes overrides] (fakes-and-overrides fakes+overrides)]
+                [fakes overrides] (separate-by a-fake? fakes+overrides)]
       (when-valid fakes
         (expect-expansion call-form arrow expected-result fakes overrides)))))
 
