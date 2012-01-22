@@ -213,7 +213,7 @@
   (expect (+ 1 1) => even?)
 
   "exact function matches can be checked with exactly"
-  (let [myfun (fn [] 33)
+  (let [myfun (constantly 33)
         funs [myfun]]
     (expect (first funs) => (exactly myfun)))
 

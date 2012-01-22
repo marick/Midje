@@ -132,16 +132,12 @@
    Example: (not-called f))
    DEPRECATED: Prefer `:times 0` annotation to `fake`, ex. (provided (f) => 4 :times 0))"
   {:deprecated "1.3-alpha2"}
-  [var-sym & overrides]
-  (make-fake-map var-sym
-                 `{:call-text-for-failures (str '~var-sym " was called.")
-                   :result-supplier (fn [] nil)
-                   :type :not-called}         
-                 overrides))
+  [forms]
+  (not-called* forms))
 
 (defn- #^:tested-private a-fake? [x]
   (and (seq? x)
-    (is-semi-sweet-keyword? (first x))))
+       (is-semi-sweet-keyword? (first x))))
 
 (defmacro expect 
   "Run the call form, check that all the mocks defined in the fakes 

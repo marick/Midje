@@ -24,6 +24,7 @@
   (:require [clojure.zip :as zip])
   (:import midje.ideas.metaconstants.Metaconstant))
 
+
 ;;; Questions to ask of fakes // accessors
 
 (defn implements-a-fake? [function]
@@ -33,17 +34,8 @@
   (or (first-named? form "fake") 
       (first-named? form "data-fake")))
 
-;;; Creation
 
-(defn make-fake-map
-  [var-sym special-to-fake-type user-override-pairs]
-  (let [common-to-all-fakes `{:lhs (var ~var-sym)
-                             :count-atom (atom 0)
-                             :position (user-file-position)}]
-    (merge
-      common-to-all-fakes
-      special-to-fake-type
-      (apply hash-map-duplicates-ok user-override-pairs))))
+;;; Creation
 
 (defn arg-matcher-maker
   "Based on an expected value, generates a function that returns 
@@ -70,26 +62,43 @@
 (defmethod make-result-supplier :default [arrow result-stream]
   (throw (user-error "It's likely you misparenthesized your metaconstant prerequisite.")))
 
-(defn fake* [ [[var-sym & args :as call-form] arrow result & overrides] ]
-  ;; The (vec args) keeps something like (...o...) from being
-  ;; evaluated as a function call later on. Right approach would
-  ;; seem to be '~args. That causes spurious failures. Debug
-  ;; someday.
-  (make-fake-map var-sym
-    `{:arg-matchers (map midje.internal-ideas.fakes/arg-matcher-maker ~(vec args))
-      :call-text-for-failures (str '~call-form)
-      :value-at-time-of-faking (if (bound? (var ~var-sym)) ~var-sym)
-      :result-supplier (make-result-supplier ~arrow ~result)
-      :type :fake}
-    overrides))
+(letfn [(make-fake-map
+          [var-sym special-to-fake-type user-override-pairs]
+          (let [common-to-all-fakes `{:lhs (var ~var-sym)
+                                      :count-atom (atom 0)
+                                      :position (user-file-position)}]
+            (merge
+              common-to-all-fakes
+              special-to-fake-type
+              (apply hash-map-duplicates-ok user-override-pairs)))) ]
 
-(defn data-fake* [[metaconstant arrow contained & overrides]]
-  (make-fake-map metaconstant
-    `{:contained ~contained
-      :count-atom (atom 1) ;; CLUDKJE!
-      :type :fake
-      :data-fake :data-fake}
-    overrides))
+  (defn fake* [ [[var-sym & args :as call-form] arrow result & overrides] ]
+    ;; The (vec args) keeps something like (...o...) from being
+    ;; evaluated as a function call later on. Right approach would
+    ;; seem to be '~args. That causes spurious failures. Debug
+    ;; someday.
+    (make-fake-map var-sym
+      `{:arg-matchers (map midje.internal-ideas.fakes/arg-matcher-maker ~(vec args))
+        :call-text-for-failures (str '~call-form)
+        :value-at-time-of-faking (if (bound? (var ~var-sym)) ~var-sym)
+        :result-supplier (make-result-supplier ~arrow ~result)
+        :type :fake}
+      overrides))
+  
+  (defn data-fake* [[metaconstant arrow contained & overrides]]
+    (make-fake-map metaconstant
+      `{:contained ~contained
+        :count-atom (atom 1) ;; CLUDKJE!
+        :type :fake
+        :data-fake :data-fake}
+      overrides))
+  
+  (defn not-called* [var-sym & overrides]
+    (make-fake-map var-sym
+      `{:call-text-for-failures (str '~var-sym " was called.")
+        :result-supplier (constantly nil)
+        :type :not-called}
+      overrides)))
 
 (defn tag-as-background-fake [fake]
   (concat fake `(:background :background :times (~'range 0))))
@@ -99,11 +108,11 @@
 
 (defn #^:tested-private usable-default-function? [fake]
   (and (bound? (:lhs fake))
-    (let [stashed-value (var-get (:lhs fake))
+    (let [value-in-var (var-get (:lhs fake))
           unfinished-fun (:midje/unfinished-fun (meta (:lhs fake)))]
-      (and (extended-fn? stashed-value)
-        (or (nil? unfinished-fun)
-          (not= unfinished-fun stashed-value))))))
+      (and (extended-fn? value-in-var)
+           (or (nil? unfinished-fun)
+               (not= unfinished-fun value-in-var))))))
 
 (letfn [(var-handled-by-fake? [function-var fake]
           (= function-var (:lhs fake)))]
@@ -137,14 +146,11 @@
                                fakes)]
       found
       (let [possible-fakes (filter (partial var-handled-by-fake? function-var) fakes)]
-        (cond (empty? possible-fakes)
-          nil
-    
-          ;; For finding a default, any possible fake is as good as any other
-          (not (usable-default-function? (first possible-fakes)))
-          nil
-    
-          :else (:value-at-time-of-faking (first possible-fakes)))))))
+        (pred-cond possible-fakes
+          empty?                                     nil
+          (comp not usable-default-function? first)  nil ;; Finding default, any possible fake works
+          :else                                      (:value-at-time-of-faking 
+                                                       (first possible-fakes)))))))
 
 (defn- #^:tested-private call-faker
   "This is the function that handles all mocked calls."
@@ -156,18 +162,16 @@
                   (finally (swap! *call-action-count* dec))))]
 
     (let [action (counting-nested-calls (best-call-action function-var actual-args fakes))]
-      (cond (nil? action)
-        (clojure.test/report {:type :mock-argument-match-failure
-                              :lhs function-var
-                              :actual actual-args
-                              :position (:position (first fakes))})
+      (pred-cond action
+        nil?          (clojure.test/report {:type :mock-argument-match-failure
+                                            :lhs function-var
+                                            :actual actual-args
+                                            :position (:position (first fakes))})
+        extended-fn?  (apply action actual-args)
+        :else         (do
+                        (swap! (:count-atom action) inc)
+                        ((:result-supplier action )))))))
 
-        (extended-fn? action)
-        (apply action actual-args)
-
-        :else (do
-                (swap! (action :count-atom ) inc)
-                ((action :result-supplier )))))))
 
 ;; Binding map related
 
@@ -198,16 +202,16 @@
   (defn binding-map [fakes]
     (let [[data-fakes function-fakes] (separate :data-fake fakes)]
       (merge (binding-map-with-function-fakes function-fakes)
-        (binding-map-with-data-fakes data-fakes)))))
+             (binding-map-with-data-fakes data-fakes)))))
 
 (defmacro with-installed-fakes [fakes & forms]
   `(with-altered-roots (binding-map ~fakes) ~@forms))
 
 ;;; Checking
 
-(defn fake-count [fake] (deref (:count-atom fake)))
+(defn fake-count [fake] @(:count-atom fake))
 
-(defmulti call-count-incorrect? :type )
+(defmulti call-count-incorrect? :type)
 
 (defmethod call-count-incorrect? :fake [fake]
   (let [method (or (:times fake) :default )
@@ -225,10 +229,10 @@
   (doseq [fake fakes]
     (when (call-count-incorrect? fake)
       (report {:type :mock-incorrect-call-count
-               :actual-count @(fake :count-atom )
-               :expected-call (fake :call-text-for-failures )
+               :actual-count @(:count-atom fake)
+               :expected-call (:call-text-for-failures fake)
                :position (:position fake)
-               :expected (fake :call-text-for-failures )}))))
+               :expected (:call-text-for-failures fake)}))))
 
 
 

@@ -7,7 +7,7 @@
   data-fakes-to-metaconstant-bindings binding-map-with-function-fakes unique-vars
   call-faker best-call-action ]]
         [midje.ideas.metaconstants :only [metaconstant-for-form]]
-        [utilize.seq :only (find-first)]
+        [utilize.seq :only (find-first only)]
         [midje.test-util])
   (:import midje.ideas.metaconstants.Metaconstant))
 
@@ -139,6 +139,7 @@
   (provided
     (internal 1) => -33))
 
+
 ;; The same thing can be done with clojure.core functions
 
 (defn double-partition [first-seq second-seq]
@@ -149,6 +150,7 @@
 (fact
   (double-partition [1 2] ..xs..) => [[1] [2] [..x1..] [..x2..]]
   (provided (partition-all 1 ..xs..) => [ [..x1..] [..x2..] ]))
+
 
 ;; However you can't override functions that are used by Midje itself
 
@@ -167,6 +169,7 @@
        text => #"clojure\.core/every\?"
        text => #"interferes with.*Midje")))
 
+
 ;; And inlined functions can't be faked
 
 (defn doubler [n] (+ n n))
@@ -177,6 +180,7 @@
    (provided
      (+ 3 3) => 0))
   (fact @reported => (validation-error-with-notes #"inlined")))
+
 
 ;; How it works
 
@@ -204,26 +208,26 @@
     => function-symbol-of-interest
     (provided (usable-default-function? matching-fake) => true)))
 
-"When is a var's function (as stashed in fake) usable as a default?"
-(fact "It must have had a value at fake-define time"
-  (def var-to-be-fully-faked)
-  (usable-default-function? (fake (var-to-be-fully-faked 3) => 1)) => falsey)
-(fact "That value must have been a function."
-  (def not-a-function 3)
-  (def a-function (fn [x] x))
-  (usable-default-function? (fake (not-a-function 3) => 1)) => falsey
-  (usable-default-function? (fake (a-function 3) => 1)) => truthy)
-(fact "It may not have been marked `unfinished`"
-  (unfinished tbd)
-  (usable-default-function? (fake (tbd 3) => 1)) => falsey
-  ;; However, an unfinished-then-redefined function is allowed
-  (unfinished forget-to-remove)
-  (def forget-to-remove (fn [x] (+ 3 (* 3 x))))
-  (usable-default-function? (fake (forget-to-remove 3) => 1)) => truthy)
-(fact "It can be a multimethod"
-  (defmulti multimethod type)
-  (defmethod multimethod java.lang.String [x] "string me!")
-  (usable-default-function? (fake (multimethod 3) => 3)) => truthy)
+(facts "When is a var's function (as stashed in fake) usable as a default?"
+  (fact "It must have had a value at fake-define time"
+    (def var-to-be-fully-faked)
+    (usable-default-function? (fake (var-to-be-fully-faked 3) => 1)) => falsey)
+  (fact "That value must have been a function."
+    (def not-a-function 3)
+    (def a-function (fn [x] x))
+    (usable-default-function? (fake (not-a-function 3) => 1)) => falsey
+    (usable-default-function? (fake (a-function 3) => 1)) => truthy)
+  (fact "It may not have been marked `unfinished`"
+    (unfinished tbd)
+    (usable-default-function? (fake (tbd 3) => 1)) => falsey
+    ;; However, an unfinished-then-redefined function is allowed
+    (unfinished forget-to-remove)
+    (def forget-to-remove (fn [x] (+ 3 (* 3 x))))
+    (usable-default-function? (fake (forget-to-remove 3) => 1)) => truthy)
+  (fact "It can be a multimethod"
+    (defmulti multimethod type)
+    (defmethod multimethod java.lang.String [x] "string me!")
+    (usable-default-function? (fake (multimethod 3) => 3)) => truthy))
 
 (defmulti multimethod type)
 (defmethod multimethod java.lang.String [x] "string me!")
@@ -252,15 +256,12 @@
     (:value-at-time-of-faking (fake (rebound) => 3)) => 88))
 
 
-
 ;; Folded fakes
 
 (defmacro some-macro [& rest] )
 
-
-(tabular 
- (fact "things that are not fake-sexps don't need to be unfolded"
-   ?thing ?arrow folded-fake?)
+(tabular "things that are not fake-sexps don't need to be unfolded" 
+ (fact ?thing ?arrow folded-fake?)
 
   ;; things not a proper fake macro
   ?thing                                        ?arrow
@@ -345,15 +346,11 @@
 
 ;;; Internal functions
 
-
 (fact "data-fakes can be converted to metaconstant-bindings"
   (let [bindings (data-fakes-to-metaconstant-bindings [{:lhs #'name :contained {:a 1}}])
-        _ (fact (count bindings) => 1)
-        binding (first bindings)
-        _ (fact (count binding) => 1)
-        [var metaconstant] (first binding)]
+        [_var_ metaconstant] (only (only bindings))]
     (.name metaconstant) => 'name
-    (.storage metaconstant) => {:a 1}))
+    (.storage metaconstant) => {:a 1} ))
 
 (declare var-for-merged var-for-irrelevant)
 (fact "metaconstant bindings can have their values merged together"
