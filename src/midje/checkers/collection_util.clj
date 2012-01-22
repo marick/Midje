@@ -16,14 +16,14 @@
   (= (count (:expected-found comparison))
      (count (:expected comparison))))
 
-(defn closer-match?
-  "Did the candidate match more expected elements than before?"
-  [candidate best-so-far]
-  (> (count (:actual-found candidate))
-     (count (:actual-found best-so-far))))
+(letfn [(closer-match?
+         ;; Did the candidate match more expected elements than before?
+         [candidate best-so-far]
+         (> (count (:actual-found candidate))
+            (count (:actual-found best-so-far)))) ]
 
-(defn better-of [candidate best-so-far]
-  (if (closer-match? candidate best-so-far) candidate best-so-far))
+  (defn better-of [candidate best-so-far]
+    (if (closer-match? candidate best-so-far) candidate best-so-far)))
 
 (defn collection-like?
   "Extend coll? to include strings."
