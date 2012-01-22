@@ -15,7 +15,7 @@
 
 (defn midje-classification [x] (if (map? x) ::map ::not-map))
 
-(defmulti #^:private collection-string
+(defmulti ^{:private true} collection-string
   "Given a list of stringified elements, convert them into appropriate
    collection text."
   (fn [midje-classification elements] midje-classification))
@@ -27,7 +27,7 @@
   (str "[" (join " " elements) "]"))
 ;;-
 
-(defmulti #^:private best-actual-match
+(defmulti best-actual-match
   "Describe the best actuals found in the comparison."
   (fn [midje-classification comparison] midje-classification))
 
@@ -37,7 +37,7 @@
 (defmethod best-actual-match ::map [midje-classification comparison]
   (str "Best match found: " (pr-str (sort-map (:actual-found comparison)))))
 
-(defmulti #^:private best-expected-match
+(defmulti best-expected-match
   "Describe the best list of expected values found in the comparison."
   (fn [midje-classification comparison expected] midje-classification))
 
@@ -168,7 +168,7 @@
             :else
             (rotations checkers)))]
 
-  (defmulti #^:private compare-results
+  (defmulti compare-results
     (fn [actual expected looseness]
       (if (= ::map (midje-classification actual))
         (midje-classification actual)

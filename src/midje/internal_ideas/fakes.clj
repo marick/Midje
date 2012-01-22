@@ -117,7 +117,8 @@
 (letfn [(var-handled-by-fake? [function-var fake]
           (= function-var (:lhs fake)))]
   
-  (defmulti #^:private call-handled-by-fake? (fn [function-var actual-args fake] (:type fake)))
+  (defmulti ^{:private true} call-handled-by-fake? (fn [function-var actual-args fake] 
+                                                     (:type fake)))
   
   (defmethod call-handled-by-fake? :not-called [function-var actual-args fake]
     (var-handled-by-fake? function-var fake))
