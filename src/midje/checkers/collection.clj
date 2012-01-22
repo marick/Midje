@@ -11,68 +11,11 @@
         [midje.util.form-utils :only [regex? tack-on-to record? classic-map? rotations 
                                       pred-cond macro-for sort-map]]
         [midje.util.object-utils :only [function-name named-function?]]
-      	[midje.checkers util extended-equality chatty defining]
+      	[midje.checkers collection-util util extended-equality chatty defining]
         [midje.error-handling.exceptions :only [user-error]]
         [clojure.string :only [join]]))
 
 (def looseness-modifiers #{:in-any-order :gaps-ok})
-
-(defn- inexact-checker? 
-  "Can the checker potentially match non-unique elements
-   in a seq? (Ex: regex #'a+' can match 'a' and 'aa'.)"
-  [checker]
-  (or (extended-fn? checker)
-      (regex? checker)))
-
-(defn- total-match?
-  "Have all the expected elements have been discovered?"
-  [comparison]
-  (= (count (:expected-found comparison))
-     (count (:expected comparison))))
-
-(defn- closer-match? 
-  "Did the candidate match more expected elements than before?"
-  [candidate best-so-far]
-  (> (count (:actual-found candidate))
-     (count (:actual-found best-so-far))))
-
-(defn- better-of [candidate best-so-far]
-  (if (closer-match? candidate best-so-far) candidate best-so-far))
-
-(defn- collection-like?
-  "Extend coll? to include strings."
-  [thing]
-  (or (coll? thing)
-      (string? thing)))
-
-(defn- right-hand-singleton? 
-  "The kind of thing that, in (contains X), means (contains [X])"
-  [thing]
-  (or (not (coll? thing)) (map? thing)))
-
-(defn- same-lengths? [actual expected]
-  (= (count actual) (count expected)))
-
-(defn- expected-fits? 
-  "Could expected fit as a subsequence of actual?"
-  [actual expected]
-  (>= (count actual) (count expected)))
-
-(defn- noted-falsehood
-  "Produce a partially constructed chatty falsehood that contains
-   a :notes key with the strings."
-  [& strings ]
-  (as-chatty-falsehood {:notes strings}))
-
-(defn- try-re 
-  "Use the function (re-find or re-matches) to apply re to the thing.
-   If function blows up, return a chatty failure about it."
-  [re thing function]
-  (try
-    (function re thing)
-    (catch Exception ex
-      (noted-falsehood (format "%s can't be used on %s, a %s."
-                               (pr-str re) (pr-str thing) (type thing) ".")))))
 
 (defn- base-starting-candidate
   "A data structure that represents which actual elements, matching
@@ -427,31 +370,30 @@
                           (count expected)
                           (count actual))))))))
 
-(defn- has-xfix [x-name pattern-fn take-fn]
-  (checker [actual expected looseness]
-    (pred-cond actual
-      set?   (noted-falsehood (format "Sets don't have %ses." x-name))
-      map?   (noted-falsehood (format "Maps don't have %ses." x-name))
-      :else  (let [ [actual expected looseness] (standardized-arguments actual expected looseness)]
-               (cond (regex? expected)
-                     (try-re (pattern-fn expected) actual re-find)
-                     
-                     (expected-fits? actual expected)
-                     (match?(take-fn (count expected) actual) expected looseness)
-             
-                     :else
-                     (noted-falsehood
-                      (cl-format nil
-                                 "A collection with ~R element~:P cannot match a ~A of size ~R."
-                                 (count actual) x-name (count expected))))))))
+(letfn [(has-xfix [x-name pattern-fn take-fn]
+          (checker [actual expected looseness]
+            (pred-cond actual
+              set? (noted-falsehood (format "Sets don't have %ses." x-name))
+              map? (noted-falsehood (format "Maps don't have %ses." x-name))
+              :else (let [[actual expected looseness] (standardized-arguments actual expected looseness)]
+                      (cond (regex? expected)
+                        (try-re (pattern-fn expected) actual re-find)
 
-(def ^{:midje/checker true} has-prefix
-  (container-checker-maker 'has-prefix
-    (has-xfix "prefix" #(re-pattern (str "^" %)) take)))
+                        (expected-fits? actual expected)
+                        (match? (take-fn (count expected) actual) expected looseness)
 
-(def ^{:midje/checker true} has-suffix
-  (container-checker-maker 'has-suffix
-    (has-xfix "suffix" #(re-pattern (str % "$")) take-last)))
+                        :else (noted-falsehood
+                                (cl-format nil
+                                  "A collection with ~R element~:P cannot match a ~A of size ~R."
+                                  (count actual) x-name (count expected))))))))]
+
+  (def ^{:midje/checker true} has-prefix
+    (container-checker-maker 'has-prefix
+      (has-xfix "prefix" #(re-pattern (str "^" %)) take)))
+
+  (def ^{:midje/checker true} has-suffix
+    (container-checker-maker 'has-suffix
+      (has-xfix "suffix" #(re-pattern (str % "$")) take-last))))
                             
 (defchecker has [quantifier predicate]
   (checker [actual]
