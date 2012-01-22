@@ -152,10 +152,10 @@
    To strip tests from production code, set either clojure.test/*load-tests*
    or midje.semi-sweet/*check* to false."
   [& args]
-  (valid-let [[call-form arrow expected-result & other-stuff]   (validate &form)]
-    (when (user-desires-checking?)
-      (let [ [fakes overrides] (fakes-and-overrides other-stuff)]
-        (when-valid fakes
-          (expect-expansion call-form arrow expected-result fakes overrides))))))
+  (when (user-desires-checking?)
+    (valid-let [[call-form arrow expected-result & fakes+overrides] (validate &form)
+                [fakes overrides] (fakes-and-overrides fakes+overrides)]
+      (when-valid fakes
+        (expect-expansion call-form arrow expected-result fakes overrides)))))
 
 
