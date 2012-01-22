@@ -3,14 +3,14 @@
   midje.internal-ideas.fact-context
   (:use [clojure.string :only [join]]))
 
-(def #^:private nested-descriptions (atom []))
+(def #^:private *nested-descriptions* (atom []))
 
 (defmacro within-fact-context [description & body]
   `(letfn [(enter-context# [description#]
-             (swap! nested-descriptions conj description#))
+             (swap! *nested-descriptions* conj description#))
 
            (leave-context# []
-             (swap! nested-descriptions #(vec (butlast %))))]
+             (swap! *nested-descriptions* #(vec (butlast %))))]
      (try
        (enter-context# ~description)
        ~@body
@@ -18,5 +18,5 @@
          (leave-context#)))))
 
 (defn nested-fact-description []
-  (when-let [non-nil (seq (remove nil? @nested-descriptions))]  
+  (when-let [non-nil (seq (remove nil? @*nested-descriptions*))]  
     (join " - " non-nil)))
