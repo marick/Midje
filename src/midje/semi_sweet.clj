@@ -58,7 +58,7 @@
                 =expands-to=> :expect-macro*
                 =future=> :report-future-fact} (name arrow)))]
 
-  (defmulti ^:private expect-expansion how-to-handle-check))
+  (defmulti #^:private expect-expansion how-to-handle-check))
 
 (defmethod expect-expansion :expect*
   [call-form arrow expected-result fakes overrides]

@@ -14,7 +14,7 @@
 (immigrate 'midje.checkers)
 
 
-(defmulti ^:private check-result (fn [actual call] 
+(defmulti #^:private check-result (fn [actual call] 
                                    (:desired-check call)))
 
 (letfn [(fail [type actual call]

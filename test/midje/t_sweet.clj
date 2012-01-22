@@ -278,14 +278,14 @@
                                          :actual-count 1}))))
     
 
-(def ^:dynamic *fact-retval* (fact
+(def #^:dynamic *fact-retval* (fact
                                (+ 1 1) => 2
                                "some random return value"))
 (fact "fact returns true on success"
    *fact-retval* => true)
 
 
-(def ^:dynamic  *fact-retval* (fact
+(def #^:dynamic  *fact-retval* (fact
                                 (+ 1 1) => 2
                                 (midje.util.report/note-failure-in-fact)
                                 "some random return value"))
@@ -293,7 +293,7 @@
   *fact-retval* => false)
 
 
-(def ^:dynamic *fact-retval* (fact
+(def #^:dynamic *fact-retval* (fact
                                (+ 1 1) => 2
                                "some random return value"))
 (fact "a fact's return value is not affected by previous failures"

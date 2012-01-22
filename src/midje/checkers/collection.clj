@@ -11,7 +11,7 @@
       	[midje.checkers collection-util util extended-equality chatty defining collection-comparison]
         [midje.error-handling.exceptions :only [user-error]]))
 
-(def ^:private looseness-modifiers #{:in-any-order :gaps-ok})
+(def #^:private looseness-modifiers #{:in-any-order :gaps-ok})
 
 (defn- separate-looseness
   "Distinguish expected results from looseness descriptions.
@@ -170,7 +170,7 @@
     (and (= (count actual) expected-count)
          (every? #(extended-= % expected) actual))))
 
-(defmacro ^:private generate-n-of-checkers []
+(defmacro #^:private generate-n-of-checkers []
   (macro-for [[int checker-name] [[1 "one"] [2 "two"] [3 "three"] [4 "four"] [5 "five"]
                                   [6 "six"] [7 "seven"] [8 "eight"] [9 "nine"] [10 "ten"]]]
     `(defchecker ~(symbol (str checker-name "-of")) [expected-checker#]

@@ -17,7 +17,7 @@
     [utilize.map :only [ordered-zipmap]])
 (:require [midje.util.unify :as unify]))
 
-(def ^:private deprecation-hack:file-position (atom ""))
+(def #^:private deprecation-hack:file-position (atom ""))
 
 (letfn [(remove-pipes+where [table]
           (when (and false (#{:where 'where} (first table)))

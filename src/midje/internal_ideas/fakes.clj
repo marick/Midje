@@ -108,7 +108,7 @@
 (letfn [(var-handled-by-fake? [function-var fake]
           (= function-var (:lhs fake)))]
   
-  (defmulti ^:private call-handled-by-fake? (fn [function-var actual-args fake] (:type fake)))
+  (defmulti #^:private call-handled-by-fake? (fn [function-var actual-args fake] (:type fake)))
   
   (defmethod call-handled-by-fake? :not-called [function-var actual-args fake]
     (var-handled-by-fake? function-var fake))
@@ -119,7 +119,7 @@
          (extended-list-= actual-args (:arg-matchers fake))))
   
   
-  (def ^:dynamic ^:private *call-action-count* (atom 0))
+  (def #^:dynamic #^:private *call-action-count* (atom 0))
   
   (defn- #^:tested-private best-call-action [function-var actual-args fakes]
     (when (= 2 @*call-action-count*)

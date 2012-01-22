@@ -7,7 +7,7 @@
 
 ;; Justification for use of eagerly
 (def counter (atom 1))
-(def ^:dynamic *mocked-function-produces-next-element* inc)
+(def #^:dynamic *mocked-function-produces-next-element* inc)
 
 (defn function-under-test-produces-a-lazy-list []
   (iterate *mocked-function-produces-next-element* 1))

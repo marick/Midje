@@ -12,7 +12,7 @@
     [midje.util.form-utils :only [named? pred-cond]]
     [midje.util.backwards-compatible-utils :only [some-fn-m]]))
 
-(def ^:private valid-wrapping-targets #{:facts, :contents, :checks })
+(def #^:private valid-wrapping-targets #{:facts, :contents, :checks })
 
 (letfn [(validate-state-description [[state-description wrapping-target expression :as form]]
           (cond
@@ -49,7 +49,7 @@
   (defmethod validate "around" [forms]
     (validate-state-description forms)))
 
-(def ^:private valid-state-descriptions #{"before" "after" "around"})
+(def #^:private valid-state-descriptions #{"before" "after" "around"})
 
 (letfn [(valid-state-descriptions+fakes? [forms]
           (loop [in-progress forms]

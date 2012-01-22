@@ -26,7 +26,7 @@
 (immigrate 'midje.semi-sweet)
 
 ;; Following is required because `intern` doesn't transfer "dynamicity".
-(def ^:dynamic *include-midje-checks* *include-midje-checks*)
+(def #^:dynamic *include-midje-checks* *include-midje-checks*)
 
 (intern *ns* 'before #'background/before)
 (intern *ns* 'after #'background/after)
@@ -97,7 +97,7 @@
     (when-valid &form
       (with-meta `(fact ~@forms) (meta &form)))))
 
-(defmacro ^:private generate-future-fact-variants []
+(defmacro #^:private generate-future-fact-variants []
   (macro-for [name future-fact-variant-names]
     `(defmacro ~(symbol name)
        "Fact that will not be run. Generates 'WORK TO DO' report output as a reminder."
