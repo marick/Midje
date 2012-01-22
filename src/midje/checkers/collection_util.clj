@@ -27,14 +27,13 @@
 
 (defn collection-like?
   "Extend coll? to include strings."
-  [thing]
-  (or (coll? thing)
-      (string? thing)))
+  [x]
+  (or (coll? x) (string? x)))
 
 (defn right-hand-singleton?
   "The kind of thing that, in (contains X), means (contains [X])"
-  [thing]
-  (or (not (coll? thing)) (map? thing)))
+  [x]
+  (or (not (coll? x)) (map? x)))
 
 (defn same-lengths? [actual expected]
   (= (count actual) (count expected)))

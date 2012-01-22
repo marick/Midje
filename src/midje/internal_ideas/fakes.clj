@@ -242,7 +242,7 @@
 ;; mapping. These substitutions are used both to "flatten" a fake form and also
 ;; to generate new fakes.
 
-(defn- #^:tested-private mockable-funcall? [thing]
+(defn- #^:tested-private mockable-funcall? [x]
   (let [constructor? (fn [symbol]
                        (.endsWith (name symbol) "."))
         special-forms '[quote fn let new]
@@ -251,8 +251,8 @@
                                            (some #{symbol} checker-makers)
                                            (constructor? symbol)
                                            (checker? (resolve symbol)))))]
-    (and (list? thing)
-      (mockable-function-symbol? (first thing)))))
+    (and (list? x)
+      (mockable-function-symbol? (first x)))))
 
 (letfn [(fake-form-funcall-arglist [[fake funcall => value & overrides :as _fake-form_]]
           (rest funcall))]

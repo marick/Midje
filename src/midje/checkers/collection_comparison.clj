@@ -13,7 +13,7 @@
 ;; There is an annoying only-semi-similarity between maps and sequences.
 ;; These are the generic functions.
 
-(defn midje-classification [thing] (if (map? thing) ::map ::not-map))
+(defn midje-classification [x] (if (map? x) ::map ::not-map))
 
 (defmulti #^:private collection-string
   "Given a list of stringified elements, convert them into appropriate
