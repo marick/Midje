@@ -46,9 +46,7 @@
   (if (not-any? inexact-checker? expected)
     nil
     [(str "      It matched: "
-       (collection-string midje-classification
-         (map element-maker
-           (:expected-found comparison)))
+       (->> comparison :expected-found (map element-maker) (collection-string midje-classification))
        suffix
        ".")])) ]
 
@@ -56,11 +54,10 @@
     (best-expected-match-wrapper midje-classification
       comparison
       expected
-      #(cond (named-function? %)
-         (function-name %)
-  
-         :else
-         (pr-str %))
+      (fn [item]
+        (if (named-function? item)
+          (function-name item)
+          (pr-str item)))
       " (in that order)"))
   
   (defmethod best-expected-match ::map [midje-classification comparison expected]
@@ -98,7 +95,7 @@
           ;; #{:gaps-ok :in-any-order}."
           [actual expected looseness]
           (let [starting-candidate (assoc (base-starting-candidate expected) :expected-skipped-over [])
-                gaps-ok? (some #{:gaps-ok} looseness)]
+                gaps-ok? (some (partial = :gaps-ok) looseness)]
             (loop [walking-actual   actual
                    walking-expected expected
                    best-so-far      starting-candidate
@@ -171,7 +168,7 @@
   (defmulti compare-results
     (fn [actual expected looseness]
       (if (= ::map (midje-classification actual))
-        (midje-classification actual)
+        ::map
         [::not-map (or (some #{:in-any-order} looseness) :strict-order)])))
 
   (defmethod compare-results ::map [actual expected looseness]
@@ -194,7 +191,7 @@
   (defmethod compare-results [::not-map :strict-order]
     [actual expected looseness]
     (let [starting-candidate (base-starting-candidate expected)
-          gaps-ok? (some #{:gaps-ok} looseness)]
+          gaps-ok? (some (partial = :gaps-ok) looseness)]
   
       ;; This embeds two loops. walking-actual controls the inner loop. It walks
       ;; until success or it hits a mismatch. actual controls the outer loop.

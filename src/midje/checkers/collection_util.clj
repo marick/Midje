@@ -3,6 +3,9 @@
         [midje.checkers.extended-equality :only [extended-fn?]]
         [midje.checkers.chatty :only [as-chatty-falsehood]]))
 
+(defn same-lengths? [actual expected]
+  (= (count actual) (count expected)))
+
 (defn inexact-checker?
   "Can the checker potentially match non-unique elements
    in a seq? (Ex: regex #'a+' can match 'a' and 'aa'.)"
@@ -11,10 +14,9 @@
       (regex? checker)))
 
 (defn total-match?
-  "Have all the expected elements have been discovered?"
+  "Have all the expected elements been discovered?"
   [comparison]
-  (= (count (:expected-found comparison))
-     (count (:expected comparison))))
+  (same-lengths? (:expected-found comparison) (:expected comparison)))
 
 (letfn [(closer-match?
          ;; Did the candidate match more expected elements than before?
@@ -34,9 +36,6 @@
   "The kind of thing that, in (contains X), means (contains [X])"
   [x]
   (or (not (coll? x)) (map? x)))
-
-(defn same-lengths? [actual expected]
-  (= (count actual) (count expected)))
 
 (defn expected-fits?
   "Could expected fit as a subsequence of actual?"
