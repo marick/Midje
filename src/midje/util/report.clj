@@ -23,15 +23,16 @@
 (defn note-failure-in-fact
   ([] (note-failure-in-fact true))
   ([val] (alter-var-root #'*failure-in-fact* (constantly val))))
-(defn fact-begins []
-  (note-failure-in-fact false))
-(defn fact-checks-out? [] (not *failure-in-fact*))
-
 
 (defn form-providing-friendly-return-value [test-form]
-  `(do (fact-begins)
+  `(letfn [(fact-begins# []
+            (note-failure-in-fact false))
+           (fact-checks-out?# [] 
+             (not *failure-in-fact*))]
+     (do 
+       (fact-begins#)
        ~test-form
-       (fact-checks-out?)))
+       (fact-checks-out?#))))
 
 (defn midje-position-string [[filename line-num]]
   (format "(%s:%s)" filename line-num))
