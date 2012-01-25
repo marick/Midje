@@ -6,7 +6,8 @@
         [midje.internal-ideas.fakes]
         [midje.internal-ideas.fact-context :only [nested-fact-description]]
         [midje.ideas.background :only [background-fakes]]
-        [midje.util laziness report]
+        midje.util.laziness
+        midje.internal-ideas.report
         [midje.checkers.extended-equality :only [extended-=]]
         [midje.checkers.chatty :only [chatty-checker?]]
         [midje.error-handling.exceptions :only [captured-throwable]]

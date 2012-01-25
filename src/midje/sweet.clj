@@ -20,7 +20,7 @@
                                   future-fact-variant-names]])
   (:require [midje.ideas.background :as background]
             midje.checkers
-            [midje.util.report :as report]))
+            [midje.internal-ideas.report :as report]))
 
 (immigrate 'midje.unprocessed)
 (immigrate 'midje.semi-sweet)

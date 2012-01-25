@@ -28,7 +28,7 @@
         [midje.util.zip :only [skip-to-rightmost-leaf]]
         [midje.error-handling.validation-errors :only [when-valid]])
   (:require [clojure.zip :as zip])
-  (:require [midje.util.report :as report]))
+  (:require [midje.internal-ideas.report :as report]))
 (declare midjcoexpand)
 
 (defn fact? [form]
