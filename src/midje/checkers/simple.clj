@@ -27,7 +27,7 @@
 (def FALSEY falsey)
 
 (defchecker anything
-  "Accepts any value"
+  "Accepts any value."
   [actual]
   (not (captured-throwable? actual)))
 (def irrelevant anything)
@@ -57,7 +57,17 @@
 
 ;; Concerning Throwables
 
-(defmulti throws (fn [& args]
+(defmulti throws
+  "Checks for a thrown Throwable. Argumentss can occur in any order and 
+   in any number, except for the specified Throwable class: 
+   messages (or regexes), predicates, or 0 or 1 Throwable classes.
+   
+   Ex. (fact (foo) => (throws IllegalArgumentException 
+                              #(= bar (.getCause %))  
+                              #(= baz (.getLocalizedMessage %))  
+                              #\"^An exception described as: \"
+                              #\"was thrown.$\"  ))"
+  (fn [& args]
                    (set (for [arg args]
                           (pred-cond arg
                             fn?                        :predicate
