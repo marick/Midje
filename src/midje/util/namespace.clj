@@ -31,3 +31,8 @@
         (if (.hasRoot var)
           (intern *ns* sym (var-root var))
           (intern *ns* sym))))))
+
+(defn intern+keep-meta [ns sym v]
+  (intern ns sym v)
+  (let [newguy (get (ns-interns ns) sym)]
+    (alter-meta! newguy merge (meta v))))

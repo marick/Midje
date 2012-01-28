@@ -41,8 +41,8 @@
 
   (defmacro before 
     "Code to run before a given wrapping target (:facts, :contents, :checks).
-     Can take an optional keyword argument :after, for any code to run afterward.
-     Used with background and against-background"
+  Can take an optional keyword argument :after, for any code to run afterward.
+  Used with background and against-background"
     [wrapping-target before-form & {:keys [after]}]
     (ensure-correct-form-variable `(try
                                      ~before-form
@@ -51,20 +51,20 @@
 
   (defmacro after 
     "Code to run after a given wrapping target (:facts, :contents, :checks).
-     Used with background and against-background"
+  Used with background and against-background"
     [wrapping-target after-form]
     (ensure-correct-form-variable `(try ?form (finally ~after-form))))
 
   (defmacro around 
     "Code to run around a given wrapping target (:facts, :contents, :checks).
-     Use the symbol '?form' tp denote the code that is being wrapped around.
+  Use the symbol '?form' tp denote the code that is being wrapped around.
      
-     Ex.
-     (around :contents (let [a 999] 
-                         ?form
-                         (print a))) 
+  Ex.
+  (around :contents (let [a 999] 
+                      ?form
+                      (print a))) 
      
-     Used with background and against-background"
+  Used with background and against-background"
     [wrapping-target around-form]
     (ensure-correct-form-variable around-form)))
 

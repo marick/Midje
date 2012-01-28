@@ -6,7 +6,7 @@
             graciousness."}
   midje.sweet
   (:use clojure.test
-        [midje.util.namespace :only [immigrate]]
+        [midje.util.namespace :only [immigrate intern+keep-meta]]
         midje.production-mode
         midje.error-handling.exceptions
         midje.error-handling.validation-errors
@@ -28,9 +28,9 @@
 ;; Following is required because `intern` doesn't transfer "dynamicity".
 (def #^:dynamic *include-midje-checks* *include-midje-checks*)
 
-(intern *ns* 'before #'background/before)
-(intern *ns* 'after #'background/after)
-(intern *ns* 'around #'background/around)
+(intern+keep-meta *ns* 'before #'background/before)
+(intern+keep-meta *ns* 'after #'background/after)
+(intern+keep-meta *ns* 'around #'background/around)
 
 (defmacro background 
   "Runs facts against setup code which is run before, around, or after 
