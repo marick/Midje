@@ -3,7 +3,10 @@
 (ns ^{:doc "Various ways to define checkers."}
   midje.checkers.defining)
 
-(defn as-checker [function]
+(defn as-checker
+  "Turns an already existing function into a checker. Checkers can be used 
+   to check fact results, as well as prerequisite calls."
+  [function]
   (vary-meta function assoc :midje/checker true))
 
 (letfn [(make-checker-definition [checker-name docstring attr-map arglists arglists+bodies]
@@ -29,7 +32,7 @@
 
   (defmacro defchecker
     "Like defn, but tags the variable created and the function it refers to
-     as checkers."
+     as checkers. Checkers can be used to check fact results, as well as prerequisite calls."
     [checker-name & stuff]
     (cond 
       (and (string? (first stuff)) (map? (second stuff)))
@@ -44,7 +47,10 @@
       :else
       (working-with-arglists+bodies checker-name nil {} stuff))))
 
-(defmacro checker [args & body]
+(defmacro checker
+  "Creates an anonymous function tagged as a checker. Checkers can be used 
+   to check fact results, as well as prerequisite calls."
+  [args & body]
   `(as-checker (fn ~(vec args) ~@body)))
 
 (defn checker? [item]
