@@ -15,6 +15,9 @@
                                 (map #(str "midje.sweet/" %) base-names))]
     ( (set (concat base-names qualified-names)) (str node))))
 
+(defn is-semi-sweet-keyword? [loc]
+  (matches-symbols-in-semi-sweet-or-sweet-ns? '(expect fake not-called data-fake) loc))
+
 (defn immigrate
   "Create a public var in this namespace for each public var in the
   namespaces named by ns-names. The created vars have the same name, root

@@ -294,14 +294,6 @@
                                    :description "about =future=> - (+ 1 \"3\")" }))))
 
 
-(fact "can identify semi-sweet keywords"
-  (doseq [skippable '(expect midje.semi-sweet/expect
-                             fake midje.semi-sweet/fake
-                             data-fake midje.semi-sweet/data-fake)]
-    (let [z (zip/seq-zip `(111 (~skippable 1 2 '(3)) "next"))
-          skippable (-> z zip/down zip/next zip/down)]
-      skippable => is-semi-sweet-keyword?)))
-
 
 (defmacro some-macro [arg] `(+ 100 200 ~arg))
 

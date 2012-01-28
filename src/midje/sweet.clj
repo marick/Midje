@@ -97,7 +97,7 @@
     (when-valid &form
       (with-meta `(fact ~@forms) (meta &form)))))
 
-(defmacro #^:private generate-future-fact-variants []
+(defmacro ^{:private true} generate-future-fact-variants []
   (macro-for [name future-fact-variant-names]
     `(defmacro ~(symbol name)
        "Fact that will not be run. Generates 'WORK TO DO' report output as a reminder."

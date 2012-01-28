@@ -13,15 +13,11 @@
         [midje.util debugging form-utils namespace]
         [midje.error-handling validation-errors semi-sweet-validations]
         [midje.error-handling.exceptions :only [user-error]]
+        [midje.util.namespace :only [is-semi-sweet-keyword?]]
         [midje.production-mode]
         [clojure.pprint]))
 (immigrate 'midje.unprocessed)
 (immigrate 'midje.ideas.arrow-symbols)
-
-;;; Misc
-
-(defn is-semi-sweet-keyword? [loc]
-  (matches-symbols-in-semi-sweet-or-sweet-ns? '(expect fake not-called data-fake) loc))
 
 ;;; Conversions to unprocessed form
 
@@ -107,7 +103,7 @@
 ;;; Interface: production mode
 
 (defonce
-  #^{:doc "True by default.  If set to false, Midje checks are not
+  ^{:doc "True by default.  If set to false, Midje checks are not
      included into production code, whether compiled or loaded."
      :dynamic true}
   *include-midje-checks* true)
