@@ -169,7 +169,8 @@
                   actual))))
 
 (defchecker n-of 
-  "Can check if a sequence contains precisely n results, that all match the checker.
+  "Checks whether a sequence contains precisely n results, and 
+   that they each match the checker.
   
   Ex. (fact (repeat 100 :a) => (n-of :a 100))"
   [expected expected-count]
@@ -180,10 +181,10 @@
 (defmacro #^:private generate-n-of-checkers []
   (macro-for [[num num-word] [[1 "one"] [2 "two"] [3 "three"] [4 "four"] [5 "five"]
                               [6 "six"] [7 "seven"] [8 "eight"] [9 "nine"] [10 "ten"]]]
-    (let [name (symbol (str num-word "-of"))
-          docstring (str "Can check if a sequence contains precisely n results, that all match the checker.
+    (let [name (symbol (str num-word "-of"))                                                                 
+          docstring (cl-format nil "Checks whether a sequence contains precisely ~R result~:[s, and \n  that they each match~;, and \n  that it matches~] the checker.
   
-   Ex. (fact " (vec (repeat num :a )) " => (" name " :a))")]
+   Ex. (fact ~A => (~C :a))" num (= num 1) (vec (repeat num :a )) name)]
       `(defchecker ~name ~docstring [expected-checker#]
          (n-of expected-checker# ~num)))))
 
