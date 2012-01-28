@@ -40,9 +40,9 @@
     (to-semi-sweet form) => form))
 
 ;; invalid if fact form is too short 
-(causes-validation-error #"Looks like you forgot to fill in your fact form"
+(causes-validation-error #"There is no arrow in your fact form"
   (fact))
-(causes-validation-error #"Looks like you forgot to fill in your facts form" 
+(causes-validation-error #"There is no arrow in your facts form" 
   (facts 1))
-(causes-validation-error #"Looks like you forgot to fill in your fact form" 
+(causes-validation-error #"There is no arrow in your fact form" 
   (fact "vector fact" [1 2 3 4] (contains 3)))

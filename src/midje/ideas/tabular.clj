@@ -74,16 +74,17 @@
     (let [[[description? & _] [fact-form & table]] (split-with string? form)
           [headings-row values] (headings-rows+values table locals)]
       (cond (empty? table)
-        (simple-report-validation-error form
-          "There's no table. (Misparenthesized form?)")
-
-        (empty? values)
-        (simple-report-validation-error form
-          "It looks like the table has headings, but no values:")
-
-        (empty? headings-row)
-        (simple-report-validation-error form
-          "It looks like the table has no headings, or perhaps you"
-          "tried to use a non-literal string for the doc-string?:")
-
-        :else [description? fact-form table]))))
+            (simple-report-validation-error form
+              "There's no table. (Misparenthesized form?)")
+        
+            (empty? values)
+            (simple-report-validation-error form
+              "It looks like the table has headings, but no values:")
+        
+            (empty? headings-row)
+            (simple-report-validation-error form
+              "It looks like the table has no headings, or perhaps you"
+              "tried to use a non-literal string for the doc-string?:")
+        
+            :else 
+            [description? fact-form table]))))

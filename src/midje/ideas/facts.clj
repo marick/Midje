@@ -107,7 +107,7 @@
           (let [named-form-leaves (map name (filter named? (flatten (rest form))))]
             (if (not-any? expect-arrows named-form-leaves)
               (simple-report-validation-error form
-                (format "Looks like you forgot to fill in your %s form:" (name fact)))
+                (format "There is no arrow in your %s form:" (name fact)))
               (rest form))))]
   
   (defmethod validate "fact" [form] 
