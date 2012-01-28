@@ -59,7 +59,7 @@
     "Code to run around a given wrapping target (:facts, :contents, :checks).
      Use the symbol '?form' tp denote the code that is being wrapped around.
      
-     ex.
+     Ex.
      (around :contents (let [a 999] 
                          ?form
                          (print a))) 

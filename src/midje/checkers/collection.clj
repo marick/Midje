@@ -156,24 +156,35 @@
                                                (count expected)
                                                (count actual)))))))))
                             
-(defchecker has [quantifier predicate]
+(defchecker has 
+  "You can apply Clojure's quantification functions (every?, some, and so on) 
+   to all the values of sequence.
+   
+   Ex. (fact (f) => (has every? odd?))"
+  [quantifier predicate]
   (checker [actual]
     (quantifier predicate
                 (if (map? actual)
                   (vals actual)
                   actual))))
 
-;; These are used in some internal tests. Worth publicizing?
-
-(defchecker n-of [expected expected-count]
+(defchecker n-of 
+  "Can check if a sequence contains precisely n results, that all match the checker.
+  
+  Ex. (fact (repeat 100 :a) => (n-of :a 100))"
+  [expected expected-count]
   (chatty-checker [actual]
     (and (= (count actual) expected-count)
          (every? #(extended-= % expected) actual))))
 
 (defmacro #^:private generate-n-of-checkers []
-  (macro-for [[int checker-name] [[1 "one"] [2 "two"] [3 "three"] [4 "four"] [5 "five"]
-                                  [6 "six"] [7 "seven"] [8 "eight"] [9 "nine"] [10 "ten"]]]
-    `(defchecker ~(symbol (str checker-name "-of")) [expected-checker#]
-       (n-of expected-checker# ~int))))
+  (macro-for [[num num-word] [[1 "one"] [2 "two"] [3 "three"] [4 "four"] [5 "five"]
+                              [6 "six"] [7 "seven"] [8 "eight"] [9 "nine"] [10 "ten"]]]
+    (let [name (symbol (str num-word "-of"))
+          docstring (str "Can check if a sequence contains precisely n results, that all match the checker.
+  
+   Ex. (fact " (vec (repeat num :a )) " => (" name " :a))")]
+      `(defchecker ~name ~docstring [expected-checker#]
+         (n-of expected-checker# ~num)))))
 
 (generate-n-of-checkers)
