@@ -123,39 +123,103 @@
                                   "A collection with ~R element~:P cannot match a ~A of size ~R."
                                   (count actual) x-name (count expected))))))))]
 
-  (def ^{:midje/checker true} has-prefix
+  (def ^{:midje/checker true
+         :doc "Checks that the actual result starts with the expected result:
+
+  [1 2 3] => (has-prefix   [1 2]) ; true
+  [1 2 3] => (has-prefix   [2 1]) ; false - order matters
+  [1 2 3] => (has-prefix   [2 1] :in-any-order) ; true
+  [1 2 3] => (has-prefix  #{2 1}) ; true "}
+    has-prefix
     (container-checker-maker 'has-prefix
       (has-xfix "prefix" #(re-pattern (str "^" %)) take)))
 
-  (def ^{:midje/checker true} has-suffix
+  (def ^{:midje/checker true
+         :doc "Checks that the actual result ends with the expected result:
+
+  [1 2 3] => (has-suffix   [2 3]) ; true
+  [1 2 3] => (has-suffix   [3 2]) ; false - order matters
+  [1 2 3] => (has-suffix   [3 2] :in-any-order) ; true
+  [1 2 3] => (has-suffix  #{3 2}) ; true "}
+    has-suffix
     (container-checker-maker 'has-suffix
       (has-xfix "suffix" #(re-pattern (str % "$")) take-last)))
 
 
-  (def ^{:midje/checker true} contains (container-checker-maker 'contains
-                                         (fn [actual expected looseness]
-                                           (let [ [actual expected looseness] (standardized-arguments actual expected looseness)]
-                                             (cond (regex? expected)
-                                               (try-re expected actual re-find)
+  (def ^{:midje/checker true
+         :doc "Checks that the expected result is a subsequence of the actual result:
 
-                                               :else
-                                               (match? actual expected looseness))))))
+To succeed, f's result must be (1) contiguous and (2) in the 
+same order as in the contains clause. Here are examples:
 
-  (def ^{:midje/checker true} just (container-checker-maker 'just
-                                     (fn [actual expected looseness]
-                                       (let [ [actual expected looseness] (standardized-arguments actual expected looseness)]
-                                         (cond (regex? expected)
-                                           (try-re expected actual re-matches)
+   [3 4 5 700]   => (contains [4 5 700]) ; true
+   [4 700 5]     => (contains [4 5 700]) ; false
+   [4 5 'hi 700] => (contains [4 5 700]) ; false
 
-                                           (same-lengths? actual expected)
-                                           (match? actual expected looseness)
+The :in-any-order modifier loosens the second requirement:
 
-                                           :else
-                                           (noted-falsehood
-                                             (cl-format nil "Expected ~R element~:P. There ~[were~;was~:;were~]~:* ~R."
-                                               (count expected)
-                                               (count actual)))))))))
-                            
+   ['hi 700 5 4] => (contains [4 5 700] :in-any-order) ; true
+   [4 5 'hi 700] => (contains [4 5 700] :in-any-order) ; false b/c 'hi is in middle
+
+The :gaps-ok modifier loosens the first:
+
+   [4 5 'hi 700]  => (contains [4 5 700] :gaps-ok) ; true
+   [4 700 'hi' 5] => (contains [4 5 700] :gaps-ok) ; false b/c of bad order
+
+The two modifiers can be used at the same time:
+
+   [4 700 5]         => (contains [4 5 700] :gaps-ok :in-any-order) ; true
+   [4 5 'hi 700]     => (contains [4 5 700] :in-any-order :gaps-ok) ; true
+   [700 'hi 4 5 'hi] => (contains [4 5 700] :in-any-order :gaps-ok) ; true
+
+Another way to indicate :in-any-order is to describe 
+what's contained by a set. The following two are equivalent:
+
+   [700 4 5] => (contains [4 5 700] :in-any-order)
+   [700 4 5] => (contains #{4 5 700})
+
+:gaps-ok can be used with a set. (So can :in-any-order, but it has no effect.)"}
+    contains (container-checker-maker 'contains
+               (fn [actual expected looseness]
+                 (let [[actual expected looseness] (standardized-arguments actual expected looseness)]
+                   (cond (regex? expected)
+                     (try-re expected actual re-find)
+
+                     :else (match? actual expected looseness))))))
+
+  (def ^{:midje/checker true
+         :doc "A variant of contains, just, will fail if the 
+left-hand-side contains any extra values:   
+   [1 2 3] => (just [1 2 3])  ; true
+   [1 2 3] => (just [1 2 3 4]) ; false
+
+The first of those seems senseless, since you could just use this:
+
+   [1 2 3] => [1 2 3]
+
+However, it's required if you want to use checkers in the expected result:
+
+   [1 2 3] => [odd? even? odd?]  ; false b/c 2nd-level fns aren't normally treated as checkers.
+   [1 2 3] => (just [odd? even? odd?]) ; true
+
+just is also useful if you don't care about order:
+
+  [1 3 2] => (just   [1 2 3] :in-any-order)
+  [1 3 2] => (just  #{1 2 3})"}
+    just (container-checker-maker 'just
+           (fn [actual expected looseness]
+             (let [[actual expected looseness] (standardized-arguments actual expected looseness)]
+               (cond (regex? expected)
+                 (try-re expected actual re-matches)
+
+                 (same-lengths? actual expected)
+                 (match? actual expected looseness)
+
+                 :else (noted-falsehood
+                         (cl-format nil "Expected ~R element~:P. There ~[were~;was~:;were~]~:* ~R."
+                           (count expected)
+                           (count actual)))))))))
+
 (defchecker has 
   "You can apply Clojure's quantification functions (every?, some, and so on) 
    to all the values of sequence.
