@@ -219,7 +219,7 @@
 
   "mocked function argument matching uses function-aware equality"
   (expect (function-under-test 1 "floob" even?) => even?
-          (fake (mocked-function odd-checker anything (exactly even?)) => 44)))
+          (fake (mocked-function odd-checker irrelevant (exactly even?)) => 44)))
 
 (defn actual-plus-one-is-greater-than [expected]
   (chatty-checker [actual] (> (inc actual) expected)))

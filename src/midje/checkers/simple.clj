@@ -9,7 +9,7 @@
   	[midje.checkers.util :only [named-as-call]]
   	[midje.error-handling.exceptions :only [captured-throwable?]]
     [midje.util.ecosystem :only [clojure-1-3? +M -M *M]]
-    [midje.util.form-utils :only [pred-cond regex? def-many-methods]]
+    [midje.util.form-utils :only [defalias def-many-methods pred-cond regex?]]
     [midje.util.backwards-compatible-utils :only [every-pred-m some-fn-m]])
   (:import [midje.error_handling.exceptions ICapturedThrowable]))
 
@@ -18,19 +18,19 @@
   [actual] 
   (and (not (captured-throwable? actual))
        (not (not actual))))
-(def TRUTHY truthy)
+(defalias TRUTHY truthy)
 
 (defchecker falsey 
   "Returns precisely true if actual is nil or false."
   [actual] 
   (not actual))
-(def FALSEY falsey)
+(defalias FALSEY falsey)
 
 (defchecker anything
   "Accepts any value."
   [actual]
   (not (captured-throwable? actual)))
-(def irrelevant anything)
+(defalias irrelevant anything)
 
 (defchecker exactly
   "Checks for equality. Use to avoid default handling of functions."

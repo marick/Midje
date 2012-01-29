@@ -11,7 +11,7 @@
         midje.error-handling.exceptions
         midje.error-handling.validation-errors
         midje.util.debugging
-        [midje.util.form-utils :only [macro-for]]
+        [midje.util.form-utils :only [defalias macro-for]]
         [midje.internal-ideas.wrapping :only [put-wrappers-into-effect]]
         [midje.internal-ideas.fact-context :only [nested-fact-description]]
         [midje.internal-ideas.file-position :only [set-fallback-line-number-from]]
@@ -25,8 +25,7 @@
 (immigrate 'midje.unprocessed)
 (immigrate 'midje.semi-sweet)
 
-;; Following is required because `intern` doesn't transfer "dynamicity".
-(def #^:dynamic *include-midje-checks* *include-midje-checks*)
+(defalias *include-midje-checks* *include-midje-checks*)
 
 (intern+keep-meta *ns* 'before #'background/before)
 (intern+keep-meta *ns* 'after #'background/after)

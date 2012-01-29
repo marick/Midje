@@ -273,7 +273,7 @@
  (fact
    (called 45) => 3
    (provided
-     (called anything) => 1 :times 0))
+     (called irrelevant) => 1 :times 0))
  (fact @reported => (contains (contains {:type :mock-incorrect-call-count
                                          :actual-count 1}))))
     
