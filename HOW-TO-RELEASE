@@ -3,7 +3,7 @@ manual.
 
 
 * Update HISTORY
-* do the THINGS TO CHECK BEFORE DEPLOYING (below)
+* Do the THINGS TO CHECK BEFORE DEPLOYING (below)
 * Run configuration tests (HOW-TO-CONFIGURATION-TEST
   with midje-version set to a non-snapshot value.
   (Note that this uploads.)
@@ -25,11 +25,15 @@ manual.
 
 THINGS TO CHECK BEFORE DEPLOYING:
 * uncomment the `:warn-on-reflection true` line in project.clj, and run `lein midje`
-  to check for any reflection warning inadvertently added.  *there will be warnings from
+  to check for any reflection warning inadvertently added. (there will be warnings from
   libraries we use that we cannot remove)
  
 * Check for any public vars w/ no docstrings: 
   (map str (remove (comp :doc meta) (vals (ns-publics 'midje.sweet)))) 
   (pp)
   
-  Add any that were left blank.
+  Add docstrings to those that were left blank.
+  
+* Check for any public vars that shouldn't be visible to users. Hide them.
+  (map str (vals (ns-publics 'midje.sweet))) 
+  (pp)
