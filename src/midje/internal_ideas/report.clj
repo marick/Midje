@@ -19,20 +19,24 @@
 ;;; true or false. It doesn't piggyback off clojure.test/*report-counters*
 ;;; partly because that's not normally initialized and partly to reduce
 ;;; dependencies.
+
 (def #^:dynamic #^:private *failure-in-fact* false)
+
 (defn note-failure-in-fact
   ([] (note-failure-in-fact true))
   ([val] (alter-var-root #'*failure-in-fact* (constantly val))))
 
+(defn- fact-begins []
+  (note-failure-in-fact false))
+
+(defn- fact-checks-out? []
+  (not *failure-in-fact*))
+
 (defn form-providing-friendly-return-value [test-form]
-  `(letfn [(fact-begins# []
-            (note-failure-in-fact false))
-           (fact-checks-out?# [] 
-             (not *failure-in-fact*))]
-     (do 
-       (fact-begins#)
-       ~test-form
-       (fact-checks-out?#))))
+  `(do 
+     (#'fact-begins)
+     ~test-form
+     (#'fact-checks-out?)))
 
 (defn midje-position-string [[filename line-num]]
   (format "(%s:%s)" filename line-num))

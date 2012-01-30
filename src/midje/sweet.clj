@@ -11,7 +11,7 @@
         midje.error-handling.exceptions
         midje.error-handling.validation-errors
         midje.util.debugging
-        [midje.util.form-utils :only [defalias macro-for]]
+        [midje.util.form-utils :only [macro-for]]
         [midje.internal-ideas.wrapping :only [put-wrappers-into-effect]]
         [midje.internal-ideas.fact-context :only [nested-fact-description]]
         [midje.internal-ideas.file-position :only [set-fallback-line-number-from]]
@@ -25,7 +25,11 @@
 (immigrate 'midje.unprocessed)
 (immigrate 'midje.semi-sweet)
 
-(defalias *include-midje-checks* *include-midje-checks*)
+;; Following is required because `intern` doesn't transfer "dynamicity".
+(def ^{:doc "True by default.  If set to false, Midje checks are not
+             included into production code, whether compiled or loaded."
+       :dynamic true}
+  *include-midje-checks* *include-midje-checks*)
 
 (intern+keep-meta *ns* 'before #'background/before)
 (intern+keep-meta *ns* 'after #'background/after)
