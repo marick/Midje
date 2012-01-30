@@ -58,21 +58,28 @@
 ;; Concerning Throwables
 
 (defmulti throws
-  "Checks for a thrown Throwable. Argumentss can occur in any order and 
-   in any number, except for the specified Throwable class: 
-   messages (or regexes), predicates, or 0 or 1 Throwable classes.
-   
-   Ex. (fact (foo) => (throws IllegalArgumentException 
-                              #(= bar (.getCause %))  
-                              #(= baz (.getLocalizedMessage %))  
-                              #\"^An exception described as: \"
-                              #\"was thrown.$\"  ))"
+  "Checks for a thrown Throwable.
+
+   The most common cases are:
+       (fact (foo) => (throws IOException)
+       (fact (foo) => (throws IOException #\"No such file\")
+
+   `throws` takes three kinds of arguments: 
+   * A class argument requires that the Throwable be of that class.
+   * A string or regular expression requires that the `message` of the Throwable
+     match the argument.
+   * A function argument requires that the function, when applied to the Throwable,
+     return a truthy value.
+
+   Arguments can be in any order. Except for a class argument, they can be repeated.
+   So, for example, you can write this:
+       (fact (foo) => (throws #\"one part\" #\"another part\"))"
   (fn [& args]
-                   (set (for [arg args]
-                          (pred-cond arg
-                            fn?                        :predicate
-                            (some-fn-m string? regex?) :message
-                            class?                     :throwable )))))
+    (set (for [arg args]
+           (pred-cond arg
+                      fn?                        :predicate
+                      (some-fn-m string? regex?) :message
+                      class?                     :throwable )))))
 
 (defmethod throws #{:message } [& expected-msgs]
   (checker [^ICapturedThrowable wrapped-throwable]
