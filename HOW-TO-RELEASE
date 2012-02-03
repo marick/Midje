@@ -27,10 +27,6 @@ THINGS TO CHECK BEFORE DEPLOYING:
 * uncomment the `:warn-on-reflection true` line in project.clj, and run `lein midje`
   to check for any reflection warning inadvertently added. (there will be warnings from
   libraries we use that we cannot remove)
- 
-* Check for any public vars w/ no docstrings: 
-  (map str (remove (comp :doc meta) (vals (ns-publics 'midje.sweet)))) 
-  (pp)
   
   Add docstrings to those that were left blank.
   

@@ -4,6 +4,11 @@
   (:use [midje.sweet])
   (:use [midje.test-util]))
 
+(fact "all of Midje's public, API-facing vars have docstrings"
+  (map str (remove (comp :doc meta) (vals (ns-publics 'midje.sweet)))) => []
+  (map str (remove (comp :doc meta) (vals (ns-publics 'midje.semi-sweet)))) => []
+  (map str (remove (comp :doc meta) (vals (ns-publics 'midje.unprocessed)))) => [])
+
 (after-silently ; failing
  (fact (+ 1 1) => 3)
  (fact @reported => (one-of bad-result)))
