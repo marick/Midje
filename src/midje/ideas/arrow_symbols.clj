@@ -33,6 +33,13 @@
         (provided (bar) =streams=> [1 2 3]))"} 
   =streams=> "=streams=>")
 
+(def ^{:doc "Prerequisite arrow. The fake will throw the Throwable on 
+  the right side of the arrow.
+
+  Ex. (def f [] (g))
+      (fact (f) => (throws IllegalArgumentException. \"boom\")
+        (provided (g) =throws=> (IllegalArgumentException. \"boom\")))"} 
+  =throws=> "=throws=>")
+
 (def ^{:doc "Use this when testing Midje code that processes arrow-forms"}
      =test=> "=test=>")
-

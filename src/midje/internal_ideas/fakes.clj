@@ -48,9 +48,9 @@
 
 (defmulti make-result-supplier (fn [arrow & _] arrow))
 
-(defmethod make-result-supplier => [arrow result] (constantly result))
+(defmethod make-result-supplier => [_arrow_ result] (constantly result))
 
-(defmethod make-result-supplier =streams=> [arrow result-stream]
+(defmethod make-result-supplier =streams=> [_arrow_ result-stream]
   (let [current-stream (atom result-stream)]
     (fn []
       (when (empty? @current-stream)
@@ -58,6 +58,12 @@
       (let [current-result (first @current-stream)]
         (swap! current-stream rest)
         current-result))))
+
+(defmethod make-result-supplier =throws=> [_arrow_ throwable]
+  (fn []
+    (when (not (instance? Throwable throwable))
+      (throw (user-error "Right side of =throws=> should extend Throwable.")))
+    (throw throwable)))
 
 (defmethod make-result-supplier :default [arrow result-stream]
   (throw (user-error "It's likely you misparenthesized your metaconstant prerequisite.")))

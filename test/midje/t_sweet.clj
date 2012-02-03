@@ -41,6 +41,18 @@
     (fact @reported => (just (contains {:type :mock-expected-result-failure
                                         :actual stream-overflow-exception? } )))))
 
+(letfn [(throws-arrow-exception? [captured-throwable]
+          (= "Right side of =throws=> should extend Throwable." (.getMessage (.throwable captured-throwable))))]
+
+  (after-silently ;; =throws=> gives sensible error when called without a Throwable
+    (fact
+      (two-numbers) => nil
+      (provided
+        (number) =throws=> [1]))
+  
+    (fact @reported => (just (contains {:type :mock-expected-result-failure
+                                        :actual throws-arrow-exception? } )))))
+
 
 (facts "this is a doc string"
   (+ 10 10) => 20
@@ -298,5 +310,14 @@
                                "some random return value"))
 (fact "a fact's return value is not affected by previous failures"
   *fact-retval* => true)
+
+
+(defn a [])
+(defn b [] (a))
+
+(fact "prerequisites can throw throwables"
+  (b) => (throws IllegalArgumentException "blammo")
+  (provided 
+    (a) =throws=> (IllegalArgumentException. "blammo")))
 
 

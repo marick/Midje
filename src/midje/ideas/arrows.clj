@@ -10,7 +10,7 @@
 ;; Arrow groupings
 
 (def expect-arrows #{=> =not=> =deny=> =future=> =expands-to=>})
-(def fake-arrows #{=> =contains=> =streams=>})
+(def fake-arrows #{=> =contains=> =streams=> =throws=>})
 (def all-arrows (union expect-arrows fake-arrows))
 
 

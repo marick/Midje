@@ -127,7 +127,7 @@
     (supplier) => 3))
 
 
-;;; Handling of default values for fakes
+;;; Handling of default values for fakes
 
 ;; In this example, one call to `internal` is faked and one is left alone.
 

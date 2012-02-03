@@ -58,29 +58,29 @@
         fake-2 (fake (faked-function 1 some-variable) => [1 some-variable])
         fake-streamed (fake (faked-function 0) =streams=> ['r1 'r2])]
 
-    "The basic parts"
-    (:lhs fake-0) => #'midje.t-semi-sweet/faked-function
-    (:call-text-for-failures fake-1) => "(faked-function some-variable)"
-    (deref (:count-atom fake-0)) => 0
+    (fact "The basic parts"
+      (:lhs fake-0) => #'midje.t-semi-sweet/faked-function
+      (:call-text-for-failures fake-1) => "(faked-function some-variable)"
+      (deref (:count-atom fake-0)) => 0)
 
-    "argument matching"
-    (count (:arg-matchers fake-0)) => 0
+    (fact "argument matching"
+      (count (:arg-matchers fake-0)) => 0)
 
-    "Note that lexical scoping is obeyed"
-    (count (:arg-matchers fake-1)) => 1
-    (apply-pairwise (:arg-matchers fake-1) [5] [nil]) => [[true] [false]]
-    (count (:arg-matchers fake-2)) => 2
-    (apply-pairwise (:arg-matchers fake-2) [5 5] [1 1]) => [  [false true]
-                                                              [true false] ]
+    (fact "Note that lexical scoping is obeyed"
+      (count (:arg-matchers fake-1)) => 1
+      (apply-pairwise (:arg-matchers fake-1) [5] [nil]) => [[true] [false]]
+      (count (:arg-matchers fake-2)) => 2
+      (apply-pairwise (:arg-matchers fake-2) [5 5] [1 1]) => [  [false true]
+                                                                [true false] ])
 
-    "Result supplied"
-    ((:result-supplier fake-0)) => 2
-    ((:result-supplier fake-1)) => (+ 2 some-variable)
-    ((:result-supplier fake-2)) => [1 some-variable]
+    (fact "Result supplied"
+      ((:result-supplier fake-0)) => 2
+      ((:result-supplier fake-1)) => (+ 2 some-variable)
+      ((:result-supplier fake-2)) => [1 some-variable])
 
-    "Streamed results"
-    ((:result-supplier fake-streamed)) => 'r1
-    ((:result-supplier fake-streamed)) => 'r2))
+    (fact "Streamed results"
+      ((:result-supplier fake-streamed)) => 'r1
+      ((:result-supplier fake-streamed)) => 'r2)))
 
 (facts "key-value arguments can override fakes"
   (let [fake (fake (faked-function) => 2 :position 33)]
@@ -104,87 +104,86 @@
 (defn no-caller [])
 
 (facts "about expect"
-  "success"
-  (after-silently 
-   (expect (+ 1 3) => 4)
-   @reported => (one-of pass))
+  (fact "success"
+    (after-silently 
+     (expect (+ 1 3) => 4)
+     @reported => (one-of pass)))
 
-  "There is a =not=> arrow."
-  (expect (+ 1 3) =not=> 5)
+  (fact "There is a =not=> arrow."
+    (expect (+ 1 3) =not=> 5))
 
-  "actual doesn't match expected"
-  (after-silently 
-   (expect (+ 1 3) => nil)
-   @reported => (just (contains {:type :mock-expected-result-failure
-                                 :actual 4
-                                 :expected nil})))
+  (fact "actual doesn't match expected"
+    (after-silently 
+     (expect (+ 1 3) => nil)
+     @reported => (just (contains {:type :mock-expected-result-failure
+                                   :actual 4
+                                   :expected nil}))))
 
-  "not-called in the first position"
-  (after-silently 
-   (expect (function-under-test) => 33
-           (not-called no-caller)
-           (fake (mocked-function) => 33))
-   @reported => (one-of pass))
+  (fact "not-called in the first position"
+    (after-silently 
+     (expect (function-under-test) => 33
+             (not-called no-caller)
+             (fake (mocked-function) => 33))
+     @reported => (one-of pass)))
 
-  "not-called in last position"
-  (after-silently 
-   (expect (function-under-test) => 33
-           (fake (mocked-function) => 33)
-           (not-called no-caller))
-   @reported => (one-of pass))
+  (fact "not-called in last position"
+    (after-silently 
+     (expect (function-under-test) => 33
+             (fake (mocked-function) => 33)
+             (not-called no-caller))
+     @reported => (one-of pass)))
 
-  "mocked calls go fine, but function under test produces the wrong result"
-  (after-silently
-   (expect (function-under-test 33) => 12
-           (fake (mocked-function 33) => (not 12) ))
-   @reported => (just (contains {:actual false
-                                 :expected 12})))
+  (fact "mocked calls go fine, but function under test produces the wrong result"
+    (after-silently
+     (expect (function-under-test 33) => 12
+             (fake (mocked-function 33) => (not 12) ))
+     @reported => (just (contains {:actual false
+                                   :expected 12}))))
 
-  "mock call supposed to be made, but wasn't (zero call count)"
-  (after-silently
-   (expect (no-caller) => "irrelevant"
-           (fake (mocked-function) => 33))
-   @reported => (just wrong-call-count bad-result))
+  (fact "mock call supposed to be made, but wasn't (zero call count)"
+    (after-silently
+     (expect (no-caller) => "irrelevant"
+             (fake (mocked-function) => 33))
+     @reported => (just wrong-call-count bad-result)))
 
-  "mock call was not supposed to be made, but was (non-zero call count)"
-  (after-silently
-   (expect (function-under-test 33) => "irrelevant"
-           (not-called mocked-function))
-   @reported => (just wrong-call-count bad-result))
+  (fact "mock call was not supposed to be made, but was (non-zero call count)"
+    (after-silently
+      (expect (function-under-test 33) => "irrelevant"
+              (not-called mocked-function))
+      @reported => (just wrong-call-count bad-result)))
 
-  "call not from inside function"
-  (after-silently 
-   (expect (+ (mocked-function 12) (other-function 12)) => 12
-           (fake (mocked-function 12) => 11)
-           (fake (other-function 12) => 1))
-   @reported => (just pass))
+  (fact "call not from inside function"
+    (after-silently 
+      (expect (+ (mocked-function 12) (other-function 12)) => 12
+              (fake (mocked-function 12) => 11)
+              (fake (other-function 12) => 1))
+      @reported => (just pass)))
 
-  "call that matches none of the expected arguments"
-  (after-silently
-   (expect (+ (mocked-function 12) (mocked-function 33)) => "result irrelevant because of earlier failure"
-           (fake (mocked-function 12) => "hi"))
-   ;; At the moment, this does not produce a :mock-argument-match-failure. What it does
-   ;; is call the "unfinished" function, which blows up, producing a `bad-result` (the exception
-   ;; object). That's not horrible, especially at the semi-sweet level, but it does suggest
-   ;; that the implementation of the sweet behavior (where an unfinished function produces
-   ;; an argument-match failure) is fragile.
-   @reported =future=> (just (contains {:type :mock-argument-match-failure :actual '(33)})
-                      bad-result))
+  (fact "call that matches none of the expected arguments"
+    (after-silently
+      (expect (+ (mocked-function 12) (mocked-function 33)) => "result irrelevant because of earlier failure"
+              (fake (mocked-function 12) => "hi"))
+     ;; At the moment, this does not produce a :mock-argument-match-failure. What it does
+     ;; is call the "unfinished" function, which blows up, producing a `bad-result` (the exception
+     ;; object). That's not horrible, especially at the semi-sweet level, but it does suggest
+     ;; that the implementation of the sweet behavior (where an unfinished function produces
+     ;; an argument-match failure) is fragile.
+     @reported =future=> (just (contains {:type :mock-argument-match-failure :actual '(33)})
+                        bad-result)))
 
-  "failure because one variant of multiply-mocked function is not called"
-  (after-silently 
-   (expect (+ (mocked-function 12) (mocked-function 22)) => 3
-           (fake (mocked-function 12) => 1)
-           (fake (mocked-function 22) => 2)
-           (fake (mocked-function 33) => 3))
-   @reported => (just (contains {:type :mock-incorrect-call-count
-                                 :expected-call "(mocked-function 33)" })
-                      pass)) ; Right result, but wrong reason.
+  (fact "failure because one variant of multiply-mocked function is not called"
+    (after-silently 
+     (expect (+ (mocked-function 12) (mocked-function 22)) => 3
+             (fake (mocked-function 12) => 1)
+             (fake (mocked-function 22) => 2)
+             (fake (mocked-function 33) => 3))
+     @reported => (just (contains {:type :mock-incorrect-call-count
+                                   :expected-call "(mocked-function 33)" })
+                        pass))) ; Right result, but wrong reason.
 
-  "multiple calls to a mocked function are perfectly fine"
-  (expect (+ (mocked-function 12) (mocked-function 12)) => 2
-          (fake (mocked-function 12) => 1) )
-  )
+  (fact "multiple calls to a mocked function are perfectly fine"
+    (expect (+ (mocked-function 12) (mocked-function 12)) => 2
+            (fake (mocked-function 12) => 1) )))
 
 
 (facts "about overriding values in an expect"
@@ -209,37 +208,37 @@
     
 
 (facts "about checkers"
-  "expected results can be functions"
-  (expect (+ 1 1) => even?)
+  (fact "expected results can be functions"
+    (expect (+ 1 1) => even?))  
 
-  "exact function matches can be checked with exactly"
-  (let [myfun (constantly 33)
-        funs [myfun]]
-    (expect (first funs) => (exactly myfun)))
+  (fact "exact function matches can be checked with exactly"
+    (let [myfun (constantly 33)
+          funs [myfun]]
+      (expect (first funs) => (exactly myfun))))
 
-  "mocked function argument matching uses function-aware equality"
-  (expect (function-under-test 1 "floob" even?) => even?
-          (fake (mocked-function odd-checker irrelevant (exactly even?)) => 44)))
+  (fact "mocked function argument matching uses function-aware equality"
+    (expect (function-under-test 1 "floob" even?) => even?
+            (fake (mocked-function odd-checker irrelevant (exactly even?)) => 44))))
 
 (defn actual-plus-one-is-greater-than [expected]
   (chatty-checker [actual] (> (inc actual) expected)))
 
-(fact "expect can also use chatty checkers"
-  "chatty failures provide extra information"
-  (after-silently
-   (expect (+ 1 1) => (actual-plus-one-is-greater-than 33))
-   @reported => (just (contains {:type :mock-expected-result-functional-failure
-                                 :actual 2
-                                 :intermediate-results [ [ '(inc actual) 3 ] ]
-                                 :expected '(actual-plus-one-is-greater-than 33)})))
+(facts "expect can also use chatty checkers"
+  (fact "chatty failures provide extra information"
+    (after-silently
+     (expect (+ 1 1) => (actual-plus-one-is-greater-than 33))
+     @reported => (just (contains {:type :mock-expected-result-functional-failure
+                                   :actual 2
+                                   :intermediate-results [ [ '(inc actual) 3 ] ]
+                                   :expected '(actual-plus-one-is-greater-than 33)}))))
 
-  "chatty checkers can be used anonymously, like functions"
-  (after-silently 
-   (expect (+ 1 1) => (chatty-checker [actual] (> (inc actual) 33)))
-   @reported => (just (contains {:type :mock-expected-result-functional-failure
-                                 :actual 2
-                                 :intermediate-results [ [ '(inc actual) 3 ] ]
-                                 :expected '(chatty-checker [actual] (> (inc actual) 33))}))))
+  (fact "chatty checkers can be used anonymously, like functions"
+    (after-silently 
+     (expect (+ 1 1) => (chatty-checker [actual] (> (inc actual) 33)))
+     @reported => (just (contains {:type :mock-expected-result-functional-failure
+                                   :actual 2
+                                   :intermediate-results [ [ '(inc actual) 3 ] ]
+                                   :expected '(chatty-checker [actual] (> (inc actual) 33))})))))
 
 (declare chatty-prerequisite)
 (defn chatty-fut [x] (chatty-prerequisite x))
