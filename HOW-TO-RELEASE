@@ -28,8 +28,6 @@ THINGS TO CHECK BEFORE DEPLOYING:
   to check for any reflection warning inadvertently added. (there will be warnings from
   libraries we use that we cannot remove)
   
-  Add docstrings to those that were left blank.
-  
 * Check for any public vars that shouldn't be visible to users. Hide them.
   (map str (vals (ns-publics 'midje.sweet))) 
   (pp)
