@@ -3,4 +3,7 @@
   midje.cljs.t-basic
   (:use [midje.sweet]))
 
-(fact (doubler 5) => 10)
+(binding [*cljs-ns-under-test* 'midje.cljs.basic
+          *cljs-file-under-test* "midje/cljs/basic.cljs"]
+  (fact 
+    (doubler 5) => 10))

@@ -31,6 +31,14 @@
        :dynamic true}
   *include-midje-checks* *include-midje-checks*)
 
+(def ^{:doc "none yet"
+       :dynamic true}
+  *cljs-ns-under-test* *cljs-ns-under-test*)
+
+(def ^{:doc "none yet"
+       :dynamic true}
+  *cljs-file-under-test* *cljs-file-under-test*)
+
 (intern+keep-meta *ns* 'before #'background/before)
 (intern+keep-meta *ns* 'after #'background/after)
 (intern+keep-meta *ns* 'around #'background/around)
