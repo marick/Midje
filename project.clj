@@ -10,8 +10,7 @@
                  [colorize "0.1.1"]
                  [org.clojure/tools.macro "0.1.1"]
                  [org.clojure/core.incubator "0.1.0"]
-                 [clj-stacktrace-alex "0.2.5"]
-                 [org.clojure/clojurescript "0.0-927"]]
+                 [clj-stacktrace-alex "0.2.5"]]
 
   ;; TODO: Alex Jan 29, 2012 - figure out how to not duplicate these deps 
 
@@ -26,8 +25,7 @@
                      [colorize "0.1.1"]
                      [org.clojure/tools.macro "0.1.1"]
                      [org.clojure/core.incubator "0.1.0"]
-                     [clj-stacktrace-alex "0.2.5"]
-                     [org.clojure/clojurescript "0.0-927"]] }
+                     [clj-stacktrace-alex "0.2.5"]] }
   :dev-dependencies [[slamhound "1.2.0"]
                      [com.intelie/lazytest "1.0.0-SNAPSHOT" :exclusions [swank-clojure]]]
 
@@ -38,3 +36,5 @@
 
   ;; For Clojure snapshots
   :repositories {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"})
+
+

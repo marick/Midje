@@ -15,8 +15,7 @@
         [midje.error-handling.exceptions :only [user-error]]
         [midje.util.namespace :only [is-semi-sweet-keyword?]]
         [midje.production-mode]
-        [clojure.pprint])
-  (:require [midje.cljs :as cljs]))
+        [clojure.pprint]))
 (immigrate 'midje.unprocessed)
 (immigrate 'midje.ideas.arrow-symbols)
 
@@ -35,21 +34,13 @@
         =not=> :check-negated-match
         =deny=> :check-negated-match} (name arrow)))
 
-;; TODO: replace with getting these from the ns metadata
-(def cljs-ns-under-test 'midje.cljs.basic)
-(def cljs-file-under-test "midje/cljs/basic.cljs")
-
 (defmacro unprocessed-check
   "Creates a map that contains a function-ized version of the form being 
    tested, an expected result, and the file position to refer to in case of 
    failure. See 'expect*'."
   [call-form arrow expected-result overrides]
   `(merge
-    {:function-under-test (fn [] (if ~cljs-ns-under-test
-                                   (do
-                                     (cljs/load-file ~cljs-file-under-test) ; TODO: move this to only be run once for ns
-                                     (cljs/cljs-eval ~call-form ~cljs-ns-under-test))
-                                   ~call-form))
+    {:function-under-test (fn [] ~call-form)
      :expected-result ~expected-result
      :desired-check ~(check-for-arrow arrow)
      :expected-result-text-for-failures '~expected-result
