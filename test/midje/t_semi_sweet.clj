@@ -6,7 +6,7 @@
         [midje.util form-utils]
         [midje.test-util])
   (:require [clojure.zip :as zip]))
-(testable-privates midje.semi-sweet a-fake? check-for-arrow)
+(expose-testables midje.semi-sweet)
  
 (unfinished faked-function mocked-function other-function)
 

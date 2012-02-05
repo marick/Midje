@@ -10,7 +10,7 @@
   (:use [midje.production-mode :only [user-desires-checking?]]
         [midje.internal-ideas.fakes :only [implements-a-fake?]]))
 
-(defn- #^:tested-private implementation?
+(defn- #^:testable implementation?
   "Is this thing a protocol or a function definition?"
   [name-or-impl]
   (not (symbol? name-or-impl)))

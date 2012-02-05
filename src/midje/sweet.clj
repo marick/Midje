@@ -20,6 +20,7 @@
                                   future-fact-variant-names]])
   (:require [midje.ideas.background :as background]
             midje.checkers
+            [midje.test-util :as test-util]
             [midje.internal-ideas.report :as report]))
 
 (immigrate 'midje.unprocessed)
@@ -34,6 +35,14 @@
 (intern+keep-meta *ns* 'before #'background/before)
 (intern+keep-meta *ns* 'after #'background/after)
 (intern+keep-meta *ns* 'around #'background/around)
+
+(defmacro expose-testables
+  "Enables testing of vars in the target ns which have ^:testable metadata"
+  [target-ns]
+  (macro-for [testable-sym (for [[sym var] (ns-interns target-ns)
+                                 :when (:testable (meta var))]
+                              sym) ]
+    `(def ~testable-sym (intern '~target-ns '~testable-sym))))
 
 (defmacro background 
   "Runs facts against setup code which is run before, around, or after 

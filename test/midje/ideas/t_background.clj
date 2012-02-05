@@ -8,8 +8,7 @@
         [midje.error-handling validation-errors]
         [midje.ideas.background :only [separate-background-forms setup-teardown-bindings
                                  seq-headed-by-setup-teardown-form? background-wrappers]]))
-(testable-privates midje.ideas.background
-                   extract-state-descriptions+fakes state-wrapper)
+(expose-testables midje.ideas.background)
 
 (unfinished unused used)
 (defn calls-nothing [] )

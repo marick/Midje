@@ -13,7 +13,7 @@
 
 (def #^:private looseness-modifiers #{:in-any-order :gaps-ok})
 
-(defn- separate-looseness
+(defn- #^:testable separate-looseness
   "Distinguish expected results from looseness descriptions.
    1 :in-any-order => [1 [:in-any-order]]
    1 2 :in-any-order => [ [1 2] [:in-any-order] ]

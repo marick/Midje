@@ -7,7 +7,7 @@
         [midje sweet test-util]
         [ordered.map :only (ordered-map)]))
 
-(testable-privates midje.ideas.tabular add-binding-note table-binding-maps)
+(expose-testables midje.ideas.tabular)
 
 ;; Core midje.sweet API
 

@@ -11,37 +11,34 @@
         [midje.test-util])
   (:import midje.ideas.metaconstants.Metaconstant))
 
-(testable-privates midje.internal-ideas.fakes  
-  mockable-funcall? unfolding-step merge-metaconstant-bindings
-  data-fakes-to-metaconstant-bindings binding-map-with-function-fakes unique-vars
-  call-faker best-call-action) 
+(expose-testables midje.internal-ideas.fakes) 
 
 (tabular
- (facts "the arg matcher maker handles functions specially"
+(facts "the arg matcher maker handles functions specially"
    ((arg-matcher-maker ?expected) ?actual) => ?result)
- ?expected              ?actual         ?result
- 1                      1               TRUTHY
- 1                      odd?            falsey
+?expected              ?actual         ?result
+1                      1               TRUTHY
+1                      odd?            falsey
 
- anything               3               TRUTHY
- anything               odd?            TRUTHY
- (roughly 3)            3               TRUTHY
- (roughly 3)            0               falsey
- (contains 1)           [3 1]           TRUTHY
- (contains 1)           [3 3]           falsey
- (contains odd?)        [3]             TRUTHY
- (contains odd?)        [2 odd?]        falsey
+anything               3               TRUTHY
+anything               odd?            TRUTHY
+(roughly 3)            3               TRUTHY
+(roughly 3)            0               falsey
+(contains 1)           [3 1]           TRUTHY
+(contains 1)           [3 3]           falsey
+(contains odd?)        [3]             TRUTHY
+(contains odd?)        [2 odd?]        falsey
 
- (exactly odd?)         odd?            TRUTHY
- (exactly odd?)         3               falsey
+(exactly odd?)         odd?            TRUTHY
+(exactly odd?)         3               falsey
 
- (as-checker odd?)      odd?            falsey
- (as-checker odd?)      3               TRUTHY
+(as-checker odd?)      odd?            falsey
+(as-checker odd?)      3               TRUTHY
 
- odd?                   odd?            TRUTHY
- odd?                   3               falsey)
+odd?                   odd?            TRUTHY
+odd?                   3               falsey)
 
- 
+
 
 (declare f g)
 (fact "unique variables can be found in fakes"
@@ -175,7 +172,7 @@
 (defn doubler [n] (+ n n))
 
 (after-silently
- (fact
+(fact
    (doubler 3) => 0
    (provided
      (+ 3 3) => 0))
@@ -261,7 +258,7 @@
 (defmacro some-macro [& rest] )
 
 (tabular "things that are not fake-sexps don't need to be unfolded" 
- (fact ?thing ?arrow folded-fake?)
+(fact ?thing ?arrow folded-fake?)
 
   ;; things not a proper fake macro
   ?thing                                        ?arrow
@@ -274,11 +271,11 @@
   (cons 'midje.semi-sweet/fake '((f (h 3)) =test=> 3))    => )
 
 (tabular
- (fact "unfolding depends on the inner structure of a funcall"
+(fact "unfolding depends on the inner structure of a funcall"
   '(midje.semi-sweet/fake ?call =test=> 3) ?arrow folded-fake?)
    
- ?call                  ?arrow
- ;; Things that might be misinterpreted as nested funcalls
+?call                  ?arrow
+;; Things that might be misinterpreted as nested funcalls
   (f)                  =not=> 
   (f 1)                =not=> 
   (f 1 '(foo))         =not=> 

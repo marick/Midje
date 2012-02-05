@@ -40,12 +40,12 @@
         (headings-rows+values [table locals]
           (split-with (partial table-variable? locals) (remove-pipes+where table)))]
 
-  (defn- #^:tested-private table-binding-maps [table locals]
+  (defn- #^:testable table-binding-maps [table locals]
     (let [[headings-row values] (headings-rows+values table locals)
           value-rows (partition (count headings-row) values)]
       (map (partial ordered-zipmap headings-row) value-rows)))
 
-  (defn- #^:tested-private add-binding-note
+  (defn- #^:testable add-binding-note
     [expect-containing-form ordered-binding-map]
     (translate-zipper expect-containing-form
       expect?

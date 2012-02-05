@@ -4,11 +4,7 @@
   (:use [clojure.test]
         midje.checkers
         [clojure.set :only [subset?]]
-        [midje.util.form-utils :only [macro-for]]))
-
-(defmacro testable-privates [namespace & symbols]
-  (macro-for [sym symbols]
-    `(def ~sym (intern '~namespace '~sym))))
+        [midje.util.form-utils :only [macro-for alias-var]]))
 
 (def reported (atom []))
 

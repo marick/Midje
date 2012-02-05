@@ -5,9 +5,7 @@
         [midje.error-handling.exceptions :only [captured-throwable]]
         [midje sweet test-util]))
 
-
-(testable-privates midje.internal-ideas.report attractively-stringified-form)
-
+(expose-testables midje.internal-ideas.report)
 
 ;; This set of tests generate failures. The following code prevents
 ;; them from being counted as failures when the final summary is

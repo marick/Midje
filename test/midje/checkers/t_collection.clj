@@ -5,7 +5,7 @@
         [midje.checkers.defining :only [checker?]]
         [midje.checkers.chatty :only [chatty-falsehood-to-map
                                       chatty-checker-falsehood?]]))
-(testable-privates midje.checkers.collection separate-looseness)
+(expose-testables midje.checkers.collection)
 
 (defrecord AB [a b])
 (defrecord AB-different-class [a b])

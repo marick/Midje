@@ -6,7 +6,7 @@
         [midje.internal-ideas.file-position :only [form-position]]
         [clojure.algo.monads]))
 
-(testable-privates midje.error-handling.validation-errors as-validation-error spread-validation-error)
+(expose-testables midje.error-handling.validation-errors)
 
 (fact "any form can be turned into a validation-error form"
   (meta (as-validation-error '(form))) => (contains {:midje-validation-error true})
