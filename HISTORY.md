@@ -1,6 +1,9 @@
 1.3.2-SNAPSHOT
 -------------
-* Can now have prerequisites that throw Throwabless using =throws=>
+* new function midje.sweet/expose-testables will allow you to write facts against 
+  functions defined with the metadata of ^{:testable true} [or ^:testable, 
+  or #^testable depending on which Clojure version you're running] 
+* Can now have prerequisites that throw Throwables using =throws=>
     (provided (foo) =throws=> (Exception.))
 * Chatty checkers can destructure their single argument.                                           
 * tabular no longer requires variables names to begin with '?'
