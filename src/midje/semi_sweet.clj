@@ -141,8 +141,8 @@
    results are as expected. If the expected results are a function, it
    will be called with the actual result as its single argument.
 
-   To strip tests from production code, set either clojure.test/*load-tests*
-   or midje.semi-sweet/*check* to false."
+   To strip tests from production code, set either clojure.test/*load-tests*, 
+   midje.semi-sweet/*include-midje-checks*, or midje.sweet/*include-midje-checks* to false."
   [& _]
   (when (user-desires-checking?)
     (valid-let [[call-form arrow expected-result & fakes+overrides] (validate &form)
