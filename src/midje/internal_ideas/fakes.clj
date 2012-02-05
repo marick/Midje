@@ -137,7 +137,7 @@
   
   (def #^:dynamic #^:private *call-action-count* (atom 0))
   
-  (defn- #^:testable best-call-action [function-var actual-args fakes]
+  (defn- ^{:testable true } best-call-action [function-var actual-args fakes]
     (when (= 2 @*call-action-count*)
       (throw (user-error "You seem to have created a prerequisite for"
                (str (pr-str function-var) " that interferes with that function's use in Midje's")
@@ -159,7 +159,7 @@
           :else                                      (:value-at-time-of-faking 
                                                        (first possible-fakes)))))))
 
-(defn- #^:testable call-faker
+(defn- ^{:testable true } call-faker
   "This is the function that handles all mocked calls."
   [function-var actual-args fakes]
   (macrolet [(counting-nested-calls [& forms]
@@ -182,10 +182,10 @@
 
 ;; Binding map related
 
-(defn- #^:testable unique-vars [fakes]
+(defn- ^{:testable true } unique-vars [fakes]
   (distinct (map :lhs fakes)))
 
-(defn- #^:testable binding-map-with-function-fakes [fakes]
+(defn- ^{:testable true } binding-map-with-function-fakes [fakes]
   (letfn [(fn-that-implements-a-fake [function]
             (vary-meta function assoc :midje/faked-function true))
           (make-faker [var]
@@ -194,12 +194,12 @@
       (for [var (unique-vars fakes)]
         [var (make-faker var)]))))
 
-(defn- #^:testable merge-metaconstant-bindings [bindings]
+(defn- ^{:testable true } merge-metaconstant-bindings [bindings]
   (apply merge-with (fn [^Metaconstant v1 ^Metaconstant v2]
                       (Metaconstant. (.name v1) (merge (.storage v1) (.storage v2))))
     bindings))
 
-(defn- #^:testable data-fakes-to-metaconstant-bindings [fakes]
+(defn- ^{:testable true } data-fakes-to-metaconstant-bindings [fakes]
   (for [{var :lhs, contents :contained} fakes]
     {var (Metaconstant. (object-name var) contents)}))
 
@@ -253,7 +253,7 @@
 ;; mapping. These substitutions are used both to "flatten" a fake form and also
 ;; to generate new fakes.
 
-(defn- #^:testable mockable-funcall? [x]
+(defn- ^{:testable true } mockable-funcall? [x]
   (let [constructor? (fn [symbol]
                        (.endsWith (name symbol) "."))
         special-forms '[quote fn let new]
@@ -290,7 +290,7 @@
   (let [new-args (for [a args] (get substitutions a a))]
     `(~fake (~fun ~@new-args) ~@rest)))
 
-(defn- #^:testable unfolding-step
+(defn- ^{:testable true } unfolding-step
   "This walks through a `pending` list that may contain fakes. Each element is
    copied to the `finished` list. If it is a suitable fake, its nested 
    are flattened (replaced with a metaconstant). If the metaconstant was newly

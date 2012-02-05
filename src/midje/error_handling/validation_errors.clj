@@ -13,7 +13,7 @@
 
 ;; Making validation errors
 
-(defn- #^:testable as-validation-error [form]
+(defn- ^{:testable true } as-validation-error [form]
   (vary-meta form assoc :midje-validation-error true))
 
 (defn validation-error-form? [form]
@@ -40,7 +40,7 @@
 (defmacro valid-let [let-vector & body]
   `(domonad midje-maybe-m ~let-vector ~@body))
 
-(defn- #^:testable spread-validation-error [collection]
+(defn- ^{:testable true } spread-validation-error [collection]
   (or (find-first validation-error-form? collection)
       collection))
 

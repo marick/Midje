@@ -28,7 +28,7 @@
 ;;
 ;; FURTHERMORE, I wanted to use set operations to check for fake and not-called,
 ;; but those fail for reasons I don't understand. Bah.
-(defn- #^:testable check-for-arrow [arrow]
+(defn- ^{:testable true } check-for-arrow [arrow]
   (get {=> :check-match
         =expands-to=> :check-match
         =not=> :check-negated-match
@@ -131,7 +131,7 @@
   [forms]
   (not-called* forms))
 
-(defn- #^:testable a-fake? [x]
+(defn- ^{:testable true } a-fake? [x]
   (and (seq? x)
        (is-semi-sweet-keyword? (first x))))
 

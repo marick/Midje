@@ -73,7 +73,7 @@
     (and (bindings '?first-form)
          (or (not (bindings '?after)) (bindings '?second-form)))))
 
-(defn- #^:testable extract-state-descriptions+fakes [forms]
+(defn- ^{:testable true } extract-state-descriptions+fakes [forms]
   (loop [expanded []
          in-progress forms]
     (pred-cond in-progress
@@ -94,7 +94,7 @@
       (recur (conj expanded (first in-progress))
         (rest in-progress)))))
 
-(defn- #^:testable state-wrapper [[_before-after-or-around_ wrapping-target & _  :as state-description]]
+(defn- ^{:testable true } state-wrapper [[_before-after-or-around_ wrapping-target & _  :as state-description]]
   (with-wrapping-target
     (macroexpand-1 (map-first #(symbol "midje.ideas.background" (name %)) state-description))
     wrapping-target))
