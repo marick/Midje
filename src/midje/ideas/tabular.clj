@@ -31,14 +31,13 @@
   (letfn [(strip-off-where [x] (if (#{:where 'where} (first x)) (rest x) x))]
     (->> table strip-off-where (remove #(= % '|)))))
 
-(defn- table-variable? [locals s]
-  (and (symbol? s)
-    (not (metaconstant-symbol? s))
-    (not (resolve s))
-    (not ((set locals) s))))
-
 (defn- headings-rows+values [table locals]
-  (split-with (partial table-variable? locals) (remove-pipes+where table)))
+  (letfn [(table-variable? [s]
+            (and (symbol? s)
+              (not (metaconstant-symbol? s))
+              (not (resolve s))
+              (not ((set locals) s))))] 
+    (split-with table-variable? (remove-pipes+where table))))
 
 (defn- ^{:testable true } table-binding-maps [table locals]
   (let [[headings-row values] (headings-rows+values table locals)
