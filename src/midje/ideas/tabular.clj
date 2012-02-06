@@ -19,72 +19,72 @@
 
 (def #^:private deprecation-hack:file-position (atom ""))
 
-(letfn [(remove-pipes+where [table]
-          (when (and false (#{:where 'where} (first table)))
-            (println "The `where` syntactic sugar for tabular facts is deprecated and will be removed in Midje 1.4."
-              @deprecation-hack:file-position))
+(defn- remove-pipes+where [table]
+  (when (and false (#{:where 'where} (first table)))
+    (println "The `where` syntactic sugar for tabular facts is deprecated and will be removed in Midje 1.4."
+      @deprecation-hack:file-position))
 
-          (when (and false (some #(= % '|) table))
-            (println "The `|` syntactic sugar for tabular facts is deprecated and will be removed in Midje 1.4."
-              @deprecation-hack:file-position))
+  (when (and false (some #(= % '|) table))
+    (println "The `|` syntactic sugar for tabular facts is deprecated and will be removed in Midje 1.4."
+      @deprecation-hack:file-position))
 
-          (letfn [(strip-off-where [x] (if (#{:where 'where} (first x)) (rest x) x))]
-            (->> table strip-off-where (remove #(= % '|)))))
+  (letfn [(strip-off-where [x] (if (#{:where 'where} (first x)) (rest x) x))]
+    (->> table strip-off-where (remove #(= % '|)))))
 
-        (table-variable? [locals s]
-          (and (symbol? s)
-            (not (metaconstant-symbol? s))
-            (not (resolve s))
-            (not ((set locals) s))))
+(defn- table-variable? [locals s]
+  (and (symbol? s)
+    (not (metaconstant-symbol? s))
+    (not (resolve s))
+    (not ((set locals) s))))
 
-        (headings-rows+values [table locals]
-          (split-with (partial table-variable? locals) (remove-pipes+where table)))]
+(defn- headings-rows+values [table locals]
+  (split-with (partial table-variable? locals) (remove-pipes+where table)))
 
-  (defn- ^{:testable true } table-binding-maps [table locals]
-    (let [[headings-row values] (headings-rows+values table locals)
-          value-rows (partition (count headings-row) values)]
-      (map (partial ordered-zipmap headings-row) value-rows)))
+(defn- ^{:testable true } table-binding-maps [table locals]
+  (let [[headings-row values] (headings-rows+values table locals)
+        value-rows (partition (count headings-row) values)]
+    (map (partial ordered-zipmap headings-row) value-rows)))
 
-  (defn- ^{:testable true } add-binding-note
-    [expect-containing-form ordered-binding-map]
-    (translate-zipper expect-containing-form
-      expect?
-      (fn [loc] (skip-to-rightmost-leaf
-                  (above-arrow-sequence__add-key-value__at-arrow
-                    :binding-note (pr-str ordered-binding-map) loc)))))
+(defn- ^{:testable true } add-binding-note
+  [expect-containing-form ordered-binding-map]
+  (translate-zipper expect-containing-form
+    expect?
+    (fn [loc] (skip-to-rightmost-leaf
+                (above-arrow-sequence__add-key-value__at-arrow
+                  :binding-note (pr-str ordered-binding-map) loc)))))
 
-  (defn tabular* [locals form]
-    (letfn [(macroexpander-for [fact-form]
-              (comp macroexpand
-                (partial form-with-copied-line-numbers fact-form)
-                (partial unify/substitute fact-form)))]
+(defn tabular* [locals form]
+  (letfn [(macroexpander-for [fact-form]
+            (comp macroexpand
+              (partial form-with-copied-line-numbers fact-form)
+              (partial unify/substitute fact-form)))]
 
-      (valid-let [[description? fact-form table] (validate form locals)
-                  _ (swap! deprecation-hack:file-position
-                           (constantly (midje-position-string (form-position fact-form))))
-                  ordered-binding-maps (table-binding-maps table locals)
-                  expect-forms (map (macroexpander-for fact-form) ordered-binding-maps)
-                  expect-forms-with-binding-notes (map add-binding-note
-          expect-forms
-          ordered-binding-maps)]
-        `(within-fact-context ~description?
-           ~@expect-forms-with-binding-notes))))
+    (valid-let [[description? fact-form table] (validate form locals)
+                _ (swap! deprecation-hack:file-position
+                         (constantly (midje-position-string (form-position fact-form))))
+                ordered-binding-maps (table-binding-maps table locals)
+                expect-forms (map (macroexpander-for fact-form) ordered-binding-maps)
+                expect-forms-with-binding-notes (map add-binding-note
+        expect-forms
+        ordered-binding-maps)]
+      `(within-fact-context ~description?
+         ~@expect-forms-with-binding-notes))))
 
-  (defmethod validate "tabular" [[_tabular_ & form] locals]
-    (let [[[description? & _] [fact-form & table]] (split-with string? form)
-          [headings-row values] (headings-rows+values table locals)]
-      (cond (empty? table)
-            (simple-report-validation-error form
-              "There's no table. (Misparenthesized form?)")
-        
-            (empty? values)
-            (simple-report-validation-error form
-              "It looks like the table has headings, but no values:")
-        
-            (empty? headings-row)
-            (simple-report-validation-error form
-              "It looks like the table has no headings, or perhaps you"
-              "tried to use a non-literal string for the doc-string?:")
-        
-            :else 
-            [description? fact-form table]))))
+(defmethod validate "tabular" [[_tabular_ & form] locals]
+  (let [[[description? & _] [fact-form & table]] (split-with string? form)
+        [headings-row values] (headings-rows+values table locals)]
+    (cond (empty? table)
+          (simple-report-validation-error form
+            "There's no table. (Misparenthesized form?)")
+      
+          (empty? values)
+          (simple-report-validation-error form
+            "It looks like the table has headings, but no values:")
+      
+          (empty? headings-row)
+          (simple-report-validation-error form
+            "It looks like the table has no headings, or perhaps you"
+            "tried to use a non-literal string for the doc-string?:")
+      
+          :else 
+          [description? fact-form table])))
