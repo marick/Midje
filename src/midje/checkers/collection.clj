@@ -6,10 +6,12 @@
   midje.checkers.collection
   (:use [clojure.set :only [union]]
         [clojure.pprint :only [cl-format]]
+        [clojure.core.match :only [match]]
         [midje.util.backwards-compatible-utils :only [every-pred-m]] 
         [midje.util.form-utils :only [regex? record? classic-map? pred-cond macro-for]]
       	[midje.checkers collection-util util extended-equality chatty defining collection-comparison]
         [midje.error-handling.exceptions :only [user-error]]))
+
 
 (def #^:private looseness-modifiers #{:in-any-order :gaps-ok})
 
@@ -66,27 +68,16 @@
           ;;consider. Also blow up for some incompatible forms."
           [actual expected looseness]
           (compatibility-check actual expected looseness)
-          (pred-cond actual
-            sequential?
-            (pred-cond expected
-              set? [actual (vec expected) (union looseness #{:in-any-order })]
-              right-hand-singleton? [actual [expected] (union looseness #{:in-any-order })]
-              :else [actual expected looseness])
-
-            map?
-            (pred-cond expected
-              map? [actual expected looseness]
-              :else [actual (into {} expected) looseness])
-
-            set?
-            (recur (vec actual) expected looseness-modifiers)
-
-            string?
-            (pred-cond expected
-              (every-pred-m (complement string?) (complement regex?)) (recur (vec actual) expected looseness)
-              :else [actual expected looseness])
-
-            :else [actual expected looseness]))
+          (match [actual expected]
+            [(a :when sequential?) (e :when set?)]                  [actual (vec expected) (union looseness #{:in-any-order })]
+            [(a :when sequential?) (e :when right-hand-singleton?)] [actual [expected] (union looseness #{:in-any-order })]
+            [(a :when sequential?) _]                               [actual expected looseness]
+            [(a :when map?)        (b :when map?)]                  [actual expected looseness] 
+            [(a :when map?)        _]                               [actual (into {} expected) looseness]
+            [(a :when set?)        _]                               (recur (vec actual) expected looseness-modifiers)
+            [(a :when string?)    (e :when [(complement string?) 
+                                            (complement regex?)])]  (recur (vec actual) expected looseness-modifiers)
+            [_ _]                                                   [actual expected looseness]))
 
         (match? [actual expected looseness]
           (let [comparison (compare-results actual expected looseness)]
