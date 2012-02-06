@@ -60,6 +60,36 @@
   => [1 2 3]
   )
 
+(fact "absence"
+  (with-altered-roots {#'exploder identity} #{ (map #'exploder [1 2 3]) })
+  => #{[1 2 3]}
+  (first (with-altered-roots {#'exploder identity} [#{ (map #'exploder [1 2 3]) }]))
+  => #{[1 2 3]}
+  (first (with-altered-roots {#'exploder identity} (list #{  (map #'exploder [1 2 3]) })))
+  => #{[1 2 3]}
+  (:k (with-altered-roots {#'exploder identity} {:k #{ (map #'exploder [1 2 3]) }}))
+  => #{[1 2 3]}
+  (first (keys (with-altered-roots {#'exploder identity} { #{ (map #'exploder [1 2 3]) } 'foo})))
+  => #{[1 2 3]}
+  (:x (with-altered-roots {#'exploder identity} (Foo. #{ (map #'exploder [1 2 3]) } 'x)))
+  => #{[1 2 3]}
+  )
+
+(fact "about how eagerly improves things 2"
+  (with-altered-roots {#'exploder identity} (eagerly #{ (map #'exploder [1 2 3]) }))
+  => #{[1 2 3]}
+  (first (with-altered-roots {#'exploder identity} (eagerly [#{ (map #'exploder [1 2 3]) }])))
+  => #{[1 2 3]}
+  (first (with-altered-roots {#'exploder identity} (eagerly (list #{  (map #'exploder [1 2 3]) }))))
+  => #{[1 2 3]}
+  (:k (with-altered-roots {#'exploder identity} (eagerly {:k #{ (map #'exploder [1 2 3]) }})))
+  => #{[1 2 3]}
+  (first (keys (with-altered-roots {#'exploder identity} (eagerly { #{ (map #'exploder [1 2 3]) } 'foo} ))))
+  => #{[1 2 3]}
+  (:x (with-altered-roots {#'exploder identity} (eagerly (Foo. #{ (map #'exploder [1 2 3]) } 'x))))
+  => #{[1 2 3]}
+  )
+
 (fact "eagerly preserves metadata"
   (meta (eagerly (with-meta (map identity [1 2 3]) {:hi :mom})))
   => {:hi :mom})
@@ -80,3 +110,67 @@
     (identical? eagered lazied) => falsey
     (= eagered lazied) => truthy
     (identical? (meta eagered) (meta lazied))))
+
+
+(deftype MySet []
+  clojure.lang.IPersistentSet
+  (disjoin [this k]
+    (let [now (System/nanoTime)]
+      ))
+
+  (get [this k]
+    k)
+
+  (seq [this]
+    (seq []))
+
+  (count [this]
+    (count (seq this)))
+
+  clojure.lang.IPersistentCollection
+  (cons [this k]
+    (let [now (System/nanoTime)]
+      ))
+
+  (empty [this]
+    [])
+
+  (equiv [this other]
+    (.equals this other))
+
+  Object
+  (hashCode [this]
+    1)
+
+  (equals [this other]
+    (or (identical? this other)
+      (and (instance? java.util.Set other)
+        (let [^java.util.Set o (cast java.util.Set other)]
+          (and (= (count this) (count o))
+            (every? #(contains? o %) (seq this)))))))
+
+  (toString [this]
+    (throws Exception "boom"))
+
+  java.util.Set
+  (contains [this k]
+    (throws Exception "boom"))
+
+  (containsAll [this ks]
+    (throws Exception "boom"))
+
+  (size [this]
+    (throws Exception "boom"))
+
+  (isEmpty [this]
+    (throws Exception "boom"))
+
+  (toArray [this]
+    (throws Exception "boom"))
+
+  (toArray [this dest]
+    (throws Exception "boom")
+    ))
+
+(fact 
+  (MySet.) => (MySet.))
