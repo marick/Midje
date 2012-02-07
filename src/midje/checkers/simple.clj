@@ -92,7 +92,7 @@
 
 (defmethod throws #{:throwable} [clazz]
   (checker [^ICapturedThrowable wrapped-throwable]
-    (= clazz (class (.throwable wrapped-throwable)))))
+    (instance? clazz (.throwable wrapped-throwable))))
 
 (def-many-methods throws [#{:throwable :predicate}, #{:message :predicate },
                           #{:throwable :message}, #{:throwable :message :predicate}] [& args]
