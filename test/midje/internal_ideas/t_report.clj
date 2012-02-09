@@ -185,12 +185,13 @@
   (let [failure-map {:type :exceptional-user-error
                      :description "some description"
                      :macro-form '(foo bar)
-                     :stacktrace "one\ntwo"
+                     :stacktrace ["one" "two"]
                      :position ["foo.clj" 3]}
         raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
     (nth raw-report 0) => #"FAIL.*some description.* at .*foo.clj:3"
     (nth raw-report 2) => (contains "(foo bar)")
-    (nth raw-report 4) => (contains "one\ntwo")))
+    (nth raw-report 4) => (contains "one")
+    (nth raw-report 5) => (contains "two")))
 
 (fact "binding notes are considered part of the position"
   (let [failure-map {:type :mock-expected-result-failure

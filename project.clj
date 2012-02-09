@@ -10,7 +10,6 @@
                  [colorize "0.1.1"]
                  [org.clojure/tools.macro "0.1.1"]
                  [org.clojure/core.incubator "0.1.0"]
-                 [clj-stacktrace-alex "0.2.5"]
                  [org.clojure/core.match "0.2.0-alpha9"]]
 
   ;; TODO: Alex Jan 29, 2012 - figure out how to not duplicate these deps 
@@ -26,7 +25,6 @@
                      [colorize "0.1.1"]
                      [org.clojure/tools.macro "0.1.1"]
                      [org.clojure/core.incubator "0.1.0"]
-                     [clj-stacktrace-alex "0.2.5"]
                      [org.clojure/core.match "0.2.0-alpha9"]] }
   :dev-dependencies [[slamhound "1.2.0"]
                      [com.intelie/lazytest "1.0.0-SNAPSHOT" :exclusions [swank-clojure]]]

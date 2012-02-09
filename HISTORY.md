@@ -7,7 +7,6 @@
     (provided (foo) =throws=> (Exception.))
 * Chatty checkers can destructure their single argument.                                           
 * tabular no longer requires variables names to begin with '?'
-* friendlier stacktraces with clj-stacktrace
 * throws checker has been updated: args are now any combination, in
   any order of messages (or regexes), predicates, or 0 or 1 Throwable classes
 * many more common syntax mistakes give helpful error messages

@@ -1,42 +1,56 @@
 (ns ^{:doc "Functions for Midje to deal elegantly with exceptions."}
   midje.error-handling.exceptions
   (:use [clojure.string :only [join]]
-        [clj-stacktrace.repl :only [pst+ pst]]
         [midje.util.colorize :only [colorize-choice]]))
 
+
+(def #^:private line-separator (System/getProperty "line.separator"))
+
+
+;;; Creating 
 
 (defn user-error 
   "Used when a user does something off-limits or incompatible"
   [& lines]
-  (Error. (join (System/getProperty "line.separator") lines)))
+  (Error. (join line-separator lines)))
 
 
-;; Beautiful, ergonomic stacktraces
+;;; Printing ergonomic stacktraces
 
-(defprotocol FriendlyStacktrace 
-  (friendly-stacktrace [this]))
+(defn- ^{:testable true} stacktrace-as-strings [ex]
+  (map str (.getStackTrace ex)))
 
-(extend-protocol FriendlyStacktrace
-  Throwable
-  (friendly-stacktrace [this]
-      (case (colorize-choice)
-        "TRUE"    (with-out-str (pst+ this))
-        "REVERSE" (with-out-str (pst+ this))
-        "FALSE"   (with-out-str (pst this)))))
+(letfn [(remove-matches [re strings]
+          (remove #(re-find re %) strings))]
+
+  (defn- ^{:testable true} without-clojure-strings [all-strings]
+    (remove-matches #"^java\.|^clojure\.|^sun\.|^swank\.|^user\$eval" all-strings))
+
+  (defn- ^{:testable true} without-midje-or-clojure-strings [all-strings]
+    (remove-matches #"^java\.|^clojure\.|^sun\.|^swank\.|^user\$eval|^midje" all-strings)))
+
+(defn- ^{:testable true} friendly-exception-lines [ex prefix]
+  (cons (str ex)
+    (map #(str prefix %)
+      (without-midje-or-clojure-strings (stacktrace-as-strings ex)))))
+
+(defn user-error-exception-lines [throwable]
+  (cons (str throwable)
+    (without-clojure-strings (stacktrace-as-strings throwable))))
 
 
 ;; When a fact throws an Exception or Error it gets wrapped
 ;; in this deftype
 
 (defprotocol ICapturedThrowable
-  (throwable [this]))
+  (throwable [this])
+  (friendly-stacktrace [this]))
                        
 (deftype CapturedThrowable [ex] 
   ICapturedThrowable 
   (throwable [this] ex)
-
-  FriendlyStacktrace
-  (friendly-stacktrace [this] (friendly-stacktrace (.throwable this))))
+  (friendly-stacktrace [this]
+    (join line-separator (friendly-exception-lines (throwable this) "              "))))
 
 (defn captured-throwable [ex] 
   (CapturedThrowable. ex))

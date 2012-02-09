@@ -98,7 +98,7 @@
                  (clojure.test/report {:type :exceptional-user-error
                                        :description (midje.internal-ideas.fact-context/nested-fact-description)
                                        :macro-form '~&form
-                                       :stacktrace ~(friendly-stacktrace ex)
+                                       :stacktrace '~(user-error-exception-lines ex)
                                        :position (midje.internal-ideas.file-position/line-number-known ~(:line (meta &form)))}))
                false)))))))
 
