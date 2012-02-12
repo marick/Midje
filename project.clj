@@ -20,7 +20,7 @@
                "1.2.1" [[org.clojure/clojure "1.2.1"]]
                "1.3.0" [[org.clojure/clojure "1.3.0"]]
                "1.4.0" [[org.clojure/clojure "1.4.0-beta1"]]
-               :all common-deps }
+               :all ~common-deps }
   :dev-dependencies [[slamhound "1.2.0"]
                      [com.intelie/lazytest "1.0.0-SNAPSHOT" :exclusions [swank-clojure]]]
 
