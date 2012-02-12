@@ -17,6 +17,7 @@
   :multi-deps {"1.2.0" [[org.clojure/clojure "1.2.0"]]
                "1.2.1" [[org.clojure/clojure "1.2.1"]]
                "1.3.0" [[org.clojure/clojure "1.3.0"]]
+               "1.4.0" [[org.clojure/clojure "1.4.0-beta1"]]
                :all [[ordered "1.0.0"]
                      [org.clojure/math.combinatorics "0.0.1"]
                      [org.clojure/algo.monads "0.1.0"]
