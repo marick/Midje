@@ -34,28 +34,25 @@
            :expected (:expected-result-text-for-failures call)})
 
   (check-result-positive [report-fn actual call]
-    (report-fn
-      (merge
-        (cond (extended-= actual (:expected-result call))
-          {:type :pass}
+    (cond (extended-= actual (:expected-result call))
+      (report-fn {:type :pass})
 
-          (chatty-checker? (:expected-result call))
-          (merge (fail :mock-expected-result-functional-failure actual call)
-            (let [chatty-result ((:expected-result call) actual)]
-              (if (map? chatty-result)
-                chatty-result
-                {:notes ["Midje program error. Please report."
-                         (str "A chatty checker returned "
-                           (pr-str chatty-result)
-                           " instead of a map.")]})))
+      (chatty-checker? (:expected-result call))
+      (report-fn (merge (fail :mock-expected-result-functional-failure actual call)
+                   (let [chatty-result ((:expected-result call) actual)]
+                     (if (map? chatty-result)
+                       chatty-result
+                       {:notes ["Midje program error. Please report."
+                                (str "A chatty checker returned "
+                                  (pr-str chatty-result)
+                                  " instead of a map.")]}))))
 
-          (fn? (:expected-result call))
-          (fail :mock-expected-result-functional-failure actual call)
+      (fn? (:expected-result call))
+      (report-fn (fail :mock-expected-result-functional-failure actual call))
 
-          :else (assoc (fail :mock-expected-result-failure actual call)
-                  :expected (:expected-result call)))
-
-        (when (:formula call) {:store-report true}))))  
+      :else
+      (report-fn (assoc (fail :mock-expected-result-failure actual call)
+                       :expected (:expected-result call)))))  
 
   (check-result-negated [report-fn actual call]
     (cond (not (extended-= actual (:expected-result call)))
