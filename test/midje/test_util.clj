@@ -67,3 +67,6 @@
     (midje.sweet/fact 
       @reported midje.sweet/=> (one-of (contains {:type :validation-error 
                                                   :notes (contains ~error-msg)})))))
+
+(defmacro with-identity-renderer [& forms]
+  `(binding [midje.internal-ideas.report/*renderer* identity] ~@forms))
