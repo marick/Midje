@@ -11,7 +11,8 @@
         [midje.internal-ideas.fact-context :only [nested-fact-description]]
          midje.internal-ideas.report
          midje.util.laziness
-        [midje.util.namespace :only [immigrate]]))
+        [midje.util.namespace :only [immigrate]]
+        [utilize.seq :only [find-first]]))
 (immigrate 'midje.checkers)
 
 (def ^{:private true} formula-reports (atom []))
@@ -20,9 +21,10 @@
   (swap! formula-reports conj report-map))
 
 (defn ^{:private true} report-formula-conclusion [report-map]
-  (let [all-report-maps (conj @formula-reports report-map)
-        result (if (every? #(= :pass (:type %)) all-report-maps) :pass :formula-fail)]  
-    (report {:type result})
+  (let [all-report-maps (conj @formula-reports report-map)]
+    (if-let [failure (find-first #(not= :pass (:type %)) all-report-maps)]
+      (report {:type :formula-fail :first-failure failure})
+      (report {:type :pass}) )
     (reset! formula-reports [])))
 
 (letfn [(fail [type actual call]
