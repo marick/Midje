@@ -8,9 +8,7 @@
         [midje.util.form-utils :only [pred-cond]])
   (:require [midje.util.colorize :as color]))
 
-(let [^clojure.lang.Var the-var (intern (the-ns 'clojure.test) 'old-report)]
-  (when-not (.hasRoot the-var)
-    (.bindRoot the-var clojure.test/report)))
+(intern (the-ns 'clojure.test) 'old-report clojure.test/report)
 
 (def #^:dynamic #^:private *renderer* println)
 
