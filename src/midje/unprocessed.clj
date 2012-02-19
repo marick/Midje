@@ -3,20 +3,27 @@
 (ns ^{:doc "Core Midje functions that process expects and report on their results."} 
   midje.unprocessed 
   (:use clojure.test
-        [midje.internal-ideas.fakes]
-        [midje.internal-ideas.fact-context :only [nested-fact-description]]
         [midje.ideas.background :only [background-fakes]]
-        midje.util.laziness
-        midje.internal-ideas.report
         [midje.checkers.extended-equality :only [extended-=]]
         [midje.checkers.chatty :only [chatty-checker?]]
         [midje.error-handling.exceptions :only [captured-throwable]]
+        midje.internal-ideas.fakes
+        [midje.internal-ideas.fact-context :only [nested-fact-description]]
+         midje.internal-ideas.report
+         midje.util.laziness
         [midje.util.namespace :only [immigrate]]))
 (immigrate 'midje.checkers)
 
+(def ^{:private true} formula-reports (atom []))
 
-(defmulti ^{:private true} check-result (fn [actual call] 
-                                          (:desired-check call)))
+(defn ^{:private true} report-formula [report-map]
+  (swap! formula-reports conj report-map))
+
+(defn ^{:private true} report-formula-conclusion [report-map]
+  (let [all-report-maps (conj @formula-reports report-map)
+        result (if (every? #(= :pass (:type %)) all-report-maps) :pass :formula-fail)]  
+    (report {:type result})
+    (reset! formula-reports [])))
 
 (letfn [(fail [type actual call]
           {:type type
@@ -24,38 +31,63 @@
            :binding-note (:binding-note call)
            :position (:position call)
            :actual actual
-           :expected (:expected-result-text-for-failures call)})]
-  
-  (defmethod check-result :check-match [actual call]
-    (cond (extended-= actual (:expected-result call))
-          (report {:type :pass})
-    
+           :expected (:expected-result-text-for-failures call)})
+
+  (check-result-positive [report-fn actual call]
+    (report-fn
+      (merge
+        (cond (extended-= actual (:expected-result call))
+          {:type :pass}
+
           (chatty-checker? (:expected-result call))
-          (report (merge (fail :mock-expected-result-functional-failure actual call)
-                         (let [chatty-result ((:expected-result call) actual)]
-                           (if (map? chatty-result)
-                             chatty-result
-                             {:notes ["Midje program error. Please report."
-                                      (str "A chatty checker returned "
-                                        (pr-str chatty-result)
-                                        " instead of a map.")]}))))
-  
+          (merge (fail :mock-expected-result-functional-failure actual call)
+            (let [chatty-result ((:expected-result call) actual)]
+              (if (map? chatty-result)
+                chatty-result
+                {:notes ["Midje program error. Please report."
+                         (str "A chatty checker returned "
+                           (pr-str chatty-result)
+                           " instead of a map.")]})))
+
           (fn? (:expected-result call))
-          (report (fail :mock-expected-result-functional-failure actual call))
-    
-          :else 
-          (report (assoc (fail :mock-expected-result-failure actual call) 
-                          :expected (:expected-result call) ))))
-  
-  (defmethod check-result :check-negated-match [actual call]
-     (cond (not (extended-= actual (:expected-result call)))
-           (report {:type :pass})
-  
-          (fn? (:expected-result call))
-          (report (fail :mock-actual-inappropriately-matches-checker actual call))
-  
-          :else
-          (report (fail :mock-expected-result-inappropriately-matched actual call)))))
+          (fail :mock-expected-result-functional-failure actual call)
+
+          :else (assoc (fail :mock-expected-result-failure actual call)
+                  :expected (:expected-result call)))
+
+        (when (:formula call) {:store-report true}))))  
+
+  (check-result-negated [report-fn actual call]
+    (cond (not (extended-= actual (:expected-result call)))
+      (report-fn {:type :pass})
+
+      (fn? (:expected-result call))
+      (report-fn (fail :mock-actual-inappropriately-matches-checker actual call))
+
+      :else
+      (report-fn (fail :mock-expected-result-inappropriately-matched actual call))))]
+
+
+  (defmulti ^{:private true} check-result (fn [actual call]
+                                            [(:desired-check call) (:formula call)] ))
+
+  (defmethod check-result [:check-match nil] [actual call]
+    (check-result-positive report actual call))
+
+  (defmethod check-result [:check-negated-match nil] [actual call]
+    (check-result-negated report actual call))
+
+  (defmethod check-result [:check-match :formula-in-progress] [actual call]
+    (check-result-positive report-formula actual call))
+
+  (defmethod check-result [:check-negated-match :formula-in-progress] [actual call]
+    (check-result-negated report-formula actual call))
+
+  (defmethod check-result [:check-match :formula-conclude] [actual call]
+    (check-result-positive report-formula-conclusion actual call))
+
+  (defmethod check-result [:check-negated-match :formula-conclude] [actual call]
+    (check-result-negated report-formula-conclusion actual call)))
 
 (defn expect*
   "The core function in unprocessed Midje. Takes a map describing a

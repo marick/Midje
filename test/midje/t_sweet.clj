@@ -1,8 +1,9 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.t-sweet
-  (:use [midje.sweet])
-  (:use [midje.test-util]))
+  (:use midje.sweet
+        midje.ideas.formulas
+        midje.test-util))
 
 (fact "all of Midje's public, API-facing vars have docstrings"
   (map str (remove (comp :doc meta) (vals (ns-publics 'midje.sweet)))) => []
@@ -316,7 +317,6 @@
 (fact "a fact's return value is not affected by previous failures"
   *fact-retval* => true)
 
-
 (defn a [])
 (defn b [] (a))
 
@@ -325,4 +325,13 @@
   (provided 
     (a) =throws=> (IllegalArgumentException. "blammo")))
 
+(after-silently
+  (formula [a "y"]
+    a => :foo))
+(fact @reported => (one-of (contains {:type :formula-fail})))
 
+(defn make-string []
+  (rand-nth ["a" "b" "c" "d" "e" "f" "g" "i"]))
+
+(formula [a (make-string) b (make-string)]
+  (str a b) => (has-prefix a))
