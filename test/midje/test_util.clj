@@ -3,8 +3,7 @@
 (ns midje.test-util
   (:use [clojure.test]
         midje.checkers
-        [clojure.set :only [subset?]]
-        [midje.util.form-utils :only [macro-for alias-var]]))
+        [clojure.set :only [subset?]]))
 
 (def reported (atom []))
 
