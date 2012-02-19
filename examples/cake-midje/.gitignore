@@ -1,8 +1,0 @@
-.cake
-pom.xml
-*.jar
-*.war
-lib
-classes
-build
-./cake-midje
