@@ -23,7 +23,7 @@
 (defn ^{:private true} report-formula-conclusion [report-map]
   (let [all-report-maps (conj @formula-reports report-map)]
     (if-let [failure (find-first #(not= :pass (:type %)) all-report-maps)]
-      (report {:type :formula-fail :first-failure failure})
+      (report failure)
       (report {:type :pass}) )
     (reset! formula-reports [])))
 

@@ -203,15 +203,3 @@
         raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
     (nth raw-report 0) => #"FAIL.*some description.* at .*foo.clj:3"
     (nth raw-report 1) => #"a note"))
-
-(fact "formula failures report about the supplied first-failure"
-  (let [failure-map {:type :formula-fail
-                     :first-failure {:type :mock-expected-result-failure
-                                     :description "some description"
-                                     :position ["foo.clj" 3]
-                                     :actual nil
-                                     :expected "s"}}
-        raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
-    (nth raw-report 0) => #"FAIL.*some description.* at .*foo.clj:3"
-    (nth raw-report 1) => #"Expected: \"s\""
-    (nth raw-report 2) => #"Actual: nil"))

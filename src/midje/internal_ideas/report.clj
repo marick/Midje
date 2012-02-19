@@ -128,10 +128,7 @@
       (str "    Midje caught an exception when translating this form:")
       (str "      " (pr-str (:macro-form m)))
       (str "      " "This stack trace *might* help:")
-      (indented (:stacktrace m))))
-  
-  (defmethod report-strings :formula-fail [m]
-    (report-strings (:first-failure m))))
+      (indented (:stacktrace m)))))
   
 (letfn [(render [m]
           (->> m report-strings flatten (remove nil?) (map *renderer*) doall))]
