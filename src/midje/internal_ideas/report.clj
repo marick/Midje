@@ -131,7 +131,7 @@
       (indented (:stacktrace m))))
   
   (defmethod report-strings :formula-fail [m]
-    (list "At least one run of your formula failed.")))
+    (report-strings (:first-failure m))))
   
 (letfn [(render [m]
           (->> m report-strings flatten (remove nil?) (map *renderer*) doall))]

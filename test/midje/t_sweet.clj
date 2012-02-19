@@ -328,7 +328,8 @@
 (after-silently
   (formula [a "y"]
     a => :foo))
-(fact @reported => (one-of (contains {:type :formula-fail})))
+(fact @reported => (one-of (contains {:type :formula-fail
+                                      :first-failure (contains {:type :mock-expected-result-failure})})))
 
 (defn make-string []
   (rand-nth ["a" "b" "c" "d" "e" "f" "g" "i"]))
