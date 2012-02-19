@@ -325,14 +325,19 @@
   (provided 
     (a) =throws=> (IllegalArgumentException. "blammo")))
 
+
+;; failed formulas report once per formula regardless how many generations were run
 (after-silently
-  (formula [a "y"]
+  (formula "some description" [a "y"]
     a => :foo))
 (fact @reported => (one-of (contains {:type :formula-fail
-                                      :first-failure (contains {:type :mock-expected-result-failure})})))
+                                      :first-failure (contains {:type :mock-expected-result-failure
+                                                                :description "some description"})})))
 
 (defn make-string []
   (rand-nth ["a" "b" "c" "d" "e" "f" "g" "i"]))
 
-(formula [a (make-string) b (make-string)]
+(formula 
+  "can now use simple generative-style formulas" 
+  [a (make-string) b (make-string)]
   (str a b) => (has-prefix a))
