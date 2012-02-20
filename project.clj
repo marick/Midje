@@ -19,7 +19,8 @@
                "1.3.0" [[org.clojure/clojure "1.3.0"]]
                "1.4.0" [[org.clojure/clojure "1.4.0-beta1"]]
                :all ~common-deps }
-  :dev-dependencies [[slamhound "1.2.0"]]
+  :dev-dependencies [[slamhound "1.2.0"]
+                     [com.stuartsierra/lazytest "1.2.3"]]
 
   ;; automatically detects when your :dependencies key changes and runs
   ;; lein deps behind the scenes when necessary.
