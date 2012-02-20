@@ -17,7 +17,7 @@
 
 ;;; Printing ergonomic stacktraces
 
-(defn- ^{:testable true} stacktrace-as-strings [ex]
+(defn- ^{:testable true} stacktrace-as-strings [^Throwable ex]
   (map str (.getStackTrace ex)))
 
 (letfn [(remove-matches [re strings]
