@@ -69,6 +69,8 @@ You can [download
 everything](http://github.com/marick/Midje/downloads) to get
 more examples.
 
+Or in the #midje channel on freenode!
+
 Contributors
 ==============
 * Sean T. Allen
