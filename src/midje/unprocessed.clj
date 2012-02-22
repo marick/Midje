@@ -15,6 +15,8 @@
         [utilize.seq :only [find-first]]))
 (immigrate 'midje.checkers)
 
+;; stick inside midje.ideas.formula
+
 (def ^{:private true} formula-reports (atom []))
 
 (defn ^{:private true} report-formula [report-map]
@@ -26,6 +28,8 @@
       (report failure)
       (report {:type :pass}) )
     (reset! formula-reports [])))
+
+;;;;;;
 
 (letfn [(fail [type actual call]
           {:type type
