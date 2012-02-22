@@ -131,6 +131,9 @@
   (throw-exception "msg") => (throws #"^m" #"g$")
   (throw-exception "msg") => (throws Error #"^m" #"g$"))
 
+(fact "`throws` matches any exception that is an instance of expected"
+  (throw (NullPointerException.)) => (throws Exception))
+
 ;; Unexpected exceptions
 (after-silently
  (facts

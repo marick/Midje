@@ -11,7 +11,7 @@
     [midje.util.ecosystem :only [clojure-1-3? +M -M *M]]
     [midje.util.form-utils :only [defalias def-many-methods pred-cond regex?]]
     [midje.util.backwards-compatible-utils :only [every-pred-m some-fn-m]])
-  (:import [midje.error_handling.exceptions CapturedThrowable]))
+  (:import [midje.error_handling.exceptions ICapturedThrowable]))
 
 (defchecker truthy 
   "Returns precisely true if actual is not nil and not false."
@@ -82,17 +82,17 @@
                       class?                     :throwable )))))
 
 (defmethod throws #{:message } [& expected-msgs]
-  (checker [^CapturedThrowable wrapped-throwable]
+  (checker [^ICapturedThrowable wrapped-throwable]
     (let [actual-msg (.getMessage ^Throwable (.throwable wrapped-throwable))]
       (every? (partial extended-= actual-msg) expected-msgs))))
 
 (defmethod throws #{:predicate} [& preds]
-  (checker [^CapturedThrowable wrapped-throwable]
+  (checker [^ICapturedThrowable wrapped-throwable]
     ((apply every-pred-m preds) (.throwable wrapped-throwable))))
 
 (defmethod throws #{:throwable} [clazz]
-  (checker [^CapturedThrowable wrapped-throwable]
-    (= clazz (class (.throwable wrapped-throwable)))))
+  (checker [^ICapturedThrowable wrapped-throwable]
+    (instance? clazz (.throwable wrapped-throwable))))
 
 (def-many-methods throws [#{:throwable :predicate}, #{:message :predicate },
                           #{:throwable :message}, #{:throwable :message :predicate}] [& args]

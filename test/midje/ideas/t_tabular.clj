@@ -240,24 +240,24 @@
          '(do (midje.semi-sweet/expect (a) => b)
               (do (midje.semi-sweet/expect (inc a) => M)))
          '(do (midje.semi-sweet/expect (a) => b
-                                       :binding-note "{?a a}")
+                                       :binding-note "[?a a]")
                       (do (midje.semi-sweet/expect (inc a) => M
-                                                   :binding-note "{?a a}")))
+                                                   :binding-note "[?a a]")))
 
          "fakes do not get insertions"
          '(do (midje.semi-sweet/expect (a) => b
                                        (midje.semi-sweet/fake (x) => 3)))
-         '(do (midje.semi-sweet/expect (a) => b :binding-note "{?a a}"
+         '(do (midje.semi-sweet/expect (a) => b :binding-note "[?a a]"
                                        (midje.semi-sweet/fake (x) => 3)))
 
          "other annotations are preserved"
          '(do (midje.semi-sweet/expect (a) => b :line 33))
-         '(do (midje.semi-sweet/expect (a) => b :binding-note "{?a a}" :line 33)))
+         '(do (midje.semi-sweet/expect (a) => b :binding-note "[?a a]" :line 33)))
 
 (fact "binding notes are in the order of the original row - this order is maintained within the ordered-binding-map"
   (let [actual (add-binding-note '(do (expect 1 => 2))
                                           (ordered-map '?a 1, '?b 2, '?delta "0", '?result 3))
-        expected '(do (expect 1 => 2 :binding-note "{?a 1, ?b 2, ?delta \"0\", ?result 3}"))]
+        expected '(do (expect 1 => 2 :binding-note "[?a 1\n                           ?b 2\n                           ?delta \"0\"\n                           ?result 3]"))]
     actual => expected))
     
 ;; tabular doc-string prints in report

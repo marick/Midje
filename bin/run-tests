@@ -17,7 +17,7 @@ lein_midje_runs = %w{examples/basic
                     examples/compound-checkers
                      examples/leiningen-midje}
 
-cake_midje_runs = %w{examples/cake-midje}
+cake_midje_runs = %w{}
 
 run_runs = %w{  }   # I doubt these are worthwhile any more.
 

@@ -9,7 +9,7 @@
         [midje.checkers.defining :only [checker? checker-makers]]
         [midje.internal-ideas.expect :only [expect? up-to-full-expect-form]]
         [midje.util.form-utils :only [first-named? translate-zipper map-difference
-                                      hash-map-duplicates-ok pred-cond]]
+                                      hash-map-duplicates-ok pred-cond to-thunks]]
         [midje.ideas.metaconstants :only [metaconstant-for-form
                                           with-fresh-generated-metaconstant-names]]
         [midje.checkers.extended-equality :only [extended-= extended-list-= extended-fn?]]
@@ -46,27 +46,32 @@
     (fn [actual] (extended-= actual (exactly expected)))
     (fn [actual] (extended-= actual expected))))
 
-(defmulti make-result-supplier (fn [arrow & _] arrow))
+(defmulti make-result-supplier* (fn [arrow & _] arrow))
 
-(defmethod make-result-supplier => [_arrow_ result] (constantly result))
+(defmethod make-result-supplier* => [_arrow_ result] (constantly result))
 
-(defmethod make-result-supplier =streams=> [_arrow_ result-stream]
-  (let [current-stream (atom result-stream)]
+(defmethod make-result-supplier* =streams=> [_arrow_ result-stream-of-thunks]
+  (let [the-stream (atom result-stream-of-thunks)]
     (fn []
-      (when (empty? @current-stream)
+      (when (empty? @the-stream)
         (throw (user-error "Your =stream=> ran out of values.")))
-      (let [current-result (first @current-stream)]
-        (swap! current-stream rest)
-        current-result))))
+      (let [current-result (first @the-stream)]
+        (swap! the-stream rest)
+        (current-result)))))
 
-(defmethod make-result-supplier =throws=> [_arrow_ throwable]
+(defmethod make-result-supplier* =throws=> [_arrow_ throwable]
   (fn []
     (when (not (instance? Throwable throwable))
       (throw (user-error "Right side of =throws=> should extend Throwable.")))
     (throw throwable)))
 
-(defmethod make-result-supplier :default [arrow result-stream]
+(defmethod make-result-supplier* :default [arrow result-stream]
   (throw (user-error "It's likely you misparenthesized your metaconstant prerequisite.")))
+
+(defmacro make-result-supplier [arrow rhs]
+  (if (= (name =streams=>) (name arrow))
+    `(make-result-supplier* ~arrow (to-thunks ~rhs))
+    `(make-result-supplier* ~arrow ~rhs)))
 
 (letfn [(make-fake-map
           [var-sym special-to-fake-type user-override-pairs]

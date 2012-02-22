@@ -11,10 +11,10 @@
         [midje.test-util])
   (:import midje.ideas.metaconstants.Metaconstant))
 
-(expose-testables midje.internal-ideas.fakes) 
+(expose-testables midje.internal-ideas.fakes)
 
 (tabular
-(facts "the arg matcher maker handles functions specially"
+  (facts "the arg matcher maker handles functions specially"
    ((arg-matcher-maker ?expected) ?actual) => ?result)
 ?expected              ?actual         ?result
 1                      1               TRUTHY
@@ -122,6 +122,22 @@ odd?                   3               falsey)
     (supplier) => 1
     (supplier) => 2
     (supplier) => 3))
+
+(unfinished called)
+
+(defn caller []
+  (try
+    (called)
+    (catch Exception e nil))
+  (try
+    (called)
+    (catch Exception e nil))
+  (called))
+
+(fact "=streams=> makes thunks of each item on right hand side"
+  (caller) => 7
+  (provided
+    (called) =streams=> [(throw (Exception. "first!")) (throw (Exception. "second!")) 7]))
 
 
 ;;; Handling of default values for fakes
