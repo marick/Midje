@@ -44,13 +44,18 @@
         value-rows (partition (count headings-row) values)]
     (map (partial ordered-zipmap headings-row) value-rows)))
 
+(defn- format-binding-map [binding-map] 
+  (let [formatted-entries (for [[k v] binding-map]
+                            (str (pr-str k) " " (pr-str v)))]
+    (str "[" (join "\n                           " formatted-entries) "]")))
+
 (defn- ^{:testable true } add-binding-note
   [expect-containing-form ordered-binding-map]
   (translate-zipper expect-containing-form
     expect?
     (fn [loc] (skip-to-rightmost-leaf
                 (above-arrow-sequence__add-key-value__at-arrow
-                  :binding-note (pr-str ordered-binding-map) loc)))))
+                  :binding-note (format-binding-map ordered-binding-map) loc)))))
 
 (defn tabular* [locals form]
   (letfn [(macroexpander-for [fact-form]
