@@ -1,5 +1,10 @@
 1.3.2-SNAPSHOT
 -------------
+* throws now accepts any extending Throwable. For example, this now passes:
+  (throw (NullPointerException.)) => (throws Exception)
+* each item in the right hand side of =streams=> will evaluate lazily:
+  (provided
+     (volatile-fn) =streams=> [(throw (Exception.) (throw (Exception.)) :evaluates-succesfully] 
 * new function midje.sweet/expose-testables will allow you to write facts against 
   functions defined with the metadata of ^{:testable true} [or ^:testable, 
   or #^testable depending on which Clojure version you're running] 
