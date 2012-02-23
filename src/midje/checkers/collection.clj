@@ -200,7 +200,8 @@ However, it's required if you want to use checkers in the expected result:
 just is also useful if you don't care about order:
 
   [1 3 2] => (just   [1 2 3] :in-any-order)
-  [1 3 2] => (just  #{1 2 3})"}
+  [1 3 2] => (just  #{1 2 3})"
+         :arglists '([expected looseness])}
     just (container-checker-maker 'just
            (fn [actual expected looseness]
              (let [[actual expected looseness] (standardized-arguments actual expected looseness)]

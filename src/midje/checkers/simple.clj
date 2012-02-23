@@ -74,6 +74,7 @@
    Arguments can be in any order. Except for a class argument, they can be repeated.
    So, for example, you can write this:
        (fact (foo) => (throws #\"one part\" #\"another part\"))"
+  {:arglists '([& args])}
   (fn [& args]
     (set (for [arg args]
            (pred-cond arg
