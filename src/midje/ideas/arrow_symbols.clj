@@ -26,11 +26,13 @@
 
 (def ^{:doc "Prerequisite arrow. The fake will return the first element 
   of the given sequence the first time the fake is evaluated, the second 
-  element the second time, and so on.
+  element the second time, and so on. Note, that each element is only 
+  evaluated when needed, thus in the below example the exception is 
+  never thrown.
 
   Ex. (def tally [] (+ (bar) (bar) (bar)))
       (fact (tally) => 6
-        (provided (bar) =streams=> [1 2 3]))"} 
+        (provided (bar) =streams=> [1 2 3 (throw (Exception.))]))"} 
   =streams=> "=streams=>")
 
 (def ^{:doc "Prerequisite arrow. The fake will throw the Throwable on 

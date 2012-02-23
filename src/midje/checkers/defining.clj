@@ -33,19 +33,20 @@
   (defmacro defchecker
     "Like defn, but tags the variable created and the function it refers to
      as checkers. Checkers can be used to check fact results, as well as prerequisite calls."
-    [checker-name & stuff]
+    {:arglists '([name docstring? attr-map? arglists arglists+bodies])}
+    [name & stuff]
     (cond 
       (and (string? (first stuff)) (map? (second stuff)))
-      (working-with-arglists+bodies checker-name (first stuff) (second stuff) (drop 2 stuff))
+      (working-with-arglists+bodies name (first stuff) (second stuff) (drop 2 stuff))
     
       (map? (first stuff))
-      (working-with-arglists+bodies checker-name nil (first stuff) (rest stuff))
+      (working-with-arglists+bodies name nil (first stuff) (rest stuff))
     
       (string? (first stuff))
-      (working-with-arglists+bodies checker-name (first stuff) {} (rest stuff))
+      (working-with-arglists+bodies name (first stuff) {} (rest stuff))
     
       :else
-      (working-with-arglists+bodies checker-name nil {} stuff))))
+      (working-with-arglists+bodies name nil {} stuff))))
 
 (defmacro checker
   "Creates an anonymous function tagged as a checker. Checkers can be used 
