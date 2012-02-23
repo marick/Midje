@@ -320,10 +320,14 @@
 (defn a [])
 (defn b [] (a))
 
-(fact "prerequisites can throw throwables"
-  (b) => (throws IllegalArgumentException "blammo")
+(fact "two ways prerequisites can throw throwables"
+  (b) => (throws Exception)
   (provided 
-    (a) =throws=> (IllegalArgumentException. "blammo")))
+    (a) =throws=> (Exception.))
+
+  (b) => (throws Exception)
+  (provided
+    (a) =streams=> [(throw (Exception.))]))
 
 
 ;; failed formulas report once per formula regardless how many generations were run

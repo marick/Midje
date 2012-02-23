@@ -9,7 +9,8 @@
   "DEPRECATED: use 'contains' checker instead.
    Accepts a map that contains all the keys and values in expected,
    perhaps along with others"
-  {:deprecated "0.9.0"}
+  {:deprecated "0.9.0"
+   :arglists '([expected])}
   [expected]
   (contains expected))
 
@@ -25,7 +26,8 @@
   
      You can call this with either (only-maps-containing {..} {..}) or
      (only-maps-containing [ {..} {..} ])."
-    {:deprecated "0.9.0"}
+    {:deprecated "0.9.0"
+     :arglists '([maps-or-maplist])}
     [& maps-or-maplist]
     (let [expected (one-level-map-flatten maps-or-maplist)
           subfunctions (map contains expected)]
@@ -38,7 +40,8 @@
   
      You can call this with either (maps-containing {..} {..}) or
      (maps-containing [ {..} {..} ])."
-    {:deprecated "0.9.0"}
+    {:deprecated "0.9.0"
+     :arglists '([maps-or-maplist])}
     [& maps-or-maplist]
     (let [expected (one-level-map-flatten maps-or-maplist)
           subfunctions (map contains expected)]
@@ -47,6 +50,7 @@
 (defchecker in-any-order
   "DEPRECATED: use (just x :in-any-order) instead. 
    Produces matcher that matches sequences without regard to order."
-  {:deprecated "0.9.0"}
+  {:deprecated "0.9.0"
+   :arglists '([expected])}
   [expected]
   (just expected :in-any-order))

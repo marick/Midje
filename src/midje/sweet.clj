@@ -112,12 +112,14 @@
   (macro-for [name future-fact-variant-names]
     `(defmacro ~(symbol name)
        "Fact that will not be run. Generates 'WORK TO DO' report output as a reminder."
+       {:arglists '([& ~'forms])}
        [& forms#]
        (future-fact* ~'&form))))
 
 (generate-future-fact-variants)
 
-(defmacro tabular 
+(defmacro
+  tabular 
   "Generate a table of related facts.
   
    Ex. (tabular \"table of simple math\" 
@@ -127,5 +129,6 @@
            1 2      3
            3 4      7
            9 10     19 )"
+  {:arglists '([doc-string? fact table])}
   [& _]
   (tabular* (keys &env) &form))

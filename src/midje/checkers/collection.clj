@@ -121,7 +121,8 @@
   [1 2 3] => (has-prefix   [1 2]) ; true
   [1 2 3] => (has-prefix   [2 1]) ; false - order matters
   [1 2 3] => (has-prefix   [2 1] :in-any-order) ; true
-  [1 2 3] => (has-prefix  #{2 1}) ; true "}
+  [1 2 3] => (has-prefix  #{2 1}) ; true "
+        :arglists '([expected-prefix looseness?])}
     has-prefix
     (container-checker-maker 'has-prefix
       (has-xfix "prefix" #(re-pattern (str "^" %)) take)))
@@ -132,7 +133,8 @@
   [1 2 3] => (has-suffix   [2 3]) ; true
   [1 2 3] => (has-suffix   [3 2]) ; false - order matters
   [1 2 3] => (has-suffix   [3 2] :in-any-order) ; true
-  [1 2 3] => (has-suffix  #{3 2}) ; true "}
+  [1 2 3] => (has-suffix  #{3 2}) ; true "
+         :arglists '([expected-suffix looseness?])}
     has-suffix
     (container-checker-maker 'has-suffix
       (has-xfix "suffix" #(re-pattern (str % "$")) take-last)))
@@ -170,7 +172,8 @@ what's contained by a set. The following two are equivalent:
    [700 4 5] => (contains [4 5 700] :in-any-order)
    [700 4 5] => (contains #{4 5 700})
 
-:gaps-ok can be used with a set. (So can :in-any-order, but it has no effect.)"}
+:gaps-ok can be used with a set. (So can :in-any-order, but it has no effect.)"
+    :arglists '([expected looseness])}
     contains (container-checker-maker 'contains
                (fn [actual expected looseness]
                  (let [[actual expected looseness] (standardized-arguments actual expected looseness)]
@@ -197,7 +200,8 @@ However, it's required if you want to use checkers in the expected result:
 just is also useful if you don't care about order:
 
   [1 3 2] => (just   [1 2 3] :in-any-order)
-  [1 3 2] => (just  #{1 2 3})"}
+  [1 3 2] => (just  #{1 2 3})"
+         :arglists '([expected looseness])}
     just (container-checker-maker 'just
            (fn [actual expected looseness]
              (let [[actual expected looseness] (standardized-arguments actual expected looseness)]
@@ -241,7 +245,11 @@ just is also useful if you don't care about order:
           docstring (cl-format nil "Checks whether a sequence contains precisely ~R result~:[s, and \n  that they each match~;, and \n  that it matches~] the checker.
   
    Ex. (fact ~A => (~C :a))" num (= num 1) (vec (repeat num :a )) name)]
-      `(defchecker ~name ~docstring [expected-checker#]
-         (n-of expected-checker# ~num)))))
+      `(defchecker 
+         ~name 
+         ~docstring
+         {:arglists '([~'expected])}
+         [expected#]
+         (n-of expected# ~num)))))
 
 (generate-n-of-checkers)
