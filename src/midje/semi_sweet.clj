@@ -35,17 +35,17 @@
         =not=> :check-negated-match
         =deny=> :check-negated-match} (name arrow)))
 
-;; TODO: replace with getting these from the ns metadata
-(def ^:dynamic *cljs-ns-under-test* nil)
-(def ^:dynamic *cljs-file-under-test* nil)
-
-(defn clj-under-test []
+(defn clj-under-test
+  "the file being tested"
+  []
   (try (throw (Exception. ""))
        (catch Exception e
          (.getFileName
           (nth (.getStackTrace e) 2)))))
 
-(defn process-call-form [call-form]
+(defn process-call-form
+  "helper for unprocessed check"
+  [call-form]
   (if (= (clj-under-test) "t_basic.clj")
     (do
       (prn "call-form" call-form)
