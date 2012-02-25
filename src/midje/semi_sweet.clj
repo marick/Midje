@@ -46,19 +46,33 @@
                (.getClassName
                 (nth (.getStackTrace e) 3))))]
     (format
-     "%s.clj"
+     "test/%s.clj"
      (str/replace
       (str/replace classname #"\$.*" "")
       #"\." "/"))))
-  
+
+(defn cljs-ns-meta
+  "extract the metadata from the ns form"
+  [filename]
+  (let [{cljs-file :cljs-file} (-> filename slurp read-string second meta)]
+    (if cljs-file
+      [(symbol (str/replace
+                (str/replace
+                 (str/replace
+                  cljs-file
+                  #"\.cljs" "")
+                 #"_" "-")
+                #"/" "."))
+       cljs-file]
+      nil)))
+
 (defn process-call-form
   "helper for unprocessed check"
   [call-form]
-  (prn "under test" (clj-under-test))
-  (if (= (clj-under-test) "midje/cljs/t_basic.clj")
+  (if-let [[cljs-ns cljs-file] (cljs-ns-meta (clj-under-test))]
     (do
-      (cljs/load-cljs "midje/cljs/basic.cljs") ;; TODO: run once for ns--how?
-      (cljs/cljs-eval call-form 'midje.cljs.basic))
+      (cljs/load-cljs cljs-file) ; TODO: run only once for ns-- how?
+      (cljs/cljs-eval call-form cljs-ns))
     call-form))
 
 (defmacro unprocessed-check
