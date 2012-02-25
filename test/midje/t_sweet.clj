@@ -345,23 +345,16 @@
   (str a b) => (has-prefix a))
 
 
+;; Ensuring formula macro evaluates its args plenty of times.
 
+(defn-verifiable y-maker [] "y")
+(defn-verifiable my-str [s] (str s))
 
-(def times-y-maker-was-called (atom 0))
-(defn y-maker []
-  (swap! times-y-maker-was-called inc)
-  "y")
-(formula [a (y-maker)]
-  a => "y")
-(fact @times-y-maker-was-called => 100)
-
-
-(def times-my-str-was-called (atom 0))
-(defn my-str [s]
-  (swap! times-my-str-was-called inc)
-  (str s))
-(formula [a (y-maker)]
+(formula "formulas run the generator many times, and evaluate their body many times" 
+  [a (y-maker)]
   (my-str a) => "y")
-(fact @times-my-str-was-called => 100)
+
+(fact @y-maker-count => 100)
+(fact @my-str-count => 100)
 
 

@@ -1,5 +1,4 @@
-(ns midje.ideas.formulas
-  (:use [utilize.macro :only [macro-for]]))
+(ns midje.ideas.formulas)
 
 (def #^:dynamic num-generations-per-formula 100)
 
@@ -17,13 +16,13 @@
   [docstring? & bindings+body]
   (let [[docstring? bindings body] (if (string? docstring?) 
                                      [docstring? (first bindings+body) (rest bindings+body)]
-                                     [nil docstring? bindings+body])]
-    `(do
-       (macro-for [_# (range (dec num-generations-per-formula))]
-         (let ~bindings
-           (midje.sweet/fact ~docstring?
-             ~@body :formula :formula-in-progress )))
+                                     [nil docstring? bindings+body])
+        all-but-last-facts (repeat (dec num-generations-per-formula)
+                             `(let ~bindings
+                                (midje.sweet/fact ~docstring?
+                                  ~@body :formula :formula-in-progress )))
+        last-fact `(let ~bindings
+                     (midje.sweet/fact ~docstring?
+                       ~@body :formula :formula-conclude ))]
   
-       (let ~bindings
-         (midje.sweet/fact ~docstring?
-           ~@body :formula :formula-conclude )))))
+    `(do ~@all-but-last-facts ~last-fact)))

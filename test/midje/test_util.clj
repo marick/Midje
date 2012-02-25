@@ -69,3 +69,16 @@
 
 (defmacro with-identity-renderer [& forms]
   `(binding [midje.internal-ideas.report/*renderer* identity] ~@forms))
+
+(defmacro defn-verifiable
+  "Note: For testing Midje code that couldn't use provided.
+  
+  Creates a function that records how many times it is called, and records 
+  that count in the atom named the same as the function with -count appended"
+  [name args & body]
+  (let [atom-name (symbol (str name "-count"))]
+    `(do
+       (def ~atom-name (atom 0))
+       (defn ~name ~args
+         (swap! ~atom-name inc)
+         ~@body))))

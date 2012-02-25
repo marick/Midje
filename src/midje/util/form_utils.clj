@@ -197,7 +197,8 @@ metadata (as provided by def) merged into the metadata of the original."
   `(alias-var (quote ~dst) (var ~src)))
 
 (defmacro to-thunks
-  "Takes a seq of unevaluated exprs. Returns a seq of no argument fns, that call each of the exprs in turn"
+  "Takes a seq of unevaluated exprs. Returns a seq of no argument fns, 
+  that call each of the exprs in turn"
   [exprs]
   (into [] (for [x exprs]
              `(fn [] ~x))))
