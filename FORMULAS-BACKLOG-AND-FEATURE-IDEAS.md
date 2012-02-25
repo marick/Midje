@@ -19,3 +19,14 @@
  a. [ ] no shrink
   
 6. [ ] if we do metaconstant style, implement generator overriding
+
+
+OTHER:
+
+* make number of generated facts per formula dynamically bindable
+   - add-watch that throws an eception of this value is set < 1
+   
+* possibly don't use fact macro inside of formula, but instead do something like tabular
+
+* figure out how to make syntax validation errors show something more sensible than the 
+  error message you'd see for a problem with a fact validation problem
