@@ -126,11 +126,3 @@
   {:arglists '([doc-string? fact table])}
   [& _]
   (tabular* (keys &env) &form))
-
-(defmacro expose-testables
-  "Enables testing of vars in the target ns which have ^:testable metadata"
-  [target-ns]
-  (macro-for [testable-sym (for [[sym var] (ns-interns target-ns)
-                                 :when (:testable (meta var))]
-    sym) ]
-    `(def ~testable-sym (intern '~target-ns '~testable-sym))))

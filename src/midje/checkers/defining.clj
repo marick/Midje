@@ -14,9 +14,8 @@
           (let [metavars (merge {:midje/checker true :arglists `'~arglists}
                                 (when docstring {:doc docstring})
                                  attr-map)
-                name (vary-meta checker-name merge metavars)
-                checker-fn `(as-checker (fn ~checker-name ~@arglists+bodies))]
-            `(def ~name ~checker-fn)))
+                name (vary-meta checker-name merge metavars)]
+            `(def ~name (as-checker (fn ~checker-name ~@arglists+bodies)))))
 
         (working-with-arglists+bodies [checker-name docstring attr-map arglists+bodies]
           ;; Note: it's not strictly necessary to convert a single

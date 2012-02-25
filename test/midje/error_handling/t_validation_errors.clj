@@ -4,7 +4,8 @@
   (:use [midje sweet test-util]
         [midje.error-handling.validation-errors]
         [midje.internal-ideas.file-position :only [form-position]]
-        [clojure.algo.monads]))
+        [clojure.algo.monads]
+        midje.util))
 
 (expose-testables midje.error-handling.validation-errors)
 

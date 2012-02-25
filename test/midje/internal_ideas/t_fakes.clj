@@ -8,7 +8,8 @@
   call-faker best-call-action ]]
         [midje.ideas.metaconstants :only [metaconstant-for-form]]
         [utilize.seq :only (find-first only)]
-        [midje.test-util])
+        [midje.test-util]
+        midje.util)
   (:import midje.ideas.metaconstants.Metaconstant))
 
 (expose-testables midje.internal-ideas.fakes)

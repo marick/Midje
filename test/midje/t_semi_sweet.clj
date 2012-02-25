@@ -4,7 +4,8 @@
   (:use [clojure.test]  ;; This is used to check production mode with deftest.
         [midje.sweet]
         [midje.util form-utils]
-        [midje.test-util])
+        [midje.test-util]
+        midje.util)
   (:require [clojure.zip :as zip]))
 (expose-testables midje.semi-sweet)
  

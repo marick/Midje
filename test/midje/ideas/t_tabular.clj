@@ -5,7 +5,8 @@
         [midje.ideas.metaconstants :only [metaconstant-symbol?]]
         [midje.error-handling.validation-errors]
         [midje sweet test-util]
-        [ordered.map :only (ordered-map)]))
+        [ordered.map :only (ordered-map)]
+        midje.util))
 
 (expose-testables midje.ideas.tabular)
 

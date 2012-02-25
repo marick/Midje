@@ -4,7 +4,8 @@
   (:use [midje sweet test-util]
         [midje.checkers.defining :only [checker?]]
         [midje.checkers.chatty :only [chatty-falsehood-to-map
-                                      chatty-checker-falsehood?]]))
+                                      chatty-checker-falsehood?]]
+        midje.util))
 (expose-testables midje.checkers.collection)
 
 (defrecord AB [a b])
