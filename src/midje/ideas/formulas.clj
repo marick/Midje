@@ -1,6 +1,6 @@
 (ns midje.ideas.formulas)
 
-(def ^{:dynamic true} *num-generations-per-formula* 100)
+(def ^{:private true} num-generations-per-formula 100)
 
 (defmacro formula 
   "Generative-style fact macro. 
@@ -17,7 +17,7 @@
   (let [[docstring? bindings body] (if (string? docstring?) 
                                      [docstring? (first bindings+body) (rest bindings+body)]
                                      [nil docstring? bindings+body])
-        all-but-last-facts (repeat (dec *num-generations-per-formula*)
+        all-but-last-facts (repeat (dec num-generations-per-formula)
                              `(let ~bindings
                                 (midje.sweet/fact ~docstring?
                                   ~@body :formula :formula-in-progress )))
