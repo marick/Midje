@@ -27,11 +27,17 @@
     (cljs-eval '(+ 1 2))
     (cljs-eval '(doubler 4) 'midje.cljs.basic)"
   [form & [cljs-ns]]
-  (let [env {:ns (@comp/namespaces comp/*cljs-ns*) :context :statement :locals {}}]
-    (read-string (repl/evaluate-form *env*
-                                     (if cljs-ns (assoc env :ns {:name cljs-ns}) env)
-                                     "<cljs repl>"
-                                     form
-                                     (wrap-fn form)))))
+  (let [env {:ns (@comp/namespaces comp/*cljs-ns*)
+             :context :statement
+             :locals {}}]
+    (read-string
+     (repl/evaluate-form
+      *env*
+      (if cljs-ns
+        (assoc env :ns {:name cljs-ns})
+        env)
+      "<cljs repl>"
+      form
+      (wrap-fn form)))))
 
 (load-file "cljs/core.cljs")
