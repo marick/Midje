@@ -66,7 +66,8 @@
     (throw throwable)))
 
 (defmethod make-result-supplier* :default [arrow result-stream]
-  (throw (user-error "It's likely you misparenthesized your metaconstant prerequisite.")))
+  (throw (user-error "It's likely you misparenthesized your metaconstant prerequisite,"
+                     "or that you forgot to use an arrow in your provided form.")))
 
 (defmacro make-result-supplier [arrow rhs]
   (if (= (name =streams=>) (name arrow))
