@@ -8,7 +8,7 @@
                    [org.clojure/core.incubator "0.1.0"]
                    [org.clojure/core.match "0.2.0-alpha9"]])
 
-(defproject midje "1.3.2-alpha1"
+(defproject midje "1.3.2-SNAPSHOT"
   :description "A TDD library for Clojure that supports top-down ('mockish') TDD, encourages readable tests, provides a smooth migration path from clojure.test, balances abstraction and concreteness, and strives for graciousness."
   :url "https://github.com/marick/Midje"
   :dependencies ~(conj common-deps

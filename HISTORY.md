@@ -1,18 +1,20 @@
 UNRELEASED
-----------
+---------- 
+* 
+
+1.3.2-SNAPSHOT
+-------------
 * formula macro enables simple generative style testing. Still very alpha.  
 * throws now accepts any extending Throwable. For example, this now passes:
   (throw (NullPointerException.)) => (throws Exception)
 * each item in the right hand side of =streams=> will evaluate lazily:
   (provided
      (volatile-fn) =streams=> [(throw (Exception.) (throw (Exception.)) :evaluates-succesfully]
-* new function midje.sweet/expose-testables will allow you to write facts against 
+* new function midje.util/testables-privates will allow you to write facts against private vars 
+* new function midje.util/expose-testables will allow you to write facts against 
   private functions defined with the metadata of ^{:testable true}
 * Can now have prerequisites that throw Throwables using =throws=>
-    (provided (foo) =throws=> (Exception. "message"))
-
-1.3.2-SNAPSHOT
--------------     
+    (provided (foo) =throws=> (Exception. "message"))  
 * Chatty checkers can destructure their single argument.                                           
 * tabular no longer requires variables names to begin with '?'
 * throws checker has been updated: args are now any combination, in
