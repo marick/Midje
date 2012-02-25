@@ -16,7 +16,8 @@
         [midje.util.namespace :only [is-semi-sweet-keyword?]]
         [midje.production-mode]
         [clojure.pprint])
-  (:require [midje.cljs :as cljs]))
+  (:require [midje.cljs :as cljs]
+            [clojure.string :as str]))
 (immigrate 'midje.unprocessed)
 (immigrate 'midje.ideas.arrow-symbols)
 
@@ -36,17 +37,25 @@
         =deny=> :check-negated-match} (name arrow)))
 
 (defn clj-under-test
-  "the file being tested"
+  "the file being tested
+   this is a very bad hack, is there a better way?"
   []
-  (try (throw (Exception. ""))
-       (catch Exception e
-         (.getFileName
-          (nth (.getStackTrace e) 2)))))
-
+  (let [classname
+        (try (throw (Exception. ""))
+             (catch Exception e
+               (.getClassName
+                (nth (.getStackTrace e) 3))))]
+    (format
+     "%s.clj"
+     (str/replace
+      (str/replace classname #"\$.*" "")
+      #"\." "/"))))
+  
 (defn process-call-form
   "helper for unprocessed check"
   [call-form]
-  (if (= (clj-under-test) "t_basic.clj")
+  (prn "under test" (clj-under-test))
+  (if (= (clj-under-test) "midje/cljs/t_basic.clj")
     (do
       (cljs/load-cljs "midje/cljs/basic.cljs") ;; TODO: run once for ns--how?
       (cljs/cljs-eval call-form 'midje.cljs.basic))
