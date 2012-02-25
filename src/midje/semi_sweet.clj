@@ -48,7 +48,7 @@
   [call-form]
   (if (= (clj-under-test) "t_basic.clj")
     (do
-      (cljs/load-file "midje/cljs/basic.cljs") ;; TODO: run once for ns--how?
+      (cljs/load-cljs "midje/cljs/basic.cljs") ;; TODO: run once for ns--how?
       (cljs/cljs-eval call-form 'midje.cljs.basic))
     call-form))
 

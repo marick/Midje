@@ -8,7 +8,7 @@
 
 (def ^:dynamic *env* (rhino/repl-env))
 
-(defn load-file [f] (repl/load-file *env* f))
+(defn load-cljs [f] (repl/load-file *env* f))
 
 (defn- wrap-fn
   "borrowed from cljs.repl (declared private in that ns)"
@@ -40,4 +40,4 @@
       form
       (wrap-fn form)))))
 
-(load-file "cljs/core.cljs")
+(load-cljs "cljs/core.cljs")
