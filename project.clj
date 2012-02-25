@@ -11,7 +11,7 @@
                  [org.clojure/tools.macro "0.1.1"]
                  [org.clojure/core.incubator "0.1.0"]
                  [clj-stacktrace-alex "0.2.5"]
-                 [org.clojure/clojurescript "0.0-927"]]
+                 [org.clojure/clojurescript "0.0-971"]]
 
   ;; TODO: Alex Jan 29, 2012 - figure out how to not duplicate these deps 
 
@@ -27,7 +27,7 @@
                      [org.clojure/tools.macro "0.1.1"]
                      [org.clojure/core.incubator "0.1.0"]
                      [clj-stacktrace-alex "0.2.5"]
-                     [org.clojure/clojurescript "0.0-927"]] }
+                     [org.clojure/clojurescript "0.0-971"]]}
   :dev-dependencies [[slamhound "1.2.0"]
                      [com.intelie/lazytest "1.0.0-SNAPSHOT" :exclusions [swank-clojure]]]
 
