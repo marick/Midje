@@ -36,13 +36,24 @@
         =deny=> :check-negated-match} (name arrow)))
 
 ;; TODO: replace with getting these from the ns metadata
-(def ^{:doc "none yet"
-       :dynamic true}
-  *cljs-ns-under-test* nil)
+(def ^:dynamic *cljs-ns-under-test* nil)
+(def ^:dynamic *cljs-file-under-test* nil)
 
-(def ^{:doc "none yet"
-       :dynamic true} 
-  *cljs-file-under-test* nil)
+(defn clj-under-test []
+  (try (throw (Exception. ""))
+       (catch Exception e
+         (.getFileName
+          (nth (.getStackTrace e) 2)))))
+
+(defn process-call-form [call-form]
+  (if (= (clj-under-test) "t_basic.clj")
+    (do
+      (prn "call-form" call-form)
+      ;; TODO: move this to only be run once for ns
+      (cljs/load-file "midje/cljs/basic.cljs")
+      (prn "doing this:" (cljs/cljs-eval call-form 'midje.cljs.basic))
+      (cljs/cljs-eval call-form 'midje.cljs.basic))
+    call-form))
 
 (defmacro unprocessed-check
   "Creates a map that contains a function-ized version of the form being 
@@ -50,11 +61,7 @@
    failure. See 'expect*'."
   [call-form arrow expected-result overrides]
   `(merge
-    {:function-under-test (fn [] (if ~*cljs-ns-under-test*
-                                   (do
-                                     (cljs/load-file ~*cljs-file-under-test*) ; TODO: move this to only be run once for ns
-                                     (cljs/cljs-eval ~call-form ~*cljs-ns-under-test*))
-                                   ~call-form))
+    {:function-under-test (fn [] (process-call-form ~call-form))
      :expected-result ~expected-result
      :desired-check ~(check-for-arrow arrow)
      :expected-result-text-for-failures '~expected-result
