@@ -38,7 +38,7 @@
 
 (defn clj-under-test
   "the file being tested
-   this is a very bad hack, is there a better way?"
+   this is a terrible kluge, is there a better way?"
   []
   (let [classname
         (try (throw (Exception. ""))
