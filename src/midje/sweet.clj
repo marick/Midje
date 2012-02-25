@@ -34,7 +34,7 @@
 
 (def ^{:doc "The number of generated fact runs for each formula. 100 by default."
        :dynamic true}
-  num-generations-per-formula num-generations-per-formula)
+  *num-generations-per-formula* #'formulas/*num-generations-per-formula*)
 
 (intern+keep-meta *ns* 'before  #'background/before)
 (intern+keep-meta *ns* 'after   #'background/after)
