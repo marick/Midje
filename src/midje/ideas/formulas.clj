@@ -1,4 +1,5 @@
-(ns midje.ideas.formulas)
+(ns midje.ideas.formulas
+  (:use [midje.util.form-utils :only [pop-docstring]]))
 
 (def ^{:private true} num-generations-per-formula 100)
 
@@ -13,10 +14,9 @@
   
   For each formula the number of generated test runs is stored in the dynamic var 
   *num-generations-per-formula*, which is set to 100 by default."
-  [docstring? & bindings+body]
-  (let [[docstring? bindings body] (if (string? docstring?) 
-                                     [docstring? (first bindings+body) (rest bindings+body)]
-                                     [nil docstring? bindings+body])
+  {:arglists '([docstring? & bindings+body])}
+  [& args]
+  (let [[docstring? [bindings & body]] (pop-docstring args)
         all-but-last-facts (repeat (dec num-generations-per-formula)
                              `(let ~bindings
                                 (midje.sweet/fact ~docstring?

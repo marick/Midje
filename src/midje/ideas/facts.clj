@@ -22,8 +22,8 @@
                                        against-background-children-wrappers
                                        against-background?]]
         [midje.ideas.metaconstants :only [define-metaconstants]] 
-        [midje.util.form-utils :only [first-named? translate-zipper preserve-type quoted? 
-                                      pred-cond reader-line-number named?]]
+        [midje.util.form-utils :only [first-named? translate-zipper pop-docstring preserve-type 
+                                      quoted? pred-cond reader-line-number named?]]
         [midje.util.laziness :only [eagerly]]
         [midje.util.zip :only [skip-to-rightmost-leaf]]
         [midje.error-handling.validation-errors :only [when-valid]])
@@ -47,9 +47,9 @@
 (defn future-fact? [form]
   (some (partial first-named? form) future-fact-variant-names ))
 
-(defn future-fact* [[_name_ doc-string? & _rest_ :as forms]]
+(defn future-fact* [[_name_ & args :as forms]]
   (let [lineno (reader-line-number forms)
-        description (when (string? doc-string?) doc-string?)]
+        [description _] (pop-docstring args)]
     `(within-fact-context ~description 
        (clojure.test/report {:type :future-fact
                              :description (midje.internal-ideas.fact-context/nested-fact-description)

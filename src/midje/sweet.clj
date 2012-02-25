@@ -11,7 +11,7 @@
         midje.error-handling.exceptions
         midje.error-handling.validation-errors
         midje.util.debugging
-        [midje.util.form-utils :only [macro-for]]
+        [midje.util.form-utils :only [macro-for pop-docstring]]
         [midje.internal-ideas.wrapping :only [put-wrappers-into-effect]]
         [midje.internal-ideas.fact-context :only [nested-fact-description]]
         [midje.internal-ideas.file-position :only [set-fallback-line-number-from]]
@@ -78,7 +78,7 @@
   [& forms]
   (when (user-desires-checking?)
     (when-valid &form
-      (let [description (when (string? (first forms)) (first forms))]
+      (let [[description forms] (pop-docstring forms)]
         (try
           (set-fallback-line-number-from &form)
           (let [[background remainder] (background/separate-background-forms forms)]

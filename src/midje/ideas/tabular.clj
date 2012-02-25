@@ -9,7 +9,7 @@
     [midje.internal-ideas.file-position :only [form-with-copied-line-numbers
                                                form-position]] ; for deprecation
     [midje.internal-ideas.report :only [midje-position-string]] ; for deprecation
-    [midje.util.form-utils :only [translate-zipper]]
+    [midje.util.form-utils :only [pop-docstring translate-zipper]]
     [midje.util.zip :only [skip-to-rightmost-leaf]]
     [midje.internal-ideas.expect :only [expect?]]
     [midje.ideas.arrows :only [above-arrow-sequence__add-key-value__at-arrow]]
@@ -75,7 +75,7 @@
          ~@expect-forms-with-binding-notes))))
 
 (defmethod validate "tabular" [[_tabular_ & form] locals]
-  (let [[[description? & _] [fact-form & table]] (split-with string? form)
+  (let [[description? [fact-form & table]] (pop-docstring form)
         [headings-row values] (headings-rows+values table locals)]
     (cond (empty? table)
           (simple-report-validation-error form

@@ -1,7 +1,8 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns ^{:doc "Various ways to define checkers."}
-  midje.checkers.defining)
+  midje.checkers.defining
+  (:use [midje.util.form-utils :only [pop-docstring]]))
 
 (defn as-checker
   "Turns an already existing function into a checker. Checkers can be used 
@@ -33,20 +34,13 @@
   (defmacro defchecker
     "Like defn, but tags the variable created and the function it refers to
      as checkers. Checkers can be used to check fact results, as well as prerequisite calls."
-    {:arglists '([name docstring? attr-map? arglists arglists+bodies])}
-    [name & stuff]
-    (cond 
-      (and (string? (first stuff)) (map? (second stuff)))
-      (working-with-arglists+bodies name (first stuff) (second stuff) (drop 2 stuff))
-    
-      (map? (first stuff))
-      (working-with-arglists+bodies name nil (first stuff) (rest stuff))
-    
-      (string? (first stuff))
-      (working-with-arglists+bodies name (first stuff) {} (rest stuff))
-    
-      :else
-      (working-with-arglists+bodies name nil {} stuff))))
+    {:arglists '([name docstring? attr-map? bindings+bodies])}
+    [name & args]
+    (let [[docstring more-args] (pop-docstring args)
+          [attr-map bindings+bodies] (if (map? (first more-args)) 
+                                       [(first more-args) (rest more-args)] 
+                                       [{} more-args])]
+      (working-with-arglists+bodies name docstring attr-map bindings+bodies))))
 
 (defmacro checker
   "Creates an anonymous function tagged as a checker. Checkers can be used 

@@ -202,3 +202,10 @@ metadata (as provided by def) merged into the metadata of the original."
   [exprs]
   (into [] (for [x exprs]
              `(fn [] ~x))))
+
+(defn pop-docstring 
+  "Used to extract optional docstring args"
+  [forms]
+  (if (string? (first forms))
+    [(first forms) (rest forms)]
+    [nil forms]))
