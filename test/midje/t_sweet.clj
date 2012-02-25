@@ -2,7 +2,6 @@
 
 (ns midje.t-sweet
   (:use midje.sweet
-        midje.ideas.formulas
         midje.test-util))
 
 (fact "all of Midje's public, API-facing vars have docstrings"
@@ -344,3 +343,25 @@
   "can now use simple generative-style formulas" 
   [a (make-string) b (make-string)]
   (str a b) => (has-prefix a))
+
+
+
+
+(def times-y-maker-was-called (atom 0))
+(defn y-maker []
+  (swap! times-y-maker-was-called inc)
+  "y")
+(formula [a (y-maker)]
+  a => "y")
+(fact @times-y-maker-was-called => 100)
+
+
+(def times-my-str-was-called (atom 0))
+(defn my-str [s]
+  (swap! times-my-str-was-called inc)
+  (str s))
+(formula [a (y-maker)]
+  (my-str a) => "y")
+(fact @times-my-str-was-called => 100)
+
+

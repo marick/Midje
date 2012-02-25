@@ -19,29 +19,27 @@
         [midje.ideas.facts :only [complete-fact-transformation future-fact* midjcoexpand 
                                   future-fact-variant-names]])
   (:require [midje.ideas.background :as background]
+            [midje.ideas.formulas :as formulas]
             midje.checkers
             [midje.internal-ideas.report :as report]))
 
 (immigrate 'midje.unprocessed)
 (immigrate 'midje.semi-sweet)
 
-;; Following is required because `intern` doesn't transfer "dynamicity".
+;; Following two are required because `intern` doesn't transfer "dynamicity".
 (def ^{:doc "True by default.  If set to false, Midje checks are not
              included into production code, whether compiled or loaded."
        :dynamic true}
   *include-midje-checks* *include-midje-checks*)
 
-(intern+keep-meta *ns* 'before #'background/before)
-(intern+keep-meta *ns* 'after #'background/after)
-(intern+keep-meta *ns* 'around #'background/around)
+(def ^{:doc "The number of generated fact runs for each formula. 100 by default."
+       :dynamic true}
+  num-generations-per-formula num-generations-per-formula)
 
-(defmacro expose-testables
-  "Enables testing of vars in the target ns which have ^:testable metadata"
-  [target-ns]
-  (macro-for [testable-sym (for [[sym var] (ns-interns target-ns)
-                                 :when (:testable (meta var))]
-                              sym) ]
-    `(def ~testable-sym (intern '~target-ns '~testable-sym))))
+(intern+keep-meta *ns* 'before  #'background/before)
+(intern+keep-meta *ns* 'after   #'background/after)
+(intern+keep-meta *ns* 'around  #'background/around)
+(intern+keep-meta *ns* 'formula #'formulas/formula)
 
 (defmacro background 
   "Runs facts against setup code which is run before, around, or after 
@@ -132,3 +130,11 @@
   {:arglists '([doc-string? fact table])}
   [& _]
   (tabular* (keys &env) &form))
+
+(defmacro expose-testables
+  "Enables testing of vars in the target ns which have ^:testable metadata"
+  [target-ns]
+  (macro-for [testable-sym (for [[sym var] (ns-interns target-ns)
+                                 :when (:testable (meta var))]
+    sym) ]
+    `(def ~testable-sym (intern '~target-ns '~testable-sym))))
