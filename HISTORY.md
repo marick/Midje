@@ -1,15 +1,18 @@
-1.3.2-SNAPSHOT
--------------
+UNRELEASED
+----------
+* formula macro enables simple generative style testing. Still very alpha.  
 * throws now accepts any extending Throwable. For example, this now passes:
   (throw (NullPointerException.)) => (throws Exception)
 * each item in the right hand side of =streams=> will evaluate lazily:
   (provided
-     (volatile-fn) =streams=> [(throw (Exception.) (throw (Exception.)) :evaluates-succesfully] 
+     (volatile-fn) =streams=> [(throw (Exception.) (throw (Exception.)) :evaluates-succesfully]
 * new function midje.sweet/expose-testables will allow you to write facts against 
-  functions defined with the metadata of ^{:testable true} [or ^:testable, 
-  or #^testable depending on which Clojure version you're running] 
+  private functions defined with the metadata of ^{:testable true}
 * Can now have prerequisites that throw Throwables using =throws=>
-    (provided (foo) =throws=> (Exception.))
+    (provided (foo) =throws=> (Exception. "message"))
+
+1.3.2-SNAPSHOT
+-------------     
 * Chatty checkers can destructure their single argument.                                           
 * tabular no longer requires variables names to begin with '?'
 * throws checker has been updated: args are now any combination, in
@@ -21,7 +24,6 @@
   ii. tabular's doc-string shows in a similar manner
 * =stream=> prerequisites give helpful error messages when they run out of items to return
 * removed reflection warnings
-
 
 1.3.1 
 ---------

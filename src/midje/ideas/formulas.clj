@@ -3,7 +3,7 @@
 (def ^{:private true} num-generations-per-formula 100)
 
 (defmacro formula 
-  "Generative-style fact macro. 
+  "ALPHA - Generative-style fact macro. 
   
   Ex. (formula \"any two strings concatenated begins with the first\" 
         [a (gen/string) b (gen/string)] 
