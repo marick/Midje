@@ -179,8 +179,19 @@
              (fake (mocked-function 22) => 2)
              (fake (mocked-function 33) => 3))
      @reported => (just (contains {:type :mock-incorrect-call-count
-                                   :expected-call "(mocked-function 33)" })
+                                   :failures (contains (contains {:expected-call "(mocked-function 33)"})) })
                         pass))) ; Right result, but wrong reason.
+
+  (fact "failure because one variant of multiply-mocked function is not called"
+    (after-silently
+      (expect (+ (mocked-function 12) (mocked-function 22)) => 3
+        (fake (mocked-function 12) => 1)
+        (fake (mocked-function 22) => 2)
+        (fake (mocked-function 33) => 3))
+      @reported => (just (contains {:type :mock-incorrect-call-count
+                                    :failures (contains (contains {:expected-call "(mocked-function 33)"})) })
+                     pass))) ; Right result, but wrong reason.
+
 
   (fact "multiple calls to a mocked function are perfectly fine"
     (expect (+ (mocked-function 12) (mocked-function 12)) => 2

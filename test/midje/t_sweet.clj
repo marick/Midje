@@ -254,7 +254,7 @@
    (provided
      (called 1) => 1 :times 2))
  (fact @reported => (contains (contains {:type :mock-incorrect-call-count
-                             :actual-count 1}))))
+                                         :failures (contains (contains {:actual-count 1}))}))))
   
 (after-silently
  (fact
@@ -262,7 +262,7 @@
    (provided
      (called 1) => 1 :times (range 2 8)))
  (fact @reported => (contains (contains {:type :mock-incorrect-call-count
-                             :actual-count 1}))))
+                                         :failures (contains (contains {:actual-count 1}))}))))
  
 
 (after-silently
@@ -271,7 +271,7 @@
    (provided
      (called 1) => 1 :times even?))
  (fact @reported => (contains (contains {:type :mock-incorrect-call-count
-                                         :actual-count 3}))))
+                                         :failures (contains (contains {:actual-count 3}))}))))
   
 (fact
   (do (called 1) (called 1)) => 1
@@ -293,7 +293,7 @@
    (provided
      (called irrelevant) => 1 :times 0))
  (fact @reported => (contains (contains {:type :mock-incorrect-call-count
-                                         :actual-count 1}))))
+                                         :failures (contains (contains {:actual-count 1}))}))))
     
 
 (def #^:dynamic *fact-retval* (fact

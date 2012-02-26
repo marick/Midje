@@ -116,10 +116,10 @@
 
 (fact "mock never called"
   (let [failure-map {:type :mock-incorrect-call-count
-                     :description "some description"
-                     :actual-count 0
-                     :position ["foo.clj" 3]
-                     :expected "(f a)"}
+                     :failures [{ :description "some description"
+                                  :actual-count 0
+                                  :position ["foo.clj" 3]
+                                  :expected "(f a)"}] }
         raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
     (nth raw-report 0) => #"FAIL.*some description.* at .*foo.clj:3"
     (nth raw-report 1) => #"claimed the following was needed"
@@ -127,10 +127,10 @@
 
 (fact "mock called an incorrect number of times"
   (let [failure-map {:type :mock-incorrect-call-count
-                     :description "some description"
-                     :actual-count 3
-                     :position ["foo.clj" 3]
-                     :expected "(f a)"}
+                     :failures [{ :description "some description"
+                                  :actual-count 3
+                                  :position ["foo.clj" 3]
+                                  :expected "(f a)" }] }
         raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
     (nth raw-report 0) => #"FAIL.*some description.* at .*foo.clj:3"
     (nth raw-report 1) => #"used three times"

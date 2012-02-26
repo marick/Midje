@@ -107,14 +107,17 @@
       (str "    " (pr-str (:actual m)))))
   
   (defmethod report-strings :mock-incorrect-call-count [m]
-     (list
-      (fail-at m)
-      (if (zero? (:actual-count m))
-        "You claimed the following was needed, but it was never used:"
-        (cl-format nil
-                   "The following prerequisite was used ~R time~:P. That's not what you predicted."
-                   (:actual-count m)))
-      (str "    " (:expected m))))
+    (letfn [(report-fail [fail]
+              (list
+                (if (zero? (:actual-count fail))
+                  "You claimed the following was needed, but it was never used:"
+                  (cl-format nil
+                    "The following prerequisite was used ~R time~:P. That's not what you predicted."
+                    (:actual-count fail)))
+                (str "    " (:expected fail))))]
+    
+    (cons (fail-at (first (:failures m)))
+          (mapcat report-fail (:failures m)))))
     
   (defmethod report-strings :validation-error [m]
      (list
