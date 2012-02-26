@@ -242,6 +242,7 @@
   (when-let [failures (seq (for [fake fakes
                                  :when (call-count-incorrect? fake)]
                              {:actual-count @(:count-atom fake)
+                              :expected-count (:times fake)
                               :expected-call (:call-text-for-failures fake)
                               :position (:position fake)
                               :expected (:call-text-for-failures fake)}))]

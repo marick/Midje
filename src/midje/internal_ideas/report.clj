@@ -112,7 +112,8 @@
                 (str "    " (:expected fail)
                   (if (zero? (:actual-count fail))
                     " [expected at least once, actually never called]"
-                    (cl-format nil " [actually called ~R time~:P]" (:actual-count fail))))))]
+                    (cl-format nil " [expected :times ~A, actually called ~R time~:P]" 
+                               (:expected-count fail) (:actual-count fail))))))]
     
     (concat
           (list (fail-at (first (:failures m))))
