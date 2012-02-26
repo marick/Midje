@@ -12,8 +12,7 @@
         
   Currently, we recommend you use generators from test.generative.generators
   
-  For each formula the number of generated test runs is stored in the dynamic var 
-  *num-generations-per-formula*, which is set to 100 by default."
+  For each formula there are 100 generated test runs."
   {:arglists '([docstring? & bindings+body])}
   [& args]
   (let [[docstring? [bindings & body]] (pop-docstring args)

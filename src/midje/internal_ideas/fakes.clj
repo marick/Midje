@@ -232,7 +232,7 @@
     (pred-cond method 
       #(= % :default) (zero? count)
       number?         (not= method count)
-      coll?           (not (some #{count} method))
+      coll?           (not-any? (partial = count) method)
       fn?             (not (method count)))))
 
 (defmethod call-count-incorrect? :not-called [fake]
