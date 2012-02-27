@@ -48,7 +48,7 @@
             :else               (pr-str form)))
 
         (fail-at [m]
-          [(str "\n" (color/fail "FAIL:") " "
+          [(str "\n" (color/fail "FAIL") " "
              (when-let [doc (:description m)] (str (pr-str doc) " "))
              "at " (midje-position-string (:position m)))
            (when-let [substitutions (:binding-note m)]
@@ -94,7 +94,7 @@
 
   (defmethod report-strings :future-fact [m]
     (list
-     (str "\n" (color/note "WORK TO DO:") " "
+     (str "\n" (color/note "WORK TO DO") " "
           (when-let [doc (:description m)] (str (pr-str doc) " "))
           "at " (midje-position-string (:position m)))))
   
@@ -109,10 +109,10 @@
   (defmethod report-strings :mock-incorrect-call-count [m]
     (letfn [(report-fail [fail]
               (list
-                (str "    " (:expected fail)
+                (str "    " (:expected fail) " "
                   (if (zero? (:actual-count fail))
-                    " [expected at least once, actually never called]"
-                    (cl-format nil " [expected :times ~A, actually called ~R time~:P]" 
+                    "[expected at least once, actually never called]"
+                    (cl-format nil "[expected :times ~A, actually called ~R time~:P]" 
                                (:expected-count fail) (:actual-count fail))))))]
     
     (concat
