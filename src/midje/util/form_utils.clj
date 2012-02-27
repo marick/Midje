@@ -125,13 +125,11 @@
 
 (defn rotations
   "Returns a lazy seq of all rotations of a seq"
-  [x]
-  (if (seq x)
-    (map
-     (fn [n _]
-       (lazy-cat (drop n x) (take n x)))
-     (iterate inc 0) x)
-    (list nil)))
+  [coll]
+  (map-indexed
+    (fn [idx _]
+      (lazy-cat (drop idx coll) (take idx coll)))
+    coll))
 
 (defmacro pred-cond 
   "Checks each predicate against the item, returning the corresponding 
