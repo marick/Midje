@@ -205,7 +205,7 @@
 ;; for arguments. They're literal constant values.
 
 ;; I often find myself with one prerequisite that returns a data structure
-;; that's immediately given to another one. That would look like this:
+;; that's immediately given to another oaliasne. That would look like this:
 
 (unfinished property-of data-structure)
 (defn function-under-test []
