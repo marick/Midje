@@ -352,11 +352,12 @@
 (defn-verifiable y-maker [] "y")
 (defn-verifiable my-str [s] (str s))
 
-(formula "formulas run the generator many times, and evaluate their body many times" 
-  [a (y-maker)]
-  (my-str a) => "y")
-
-(fact @y-maker-count => 100)
-(fact @my-str-count => 100)
+(binding [midje.ideas.formulas/*num-generations-per-formula* 77]
+  (formula "formulas run the generator many times, and evaluate their body many times - 
+            number of generations is rebindable" 
+    [a (y-maker)]
+    (my-str a) => "y"))
+(fact @y-maker-count => 77)
+(fact @my-str-count => 77)
 
 

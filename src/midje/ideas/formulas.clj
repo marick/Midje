@@ -3,7 +3,9 @@
         [midje.error-handling.validation-errors :only [simple-report-validation-error validate when-valid]]
         [midje.ideas.arrows :only [leaves-contain-arrow?]]))
 
-(def ^{:private true} num-generations-per-formula 100)
+(def ^{:doc "The number of facts generated per formula."
+       :dynamic true} 
+  *num-generations-per-formula* 100)
 
 (defmacro formula 
   "ALPHA - Generative-style fact macro. 
@@ -19,15 +21,17 @@
   [& args]
   (when-valid &form
     (let [[docstring? [bindings & body]] (pop-docstring args)
-          all-but-last-facts (repeat (dec num-generations-per-formula)
-                               `(let ~bindings
-                                  (midje.sweet/fact ~docstring?
-                                    ~@body :formula :formula-in-progress )))
+          fact `(let ~bindings
+                                (midje.sweet/fact ~docstring?
+                                  ~@body :formula :formula-in-progress ))
           last-fact `(let ~bindings
                        (midje.sweet/fact ~docstring?
                          ~@body :formula :formula-conclude ))]
     
-      `(do ~@all-but-last-facts ~last-fact))))
+      `(do 
+         (dotimes [_# (dec *num-generations-per-formula*)]
+           ~fact) 
+         ~last-fact))))
 
 (defmethod validate "formula" [[_formula_ & args :as form]]
   (cond (not (leaves-contain-arrow? args))
