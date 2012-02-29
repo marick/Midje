@@ -30,3 +30,7 @@ OTHER:
 
 * figure out how to make syntax validation errors show something more sensible than the 
   error message you'd see for a problem with a fact validation problem
+  
+    --- getting there with the new validate method for "formula"
+        - however, there's and interesting form of failure if you run (formula [a 1] 1 =>)
+          ... since the formula macro splices in :formula :formula-in-progress

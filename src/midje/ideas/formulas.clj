@@ -1,4 +1,5 @@
-(ns midje.ideas.formulas
+(ns ^{:doc "Midje's special blend of generative-style testing."}
+  midje.ideas.formulas
   (:use [midje.util.form-utils :only [pop-docstring]]
         [midje.error-handling.validation-errors :only [simple-report-validation-error validate when-valid]]
         [midje.ideas.arrows :only [leaves-contain-arrow?]]))
@@ -16,14 +17,15 @@
         
   Currently, we recommend you use generators from test.generative.generators
   
-  For each formula there are 100 generated test runs."
+  The midje.ideas.formulas/*num-generations-per-formula* dynamic var determines
+  how many facts are generated per formula."
   {:arglists '([docstring? & bindings+body])}
   [& args]
   (when-valid &form
     (let [[docstring? [bindings & body]] (pop-docstring args)
           fact `(let ~bindings
-                                (midje.sweet/fact ~docstring?
-                                  ~@body :formula :formula-in-progress ))
+                  (midje.sweet/fact ~docstring?
+                    ~@body :formula :formula-in-progress ))
           last-fact `(let ~bindings
                        (midje.sweet/fact ~docstring?
                          ~@body :formula :formula-conclude ))]
