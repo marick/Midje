@@ -2,6 +2,7 @@
 
 (ns midje.t-sweet
   (:use midje.sweet
+        midje.util
         midje.test-util))
 
 (fact "all of Midje's public, API-facing vars have docstrings"

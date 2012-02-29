@@ -1,6 +1,6 @@
 (ns ^{:doc "Facts are the core abstraction of Midje."}
   midje.ideas.facts
-  (:use [midje.error-handling.validation-errors :only [simple-report-validation-error validate]]
+  (:use [midje.error-handling.validation-errors :only [simple-report-validation-error validate when-valid]]
         [midje.util.namespace :only [is-semi-sweet-keyword?]]
         [midje.internal-ideas.fakes :only [unfold-fakes]]
 
@@ -15,7 +15,7 @@
         [midje.util.debugging :only [nopret]]
         [midje.ideas.prerequisites :only [is-head-of-form-providing-prerequisites?
                                           insert-prerequisites-into-expect-form-as-fakes]]
-        [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence? expect-arrows]]
+        [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence? leaves-contain-arrow?]]
         [midje.ideas.background :only [surround-with-background-fakes
                                        body-of-against-background
                                        against-background-contents-wrappers
@@ -25,8 +25,7 @@
         [midje.util.form-utils :only [first-named? translate-zipper pop-docstring preserve-type 
                                       quoted? pred-cond reader-line-number named?]]
         [midje.util.laziness :only [eagerly]]
-        [midje.util.zip :only [skip-to-rightmost-leaf]]
-        [midje.error-handling.validation-errors :only [when-valid]])
+        [midje.util.zip :only [skip-to-rightmost-leaf]])
   (:require [clojure.zip :as zip])
   (:require [midje.internal-ideas.report :as report]))
 (declare midjcoexpand)
@@ -104,11 +103,10 @@
       `(within-fact-context ~description ~form-to-run))))
 
 (letfn [(validate-fact [[fact & _ :as form]]
-          (let [named-form-leaves (map name (filter named? (flatten (rest form))))]
-            (if (not-any? expect-arrows named-form-leaves)
-              (simple-report-validation-error form
-                (format "There is no arrow in your %s form:" (name fact)))
-              (rest form))))]
+          (if-not (leaves-contain-arrow? (rest form))
+            (simple-report-validation-error form
+              (format "There is no arrow in your %s form:" (name fact)))
+            (rest form)))]
   
   (defmethod validate "fact" [form] 
     (validate-fact form))

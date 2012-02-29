@@ -4,7 +4,7 @@
   midje.ideas.arrows
   (:use midje.ideas.arrow-symbols
         [clojure.set :only [union]]
-        [midje.util treelike namespace])
+        [midje.util form-utils treelike namespace])
   (:require [clojure.zip :as zip]))
 
 ;; Arrow groupings
@@ -13,6 +13,9 @@
 (def fake-arrows #{=> =contains=> =streams=> =throws=>})
 (def all-arrows (union expect-arrows fake-arrows))
 
+(defn leaves-contain-arrow? [nested-form]
+  (let [named-form-leaves (map name (filter named? (flatten nested-form)))]
+    (not (not (some expect-arrows named-form-leaves)))))
 
 ;; Recognizing
 
