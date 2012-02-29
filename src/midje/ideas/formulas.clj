@@ -33,9 +33,11 @@
   (cond (not (leaves-contain-arrow? args))
         (simple-report-validation-error form "There is no arrow in your formula form:")
 
-        (let [bindings (first (second (pop-docstring args)))]
-          (or (not (vector? bindings)) (odd? (count bindings))))
-        (simple-report-validation-error form "Formula requires bindings be an even numbered vector of 2 or more:")
+        (let [[_ [bindings & _]] (pop-docstring args)]
+          (or (not (vector? bindings))
+              (odd? (count bindings))
+              (< (count bindings) 2)))
+        (simple-report-validation-error form "Formula requires bindings to be an even numbered vector of 2 or more:")
   
         :else 
         args))
