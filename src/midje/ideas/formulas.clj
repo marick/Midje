@@ -6,7 +6,13 @@
 
 (def ^{:doc "The number of facts generated per formula."
        :dynamic true} 
-  *num-generations-per-formula* 100)
+  *num-generations-per-formula* 100)   
+
+(set-validator! #'*num-generations-per-formula* 
+  (fn [new-val]
+    (if (<= new-val 1) 
+      (throw (RuntimeException. "Must be an integer greater than 1.")) 
+      true)))
 
 (defmacro formula 
   "ALPHA - Generative-style fact macro. 

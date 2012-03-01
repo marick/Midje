@@ -6,12 +6,12 @@
 2. [ ] implement shrinking.  Report only the first fully shrunken failure
 
    QUESTION: how can I change the inputs (which need to shrink), when checking in unprocessed? sounds like formulas 
-   might need to record the inputs in a map before evaluating each generation, whch would 
+   might need to record the inputs in a map before evaluating each generation, which would 
    happen way at the top level.  Then that map could be checked in unprocessed, but that 
    unsettles me. Hmmm...
    
 
-3. [ ] don't run more tests than need be if there is alreadya failure in this formula's batch.
+3. [ ] don't run more tests than need be if there is already failure in this formula's batch.
 
 4. [ ] consider implementing with @marick's metaconstant syntax
 
@@ -23,14 +23,14 @@
 
 OTHER:
 
-* make number of generated facts per formula dynamically bindable
-   - add-watch that throws an eception of this value is set < 1
+* [x] make number of generated facts per formula dynamically bindable
+      [x] throw an exception if this value is set <= 1
    
 * possibly don't use fact macro inside of formula, but instead do something like tabular
 
-* figure out how to make syntax validation errors show something more sensible than the 
-  error message you'd see for a problem with a fact validation problem
+* [x] figure out how to make syntax validation errors show something more sensible than the 
+      error message you'd see for a problem with a fact validation problem
   
     --- getting there with the new validate method for "formula"
-        - however, there's and interesting form of failure if you run (formula [a 1] 1 =>)
+       [] fix:  however, there's an interesting form of failure if you run (formula [a 1] 1 =>)
           ... since the formula macro splices in :formula :formula-in-progress
