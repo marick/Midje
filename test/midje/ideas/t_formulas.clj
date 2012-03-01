@@ -2,8 +2,7 @@
 
 (ns midje.ideas.t-formulas
   (:use midje.test-util
-        midje.sweet)
-  (:require [clojure.test.generative.generators :as gen]))
+        midje.sweet))
 
 
 ;; Validation
@@ -29,8 +28,23 @@
 (causes-validation-error #"Formula requires bindings to be an even numbered vector of 2 or more:"
   (formula "vector fact" [] 1 => 1))
 
-(defn- gen-int [pred] 
-  (first (filter pred (repeatedly gen/int))))
+(def ^{:dynamic true} 
+  *rnd*
+  (java.util.Random. 42))
+
+(defn uniform
+  "Uniform distribution from lo (inclusive) to high (exclusive).
+   Defaults to range of Java long."
+  (^long [] (.nextLong *rnd*))
+  (^long[lo hi] {:pre [(< lo hi)]}
+    (clojure.core/long (Math/floor (+ lo (* (.nextDouble *rnd*) (- hi lo)))))))
+
+
+(defn- gen-int
+  ([]
+    (uniform Integer/MIN_VALUE Integer/MAX_VALUE))
+  ([pred] 
+    (first (filter pred (repeatedly gen-int)))))
 
 (formula [n (gen-int #(< % 2))]
   (binding [midje.ideas.formulas/*num-generations-per-formula* n] nil) 

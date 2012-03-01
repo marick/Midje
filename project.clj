@@ -20,7 +20,6 @@
                "1.4.0" [[org.clojure/clojure "1.4.0-beta1"]]
                :all ~common-deps }
   :dev-dependencies [[slamhound "1.2.0"]
-                     [org.clojure/test.generative "0.1.5-SNAPSHOT"]
                      ;;[com.stuartsierra/lazytest "1.2.3"]
                      ]
 
