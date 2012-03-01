@@ -21,11 +21,10 @@
   (swap! formula-reports conj report-map))
 
 (defn ^{:private true} report-formula-conclusion [report-map]
-  (let [all-report-maps (conj @formula-reports report-map)]
-    (if-let [failure (find-first #(not= :pass (:type %)) all-report-maps)]
-      (report failure)
-      (report {:type :pass}) )
-    (reset! formula-reports [])))
+  (if-let [failure (find-first #(not= :pass (:type %)) @formula-reports)]
+    (report failure)
+    (report {:type :pass}) )
+  (reset! formula-reports []))
 
 (letfn [(fail [type actual call]
           {:type type

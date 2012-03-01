@@ -32,14 +32,14 @@
           fact `(let ~bindings
                   (midje.sweet/fact ~docstring?
                     ~@body :formula :formula-in-progress ))
-          last-fact `(let ~bindings
-                       (midje.sweet/fact ~docstring?
-                         ~@body :formula :formula-conclude ))]
-    
-      `(do 
-         (dotimes [_# (dec *num-generations-per-formula*)]
+          conclusion-signal `(midje.sweet/fact
+                                :always-pass midje.sweet/=> :always-pass 
+                                :formula :formula-conclude )]
+
+      `(do
+         (dotimes [_# *num-generations-per-formula*]
            ~fact) 
-         ~last-fact))))
+         ~conclusion-signal))))
 
 (defmethod validate "formula" [[_formula_ & args :as form]]
   (cond (not (leaves-contain-arrow? args))

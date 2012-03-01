@@ -9,16 +9,17 @@
    might need to record the inputs in a map before evaluating each generation, which would 
    happen way at the top level.  Then that map could be checked in unprocessed, but that 
    unsettles me. Hmmm...
-   
+ 
+3  [ ] make linenumbers erport correctly
 
-3. [ ] don't run more tests than need be if there is already failure in this formula's batch.
+4. [ ] don't run more tests than need be if there is already failure in this formula's batch.
 
-4. [ ] consider implementing with @marick's metaconstant syntax
+5. [ ] consider implementing with @marick's metaconstant syntax
 
-5. [ ] shrink function overrides
+6. [ ] shrink function overrides
  a. [ ] no shrink
   
-6. [ ] if we do metaconstant style, implement generator overriding
+7. [ ] if we do metaconstant style, implement generator overriding
 
 
 OTHER:
