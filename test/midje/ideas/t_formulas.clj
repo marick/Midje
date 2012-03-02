@@ -36,7 +36,7 @@
   "Uniform distribution from lo (inclusive) to high (exclusive).
    Defaults to range of Java long."
   (^long [] (.nextLong *rnd*))
-  (^long[lo hi] {:pre [(< lo hi)]}
+  (^long [lo hi] {:pre [(< lo hi)]}
     (clojure.core/long (Math/floor (+ lo (* (.nextDouble *rnd*) (- hi lo)))))))
 
 
@@ -57,6 +57,14 @@
 
 ;;;; Formulas
 
+;; the first formula use ever!
+(defn make-string []
+  (rand-nth ["a" "b" "c" "d" "e" "f" "g" "i"]))
+(formula "can now use simple generative-style formulas"
+  [a (make-string) b (make-string)]
+  (str a b) => (has-prefix a))
+
+
 ;; failed formulas report once per formula regardless how many generations were run
 (after-silently
   (formula "some description" [a "y"]
@@ -64,18 +72,9 @@
 (fact @reported => (one-of (contains {:type :mock-expected-result-failure
                                       :description "some description"})))
 
-(defn make-string []
-  (rand-nth ["a" "b" "c" "d" "e" "f" "g" "i"]))
-
-(formula
-  "can now use simple generative-style formulas"
-  [a (make-string) b (make-string)]
-  (str a b) => (has-prefix a))
-
 
 ;; passing formulas run the generator many times, and evaluate 
 ;; their body many times - number of generations is rebindable
-
 (defn-verifiable y-maker [] "y")
 (defn-verifiable my-str [s] (str s))
 
@@ -84,6 +83,7 @@
     (my-str a) => "y"))
 (fact @y-maker-count => 77)
 (fact @my-str-count => 77)
+
 
 ;; runs only as few times as needed to see a failure
 (defn-verifiable z-maker [] "z")

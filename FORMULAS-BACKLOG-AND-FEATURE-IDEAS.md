@@ -9,26 +9,21 @@
 * [x] figure out how to make syntax validation errors show something more sensible than the 
       error message you'd see for a problem with a fact validation problem 
 
-* [ ] don't run more tests than need be if there is already failure in this formula's batch.
- 
-* [ ] make line numbers report correctly
+* [x] don't run more tests than need be if there is already failure in this formula's batch.
   
 * [ ] implement shrinking. Report only the first fully shrunken failure
-         [  ] to do correctly, 'shrink' depends on 'generate'
-
-* [ ] consider implementing with @marick's metaconstant syntax
+         [ ] to do correctly, 'shrink' depends on 'generate'
 
 * [ ] shrink function overrides
    a. [ ] no shrink
-  
-* [ ] if we do metaconstant style, implement generator overriding
-  
-    --- getting there with the new validate method for "formula"
-      a. [] fix:  however, there's an interesting form of failure if you run (formula [a 1] 1 =>)
-          ... since the formula macro splices in :formula :formula-in-progress
+     
+* [ ] fix strange error if you run (formula [a 1] 1 =>)
+      ... since the formula macro splices in :formula :formula-in-progress
+      possibly solution is to not using fact macro inside of formula, 
+      but instead do something like tabular
           
-          will the below note help this?
-          
-NOTES:
+ 
+* [ ] if line numbers shift, then ensure that they always report correctly -- so far I don't know if this even needs to change, since it seems to work fine.  Think about it and decide if tests to prevent regressions are useful here.
 
-* possibly don't use fact macro inside of formula, but instead do something like tabular
+* [ ] consider implementing with @marick's metaconstant syntax
+   a. [ ] if we do metaconstant style, implement generator overriding
