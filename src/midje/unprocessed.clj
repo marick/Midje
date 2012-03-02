@@ -18,6 +18,8 @@
 (def ^{:private true} formula-reports (atom []))
 
 (defn ^{:private true} report-formula [report-map]
+  (when-not (= :pass (:type report-map))
+    (note-failure-in-fact))
   (swap! formula-reports conj report-map))
 
 (defn ^{:private true} report-formula-conclusion [report-map]

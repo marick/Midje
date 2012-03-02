@@ -15,7 +15,7 @@
       true)))
 
 (defmacro formula 
-  "ALPHA - Generative-style fact macro. 
+  "ALPHA/EXPERIMENTAL - Generative-style fact macro. 
   
   Ex. (formula \"any two strings concatenated begins with the first\" 
         [a (gen/string) b (gen/string)] 
@@ -37,8 +37,9 @@
                                 :formula :formula-conclude )]
 
       `(do
-         (dotimes [_# *num-generations-per-formula*]
-           ~fact) 
+         (loop [cnt-down# *num-generations-per-formula*]
+           (when (and (pos? cnt-down#) ~fact)
+             (recur (dec cnt-down#))))
          ~conclusion-signal))))
 
 (defmethod validate "formula" [[_formula_ & args :as form]]

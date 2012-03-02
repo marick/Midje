@@ -5,7 +5,7 @@
         midje.sweet))
 
 
-;; Validation
+;;;; Validation
 
 (causes-validation-error #"There is no arrow in your formula form"
   (formula [a 1]))
@@ -28,11 +28,11 @@
 (causes-validation-error #"Formula requires bindings to be an even numbered vector of 2 or more:"
   (formula "vector fact" [] 1 => 1))
 
-(def ^{:dynamic true} 
+(def ^{:private true :dynamic true} 
   *rnd*
   (java.util.Random. 42))
 
-(defn uniform
+(defn- uniform
   "Uniform distribution from lo (inclusive) to high (exclusive).
    Defaults to range of Java long."
   (^long [] (.nextLong *rnd*))
@@ -55,7 +55,7 @@
      =not=> (throws Exception))
 
 
-;; Formulas
+;;;; Formulas
 
 ;; failed formulas report once per formula regardless how many generations were run
 (after-silently
@@ -73,15 +73,24 @@
   (str a b) => (has-prefix a))
 
 
-;; Ensuring formula macro evaluates its args plenty of times.
+;; passing formulas run the generator many times, and evaluate 
+;; their body many times - number of generations is rebindable
 
 (defn-verifiable y-maker [] "y")
 (defn-verifiable my-str [s] (str s))
 
 (binding [midje.ideas.formulas/*num-generations-per-formula* 77]
-  (formula "formulas run the generator many times, and evaluate their body many times - 
-            number of generations is rebindable"
-    [a (y-maker)]
+  (formula [a (y-maker)]
     (my-str a) => "y"))
 (fact @y-maker-count => 77)
 (fact @my-str-count => 77)
+
+;; runs only as few times as needed to see a failure
+(defn-verifiable z-maker [] "z")
+(defn-verifiable my-identity [x] (identity x))
+
+(after-silently 
+  (formula [z (z-maker)]
+    (my-identity z) => "clearly not 'z'"))
+(fact @z-maker-count => 1)
+(fact @my-identity-count => 1)
