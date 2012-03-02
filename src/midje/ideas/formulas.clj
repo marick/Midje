@@ -10,9 +10,9 @@
 
 (set-validator! #'*num-generations-per-formula* 
   (fn [new-val]
-    (if (<= new-val 1) 
-      (throw (RuntimeException. "Must be an integer greater than 1.")) 
-      true)))
+    (if (pos? new-val) 
+      true
+      (throw (RuntimeException. (str "*num-generations-per-formula* must be an integer 1 or greater. You tried to set it to: " new-val))))))
 
 (defmacro formula 
   "ALPHA/EXPERIMENTAL - Generative-style fact macro. 

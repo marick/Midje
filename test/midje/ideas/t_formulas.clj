@@ -28,29 +28,14 @@
 (causes-validation-error #"Formula requires bindings to be an even numbered vector of 2 or more:"
   (formula "vector fact" [] 1 => 1))
 
-(def ^{:private true :dynamic true} 
-  *rnd*
-  (java.util.Random. 42))
+(defn- gen-int [pred]
+  (rand-nth (filter pred [-5 -4 -3 -2 -1 0 1 2 3 4 5])))
 
-(defn- uniform
-  "Uniform distribution from lo (inclusive) to high (exclusive).
-   Defaults to range of Java long."
-  (^long [] (.nextLong *rnd*))
-  (^long [lo hi] {:pre [(< lo hi)]}
-    (clojure.core/long (Math/floor (+ lo (* (.nextDouble *rnd*) (- hi lo)))))))
-
-
-(defn- gen-int
-  ([]
-    (uniform Integer/MIN_VALUE Integer/MAX_VALUE))
-  ([pred] 
-    (first (filter pred (repeatedly gen-int)))))
-
-(formula [n (gen-int #(< % 2))]
+(formula [n (gen-int #(< % 1))]
   (binding [midje.ideas.formulas/*num-generations-per-formula* n] nil) 
-     => (throws #"Must be an integer greater than 1."))
+     => (throws #"must be an integer 1 or greater"))
 
-(formula [n (gen-int #(>= % 2))]
+(formula [n (gen-int #(>= % 1))]
   (binding [midje.ideas.formulas/*num-generations-per-formula* n] nil) 
      =not=> (throws Exception))
 
