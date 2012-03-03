@@ -36,11 +36,12 @@
                                 :always-pass midje.sweet/=> :always-pass 
                                 :formula :formula-conclude )]
 
-      `(do
+      `(try
          (loop [cnt-down# *num-generations-per-formula*]
            (when (and (pos? cnt-down#) ~fact)
              (recur (dec cnt-down#))))
-         ~conclusion-signal))))
+         (finally
+           ~conclusion-signal)))))
 
 (defmethod validate "formula" [[_formula_ & args :as form]]
   (cond (not (leaves-contain-arrow? args))
