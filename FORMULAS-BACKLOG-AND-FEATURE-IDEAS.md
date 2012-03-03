@@ -11,7 +11,8 @@
 
 * [x] don't run more tests than need be if there is already failure in this formula's batch.
   
-* [ ] implement shrinking. Report only the first fully shrunken failure
+* [ ] Work with Meikel Brandmeyer to combine ClojureCheck's Generators with Shrink.
+      implement shrinking. Report only the first fully shrunken failure
          [ ] to do correctly, 'shrink' depends on 'generate'
 
 * [ ] shrink function overrides
