@@ -108,18 +108,17 @@
       (str "    " (pr-str (:actual m)))))
   
   (defmethod report-strings :mock-incorrect-call-count [m]
-    (letfn [(report-fail [fail]
+    (letfn [(format-one-failure [fail]
               (let [msg (match [(:expected-count fail) (:actual-count fail)]
                            [nil 0]                  "[expected at least once, actually never called]" 
                            [nil act] (cl-format nil "[expected at least once, actually called ~R time~:P]" act) 
                            [exp act] (cl-format nil "[expected :times ~A, actually called ~R time~:P]" exp act))]
-                (list
-                  (str "    " (:expected fail) " " msg))))]
+                (str "    " (pr-str (:expected fail)) " " msg)))]
     
     (concat
-          (list (fail-at (first (:failures m))))
-          (list "These calls were not made the right number of times:")
-          (mapcat report-fail (:failures m)))))
+          (list (fail-at (first (:failures m)))
+                "These calls were not made the right number of times:")
+          (map format-one-failure (:failures m)))))
     
   (defmethod report-strings :validation-error [m]
      (list
