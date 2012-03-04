@@ -7,7 +7,7 @@ UNRELEASED
 * formula macro enables simple generative style testing. Still very alpha.  
 * throws now accepts any extending Throwable. For example, this now passes:
   (throw (NullPointerException.)) => (throws Exception)
-* each item in the right hand side of =streams=> will evaluate lazily:
+* each item in the right hand side of =streams=> will exhibit deferred evaluation:
   (provided
      (volatile-fn) =streams=> [(throw (Exception.) (throw (Exception.)) :evaluates-succesfully]
 * new function midje.util/testables-privates will allow you to write facts against private vars 
