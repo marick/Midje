@@ -113,7 +113,7 @@
                            [nil 0]                  "[expected at least once, actually never called]" 
                            [nil act] (cl-format nil "[expected at least once, actually called ~R time~:P]" act) 
                            [exp act] (cl-format nil "[expected :times ~A, actually called ~R time~:P]" exp act))]
-                (str "    " (pr-str (:expected fail)) " " msg)))]
+                (str "    " (:expected fail) " " msg)))]
     
     (concat
           (list (fail-at (first (:failures m)))
