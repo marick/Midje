@@ -160,17 +160,6 @@
               (fake (other-function 12) => 1))
       @reported => (just pass)))
 
-  (fact "call that matches none of the expected arguments falls through to existing function"
-    (after-silently
-      (expect (+ (mocked-function 33)) => "result irrelevant because of failure"
-              (fake (mocked-function 12) => "hi"))
-     ;; At the moment, this does not produce a :mock-argument-match-failure. What it does
-     ;; is call the "unfinished" function, which blows up, producing a `bad-result` (the exception
-     ;; object). That's not horrible, especially at the semi-sweet level, but it does suggest
-     ;; that the implementation of the sweet behavior (where an unfinished function produces
-     ;; an argument-match failure) is fragile.
-     @reported =future=> (just (contains {:type :mock-argument-match-failure :actual '(33)})
-                        bad-result)))
 
   (fact "failure because one variant of multiply-mocked function is not called"
     (after-silently 
@@ -217,7 +206,13 @@
             :expected-result expected
             (fake (mocked-function 1) => 5 :result-supplier "IGNORED"
                   :result-supplier (fn [] expected)))))
-    
+
+
+(defn backing-function [s] s)
+
+(fact "mocks are partial: they fall through to any previously defined function"
+  (expect (str (backing-function "returned") " " (backing-function "overridden")) => "returned new value"
+          (fake (backing-function "overridden") => "new value")))
 
 (facts "about checkers"
   (fact "expected results can be functions"
