@@ -58,5 +58,5 @@
                           assoc :line line-number)))]
     (->> edited-loc
       zip/right
-      (n-times (+ 1 (count additions)) remove-moving-right)
+      (n-times (inc (count additions)) remove-moving-right)
       zip/remove)))

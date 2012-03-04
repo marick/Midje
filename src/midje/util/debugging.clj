@@ -32,7 +32,7 @@
   "Print the given value at current indent level, then decrease the level"
   [val]
   (p val)
-  (when (> @indent-count 0)
+  (when (pos? @indent-count)
     (swap! indent-count dec)
     (swap! indent #(str (but-last-str 2 %) ">")))
   val)
