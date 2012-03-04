@@ -38,7 +38,7 @@
 
 (defn chatty-worth-reporting-on? [arg]
   (and (or (list? arg) (seq? arg)) ; what started as a list (fn x y) might now be a seq.
-       (> (count arg) 0)
+       (pos? (count arg))
        (not (quoted? arg))))
 
 (defn chatty-untease [result-symbol arglist]

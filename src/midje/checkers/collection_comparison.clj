@@ -43,8 +43,7 @@
 
 (letfn [(best-expected-match-wrapper
   [midje-classification comparison expected element-maker suffix]
-  (if (not-any? inexact-checker? expected)
-    nil
+  (when (some inexact-checker? expected)
     [(str "      It matched: "
        (->> comparison :expected-found (map element-maker) (collection-string midje-classification))
        suffix

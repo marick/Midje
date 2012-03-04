@@ -17,8 +17,7 @@
 (defmacro unless-1-2-0
   "Skip body completely - including 'Unable to resolve classname' errors."
   [& body]
-  (if (clojure-1-2-0?)
-    nil
+  (when-not (clojure-1-2-0?)
     `(do ~@body)))
 
 ;; The following works because in 1.2 it's parsed as [+  '1].
