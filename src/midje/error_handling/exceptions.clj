@@ -1,10 +1,8 @@
 (ns ^{:doc "Functions for Midje to deal elegantly with exceptions."}
   midje.error-handling.exceptions
   (:use [clojure.string :only [join]]
+        [midje.util.ecosystem :only [line-separator]]
         [midje.util.colorize :only [colorize-choice]]))
-
-
-(def #^:private line-separator (System/getProperty "line.separator"))
 
 
 ;;; Creating 

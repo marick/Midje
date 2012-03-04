@@ -14,8 +14,10 @@
         [midje.error-handling validation-errors semi-sweet-validations]
         [midje.error-handling.exceptions :only [user-error]]
         [midje.util.namespace :only [is-semi-sweet-keyword?]]
+        [midje.util.ecosystem :only [line-separator]]
         [midje.production-mode]
-        [clojure.pprint]))
+        [clojure.pprint]
+        [clojure.string :only [join]]))
 (immigrate 'midje.unprocessed)
 (immigrate 'midje.ideas.arrow-symbols)
 
@@ -81,8 +83,13 @@
           (macro-for [name names]
             `(do
                (defn ~name [& args#]
-                 (throw (user-error (str "#'" '~name 
-                                      " has no implementation. It's used as a prerequisite in Midje tests."))))
+                 (let [pprint# (partial cl-format nil "~S")]
+                   (throw (user-error (str "#'" '~name 
+                                           " has no implementation, but it was called like this:"
+                                           line-separator
+                                           "(" '~name " " 
+                                           (join " " (map pprint# args#))
+                                           ")")))))
                ;; A reliable way of determining if an `unfinished` function has since been defined.
                (alter-meta! (var ~name) assoc :midje/unfinished-fun ~name))))]
 

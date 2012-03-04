@@ -34,3 +34,5 @@
 
 (defn on-windows? []
   (re-find #"[Ww]in" (System/getProperty "os.name")))
+
+(def line-separator (System/getProperty "line.separator"))
