@@ -160,9 +160,9 @@
               (fake (other-function 12) => 1))
       @reported => (just pass)))
 
-  (fact "call that matches none of the expected arguments"
+  (fact "call that matches none of the expected arguments falls through to existing function"
     (after-silently
-      (expect (+ (mocked-function 12) (mocked-function 33)) => "result irrelevant because of earlier failure"
+      (expect (+ (mocked-function 33)) => "result irrelevant because of failure"
               (fake (mocked-function 12) => "hi"))
      ;; At the moment, this does not produce a :mock-argument-match-failure. What it does
      ;; is call the "unfinished" function, which blows up, producing a `bad-result` (the exception
