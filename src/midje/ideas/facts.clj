@@ -22,8 +22,8 @@
                                        against-background-children-wrappers
                                        against-background?]]
         [midje.ideas.metaconstants :only [define-metaconstants]] 
-        [midje.util.form-utils :only [first-named? translate-zipper pop-docstring preserve-type 
-                                      quoted? pred-cond reader-line-number named?]]
+        [midje.util.form-utils :only [def-many-methods first-named? translate-zipper pop-docstring 
+                                      preserve-type quoted? pred-cond reader-line-number named?]]
         [midje.util.laziness :only [eagerly]]
         [midje.util.zip :only [skip-to-rightmost-leaf]])
   (:require [clojure.zip :as zip])
@@ -101,15 +101,9 @@
     (define-metaconstants form-to-run)
     (report/form-providing-friendly-return-value 
       `(within-fact-context ~description ~form-to-run))))
-
-(letfn [(validate-fact [[fact & _ :as form]]
-          (if-not (leaves-contain-arrow? (rest form))
-            (simple-report-validation-error form
-              (format "There is no arrow in your %s form:" (name fact)))
-            (rest form)))]
   
-  (defmethod validate "fact" [form] 
-    (validate-fact form))
-  
-  (defmethod validate "facts" [form]
-    (validate-fact form)))
+(def-many-methods validate ["fact" "facts"] [[fact & _ :as form]]
+  (if-not (leaves-contain-arrow? (rest form))
+    (simple-report-validation-error form
+      (format "There is no arrow in your %s form:" (name fact)))
+    (rest form)))

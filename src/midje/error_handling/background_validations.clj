@@ -15,34 +15,31 @@
 (def #^:private possible-wrapping-targets   #{:facts, :contents, :checks })
 (def #^:private possible-state-descriptions #{"before" "after" "around"})
 
-(letfn [(validate-state-description [[state-description wrapping-target expression :as form]]
-          (cond
-            (and (#{"after" "around"} (name state-description)) (not= 3 (count form)))
-            (report-validation-error form
-              (cl-format nil "    In this form: ~A" form)
-              (cl-format nil "~A forms should look like: (~A :contents/:facts/:checks (your-code))" 
-                (name state-description) (name state-description)))
+(def-many-methods validate ["before" "after" "around"] [[state-description wrapping-target expression :as form]]
+  (cond
+    (and (#{"after" "around"} (name state-description)) (not= 3 (count form)))
+    (report-validation-error form
+      (cl-format nil "    In this form: ~A" form)
+      (cl-format nil "~A forms should look like: (~A :contents/:facts/:checks (your-code))"
+        (name state-description) (name state-description)))
 
-            (and (= "before" (name state-description))
-              (not= 3 (count form))
-              (or (not= 5 (count form))
-                (and (= 5 (count form))
+    (and (= "before" (name state-description))
+         (not= 3 (count form))
+         (or (not= 5 (count form))
+             (and (= 5 (count form))
                   (not= :after (nth form 3)))))
-            (report-validation-error form
-              (cl-format nil "    In this form: ~A" form)
-              "before forms should look like: (before :contents/:facts/:checks (your-code)) or "
-              "(before :contents/:facts/:checks (your-code) :after (final-code))")
+    (report-validation-error form
+      (cl-format nil "    In this form: ~A" form)
+      "before forms should look like: (before :contents/:facts/:checks (your-code)) or "
+      "(before :contents/:facts/:checks (your-code) :after (final-code))")
 
-            ((complement possible-wrapping-targets) wrapping-target)
-            (report-validation-error form
-              (cl-format nil "    In this form: ~A" form)
-              (cl-format nil "The second element (~A) should be one of: :facts, :contents, or :checks" 
-                wrapping-target))
+    ((complement possible-wrapping-targets) wrapping-target)
+    (report-validation-error form
+      (cl-format nil "    In this form: ~A" form)
+      (cl-format nil "The second element (~A) should be one of: :facts, :contents, or :checks"
+        wrapping-target))
 
-            :else (rest form)))]
-
-  (def-many-methods validate #{"before" "after" "around"} [forms]
-    (validate-state-description forms)))
+    :else (rest form)))
 
 (letfn [(possible-state-descriptions+fakes? [forms]
           (loop [in-progress forms]
