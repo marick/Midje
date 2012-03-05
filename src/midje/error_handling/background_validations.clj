@@ -9,10 +9,11 @@
     [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence? take-arrow-sequence]]
     [midje.ideas.background :only [seq-headed-by-setup-teardown-form?]]
     [midje.ideas.prerequisites :only [metaconstant-prerequisite?]]
-    [midje.util.form-utils :only [named? pred-cond]]
+    [midje.util.form-utils :only [def-many-methods named? pred-cond]]
     [midje.util.backwards-compatible-utils :only [some-fn-m]]))
 
-(def #^:private valid-wrapping-targets #{:facts, :contents, :checks })
+(def #^:private possible-wrapping-targets   #{:facts, :contents, :checks })
+(def #^:private possible-state-descriptions #{"before" "after" "around"})
 
 (letfn [(validate-state-description [[state-description wrapping-target expression :as form]]
           (cond
@@ -32,7 +33,7 @@
               "before forms should look like: (before :contents/:facts/:checks (your-code)) or "
               "(before :contents/:facts/:checks (your-code) :after (final-code))")
 
-            ((complement valid-wrapping-targets) wrapping-target)
+            ((complement possible-wrapping-targets) wrapping-target)
             (report-validation-error form
               (cl-format nil "    In this form: ~A" form)
               (cl-format nil "The second element (~A) should be one of: :facts, :contents, or :checks" 
@@ -40,18 +41,10 @@
 
             :else (rest form)))]
 
-  (defmethod validate "before" [forms]
-    (validate-state-description forms))
-
-  (defmethod validate "after" [forms]
-    (validate-state-description forms))
-
-  (defmethod validate "around" [forms]
+  (def-many-methods validate #{"before" "after" "around"} [forms]
     (validate-state-description forms)))
 
-(def #^:private valid-state-descriptions #{"before" "after" "around"})
-
-(letfn [(valid-state-descriptions+fakes? [forms]
+(letfn [(possible-state-descriptions+fakes? [forms]
           (loop [in-progress forms]
             (pred-cond in-progress
               empty?
@@ -68,7 +61,7 @@
 
         (state-description? [form]
           (and (sequential? form)
-            (valid-state-descriptions (name (first form))))) ]
+            (contains? possible-state-descriptions (name (first form))))) ]
 
   (defmethod validate "against-background" 
     [[_against-background_ state-descriptions+fakes & _body_ :as form]]
@@ -83,7 +76,7 @@
               (simple-report-validation-error form
                 "You didn't enter any background fakes or wrappers:")
             
-              (comp not valid-state-descriptions+fakes?)
+              (comp not possible-state-descriptions+fakes?)
               (simple-report-validation-error form
                 "Badly formatted against-background fakes:")
         
@@ -106,7 +99,7 @@
         empty?
         (simple-report-validation-error form "You didn't enter any background fakes or wrappers:")
     
-        (comp not valid-state-descriptions+fakes?)
+        (comp not possible-state-descriptions+fakes?)
         (simple-report-validation-error form "Badly formatted background fakes:")
         
         :else

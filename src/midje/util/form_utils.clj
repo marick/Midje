@@ -169,7 +169,7 @@
     `(defmethod ~name ~dval ~args
        ~@body)))
 
-;; stolen from `useful`
+;;;; stolen from `useful`
 
 (defn var-name
   "Get the namespace-qualified name of a var."
@@ -193,6 +193,8 @@ any) and similar metadata. The metadata of the alias is its initial
 metadata (as provided by def) merged into the metadata of the original."
   [dst src]
   `(alias-var (quote ~dst) (var ~src)))
+
+;;;;
 
 (defmacro to-thunks
   "Takes a seq of unevaluated exprs. Returns a seq of no argument fns, 
