@@ -102,8 +102,8 @@
     (report/form-providing-friendly-return-value 
       `(within-fact-context ~description ~form-to-run))))
   
-(def-many-methods validate ["fact" "facts"] [[fact & _ :as form]]
+(def-many-methods validate ["fact" "facts"] [[fact-or-facts & _ :as form]]
   (if-not (leaves-contain-arrow? (rest form))
     (simple-report-validation-error form
-      (format "There is no arrow in your %s form:" (name fact)))
+      (format "There is no arrow in your %s form:" (name fact-or-facts)))
     (rest form)))

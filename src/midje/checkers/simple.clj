@@ -35,7 +35,7 @@
 (defchecker exactly
   "Checks for equality. Use to avoid default handling of functions."
   [expected]
-    (named-as-call 'exactly expected
+    (named-as-call "exactly" expected
                    (checker [actual] (= expected actual))))
 
 (letfn [(abs [n]

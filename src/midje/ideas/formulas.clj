@@ -25,7 +25,7 @@
   
   The midje.ideas.formulas/*num-generations-per-formula* dynamic var determines
   how many facts are generated per formula."
-  {:arglists '([docstring? & bindings+body])}
+  {:arglists '([docstring? bindings & body])}
   [& args]
   (when-valid &form
     (let [[docstring? [bindings & body]] (pop-docstring args)
