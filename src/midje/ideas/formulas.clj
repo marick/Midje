@@ -14,6 +14,26 @@
       true
       (throw (RuntimeException. (str "*num-generations-per-formula* must be an integer 1 or greater. You tried to set it to: " new-val))))))
 
+
+(defn shrink [x] [0 1 2 3 4 5])
+
+(defmacro shrink-failure-case [docstring binding-name failed-binding-val body]
+  `(loop [[cur-shrunk# & rest#] ~(shrink failed-binding-val)] ;; (shrink (eval failed-binding-val)) ???
+     (when cur-shrunk#
+       (when (let [~binding-name cur-shrunk#]
+               (midje.sweet/fact ~docstring   ;; duplicated
+                 ~@body :formula :formula-in-progress))
+         (recur rest#)))))
+
+(defmacro the-loop [cnt-down fact docstring? bindings body]
+  (if (pos? cnt-down)
+    `(let [value# ~(second bindings)]
+      (let [~(first bindings) value#]
+        (if ~fact
+          (the-loop ~(dec cnt-down) ~fact ~docstring? ~bindings ~body)
+          (shrink-failure-case ~docstring? ~(first bindings) value# ~body))))
+    `(do nil)))
+
 (defmacro formula 
   "ALPHA/EXPERIMENTAL - Generative-style fact macro. 
   
@@ -29,17 +49,13 @@
   [& args]
   (when-valid &form
     (let [[docstring? [bindings & body]] (pop-docstring args)
-          fact `(let ~bindings
-                  (midje.sweet/fact ~docstring?
-                    ~@body :formula :formula-in-progress ))
+          fact `(midje.sweet/fact ~docstring? ;; duplicated
+                  ~@body :formula :formula-in-progress )
           conclusion-signal `(midje.sweet/fact
-                                :always-pass midje.sweet/=> :always-pass 
-                                :formula :formula-conclude )]
+                               :always-pass midje.sweet/=> :always-pass :formula :formula-conclude )]
 
       `(try
-         (loop [cnt-down# *num-generations-per-formula*]
-           (when (and (pos? cnt-down#) ~fact)
-             (recur (dec cnt-down#))))
+         (the-loop ~*num-generations-per-formula* ~fact ~docstring? ~bindings ~body)
          (finally
            ~conclusion-signal)))))
 
