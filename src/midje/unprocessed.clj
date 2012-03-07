@@ -23,7 +23,7 @@
   (swap! formula-reports conj report-map))
 
 (defn ^{:private true} report-formula-conclusion [report-map]
-  (if-let [failure (find-first #(not= :pass (:type %)) @formula-reports)]
+  (if-let [failure (find-first #(not= :pass (:type %)) (reverse @formula-reports))]
     (report failure)
     (report {:type :pass}) )
   (reset! formula-reports []))
