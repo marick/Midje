@@ -1,6 +1,7 @@
 UNRELEASED
 ---------- 
-* 
+* functions created with `unfinished` that are called, give useful error message includingHhow they were called.
+  https://github.com/marick/Midje/issues/112 
 
 1.3.2-SNAPSHOT
 -------------
