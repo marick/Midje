@@ -18,6 +18,9 @@
 (causes-validation-error #"There is no arrow in your formula form"
   (formula "vector fact" [a 1] (contains 3)))
 
+;(causes-validation-error #"There are too many expect arrows in your formula form"
+;  (formula "vector fact" [a 1] a => 1 a => 1))
+
 (causes-validation-error #"Formula requires bindings to be an even numbered vector of 2 or more:"
   (formula "vector fact" :not-vector 1 => 1))
 
@@ -92,7 +95,6 @@
 (fact @my-identity-count => 1)
 
 ;; shrinks failure case to smallest possible failure
-
 (with-redefs [midje.ideas.formulas/shrink (constantly [0 1 2 3 4 5])] ;; I don't think wtih-redefs is working right, hence the failures I'm seeing
   (after-silently
     (formula [x 100] 

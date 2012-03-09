@@ -2,7 +2,9 @@
   midje.ideas.formulas
   (:use [midje.util.form-utils :only [pop-docstring]]
         [midje.error-handling.validation-errors :only [simple-report-validation-error validate when-valid]]
-        [midje.ideas.arrows :only [leaves-contain-arrow?]]))
+        [midje.ideas.arrows :only [leaves-contain-arrow? 
+;                                   leaf-expect-arrows
+                                   ]]))
 
 (def ^{:doc "The number of facts generated per formula."
        :dynamic true} 
@@ -15,10 +17,10 @@
       (throw (RuntimeException. (str "*num-generations-per-formula* must be an integer 1 or greater. You tried to set it to: " new-val))))))
 
 
-(defn shrink [x] [0 1 2 3 4 5])
+(defn shrink [& _args] [])
 
 (defmacro shrink-failure-case [docstring binding-name failed-binding-val body]
-  `(loop [[cur-shrunk# & rest#] ~(shrink failed-binding-val)] ;; (shrink (eval failed-binding-val)) ???
+  `(loop [[cur-shrunk# & rest#] ~(midje.ideas.formulas/shrink failed-binding-val)] ;; (shrink (eval failed-binding-val)) ???
      (when cur-shrunk#
        (when (let [~binding-name cur-shrunk#]
                (midje.sweet/fact ~docstring   ;; duplicated
@@ -62,6 +64,9 @@
 (defmethod validate "formula" [[_formula_ & args :as form]]
   (cond (not (leaves-contain-arrow? args))
         (simple-report-validation-error form "There is no arrow in your formula form:")
+  
+;        (> (count (leaf-expect-arrows args)) 1)
+;        (simple-report-validation-error form "There are too many expect arrows in your formula form:")
 
         (let [[_ [bindings & _]] (pop-docstring args)]
           (or (not (vector? bindings))

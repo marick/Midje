@@ -13,9 +13,12 @@
 (def fake-arrows #{=> =contains=> =streams=> =throws=>})
 (def all-arrows (union expect-arrows fake-arrows))
 
-(defn leaves-contain-arrow? [nested-form]
+(defn leaf-expect-arrows [nested-form]
   (let [named-form-leaves (map name (filter named? (flatten nested-form)))]
-    (not (not (some expect-arrows named-form-leaves)))))
+    (filter expect-arrows named-form-leaves)))
+
+(defn leaves-contain-arrow? [nested-form]
+  (not (empty? (leaf-expect-arrows nested-form))))
 
 ;; Recognizing
 
