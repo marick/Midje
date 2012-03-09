@@ -52,6 +52,15 @@
   [a (make-string)]
   (str a) => (has-prefix a))
 
+(unfinished f)
+(defn g [x] (str (f x) x))
+
+(formula "'provided' works"
+  [a (make-string)]
+  (g a) => (str "foo" a)
+  (provided 
+    (f anything) => "foo"))
+
 
 ;; failed formulas report once per formula regardless how many generations were run
 (after-silently
