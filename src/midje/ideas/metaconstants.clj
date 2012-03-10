@@ -30,7 +30,7 @@
 (deftype Metaconstant [name ^clojure.lang.Associative storage]
   Object
   (toString [this]
-            (.toString (.name this)))
+            (str (.name this)))
   (equals [^Metaconstant this that]
          (if (instance? (class this) that)
            (= (normalized-metaconstant (.name this)) (normalized-metaconstant (.name ^Metaconstant that)))
