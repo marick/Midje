@@ -16,5 +16,5 @@ bin/run-tests
 bin/version $MIDJE_VERSION 1.3.0
 bin/run-tests
 
-bin/version $MIDJE_VERSION 1.4.0-beta1
+bin/version $MIDJE_VERSION 1.4.0-beta4
 bin/run-tests

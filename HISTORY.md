@@ -1,10 +1,10 @@
 UNRELEASED
----------- 
-* functions created with `unfinished` that are called, give useful error message includingHhow they were called.
-  https://github.com/marick/Midje/issues/112 
+----------
 
 1.3.2-SNAPSHOT
--------------
+------------- 
+* functions created with `unfinished` that are called, give useful error message includingHhow they were called.
+  https://github.com/marick/Midje/issues/112 
 * formula macro enables simple generative style testing. Still very alpha.  
 * throws now accepts any extending Throwable. For example, this now passes:
   (throw (NullPointerException.)) => (throws Exception)
