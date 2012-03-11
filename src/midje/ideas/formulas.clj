@@ -27,15 +27,6 @@
                  ~@body :formula :formula-in-progress))
          (recur rest#)))))
 
-(defmacro the-loop [cnt-down fact docstring? bindings body]
-  (if (pos? cnt-down)
-    `(let [value# ~(second bindings)]
-      (let [~(first bindings) value#]
-        (if ~fact
-          (the-loop ~(dec cnt-down) ~fact ~docstring? ~bindings ~body)
-          (shrink-failure-case ~docstring? ~(first bindings) value# ~body))))
-    `(do nil)))
-
 (defmacro formula 
   "ALPHA/EXPERIMENTAL - Generative-style fact macro. 
   
@@ -57,7 +48,12 @@
                                :always-pass midje.sweet/=> :always-pass :formula :formula-conclude )]
 
       `(try
-         (the-loop ~*num-generations-per-formula* ~fact ~docstring? ~bindings ~body)
+         (loop [cnt-down# midje.ideas.formulas/*num-generations-per-formula*]
+           (when (pos? cnt-down#)
+             (let [~(first bindings) ~(second bindings)]
+               (if ~fact
+                 (recur (dec cnt-down#))
+                 (shrink-failure-case ~docstring? ~(first bindings) ~(second bindings) ~body)))))
          (finally
            ~conclusion-signal)))))
 
