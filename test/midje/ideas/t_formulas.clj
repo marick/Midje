@@ -91,8 +91,8 @@
 (after-silently 
   (formula [z (z-maker)]
     (my-identity z) => "clearly not 'z'"))
-(fact @z-maker-count => 1)
-(fact @my-identity-count => 1)
+(fact "calls generator once" @z-maker-count => 1)
+(fact "evalautes body once" @my-identity-count => 1)
 
 ;; shrinks failure case to smallest possible failure
 (with-redefs [midje.ideas.formulas/shrink (constantly [0 1 2 3 4 5])] ;; I don't think wtih-redefs is working right, hence the failures I'm seeing

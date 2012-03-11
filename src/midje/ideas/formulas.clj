@@ -20,7 +20,7 @@
 (defn shrink [& _args] [])
 
 (defmacro shrink-failure-case [docstring binding-name failed-binding-val body]
-  `(loop [[cur-shrunk# & rest#] ~(midje.ideas.formulas/shrink failed-binding-val)] ;; (shrink (eval failed-binding-val)) ???
+  `(loop [[cur-shrunk# & rest#] (midje.ideas.formulas/shrink ~failed-binding-val)]
      (when cur-shrunk#
        (when (let [~binding-name cur-shrunk#]
                (midje.sweet/fact ~docstring   ;; duplicated
@@ -50,10 +50,11 @@
       `(try
          (loop [cnt-down# midje.ideas.formulas/*num-generations-per-formula*]
            (when (pos? cnt-down#)
-             (let [~(first bindings) ~(second bindings)]
+             (let [ snd-binding# ~(second bindings)
+                    ~(first bindings) snd-binding#]
                (if ~fact
                  (recur (dec cnt-down#))
-                 (shrink-failure-case ~docstring? ~(first bindings) ~(second bindings) ~body)))))
+                 (shrink-failure-case ~docstring? ~(first bindings) snd-binding# ~body)))))
          (finally
            ~conclusion-signal)))))
 
