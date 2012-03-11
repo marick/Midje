@@ -1,10 +1,10 @@
 (ns ^{:doc "Midje's special blend of generative-style testing."}
   midje.ideas.formulas
-  (:use [midje.util.form-utils :only [pop-docstring]]
+  (:use [midje.util.form-utils :only [named? pop-docstring]]
         [midje.error-handling.validation-errors :only [simple-report-validation-error validate when-valid]]
+        [midje.ideas.prerequisites :only [is-head-of-form-providing-prerequisites?]]
         [midje.ideas.arrows :only [leaves-contain-arrow? 
-;                                   leaf-expect-arrows
-                                   ]]))
+                                   leaf-expect-arrows]]))
 
 (def ^{:doc "The number of facts generated per formula."
        :dynamic true} 
@@ -52,20 +52,24 @@
       `(try
          (loop [cnt-down# midje.ideas.formulas/*num-generations-per-formula*]
            (when (pos? cnt-down#)
-             (let [ snd-binding# ~(second bindings)
-                    ~(first bindings) snd-binding#]
+             (let [snd-binding# ~(second bindings)
+                   ~(first bindings) snd-binding#]
                (if ~fact
                  (recur (dec cnt-down#))
                  (shrink-failure-case ~docstring? ~(first bindings) snd-binding# ~body)))))
          (finally
            ~conclusion-signal)))))
 
+(defn- check-part-of [form] 
+  (take-while #(not (and (named? %) (= "provided" (name %)))) 
+              (flatten form)))
+
 (defmethod validate "formula" [[_formula_ & args :as form]]
-  (cond (not (leaves-contain-arrow? args))
-        (simple-report-validation-error form "There is no arrow in your formula form:")
+  (cond (not (leaves-contain-arrow? (check-part-of args)))
+        (simple-report-validation-error form "There is no expection in your formula form:")
   
-;        (> (count (leaf-expect-arrows args)) 1)
-;        (simple-report-validation-error form "There are too many expect arrows in your formula form:")
+        (> (count (leaf-expect-arrows (check-part-of args))) 1)
+        (simple-report-validation-error form "There are too many expections in your formula form:")
 
         (let [[_ [bindings & _]] (pop-docstring args)]
           (or (not (vector? bindings))
