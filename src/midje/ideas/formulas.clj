@@ -19,12 +19,15 @@
 
 (defn shrink [& _args] [])
 
+(defn- formula-fact [docstring body]
+  `(midje.sweet/fact ~docstring   
+     ~@body :formula :formula-in-progress))
+
 (defmacro shrink-failure-case [docstring binding-name failed-binding-val body]
   `(loop [[cur-shrunk# & rest#] (midje.ideas.formulas/shrink ~failed-binding-val)]
      (when cur-shrunk#
        (when (let [~binding-name cur-shrunk#]
-               (midje.sweet/fact ~docstring   ;; duplicated
-                 ~@body :formula :formula-in-progress))
+               ~(formula-fact docstring body))
          (recur rest#)))))
 
 (defmacro formula 
@@ -42,8 +45,7 @@
   [& args]
   (when-valid &form
     (let [[docstring? [bindings & body]] (pop-docstring args)
-          fact `(midje.sweet/fact ~docstring? ;; duplicated
-                  ~@body :formula :formula-in-progress )
+          fact (formula-fact docstring? body)
           conclusion-signal `(midje.sweet/fact
                                :always-pass midje.sweet/=> :always-pass :formula :formula-conclude )]
 
