@@ -14,6 +14,10 @@
        (= 2 (:minor *clojure-version*))
        (= 0 (:incremental *clojure-version*))))
 
+(defmacro when-1-3+ [& body] 
+  (when-not (= 2 (:minor *clojure-version*))
+    `(do ~@body)))
+
 (defmacro unless-1-2-0
   "Skip body completely - including 'Unable to resolve classname' errors."
   [& body]

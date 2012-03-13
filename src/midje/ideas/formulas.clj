@@ -1,7 +1,8 @@
 (ns ^{:doc "Midje's special blend of generative-style testing."}
   midje.ideas.formulas
   (:use [midje.util.form-utils :only [named? pop-docstring]]
-        [midje.error-handling.validation-errors :only [simple-report-validation-error validate when-valid]]
+        [midje.error-handling.validation-errors :only [simple-report-validation-error 
+                                                       validate when-valid]]
         [midje.ideas.prerequisites :only [is-head-of-form-providing-prerequisites?]]
         [midje.ideas.arrows :only [leaves-contain-arrow? 
                                    leaf-expect-arrows]]))
@@ -23,12 +24,13 @@
   `(midje.sweet/fact ~docstring   
      ~@body :formula :formula-in-progress))
 
-(defmacro shrink-failure-case [docstring binding-name failed-binding-val body]
-  `(loop [[cur-shrunk# & rest#] (midje.ideas.formulas/shrink ~failed-binding-val)]
-     (when cur-shrunk#
-       (when (let [~binding-name cur-shrunk#]
-               ~(formula-fact docstring body))
-         (recur rest#)))))
+(defmacro shrink-failure-case [docstring binding-names failed-binding-vals body]
+  `(loop [shrunk-vectors# (map midje.ideas.formulas/shrink ~failed-binding-vals)]
+     (let [cur-shrunks# (map first shrunk-vectors#)]
+       (when (and (first cur-shrunks#)
+                  (let [~binding-names cur-shrunks#]
+                    ~(formula-fact docstring body)))
+           (recur (map rest shrunk-vectors#))))))
 
 (defmacro formula 
   "ALPHA/EXPERIMENTAL - Generative-style fact macro. 
@@ -47,16 +49,20 @@
     (let [[docstring? [bindings & body]] (pop-docstring args)
           fact (formula-fact docstring? body)
           conclusion-signal `(midje.sweet/fact
-                               :always-pass midje.sweet/=> :always-pass :formula :formula-conclude )]
+                               :always-pass midje.sweet/=> :always-pass 
+                               :formula :formula-conclude )]
 
       `(try
          (loop [cnt-down# midje.ideas.formulas/*num-generations-per-formula*]
            (when (pos? cnt-down#)
-             (let [snd-binding# ~(second bindings)
-                   ~(first bindings) snd-binding#]
+             (let [snd-bindings# ~(vec (take-nth 2 (rest bindings)))
+                   ~(vec (take-nth 2 bindings)) snd-bindings#]
                (if ~fact
                  (recur (dec cnt-down#))
-                 (shrink-failure-case ~docstring? ~(first bindings) snd-binding# ~body)))))
+                 (shrink-failure-case ~docstring? 
+                                      ~(vec (take-nth 2 bindings)) 
+                                      snd-bindings# 
+                                      ~body)))))
          (finally
            ~conclusion-signal)))))
 

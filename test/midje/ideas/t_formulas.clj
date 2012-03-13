@@ -2,7 +2,8 @@
 
 (ns midje.ideas.t-formulas
   (:use midje.test-util
-        midje.sweet))
+        midje.sweet
+        midje.util.ecosystem))
 
 ;;;; Validation
 
@@ -38,11 +39,15 @@
 (defn- gen-int [pred]
   (rand-nth (filter pred [-5 -4 -3 -2 -1 0 1 2 3 4 5])))
 
-(formula [n (gen-int #(< % 1))]
+(formula
+  "allows users to dynamically rebind to 1+"
+  [n (gen-int #(< % 1))]
   (binding [midje.ideas.formulas/*num-generations-per-formula* n] nil) 
      => (throws #"must be an integer 1 or greater"))
 
-(formula [n (gen-int #(>= % 1))]
+(formula
+  "binding too smalla value - gives nice error msg"
+  [n (gen-int #(>= % 1))]
   (binding [midje.ideas.formulas/*num-generations-per-formula* n] nil) 
      =not=> (throws Exception))
 
@@ -52,13 +57,9 @@
 ;; the first formula use ever!
 (defn make-string []
   (rand-nth ["a" "b" "c" "d" "e" "f" "g" "i"]))
-;(formula "can now use simple generative-style formulas"  ;; COMMENTED OUT TO TEMPORARILY DISALLOW > 1 bindings
-;  [a (make-string) b (make-string)]
-;  (str a b) => (has-prefix a))
-
-(formula "can now use simple generative-style formulas"
-  [a (make-string)]
-  (str a) => (has-prefix a))
+(formula "can now use simple generative-style formulas - with multipel bindings"
+  [a (make-string) b (make-string) c (make-string)]
+  (str a b c) => (has-prefix (str a b)))
 
 (unfinished f)
 (defn g [x] (str (f x) x))
@@ -99,20 +100,22 @@
 (fact "calls generator once" @z-maker-count => 1)
 (fact "evalautes body once" @my-identity-count => 1)
 
+
 ;; shrinks failure case to smallest possible failure
-(with-redefs [midje.ideas.formulas/shrink (constantly [0 1 2 3 4 5])] ;; I don't think wtih-redefs is working right, hence the failures I'm seeing
-  (after-silently
-    (formula [x 100] 
-      x => neg?)))
-(fact @reported => (one-of (contains {:type :mock-expected-result-functional-failure
-                                      :actual 0})))
+(when-1-3+
+  (with-redefs [midje.ideas.formulas/shrink (constantly [0 1 2 3 4 5])]
+    (after-silently
+      (formula [x 100] 
+        x => neg?)))
+  (fact @reported => (one-of (contains {:type :mock-expected-result-functional-failure
+                                        :actual 0}))))
 
 
-
-;;; ... shrunken failure case is in the same domain as the generator 
-;;;     used to create the input case in the forst place.
-;(after-silently
-;  (formula [x (guard (gs/int) odd?)] 
-;    x => neg?))
-;(fact @reported => (one-of (contains {:type :mock-expected-result-failure
-;                                      :actual 1})))
+;; shrunken failure case is in the same domain as the generator 
+;; used to create the input case in the forst place.
+(after-silently
+  (formula [x (gen-int odd?)]  ;;(guard (gs/int) odd?)] 
+    x => neg?))
+(future-fact "shrunken failure case is in the same domain as the generator" 
+  @reported => (one-of (contains {:type :mock-expected-result-failure
+                                  :actual 1})))
