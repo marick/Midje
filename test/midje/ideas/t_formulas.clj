@@ -7,33 +7,22 @@
 
 ;;;; Validation
 
-(causes-validation-error #"There is no expection in your formula form"
-  (formula [a 1]))
+(unfinished h)
 
-(causes-validation-error #"There is no expection in your formula form"
-  (formula [a 1] 1))
-
-(causes-validation-error #"There is no expection in your formula form"
-  (formula "vector fact" [a 1] (contains 3)))
-
-(causes-validation-error #"There is no expection in your formula form"
-  (formula "vector fact" [a 1] (contains 3)))
-
-(defn h [i])
-(causes-validation-error #"There is no expection in your formula form"
+(each-causes-validation-error #"There is no expection in your formula form"
+  (formula [a 1])
+  (formula [a 1] 1)
+  (formula "vector fact" [a 1] (contains 3))
+  (formula "vector fact" [a 1] (contains 3))
   (formula "vector fact" [a 1] (contains 3)
     (provided (h anything) => 5)))
 
 (causes-validation-error #"There are too many expections in your formula form"
   (formula "vector fact" [a 1] a => 1 a => 1))
 
-(causes-validation-error #"Formula requires bindings to be an even numbered vector of 2 or more:"
-  (formula "vector fact" :not-vector 1 => 1))
-
-(causes-validation-error #"Formula requires bindings to be an even numbered vector of 2 or more:"
-  (formula "vector fact" [a 1 1] 1 => 1))
-
-(causes-validation-error #"Formula requires bindings to be an even numbered vector of 2 or more:"
+(each-causes-validation-error #"Formula requires bindings to be an even numbered vector of 2 or more"
+  (formula "vector fact" :not-vector 1 => 1)
+  (formula "vector fact" [a 1 1] 1 => 1)
   (formula "vector fact" [] 1 => 1))
 
 (defn- gen-int [pred]

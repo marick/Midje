@@ -103,18 +103,16 @@
    (tabular "string" fact ?a ?b 1 1)    ["string" fact [?a ?b 1 1]] )
 
 
-(causes-validation-error #"There's no table\. \(Misparenthesized form\?\)"
+(each-causes-validation-error #"There's no table\. \(Misparenthesized form\?\)"
   (tabular
     (fact 
       (tabular-forms '?forms) => '?expected
       ?forms                       ?expect
-      [ fact table ]               [fact table])))
+      [ fact table ]               [fact table]))
 
-(causes-validation-error #"There's no table\. \(Misparenthesized form\?\)"
-  (tabular 
-    (fact nil => nil)))
+  (tabular
+    (fact nil => nil))
 
-(causes-validation-error #"There's no table\. \(Misparenthesized form\?\)"
   (tabular "doc string present"
     (fact nil => nil)))
 

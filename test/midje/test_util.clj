@@ -3,7 +3,8 @@
 (ns midje.test-util
   (:use [clojure.test]
         midje.checkers
-        [clojure.set :only [subset?]]))
+        [clojure.set :only [subset?]]
+        [midje.util.form-utils :only [macro-for]]))
 
 (def reported (atom []))
 
@@ -60,12 +61,20 @@
   `(just (contains {:notes (just ~@notes)
                     :type :validation-error})))
 
-(defmacro causes-validation-error [error-msg & body]
+(defmacro causes-validation-error 
+  "check if the body, when executed, creates a syntax validation error"
+  [error-msg & body]
   `(after-silently
     ~@body  
     (midje.sweet/fact 
       @reported midje.sweet/=> (one-of (contains {:type :validation-error 
                                                   :notes (contains ~error-msg)})))))
+
+(defmacro each-causes-validation-error 
+  "check if each row of the body, when executed, creates a syntax validation error"
+  [error-msg & body]
+  (macro-for [row body]
+    `(causes-validation-error ~error-msg ~row)))
 
 (defmacro with-identity-renderer [& forms]
   `(binding [midje.internal-ideas.report/*renderer* identity] ~@forms))
