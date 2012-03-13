@@ -14,8 +14,19 @@
   (formula [a 1] 1)
   (formula "vector fact" [a 1] (contains 3))
   (formula "vector fact" [a 1] (contains 3))
-  (formula "vector fact" [a 1] (contains 3)
-    (provided (h anything) => 5)))
+
+  (formula "vector fact" [a 1] 
+    (contains 3)
+    (provided (h anything) => 5))
+
+  (formula "vector fact" [a 1] 
+    (contains 3)
+    (against-background (h anything) => 5))
+
+;  (formula "vector fact" [a 1]
+;    (against-background (h anything) => 5)
+;    (contains 3))
+  )
 
 (causes-validation-error #"There are too many expections in your formula form"
   (formula "vector fact" [a 1] a => 1 a => 1))

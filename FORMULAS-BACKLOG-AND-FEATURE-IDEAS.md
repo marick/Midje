@@ -12,7 +12,7 @@
 * [x] don't run more tests than need be if there is already failure in this formula's batch.
   
 * [x] syntax validate thata formula only has one check in it  
-  a. [ ] need to make this more thorough... right now the only test oft his feature checks a 
+  a. [ ] need to make this more thorough... right now the only test of this feature checks a 
      simple provided case, but needs to work with against-background, background and 
      other more interesting cases  
   

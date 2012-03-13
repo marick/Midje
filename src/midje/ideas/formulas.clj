@@ -67,7 +67,7 @@
            ~conclusion-signal)))))
 
 (defn- check-part-of [form] 
-  (take-while #(not (and (named? %) (= "provided" (name %)))) 
+  (take-while #(not (and (named? %) (#{"provided" "against-background"} (name %)))) 
               (flatten form)))
 
 (defmethod validate "formula" [[_formula_ & args :as form]]
