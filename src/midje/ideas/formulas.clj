@@ -1,11 +1,11 @@
 (ns ^{:doc "Midje's special blend of generative-style testing."}
   midje.ideas.formulas
-  (:use [midje.util.form-utils :only [named? pop-docstring]]
+  (:use [midje.util.form-utils :only [first-named? named? pop-docstring]]
         [midje.error-handling.validation-errors :only [simple-report-validation-error 
                                                        validate when-valid]]
         [midje.ideas.prerequisites :only [is-head-of-form-providing-prerequisites?]]
-        [midje.ideas.arrows :only [leaves-contain-arrow? 
-                                   leaf-expect-arrows]]))
+        [midje.ideas.arrows :only [leaf-expect-arrows leaves-contain-arrow?]]
+        [clojure.walk :only [prewalk]]))
 
 (def ^{:doc "The number of facts generated per formula."
        :dynamic true} 
@@ -66,9 +66,12 @@
          (finally
            ~conclusion-signal)))))
 
-(defn- check-part-of [form] 
-  (take-while #(not (and (named? %) (#{"provided" "against-background"} (name %)))) 
-              (flatten form)))
+(defn- check-part-of [form]
+  (prewalk (fn [form] 
+             (if (some (partial first-named? form) ["against-background" "background" "provided"])
+                 '() 
+                 form)) 
+    form))
 
 (defmethod validate "formula" [[_formula_ & args :as form]]
   (cond (not (leaves-contain-arrow? (check-part-of args)))
@@ -82,6 +85,9 @@
               (odd? (count bindings))
               (< (count bindings) 2)))
         (simple-report-validation-error form "Formula requires bindings to be an even numbered vector of 2 or more:")
+
+        (some #(and (named? %) (= "background" (name %))) (flatten args))
+        (simple-report-validation-error form "background cannot be used inside of formula")
   
         :else 
         args))

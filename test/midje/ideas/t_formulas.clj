@@ -13,31 +13,55 @@
   (formula [a 1])
   (formula [a 1] 1)
   (formula "vector fact" [a 1] (contains 3))
-  (formula "vector fact" [a 1] (contains 3))
 
-  (formula "vector fact" [a 1] 
+  (formula "ignores arrows in provideds" [a 1] 
     (contains 3)
     (provided (h anything) => 5))
 
-  (formula "vector fact" [a 1] 
+  (formula "ignores arrows in against-background" [a 1] 
     (contains 3)
     (against-background (h anything) => 5))
 
-;  (formula "vector fact" [a 1]
-;    (against-background (h anything) => 5)
-;    (contains 3))
-  )
+  (formula "ignores arrows in against-background - even when it comes first" 
+    [a 1]
+    (against-background (h anything) => 5)
+    (contains 3))
 
-(causes-validation-error #"There are too many expections in your formula form"
-  (formula "vector fact" [a 1] a => 1 a => 1))
+  (formula "ignores arrows in background" [a 1] 
+    (contains 3)
+    (background (h anything) => 5))
+
+  (formula "ignores arrows in background - even when it comes first" 
+    [a 1]
+    (background (h anything) => 5)
+    (contains 3)))
 
 (each-causes-validation-error #"Formula requires bindings to be an even numbered vector of 2 or more"
   (formula "vector fact" :not-vector 1 => 1)
   (formula "vector fact" [a 1 1] 1 => 1)
   (formula "vector fact" [] 1 => 1))
 
+(causes-validation-error #"There are too many expections in your formula form"
+  (formula "vector fact" [a 1] a => 1 a => 1))
+
+(defn z [x] )
+(causes-validation-error #"background cannot be used inside of formula"
+  (formula [a 1]
+    (background (h 1) => 5)
+    (z a) => 10))
+
+;; Things that should be valid
+
+(defn k [x] (* 2 (h x)))
+(formula "against-backgrounds at the front of the body are fine" [a 1]
+  (against-background (h 1) => 5)
+  (k a) => 10)
+
+
+;; *num-generations-per-formula* binding validation
+
 (defn- gen-int [pred]
-  (rand-nth (filter pred [-5 -4 -3 -2 -1 0 1 2 3 4 5])))
+  (rand-nth (filter pred [-999 -100 -20 -5 -1 0 1 5 20 100 999])))
 
 (formula
   "allows users to dynamically rebind to 1+"
@@ -46,7 +70,7 @@
      => (throws #"must be an integer 1 or greater"))
 
 (formula
-  "binding too smalla value - gives nice error msg"
+  "binding too small a value - gives nice error msg"
   [n (gen-int #(>= % 1))]
   (binding [midje.ideas.formulas/*num-generations-per-formula* n] nil) 
      =not=> (throws Exception))
