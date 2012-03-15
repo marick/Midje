@@ -47,7 +47,7 @@
   (formula "a doc string" [a 1] a => 1 a => 1))
 
 (causes-validation-error #"Invalid keys \(:foo, :bar\) in formula's options map. Valid keys are: :num-trials"
-  (formula {:foo 5 :bar 6} [a 1] a => 1))
+  (formula {:foo 5 :bar 6 :num-trials 5} [a 1] a => 1))
 
 (each-causes-validation-error #":num-trials must be an integer 1 or greater"
   (formula {:num-trials 0 } [a 1] a => 1)
