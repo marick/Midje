@@ -48,11 +48,19 @@
         [a (gen/string) b (gen/string)] 
         (str a b) => (has-prefix a))
         
-  Currently, we recommend you use generators from test.generative.generators
+  Currently, we recommend you use generators from test.generative.generators. 
+  (However we are in the works to create a library of generators with shrinkers, so 
+   don't get too attached to test.generative)
+   
+  opts-map keys:
+  
+     :num-trials - Used to override the number of trials for this formula only. 
+                   This is higher precedence than *num-trials*
+                   Must be set to a number 1 or greater.
   
   The midje.ideas.formulas/*num-trials* dynamic var determines
   how many facts are generated per formula."
-  {:arglists '([docstring? bindings & body])}
+  {:arglists '([docstring? opts-map? bindings & body])}
   [& args]
   (when-valid &form
     (let [[docstring? opts bindings body] (deconstruct-formula-args args)
