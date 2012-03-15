@@ -3,7 +3,8 @@
 (ns midje.ideas.t-formulas
   (:use midje.test-util
         midje.sweet
-        midje.util.ecosystem))
+        midje.util.ecosystem
+        [midje.ideas.formulas :only [*num-trials*]] ))
 
 ;;;; Validation
 
@@ -58,7 +59,7 @@
   (k a) => 10)
 
 
-;; *num-generations-per-formula* binding validation
+;; *num-trials* binding validation
 
 (defn- gen-int [pred]
   (rand-nth (filter pred [-999 -100 -20 -5 -4 -3 -2 -1 0 1 2 3 4 5 20 100 999])))
@@ -66,13 +67,13 @@
 (formula
   "binding too small a value - gives nice error msg"
   [n (gen-int #(< % 1))]
-  (binding [midje.ideas.formulas/*num-generations-per-formula* n] nil) 
+  (binding [*num-trials* n] nil) 
      => (throws #"must be an integer 1 or greater"))
 
 (formula
   "allows users to dynamically rebind to 1+"
   [n (gen-int #(>= % 1))]
-  (binding [midje.ideas.formulas/*num-generations-per-formula* n] nil) 
+  (binding [*num-trials* n] nil) 
      =not=> (throws Exception))
 
 
@@ -107,18 +108,18 @@
 (defn-call-countable y-maker [] "y")
 (defn-call-countable my-str [s] (str s))
 
-(binding [midje.ideas.formulas/*num-generations-per-formula* 77]
+(binding [*num-trials* 77]
   (formula [y (y-maker)]
     (my-str y) => "y"))
 (fact @y-maker-count => 77)
 (fact @my-str-count => 77)
 
 
-;; can specify number of trials to run in options map - overrides *num-generations-per-formula* var value
+;; can specify number of trials to run in options map - overrides *num-trials* var value
 (defn-call-countable foo-maker [] "foo")
 (defn-call-countable my-double-str [s] (str "double" s))
 
-(binding [midje.ideas.formulas/*num-generations-per-formula* 111]  ;; this will be overridden by opt map
+(binding [*num-trials* 111]  ;; this will be overridden by opt map
   (formula "asdf" {:num-trials 88} [foo (foo-maker)]
     (my-double-str foo) => "doublefoo"))
 (fact @foo-maker-count => 88)

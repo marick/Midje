@@ -22,7 +22,7 @@
 * [x] add future-formula (and variant names)  
 
 * [x] cleaner syntax for overriding number of trials per formula. Use the 
-      *num-generations-per-formula* var just for global changes or changes to be visible 
+      *num-trials* var just for global changes or changes to be visible 
       for groups of formulas.
       
 * [ ] validate that opt-map is only used with valid keys.

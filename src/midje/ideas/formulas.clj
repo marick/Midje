@@ -8,15 +8,15 @@
         [midje.ideas.facts :only [future-prefixes]]
         [clojure.walk :only [prewalk]]))
 
-(def ^{:doc "The number of facts generated per formula."
+(def ^{:doc "The number of trials generated per formula."
        :dynamic true} 
-  *num-generations-per-formula* 100)   
+  *num-trials* 100)   
 
-(set-validator! #'*num-generations-per-formula* 
+(set-validator! #'*num-trials* 
   (fn [new-val]
     (if (pos? new-val) 
       true
-      (throw (RuntimeException. (str "*num-generations-per-formula* must be an integer 1 or greater. You tried to set it to: " new-val))))))
+      (throw (RuntimeException. (str "*num-trials* must be an integer 1 or greater. You tried to set it to: " new-val))))))
 
 
 (defn shrink [& _args] [])
@@ -49,7 +49,7 @@
         
   Currently, we recommend you use generators from test.generative.generators
   
-  The midje.ideas.formulas/*num-generations-per-formula* dynamic var determines
+  The midje.ideas.formulas/*num-trials* dynamic var determines
   how many facts are generated per formula."
   {:arglists '([docstring? bindings & body])}
   [& args]
@@ -61,7 +61,7 @@
                                :formula :formula-conclude )]
 
       `(try
-         (loop [cnt-down# (if (contains? ~opts :num-trials) (:num-trials ~opts) midje.ideas.formulas/*num-generations-per-formula*)]
+         (loop [cnt-down# (if (contains? ~opts :num-trials) (:num-trials ~opts) midje.ideas.formulas/*num-trials*)]
            (when (pos? cnt-down#)
              (let [snd-bindings# ~(vec (take-nth 2 (rest bindings)))
                    ~(vec (take-nth 2 bindings)) snd-bindings#]
