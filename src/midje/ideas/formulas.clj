@@ -6,6 +6,7 @@
         [midje.ideas.prerequisites :only [is-head-of-form-providing-prerequisites?]]
         [midje.ideas.arrows :only [leaf-expect-arrows leaves-contain-arrow?]]
         [midje.ideas.facts :only [future-prefixes]]
+        [clojure.string :only [join]]
         [clojure.walk :only [prewalk]]))
 
 (def ^{:doc "The number of trials generated per formula."
@@ -84,20 +85,24 @@
     form))
 
 (defmethod validate "formula" [[_formula_ & args :as form]]
-  (cond (not (leaves-contain-arrow? (check-part-of args)))
-        (simple-report-validation-error form "There is no expection in your formula form:")
+  (let [[_docstring? opt-map bindings _body] (deconstruct-formula-args args)
+        invalid-keys (remove (partial = :num-trials) (keys opt-map))]
+    (cond (not (leaves-contain-arrow? (check-part-of args)))
+          (simple-report-validation-error form "There is no expection in your formula form:")
+    
+          (> (count (leaf-expect-arrows (check-part-of args))) 1)
+          (simple-report-validation-error form "There are too many expections in your formula form:")
   
-        (> (count (leaf-expect-arrows (check-part-of args))) 1)
-        (simple-report-validation-error form "There are too many expections in your formula form:")
-
-        (let [[docstring? opts bindings body] (deconstruct-formula-args args)]
           (or (not (vector? bindings))
               (odd? (count bindings))
-              (< (count bindings) 2)))
-        (simple-report-validation-error form "Formula requires bindings to be an even numbered vector of 2 or more:")
-
-        (some #(and (named? %) (= "background" (name %))) (flatten args))
-        (simple-report-validation-error form "background cannot be used inside of formula")
+              (< (count bindings) 2))
+          (simple-report-validation-error form "Formula requires bindings to be an even numbered vector of 2 or more:")
   
-        :else 
-        args))
+          (some #(and (named? %) (= "background" (name %))) (flatten args))
+          (simple-report-validation-error form "background cannot be used inside of formula")
+  
+          (not (empty? invalid-keys))
+          (simple-report-validation-error form (format "Invalid keys (%s) in formula's options map. Valid keys are: :num-trials" (join ", " invalid-keys)))
+          
+          :else 
+          args)))

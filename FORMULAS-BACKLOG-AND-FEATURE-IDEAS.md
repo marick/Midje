@@ -25,7 +25,7 @@
       *num-trials* var just for global changes or changes to be visible 
       for groups of formulas.
       
-* [ ] validate that opt-map is only used with valid keys.
+* [x] validate that opt-map is only used with valid keys.
 
 * [ ] validate that :num-trials is 1+
 
@@ -52,4 +52,4 @@
 * [ ] consider implementing with @marick's metaconstant syntax
    a. [ ] if we do metaconstant style, implement generator overriding
    
-* [ ] double check that users won't get more than one reported failure per formula
+* [ ] figure out what part of t-formulas is registering as a lot more than 1 report per formula. (100???)

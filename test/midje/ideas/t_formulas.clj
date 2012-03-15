@@ -45,6 +45,9 @@
 (causes-validation-error #"There are too many expections in your formula form"
   (formula "vector fact" [a 1] a => 1 a => 1))
 
+(causes-validation-error #"Invalid keys \(:foo, :bar\) in formula's options map. Valid keys are: :num-trials"
+  (formula {:foo 5 :bar 6} [a 1] a => 1))
+
 (defn z [x] )
 (causes-validation-error #"background cannot be used inside of formula"
   (formula [a 1]
