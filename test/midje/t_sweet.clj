@@ -36,6 +36,12 @@
 (defn two-numbers [] 
   (+ (number) (number)))
 
+
+(future-fact "Fix this regression in =streams=>"lein 
+  (two-numbers) => 2
+  (provided
+    (number) =streams=> (range)))
+
 (letfn [(stream-overflow-exception? [captured-throwable]
           (= "Your =stream=> ran out of values." (.getMessage (.throwable captured-throwable))))]
 
