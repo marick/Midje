@@ -79,7 +79,7 @@
 (defmacro with-identity-renderer [& forms]
   `(binding [midje.internal-ideas.report/*renderer* identity] ~@forms))
 
-(defmacro defn-verifiable
+(defmacro defn-call-countable
   "Note: For testing Midje code that couldn't use provided.
   
   Creates a function that records how many times it is called, and records 

@@ -4,7 +4,7 @@
    b. [x] make sure the fact count only increases once per formula  
 
 * [x] make number of generated facts per formula dynamically bindable
-   a. [x] throw an exception if this value is set <= 1
+   a. [x] throw an exception if this value is set < 1
 
 * [x] figure out how to make syntax validation errors show something more sensible than the 
       error message you'd see for a problem with a fact validation problem 

@@ -61,16 +61,16 @@
 ;; *num-generations-per-formula* binding validation
 
 (defn- gen-int [pred]
-  (rand-nth (filter pred [-999 -100 -20 -5 -1 0 1 5 20 100 999])))
+  (rand-nth (filter pred [-999 -100 -20 -5 -4 -3 -2 -1 0 1 2 3 4 5 20 100 999])))
 
 (formula
-  "allows users to dynamically rebind to 1+"
+  "binding too small a value - gives nice error msg"
   [n (gen-int #(< % 1))]
   (binding [midje.ideas.formulas/*num-generations-per-formula* n] nil) 
      => (throws #"must be an integer 1 or greater"))
 
 (formula
-  "binding too small a value - gives nice error msg"
+  "allows users to dynamically rebind to 1+"
   [n (gen-int #(>= % 1))]
   (binding [midje.ideas.formulas/*num-generations-per-formula* n] nil) 
      =not=> (throws Exception))
@@ -104,8 +104,8 @@
 
 ;; passing formulas run the generator many times, and evaluate 
 ;; their body many times - number of generations is rebindable
-(defn-verifiable y-maker [] "y")
-(defn-verifiable my-str [s] (str s))
+(defn-call-countable y-maker [] "y")
+(defn-call-countable my-str [s] (str s))
 
 (binding [midje.ideas.formulas/*num-generations-per-formula* 77]
   (formula [y (y-maker)]
@@ -115,8 +115,8 @@
 
 
 ;; runs only as few times as needed to see a failure
-(defn-verifiable z-maker [] "z")
-(defn-verifiable my-identity [x] (identity x))
+(defn-call-countable z-maker [] "z")
+(defn-call-countable my-identity [x] (identity x))
 
 (after-silently 
   (formula [z (z-maker)]
@@ -138,14 +138,14 @@
 ;; shrunken failure case is in the same domain as the generator 
 ;; used to create the input case in the forst place.
 (after-silently
-  (future-formula [x (gen-int odd?)]  ;;(guard (gs/int) odd?)] 
+  (formula [x (gen-int odd?)]  ;;(guard (gs/int) odd?)] 
     x => neg?))
 (future-fact "shrunken failure case is in the same domain as the generator" 
   @reported => (one-of (contains {:type :mock-expected-result-failure
                                   :actual 1})))
 
 
-;; Other
+;;;; Other
 
 (future-formula "demonstrating the ability to create future formulas"
   [a 1]
