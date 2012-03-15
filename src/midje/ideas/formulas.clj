@@ -70,7 +70,7 @@
                                :formula :formula-conclude )]
 
       `(try
-         (loop [cnt-down# (if (contains? ~opts :num-trials) (:num-trials ~opts) midje.ideas.formulas/*num-trials*)]
+         (loop [cnt-down# (or (:num-trials ~opts) midje.ideas.formulas/*num-trials*)]
            (when (pos? cnt-down#)
              (let [snd-bindings# ~(vec (take-nth 2 (rest bindings)))
                    ~(vec (take-nth 2 bindings)) snd-bindings#]
