@@ -28,8 +28,6 @@
 * [x] validate that opt-map is only used with valid keys.
 
 * [x] validate that :num-trials is 1+
-
-* [ ] more formula syntax validation cases inspired by the new opt map
   
 * [ ] Work with Meikel Brandmeyer to combine ClojureCheck's Generators with Shrink.
       implement shrinking. Report only the first fully shrunken failure

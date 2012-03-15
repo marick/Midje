@@ -13,7 +13,7 @@
 (each-causes-validation-error #"There is no expection in your formula form"
   (formula [a 1])
   (formula [a 1] 1)
-  (formula "vector fact" [a 1] (contains 3))
+  (formula "a doc string" [a 1] (contains 3))
 
   (formula "ignores arrows in provideds" [a 1] 
     (contains 3)
@@ -38,12 +38,13 @@
     (contains 3)))
 
 (each-causes-validation-error #"Formula requires bindings to be an even numbered vector of 2 or more"
-  (formula "vector fact" :not-vector 1 => 1)
-  (formula "vector fact" [a 1 1] 1 => 1)
-  (formula "vector fact" [] 1 => 1))
+  (formula "a doc string" :not-vector 1 => 1)
+  (formula "a doc string" [a 1 1] 1 => 1)
+  (formula "a doc string" [] 1 => 1)
+  (formula "a doc string" {:num-trials 50} 1 => 1))
 
 (causes-validation-error #"There are too many expections in your formula form"
-  (formula "vector fact" [a 1] a => 1 a => 1))
+  (formula "a doc string" [a 1] a => 1 a => 1))
 
 (causes-validation-error #"Invalid keys \(:foo, :bar\) in formula's options map. Valid keys are: :num-trials"
   (formula {:foo 5 :bar 6} [a 1] a => 1))
