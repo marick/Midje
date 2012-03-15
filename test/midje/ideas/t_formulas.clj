@@ -81,7 +81,7 @@
 ;; the first formula use ever!
 (defn make-string []
   (rand-nth ["a" "b" "c" "d" "e" "f" "g" "i"]))
-(formula "can now use simple generative-style formulas - with multipel bindings"
+(formula "can now use simple generative-style formulas - with multiple bindings"
   [a (make-string) b (make-string) c (make-string)]
   (str a b c) => (has-prefix (str a b)))
 
@@ -112,6 +112,17 @@
     (my-str y) => "y"))
 (fact @y-maker-count => 77)
 (fact @my-str-count => 77)
+
+
+;; can specify number of trials to run in options map - overrides *num-generations-per-formula* var value
+(defn-call-countable foo-maker [] "foo")
+(defn-call-countable my-double-str [s] (str "double" s))
+
+(binding [midje.ideas.formulas/*num-generations-per-formula* 111]  ;; this will be overridden by opt map
+  (formula "asdf" {:num-trials 88} [foo (foo-maker)]
+    (my-double-str foo) => "doublefoo"))
+(fact @foo-maker-count => 88)
+(fact @my-double-str-count => 88)
 
 
 ;; runs only as few times as needed to see a failure

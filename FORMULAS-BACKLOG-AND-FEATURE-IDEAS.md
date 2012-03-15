@@ -20,6 +20,16 @@
 * [x] formula macro calls a (constantly []) version of shrink on failures  
   
 * [x] add future-formula (and variant names)  
+
+* [x] cleaner syntax for overriding number of trials per formula. Use the 
+      *num-generations-per-formula* var just for global changes or changes to be visible 
+      for groups of formulas.
+      
+* [ ] validate that opt-map is only used with valid keys.
+
+* [ ] validate that :num-trials is 1+
+
+* [ ] more formula syntax valiidation cases inspired by the new opt map
   
 * [ ] Work with Meikel Brandmeyer to combine ClojureCheck's Generators with Shrink.
       implement shrinking. Report only the first fully shrunken failure

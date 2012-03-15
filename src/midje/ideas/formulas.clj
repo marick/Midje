@@ -33,6 +33,13 @@
                     ~(formula-fact docstring body)))
            (recur (map rest shrunk-vectors#))))))
 
+(defn- deconstruct-formula-args [args]
+  (let [[docstring? more-args] (pop-docstring args)
+        [opts bindings body] (if (map? (first more-args))
+                               [(first more-args) (second more-args) (rest (rest more-args))]
+                               [{} (first more-args) (rest more-args)])]
+    [docstring? opts bindings body]))
+
 (defmacro formula 
   "ALPHA/EXPERIMENTAL (subject to change) - Generative-style fact macro. 
   
@@ -47,14 +54,14 @@
   {:arglists '([docstring? bindings & body])}
   [& args]
   (when-valid &form
-    (let [[docstring? [bindings & body]] (pop-docstring args)
+    (let [[docstring? opts bindings body] (deconstruct-formula-args args)
           fact (formula-fact docstring? body)
           conclusion-signal `(midje.sweet/fact
                                :always-pass midje.sweet/=> :always-pass 
                                :formula :formula-conclude )]
 
       `(try
-         (loop [cnt-down# midje.ideas.formulas/*num-generations-per-formula*]
+         (loop [cnt-down# (if (contains? ~opts :num-trials) (:num-trials ~opts) midje.ideas.formulas/*num-generations-per-formula*)]
            (when (pos? cnt-down#)
              (let [snd-bindings# ~(vec (take-nth 2 (rest bindings)))
                    ~(vec (take-nth 2 bindings)) snd-bindings#]
@@ -83,7 +90,7 @@
         (> (count (leaf-expect-arrows (check-part-of args))) 1)
         (simple-report-validation-error form "There are too many expections in your formula form:")
 
-        (let [[_ [bindings & _]] (pop-docstring args)]
+        (let [[docstring? opts bindings body] (deconstruct-formula-args args)]
           (or (not (vector? bindings))
               (odd? (count bindings))
               (< (count bindings) 2)))
