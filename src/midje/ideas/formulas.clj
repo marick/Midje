@@ -5,6 +5,7 @@
                                                        validate when-valid]]
         [midje.ideas.prerequisites :only [is-head-of-form-providing-prerequisites?]]
         [midje.ideas.arrows :only [leaf-expect-arrows leaves-contain-arrow?]]
+        [midje.ideas.facts :only [future-prefixes]]
         [clojure.walk :only [prewalk]]))
 
 (def ^{:doc "The number of facts generated per formula."
@@ -33,7 +34,7 @@
            (recur (map rest shrunk-vectors#))))))
 
 (defmacro formula 
-  "ALPHA/EXPERIMENTAL - Generative-style fact macro. 
+  "ALPHA/EXPERIMENTAL (subject to change) - Generative-style fact macro. 
   
   Ex. (formula \"any two strings concatenated begins with the first\" 
         [a (gen/string) b (gen/string)] 
@@ -65,6 +66,8 @@
                                       ~body)))))
          (finally
            ~conclusion-signal)))))
+
+(def future-formula-variant-names (map #(str % "formula") future-prefixes))
 
 (defn- check-part-of [form]
   (prewalk (fn [form] 

@@ -19,6 +19,8 @@
   
 * [x] formula macro calls a (constantly []) version of shrink on failures  
   
+* [x] add future-formula (and variant names)  
+  
 * [ ] Work with Meikel Brandmeyer to combine ClojureCheck's Generators with Shrink.
       implement shrinking. Report only the first fully shrunken failure
          [ ] 'shrink' depends on domain of 'generate'
@@ -33,7 +35,9 @@
       but instead do something like tabular
           
  
-* [ ] if line numbers shift, then ensure that they always report correctly -- so far I don't know if this even needs to change, since it seems to work fine.  Think about it and decide if tests to prevent regressions are useful here.
+* [ ] if line numbers shift, then ensure that they always report correctly -- so far I 
+      don't know if this even needs to change, since it seems to work fine.  Think about 
+      it and decide if tests to prevent regressions are useful here.
 
 * [ ] consider implementing with @marick's metaconstant syntax
    a. [ ] if we do metaconstant style, implement generator overriding

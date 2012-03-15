@@ -138,8 +138,15 @@
 ;; shrunken failure case is in the same domain as the generator 
 ;; used to create the input case in the forst place.
 (after-silently
-  (formula [x (gen-int odd?)]  ;;(guard (gs/int) odd?)] 
+  (future-formula [x (gen-int odd?)]  ;;(guard (gs/int) odd?)] 
     x => neg?))
 (future-fact "shrunken failure case is in the same domain as the generator" 
   @reported => (one-of (contains {:type :mock-expected-result-failure
                                   :actual 1})))
+
+
+;; Other
+
+(future-formula "demonstrating the ability to create future formulas"
+  [a 1]
+  a => 1)

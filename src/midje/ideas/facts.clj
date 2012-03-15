@@ -34,14 +34,14 @@
   (or (first-named? form "fact")
       (first-named? form "facts")))
 
-(def future-fact-variant-names [ "future-fact" 
-                                 "future-facts" 
-                                 "pending-fact" 
-                                 "pending-facts" 
-                                 "incipient-fact" 
-                                 "incipient-facts" 
-                                 "antiterminologicaldisintactitudinarian-fact"
-                                 "antiterminologicaldisintactitudinarian-facts" ])
+(def future-prefixes [ "future-" 
+                      "pending-" 
+                      "incipient-" 
+                      "antiterminologicaldisintactitudinarian-"])
+
+(def future-fact-variant-names (for [prefix future-prefixes
+                                     fact-or-facts ["fact" "facts"]]
+                                 (str prefix fact-or-facts)))
 
 (defn future-fact? [form]
   (some (partial first-named? form) future-fact-variant-names ))

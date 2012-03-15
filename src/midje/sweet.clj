@@ -17,7 +17,8 @@
         [midje.internal-ideas.file-position :only [set-fallback-line-number-from]]
         [midje.ideas.tabular :only [tabular*]]
         [midje.ideas.facts :only [complete-fact-transformation future-fact* midjcoexpand 
-                                  future-fact-variant-names]])
+                                  future-fact-variant-names]]
+        [midje.ideas.formulas :only [future-formula-variant-names]])
   (:require [midje.ideas.background :as background]
             [midje.ideas.formulas :as formulas]
             midje.checkers
@@ -110,7 +111,17 @@
        [& forms#]
        (future-fact* ~'&form))))
 
+(defmacro ^{:private true} generate-future-formula-variants []
+  (macro-for [name future-formula-variant-names]
+    `(defmacro ~(symbol name)
+       "ALPHA/EXPERIMENTAL (subject to change)
+        Formula that will not be run. Generates 'WORK TO DO' report output as a reminder."
+       {:arglists '([& ~'forms])}
+       [& forms#]
+       (future-fact* ~'&form))))
+
 (generate-future-fact-variants)
+(generate-future-formula-variants)
 
 (defmacro
   tabular 
