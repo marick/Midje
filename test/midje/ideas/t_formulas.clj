@@ -48,6 +48,13 @@
 (causes-validation-error #"Invalid keys \(:foo, :bar\) in formula's options map. Valid keys are: :num-trials"
   (formula {:foo 5 :bar 6} [a 1] a => 1))
 
+(each-causes-validation-error #":num-trials must be an integer 1 or greater"
+  (formula {:num-trials 0 } [a 1] a => 1)
+  (formula {:num-trials -1} [a 1] a => 1)
+  (formula {:num-trials -2} [a 1] a => 1)
+  (formula {:num-trials -3} [a 1] a => 1)
+  (formula {:num-trials -4} [a 1] a => 1))
+
 (defn z [x] )
 (causes-validation-error #"background cannot be used inside of formula"
   (formula [a 1]
@@ -60,6 +67,13 @@
 (formula "against-backgrounds at the front of the body are fine" [a 1]
   (against-background (h 1) => 5)
   (k a) => 10)
+
+;; :num-trials can be any number 1+
+(formula {:num-trials 1 } [a 1] a => 1)
+(formula {:num-trials 2} [a 1] a => 1)
+(formula {:num-trials 3} [a 1] a => 1)
+(formula {:num-trials 4} [a 1] a => 1)
+(formula {:num-trials 10000} [a 1] a => 1)
 
 
 ;; *num-trials* binding validation

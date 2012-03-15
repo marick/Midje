@@ -104,5 +104,9 @@
           (not (empty? invalid-keys))
           (simple-report-validation-error form (format "Invalid keys (%s) in formula's options map. Valid keys are: :num-trials" (join ", " invalid-keys)))
           
+          (and (:num-trials opt-map) 
+               (not (pos? (:num-trials opt-map))))
+          (simple-report-validation-error form (str ":num-trials must be an integer 1 or greater. You tried to set it to: " (:num-trials opt-map)))
+      
           :else 
           args)))
