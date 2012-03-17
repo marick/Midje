@@ -62,22 +62,22 @@
   how many facts are generated per formula."
   {:arglists '([docstring? opts-map? bindings & body])}
   [& args]
-  (valid-let [[docstring? opts bindings body] (validate &form)
+  (valid-let [[docstring? opts-map bindings body] (validate &form)
               fact (formula-fact docstring? body)
               conclusion-signal `(midje.sweet/fact
                                    :always-pass midje.sweet/=> :always-pass 
                                    :formula :formula-conclude )]
 
     `(try
-       (loop [cnt-down# (or (:num-trials ~opts) midje.ideas.formulas/*num-trials*)]
-         (when (pos? cnt-down#)
-           (let [snd-bindings# ~(vec (take-nth 2 (rest bindings)))
-                 ~(vec (take-nth 2 bindings)) snd-bindings#]
+       (loop [num-trials-left# (or (:num-trials ~opts-map) midje.ideas.formulas/*num-trials*)]
+         (when (pos? num-trials-left#)
+           (let [bindings-rhss# ~(vec (take-nth 2 (rest bindings)))
+                 ~(vec (take-nth 2 bindings)) bindings-rhss#]
              (if ~fact
-               (recur (dec cnt-down#))
+               (recur (dec num-trials-left#))
                (shrink-failure-case ~docstring? 
                                     ~(vec (take-nth 2 bindings)) 
-                                    snd-bindings# 
+                                    bindings-rhss# 
                                     ~body)))))
        (finally
          ~conclusion-signal))))
@@ -92,8 +92,8 @@
     form))
 
 (defmethod validate "formula" [[_formula_ & args :as form]]
-  (let [[docstring? opt-map bindings body] (deconstruct-formula-args args)
-        invalid-keys (remove (partial = :num-trials) (keys opt-map))]
+  (let [[docstring? opts-map bindings body] (deconstruct-formula-args args)
+        invalid-keys (remove (partial = :num-trials) (keys opts-map))]
     (cond (not (leaves-contain-arrow? (check-part-of args)))
           (simple-report-validation-error form "There is no expection in your formula form:")
     
@@ -111,9 +111,9 @@
           (not (empty? invalid-keys))
           (simple-report-validation-error form (format "Invalid keys (%s) in formula's options map. Valid keys are: :num-trials" (join ", " invalid-keys)))
           
-          (and (:num-trials opt-map) 
-               (not (pos? (:num-trials opt-map))))
-          (simple-report-validation-error form (str ":num-trials must be an integer 1 or greater. You tried to set it to: " (:num-trials opt-map)))
+          (and (:num-trials opts-map) 
+               (not (pos? (:num-trials opts-map))))
+          (simple-report-validation-error form (str ":num-trials must be an integer 1 or greater. You tried to set it to: " (:num-trials opts-map)))
       
           :else 
-          [docstring? opt-map bindings body])))
+          [docstring? opts-map bindings body])))
