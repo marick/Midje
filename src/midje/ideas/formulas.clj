@@ -2,7 +2,7 @@
   midje.ideas.formulas
   (:use [midje.util.form-utils :only [first-named? named? pop-docstring]]
         [midje.error-handling.validation-errors :only [simple-report-validation-error 
-                                                       validate when-valid]]
+                                                       validate valid-let]]
         [midje.ideas.prerequisites :only [is-head-of-form-providing-prerequisites?]]
         [midje.ideas.arrows :only [leaf-expect-arrows leaves-contain-arrow?]]
         [midje.ideas.facts :only [future-prefixes]]
@@ -38,7 +38,7 @@
   (let [[docstring? more-args] (pop-docstring args)
         [opts bindings body] (if (map? (first more-args))
                                [(first more-args) (second more-args) (rest (rest more-args))]
-                               [{} (first more-args) (rest more-args)])]
+                               [{}                (first more-args)  (rest more-args)])]
     [docstring? opts bindings body]))
 
 (defmacro formula 
@@ -62,26 +62,25 @@
   how many facts are generated per formula."
   {:arglists '([docstring? opts-map? bindings & body])}
   [& args]
-  (when-valid &form
-    (let [[docstring? opts bindings body] (deconstruct-formula-args args)
-          fact (formula-fact docstring? body)
-          conclusion-signal `(midje.sweet/fact
-                               :always-pass midje.sweet/=> :always-pass 
-                               :formula :formula-conclude )]
+  (valid-let [[docstring? opts bindings body] (validate &form)
+              fact (formula-fact docstring? body)
+              conclusion-signal `(midje.sweet/fact
+                                   :always-pass midje.sweet/=> :always-pass 
+                                   :formula :formula-conclude )]
 
-      `(try
-         (loop [cnt-down# (or (:num-trials ~opts) midje.ideas.formulas/*num-trials*)]
-           (when (pos? cnt-down#)
-             (let [snd-bindings# ~(vec (take-nth 2 (rest bindings)))
-                   ~(vec (take-nth 2 bindings)) snd-bindings#]
-               (if ~fact
-                 (recur (dec cnt-down#))
-                 (shrink-failure-case ~docstring? 
-                                      ~(vec (take-nth 2 bindings)) 
-                                      snd-bindings# 
-                                      ~body)))))
-         (finally
-           ~conclusion-signal)))))
+    `(try
+       (loop [cnt-down# (or (:num-trials ~opts) midje.ideas.formulas/*num-trials*)]
+         (when (pos? cnt-down#)
+           (let [snd-bindings# ~(vec (take-nth 2 (rest bindings)))
+                 ~(vec (take-nth 2 bindings)) snd-bindings#]
+             (if ~fact
+               (recur (dec cnt-down#))
+               (shrink-failure-case ~docstring? 
+                                    ~(vec (take-nth 2 bindings)) 
+                                    snd-bindings# 
+                                    ~body)))))
+       (finally
+         ~conclusion-signal))))
 
 (def future-formula-variant-names (map #(str % "formula") future-prefixes))
 
@@ -93,7 +92,7 @@
     form))
 
 (defmethod validate "formula" [[_formula_ & args :as form]]
-  (let [[_docstring? opt-map bindings _body] (deconstruct-formula-args args)
+  (let [[docstring? opt-map bindings body] (deconstruct-formula-args args)
         invalid-keys (remove (partial = :num-trials) (keys opt-map))]
     (cond (not (leaves-contain-arrow? (check-part-of args)))
           (simple-report-validation-error form "There is no expection in your formula form:")
@@ -117,4 +116,4 @@
           (simple-report-validation-error form (str ":num-trials must be an integer 1 or greater. You tried to set it to: " (:num-trials opt-map)))
       
           :else 
-          args)))
+          [docstring? opt-map bindings body])))
