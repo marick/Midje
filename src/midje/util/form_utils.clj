@@ -204,7 +204,7 @@ metadata (as provided by def) merged into the metadata of the original."
              `(fn [] ~x))))
 
 (defn pop-docstring 
-  "Used to extract optional docstring from head of args"
+  "Used to extract optional map from head of args"
   [args]
   (if (string? (first args))
     [(first args) (rest args)]
