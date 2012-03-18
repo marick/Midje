@@ -50,14 +50,14 @@
 
 (defmethod make-result-supplier* => [_arrow_ result] (constantly result))
 
-(defmethod make-result-supplier* =streams=> [_arrow_ result-stream-of-thunks]
-  (let [the-stream (atom result-stream-of-thunks)]
+(defmethod make-result-supplier* =streams=> [_arrow_ result-stream]
+  (let [the-stream (atom result-stream)]
     (fn []
       (when (empty? @the-stream)
         (throw (user-error "Your =stream=> ran out of values.")))
       (let [current-result (first @the-stream)]
         (swap! the-stream rest)
-        (current-result)))))
+        current-result))))
 
 (defmethod make-result-supplier* =throws=> [_arrow_ throwable]
   (fn []
@@ -69,10 +69,47 @@
   (throw (user-error "It's likely you misparenthesized your metaconstant prerequisite,"
                      "or that you forgot to use an arrow in your provided form.")))
 
-(defmacro make-result-supplier [arrow rhs]
+(defn on-demand [thunks]
+  (let [the-stream (atom thunks)]
+    (fn []
+      (when (empty? @the-stream)
+        (throw (user-error "Your =stream=> ran out of values.")))
+      (let [current (first @the-stream)]
+        (swap! the-stream rest)
+        (current)))))
+
+(defn reader-list-form?
+  "True if the form is a parenthesized list of the sort the reader can return."
+  [form]
+  (or (list? form) (= (type form) clojure.lang.Cons)))
+
+(defn quoted-list-form?
+  "True if the form is a quoted list such as the reader might return"
+  [form]
+  (and (reader-list-form? form)
+       (= (name (first form)) (str "quote"))))
+
+(defn updated-rhs [arrow rhs]
   (if (= (name =streams=>) (name arrow))
-    `(make-result-supplier* ~arrow (to-thunks ~rhs))
-    `(make-result-supplier* ~arrow ~rhs)))
+    (cond (vector? rhs)
+          `(repeatedly (on-demand (to-thunks ~rhs)))
+
+          (quoted-list-form? rhs)
+          `(repeatedly (on-demand (to-thunks ~(second rhs))))
+
+          (reader-list-form? rhs)
+          rhs
+
+          (string? rhs)
+          rhs
+          
+          :else
+          (throw (user-error "This form doesn't look like a valid right-hand-side for =streams=>:"
+                             (pr-str rhs))))
+    rhs))
+
+(defmacro make-result-supplier [arrow rhs]
+  `(make-result-supplier* ~arrow ~(updated-rhs arrow rhs)))
 
 (letfn [(make-fake-map
           [var-sym special-to-fake-type user-override-pairs]

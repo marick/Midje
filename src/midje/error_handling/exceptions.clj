@@ -55,3 +55,6 @@
 
 (defn captured-throwable? [x]
   (instance? CapturedThrowable x))
+
+(defn captured-message [ex]
+  (.getMessage (throwable ex)))

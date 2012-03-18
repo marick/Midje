@@ -3,6 +3,8 @@
 (ns midje.test-util
   (:use [clojure.test]
         midje.checkers
+        [midje.checkers.extended-equality :only [extended-=]]
+        midje.error-handling.exceptions
         [clojure.set :only [subset?]]
         [midje.util.form-utils :only [macro-for]]))
 
@@ -52,6 +54,22 @@
 (def checker-fails (contains {:type :mock-expected-result-functional-failure}))
 (def wrong-call-count (contains {:type :mock-incorrect-call-count}))
 (def a-validation-error (contains {:type :validation-error}))
+
+
+;; Applied to lists of result maps
+(defchecker has-bad-result [reporteds]
+  (some bad-result reporteds))
+(defchecker has-wrong-call-count [reporteds]
+  (some wrong-call-count reporteds))
+
+(defchecker has-thrown-message [expected]
+  (checker [reporteds]
+    (some (fn [one-report]
+            (and (:actual one-report)
+                 (captured-throwable? (:actual one-report))
+                 (extended-= (.getMessage (throwable (:actual one-report)))
+                             expected)))
+          reporteds)))
 
 
 (defn at-line [line-no form] 

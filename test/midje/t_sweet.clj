@@ -37,23 +37,6 @@
   (+ (number) (number)))
 
 
-(future-fact "Fix this regression in =streams=>"lein 
-  (two-numbers) => 2
-  (provided
-    (number) =streams=> (range)))
-
-(letfn [(stream-overflow-exception? [captured-throwable]
-          (= "Your =stream=> ran out of values." (.getMessage (.throwable captured-throwable))))]
-
-  (after-silently ;; streams give sensible error when they run dry
-    (fact
-      (two-numbers) => 2
-      (provided
-        (number) =streams=> [1]))
-  
-    (fact @reported => (just (contains {:type :mock-expected-result-failure
-                                        :actual stream-overflow-exception? } )))))
-
 (letfn [(throws-arrow-exception? [captured-throwable]
           (= "Right side of =throws=> should extend Throwable." (.getMessage (.throwable captured-throwable))))]
 
