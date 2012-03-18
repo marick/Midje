@@ -2,7 +2,7 @@
 
 (ns ^{:doc "Various ways to define checkers."}
   midje.checkers.defining
-  (:use [midje.util.form-utils :only [pop-docstring]]))
+  (:use [midje.util.form-utils :only [pop-docstring pop-opts-map]]))
 
 (defn as-checker
   "Turns an already existing function into a checker. Checkers can be used 
@@ -36,9 +36,7 @@
     {:arglists '([name docstring? attr-map? bindings+bodies])}
     [name & args]
     (let [[docstring more-args] (pop-docstring args)
-          [attr-map bindings+bodies] (if (map? (first more-args)) 
-                                       [(first more-args) (rest more-args)] 
-                                       [{} more-args])]
+          [attr-map bindings+bodies] (pop-opts-map more-args)]
       (working-with-arglists+bodies name docstring attr-map bindings+bodies))))
 
 (defmacro checker

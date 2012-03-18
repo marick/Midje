@@ -1,6 +1,6 @@
 (ns ^{:doc "Midje's special blend of generative-style testing."}
   midje.ideas.formulas
-  (:use [midje.util.form-utils :only [first-named? named? pop-docstring]]
+  (:use [midje.util.form-utils :only [first-named? named? pop-docstring pop-opts-map]]
         [midje.error-handling.validation-errors :only [simple-report-validation-error 
                                                        validate valid-let]]
         [midje.ideas.prerequisites :only [is-head-of-form-providing-prerequisites?]]
@@ -36,9 +36,7 @@
 
 (defn- deconstruct-formula-args [args]
   (let [[docstring? more-args] (pop-docstring args)
-        [opts-map bindings body] (if (map? (first more-args))
-                                   [(first more-args) (second more-args) (rest (rest more-args))]
-                                   [{}                (first more-args)  (rest more-args)])]
+        [opts-map [bindings & body]] (pop-opts-map more-args)]
     [docstring? opts-map bindings body]))
 
 (defmacro formula 
