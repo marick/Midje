@@ -203,16 +203,17 @@ metadata (as provided by def) merged into the metadata of the original."
   (into [] (for [x exprs]
              `(fn [] ~x))))
 
-(defn pop-docstring 
-  "Used to extract optional map from head of args"
-  [args]
-  (if (string? (first args))
+(defn pop-if
+  "Extracts optional arg (that we assume is present if the pred is true) from head of args"
+  [pred args]
+  (if (pred (first args))
     [(first args) (rest args)]
     [nil args]))
 
-(defn pop-opts-map 
-  "Used to extract optional docstring from head of args"
-  [args]
-  (if (map? (first args))
-    [(first args) (rest args)]
-    [{}           args]))
+(def pop-docstring 
+  ;; "Extracts optional map from head of args"
+  (partial pop-if string?))
+
+(def pop-opts-map 
+  ;; "Extracts optional docstring from head of args"
+  (partial pop-if map?))
