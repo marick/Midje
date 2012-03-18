@@ -26,20 +26,20 @@
   `(midje.sweet/fact ~docstring   
      ~@body :formula :formula-in-progress))
 
-(defmacro shrink-failure-case [docstring binding-names failed-binding-vals body]
-  `(loop [shrunk-vectors# (map midje.ideas.formulas/shrink ~failed-binding-vals)]
-     (let [cur-shrunks# (map first shrunk-vectors#)]
+(defmacro shrink-failure-case [docstring binding-leftsides failed-binding-rightsides body]
+  `(loop [shrunk-binding-rightsides# (map midje.ideas.formulas/shrink ~failed-binding-rightsides)]
+     (let [cur-shrunks# (map first shrunk-binding-rightsides#)]
        (when (and (first cur-shrunks#)
-                  (let [~binding-names cur-shrunks#]
+                  (let [~binding-leftsides cur-shrunks#]
                     ~(formula-fact docstring body)))
-           (recur (map rest shrunk-vectors#))))))
+           (recur (map rest shrunk-binding-rightsides#))))))
 
 (defn- deconstruct-formula-args [args]
   (let [[docstring? more-args] (pop-docstring args)
-        [opts bindings body] (if (map? (first more-args))
-                               [(first more-args) (second more-args) (rest (rest more-args))]
-                               [{}                (first more-args)  (rest more-args)])]
-    [docstring? opts bindings body]))
+        [opts-map bindings body] (if (map? (first more-args))
+                                   [(first more-args) (second more-args) (rest (rest more-args))]
+                                   [{}                (first more-args)  (rest more-args)])]
+    [docstring? opts-map bindings body]))
 
 (defmacro formula 
   "ALPHA/EXPERIMENTAL (subject to change) - Generative-style fact macro. 
@@ -71,13 +71,13 @@
     `(try
        (loop [num-trials-left# (or (:num-trials ~opts-map) midje.ideas.formulas/*num-trials*)]
          (when (pos? num-trials-left#)
-           (let [bindings-rhss# ~(vec (take-nth 2 (rest bindings)))
-                 ~(vec (take-nth 2 bindings)) bindings-rhss#]
+           (let [binding-rightsides# ~(vec (take-nth 2 (rest bindings)))
+                 ~(vec (take-nth 2 bindings)) binding-rightsides#]
              (if ~fact
                (recur (dec num-trials-left#))
                (shrink-failure-case ~docstring? 
                                     ~(vec (take-nth 2 bindings)) 
-                                    bindings-rhss# 
+                                    binding-rightsides# 
                                     ~body)))))
        (finally
          ~conclusion-signal))))

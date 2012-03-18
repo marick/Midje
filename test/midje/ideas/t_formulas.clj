@@ -166,7 +166,7 @@
 
 
 ;; shrunken failure case is in the same domain as the generator 
-;; used to create the input case in the forst place.
+;; used to create the input case in the first place.
 (after-silently
   (formula [x (gen-int odd?)]  ;;(guard (gs/int) odd?)] 
     x => neg?))
