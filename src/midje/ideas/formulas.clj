@@ -1,8 +1,8 @@
 (ns ^{:doc "Midje's special blend of generative-style testing."}
   midje.ideas.formulas
-  (:use [midje.util.form-utils :only [first-named? named? pop-docstring]]
+  (:use [midje.util.form-utils :only [first-named? named? pop-docstring pop-opts-map]]
         [midje.error-handling.validation-errors :only [simple-report-validation-error 
-                                                       validate when-valid]]
+                                                       validate valid-let]]
         [midje.ideas.prerequisites :only [is-head-of-form-providing-prerequisites?]]
         [midje.ideas.arrows :only [leaf-expect-arrows leaves-contain-arrow?]]
         [midje.ideas.facts :only [future-prefixes]]
@@ -26,20 +26,18 @@
   `(midje.sweet/fact ~docstring   
      ~@body :formula :formula-in-progress))
 
-(defmacro shrink-failure-case [docstring binding-names failed-binding-vals body]
-  `(loop [shrunk-vectors# (map midje.ideas.formulas/shrink ~failed-binding-vals)]
-     (let [cur-shrunks# (map first shrunk-vectors#)]
+(defmacro shrink-failure-case [docstring binding-leftsides failed-binding-rightsides body]
+  `(loop [shrunk-binding-rightsides# (map midje.ideas.formulas/shrink ~failed-binding-rightsides)]
+     (let [cur-shrunks# (map first shrunk-binding-rightsides#)]
        (when (and (first cur-shrunks#)
-                  (let [~binding-names cur-shrunks#]
+                  (let [~binding-leftsides cur-shrunks#]
                     ~(formula-fact docstring body)))
-           (recur (map rest shrunk-vectors#))))))
+           (recur (map rest shrunk-binding-rightsides#))))))
 
 (defn- deconstruct-formula-args [args]
   (let [[docstring? more-args] (pop-docstring args)
-        [opts bindings body] (if (map? (first more-args))
-                               [(first more-args) (second more-args) (rest (rest more-args))]
-                               [{} (first more-args) (rest more-args)])]
-    [docstring? opts bindings body]))
+        [opts-map [bindings & body]] (pop-opts-map more-args)]
+    [docstring? opts-map bindings body]))
 
 (defmacro formula 
   "ALPHA/EXPERIMENTAL (subject to change) - Generative-style fact macro. 
@@ -62,26 +60,25 @@
   how many facts are generated per formula."
   {:arglists '([docstring? opts-map? bindings & body])}
   [& args]
-  (when-valid &form
-    (let [[docstring? opts bindings body] (deconstruct-formula-args args)
-          fact (formula-fact docstring? body)
-          conclusion-signal `(midje.sweet/fact
-                               :always-pass midje.sweet/=> :always-pass 
-                               :formula :formula-conclude )]
+  (valid-let [[docstring? opts-map bindings body] (validate &form)
+              fact (formula-fact docstring? body)
+              conclusion-signal `(midje.sweet/fact
+                                   :always-pass midje.sweet/=> :always-pass 
+                                   :formula :formula-conclude )]
 
-      `(try
-         (loop [cnt-down# (or (:num-trials ~opts) midje.ideas.formulas/*num-trials*)]
-           (when (pos? cnt-down#)
-             (let [snd-bindings# ~(vec (take-nth 2 (rest bindings)))
-                   ~(vec (take-nth 2 bindings)) snd-bindings#]
-               (if ~fact
-                 (recur (dec cnt-down#))
-                 (shrink-failure-case ~docstring? 
-                                      ~(vec (take-nth 2 bindings)) 
-                                      snd-bindings# 
-                                      ~body)))))
-         (finally
-           ~conclusion-signal)))))
+    `(try
+       (loop [num-trials-left# (or (:num-trials ~opts-map) midje.ideas.formulas/*num-trials*)]
+         (when (pos? num-trials-left#)
+           (let [binding-rightsides# ~(vec (take-nth 2 (rest bindings)))
+                 ~(vec (take-nth 2 bindings)) binding-rightsides#]
+             (if ~fact
+               (recur (dec num-trials-left#))
+               (shrink-failure-case ~docstring? 
+                                    ~(vec (take-nth 2 bindings)) 
+                                    binding-rightsides# 
+                                    ~body)))))
+       (finally
+         ~conclusion-signal))))
 
 (def future-formula-variant-names (map #(str % "formula") future-prefixes))
 
@@ -93,8 +90,8 @@
     form))
 
 (defmethod validate "formula" [[_formula_ & args :as form]]
-  (let [[_docstring? opt-map bindings _body] (deconstruct-formula-args args)
-        invalid-keys (remove (partial = :num-trials) (keys opt-map))]
+  (let [[docstring? opts-map bindings body] (deconstruct-formula-args args)
+        invalid-keys (remove (partial = :num-trials) (keys opts-map))]
     (cond (not (leaves-contain-arrow? (check-part-of args)))
           (simple-report-validation-error form "There is no expection in your formula form:")
     
@@ -112,9 +109,9 @@
           (not (empty? invalid-keys))
           (simple-report-validation-error form (format "Invalid keys (%s) in formula's options map. Valid keys are: :num-trials" (join ", " invalid-keys)))
           
-          (and (:num-trials opt-map) 
-               (not (pos? (:num-trials opt-map))))
-          (simple-report-validation-error form (str ":num-trials must be an integer 1 or greater. You tried to set it to: " (:num-trials opt-map)))
+          (and (:num-trials opts-map) 
+               (not (pos? (:num-trials opts-map))))
+          (simple-report-validation-error form (str ":num-trials must be an integer 1 or greater. You tried to set it to: " (:num-trials opts-map)))
       
           :else 
-          args)))
+          [docstring? opts-map bindings body])))
