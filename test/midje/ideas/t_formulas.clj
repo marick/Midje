@@ -154,16 +154,17 @@
 (fact "calls generator once" @z-maker-count => 1)
 (fact "evalautes body once" @my-identity-count => 1)
 
-
-;; shrinks failure case to smallest possible failure
+;; shrinks failure case to smallest possible failure -- shrinks each binding result
 (when-1-3+
-  (with-redefs [midje.ideas.formulas/shrink (constantly [0 1 2 3 4 5])]
+  (with-redefs [midje.ideas.formulas/shrink (fn [x] 
+                                               (if (integer? x) 
+                                                 [0 1 2 3 4 5]
+                                                 ["a" "b" "c" "d" "e"]))]
     (after-silently
-      (formula [x 100] 
-        x => neg?)))
-  (fact @reported => (one-of (contains {:type :mock-expected-result-functional-failure
-                                        :actual 0}))))
-
+      (formula [x 100 a "abc"]
+        [x a] => #(neg? (first %))))
+    (fact @reported => (one-of (contains {:type :mock-expected-result-functional-failure
+                                          :actual [0 "a"]} ))))) ;; note that it shrank both 100 and "abc"
 
 ;; shrunken failure case is in the same domain as the generator 
 ;; used to create the input case in the first place.
