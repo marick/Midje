@@ -10,7 +10,7 @@
         [midje.internal-ideas.expect :only [expect? up-to-full-expect-form]]
         [midje.util.form-utils :only [first-named? translate-zipper map-difference
                                       hash-map-duplicates-ok pred-cond to-thunks
-                                      reader-list-form? quoted-list-form?]]
+                                      quoted-list-form?]]
         [midje.ideas.metaconstants :only [metaconstant-for-form
                                           with-fresh-generated-metaconstant-names]]
         [midje.checkers.extended-equality :only [extended-= extended-list-= extended-fn?]]
@@ -62,10 +62,7 @@
      quoted-list-form?
      `(repeatedly (on-demand (to-thunks ~(second rhs))))
 
-     reader-list-form?
-     rhs
-
-     string?
+     seq
      rhs
           
      :else
