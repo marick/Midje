@@ -9,7 +9,8 @@
         [midje.checkers.defining :only [checker? checker-makers]]
         [midje.internal-ideas.expect :only [expect? up-to-full-expect-form]]
         [midje.util.form-utils :only [first-named? translate-zipper map-difference
-                                      hash-map-duplicates-ok pred-cond to-thunks]]
+                                      hash-map-duplicates-ok pred-cond to-thunks
+                                      reader-list-form? quoted-list-form?]]
         [midje.ideas.metaconstants :only [metaconstant-for-form
                                           with-fresh-generated-metaconstant-names]]
         [midje.checkers.extended-equality :only [extended-= extended-list-= extended-fn?]]
@@ -33,6 +34,43 @@
 (defn fake? [form]
   (or (first-named? form "fake") 
       (first-named? form "data-fake")))
+
+
+;;; Potential transformations of the right-hand-side of fakes
+
+(defn on-demand
+  "Produce value of next thunk on each successive call."
+  [thunks]
+  (let [the-stream (atom thunks)]
+    (fn []
+      (when (empty? @the-stream)
+        (throw (user-error "Your =stream=> ran out of values.")))
+      (let [current (first @the-stream)]
+        (swap! the-stream rest)
+        (current)))))
+
+(defmulti updated-rhs (fn [arrow rhs] (name arrow)))
+
+(defmethod updated-rhs :default [arrow rhs]
+  rhs)
+
+(defmethod updated-rhs (name =streams=>) [arrow rhs]
+  (pred-cond rhs
+     vector?
+     `(repeatedly (on-demand (to-thunks ~rhs)))
+
+     quoted-list-form?
+     `(repeatedly (on-demand (to-thunks ~(second rhs))))
+
+     reader-list-form?
+     rhs
+
+     string?
+     rhs
+          
+     :else
+     (throw (user-error "This form doesn't look like a valid right-hand-side for =streams=>:"
+                        (pr-str rhs)))))
 
 
 ;;; Creation
@@ -68,45 +106,6 @@
 (defmethod make-result-supplier* :default [arrow result-stream]
   (throw (user-error "It's likely you misparenthesized your metaconstant prerequisite,"
                      "or that you forgot to use an arrow in your provided form.")))
-
-(defn on-demand [thunks]
-  (let [the-stream (atom thunks)]
-    (fn []
-      (when (empty? @the-stream)
-        (throw (user-error "Your =stream=> ran out of values.")))
-      (let [current (first @the-stream)]
-        (swap! the-stream rest)
-        (current)))))
-
-(defn reader-list-form?
-  "True if the form is a parenthesized list of the sort the reader can return."
-  [form]
-  (or (list? form) (= (type form) clojure.lang.Cons)))
-
-(defn quoted-list-form?
-  "True if the form is a quoted list such as the reader might return"
-  [form]
-  (and (reader-list-form? form)
-       (= (name (first form)) (str "quote"))))
-
-(defn updated-rhs [arrow rhs]
-  (if (= (name =streams=>) (name arrow))
-    (cond (vector? rhs)
-          `(repeatedly (on-demand (to-thunks ~rhs)))
-
-          (quoted-list-form? rhs)
-          `(repeatedly (on-demand (to-thunks ~(second rhs))))
-
-          (reader-list-form? rhs)
-          rhs
-
-          (string? rhs)
-          rhs
-          
-          :else
-          (throw (user-error "This form doesn't look like a valid right-hand-side for =streams=>:"
-                             (pr-str rhs))))
-    rhs))
 
 (defmacro make-result-supplier [arrow rhs]
   `(make-result-supplier* ~arrow ~(updated-rhs arrow rhs)))

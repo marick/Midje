@@ -56,6 +56,18 @@
 (defmethod quoted? :form [form]
   (first-named? form "quote"))
 
+
+(defn reader-list-form?
+  "True if the form is a parenthesized list of the sort the reader can return."
+  [form]
+  (or (list? form) (= (type form) clojure.lang.Cons)))
+
+(defn quoted-list-form?
+  "True if the form is a quoted list such as the reader might return"
+  [form]
+  (and (reader-list-form? form)
+       (quoted? form)))
+
 (defn preserve-type
   "If the original form was a vector, make the transformed form a vector too."
   [original-form transformed-form]
