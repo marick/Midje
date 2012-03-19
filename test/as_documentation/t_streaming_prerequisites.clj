@@ -138,3 +138,40 @@
 (fact
   @reported => has-bad-result
   @reported => (has-thrown-message useful-message))
+
+
+
+;;;; This does not work
+
+(unfinished a-try)
+
+(defn a-try []
+  (   (fn [] (throw (Exception. "fooooooo"))) ))
+
+(defn msg []
+  (try
+    (a-try)
+    (catch Exception ex
+      (prn "#'msg going to return " (.getMessage ex))
+      (.getMessage ex))))
+
+
+(defn longest-msg []
+  (reduce (fn [so-far text]
+            (prn "longest-msg working with " text)
+            (if (> (count text) (count so-far))
+              text
+              so-far))
+            [(msg) (msg) (msg)]))
+
+; (prn [(msg) (msg) (msg)])
+
+; (prn (longest-msg))
+  
+(future-fact "streaming exceptions actually works"
+  (longest-msg) => "i am long"
+  (provided
+    (a-try) =streams=> [ (throw (Exception. "short"))
+                         (throw (Exception. "shorter"))
+                         (throw (Exception. "i am long")) ]))
+
