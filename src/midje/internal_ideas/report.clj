@@ -49,11 +49,14 @@
             :else               (pr-str form)))
 
         (fail-at [m]
-          [(str "\n" (color/fail "FAIL") " "
-             (when-let [doc (:description m)] (str (pr-str doc) " "))
-             "at " (midje-position-string (:position m)))
-           (when-let [substitutions (:binding-note m)]
-             (str "With table substitutions: " substitutions))])
+          (let [description (when-let [doc (:description m)] 
+                              (str (pr-str doc) " "))
+                position (midje-position-string (:position m))
+                table-substitutions (when-let [substitutions (:binding-note m)]
+                                      (str "With table substitutions: " substitutions))]
+            (list 
+              (str "\n" (color/fail "FAIL") " " description "at " position)
+              table-substitutions)))
        
         (indented [lines]
           (map (partial str "        ") lines))]
