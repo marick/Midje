@@ -21,7 +21,7 @@
 (immigrate 'midje.unprocessed)
 (immigrate 'midje.ideas.arrow-symbols)
 
-;;; Conversions to unprocessed form
+;;; Conversions to unprocessed form
 
 ;; I want to use resolve() to compare calls to fake, rather than the string
 ;; value of the symbol, but for some reason when the tests run, *ns* is User,
@@ -77,19 +77,16 @@
                               :description (midje.internal-ideas.fact-context/nested-fact-description)
                               :position (:position check#)}))))
 
-;;; Interface: unfinished
+;;; Interface: unfinished
 
 (letfn [(unfinished* [names]
           (macro-for [name names]
             `(do
                (defn ~name [& args#]
                  (let [pprint# (partial cl-format nil "~S")]
-                   (throw (user-error (str "#'" '~name 
-                                           " has no implementation, but it was called like this:"
-                                           line-separator
-                                           "(" '~name " " 
-                                           (join " " (map pprint# args#))
-                                           ")")))))
+                   (throw (user-error (format "#'%s has no implementation, but it was called like this:%s(%s %s)" 
+                                        '~name line-separator '~name (join " " (map pprint# args#)))))))
+             
                ;; A reliable way of determining if an `unfinished` function has since been defined.
                (alter-meta! (var ~name) assoc :midje/unfinished-fun ~name))))]
 
@@ -107,7 +104,7 @@
 
 
 
-;;; Interface: production mode
+;;; Interface: production mode
 
 (defonce
   ^{:doc "True by default.  If set to false, Midje checks are not
@@ -116,7 +113,7 @@
   *include-midje-checks* true)
 
 
-;;; Interface: Main macros
+;;; Interface: Main macros
 
 (defmacro fake 
   "Creates a fake map that a particular call will be made. When it is made,
