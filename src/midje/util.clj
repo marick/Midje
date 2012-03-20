@@ -5,13 +5,14 @@
 (defmacro expose-testables
   "Enables testing of vars in the target ns which have ^:testable metadata"
   [target-ns]
-  (macro-for [testable-sym (for [[sym var] (ns-interns target-ns)
-                                 :when (:testable (meta var))]
-                             sym) ]
-    `(def ~testable-sym (intern '~target-ns '~testable-sym))))
+  (macro-for [[sym var] (ns-interns target-ns)
+              :when (:testable (meta var))]
+             `(-> (def ~sym ~var)
+                  (alter-meta! merge (meta ~var)))))
 
-(defmacro testable-privates 
+(defmacro testable-privates
   "Intern into the current namespace the symbols from the specified namespace"
   [namespace & symbols]
-  (macro-for [sym symbols]
-    `(def ~sym (intern '~namespace '~sym))))
+  (macro-for [sym symbols, :let [var (ns-resolve namespace sym)]]
+             `(-> (def ~sym ~var)
+                  (alter-meta! merge (meta ~var)))))
