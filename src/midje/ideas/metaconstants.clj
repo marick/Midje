@@ -12,16 +12,22 @@
   (:require [clojure.zip :as zip]
             [midje.util.ecosystem :as ecosystem]))
 
+(defn- normalized-metaconstant* [dot-or-dash mc-symbol]
+  (let [re (re-pattern (str "^" dot-or-dash "+(.+?)" dot-or-dash "+$"))
+        three-dots-or-dashes (apply str (repeat 3 dot-or-dash))]
+    (-?>> mc-symbol 
+          name 
+          (re-matches re) 
+          second 
+          (format (str three-dots-or-dashes "%s" three-dots-or-dashes)))))
+
 (defn- normalized-metaconstant
-  "Turns '..m. to \"...m...\", or nil if mc-symbol isn't a valid metaconstant symbol"
+  "Turns '..m. to \"...m...\", '--m- to \"---m---\", or to 
+   nil if mc-symbol isn't a valid metaconstant symbol"
   [mc-symbol]
-  (let [normalize (fn [re metaconstant-format mc-symbol]
-                    (-?>> mc-symbol name (re-matches re) second (format metaconstant-format)))
-
-        dot-metaconstant  (partial normalize #"^\.+(.+?)\.+$" "...%s...")
-        dash-metaconstant (partial normalize #"^-+(.+?)-+$"   "---%s---")]
-
-    (->> mc-symbol ((juxt dot-metaconstant dash-metaconstant)) (find-first identity))))
+  (->> mc-symbol 
+       ((juxt (partial normalized-metaconstant* "\\.") (partial normalized-metaconstant* "-"))) 
+       (find-first identity)))
 
 (defn metaconstant-symbol? [x]
   (and (symbol? x)
