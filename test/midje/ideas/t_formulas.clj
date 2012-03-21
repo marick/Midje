@@ -4,7 +4,7 @@
   (:use midje.test-util
         midje.sweet
         midje.util.ecosystem
-        [midje.ideas.formulas :only [*num-trials*]] ))
+        [midje.ideas.formulas :only [*num-trials* with-num-trials]] ))
 
 
 ;;;; Formulas
@@ -51,6 +51,14 @@
 (fact @y-maker-count => 77)
 (fact @my-str-count => 77)
 
+
+;; There is syntactic sugar for binding *num-trials*
+(defn-call-countable k-maker [] "k")
+(with-num-trials 1000 
+  (formula [a 1] (k-maker) => "k")
+  (formula [a 1] (k-maker) => "k")
+  (formula [a 1] (k-maker) => "k"))
+(fact @k-maker-count => 3000)
 
 ;; Can specify number of trials to run in options map - overrides *num-trials* var value
 (defn-call-countable foo-maker [] "foo")

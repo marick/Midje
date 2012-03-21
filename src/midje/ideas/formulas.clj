@@ -80,6 +80,10 @@
        (finally
          ~conclusion-signal))))
 
+(defmacro with-num-trials [num-trials & formulas]
+  `(binding [midje.ideas.formulas/*num-trials* ~num-trials]
+     ~@formulas))
+
 (def future-formula-variant-names (map #(str % "formula") future-prefixes))
 
 (defn- check-part-of [form]
