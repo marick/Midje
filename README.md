@@ -81,5 +81,6 @@ Contributors
 * Alan Malloy
 * Brian Marick
 * Bob Martin
+* Dmitri Naumov
 * Sébastien RoccaSerra
 * Wilkes Joiner
