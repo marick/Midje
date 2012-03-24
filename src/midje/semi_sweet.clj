@@ -61,7 +61,7 @@
 (defmethod expect-expansion :expect*
   [call-form arrow expected-result fakes overrides]
   `(let [check# (unprocessed-check ~call-form ~arrow ~expected-result ~overrides)]
-     (expect* check# ~fakes)))
+     (midje.unprocessed/*expect-checking-fn* check# ~fakes)))
 
 (defmethod expect-expansion :expect-macro*
   [call-form arrow expected-result fakes overrides]

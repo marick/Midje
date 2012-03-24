@@ -12,6 +12,7 @@
          midje.internal-ideas.report
          midje.util.laziness
         [midje.util.namespace :only [immigrate]]
+        [midje.util.ecosystem :only [line-separator]]
         [utilize.seq :only [find-first]]))
 (immigrate 'midje.checkers)
 
@@ -104,3 +105,9 @@
       (check-call-counts local-fakes)
       (check-result code-under-test-result unprocessed-check)
       :irrelevant-return-value)))
+
+(def ^{:dynamic true
+       :doc (str "For Midje tool creators. This hooks into Midje's internal compiler results.
+  Can be bound to a function with arglists like:" line-separator 
+  "  " (:arglists (meta #'midje.unprocessed/expect*)))} 
+  *expect-checking-fn* midje.unprocessed/expect*)
