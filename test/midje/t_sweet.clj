@@ -320,5 +320,5 @@
     (a) =streams=> [(throw (Exception.))]))
 
 
-(future-fact "Issue #117 - quoted facts not being ignore as we'd like" 
+(fact "Issue #117 - arrows inside quoted forms will not have :position info added" 
   '(fact foo => bar) => '(fact foo => bar))

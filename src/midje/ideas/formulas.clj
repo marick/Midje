@@ -63,7 +63,7 @@
   (valid-let [[docstring? opts-map bindings body] (validate &form)
               fact (formula-fact docstring? body)
               conclusion-signal `(midje.sweet/fact
-                                   :always-pass midje.sweet/=> :always-pass 
+                                   :ignored midje.sweet/=> :ignored 
                                    :formula :formula-conclude )]
 
     `(try
