@@ -318,7 +318,3 @@
   (b) => (throws Exception)
   (provided
     (a) =streams=> [(throw (Exception.))]))
-
-
-(fact "Issue #117 - arrows inside quoted forms will not have :position info added" 
-  '(fact foo => bar) => '(fact foo => bar))

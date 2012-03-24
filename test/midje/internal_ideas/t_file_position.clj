@@ -212,3 +212,5 @@
       (take-last 2 expansion)
       => '(:position (midje.internal-ideas.file-position/line-number-known 33)))))
 
+(fact "Issue #117 - arrows inside quoted forms will not have :position info added"
+  '(fact foo => bar) => '(fact foo => bar))
