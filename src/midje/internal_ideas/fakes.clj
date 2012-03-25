@@ -107,11 +107,15 @@
 (defmacro make-result-supplier [arrow rhs]
   `(make-result-supplier* ~arrow ~(updated-rhs arrow rhs)))
 
-(letfn [(make-fake-map
-          [var-sym special-to-fake-type user-override-pairs]
+(letfn [(make-fake-map [call-form arrow rhs var-sym special-to-fake-type user-override-pairs]
           (let [common-to-all-fakes `{:lhs (var ~var-sym)
                                       :count-atom (atom 0)
-                                      :position (user-file-position)}]
+                                      :position (user-file-position)
+
+                                      ;; for Midje tool creators:
+                                      :call-form '~call-form
+                                      :arrow '~arrow 
+                                      :rhs '~rhs}]
             (merge
               common-to-all-fakes
               special-to-fake-type
@@ -122,7 +126,8 @@
     ;; evaluated as a function call later on. Right approach would
     ;; seem to be '~args. That causes spurious failures. Debug
     ;; someday.
-    (make-fake-map var-sym
+    (make-fake-map call-form arrow (concat [result] overrides)
+      var-sym
       `{:arg-matchers (map midje.internal-ideas.fakes/arg-matcher-maker ~(vec args))
         :call-text-for-failures (str '~call-form)
         :value-at-time-of-faking (if (bound? (var ~var-sym)) ~var-sym)
@@ -131,7 +136,8 @@
       overrides))
   
   (defn data-fake* [[metaconstant arrow contained & overrides]]
-    (make-fake-map metaconstant
+    (make-fake-map metaconstant arrow (cons contained overrides)
+      metaconstant
       `{:contained ~contained
         :count-atom (atom 1) ;; CLUDKJE!
         :type :fake
@@ -139,7 +145,8 @@
       overrides))
   
   (defn not-called* [var-sym & overrides]
-    (make-fake-map var-sym
+    (make-fake-map nil nil nil ;; deprecated, so no support for fields for tool creators 
+      var-sym
       `{:call-text-for-failures (str '~var-sym " was called.")
         :result-supplier (constantly nil)
         :type :not-called}

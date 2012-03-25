@@ -377,3 +377,14 @@ odd?                   3               falsey)
     (.storage (result #'var-for-merged)) => {:retained 1, :replaced 222, :extra 3}
     (.storage (result #'var-for-irrelevant)) => {:retained :FOO, :extra :BAR}))
 
+
+(unfinished faked-fn)
+(facts "fake and datafake maps include form info, so tool creators can introspect them"
+  (fake (faked-fn 1 1) => 2 :key :value) => (contains {:call-form '(faked-fn 1 1)
+                                                       :arrow '=>
+                                                       :rhs (contains [2 :key :value] :gaps-ok)})
+
+  (data-fake ..d.. =contains=> {:key :value}) => (contains {:call-form '..d..
+                                                            :arrow '=contains=>
+                                                            :rhs (contains [{:key :value}])}))
+
