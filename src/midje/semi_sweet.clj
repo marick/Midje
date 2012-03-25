@@ -9,7 +9,7 @@
   (:use clojure.test
         midje.internal-ideas.fakes
         midje.internal-ideas.file-position
-        [midje.internal-ideas.fact-context :only [nested-fact-description within-fact-context]]
+        [midje.internal-ideas.fact-context :only [nested-descriptions within-fact-context]]
         [midje.util debugging form-utils namespace]
         [midje.error-handling validation-errors semi-sweet-validations]
         [midje.error-handling.exceptions :only [user-error]]
@@ -42,7 +42,7 @@
    failure. See 'expect*'."
   [call-form arrow expected-result overrides]
   `(merge
-    {:description (nested-fact-description)
+    {:description @nested-descriptions
      :function-under-test (fn [] ~call-form)
      :expected-result ~expected-result
      :desired-check ~(check-for-arrow arrow)
@@ -75,7 +75,7 @@
    `(let [check# (unprocessed-check ~call-form ~arrow ~expected-result ~overrides)]
       (within-fact-context ~(str call-form)  
         (clojure.test/report {:type :future-fact
-                              :description (midje.internal-ideas.fact-context/nested-fact-description)
+                              :description @midje.internal-ideas.fact-context/nested-descriptions
                               :position (:position check#)}))))
 
 ;;; Interface: unfinished

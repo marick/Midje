@@ -51,7 +51,7 @@
         [description _] (pop-docstring args)]
     `(within-fact-context ~description 
        (clojure.test/report {:type :future-fact
-                             :description (midje.internal-ideas.fact-context/nested-fact-description)
+                             :description @midje.internal-ideas.fact-context/nested-descriptions
                              :position (midje.internal-ideas.file-position/line-number-known ~lineno)}))))
 
 (defn to-semi-sweet

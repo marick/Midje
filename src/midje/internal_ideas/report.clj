@@ -5,6 +5,7 @@
         [clojure.pprint :only [cl-format]]
         [midje.util.object-utils :only [function-name function-name-or-spewage named-function?]]
         midje.error-handling.exceptions
+        [midje.internal-ideas.fact-context :only [format-nested-descriptions]]
         [clojure.core.match :only [match]]
         [midje.util.form-utils :only [pred-cond]])
   (:require [midje.util.colorize :as color]))
@@ -37,8 +38,6 @@
      ~test-form
      (#'fact-checks-out?)))
 
-
-
 (defn midje-position-string [[filename line-num]]
   (format "(%s:%s)" filename line-num))
 
@@ -49,7 +48,7 @@
             :else               (pr-str form)))
 
         (fail-at [m]
-          (let [description (when-let [doc (:description m)] 
+          (let [description (when-let [doc (format-nested-descriptions (:description m))] 
                               (str (pr-str doc) " "))
                 position (midje-position-string (:position m))
                 table-substitutions (when-let [substitutions (:binding-note m)]
@@ -99,7 +98,7 @@
   (defmethod report-strings :future-fact [m]
     (list
      (str "\n" (color/note "WORK TO DO") " "
-          (when-let [doc (:description m)] (str (pr-str doc) " "))
+          (when-let [doc (format-nested-descriptions (:description m))] (str (pr-str doc) " "))
           "at " (midje-position-string (:position m)))))
   
   (defmethod report-strings :mock-argument-match-failure [m]

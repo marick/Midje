@@ -37,7 +37,7 @@
 (after-silently
   (formula "some description" [a "y"] a => :foo))
 (fact @reported => (one-of (contains {:type :mock-expected-result-failure
-                                      :description "some description"})))
+                                      :description ["some description"]})))
 
 
 ;; Passing formulas run the generator many times, and evaluate 

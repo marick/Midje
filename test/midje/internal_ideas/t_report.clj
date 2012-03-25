@@ -35,7 +35,7 @@
 
 (fact "rendering functional failures"
   (let [failure-map {:type :mock-expected-result-functional-failure
-                     :description "some description"
+                     :description ["some description"]
                      :actual 2
                      :intermediate-results [ ['(f 1) 33] ]
                      :position ["foo.clj" 3]
@@ -50,7 +50,7 @@
     (nth raw-report 5) => #"\(f 1\) => 33")
     
   (let [failure-map {:type :mock-expected-result-functional-failure
-                     :description "some description"
+                     :description ["some description"]
                      :actual 2
                      :position ["foo.clj" 3]
                      :expected 'odd?}
@@ -62,7 +62,7 @@
 
   "values in strings are formatted via pr-str"
   (let [failure-map {:type :mock-expected-result-functional-failure
-                     :description "some description"
+                     :description ["some description"]
                      :actual nil
                      :expected '(sloobom "forp")
                      :intermediate-results [['(+ 1 "ate") nil]]
@@ -73,7 +73,7 @@
     (nth raw-report 5) => #"\(\+ 1 \"ate\"\) => nil")
 
   (let [failure-map {:type :mock-expected-result-functional-failure
-                     :description "some description"
+                     :description ["some description"]
                      :actual 2
                      :notes ["NOTE ME!" "ME TOO"]
                      :position ["foo.clj" 3]
@@ -90,7 +90,7 @@
   
 (fact "rendering inappropriate checker matches"
   (let [failure-map {:type :mock-actual-inappropriately-matches-checker
-                     :description "some description"
+                     :description ["some description"]
                      :actual 2
                      :position ["foo.clj" 3]
                      :expected '(test-checker 33)}
@@ -103,7 +103,7 @@
     
 (fact "excess matches"
   (let [failure-map {:type :mock-argument-match-failure
-                     :description "some description"
+                     :description ["some description"]
                      :actual '(nil)
                      :position ["foo.clj" 3]
                      :lhs odd?}
@@ -116,7 +116,7 @@
 
 (fact "mock never called"
   (let [failure-map {:type :mock-incorrect-call-count
-                     :failures [{ :description "some description"
+                     :failures [{ :description ["some description"]
                                   :actual-count 0
                                   :expected-count nil
                                   :position ["foo.clj" 3]
@@ -129,7 +129,7 @@
 
 (fact "mock called an incorrect number of times"
   (let [failure-map {:type :mock-incorrect-call-count
-                     :failures [{ :description "some description"
+                     :failures [{ :description ["some description"]
                                   :actual-count 3
                                   :expected-count 1
                                   :position ["foo.clj" 3]
@@ -145,7 +145,7 @@
 
 (fact "ordinary bad result from equality"
   (let [failure-map {:type :mock-expected-result-failure 
-                     :description "some description"
+                     :description ["some description"]
                      :position ["foo.clj" 3]
                      :actual nil
                      :expected "s"}
@@ -156,7 +156,7 @@
 
 (fact "equality when inequality expected"
   (let [failure-map {:type :mock-expected-result-inappropriately-matched
-                     :description "some description"
+                     :description ["some description"]
                      :position ["foo.clj" 3]
                      :actual "s"
                      :expected "s"}
@@ -167,7 +167,7 @@
 
 (facts "about reporting exceptions"
   (let [failure-map {:type :mock-expected-result-failure
-                     :description "some description"
+                     :description ["some description"]
                      :position ["foo.clj" 3]
                      :actual (captured-throwable (Error. "message"))
                      :expected "hi"}
@@ -180,7 +180,7 @@
 
 (facts "about reporting specific user errors"
   (let [failure-map {:type :validation-error
-                     :description "some description"
+                     :description ["some description"]
                      :notes ["message"]
                      :position ["foo.clj" 3]}
         raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
@@ -189,7 +189,7 @@
 
 (facts "about reporting user errors detected because of an exception"
   (let [failure-map {:type :exceptional-user-error
-                     :description "some description"
+                     :description ["some description"]
                      :macro-form '(foo bar)
                      :stacktrace ["one" "two"]
                      :position ["foo.clj" 3]}
@@ -201,7 +201,7 @@
 
 (fact "binding notes are considered part of the position"
   (let [failure-map {:type :mock-expected-result-failure
-                     :description "some description"
+                     :description ["some description"]
                      :binding-note "a note"
                      :position ["foo.clj" 3]
                      :actual nil

@@ -6,7 +6,7 @@
 (after-silently 
  (fact "description" =>)
  (fact @reported => (just (contains {:type :exceptional-user-error
-                                     :description "description"
+                                     :description ["description"]
                                      :macro-form '(fact "description" =>)}))))
 
 ;; report ONLY top level fact's description when there's a error in nested facts
@@ -15,6 +15,6 @@
   (fact "fine"
     (fact "description" =>))
  (fact @reported => (just (contains {:type :exceptional-user-error
-                                     :description "fine"
+                                     :description ["fine"]
                                      :macro-form '(fact "fine"
                                                     (fact "description" =>))}))))

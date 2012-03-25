@@ -267,16 +267,16 @@
       (+ a b) => result)
     
       a    b   result
-      2    4   999     )  ;; WRONG!!
-  (fact @reported => (one-of (contains {:description "table of results - add stuff"} ))))
+      2    4   999     )  ;; PURPOSELY FAIL
+  (fact @reported => (one-of (contains {:description ["table of results" "add stuff"]} ))))
 
 (after-silently
   (tabular "table of results"
     (fact (+ a b) => result)
     
       a    b   result
-      2    4   999     )  ;; WRONG!!
-  (fact @reported => (one-of (contains {:description "table of results"} ))))
+      2    4   999     )  ;; PURPOSELY FAIL 
+  (fact @reported => (one-of (contains {:description ["table of results" nil]} ))))
 
 (after-silently
   (tabular
@@ -284,5 +284,5 @@
       (+ a b) => result)
     
       a    b   result
-      2    4   999     )  ;; WRONG!!
-  (fact @reported => (one-of (contains {:description "add stuff"} ))))
+      2    4   999     )  ;; PURPOSELY FAIL
+  (fact @reported => (one-of (contains {:description [nil "add stuff"]} ))))

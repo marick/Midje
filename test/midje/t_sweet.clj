@@ -29,7 +29,7 @@
    (+ 1 1) => 2)
  (fact @reported => (just bad-result
                           (contains {:type :future-fact
-                                     :description "(+ 1 \"1\")"})
+                                     :description [nil "(+ 1 \"1\")"]})
                           pass)))
 
 (defn number [] )
@@ -152,20 +152,20 @@
   (facts "A"
     (fact "B"
       (+ 1 2) => 1))
-  (fact @reported => (one-of (contains {:description "A - B"} ))))
+  (fact @reported => (one-of (contains {:description ["A" "B"]} ))))
 
 (after-silently
   (facts "level 1"
     (fact "level 2"
       (fact "level 3"
         (throw (Exception. "BOOM")) => anything)))
-  (fact @reported => (one-of (contains {:description "level 1 - level 2 - level 3"} )))) 
+  (fact @reported => (one-of (contains {:description ["level 1" "level 2" "level 3"]} )))) 
 
 (after-silently
   (facts "about mathemtics"
     (future-fact "do in future"
       nil => 1))
-  (fact @reported => (one-of (contains {:description "about mathemtics - do in future"} ))))
+  (fact @reported => (one-of (contains {:description ["about mathemtics" "do in future"]} ))))
 
 ;; Background prerequisites
 (unfinished check-f check-g check-h)
