@@ -312,3 +312,8 @@
                 @reported => (one-of (contains {:type :mock-expected-result-failure
                                                 :actual `(clojure.core/+ 100 200 1)
                                                 :expected `(clojure.core/- 100 200 1)}))))) 
+
+(fact "add form info to unprocessed check so tool creators can introspect them"
+  (unprocessed-check (+ 1 1) ..arrow.. 2 []) => (contains {:call-form '(+ 1 1) 
+                                                           :arrow ..arrow.. 
+                                                           :expected-result 2}))

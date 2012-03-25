@@ -47,8 +47,12 @@
      :expected-result ~expected-result
      :desired-check ~(check-for-arrow arrow)
      :expected-result-text-for-failures '~expected-result
-     :position (user-file-position)}
-    (hash-map-duplicates-ok ~@overrides)))
+     :position (user-file-position)
+     
+     ;; for Midje tool creators:
+     :call-form '~call-form
+     :arrow '~arrow }
+     (hash-map-duplicates-ok ~@overrides)))
 
 (letfn [(how-to-handle-check [call-form arrow & _]
           (get {=> :expect*
