@@ -9,7 +9,7 @@
   (:use clojure.test
         midje.internal-ideas.fakes
         midje.internal-ideas.file-position
-        [midje.internal-ideas.fact-context :only [within-fact-context]]
+        [midje.internal-ideas.fact-context :only [nested-fact-description within-fact-context]]
         [midje.util debugging form-utils namespace]
         [midje.error-handling validation-errors semi-sweet-validations]
         [midje.error-handling.exceptions :only [user-error]]
@@ -42,7 +42,8 @@
    failure. See 'expect*'."
   [call-form arrow expected-result overrides]
   `(merge
-    {:function-under-test (fn [] ~call-form)
+    {:description (nested-fact-description)
+     :function-under-test (fn [] ~call-form)
      :expected-result ~expected-result
      :desired-check ~(check-for-arrow arrow)
      :expected-result-text-for-failures '~expected-result

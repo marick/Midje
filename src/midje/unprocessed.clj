@@ -8,9 +8,8 @@
         [midje.checkers.chatty :only [chatty-checker?]]
         [midje.error-handling.exceptions :only [captured-throwable]]
         midje.internal-ideas.fakes
-        [midje.internal-ideas.fact-context :only [nested-fact-description]]
-         midje.internal-ideas.report
-         midje.util.laziness
+        midje.internal-ideas.report
+        midje.util.laziness
         [midje.util.namespace :only [immigrate]]
         [midje.util.ecosystem :only [line-separator]]
         [utilize.seq :only [find-first]]))
@@ -31,7 +30,7 @@
 
 (letfn [(fail [type actual call]
           {:type type
-           :description (nested-fact-description)
+           :description (:description call)
            :binding-note (:binding-note call)
            :position (:position call)
            :actual actual
@@ -107,7 +106,7 @@
       :irrelevant-return-value)))
 
 (def ^{:dynamic true
-       :doc (str "For Midje tool creators. This hooks into Midje's internal compiler results.
+       :doc (str "For Midje tool creators. Hooks into Midje's internal compiler results.
   Can be bound to a function with arglists like:" line-separator 
   "  " (:arglists (meta #'midje.unprocessed/expect*)))} 
   *expect-checking-fn* midje.unprocessed/expect*)
