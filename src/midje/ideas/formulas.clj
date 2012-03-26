@@ -31,7 +31,7 @@
 
 (defmacro shrink-failure-case [docstring binding-leftsides failed-binding-rightsides body]
   `(loop [shrunk-binding-rightsides# (map midje.ideas.formulas/shrink ~failed-binding-rightsides)]
-     (when (and (not-any? empty? shrunk-binding-rightsides#)  ;; what about shrink fns that return nil values?
+     (when (and (not-any? empty? shrunk-binding-rightsides#)
                 (let [~binding-leftsides (map first shrunk-binding-rightsides#)]
                   ~(formula-fact docstring body)))
          (recur (map rest shrunk-binding-rightsides#)))))
