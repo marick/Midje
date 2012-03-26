@@ -93,6 +93,18 @@
     (fact @reported => (one-of (contains {:type :mock-expected-result-functional-failure
                                           :actual [0 "a"]} ))))) ;; note that it shrank both 100 and "abc"
 
+;; If any of the seqs of shrunken failure cases vals run out before finding a smaller 
+;; failure, then uses the original failure case, not a shrunken one.
+(when-1-3+
+  (with-redefs [midje.ideas.formulas/shrink (fn [x]
+                                              (if (integer? x)
+                                                [-11 11] ;; not a failure since -11 is neg? and we never check 11, which would fail
+                                                ["z"]))]
+    (after-silently
+      (formula [x 100 a "abc"]
+        [x a] => #(neg? (first %))))
+    (fact @reported => (one-of (contains {:type :mock-expected-result-functional-failure
+                                          :actual [100 "abc"]} )))))
 ;; Shrunken failure case is in the same domain as the generator 
 ;; used to create the input case in the first place.
 (after-silently

@@ -34,7 +34,7 @@
   (or (first-named? form "fact")
       (first-named? form "facts")))
 
-(def future-prefixes [ "future-" 
+(def future-prefixes ["future-" 
                       "pending-" 
                       "incipient-" 
                       "antiterminologicaldisintactitudinarian-"])

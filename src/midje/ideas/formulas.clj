@@ -1,4 +1,4 @@
-(ns ^{:doc "Midje's special blend of generative-style testing."}
+(ns ^{:doc "EXPERIMENTAL, thus subject to change. Midje's special blend of generative-style testing."}
   midje.ideas.formulas
   (:use [midje.util.form-utils :only [first-named? named? pop-docstring pop-opts-map]]
         [midje.error-handling.validation-errors :only [simple-report-validation-error 
@@ -8,6 +8,9 @@
         [midje.ideas.facts :only [future-prefixes]]
         [clojure.string :only [join]]
         [clojure.walk :only [prewalk]]))
+
+;; Formulas work by running up to *num-trials* trials per formula. If there is a failure,
+;; it will then shrink the values that caused that particular failure.
 
 (def ^{:doc "The number of trials generated per formula."
        :dynamic true} 
@@ -28,11 +31,10 @@
 
 (defmacro shrink-failure-case [docstring binding-leftsides failed-binding-rightsides body]
   `(loop [shrunk-binding-rightsides# (map midje.ideas.formulas/shrink ~failed-binding-rightsides)]
-     (let [cur-shrunks# (map first shrunk-binding-rightsides#)]
-       (when (and (first cur-shrunks#)
-                  (let [~binding-leftsides cur-shrunks#]
-                    ~(formula-fact docstring body)))
-           (recur (map rest shrunk-binding-rightsides#))))))
+     (when (and (not-any? empty? shrunk-binding-rightsides#)  ;; what about shrink fns that return nil values?
+                (let [~binding-leftsides (map first shrunk-binding-rightsides#)]
+                  ~(formula-fact docstring body)))
+         (recur (map rest shrunk-binding-rightsides#)))))
 
 (defn- deconstruct-formula-args [args]
   (let [[docstring? more-args] (pop-docstring args)
