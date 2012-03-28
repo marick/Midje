@@ -4,7 +4,7 @@
             flow macros, validation error creation, etc."}
   midje.error-handling.validation-errors
   (:use
-    [clojure.algo.monads :only [defmonad domonad with-monad m-lift]]
+    [clojure.algo.monads :only [defmonad domonad with-monad]]
     [clojure.test :only [report]]
     [midje.internal-ideas.file-position :only [form-position]]
     [midje.util.form-utils :only [named?]]
@@ -34,8 +34,8 @@
    "Monad describing form processing with possible failures. Failure
    is represented by any form with metadata :midje-validation-error"
    [m-result identity
-    m-bind   (fn [mv f] (if (validation-error-form? mv) mv (f mv)))
-    ])
+    m-bind   (fn [mv f] 
+               (if (validation-error-form? mv) mv (f mv))) ])
 
 (defmacro valid-let [let-vector & body]
   `(domonad midje-maybe-m ~let-vector ~@body))

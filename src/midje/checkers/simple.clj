@@ -10,7 +10,8 @@
   	[midje.error-handling.exceptions :only [captured-throwable?]]
     [midje.util.ecosystem :only [clojure-1-3? +M -M *M]]
     [midje.util.form-utils :only [defalias def-many-methods pred-cond regex?]]
-    [midje.util.backwards-compatible-utils :only [every-pred-m some-fn-m]])
+    [midje.util.backwards-compatible-utils :only [every-pred-m some-fn-m]]
+    [clojure.algo.monads :only [domonad set-m]])
   (:import [midje.error_handling.exceptions ICapturedThrowable]))
 
 (defchecker truthy 
@@ -76,11 +77,11 @@
        (fact (foo) => (throws #\"one part\" #\"another part\"))"
   {:arglists '([& args])}
   (fn [& args]
-    (set (for [arg args]
-           (pred-cond arg
-                      fn?                        :predicate
-                      (some-fn-m string? regex?) :message
-                      class?                     :throwable )))))
+    (domonad set-m [arg args]
+      (pred-cond arg
+        fn?                        :predicate
+        (some-fn-m string? regex?) :message
+        class?                     :throwable ))))
 
 (defmethod throws #{:message } [& expected-msgs]
   (checker [^ICapturedThrowable wrapped-throwable]
