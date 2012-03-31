@@ -20,31 +20,30 @@
 ;; Variables that might not be bound
 (def unbound-marker :midje/special-midje-unbound-marker)
 
-(defn restore-one-root [[^clojure.lang.Var variable new-value]]
+(defn restore-one-root [[^clojure.lang.Var the-var new-value]]
   (if (= new-value unbound-marker)
-    (.unbindRoot variable)
-    (alter-var-root variable (fn [current-value] new-value))))
+    (.unbindRoot the-var)
+    (alter-var-root the-var (fn [current-value] new-value))))
 
-(defn alter-one-root [[^clojure.lang.Var variable new-value]]
-   (if (bound? variable) 
-     (let [old-value (deref variable)]
-       (alter-var-root variable (fn [current-value] new-value))
-       [variable old-value])
-     (do
-       (.bindRoot variable new-value)
-       [variable unbound-marker])))
+(defn alter-one-root [[^clojure.lang.Var the-var new-value]]
+  (if (bound? the-var)
+    (let [old-value (deref the-var)]
+      (alter-var-root the-var (fn [current-value] new-value))
+      [the-var old-value])
+    (do
+      (.bindRoot the-var new-value)
+      [the-var unbound-marker])))
 
-(defn with-altered-roots* [binding-map function]
-  (let [old-bindings (into {} (for [pair binding-map] (alter-one-root pair)))]
-    (try (function)
-         ;; Can't use doseq inside a finally clause.
-         (finally (dorun (map restore-one-root old-bindings))))))
+(defn with-altered-roots* [binding-map f]
+  (let [old-bindings (into {} (for [var+new-value binding-map] (alter-one-root var+new-value)))]
+    (try (f)
+      (finally (dorun (map restore-one-root old-bindings))))))
 
 (defmacro with-altered-roots
   "Used instead of with-bindings because bindings are thread-local
    and will require specially declared vars in Clojure 1.3"
-  [binding-map & rest]
-  `(with-altered-roots* ~binding-map (fn [] ~@rest)))
+  [binding-map & body]
+  `(with-altered-roots* ~binding-map (fn [] ~@body)))
 
 
 ;; Values associated with namespaces
