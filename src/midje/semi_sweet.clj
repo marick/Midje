@@ -75,7 +75,7 @@
     (expect-expansion expanded-macro => escaped-expected-result fakes overrides)))
 
 (defmethod expect-expansion :report-future-fact
-   [call-form arrow expected-result fakes overrides]
+   [call-form arrow expected-result _fakes_ overrides]
    `(let [check# (unprocessed-check ~call-form ~arrow ~expected-result ~overrides)]
       (within-fact-context ~(str call-form)  
         (clojure.test/report {:type :future-fact

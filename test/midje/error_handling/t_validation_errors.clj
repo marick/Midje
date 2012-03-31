@@ -10,18 +10,18 @@
 (expose-testables midje.error-handling.validation-errors)
 
 (fact "any form can be turned into a validation-error form"
-  (meta (as-validation-error '(form))) => (contains {:midje-validation-error true})
+  (meta (as-validation-error '(form))) => (contains {:midje-syntax-validation-error true})
   (as-validation-error '(form)) => validation-error-form?)
 
 (def my-favorite-error-form (as-validation-error '(error form)))
 
-(fact "there is an error monad for Midje"
-  (domonad midje-maybe-m
+(fact "there is a validation monad for Midje"
+  (domonad syntax-validate-m
            [a 1
             b (inc a)]
-           b) => 2
+         b) => 2
 
-  (let [result (domonad midje-maybe-m
+  (let [result (domonad syntax-validate-m
                         [a my-favorite-error-form
                          b (inc a)]
                         b)]
@@ -35,15 +35,8 @@
 
 (fact "errors can spread to infect whole collections"
   (spread-validation-error [1 2 3]) => '(1 2 3)
-  (spread-validation-error [1 my-favorite-error-form]) => my-favorite-error-form)
-
-(fact "you can insist a collection of items be fully valid"
-  (let [suspect [1 2 3]]
-    (with-valid suspect (second suspect)) => 2)
-  (let [suspect [1 (as-validation-error '(str "this would report an error"))]]
-    (with-valid suspect "this is the wrong return value") => "this would report an error"))
-    
-
+  (spread-validation-error [1 my-favorite-error-form]) => validation-error-form?
+  (spread-validation-error [1 my-favorite-error-form]) => my-favorite-error-form )   
 
 (fact "there is a helper function that produces error-reporting forms"
   (report-validation-error '(anything) "note 1" "note 2")

@@ -25,10 +25,10 @@
           form
           (cl-format nil "You cannot override the function `~S`: it is inlined by the Clojure compiler." (first funcall)))
 
-        :else 
-        fake-form))))
+        :else
+        form))))
 
-(defmethod validate "data-fake" [[header metaconstant arrow hash & remainder :as form]]
+(defmethod validate "data-fake" [[_data-fake_ metaconstant arrow hash & remainder :as form]]
   (cond (not (metaconstant-symbol? metaconstant))
         (report-validation-error
           form
@@ -40,7 +40,7 @@
           "Assigning values to a metaconstant requires =contains=>")
 
         :else
-        (rest form)))
+        form))
 
 (defmethod validate "expect" [form]
   (if (< (count form) 4)
