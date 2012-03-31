@@ -34,22 +34,22 @@
   (spread-validation-error [1 my-favorite-error-form]) => my-favorite-error-form )   
 
 (fact "there is a helper function that produces error-reporting forms"
-  (report-validation-error '(anything) "note 1" "note 2")
+  (validation-error-report-form '(anything) "note 1" "note 2")
   => '(clojure.test/report {:type :validation-error
                             :notes '["note 1" "note 2"]
                             :position '...form-position... })
   (provided
     (form-position '(anything)) => ...form-position...)
 
-  (report-validation-error '(whatever)) => validation-error-form?)
+  (validation-error-report-form '(whatever)) => validation-error-form?)
 
 (fact "can produce a basic error-reporting form, w/ form always as final note"
-  (simple-report-validation-error '(anything) "note 1" "note 2")
+  (simple-validation-error-report-form '(anything) "note 1" "note 2")
   => '(clojure.test/report {:type :validation-error
                             :notes '["note 1" "note 2" "(anything)"]
                             :position '...form-position... })
   (provided
     (form-position '(anything)) => ...form-position...)
 
-  (simple-report-validation-error '(whatever)) => validation-error-form?)
+  (simple-validation-error-report-form '(whatever)) => validation-error-form?)
 

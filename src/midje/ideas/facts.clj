@@ -1,6 +1,6 @@
 (ns ^{:doc "Facts are the core abstraction of Midje."}
   midje.ideas.facts
-  (:use [midje.error-handling.validation-errors :only [simple-report-validation-error validate when-valid]]
+  (:use [midje.error-handling.validation-errors :only [simple-validation-error-report-form validate when-valid]]
         [midje.util.namespace :only [is-semi-sweet-keyword?]]
         [midje.internal-ideas.fakes :only [unfold-fakes]]
 
@@ -104,6 +104,6 @@
   
 (def-many-methods validate ["fact" "facts"] [[fact-or-facts & args :as form]]
   (if-not (leaves-contain-arrow? (rest form))
-    (simple-report-validation-error form
+    (simple-validation-error-report-form form
       (format "There is no arrow in your %s form:" (name fact-or-facts)))
     (pop-docstring args)))

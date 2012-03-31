@@ -1,7 +1,7 @@
 (ns ^{:doc "EXPERIMENTAL, thus subject to change. Midje's special blend of generative-style testing."}
   midje.ideas.formulas
   (:use [midje.util.form-utils :only [first-named? named? pop-docstring pop-opts-map]]
-        [midje.error-handling.validation-errors :only [simple-report-validation-error syntax-validate-m validate]]
+        [midje.error-handling.validation-errors :only [simple-validation-error-report-form syntax-validate-m validate]]
         [midje.ideas.prerequisites :only [is-head-of-form-providing-prerequisites?]]
         [midje.ideas.arrows :only [leaf-expect-arrows leaves-contain-arrow?]]
         [midje.ideas.facts :only [future-prefixes]]
@@ -99,25 +99,25 @@
   (let [[docstring? opts-map bindings body] (deconstruct-formula-args args)
         invalid-keys (remove (partial = :num-trials) (keys opts-map))]
     (cond (not (leaves-contain-arrow? (check-part-of args)))
-          (simple-report-validation-error form "There is no expection in your formula form:")
+          (simple-validation-error-report-form form "There is no expection in your formula form:")
     
           (> (count (leaf-expect-arrows (check-part-of args))) 1)
-          (simple-report-validation-error form "There are too many expections in your formula form:")
+          (simple-validation-error-report-form form "There are too many expections in your formula form:")
   
           (or (not (vector? bindings))
               (odd? (count bindings))
               (< (count bindings) 2))
-          (simple-report-validation-error form "Formula requires bindings to be an even numbered vector of 2 or more:")
+          (simple-validation-error-report-form form "Formula requires bindings to be an even numbered vector of 2 or more:")
   
           (some #(and (named? %) (= "background" (name %))) (flatten args))
-          (simple-report-validation-error form "background cannot be used inside of formula")
+          (simple-validation-error-report-form form "background cannot be used inside of formula")
   
           (not (empty? invalid-keys))
-          (simple-report-validation-error form (format "Invalid keys (%s) in formula's options map. Valid keys are: :num-trials" (join ", " invalid-keys)))
+          (simple-validation-error-report-form form (format "Invalid keys (%s) in formula's options map. Valid keys are: :num-trials" (join ", " invalid-keys)))
           
           (and (:num-trials opts-map) 
                (not (pos? (:num-trials opts-map))))
-          (simple-report-validation-error form (str ":num-trials must be an integer 1 or greater. You tried to set it to: " (:num-trials opts-map)))
+          (simple-validation-error-report-form form (str ":num-trials must be an integer 1 or greater. You tried to set it to: " (:num-trials opts-map)))
       
           :else 
           [docstring? opts-map bindings body])))

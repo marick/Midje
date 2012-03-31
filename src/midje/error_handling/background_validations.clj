@@ -4,8 +4,8 @@
   midje.error-handling.background-validations
   (:use
     [clojure.pprint :only [cl-format]]
-    [midje.error-handling.validation-errors :only [simple-report-validation-error report-validation-error 
-                                         validate when-valid]]
+    [midje.error-handling.validation-errors :only [simple-validation-error-report-form 
+                                                   validation-error-report-form validate when-valid]]
     [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence? take-arrow-sequence]]
     [midje.ideas.background :only [seq-headed-by-setup-teardown-form?]]
     [midje.ideas.prerequisites :only [metaconstant-prerequisite?]]
@@ -18,7 +18,7 @@
 (def-many-methods validate ["before" "after" "around"] [[state-description wrapping-target expression :as form]]
   (cond
     (and (#{"after" "around"} (name state-description)) (not= 3 (count form)))
-    (report-validation-error form
+    (validation-error-report-form form
       (cl-format nil "    In this form: ~A" form)
       (cl-format nil "~A forms should look like: (~A :contents/:facts/:checks (your-code))"
         (name state-description) (name state-description)))
@@ -28,13 +28,13 @@
          (or (not= 5 (count form))
              (and (= 5 (count form))
                   (not= :after (nth form 3)))))
-    (report-validation-error form
+    (validation-error-report-form form
       (cl-format nil "    In this form: ~A" form)
       "before forms should look like: (before :contents/:facts/:checks (your-code)) or "
       "(before :contents/:facts/:checks (your-code) :after (final-code))")
 
     ((complement possible-wrapping-targets) wrapping-target)
-    (report-validation-error form
+    (validation-error-report-form form
       (cl-format nil "    In this form: ~A" form)
       (cl-format nil "The second element (~A) should be one of: :facts, :contents, or :checks"
         wrapping-target))
@@ -63,18 +63,18 @@
   (defmethod validate "against-background" 
     [[_against-background_ state-descriptions+fakes & _body_ :as form]]
     (cond (< (count form) 3)
-          (simple-report-validation-error form
+          (simple-validation-error-report-form form
             "You need a minimum of three elements to an against-background form:")
        
           (vector? state-descriptions+fakes)                                    
           (when-valid (filter state-description? state-descriptions+fakes)
             (pred-cond state-descriptions+fakes   
               empty?
-              (simple-report-validation-error form
+              (simple-validation-error-report-form form
                 "You didn't enter any background fakes or wrappers:")
             
               (comp not possible-state-descriptions+fakes?)
-              (simple-report-validation-error form
+              (simple-validation-error-report-form form
                 "Badly formatted against-background fakes:")
         
               :else
@@ -86,7 +86,7 @@
             (rest form))
             
           :else                                      
-          (simple-report-validation-error form 
+          (simple-validation-error-report-form form 
             "Malformed against-background. against-background requires"
             "at least one background fake or background wrapper: " )))
   
@@ -94,10 +94,10 @@
     (when-valid (filter state-description? state-descriptions+fakes) 
       (pred-cond state-descriptions+fakes 
         empty?
-        (simple-report-validation-error form "You didn't enter any background fakes or wrappers:")
+        (simple-validation-error-report-form form "You didn't enter any background fakes or wrappers:")
     
         (comp not possible-state-descriptions+fakes?)
-        (simple-report-validation-error form "Badly formatted background fakes:")
+        (simple-validation-error-report-form form "Badly formatted background fakes:")
         
         :else
         state-descriptions+fakes))))

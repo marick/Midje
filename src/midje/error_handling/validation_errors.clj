@@ -18,13 +18,13 @@
 (defn validation-error-form? [form]
   (:midje-syntax-validation-error (meta form)))
 
-(defn report-validation-error [form & notes]
+(defn validation-error-report-form [form & notes]
   (as-validation-error `(report {:type :validation-error
                                  :notes '~notes
                                  :position '~(form-position form)})))
 
-(defn simple-report-validation-error [form & notes]
-  (apply report-validation-error form (conj (vec notes) (pr-str form))))
+(defn simple-validation-error-report-form [form & notes]
+  (apply validation-error-report-form form (conj (vec notes) (pr-str form))))
 
 
 ;; Validation control flow macros

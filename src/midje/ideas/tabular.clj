@@ -5,7 +5,7 @@
   (:use 
     [clojure.string :only [join]]
     [clojure.algo.monads :only [domonad]]
-    [midje.error-handling.validation-errors :only [simple-report-validation-error syntax-validate-m validate]]
+    [midje.error-handling.validation-errors :only [simple-validation-error-report-form syntax-validate-m validate]]
     [midje.internal-ideas.fact-context :only [within-fact-context]]
     [midje.internal-ideas.file-position :only [form-with-copied-line-numbers
                                                form-position]] ; for deprecation
@@ -79,15 +79,15 @@
   (let [[description? [fact-form & table]] (pop-docstring form)
         [headings-row values] (headings-rows+values table locals)]
     (cond (empty? table)
-          (simple-report-validation-error form
+          (simple-validation-error-report-form form
             "There's no table. (Misparenthesized form?)")
       
           (empty? values)
-          (simple-report-validation-error form
+          (simple-validation-error-report-form form
             "It looks like the table has headings, but no values:")
       
           (empty? headings-row)
-          (simple-report-validation-error form
+          (simple-validation-error-report-form form
             "It looks like the table has no headings, or perhaps you"
             "tried to use a non-literal string for the doc-string?:")
       
