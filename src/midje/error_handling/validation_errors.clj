@@ -13,10 +13,10 @@
 ;; Making validation errors
 
 (defn- ^{:testable true } as-validation-error [form]
-  (vary-meta form assoc :midje-syntax-validation-error true))
+  (vary-meta form assoc :midje/syntax-validation-error true))
 
 (defn validation-error-form? [form]
-  (:midje-syntax-validation-error (meta form)))
+  (:midje/syntax-validation-error (meta form)))
 
 (defn validation-error-report-form [form & notes]
   (as-validation-error `(report {:type :validation-error
@@ -31,7 +31,7 @@
 
 (defmonad syntax-validate-m
   "Monad describing form processing with possible failures. Failure
-  is represented by any form with metadata :midje-syntax-validation-error"
+  is represented by any form with metadata :midje/syntax-validation-error"
   [m-result identity
    m-bind   (fn [form f] 
               (if (validation-error-form? form) form (f form)))  ])

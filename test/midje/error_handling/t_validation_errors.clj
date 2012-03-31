@@ -10,7 +10,7 @@
 (expose-testables midje.error-handling.validation-errors)
 
 (fact "any form can be turned into a validation-error form"
-  (meta (as-validation-error '(form))) => (contains {:midje-syntax-validation-error true})
+  (meta (as-validation-error '(form))) => (contains {:midje/syntax-validation-error true})
   (as-validation-error '(form)) => validation-error-form?)
 
 (def my-valid-form '(expect 1 => 1))
