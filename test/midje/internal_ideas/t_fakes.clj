@@ -2,10 +2,8 @@
 
 (ns midje.internal-ideas.t-fakes
   (:use [midje sweet test-util]
-        [midje.internal-ideas.fakes :except [mockable-funcall? 
-  unfolding-step merge-metaconstant-bindings
-  data-fakes-to-metaconstant-bindings binding-map-with-function-fakes unique-vars
-  call-faker best-call-action ]]
+        [midje.internal-ideas.fakes :except [mockable-funcall? unfolding-step merge-metaconstant-bindings 
+                                             fn-fakes-binding-map unique-vars call-faker best-call-action ]]
         [midje.ideas.metaconstants :only [metaconstant-for-form]]
         [utilize.seq :only (find-first only)]
         [midje.test-util]
@@ -42,18 +40,6 @@ odd?                   3               falsey)
 
 
 (declare f g)
-(fact "unique variables can be found in fakes"
-  (let [fakes [ (fake (f 1) => 2)
-                (fake (f 2) => 4)
-                (fake (g) => 3)] ]
-    (unique-vars fakes) => (contains [#'f #'g] :in-any-order))
-  "Same applies to data-fakes"
-  (let [fakes [ (data-fake ...f... => {:a 2})
-                (data-fake ...f... => {:b 4})
-                (data-fake ...g... => {:d 4})] ]
-    (unique-vars fakes) => (contains [#'...f... #'...g...] :in-any-order)))
-
-
 
 (fact "binding maps contain functions that increment a call count"
   (let [fake (fake (f 1) => 3)
@@ -357,26 +343,22 @@ odd?                   3               falsey)
     (set (generate-fakes '{ (g 1) ...g-1..., (h 3) ...h-1... } '(...overrides...)))
     => #{g-fake h-fake}))
 
-
-;;; Internal functions
-
 (fact "data-fakes can be converted to metaconstant-bindings"
-  (let [bindings (data-fakes-to-metaconstant-bindings [{:lhs #'name :contained {:a 1}}])
-        [_var_ metaconstant] (only (only bindings))]
+  (let [bindings (binding-map [{:data-fake true :lhs #'name :contained {:a 1}}])
+        [_var_ metaconstant] (only bindings)]
     (.name metaconstant) => 'name
     (.storage metaconstant) => {:a 1} ))
 
 (declare var-for-merged var-for-irrelevant)
-(fact "metaconstant bindings can have their values merged together"
-  (let [first-half (Metaconstant. 'merged {:retained 1, :replaced 2})
-        second-half (Metaconstant. 'merged {:replaced 222, :extra 3})
-        irrelevant (Metaconstant. 'irrelevant {:retained :FOO :extra :BAR})
-        all [{#'var-for-merged first-half} {#'var-for-merged second-half} {#'var-for-irrelevant irrelevant}]
-        result (merge-metaconstant-bindings all)]
-    
-    (.storage (result #'var-for-merged)) => {:retained 1, :replaced 222, :extra 3}
-    (.storage (result #'var-for-irrelevant)) => {:retained :FOO, :extra :BAR}))
 
+(fact "metaconstant bindings can have their values merged together"
+  (let [first-half  {:data-fake true :lhs #'var-for-merged     :contained {:retained 1,   :replaced 2}}
+        second-half {:data-fake true :lhs #'var-for-merged     :contained {:replaced 222, :extra 3}}
+        irrelevant  {:data-fake true :lhs #'var-for-irrelevant :contained {:retained :FOO :extra :BAR}}
+        result (binding-map [first-half second-half irrelevant])]
+    (println (pr-str result))
+    (.storage (result #'midje.internal-ideas.t-fakes/var-for-merged))     => {:retained 1, :replaced 222, :extra 3}
+    (.storage (result #'midje.internal-ideas.t-fakes/var-for-irrelevant)) => {:retained :FOO, :extra :BAR}))
 
 (unfinished faked-fn)
 (facts "fake and datafake maps include form info, so tool creators can introspect them"

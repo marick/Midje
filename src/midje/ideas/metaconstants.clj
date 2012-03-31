@@ -91,6 +91,9 @@
                    "If you have a compelling case for equality, please create an issue:"
                    ecosystem/issues-url)))))
 
+(defn merge-metaconstants [^Metaconstant mc1 ^Metaconstant mc2]
+  (Metaconstant. (.name mc1) (merge (.storage mc1) (.storage mc2))))
+
 (defmethod print-method Metaconstant [^Metaconstant o ^java.io.Writer w]
   (print-method (.name o) w))
 

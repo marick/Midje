@@ -11,7 +11,7 @@
         [midje.util.form-utils :only [first-named? translate-zipper map-difference
                                       hash-map-duplicates-ok pred-cond to-thunks
                                       quoted-list-form?]]
-        [midje.ideas.metaconstants :only [metaconstant-for-form
+        [midje.ideas.metaconstants :only [merge-metaconstants metaconstant-for-form
                                           with-fresh-generated-metaconstant-names]]
         [midje.checkers.extended-equality :only [extended-= extended-list-= extended-fn?]]
         [midje.internal-ideas.file-position :only [user-file-position]]
@@ -141,7 +141,7 @@
       `{:contained ~contained
         :count-atom (atom 1) ;; CLUDKJE!
         :type :fake
-        :data-fake :data-fake}
+        :data-fake true}
       overrides))
   
   (defn not-called* [var-sym & overrides]
@@ -228,34 +228,23 @@
 
 ;; Binding map related
 
-(defn- ^{:testable true } unique-vars [fakes]
-  (distinct (map :lhs fakes)))
+(defn- ^{:testable true } fn-fakes-binding-map [fn-fakes]
+  (let [fake->faker-fn (fn [the-var]
+                         (-> (fn [& actual-args] 
+                                (call-faker the-var actual-args fn-fakes)) 
+                             (vary-meta assoc :midje/faked-function true)))
+        fn-fake-vars (map :lhs fn-fakes)]
+    (zipmap fn-fake-vars 
+            (map fake->faker-fn fn-fake-vars))))
 
-(defn- ^{:testable true } binding-map-with-function-fakes [fakes]
-  (letfn [(fn-that-implements-a-fake [function]
-            (vary-meta function assoc :midje/faked-function true))
-          (make-faker [var]
-            (fn-that-implements-a-fake (fn [& actual-args] (call-faker var actual-args fakes))))]
-    (into {}
-      (for [var (unique-vars fakes)]
-        [var (make-faker var)]))))
+(defn- data-fakes-binding-map [data-fakes]
+  (apply merge-with merge-metaconstants (for [{var :lhs, contents :contained} data-fakes]
+                                          {var (Metaconstant. (object-name var) contents)})))
 
-(defn- ^{:testable true } merge-metaconstant-bindings [bindings]
-  (apply merge-with (fn [^Metaconstant v1 ^Metaconstant v2]
-                      (Metaconstant. (.name v1) (merge (.storage v1) (.storage v2))))
-    bindings))
-
-(defn- ^{:testable true } data-fakes-to-metaconstant-bindings [fakes]
-  (for [{var :lhs, contents :contained} fakes]
-    {var (Metaconstant. (object-name var) contents)}))
-
-(letfn [(binding-map-with-data-fakes [data-fakes]
-          (merge-metaconstant-bindings (data-fakes-to-metaconstant-bindings data-fakes)))]
-  
-  (defn binding-map [fakes]
-    (let [[data-fakes function-fakes] (separate :data-fake fakes)]
-      (merge (binding-map-with-function-fakes function-fakes)
-             (binding-map-with-data-fakes data-fakes)))))
+(defn binding-map [fakes]
+  (let [[data-fakes fn-fakes] (separate :data-fake fakes)]
+    (merge (fn-fakes-binding-map fn-fakes) 
+           (data-fakes-binding-map data-fakes))))
 
 (defmacro with-installed-fakes [fakes & forms]
   `(with-altered-roots (binding-map ~fakes) ~@forms))
