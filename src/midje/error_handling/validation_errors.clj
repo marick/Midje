@@ -48,11 +48,10 @@
                        (name (first form)) 
                        :validate-seq)))
 
-(defn- ^{:testable true } spread-validation-error [collection]
-  (or (find-first validation-error-form? collection)
-    collection))
-
-(defmethod validate :validate-seq [form & options] 
-  (spread-validation-error (map validate form)))
+(defmethod validate :validate-seq [form-seq & options] 
+  (letfn [(spread-validation-error [form-seq]
+            (or (find-first validation-error-form? form-seq)
+                form-seq))]
+    (spread-validation-error (map validate form-seq))))
 
 (defmethod validate :default [form & options] (rest form))

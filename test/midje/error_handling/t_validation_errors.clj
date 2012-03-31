@@ -13,6 +13,7 @@
   (meta (as-validation-error '(form))) => (contains {:midje-syntax-validation-error true})
   (as-validation-error '(form)) => validation-error-form?)
 
+(def my-valid-form '(expect 1 => 1))
 (def my-favorite-error-form (as-validation-error '(error form)))
 
 (fact "there is a validation monad for Midje"
@@ -27,11 +28,6 @@
                         b)]
     result => my-favorite-error-form
     result => validation-error-form?))
-
-(fact "errors can spread to infect whole collections"
-  (spread-validation-error [1 2 3]) => '(1 2 3)
-  (spread-validation-error [1 my-favorite-error-form]) => validation-error-form?
-  (spread-validation-error [1 my-favorite-error-form]) => my-favorite-error-form )   
 
 (fact "there is a helper function that produces error-reporting forms"
   (validation-error-report-form '(anything) "note 1" "note 2")
