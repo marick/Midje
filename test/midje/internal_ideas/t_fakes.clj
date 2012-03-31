@@ -3,7 +3,7 @@
 (ns midje.internal-ideas.t-fakes
   (:use [midje sweet test-util]
         [midje.internal-ideas.fakes :except [mockable-funcall? unfolding-step merge-metaconstant-bindings 
-                                             fn-fakes-binding-map unique-vars call-faker best-call-action ]]
+                                             unique-vars call-faker best-call-action ]]
         [midje.ideas.metaconstants :only [metaconstant-for-form]]
         [utilize.seq :only (find-first only)]
         [midje.test-util]

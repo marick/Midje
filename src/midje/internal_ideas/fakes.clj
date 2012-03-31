@@ -228,14 +228,14 @@
 
 ;; Binding map related
 
-(defn- ^{:testable true } fn-fakes-binding-map [fn-fakes]
-  (let [fake->faker-fn (fn [the-var]
-                         (-> (fn [& actual-args] 
-                                (call-faker the-var actual-args fn-fakes)) 
-                             (vary-meta assoc :midje/faked-function true)))
+(defn- fn-fakes-binding-map [fn-fakes]
+  (let [var->faker-fn (fn [the-var]
+                        (-> (fn [& actual-args] 
+                               (call-faker the-var actual-args fn-fakes)) 
+                            (vary-meta assoc :midje/faked-function true)))
         fn-fake-vars (map :lhs fn-fakes)]
     (zipmap fn-fake-vars 
-            (map fake->faker-fn fn-fake-vars))))
+            (map var->faker-fn fn-fake-vars))))
 
 (defn- data-fakes-binding-map [data-fakes]
   (apply merge-with merge-metaconstants (for [{var :lhs, contents :contained} data-fakes]
