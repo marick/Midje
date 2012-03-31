@@ -10,10 +10,10 @@
 
 (def reported (atom []))
 
-(defn run-without-reporting [function] 
+(defn run-without-reporting [f] 
   (binding [report (fn [report-map#] (swap! reported conj report-map#))]
     (reset! reported [])
-    (function)))
+    (f)))
 
 (defmacro run-silently [run-form]
   `(run-without-reporting (fn [] ~run-form)))
@@ -101,7 +101,7 @@
   "Note: For testing Midje code that couldn't use provided.
   
   Creates a function that records how many times it is called, and records 
-  that count in the atom named the same as the function with -count appended"
+  that count in an atom with the same name as the function with \"-count\" appended"
   [name args & body]
   (let [atom-name (symbol (str name "-count"))]
     `(do

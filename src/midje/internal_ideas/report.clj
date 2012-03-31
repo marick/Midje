@@ -41,22 +41,22 @@
 (defn midje-position-string [[filename line-num]]
   (format "(%s:%s)" filename line-num))
 
-(letfn [(attractively-stringified-form [form]
-          (pred-cond form
-            named-function?     (format "a function named '%s'" (function-name form))
-            captured-throwable? (friendly-stacktrace form)
-            :else               (pr-str form)))
+(defn- ^{:testable true} attractively-stringified-form [form]
+  (pred-cond form
+    named-function?     (format "a function named '%s'" (function-name form))
+    captured-throwable? (friendly-stacktrace form)
+    :else               (pr-str form)))
 
-        (fail-at [m]
-          (let [description (when-let [doc (format-nested-descriptions (:description m))] 
+(letfn [(fail-at [m]
+          (let [description (when-let [doc (format-nested-descriptions (:description m))]
                               (str (pr-str doc) " "))
                 position (midje-position-string (:position m))
                 table-substitutions (when-let [substitutions (:binding-note m)]
                                       (str "With table substitutions: " substitutions))]
-            (list 
+            (list
               (str "\n" (color/fail "FAIL") " " description "at " position)
               table-substitutions)))
-       
+
         (indented [lines]
           (map (partial str "        ") lines))]
 

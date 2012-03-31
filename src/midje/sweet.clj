@@ -107,7 +107,7 @@
   (macro-for [name future-fact-variant-names]
     `(defmacro ~(symbol name)
        "Fact that will not be run. Generates 'WORK TO DO' report output as a reminder."
-       {:arglists '([& ~'forms])}
+       {:arglists '([& forms])}
        [& forms#]
        (future-fact* ~'&form))))
 
@@ -116,15 +116,14 @@
     `(defmacro ~(symbol name)
        "ALPHA/EXPERIMENTAL (subject to change)
         Formula that will not be run. Generates 'WORK TO DO' report output as a reminder."
-       {:arglists '([& ~'forms])}
+       {:arglists '([& forms])}
        [& forms#]
        (future-fact* ~'&form))))
 
 (generate-future-fact-variants)
 (generate-future-formula-variants)
 
-(defmacro
-  tabular 
+(defmacro tabular 
   "Generate a table of related facts.
   
    Ex. (tabular \"table of simple math\" 
