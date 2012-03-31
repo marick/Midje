@@ -27,7 +27,7 @@
   (apply report-validation-error form (conj (vec notes) (pr-str form))))
 
 
-;; Special validation control flow macros
+;; Validation control flow macros
 
 (defmonad syntax-validate-m
   "Monad describing form processing with possible failures. Failure
@@ -36,11 +36,9 @@
    m-bind   (fn [form f] 
               (if (validation-error-form? form) form (f form)))  ])
 
-(defmacro when-valid [validatable-form-or-forms & body-to-execute-if-valid]
-  `(let [result# (validate ~validatable-form-or-forms)]
-     (if (validation-error-form? result#)
-       result#
-       (do ~@body-to-execute-if-valid))))
+(defmacro when-valid [validatable-form & body-to-execute-if-valid]
+  `(domonad syntax-validate-m [_# (validate ~validatable-form)]
+     ~@body-to-execute-if-valid))
 
 
 ;; Validate
