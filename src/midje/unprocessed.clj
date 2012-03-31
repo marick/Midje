@@ -104,9 +104,3 @@
       (check-call-counts local-fakes)
       (check-result code-under-test-result unprocessed-check)
       :irrelevant-return-value)))
-
-(def ^{:dynamic true
-       :doc (str "For Midje tool creators. Hooks into Midje's internal compiler results.
-  Can be bound to a function with arglists like:" line-separator 
-  "  " (:arglists (meta #'midje.unprocessed/expect*)))} 
-  *expect-checking-fn* midje.unprocessed/expect*)
