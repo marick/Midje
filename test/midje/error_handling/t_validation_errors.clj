@@ -28,11 +28,6 @@
     result => my-favorite-error-form
     result => validation-error-form?))
 
-(fact "there is syntactic sugar for it"
-  (valid-let [a my-favorite-error-form
-              b (inc a)]
-    b) => my-favorite-error-form)
-
 (fact "errors can spread to infect whole collections"
   (spread-validation-error [1 2 3]) => '(1 2 3)
   (spread-validation-error [1 my-favorite-error-form]) => validation-error-form?

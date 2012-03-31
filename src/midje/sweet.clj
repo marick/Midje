@@ -18,7 +18,8 @@
         [midje.ideas.tabular :only [tabular*]]
         [midje.ideas.facts :only [complete-fact-transformation future-fact* midjcoexpand 
                                   future-fact-variant-names]]
-        [midje.ideas.formulas :only [future-formula-variant-names]])
+        [midje.ideas.formulas :only [future-formula-variant-names]]
+        [clojure.algo.monads :only [domonad]])
   (:require [midje.ideas.background :as background]
             [midje.ideas.formulas :as formulas]
             midje.checkers
@@ -78,7 +79,7 @@
   metaconstants, checkers, arrows and specifying call counts"
   [& forms]
   (when (user-desires-checking?)
-    (valid-let [[description forms] (validate &form)]
+    (domonad syntax-validate-m [[description forms] (validate &form)]
       (try
         (set-fallback-line-number-from &form)
         (let [[background remainder] (background/separate-background-forms forms)]

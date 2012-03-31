@@ -3,12 +3,11 @@
 (ns ^{:doc "Code for identifying invalid Midje syntax. Includes control 
             flow macros, validation error creation, etc."}
   midje.error-handling.validation-errors
-  (:use
-    [clojure.algo.monads :only [defmonad domonad with-monad]]
-    [clojure.test :only [report]]
-    [midje.internal-ideas.file-position :only [form-position]]
-    [midje.util.form-utils :only [named?]]
-    [utilize.seq :only (find-first)]))
+  (:use [clojure.algo.monads :only [defmonad domonad]]
+        [clojure.test :only [report]]
+        [midje.internal-ideas.file-position :only [form-position]]
+        [midje.util.form-utils :only [named?]]
+        [utilize.seq :only (find-first)]))
                            
 
 ;; Making validation errors
@@ -36,9 +35,6 @@
   [m-result identity
    m-bind   (fn [form f] 
               (if (validation-error-form? form) form (f form)))  ])
-
-(defmacro valid-let [let-vector & body]
-  `(domonad syntax-validate-m ~let-vector ~@body))
 
 (defmacro when-valid [validatable-form-or-forms & body-to-execute-if-valid]
   `(let [result# (validate ~validatable-form-or-forms)]

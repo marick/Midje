@@ -16,6 +16,7 @@
         [midje.util.namespace :only [is-semi-sweet-keyword?]]
         [midje.util.ecosystem :only [line-separator]]
         [midje.production-mode]
+        [clojure.algo.monads :only [domonad]]
         [clojure.pprint]
         [clojure.string :only [join]]))
 (immigrate 'midje.unprocessed)
@@ -158,8 +159,8 @@
   {:arglists '([call-form arrow expected-result & fakes+overrides])}
   [& _]
   (when (user-desires-checking?)
-    (valid-let [[call-form arrow expected-result & fakes+overrides] (validate &form)
-                [fakes overrides] (separate-by a-fake? fakes+overrides)]
+    (domonad syntax-validate-m [[call-form arrow expected-result & fakes+overrides] (validate &form)
+                                [fakes overrides] (separate-by a-fake? fakes+overrides)]
       (when-valid fakes
         (expect-expansion call-form arrow expected-result fakes overrides)))))
 

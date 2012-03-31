@@ -4,7 +4,8 @@
   midje.ideas.tabular
   (:use 
     [clojure.string :only [join]]
-    [midje.error-handling.validation-errors :only [valid-let simple-report-validation-error validate]]
+    [clojure.algo.monads :only [domonad]]
+    [midje.error-handling.validation-errors :only [simple-report-validation-error syntax-validate-m validate]]
     [midje.internal-ideas.fact-context :only [within-fact-context]]
     [midje.internal-ideas.file-position :only [form-with-copied-line-numbers
                                                form-position]] ; for deprecation
@@ -63,14 +64,14 @@
               (partial form-with-copied-line-numbers fact-form)
               (partial unify/substitute fact-form)))]
 
-    (valid-let [[description? fact-form table] (validate form locals)
-                _ (swap! deprecation-hack:file-position
-                         (constantly (midje-position-string (form-position fact-form))))
-                ordered-binding-maps (table-binding-maps table locals)
-                expect-forms (map (macroexpander-for fact-form) ordered-binding-maps)
-                expect-forms-with-binding-notes (map add-binding-note
-        expect-forms
-        ordered-binding-maps)]
+    (domonad syntax-validate-m [[description? fact-form table] (validate form locals)
+                                _ (swap! deprecation-hack:file-position
+                                         (constantly (midje-position-string (form-position fact-form))))
+                                ordered-binding-maps (table-binding-maps table locals)
+                                expect-forms (map (macroexpander-for fact-form) ordered-binding-maps)
+                                expect-forms-with-binding-notes (map add-binding-note
+                                                                     expect-forms
+                                                                     ordered-binding-maps)]
       `(within-fact-context ~description?
          ~@expect-forms-with-binding-notes))))
 
