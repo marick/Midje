@@ -105,7 +105,7 @@
      (list
       (fail-at m)
       (str "You never said "
-           (function-name-or-spewage (:lhs m))
+           (function-name-or-spewage (:var m))
            " would be needed with these arguments:")
       (str "    " (pr-str (:actual m)))))
   

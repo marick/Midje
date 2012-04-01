@@ -108,7 +108,7 @@
   `(make-result-supplier* ~arrow ~(updated-rhs arrow rhs)))
 
 (letfn [(make-fake-map [call-form arrow rhs var-sym special-to-fake-type user-override-pairs]
-          (let [common-to-all-fakes `{:lhs (var ~var-sym)
+          (let [common-to-all-fakes `{:var (var ~var-sym)
                                       :count-atom (atom 0)
                                       :position (user-file-position)
 
@@ -159,51 +159,47 @@
 ;;; Binding
 
 (defn usable-default-function? [fake]
-  (and (bound? (:lhs fake))
-    (let [value-in-var (var-get (:lhs fake))
-          unfinished-fun (:midje/unfinished-fun (meta (:lhs fake)))]
+  (and (bound? (:var fake))
+    (let [value-in-var (var-get (:var fake))
+          unfinished-fun (:midje/unfinished-fun (meta (:var fake)))]
       (and (extended-fn? value-in-var)
            (or (nil? unfinished-fun)
                (not= unfinished-fun value-in-var))))))
+  
+(defmulti ^{:private true} call-handled-by-fake? (fn [function-var actual-args fake] 
+                                                   (:type fake)))
 
-(letfn [(var-handled-by-fake? [function-var fake]
-          (= function-var (:lhs fake)))]
-  
-  (defmulti ^{:private true} call-handled-by-fake? (fn [function-var actual-args fake] 
-                                                     (:type fake)))
-  
-  (defmethod call-handled-by-fake? :not-called [function-var actual-args fake]
-    (var-handled-by-fake? function-var fake))
-  
-  (defmethod call-handled-by-fake? :default [function-var actual-args fake]
-    (and (var-handled-by-fake? function-var fake)
-         (= (count actual-args) (count (:arg-matchers fake)))
-         (extended-list-= actual-args (:arg-matchers fake))))
-  
-  
-  (def #^:dynamic #^:private *call-action-count* (atom 0))
-  
-  (defn- ^{:testable true } best-call-action [function-var actual-args fakes]
-    (when (= 2 @*call-action-count*)
-      (throw (user-error "You seem to have created a prerequisite for"
-               (str (pr-str function-var) " that interferes with that function's use in Midje's")
-               (str "own code. To fix, define a function of your own that uses "
-                 (or (:name (meta function-var)) function-var) ", then")
-               "describe that function in a provided clause. For example, instead of this:"
-               "  (provided (every? even? ..xs..) => true)"
-               "do this:"
-               "  (def all-even? (partial every? even?))"
-               "  ;; ..."
-               "  (provided (all-even? ..xs..) => true)")))
-    (if-let [found (find-first (partial call-handled-by-fake? function-var actual-args)
-                               fakes)]
-      found
-      (let [possible-fakes (filter (partial var-handled-by-fake? function-var) fakes)]
-        (pred-cond possible-fakes
-          empty?                                     nil
-          (comp not usable-default-function? first)  nil ;; Finding default, any possible fake works
-          :else                                      (:value-at-time-of-faking 
-                                                       (first possible-fakes)))))))
+(defmethod call-handled-by-fake? :not-called [function-var actual-args fake]
+  (= function-var (:var fake)))
+
+(defmethod call-handled-by-fake? :default [function-var actual-args fake]
+  (and (= function-var (:var fake))
+       (= (count actual-args) (count (:arg-matchers fake)))
+       (extended-list-= actual-args (:arg-matchers fake))))
+
+(def #^:dynamic #^:private *call-action-count* (atom 0))
+
+(defn- ^{:testable true } best-call-action [function-var actual-args fakes]
+  (when (= 2 @*call-action-count*)
+    (throw (user-error "You seem to have created a prerequisite for"
+             (str (pr-str function-var) " that interferes with that function's use in Midje's")
+             (str "own code. To fix, define a function of your own that uses "
+               (or (:name (meta function-var)) function-var) ", then")
+             "describe that function in a provided clause. For example, instead of this:"
+             "  (provided (every? even? ..xs..) => true)"
+             "do this:"
+             "  (def all-even? (partial every? even?))"
+             "  ;; ..."
+             "  (provided (all-even? ..xs..) => true)")))
+  (if-let [found (find-first (partial call-handled-by-fake? function-var actual-args)
+                             fakes)]
+    found
+    (let [possible-fakes (filter #(= function-var (:var %)) fakes)]
+      (pred-cond possible-fakes
+        empty?                                     nil
+        (comp not usable-default-function? first)  nil ;; Finding default, any possible fake works
+        :else                                      (:value-at-time-of-faking 
+                                                     (first possible-fakes))))))
 
 (defn- ^{:testable true } call-faker
   "This is the function that handles all mocked calls."
@@ -217,7 +213,7 @@
     (let [action (counting-nested-calls (best-call-action function-var actual-args fakes))]
       (pred-cond action
         nil?          (clojure.test/report {:type :mock-argument-match-failure
-                                            :lhs function-var
+                                            :var function-var
                                             :actual actual-args
                                             :position (:position (first fakes))})
         extended-fn?  (apply action actual-args)
@@ -233,13 +229,13 @@
                         (-> (fn [& actual-args] 
                                (call-faker the-var actual-args fn-fakes)) 
                             (vary-meta assoc :midje/faked-function true)))
-        fn-fake-vars (map :lhs fn-fakes)]
+        fn-fake-vars (map :var fn-fakes)]
     (zipmap fn-fake-vars 
             (map var->faker-fn fn-fake-vars))))
 
 (defn- data-fakes-binding-map [data-fakes]
-  (apply merge-with merge-metaconstants (for [{var :lhs, contents :contained} data-fakes]
-                                          {var (Metaconstant. (object-name var) contents)})))
+  (apply merge-with merge-metaconstants (for [{:keys [var contained]} data-fakes]
+                                          {var (Metaconstant. (object-name var) contained)})))
 
 (defn binding-map [fakes]
   (let [[data-fakes fn-fakes] (separate :data-fake fakes)]

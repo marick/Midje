@@ -344,7 +344,7 @@ odd?                   3               falsey)
     => #{g-fake h-fake}))
 
 (fact "data-fakes can be converted to metaconstant-bindings"
-  (let [bindings (binding-map [{:data-fake true :lhs #'name :contained {:a 1}}])
+  (let [bindings (binding-map [{:data-fake true :var #'name :contained {:a 1}}])
         [_var_ metaconstant] (only bindings)]
     (.name metaconstant) => 'name
     (.storage metaconstant) => {:a 1} ))
@@ -352,9 +352,9 @@ odd?                   3               falsey)
 (declare var-for-merged var-for-irrelevant)
 
 (fact "metaconstant bindings can have their values merged together"
-  (let [first-half  {:data-fake true :lhs #'var-for-merged     :contained {:retained 1,   :replaced 2}}
-        second-half {:data-fake true :lhs #'var-for-merged     :contained {:replaced 222, :extra 3}}
-        irrelevant  {:data-fake true :lhs #'var-for-irrelevant :contained {:retained :FOO :extra :BAR}}
+  (let [first-half  {:data-fake true :var #'var-for-merged     :contained {:retained 1,   :replaced 2}}
+        second-half {:data-fake true :var #'var-for-merged     :contained {:replaced 222, :extra 3}}
+        irrelevant  {:data-fake true :var #'var-for-irrelevant :contained {:retained :FOO :extra :BAR}}
         result (binding-map [first-half second-half irrelevant])]
     (println (pr-str result))
     (.storage (result #'midje.internal-ideas.t-fakes/var-for-merged))     => {:retained 1, :replaced 222, :extra 3}

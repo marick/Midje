@@ -106,7 +106,7 @@
                      :description ["some description"]
                      :actual '(nil)
                      :position ["foo.clj" 3]
-                     :lhs odd?}
+                     :var odd?}
         raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
     (prn raw-report)
     (nth raw-report 0) => #"FAIL.*some description.* at .*foo.clj:3"
