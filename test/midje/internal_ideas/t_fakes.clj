@@ -102,10 +102,10 @@ odd?                   3               falsey)
 (facts "about result suppliers used"
   "returns identity for =>"
   (let [arrow "=>"]
-    ((make-result-supplier arrow [1 2 3])) => [1 2 3])
+    ((fn-fake-result-supplier arrow [1 2 3])) => [1 2 3])
              
   "returns stream for =streams=>"
-  (let [supplier (make-result-supplier "=streams=>" [1 2 3])]
+  (let [supplier (fn-fake-result-supplier "=streams=>" [1 2 3])]
     (supplier) => 1
     (supplier) => 2
     (supplier) => 3))

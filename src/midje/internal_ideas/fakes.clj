@@ -56,18 +56,12 @@
 
 (defmethod updated-rhs (name =streams=>) [arrow rhs]
   (pred-cond rhs
-     vector?
-     `(repeatedly (on-demand (to-thunks ~rhs)))
-
-     quoted-list-form?
-     `(repeatedly (on-demand (to-thunks ~(second rhs))))
-
-     seq
-     rhs
-          
-     :else
-     (throw (user-error "This form doesn't look like a valid right-hand-side for =streams=>:"
-                        (pr-str rhs)))))
+     vector?            `(repeatedly (on-demand (to-thunks ~rhs)))
+     quoted-list-form?  `(repeatedly (on-demand (to-thunks ~(second rhs))))
+     seq                rhs       
+    :else               (throw (user-error 
+                                 "This form doesn't look like a valid right-hand-side for =streams=>:"
+                                 (pr-str rhs)))))
 
 
 ;;; Creation
@@ -81,11 +75,11 @@
     (fn [actual] (extended-= actual (exactly expected)))
     (fn [actual] (extended-= actual expected))))
 
-(defmulti make-result-supplier* (fn [arrow & _] arrow))
+(defmulti fn-fake-result-supplier* (fn [arrow & _] arrow))
 
-(defmethod make-result-supplier* => [_arrow_ result] (constantly result))
+(defmethod fn-fake-result-supplier* => [_arrow_ result] (constantly result))
 
-(defmethod make-result-supplier* =streams=> [_arrow_ result-stream]
+(defmethod fn-fake-result-supplier* =streams=> [_arrow_ result-stream]
   (let [the-stream (atom result-stream)]
     (fn []
       (when (empty? @the-stream)
@@ -94,18 +88,18 @@
         (swap! the-stream rest)
         current-result))))
 
-(defmethod make-result-supplier* =throws=> [_arrow_ throwable]
+(defmethod fn-fake-result-supplier* =throws=> [_arrow_ throwable]
   (fn []
     (when-not (instance? Throwable throwable) 
       (throw (user-error "Right side of =throws=> should extend Throwable.")))
     (throw throwable)))
 
-(defmethod make-result-supplier* :default [arrow result-stream]
+(defmethod fn-fake-result-supplier* :default [arrow result-stream]
   (throw (user-error "It's likely you misparenthesized your metaconstant prerequisite,"
                      "or that you forgot to use an arrow in your provided form.")))
 
-(defmacro make-result-supplier [arrow rhs]
-  `(make-result-supplier* ~arrow ~(updated-rhs arrow rhs)))
+(defmacro fn-fake-result-supplier [arrow rhs]
+  `(fn-fake-result-supplier* ~arrow ~(updated-rhs arrow rhs)))
 
 (letfn [(make-fake-map [call-form arrow rhs var-sym special-to-fake-type user-override-pairs]
           (let [common-to-all-fakes `{:var (var ~var-sym)
@@ -126,12 +120,12 @@
     ;; evaluated as a function call later on. Right approach would
     ;; seem to be '~args. That causes spurious failures. Debug
     ;; someday.
-    (make-fake-map call-form arrow (concat [result] overrides)
+    (make-fake-map call-form arrow (cons result overrides)
       var-sym
       `{:arg-matchers (map midje.internal-ideas.fakes/arg-matcher-maker ~(vec args))
         :call-text-for-failures (str '~call-form)
         :value-at-time-of-faking (if (bound? (var ~var-sym)) ~var-sym)
-        :result-supplier (make-result-supplier ~arrow ~result)
+        :result-supplier (fn-fake-result-supplier ~arrow ~result)
         :type :fake}
       overrides))
   
