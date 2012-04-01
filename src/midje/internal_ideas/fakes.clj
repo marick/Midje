@@ -156,7 +156,7 @@
   `(~@fake :background :background :times (~'range 0)))
 
 
-;;; Binding
+;;; Handling mocked calls
   
 (defmulti ^{:private true} call-handled-by-fake? (fn [function-var actual-args fake] 
                                                    (:type fake)))
@@ -180,7 +180,11 @@
 
 (def #^:dynamic #^:private *call-action-count* (atom 0))
 
-(defn- ^{:testable true } best-call-action [function-var actual-args fakes]
+(defn- ^{:testable true } best-call-action 
+  "Returns a fake: when one can handle the call
+   Else returns a function: from the first fake with a usable-default-function.
+   Returns nil otherwise."
+  [function-var actual-args fakes]
   (when (= 2 @*call-action-count*)
     (throw (user-error "You seem to have created a prerequisite for"
              (str (pr-str function-var) " that interferes with that function's use in Midje's")
@@ -194,13 +198,12 @@
              "  (provided (all-even? ..xs..) => true)")))
   (if-let [found (find-first (partial call-handled-by-fake? function-var actual-args) fakes)]
     found
-    (let [possible-fakes (filter #(= function-var (:var %)) fakes)]
-      (when (some usable-default-function? possible-fakes)
-        (:value-at-time-of-faking (first possible-fakes))))))
+    (when-let [possible-fakes (find-first #(and (= function-var (:var %)) 
+                                                (usable-default-function? %)) 
+                                         fakes)]
+      (:value-at-time-of-faking possible-fakes))))
 
-(defn- ^{:testable true } call-faker
-  "This is the function that handles all mocked calls."
-  [function-var actual-args fakes]
+(defn- ^{:testable true } handle-mocked-call [function-var actual-args fakes]
   (macrolet [(counting-nested-calls [& forms]
                `(try
                   (swap! *call-action-count* inc)
@@ -224,7 +227,7 @@
 (defn- fn-fakes-binding-map [fn-fakes]
   (let [var->faker-fn (fn [the-var]
                         (-> (fn [& actual-args] 
-                               (call-faker the-var actual-args fn-fakes)) 
+                               (handle-mocked-call the-var actual-args fn-fakes)) 
                             (vary-meta assoc :midje/faked-function true)))
         fn-fake-vars (map :var fn-fakes)]
     (zipmap fn-fake-vars 

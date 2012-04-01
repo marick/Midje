@@ -3,7 +3,7 @@
 (ns midje.internal-ideas.t-fakes
   (:use [midje sweet test-util]
         [midje.internal-ideas.fakes :except [mockable-funcall? unfolding-step merge-metaconstant-bindings 
-                                             unique-vars call-faker best-call-action ]]
+                                             unique-vars handle-mocked-call best-call-action ]]
         [midje.ideas.metaconstants :only [metaconstant-for-form]]
         [utilize.seq :only (find-first only)]
         [midje.test-util]
@@ -232,7 +232,7 @@ odd?                   3               falsey)
 (defmulti multimethod type)
 (defmethod multimethod java.lang.String [x] "string me!")
 (fact "fakes can call default functions"
-  (call-faker #'multimethod ["some string"] [(fake (multimethod 4) => 3)])
+  (handle-mocked-call #'multimethod ["some string"] [(fake (multimethod 4) => 3)])
   => (multimethod "some string"))
 
 (fact "fakes keep track of their call counts"
@@ -241,10 +241,10 @@ odd?                   3               falsey)
                (fake (f 2) => 5)]
         counts (fn [] 
                  (map #(deref (:call-count-atom %)) fakes))]
-    (call-faker #'f [1] fakes)    (counts) => [1 0 0]
-    (call-faker #'f [1] fakes)    (counts) => [2 0 0]
-    (call-faker #'f [2] fakes)    (counts) => [2 0 1]
-    (call-faker #'g [1] fakes)    (counts) => [2 1 1]))
+    (handle-mocked-call #'f [1] fakes)    (counts) => [1 0 0]
+    (handle-mocked-call #'f [1] fakes)    (counts) => [2 0 0]
+    (handle-mocked-call #'f [2] fakes)    (counts) => [2 0 1]
+    (handle-mocked-call #'g [1] fakes)    (counts) => [2 1 1]))
 
 (def unbound-var)
 (def bound-var 3)
