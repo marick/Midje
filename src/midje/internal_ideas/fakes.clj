@@ -153,18 +153,10 @@
       overrides)))
 
 (defn tag-as-background-fake [fake]
-  (concat fake `(:background :background :times (~'range 0))))
+  `(~@fake :background :background :times (~'range 0)))
 
 
 ;;; Binding
-
-(defn usable-default-function? [fake]
-  (and (bound? (:var fake))
-    (let [value-in-var (var-get (:var fake))
-          unfinished-fun (:midje/unfinished-fun (meta (:var fake)))]
-      (and (extended-fn? value-in-var)
-           (or (nil? unfinished-fun)
-               (not= unfinished-fun value-in-var))))))
   
 (defmulti ^{:private true} call-handled-by-fake? (fn [function-var actual-args fake] 
                                                    (:type fake)))
@@ -176,6 +168,15 @@
   (and (= function-var (:var fake))
        (= (count actual-args) (count (:arg-matchers fake)))
        (extended-list-= actual-args (:arg-matchers fake))))
+
+
+(defn usable-default-function? [fake]
+  (and (bound? (:var fake))
+    (let [value-in-var (var-get (:var fake))
+          unfinished-fun (:midje/unfinished-fun (meta (:var fake)))]
+      (and (extended-fn? value-in-var)
+        (or (nil? unfinished-fun)
+          (not= unfinished-fun value-in-var))))))
 
 (def #^:dynamic #^:private *call-action-count* (atom 0))
 
@@ -276,7 +277,7 @@
 
 
 
-;; Folded prerequisites
+;;; Folded prerequisites
 
 ;; Note that folded prerequisites are in semi-sweet-style. (That is, they can only
 ;; be recognized after sweet style has been converted to semi-sweet.)
