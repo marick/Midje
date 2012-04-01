@@ -175,8 +175,8 @@
     (let [value-in-var (var-get (:var fake))
           unfinished-fun (:midje/unfinished-fun (meta (:var fake)))]
       (and (extended-fn? value-in-var)
-        (or (nil? unfinished-fun)
-          (not= unfinished-fun value-in-var))))))
+           (or (nil? unfinished-fun)
+               (not= unfinished-fun value-in-var))))))
 
 (def #^:dynamic #^:private *call-action-count* (atom 0))
 
@@ -192,15 +192,11 @@
              "  (def all-even? (partial every? even?))"
              "  ;; ..."
              "  (provided (all-even? ..xs..) => true)")))
-  (if-let [found (find-first (partial call-handled-by-fake? function-var actual-args)
-                             fakes)]
+  (if-let [found (find-first (partial call-handled-by-fake? function-var actual-args) fakes)]
     found
     (let [possible-fakes (filter #(= function-var (:var %)) fakes)]
-      (pred-cond possible-fakes
-        empty?                                     nil
-        (comp not usable-default-function? first)  nil ;; Finding default, any possible fake works
-        :else                                      (:value-at-time-of-faking 
-                                                     (first possible-fakes))))))
+      (when (some usable-default-function? possible-fakes)
+        (:value-at-time-of-faking (first possible-fakes))))))
 
 (defn- ^{:testable true } call-faker
   "This is the function that handles all mocked calls."
