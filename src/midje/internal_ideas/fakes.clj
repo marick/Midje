@@ -198,10 +198,10 @@
              "  (provided (all-even? ..xs..) => true)")))
   (if-let [found (find-first (partial call-handled-by-fake? function-var actual-args) fakes)]
     found
-    (when-let [possible-fakes (find-first #(and (= function-var (:var %)) 
-                                                (usable-default-function? %)) 
-                                         fakes)]
-      (:value-at-time-of-faking possible-fakes))))
+    (when-let [fake-with-usable-default (find-first #(and (= function-var (:var %)) 
+                                                          (usable-default-function? %)) 
+                                                    fakes)]
+      (:value-at-time-of-faking fake-with-usable-default))))
 
 (defn- ^{:testable true } handle-mocked-call [function-var actual-args fakes]
   (macrolet [(counting-nested-calls [& forms]
