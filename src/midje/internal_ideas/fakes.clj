@@ -212,14 +212,14 @@
 
     (let [action (counting-nested-calls (best-call-action function-var actual-args fakes))]
       (pred-cond action
-        nil?          (clojure.test/report {:type :mock-argument-match-failure
-                                            :var function-var
-                                            :actual actual-args
-                                            :position (:position (first fakes))})
         extended-fn?  (apply action actual-args)
-        :else         (do
+        map?          (do
                         (swap! (:call-count-atom action) inc)
-                        ((:result-supplier action )))))))
+                        ((:result-supplier action )))
+        :else (clojure.test/report {:type :mock-argument-match-failure
+                                    :var function-var
+                                    :actual actual-args
+                                    :position (:position (first fakes))})))))
 
 
 ;; Binding map related
