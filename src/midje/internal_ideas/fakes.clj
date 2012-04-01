@@ -77,7 +77,7 @@
   true if the actual value matches it."
   [expected]
   (if (and (extended-fn? expected)
-        (not (checker? expected)))
+           (not (checker? expected)))
     (fn [actual] (extended-= actual (exactly expected)))
     (fn [actual] (extended-= actual expected))))
 
@@ -109,7 +109,7 @@
 
 (letfn [(make-fake-map [call-form arrow rhs var-sym special-to-fake-type user-override-pairs]
           (let [common-to-all-fakes `{:var (var ~var-sym)
-                                      :count-atom (atom 0)
+                                      :call-count-atom (atom 0)
                                       :position (user-file-position)
 
                                       ;; for Midje tool creators:
@@ -139,7 +139,7 @@
     (make-fake-map metaconstant arrow (cons contained overrides)
       metaconstant
       `{:contained ~contained
-        :count-atom (atom 1) ;; CLUDKJE!
+        :call-count-atom (atom 1) ;; CLUDKJE!
         :type :fake
         :data-fake true}
       overrides))
@@ -219,7 +219,7 @@
                                             :position (:position (first fakes))})
         extended-fn?  (apply action actual-args)
         :else         (do
-                        (swap! (:count-atom action) inc)
+                        (swap! (:call-count-atom action) inc)
                         ((:result-supplier action )))))))
 
 
@@ -246,15 +246,14 @@
 (defmacro with-installed-fakes [fakes & forms]
   `(with-altered-roots (binding-map ~fakes) ~@forms))
 
-;;; Checking
 
-(defn fake-count [fake] @(:count-atom fake))
+;;; Checking
 
 (defmulti call-count-incorrect? :type)
 
 (defmethod call-count-incorrect? :fake [fake]
   (let [method (or (:times fake) :default )
-        count (fake-count fake)]
+        count @(:call-count-atom fake)]
     (pred-cond method 
       #(= % :default) (zero? count)
       number?         (not= method count)
@@ -262,12 +261,12 @@
       fn?             (not (method count)))))
 
 (defmethod call-count-incorrect? :not-called [fake]
-  (not (zero? (fake-count fake))))
+  (not (zero? @(:call-count-atom fake))))
 
 (defn check-call-counts [fakes]
   (when-let [failures (seq (for [fake fakes
                                  :when (call-count-incorrect? fake)]
-                              {:actual-count    @(:count-atom fake)
+                              {:actual-count    @(:call-count-atom fake)
                                :expected-count  (:times fake)
                                :expected-call   (:call-text-for-failures fake)
                                :position        (:position fake)

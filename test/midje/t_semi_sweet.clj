@@ -62,7 +62,7 @@
     (fact "The basic parts"
       (:var fake-0) => #'midje.t-semi-sweet/faked-function
       (:call-text-for-failures fake-1) => "(faked-function some-variable)"
-      (deref (:count-atom fake-0)) => 0)
+      (deref (:call-count-atom fake-0)) => 0)
 
     (fact "argument matching"
       (count (:arg-matchers fake-0)) => 0)
@@ -96,7 +96,7 @@
 
     (:var fake-0) => #'midje.t-semi-sweet/faked-function
     (:call-text-for-failures fake-0) => "faked-function was called."
-    @(:count-atom fake-0) => 0
+    @(:call-count-atom fake-0) => 0
     (:arg-matchers fake-0) => nil?
     ((:result-supplier fake-0)) => nil?))
 

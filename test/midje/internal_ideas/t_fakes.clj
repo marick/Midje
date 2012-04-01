@@ -45,7 +45,7 @@ odd?                   3               falsey)
   (let [fake (fake (f 1) => 3)
         result-map (binding-map [fake])]
     ( (result-map #'f) 1) => 3
-    (fake-count fake) => 1))
+    @(:call-count-atom fake) => 1))
 
 (fact "binding maps can also contain Metaconstants to assign"
   (let [data-fakes [(data-fake ...mc... =contains=> {:a 1, :b ...even...})
@@ -59,13 +59,13 @@ odd?                   3               falsey)
         result-map (binding-map fakes)]
 
     ( (result-map #'f) 1) => 3
-    (map fake-count fakes) => [1 0]))
+    (map #(deref (:call-count-atom %)) fakes) => [1 0]))
 
 
 
 
 (tabular (fact "The number of calls can be described"
-           (let [fake-fake {:count-atom (atom ?actual-count),
+           (let [fake-fake {:call-count-atom (atom ?actual-count),
                             :type ?type
                             :times ?specified-count}]
            (call-count-incorrect? fake-fake) => ?expected))
@@ -239,7 +239,8 @@ odd?                   3               falsey)
   (let [fakes [(fake (f 1) => 3)
                (fake (g 1) => 4)
                (fake (f 2) => 5)]
-        counts #(map fake-count fakes)]
+        counts (fn [] 
+                 (map #(deref (:call-count-atom %)) fakes))]
     (call-faker #'f [1] fakes)    (counts) => [1 0 0]
     (call-faker #'f [1] fakes)    (counts) => [2 0 0]
     (call-faker #'f [2] fakes)    (counts) => [2 0 1]
