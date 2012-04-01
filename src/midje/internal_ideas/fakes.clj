@@ -38,7 +38,7 @@
 
 ;;; Potential transformations of the right-hand-side of fakes
 
-(defn on-demand
+(defn- on-demand
   "Produce value of next thunk on each successive call."
   [thunks]
   (let [the-stream (atom thunks)]
@@ -56,8 +56,8 @@
 
 (defmethod updated-rhs (name =streams=>) [arrow rhs]
   (pred-cond rhs
-     vector?            `(repeatedly (on-demand (to-thunks ~rhs)))
-     quoted-list-form?  `(repeatedly (on-demand (to-thunks ~(second rhs))))
+     vector?            `(repeatedly (#'on-demand (to-thunks ~rhs)))
+     quoted-list-form?  `(repeatedly (#'on-demand (to-thunks ~(second rhs))))
      seq                rhs       
     :else               (throw (user-error 
                                  "This form doesn't look like a valid right-hand-side for =streams=>:"

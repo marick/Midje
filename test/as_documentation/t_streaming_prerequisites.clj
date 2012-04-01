@@ -175,3 +175,19 @@
                          (throw (Exception. "shorter"))
                          (throw (Exception. "i am long")) ]))
 
+
+;; Seems like a simpler way to get a similar failure as the above
+
+;; -- is this related to the way Clojure wraps exceptions in Runtime exceptions?
+;; -- I'm not sure under which circumstances said wrapping happens
+
+(defn a [])
+(defn b [] (a) (a) (a))
+
+(future-fact "prerequisites can throw throwables using =streams=>"
+  (b) => (throws Exception "foo")
+  (provided
+    (a) =streams=> [:no-problem
+                    :fine
+                    (throw (Exception. "foo"))
+                    (throw (Exception. "bar"))]))
