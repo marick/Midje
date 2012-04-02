@@ -51,7 +51,7 @@
 
       (and (record? expected)
            (map? actual)
-           (not (= (class expected) (class actual))))
+           (not= (class expected) (class actual)))
       (throw (user-error (str "You expected a " (.getName (class expected))
                            " but the actual value was a "
                            (if (classic-map? actual) "map" (.getName (class actual)))

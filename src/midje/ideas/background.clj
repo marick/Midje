@@ -83,12 +83,12 @@
       is-start-of-checking-arrow-sequence?
       (let [arrow-seq (take-arrow-sequence in-progress)]
         (recur (conj expanded (-> arrow-seq prerequisite-to-fake tag-as-background-fake))
-          (drop (count arrow-seq) in-progress)))
+               (drop (count arrow-seq) in-progress)))
 
       metaconstant-prerequisite?
       (let [arrow-seq (take-arrow-sequence in-progress)]
         (recur (conj expanded (-> arrow-seq prerequisite-to-fake))
-          (drop (count arrow-seq) in-progress)))
+               (drop (count arrow-seq) in-progress)))
 
       seq-headed-by-setup-teardown-form?
       (recur (conj expanded (first in-progress))

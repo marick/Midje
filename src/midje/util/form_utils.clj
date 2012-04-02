@@ -212,8 +212,8 @@ metadata (as provided by def) merged into the metadata of the original."
   "Takes a seq of unevaluated exprs. Returns a seq of no argument fns, 
   that call each of the exprs in turn"
   [exprs]
-  (into [] (for [x exprs]
-             `(fn [] ~x))))
+  (vec (for [x exprs]
+         `(fn [] ~x))))
 
 (defn pop-if
   "Extracts optional arg (that we assume is present if the pred is true) from head of args"
