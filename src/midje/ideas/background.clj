@@ -4,16 +4,16 @@
             prerequisites that pertain to a group of facts."} 
   midje.ideas.background
   (:use [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence? take-arrow-sequence]]
-    [midje.ideas.metaconstants :only [define-metaconstants]]
-    [midje.ideas.prerequisites :only [metaconstant-prerequisite? prerequisite-to-fake]]
-    [midje.internal-ideas.fakes :only [fake? tag-as-background-fake with-installed-fakes]]
-    [midje.internal-ideas.wrapping :only [for-wrapping-target? with-wrapping-target]]
-    [midje.util.form-utils :only [first-named? map-first pred-cond separate-by
-                                  symbol-named? translate-zipper]]
-    [midje.util.laziness :only [eagerly]]
-    [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
-                                               with-pushed-namespace-values]]
-    [utilize.seq :only [separate]])
+        [midje.ideas.metaconstants :only [define-metaconstants]]
+        [midje.ideas.prerequisites :only [metaconstant-prerequisite? prerequisite-to-fake]]
+        [midje.internal-ideas.fakes :only [fake? tag-as-background-fake with-installed-fakes]]
+        [midje.internal-ideas.wrapping :only [for-wrapping-target? with-wrapping-target]]
+        [midje.util.form-utils :only [first-named? map-first pred-cond separate-by
+                                      symbol-named? translate-zipper]]
+        [midje.util.laziness :only [eagerly]]
+        [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
+                                                   with-pushed-namespace-values]]
+        [utilize.seq :only [separate]])
   (:require [clojure.zip :as zip] 
             [midje.util.unify :as unify]))
 
@@ -92,7 +92,7 @@
 
       seq-headed-by-setup-teardown-form?
       (recur (conj expanded (first in-progress))
-        (rest in-progress)))))
+             (rest in-progress)))))
 
 (defn- ^{:testable true } state-wrapper [[_before-after-or-around_ wrapping-target & _  :as state-description]]
   (with-wrapping-target
@@ -127,4 +127,4 @@
 
 (defn surround-with-background-fakes [forms]
   `(with-installed-fakes (background-fakes)
-     (do ~@forms)))
+     ~@forms))

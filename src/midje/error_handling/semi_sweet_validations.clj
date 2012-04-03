@@ -2,12 +2,11 @@
 
 (ns ^{:doc "Validation methods confirming the proper syntax of semi-sweet macros."}
   midje.error-handling.semi-sweet-validations
-  (:use 
-    [clojure.pprint :only [cl-format]]
-    [midje.error-handling.validation-errors :only [validation-error-report-form validate]]
-    [midje.util.namespace :only [matches-symbols-in-semi-sweet-or-sweet-ns?]]
-    [midje.ideas.metaconstants :only [metaconstant-symbol?]]
-    [midje.ideas.arrow-symbols :only [=contains=>]]))
+  (:use [clojure.pprint :only [cl-format]]
+        [midje.error-handling.validation-errors :only [validation-error-report-form validate]]
+        [midje.util.namespace :only [matches-symbols-in-semi-sweet-or-sweet-ns?]]
+        [midje.ideas.metaconstants :only [metaconstant-symbol?]]
+        [midje.ideas.arrow-symbols :only [=contains=>]]))
 
 (letfn [(compiler-will-inline-fn? [fn]
           (contains? (meta (resolve fn)) :inline ))]

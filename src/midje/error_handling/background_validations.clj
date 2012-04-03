@@ -2,15 +2,14 @@
 
 (ns ^{:doc "Validation methods confirming the proper syntax of (against-)background macros."}
   midje.error-handling.background-validations
-  (:use
-    [clojure.pprint :only [cl-format]]
-    [midje.error-handling.validation-errors :only [simple-validation-error-report-form 
-                                                   validation-error-report-form validate when-valid]]
-    [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence? take-arrow-sequence]]
-    [midje.ideas.background :only [seq-headed-by-setup-teardown-form?]]
-    [midje.ideas.prerequisites :only [metaconstant-prerequisite?]]
-    [midje.util.form-utils :only [def-many-methods named? pred-cond]]
-    [midje.util.backwards-compatible-utils :only [some-fn-m]]))
+  (:use [clojure.pprint :only [cl-format]]
+        [midje.error-handling.validation-errors :only [simple-validation-error-report-form 
+                                                       validation-error-report-form validate when-valid]]
+        [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence? take-arrow-sequence]]
+        [midje.ideas.background :only [seq-headed-by-setup-teardown-form?]]
+        [midje.ideas.prerequisites :only [metaconstant-prerequisite?]]
+        [midje.util.form-utils :only [def-many-methods named? pred-cond]]
+        [midje.util.backwards-compatible-utils :only [some-fn-m]]))
 
 (def #^:private possible-wrapping-targets   #{:facts, :contents, :checks })
 (def #^:private possible-state-descriptions #{"before" "after" "around"})

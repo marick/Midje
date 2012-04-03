@@ -1,10 +1,10 @@
 ;; -*- indent-tabs-mode: nil -*-
 
 (ns midje.util.t-namespace
-  (:use [midje.util.namespace])
-  (:use midje.sweet)
-  (:require [clojure.zip :as zip])
-  (:use midje.test-util))
+  (:use midje.util.namespace
+        midje.sweet
+        midje.test-util)
+  (:require [clojure.zip :as zip]))
 
 (fact "matches-symbols-in-semi-sweet-or-sweet-ns? accepts symbols from different midje namespaces"
   (let [values (zip/seq-zip '(m midje.semi-sweet/expect))

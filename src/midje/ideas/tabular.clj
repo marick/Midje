@@ -2,20 +2,19 @@
 
 (ns ^{:doc "A way to create multiple facts with the same template, but different data points."}
   midje.ideas.tabular
-  (:use 
-    [clojure.string :only [join]]
-    [clojure.algo.monads :only [domonad]]
-    [midje.error-handling.validation-errors :only [simple-validation-error-report-form syntax-validate-m validate]]
-    [midje.internal-ideas.fact-context :only [within-fact-context]]
-    [midje.internal-ideas.file-position :only [form-with-copied-line-numbers
-                                               form-position]] ; for deprecation
-    [midje.internal-ideas.report :only [midje-position-string]] ; for deprecation
-    [midje.util.form-utils :only [pop-docstring translate-zipper]]
-    [midje.util.zip :only [skip-to-rightmost-leaf]]
-    [midje.internal-ideas.expect :only [expect?]]
-    [midje.ideas.arrows :only [above-arrow-sequence__add-key-value__at-arrow]]
-    [midje.ideas.metaconstants :only [metaconstant-symbol?]]
-    [utilize.map :only [ordered-zipmap]])
+  (:use [clojure.string :only [join]]
+        [clojure.algo.monads :only [domonad]]
+        [midje.error-handling.validation-errors :only [simple-validation-error-report-form syntax-validate-m validate]]
+        [midje.internal-ideas.fact-context :only [within-fact-context]]
+        [midje.internal-ideas.file-position :only [form-with-copied-line-numbers
+                                                   form-position]] ; for deprecation
+        [midje.internal-ideas.report :only [midje-position-string]] ; for deprecation
+        [midje.util.form-utils :only [pop-docstring translate-zipper]]
+        [midje.util.zip :only [skip-to-rightmost-leaf]]
+        [midje.internal-ideas.expect :only [expect?]]
+        [midje.ideas.arrows :only [above-arrow-sequence__add-key-value__at-arrow]]
+        [midje.ideas.metaconstants :only [metaconstant-symbol?]]
+        [utilize.map :only [ordered-zipmap]])
 (:require [midje.util.unify :as unify]))
 
 (def #^:private deprecation-hack:file-position (atom ""))

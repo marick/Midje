@@ -3,12 +3,11 @@
 (ns ^{:doc "midje.background uses these to wrap extra code around 
             :contents, :facts, or :expects"}
   midje.internal-ideas.wrapping
-  (:use
-    [midje.util.form-utils :only [first-named?]]
-    [utilize.seq :only [separate]]
-    [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
-                                               set-namespace-value
-                                               with-pushed-namespace-values]])
+  (:use [midje.util.form-utils :only [first-named?]]
+        [utilize.seq :only [separate]]
+        [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
+                                                   set-namespace-value
+                                                   with-pushed-namespace-values]])
   (:require [clojure.zip :as zip] 
   	        [midje.util.unify :as unify]))
 
@@ -34,7 +33,8 @@
   (vary-meta what assoc :midje/wrapping-target target))
 
 (defn for-wrapping-target? [target]
-  (fn [actual] (= target (:midje/wrapping-target (meta actual)))))
+  (fn [actual] 
+    (= target (:midje/wrapping-target (meta actual)))))
 
 (defmacro with-additional-wrappers [final-wrappers form]
   `(with-pushed-namespace-values :midje/wrappers ~final-wrappers
