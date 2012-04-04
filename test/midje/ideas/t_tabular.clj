@@ -99,8 +99,8 @@
    (let [s "string"]
      (validate '?forms []) => '?expected))
    ?forms                               ?expected
-   (tabular fact ?a ?b 1 1)              [nil fact [?a ?b 1 1]]
-   (tabular "string" fact ?a ?b 1 1)    ["string" fact [?a ?b 1 1]] )
+   (tabular fact ?a ?b 1 1)             [nil fact [?a ?b] [1 1]]
+   (tabular "string" fact ?a ?b 1 1)    ["string" fact [?a ?b] [1 1]] )
 
 
 (each-causes-validation-error #"There's no table\. \(Misparenthesized form\?\)"
@@ -216,16 +216,8 @@
 ;; Util: table-binding-maps
  
 (fact "gets the bindings off fact table"
-  (table-binding-maps (list '?a  '?b '?result
-                              1   2   3), [])
-    => [ (ordered-map '?a 1, '?b 2, '?result 3) ])
- 
-(fact "won't count as table variables any specified local symbols"
-  (table-binding-maps (list '?a  
-                            '?result ; it thinks of '?result as just any old symbol
-                             1   
-                             3), ['?result])
-    => [ (ordered-map '?a '?result) (ordered-map '?a 1) (ordered-map '?a 3) ])
+  (table-binding-maps ['?a  '?b '?result] [1 2 3])
+  => [ (ordered-map '?a 1, '?b 2, '?result 3) ])
 
 (tabular (fact ?comment
            (let [line-no-free-original ?original

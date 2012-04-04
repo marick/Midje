@@ -12,14 +12,18 @@
     (validate correct) => '[(f 1) => 3]))
 
 (facts "fake validation returns whole fake form"
-  (let [correct '(fake (f 1) => 3)]
-    (validate correct) =not=> validation-error-form?
-    (validate correct) => correct))
+  (let [valid-fake '(fake (f 1) => 3)]
+    (validate valid-fake) =not=> validation-error-form?
+    (validate valid-fake) => valid-fake
+    (validate (list valid-fake valid-fake valid-fake)) 
+           => (list valid-fake valid-fake valid-fake)))
 
 (facts "data fake validation returns whole data-fake form"
-  (let [correct '(data-fake ..mc.. =contains=> {:foo 'bar})]
-    (validate correct) =not=> validation-error-form?
-    (validate correct) => correct))
+  (let [valid-data-fake '(data-fake ..mc.. =contains=> {:foo 'bar})]
+    (validate valid-data-fake) =not=> validation-error-form?
+    (validate valid-data-fake) => valid-data-fake
+    (validate (list valid-data-fake valid-data-fake valid-data-fake)) 
+           => (list valid-data-fake valid-data-fake valid-data-fake)))
 
 ; Duplication of validate is because of bug in against-background.
 (facts "errors are so tagged and contain file position"

@@ -39,9 +39,8 @@
               (not ((set locals) s))))] 
     (split-with table-variable? (remove-pipes+where table))))
 
-(defn- ^{:testable true } table-binding-maps [table locals]
-  (let [[headings-row values] (headings-rows+values table locals)
-        value-rows (partition (count headings-row) values)]
+(defn- ^{:testable true } table-binding-maps [headings-row values]
+  (let [value-rows (partition (count headings-row) values)]
     (map (partial ordered-zipmap headings-row) value-rows)))
 
 (defn- format-binding-map [binding-map] 
@@ -63,10 +62,10 @@
               (partial form-with-copied-line-numbers fact-form)
               (partial unify/substitute fact-form)))]
 
-    (domonad syntax-validate-m [[description? fact-form table] (validate form locals)
+    (domonad syntax-validate-m [[description? fact-form headings-row values] (validate form locals)
                                 _ (swap! deprecation-hack:file-position
                                          (constantly (midje-position-string (form-position fact-form))))
-                                ordered-binding-maps (table-binding-maps table locals)
+                                ordered-binding-maps (table-binding-maps headings-row values)
                                 expect-forms (map (macroexpander-for fact-form) ordered-binding-maps)
                                 expect-forms-with-binding-notes (map add-binding-note
                                                                      expect-forms
@@ -91,4 +90,4 @@
             "tried to use a non-literal string for the doc-string?:")
       
           :else 
-          [description? fact-form table])))
+          [description? fact-form headings-row values])))
