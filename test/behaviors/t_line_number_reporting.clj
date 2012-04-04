@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns behaviors.t-line-number-reporting
   (:use [midje.sweet])
   (:use [clojure.test])
@@ -8,7 +6,7 @@
 
 (defn f [n] n)
 
-(def position-1 11)
+(def position-1 9)
 
 (after-silently 
  (fact (+ 1 1) => 3)
@@ -39,7 +37,7 @@
 		   :position ["t_line_number_reporting.clj" (+ position-1 21)]}))))
 
 (defn g [n] n)
-(def position-2 42)
+(def position-2 40)
 
 (after-silently 
  (fact (g 1) => 1
@@ -76,7 +74,7 @@
         (name (favorite-animal)) => "betsy"))
    (fact @reported => (just pass)))
 
-  (def line-number 79)
+  (def line-number 77)
   (after-silently
    (fact
      (favorite-animal-empty) => "betsy"
@@ -92,7 +90,7 @@
                           (contains {:type :mock-expected-result-failure
 				                             :position ["t_line_number_reporting.clj" (+ line-number 3)]})])))
 
-  (def line-number 95)
+  (def line-number 93)
   (after-silently
    (fact
      (favorite-animal-only-animal) => "betsy"
@@ -104,7 +102,7 @@
 			                     (contains {:type :mock-expected-result-failure
 			                    	          :position ["t_line_number_reporting.clj" (+ line-number 3)]})])))
 
-  (def line-number 107)
+  (def line-number 105)
   (after-silently
    (fact
      (favorite-animal-only-name) => "betsy"
@@ -124,7 +122,7 @@
 				     :position ["t_line_number_reporting.clj" (+ line-number 3)]})])))
 
 
-  (def line-number 127)
+  (def line-number 125)
   (after-silently
    (fact
      (favorite-animal-one-call) => "betsy"
@@ -140,7 +138,7 @@
                          pass]))))
 
 
-  (def line-number-separate 143)
+  (def line-number-separate 141)
 (unfinished outermost middlemost innermost)
 (in-separate-namespace
 (background (outermost) => 2)
@@ -160,18 +158,18 @@
 ;; future facts
 (after-silently
  (future-fact "text")
- (fact @reported => (just (contains {:position '("t_line_number_reporting.clj" 162)
+ (fact @reported => (just (contains {:position '("t_line_number_reporting.clj" 160)
 			                               :description ["text"] }))))
 
 (after-silently
  (pending-fact (+ 1 1) => 2)
- (fact @reported => (just (contains {:position '("t_line_number_reporting.clj" 167)
+ (fact @reported => (just (contains {:position '("t_line_number_reporting.clj" 165)
 		                               	:description [nil] }))))
 
 
 ;; Improved error handling for pathological cases
 
-(def line-number-pathological 174)
+(def line-number-pathological 172)
 ;; statements without lists guess 1+ most recent"
 (after-silently
  (fact 
@@ -200,7 +198,7 @@
                                                  (+ line-number-pathological 23)]})])))
 
 
-(def facts-position 203)
+(def facts-position 201)
 (after-silently
  (facts "... also use fallback line number"
    1 => even?  
@@ -220,7 +218,7 @@
 
 ;; Line number reporting for variant expect arrows
 
-(def variant-position 223)
+(def variant-position 221)
 (after-silently 
  (fact
    (+ 1 1) =deny=> 2
@@ -234,7 +232,7 @@
                                                 (+ variant-position 5)]}))))
 
 
-(def tabular-position 237)
+(def tabular-position 235)
 (after-silently
  (tabular
   (fact (inc ?n) => ?n)

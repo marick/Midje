@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns behaviors.t-background-production-mode
   (:use [midje.sweet])
   (:use clojure.pprint))

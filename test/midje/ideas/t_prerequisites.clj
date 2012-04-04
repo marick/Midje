@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns midje.ideas.t-prerequisites
   (:use midje.ideas.prerequisites
         [midje.internal-ideas.expect :only [expect?]]

@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns midje.internal-ideas.t-unfinished
   (:use [midje sweet test-util]))
 

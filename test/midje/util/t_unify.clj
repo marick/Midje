@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns midje.util.t-unify
   (:use midje.util.unify
         midje.sweet

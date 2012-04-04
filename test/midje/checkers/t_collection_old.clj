@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns midje.checkers.t-collection-old
   (:use [midje sweet test-util]
         [midje.checkers.chatty :only [chatty-falsehood-to-map

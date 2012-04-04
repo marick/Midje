@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns ^{:doc "A way to create multiple facts with the same template, but different data points."}
   midje.ideas.tabular
   (:use [clojure.string :only [join]]

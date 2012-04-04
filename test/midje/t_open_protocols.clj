@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns midje.t-open-protocols
   (:use midje.open-protocols)
   (:use [midje sweet test-util]))

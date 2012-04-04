@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns ^{:doc "Macros for using protocols in prerequisites.
 
   The strategy for open protocols is to rewrite each function defined in the

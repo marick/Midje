@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns midje.ideas.t-background
   (:require [clojure.zip :as zip])
   (:use [midje sweet test-util]

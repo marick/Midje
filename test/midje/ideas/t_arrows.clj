@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns midje.ideas.t-arrows
   (:use midje.ideas.arrows)
   (:use [midje sweet test-util])

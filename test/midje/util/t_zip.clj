@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns midje.util.t-zip
   (:use [midje.util.zip]
 	midje.sweet

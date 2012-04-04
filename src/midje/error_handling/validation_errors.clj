@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns ^{:doc "Code for identifying invalid Midje syntax. Includes control 
             flow macros, validation error creation, etc."}
   midje.error-handling.validation-errors

@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns ^{:doc "Unification is used in tabular and (against-)background code."}
   midje.util.unify
   (:use [clojure.walk :only [prewalk]])

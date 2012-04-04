@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns ^{:doc "Functions having to do with looking at an object at runtime."}
   midje.util.object-utils)
 

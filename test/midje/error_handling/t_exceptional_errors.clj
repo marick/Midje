@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns midje.error-handling.t-exceptional-errors
   (:use [midje sweet test-util]))
 

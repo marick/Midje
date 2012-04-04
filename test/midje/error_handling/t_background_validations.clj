@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns midje.error-handling.t_background_validations
   (:require [clojure.zip :as zip])
   (:use [midje sweet test-util]

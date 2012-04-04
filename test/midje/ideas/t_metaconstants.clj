@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns midje.ideas.t-metaconstants
   (:use midje.ideas.metaconstants
         [midje sweet test-util]

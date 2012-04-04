@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns midje.t-semi-sweet
   (:use [clojure.test]  ;; This is used to check production mode with deftest.
         [midje.sweet]

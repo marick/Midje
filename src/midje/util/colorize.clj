@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns ^{:doc "Functions dealing with making various forms of 
             Midje output be ergonomically colorful."}
   midje.util.colorize

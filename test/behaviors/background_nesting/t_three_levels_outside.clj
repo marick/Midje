@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns behaviors.background-nesting.t-three-levels-outside
   (:use clojure.test)
   (:use [midje.sweet])

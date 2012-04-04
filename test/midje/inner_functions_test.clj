@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns midje.inner-functions-test
   (:use clojure.test)
   (:use [midje.semi-sweet])

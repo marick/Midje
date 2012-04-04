@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns ^{:doc "The semi-sweet representation of provided forms."}
   midje.internal-ideas.fakes
   (:use [utilize.seq :only (separate find-first)]

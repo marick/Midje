@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns ^{:doc "Functions to help in finding the lines you care about."}
   midje.internal-ideas.file-position
   (:use [midje.util.zip :only [skip-to-rightmost-leaf]]

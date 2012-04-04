@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns ^{:doc "A TDD library for Clojure that supports top-down ('mockish') TDD, 
             encourages readable tests, provides a smooth migration path from 
             clojure.test, balances abstraction and concreteness, and strives for 

@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns ^{:doc "To evaluate a fact it needs to be eagerly evaluated."}
   midje.util.laziness
   (:use [midje.util.form-utils :only [pred-cond]]

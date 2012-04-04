@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns midje.internal-ideas.t-file-position
   (:use [midje.internal-ideas.file-position]
         [midje sweet test-util]
@@ -18,7 +16,7 @@
 ;; came before sweet-mode and its use of the alternate method of determining file position.
 ;; That alternate could be back-ported to (fake) and (expect) -- it's less accurate, though.
 
-(def line-marker-1 21)
+(def line-marker-1 19)
 (let [position (user-file-position)]
   (fact "you can capture the filename/linenumber of a code line"
     position => (this-file (+ line-marker-1 1))))

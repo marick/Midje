@@ -1,4 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
 (ns ^{:doc "Renders the various reported fact evaluation results."}
   midje.internal-ideas.report
   (:use clojure.test

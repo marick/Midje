@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns midje.internal-ideas.t-expect
   (:use [midje.internal-ideas.expect]
         [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence?]]

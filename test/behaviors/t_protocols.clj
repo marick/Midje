@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns behaviors.t-protocols
   (:use [midje sweet test-util]
         [midje.open-protocols]

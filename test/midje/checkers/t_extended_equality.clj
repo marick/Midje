@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns midje.checkers.t-extended-equality
   (:use midje.sweet
         midje.checkers.extended-equality

@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns midje.internal-ideas.t-report
   (:use [midje.internal-ideas.report :only [midje-position-string]]
         [midje.error-handling.exceptions :only [captured-throwable]]

@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns ^{:doc "Checkers are for checking results of expectations, or checking 
             that appropriate arguments are passed to prerequisites"} 
   midje.checkers

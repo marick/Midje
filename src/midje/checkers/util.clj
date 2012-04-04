@@ -1,4 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
 (ns midje.checkers.util
   (:use [midje.util.form-utils :only [classic-map?]]
         [midje.util.object-utils :only [name-object]]))

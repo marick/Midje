@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 ;; Note: checkers need to be exported in ../checkers.clj
 
 (ns ^{:doc "Checkers for collections and strings."}

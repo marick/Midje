@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns ^{:doc "Validation methods confirming the proper syntax of semi-sweet macros."}
   midje.error-handling.semi-sweet-validations
   (:use [clojure.pprint :only [cl-format]]

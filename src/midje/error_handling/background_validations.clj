@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns ^{:doc "Validation methods confirming the proper syntax of (against-)background macros."}
   midje.error-handling.background-validations
   (:use [clojure.pprint :only [cl-format]]

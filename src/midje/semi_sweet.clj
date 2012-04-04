@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 ;;; This namespace is mainly responsible for converting particular macros
 ;;; into the arguments used by midje.unprocessed's `expect*`.
 

@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns behaviors.t-setup-teardown
   (:use [midje.sweet])
   (:use [midje.test-util])

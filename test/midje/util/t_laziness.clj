@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns midje.util.t-laziness
   (:use [midje.sweet]
         [midje.util laziness thread-safe-var-nesting]

@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns ^{:doc "Various ways to define checkers."}
   midje.checkers.defining
   (:use [midje.util.form-utils :only [pop-docstring pop-opts-map]]))

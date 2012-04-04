@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns midje.checkers.t-defining
   (:use midje.sweet
         [midje.checkers.defining :only [checker?]]

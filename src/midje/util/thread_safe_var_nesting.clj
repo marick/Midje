@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns ^{:doc "Code used to swap out vars for faking prerequisites."}
   midje.util.thread-safe-var-nesting)
 

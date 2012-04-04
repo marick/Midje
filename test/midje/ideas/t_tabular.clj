@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns midje.ideas.t-tabular
   (:use [midje.ideas.tabular :except [add-binding-note table-binding-maps]]
         [midje.ideas.metaconstants :only [metaconstant-symbol?]]

@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns ^{:doc "midje.background uses these to wrap extra code around 
             :contents, :facts, or :expects"}
   midje.internal-ideas.wrapping

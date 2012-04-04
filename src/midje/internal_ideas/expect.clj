@@ -1,4 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
 (ns ^{:doc "Mostly functions for identifying semi-sweet expects, and for converting 
             midje.sweet arrow forms into semi-sweet expcet forms."}
   midje.internal-ideas.expect

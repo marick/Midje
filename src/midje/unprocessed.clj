@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns ^{:doc "Core Midje functions that process expects and report on their results."} 
   midje.unprocessed 
   (:use clojure.test

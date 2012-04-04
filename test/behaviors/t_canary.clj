@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 ;;; Not wildly important, these tests are older descriptions of
 ;;; bugs. They've been fixed, and more specific tests have been
 ;;; written, but no harm in keeping them around. Delete if they start

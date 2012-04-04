@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns midje.test-util
   (:use [clojure.test]
         midje.checkers

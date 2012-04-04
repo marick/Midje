@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns ^{:doc "Utility functions dealing with checking or tranforming forms."}
   midje.util.form-utils
   (:use [midje.util.treelike :only [tree-variant]]

@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns ^{:doc "`=` extended for regular expressions, functions, etc."}
   midje.checkers.extended-equality
   (:use [clojure.core.match :only [match]]

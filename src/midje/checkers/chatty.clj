@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns ^{:doc "Checkers that explain more about a failure."}
   midje.checkers.chatty
   (:use [midje.checkers.util :only [named-as-call]]

@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns behaviors.t-protocols-support
   (:use midje.open-protocols))
 

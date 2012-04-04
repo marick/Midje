@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns ^{:doc "Functions grabbed from newer versions of Clojure, 
             so we can maintain backwards compatibility."}
   midje.util.backwards-compatible-utils)

@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns leiningen.timings
   (:refer-clojure :exclude [test])
   (:use [leiningen.util.ns :only [namespaces-in-dir]]

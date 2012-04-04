@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 ;; Note: checkers need to be exported in ../checkers.clj
 
 (ns ^{:doc "Code to use to compare collections."}

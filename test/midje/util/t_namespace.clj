@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns midje.util.t-namespace
   (:use midje.util.namespace
         midje.sweet

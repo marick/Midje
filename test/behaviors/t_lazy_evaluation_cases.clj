@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns behaviors.t-lazy-evaluation-cases
   (:use [midje.sweet]
         [midje.util laziness thread-safe-var-nesting]

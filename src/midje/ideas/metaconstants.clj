@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns ^{:doc "A notation that avoids confusion between what’s essential 
             about data and what’s accidental. A stand in for constant data."}
   midje.ideas.metaconstants

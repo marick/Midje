@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns ^{:doc "Functions for printing indented output for use in debugging."}
   midje.util.debugging
   (:use [utilize.string :only (but-last-str)]))

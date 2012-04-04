@@ -1,5 +1,3 @@
-;; -*- indent-tabs-mode: nil -*-
-
 (ns ^{:doc "Environmental factors."}
   midje.util.ecosystem)
 
