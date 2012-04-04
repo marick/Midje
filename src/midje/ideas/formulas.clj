@@ -1,7 +1,7 @@
 (ns ^{:doc "EXPERIMENTAL, thus subject to change. Midje's special blend of generative-style testing."}
   midje.ideas.formulas
   (:use [midje.util.form-utils :only [first-named? named? pop-docstring pop-opts-map]]
-        [midje.error-handling.validation-errors :only [simple-validation-error-report-form syntax-validate-m validate]]
+        [midje.error-handling.validation-errors :only [simple-validation-error-report-form validate-m validate]]
         [midje.ideas.prerequisites :only [is-head-of-form-providing-prerequisites?]]
         [midje.ideas.arrows :only [leaf-expect-arrows leaves-contain-arrow?]]
         [midje.ideas.facts :only [future-prefixes]]
@@ -62,11 +62,11 @@
   how many facts are generated per formula."
   {:arglists '([docstring? opts-map? bindings & body])}
   [& args]
-  (domonad syntax-validate-m [[docstring? opts-map bindings body] (validate &form)
-                              fact (formula-fact docstring? body)
-                              conclusion-signal `(midje.sweet/fact
-                                                   :ignored midje.sweet/=> :ignored 
-                                                   :formula :formula-conclude )]
+  (domonad validate-m [[docstring? opts-map bindings body] (validate &form)
+                       fact (formula-fact docstring? body)
+                       conclusion-signal `(midje.sweet/fact
+                                             :ignored midje.sweet/=> :ignored 
+                                             :formula :formula-conclude )]
 
     `(try
        (loop [num-trials-left# (or (:num-trials ~opts-map) midje.ideas.formulas/*num-trials*)]

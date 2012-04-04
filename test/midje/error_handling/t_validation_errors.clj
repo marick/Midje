@@ -8,19 +8,19 @@
 (expose-testables midje.error-handling.validation-errors)
 
 (fact "any form can be turned into a validation-error form"
-  (meta (as-validation-error '(form))) => (contains {:midje/syntax-validation-error true})
+  (meta (as-validation-error '(form))) => (contains {:midje/validation-error true})
   (as-validation-error '(form)) => validation-error-form?)
 
 (def my-valid-form '(expect 1 => 1))
 (def my-favorite-error-form (as-validation-error '(error form)))
 
 (fact "there is a validation monad for Midje"
-  (domonad syntax-validate-m
+  (domonad validate-m
            [a 1
             b (inc a)]
          b) => 2
 
-  (let [result (domonad syntax-validate-m
+  (let [result (domonad validate-m
                         [a my-favorite-error-form
                          b (inc a)]
                         b)]

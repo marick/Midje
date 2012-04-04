@@ -158,9 +158,9 @@
   {:arglists '([call-form arrow expected-result & fakes+overrides])}
   [& _]
   (when (user-desires-checking?)
-    (domonad syntax-validate-m [[call-form arrow expected-result & fakes+overrides] (validate &form)
-                                [fakes overrides] (separate-by a-fake? fakes+overrides)
-                                _ (validate fakes)]
+    (domonad validate-m [[call-form arrow expected-result & fakes+overrides] (validate &form)
+                         [fakes overrides] (separate-by a-fake? fakes+overrides)
+                         _ (validate fakes)]
       (expect-expansion call-form arrow expected-result fakes overrides))))
 
 (def ^{:dynamic true

@@ -77,7 +77,7 @@
   metaconstants, checkers, arrows and specifying call counts"
   [& forms]
   (when (user-desires-checking?)
-    (domonad syntax-validate-m [[description forms] (validate &form)]
+    (domonad validate-m [[description forms] (validate &form)]
       (try
         (set-fallback-line-number-from &form)
         (let [[background remainder] (background/separate-background-forms forms)]
