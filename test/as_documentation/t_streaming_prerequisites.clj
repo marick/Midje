@@ -92,7 +92,7 @@
 
 
 
-;;; Things that go without saying (though not without testing)
+;;; Things that go without saying (though not without testing)
 
 ;; The use of :times with a stream applies also to explicitly-named
 ;; stream values:

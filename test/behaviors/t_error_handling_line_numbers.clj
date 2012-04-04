@@ -22,7 +22,7 @@
  (fake ...movie... => 3)
  (fact @reported => (just (this-file 22))))
 
-;; Different kinds of errors in facts.
+;; Different kinds of errors in facts.
 
 (after-silently 
  (fact (f) =>)

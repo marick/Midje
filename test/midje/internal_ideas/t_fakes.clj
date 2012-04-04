@@ -257,7 +257,7 @@ odd?                   3               falsey)
     (:value-at-time-of-faking (fake (rebound) => 3)) => 88))
 
 
-;; Folded fakes
+;; Folded fakes
 
 (defmacro some-macro [& rest] )
 

@@ -70,7 +70,7 @@
 
 
 
-;; wrapping
+;; wrapping
 
 (fact "human-friendly background forms can be canonicalized appropriately"
   "fakes"

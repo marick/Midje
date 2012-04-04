@@ -5,7 +5,7 @@
         midje.sweet midje.test-util)
   (:require [clojure.zip :as zip]))
 
-;; Translating sweet forms into their semi-sweet equivalent
+;; Translating sweet forms into their semi-sweet equivalent
 
 
 (fact "translating entire fact forms"

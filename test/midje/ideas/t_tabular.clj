@@ -213,7 +213,7 @@
 
 
 
-;; Util: table-binding-maps
+;; Util: table-binding-maps
  
 (fact "gets the bindings off fact table"
   (table-binding-maps ['?a  '?b '?result] [1 2 3])

@@ -1,7 +1,7 @@
 (ns compound.two-finder
   (use midje.sweet))
 
-;;Source
+;;Source
 
 (def count-atom (atom 0))
 
@@ -24,7 +24,7 @@
     filtered))
 
 
-;;Simple function - easy, but not recommended
+;;Simple function - easy, but not recommended
 
 (defn finds [expected]
   (fn [actual]
@@ -45,7 +45,7 @@
 ;;   At first glance, the above surely looks as if it should succeed.
 
 
-;; Chatty checkers
+;; Chatty checkers
 
 ;; Easy to create by changing the 'fn' to chatty-checker:
 
@@ -77,7 +77,7 @@
 
 
 
-;;A macro containing expects
+;;A macro containing expects
 
 ;; #'fact is a macro that expands out into a "semi-sweet" macro named
 ;; #'expect. You can use #'expect directly:
@@ -111,7 +111,7 @@
 ;; * Harder to remember how to make it.
 
 
-;; One final stylistic point
+;; One final stylistic point
 
 ;; The various versions of #'finds say nothing to the reader about the
 ;; count, so this is probably preferable:
