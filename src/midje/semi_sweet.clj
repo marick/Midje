@@ -11,13 +11,14 @@
         midje.internal-ideas.file-position
         [midje.internal-ideas.fact-context :only [nested-descriptions within-fact-context]]
         [midje.util debugging form-utils namespace]
-        [midje.error-handling validation-errors semi-sweet-validations]
+        midje.error-handling.validation-errors
+        midje.error-handling.semi-sweet-validations
         [midje.error-handling.exceptions :only [user-error]]
         [midje.util.namespace :only [is-semi-sweet-keyword?]]
         [midje.util.ecosystem :only [line-separator]]
-        [midje.production-mode]
+        midje.production-mode
         [clojure.algo.monads :only [domonad]]
-        [clojure.pprint]
+        clojure.pprint
         [clojure.string :only [join]]))
 (immigrate 'midje.unprocessed)
 (immigrate 'midje.ideas.arrow-symbols)
@@ -160,9 +161,9 @@
   [& _]
   (when (user-desires-checking?)
     (domonad syntax-validate-m [[call-form arrow expected-result & fakes+overrides] (validate &form)
-                                [fakes overrides] (separate-by a-fake? fakes+overrides)]
-      (when-valid fakes
-        (expect-expansion call-form arrow expected-result fakes overrides)))))
+                                [fakes overrides] (separate-by a-fake? fakes+overrides)
+                                _ (validate fakes)]
+      (expect-expansion call-form arrow expected-result fakes overrides))))
 
 (def ^{:dynamic true
        :doc (str "For Midje tool creators. Hooks into Midje's internal compiler results.
