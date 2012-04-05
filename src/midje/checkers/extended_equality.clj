@@ -22,7 +22,7 @@
         [(a :when regex?)  (e :when regex?)]       (= (str actual) (str expected))
         [_                 (e :when regex?)]       (re-find expected actual)
         [(a :when record?) (e :when classic-map?)] (= (into {} actual) expected)
-        [_ _]                                      (= actual expected))
+        :else                                      (= actual expected))
       (catch Throwable ex false))))
 
 (defn extended-list-=

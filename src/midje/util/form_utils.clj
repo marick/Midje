@@ -1,31 +1,22 @@
 (ns ^{:doc "Utility functions dealing with checking or tranforming forms."}
   midje.util.form-utils
   (:use [midje.util.treelike :only [tree-variant]]
+        [clojure.core.match :only [match]]
         [clojure.set :only [difference]]
         [utilize.seq :only (first-truthy-fn)])
   (:require [clojure.zip :as zip]))
 
-(defn unique-argument-name []
-  (gensym 'symbol-for-destructured-arg))
 
-(defn single-arg-into-form-and-name [arg-form]
-  (cond (vector? arg-form)
-        (if (= :as (second (reverse arg-form)))  ; use existing as
-          [ arg-form (last arg-form)]
-          (let [as-symbol (unique-argument-name)]
-            [ (-> arg-form (conj :as) (conj as-symbol))
-              as-symbol]))
-    
-        (map? arg-form)
-        (if (contains? arg-form :as)
-          [ arg-form (:as arg-form)]
-          (let [as-symbol (unique-argument-name)]
-            [ (assoc arg-form :as as-symbol)
-              as-symbol]))        
-       
-        :else 
-        [arg-form arg-form]))
-
+(defn single-destructuring-arg->form+name [arg-form]
+  (let [as-symbol          (gensym 'symbol-for-destructured-arg)
+        snd-to-last-is-as? #(= :as (second (reverse %)))
+        has-key-as?        #(contains? % :as)]   
+    (match [arg-form]
+      [(v :when [vector? snd-to-last-is-as?])]  [v (last v)]
+      [(v :when [vector?])]                     [(-> v (conj :as) (conj as-symbol)) as-symbol]
+      [(m :when [map? has-key-as?])]            [m (:as m)]
+      [(m :when [map?])]                        [(assoc m :as as-symbol) as-symbol]
+      :else                                     [arg-form arg-form] )))
 
 (defn regex? [x]
   (= (class x) java.util.regex.Pattern))

@@ -2,7 +2,7 @@
   midje.checkers.chatty
   (:use [midje.checkers.util :only [named-as-call]]
         [midje.checkers.defining :only [as-checker]]
-        [midje.util.form-utils :only [pairs quoted? single-arg-into-form-and-name]]))
+        [midje.util.form-utils :only [pairs quoted? single-destructuring-arg->form+name]]))
 
 ;; Note: checkers need to be exported in ../checkers.clj
 
@@ -53,12 +53,12 @@
   [ [actual-arg] [f & args] ]
   (let [result-symbol (gensym "chatty-intermediate-results-")
         [complex-forms substituted-args] (chatty-untease result-symbol args)
-        [arg-form arg-name] (single-arg-into-form-and-name actual-arg)]
+        [arg-form arg-name] (single-destructuring-arg->form+name actual-arg)]
     `(as-chatty-checker
       (fn [~arg-form]
-        (let [~result-symbol (vector ~@complex-forms)]
+        (let [~result-symbol (vec ~complex-forms)]
           (if (chattily-false? (~f ~@substituted-args))
             (let [pairs# (pairs '~complex-forms ~result-symbol)]
-              (as-chatty-falsehood {:actual ~arg-name,
+              (as-chatty-falsehood {:actual ~arg-name
                                     :intermediate-results pairs#}))
             true))))))

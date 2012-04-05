@@ -76,7 +76,7 @@
       [(a :when set?)        _]                               (recur (vec actual) expected looseness-modifiers)
       [(a :when string?)    (e :when [(complement string?) 
                                       (complement regex?)])]  (recur (vec actual) expected looseness-modifiers)
-      [_ _]                                                   [actual expected looseness]))
+      :else                                                   [actual expected looseness]))
 
   (match? [actual expected looseness]
     (let [comparison (compare-results actual expected looseness)]

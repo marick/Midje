@@ -74,8 +74,8 @@
 
 (tabular
   (fact "A single argument can be converted into a structured-form and a arg-value-name"
-    (against-background (unique-argument-name) => 'unique-3)
-    (let [[form name] (single-arg-into-form-and-name ?original)]
+    (against-background (gensym 'symbol-for-destructured-arg) => 'unique-3)
+    (let [[form name] (single-destructuring-arg->form+name ?original)]
       form => ?form
       name => ?name))
   ?original              ?form                       ?name

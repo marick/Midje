@@ -34,7 +34,7 @@
       (first-named? form "data-fake")))
 
 
-;;; Potential transformations of the right-hand-side of fakes
+;;; Potential transformations (for thunking) of the right-hand-side of fakes
 
 (defn- on-demand
   "Produce value of next thunk on each successive call."
@@ -62,7 +62,7 @@
                                  (pr-str rhs)))))
 
 
-;;; Creation
+;;; Creating fake maps
 
 (defn arg-matcher-maker
   "Based on an expected value, generates a function that returns 
