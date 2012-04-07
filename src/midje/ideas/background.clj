@@ -85,7 +85,7 @@
 
       metaconstant-prerequisite?
       (let [arrow-seq (take-arrow-sequence in-progress)]
-        (recur (conj expanded (-> arrow-seq prerequisite-to-fake))
+        (recur (conj expanded (prerequisite-to-fake arrow-seq))
                (drop (count arrow-seq) in-progress)))
 
       seq-headed-by-setup-teardown-form?
