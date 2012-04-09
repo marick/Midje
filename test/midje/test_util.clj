@@ -93,7 +93,7 @@
     `(causes-validation-error ~error-msg ~row)))
 
 (defmacro with-identity-renderer [& forms]
-  `(binding [midje.internal-ideas.report/*renderer* identity] ~@forms))
+  `(binding [midje.ideas.reporting.report/*renderer* identity] ~@forms))
 
 (defmacro defn-call-countable
   "Note: For testing Midje code that couldn't use provided.

@@ -1,10 +1,10 @@
-(ns midje.internal-ideas.t-report
-  (:use [midje.internal-ideas.report :only [midje-position-string]]
+(ns midje.ideas.reporting.t-report
+  (:use [midje.ideas.reporting.string-format :only [midje-position-string]]
         [midje.error-handling.exceptions :only [captured-throwable]]
         [midje sweet test-util]
         midje.util))
 
-(expose-testables midje.internal-ideas.report)
+(expose-testables midje.ideas.reporting.string-format)
 
 ;; This set of tests generate failures. The following code prevents
 ;; them from being counted as failures when the final summary is
@@ -97,7 +97,8 @@
     (nth raw-report 0) => #"FAIL.*some description.*foo.clj:3"
     (nth raw-report 1) => #"Actual.*was NOT supposed to agree"
     (nth raw-report 2) => #"Actual.*2"
-    (nth raw-report 3) => #"Checking function.*test-checker 33"))
+    (nth raw-report 3) => #"Checking function.*test-checker 33"
+    ))
     
 (fact "excess matches"
   (let [failure-map {:type :mock-argument-match-failure

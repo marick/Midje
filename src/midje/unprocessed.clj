@@ -6,7 +6,7 @@
         [midje.checkers.chatty :only [chatty-checker?]]
         [midje.error-handling.exceptions :only [captured-throwable]]
         midje.internal-ideas.fakes
-        midje.internal-ideas.report
+        midje.ideas.reporting.report
         midje.util.laziness
         [midje.util.namespace :only [immigrate]]
         [midje.util.ecosystem :only [line-separator]]

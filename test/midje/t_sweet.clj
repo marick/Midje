@@ -293,7 +293,7 @@
 
 (def #^:dynamic  *fact-retval* (fact
                                 (+ 1 1) => 2
-                                (midje.internal-ideas.report/note-failure-in-fact)
+                                (midje.ideas.reporting.report/note-failure-in-fact)
                                 "some random return value"))
 (fact "fact returns false on failure"
   *fact-retval* => false)

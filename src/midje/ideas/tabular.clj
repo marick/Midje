@@ -6,7 +6,7 @@
         [midje.internal-ideas.fact-context :only [within-fact-context]]
         [midje.internal-ideas.file-position :only [form-with-copied-line-numbers
                                                    form-position]] ; for deprecation
-        [midje.internal-ideas.report :only [midje-position-string]] ; for deprecation
+        [midje.ideas.reporting.string-format :only [midje-position-string]] ; for deprecation
         [midje.util.form-utils :only [pop-docstring translate-zipper]]
         [midje.util.zip :only [skip-to-rightmost-leaf]]
         [midje.internal-ideas.expect :only [expect?]]

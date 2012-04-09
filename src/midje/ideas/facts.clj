@@ -27,7 +27,7 @@
         [midje.util.laziness :only [eagerly]]
         [midje.util.zip :only [skip-to-rightmost-leaf]])
   (:require [clojure.zip :as zip])
-  (:require [midje.internal-ideas.report :as report]))
+  (:require [midje.ideas.reporting.report :as report]))
 (declare midjcoexpand)
 
 (defn fact? [form]

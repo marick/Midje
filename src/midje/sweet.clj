@@ -21,7 +21,7 @@
   (:require [midje.ideas.background :as background]
             [midje.ideas.formulas :as formulas]
             midje.checkers
-            [midje.internal-ideas.report :as report]))
+            [midje.ideas.reporting.report :as report]))
 
 (immigrate 'midje.unprocessed)
 (immigrate 'midje.semi-sweet)
