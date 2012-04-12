@@ -74,13 +74,18 @@
 
 
   (defmulti ^{:private true} check-result (fn [actual call]
-                                            [(:desired-check call) (:formula call)] ))
+                                            [(:desired-check call) (or (:formula call) :fact)] ))
 
-  (defmethod check-result [:check-match nil] [actual call]
+  ;; Methods for processing =>/=not=> facts
+
+  (defmethod check-result [:check-match :fact] [actual call]
     (check-result-positive report actual call))
 
-  (defmethod check-result [:check-negated-match nil] [actual call]
+  (defmethod check-result [:check-negated-match :fact] [actual call]
     (check-result-negated report actual call))
+
+
+  ;; Methods for processing formulas
 
   (defmethod check-result [:check-match :formula-in-progress] [actual call]
     (check-result-positive report-formula actual call))
@@ -106,6 +111,6 @@
                                      ((:function-under-test unprocessed-check)))
                                   (catch Throwable ex
                                     (captured-throwable ex)))]
-      (check-call-counts local-fakes)
+      (report-incorrect-call-counts local-fakes)
       (check-result code-under-test-result unprocessed-check)
       :irrelevant-return-value)))

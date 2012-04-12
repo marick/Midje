@@ -10,10 +10,10 @@
    (matches-symbols-in-semi-sweet-or-sweet-ns? symbols (zip/node loc)))
 
 (defmethod matches-symbols-in-semi-sweet-or-sweet-ns? :form [symbols node]
-  (let [base-names (map name symbols)
-        qualified-names (concat (map #(str "midje.semi-sweet/" %) base-names)
-                                (map #(str "midje.sweet/" %) base-names))]
-    ( (set (concat base-names qualified-names)) (str node))))
+  (let [base-names       (map name symbols)
+        semi-sweet-names (map #(str "midje.semi-sweet/" %) base-names)
+        sweet-names      (map #(str "midje.sweet/" %) base-names)]
+    (some #(= % (str node)) (concat base-names semi-sweet-names sweet-names))))
 
 (defn is-semi-sweet-keyword? [loc]
   (matches-symbols-in-semi-sweet-or-sweet-ns? '(expect fake not-called data-fake) loc))

@@ -254,7 +254,7 @@
 (defmethod call-count-incorrect? :not-called [fake]
   (not (zero? @(:call-count-atom fake))))
 
-(defn check-call-counts [fakes]
+(defn report-incorrect-call-counts [fakes]
   (when-let [failures (seq (for [fake fakes
                                  :when (call-count-incorrect? fake)]
                               {:actual-count    @(:call-count-atom fake)

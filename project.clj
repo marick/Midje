@@ -6,6 +6,7 @@
                    [colorize "0.1.1"]
                    [org.clojure/tools.macro "0.1.1"]
                    [org.clojure/core.incubator "0.1.0"]
+                   [swiss-arrows "0.1.0"]
                    [org.clojure/core.match "0.2.0-alpha9"]])
 
 (defproject midje "1.3.2-SNAPSHOT"
