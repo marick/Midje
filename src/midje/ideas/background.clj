@@ -120,7 +120,7 @@
 (defn against-background-contents-wrappers [[_against-background_ background-forms & _]]
   (filter (for-wrapping-target? :contents ) (background-wrappers background-forms)))
 
-(defn against-background-children-wrappers [[_against-background_ background-forms & _]]
+(defn against-background-facts-and-checks-wrappers [[_against-background_ background-forms & _]]
   (remove (for-wrapping-target? :contents ) (background-wrappers background-forms)))
 
 (defn surround-with-background-fakes [forms]
