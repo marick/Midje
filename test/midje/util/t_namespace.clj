@@ -18,5 +18,5 @@
                        data-fake midje.semi-sweet/data-fake)]
     (let [z (zip/seq-zip `(111 (~skippable 1 2 '(3)) "next"))
           skippable (-> z zip/down zip/next zip/down)]
-      skippable => is-semi-sweet-keyword?)))
+      skippable => semi-sweet-keyword?)))
 

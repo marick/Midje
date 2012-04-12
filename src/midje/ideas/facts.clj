@@ -1,7 +1,7 @@
 (ns ^{:doc "Facts are the core abstraction of Midje."}
   midje.ideas.facts
   (:use [midje.error-handling.validation-errors :only [simple-validation-error-report-form validate when-valid]]
-        [midje.util.namespace :only [is-semi-sweet-keyword?]]
+        [midje.util.namespace :only [semi-sweet-keyword?]]
         [midje.internal-ideas.fakes :only [unfold-fakes]]
 
         [midje.internal-ideas.expect :only [expect?
@@ -13,9 +13,9 @@
                                               with-additional-wrappers
                                               forms-to-wrap-around]]
         [midje.util.debugging :only [nopret]]
-        [midje.ideas.prerequisites :only [is-head-of-form-providing-prerequisites?
+        [midje.ideas.prerequisites :only [head-of-form-providing-prerequisites?
                                           insert-prerequisites-into-expect-form-as-fakes]]
-        [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence? leaves-contain-arrow?]]
+        [midje.ideas.arrows :only [start-of-checking-arrow-sequence? leaves-contain-arrow?]]
         [midje.ideas.background :only [surround-with-background-fakes
                                        body-of-against-background
                                        against-background-contents-wrappers
@@ -60,13 +60,13 @@
    2) (provided ...) become fakes inserted into preceding expect."
   [multi-form]
   (translate-zipper multi-form
-    is-start-of-checking-arrow-sequence?
+    start-of-checking-arrow-sequence?
     wrap-with-expect__then__at-rightmost-expect-leaf
     
-    is-head-of-form-providing-prerequisites?
+    head-of-form-providing-prerequisites?
     insert-prerequisites-into-expect-form-as-fakes
 
-    is-semi-sweet-keyword?
+    semi-sweet-keyword?
     skip-to-rightmost-leaf))
 
 (letfn [(expand-against-background [form wrappers]

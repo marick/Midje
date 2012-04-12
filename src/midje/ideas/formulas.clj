@@ -2,7 +2,7 @@
   midje.ideas.formulas
   (:use [midje.util.form-utils :only [first-named? named? pop-docstring pop-opts-map]]
         [midje.error-handling.validation-errors :only [simple-validation-error-report-form validate-m validate]]
-        [midje.ideas.prerequisites :only [is-head-of-form-providing-prerequisites?]]
+        [midje.ideas.prerequisites :only [head-of-form-providing-prerequisites?]]
         [midje.ideas.arrows :only [leaf-expect-arrows leaves-contain-arrow?]]
         [midje.ideas.facts :only [future-prefixes]]
         [clojure.algo.monads :only [domonad]]

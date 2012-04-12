@@ -1,6 +1,6 @@
 (ns midje.internal-ideas.t-expect
   (:use [midje.internal-ideas.expect]
-        [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence?]]
+        [midje.ideas.arrows :only [start-of-checking-arrow-sequence?]]
 	midje.sweet
 	midje.test-util)
   (:require [clojure.zip :as zip])
@@ -46,7 +46,7 @@
         original-loc  (-> z zip/down)
         resulting-loc (wrap-with-expect__then__at-rightmost-expect-leaf original-loc)]
     original-loc => (node '(f 1))
-    original-loc => is-start-of-checking-arrow-sequence?
+    original-loc => start-of-checking-arrow-sequence?
     
     (zip/root resulting-loc) => edited
     (zip/next resulting-loc) => (node "next"))
@@ -59,7 +59,7 @@
         original-loc  (-> z zip/down)
         resulting-loc (wrap-with-expect__then__at-rightmost-expect-leaf original-loc)]
     original-loc => (node '(f 1))
-    original-loc => is-start-of-checking-arrow-sequence?
+    original-loc => start-of-checking-arrow-sequence?
     
     (zip/root resulting-loc) => edited
     (zip/next resulting-loc) => (node "next"))
@@ -71,7 +71,7 @@
         original-loc  (-> z zip/down)
         resulting-loc (wrap-with-expect__then__at-rightmost-expect-leaf original-loc)]
     original-loc => (node '(f 1))
-    original-loc => is-start-of-checking-arrow-sequence?
+    original-loc => start-of-checking-arrow-sequence?
     
    (zip/root resulting-loc) => edited
    (zip/next resulting-loc) => (node "next"))

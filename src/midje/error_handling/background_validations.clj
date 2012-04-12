@@ -3,7 +3,7 @@
   (:use [clojure.pprint :only [cl-format]]
         [midje.error-handling.validation-errors :only [simple-validation-error-report-form 
                                                        validation-error-report-form validate when-valid]]
-        [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence? take-arrow-sequence]]
+        [midje.ideas.arrows :only [start-of-checking-arrow-sequence? take-arrow-sequence]]
         [midje.ideas.background :only [seq-headed-by-setup-teardown-form?]]
         [midje.ideas.prerequisites :only [metaconstant-prerequisite?]]
         [midje.util.form-utils :only [def-many-methods named? pred-cond]]
@@ -44,7 +44,7 @@
               empty?
               true
 
-              (some-fn-m is-start-of-checking-arrow-sequence? metaconstant-prerequisite?)
+              (some-fn-m start-of-checking-arrow-sequence? metaconstant-prerequisite?)
               (let [arrow-seq (take-arrow-sequence in-progress)]
                 (recur (drop (count arrow-seq) in-progress)))
 

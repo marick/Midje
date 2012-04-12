@@ -7,9 +7,9 @@
 
 (fact "can ask whether at the beginning of a form that provides prerequisites"
   (let [values (zip/seq-zip '(provided midje.semi-sweet/provided fluke))]
-    (-> values zip/down) => is-head-of-form-providing-prerequisites?
-    (-> values zip/down zip/right) => is-head-of-form-providing-prerequisites?
-    (-> values zip/down zip/right zip/right) =not=> is-head-of-form-providing-prerequisites?))
+    (-> values zip/down) => head-of-form-providing-prerequisites?
+    (-> values zip/down zip/right) => head-of-form-providing-prerequisites?
+    (-> values zip/down zip/right zip/right) =not=> head-of-form-providing-prerequisites?))
 
 (fact "can convert prerequisites into fake calls"
   (let [original '( provided                        (f 1) => 3                         (f 2) => (+ 1 1))
@@ -37,7 +37,7 @@
         resulting-loc
          (delete_prerequisite_form__then__at-previous-full-expect-form original-loc)]
         
-    original-loc => is-head-of-form-providing-prerequisites?
+    original-loc => head-of-form-providing-prerequisites?
     resulting-loc => expect?
     (zip/root resulting-loc) => edited))
     

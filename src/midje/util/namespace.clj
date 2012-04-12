@@ -15,7 +15,7 @@
         sweet-names      (map #(str "midje.sweet/" %) base-names)]
     (some #(= % (str node)) (concat base-names semi-sweet-names sweet-names))))
 
-(defn is-semi-sweet-keyword? [loc]
+(defn semi-sweet-keyword? [loc]
   (matches-symbols-in-semi-sweet-or-sweet-ns? '(expect fake not-called data-fake) loc))
 
 (defn immigrate

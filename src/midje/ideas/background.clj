@@ -1,7 +1,7 @@
 (ns ^{:doc "Code to be run before, after or around facts. Also, 
             prerequisites that pertain to a group of facts."} 
   midje.ideas.background
-  (:use [midje.ideas.arrows :only [is-start-of-checking-arrow-sequence? take-arrow-sequence]]
+  (:use [midje.ideas.arrows :only [start-of-checking-arrow-sequence? take-arrow-sequence]]
         [midje.ideas.metaconstants :only [define-metaconstants]]
         [midje.ideas.prerequisites :only [metaconstant-prerequisite? prerequisite-to-fake]]
         [midje.internal-ideas.fakes :only [fake? tag-as-background-fake with-installed-fakes]]
@@ -78,7 +78,7 @@
       empty? 
       expanded
 
-      is-start-of-checking-arrow-sequence?
+      start-of-checking-arrow-sequence?
       (let [arrow-seq (take-arrow-sequence in-progress)]
         (recur (conj expanded (-> arrow-seq prerequisite-to-fake tag-as-background-fake))
                (drop (count arrow-seq) in-progress)))

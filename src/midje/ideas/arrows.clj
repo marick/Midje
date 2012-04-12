@@ -20,13 +20,13 @@
 
 ;; Recognizing
 
-(defmulti is-start-of-checking-arrow-sequence? tree-variant)
+(defmulti start-of-checking-arrow-sequence? tree-variant)
 
-(defmethod is-start-of-checking-arrow-sequence? :zipper [loc]
+(defmethod start-of-checking-arrow-sequence? :zipper [loc]
   (and (zip/right loc)
        (matches-symbols-in-semi-sweet-or-sweet-ns? expect-arrows (zip/right loc))))
 
-(defmethod is-start-of-checking-arrow-sequence? :form [form]
+(defmethod start-of-checking-arrow-sequence? :form [form]
   (and (sequential? form)
        (matches-symbols-in-semi-sweet-or-sweet-ns? expect-arrows (second form))))
 

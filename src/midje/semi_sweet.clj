@@ -12,7 +12,7 @@
         midje.error-handling.validation-errors
         midje.error-handling.semi-sweet-validations
         [midje.error-handling.exceptions :only [user-error]]
-        [midje.util.namespace :only [is-semi-sweet-keyword?]]
+        [midje.util.namespace :only [semi-sweet-keyword?]]
         [midje.util.ecosystem :only [line-separator]]
         midje.production-mode
         [clojure.algo.monads :only [domonad]]
@@ -145,7 +145,7 @@
 
 (defn- ^{:testable true } a-fake? [x]
   (and (seq? x)
-       (is-semi-sweet-keyword? (first x))))
+       (semi-sweet-keyword? (first x))))
 
 (defmacro expect 
   "Run the call form, check that all the mocks defined in the fakes 

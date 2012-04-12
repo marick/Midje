@@ -11,7 +11,7 @@
                                             tack-on__then__at-rightmost-expect-leaf]])
   (:require [clojure.zip :as zip]))
 
-(defn is-head-of-form-providing-prerequisites? [loc]
+(defn head-of-form-providing-prerequisites? [loc]
   (matches-symbols-in-semi-sweet-or-sweet-ns? '(provided) loc))
 
 (defn metaconstant-prerequisite? [[lhs arrow rhs & overrides :as fake-body]]
@@ -32,7 +32,7 @@
     (map prerequisite-to-fake fake-bodies)))
 
 (defn delete_prerequisite_form__then__at-previous-full-expect-form [loc]
-  (assert (is-head-of-form-providing-prerequisites? loc))
+  (assert (head-of-form-providing-prerequisites? loc))
   (-> loc zip/up zip/remove up-to-full-expect-form))
 
 (defn insert-prerequisites-into-expect-form-as-fakes [loc]
