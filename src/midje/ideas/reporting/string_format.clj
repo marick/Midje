@@ -9,6 +9,7 @@
   (:require [midje.util.colorize :as color]))
 
 
+;;; Formatting Single Fact
 
 (defn midje-position-string [[filename line-num]]
   (format "(%s:%s)" filename line-num))
@@ -107,3 +108,63 @@
       (str "      " (pr-str (:macro-form m)))
       (str "      " "This stack trace *might* help:")
       (indented (:stacktrace m)))))
+
+
+;;; Formatting Summary of Facts
+
+(defn report-strings-summary [exit-after-tests?]
+  `(fn [namespaces#]
+     (let [midje-passes# (:pass @clojure.test/*report-counters*)
+           midje-fails# (:fail @clojure.test/*report-counters*)
+           midje-failure-message# (condp = midje-fails#
+                                    0 (color/pass (format "All claimed facts (%d) have been confirmed." midje-passes#))
+                                    1 (str (color/fail "FAILURE:")
+                                        (format " %d fact was not confirmed." midje-fails#))
+                                    (str (color/fail "FAILURE:")
+                                      (format " %d facts were not confirmed." midje-fails#)))
+                                   
+           potential-consolation# (condp = midje-passes#
+                                    0 ""
+                                    1 "(But 1 was.)"
+                                    (format "(But %d were.)" midje-passes#))
+
+           midje-consolation# (if (> midje-fails# 0) potential-consolation# "")
+
+           ; Stashed clojure.test output
+           ct-output-catcher# (java.io.StringWriter.)
+           ct-result# (binding [clojure.test/*test-out* ct-output-catcher#]
+                        (apply ~'clojure.test/run-tests namespaces#))
+           ct-output# (-> ct-output-catcher#
+                          .toString
+                          clojure.string/split-lines)
+           ct-failures-and-errors# (+ (:fail ct-result#) (:error ct-result#))
+           ct-some-kind-of-fail?# (> ct-failures-and-errors# 0)]
+
+       (when ct-some-kind-of-fail?#
+         ;; For some reason, empty lines are swallowed, so I use >>> to
+         ;; demarcate sections.
+         (println (color/note ">>> Output from clojure.test tests:"))
+         (dorun (map (comp println color/colorize-deftest-output)
+                  (drop-last 2 ct-output#))))
+
+       (when (> (:test ct-result#) 0)
+         (println (color/note ">>> clojure.test summary:"))
+         (println (first (take-last 2 ct-output#)))
+         (println ( (if ct-some-kind-of-fail?# color/fail color/pass) (last ct-output#)))
+         (println (color/note ">>> Midje summary:")))
+
+       (println midje-failure-message# midje-consolation#)
+
+       ;; A non-nil return value is printed, so I'll just exit here.
+       (when ~exit-after-tests?
+         (System/exit (+ midje-fails#
+                        (:error ct-result#)
+                        (:fail ct-result#)))))))
+
+
+;; Config to expose to reporting namespace, which it will use to show 
+;; reported failures to the user
+
+(def report-strings-format-config
+  { :single-fact-fn report-strings 
+    :summary-fn report-strings-summary })

@@ -1,7 +1,25 @@
 (ns ^{:doc "Renders the various reported fact evaluation results."}
   midje.ideas.reporting.report
   (:use clojure.test
-        [midje.ideas.reporting.string-format :only [report-strings]]))
+        [midje.ideas.reporting.string-format :only [report-strings-format-config]]))
+
+
+;;; Configuration
+
+;; *report-format-config* expects to be bound to a map like:
+;; { :single-fact-fn (fn [reported-map] ...)   ; handle each failing fact
+;;   :summary-fn (fn [exit-after-tests?] ...)  ; output a summary of successes/failures etc  
+;; }
+
+(def ^{:dynamic true
+       :doc "Midje will report the fact failures and summary using the 
+             fns in the configuration map bound to this var."}
+  *report-format-config* report-strings-format-config)
+
+(def report-single-fact (:single-fact-fn *report-format-config*))
+
+
+;;; Reporting
 
 (intern (the-ns 'clojure.test) 'old-report clojure.test/report)
 
@@ -32,7 +50,7 @@
      (#'fact-checks-out?)))
   
 (letfn [(render [m]
-          (->> m report-strings flatten (remove nil?) (map *renderer*) doall))]
+          (->> m report-single-fact flatten (remove nil?) (map *renderer*) doall))]
 
   (defmethod clojure.test/old-report :default [m]
     (inc-report-counter :fail )
