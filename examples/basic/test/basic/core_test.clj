@@ -1,4 +1,3 @@
-
 (ns basic.core-test
   (:use clojure.test)
   (:use midje.sweet)
@@ -24,7 +23,7 @@
  (+ 1 1) => 2
  (+ 1 0) => 1)
 
-;; Notice also that you can add "doc strings" to facts. Right now, they're just ignored.
+;; Notice also that you can add "doc strings" to facts.
 
 ;; Failing tests should look familiar:
 ;;     FAIL at (core_test.clj:34)
