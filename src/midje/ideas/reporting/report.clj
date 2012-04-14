@@ -1,7 +1,8 @@
 (ns ^{:doc "Renders the various reported fact evaluation results."}
   midje.ideas.reporting.report
   (:use clojure.test
-        [midje.ideas.reporting.string-format :only [report-strings-format-config]]))
+        [midje.ideas.reporting.string-format :only [report-strings-format-config]]
+        [midje.ideas.reporting.junit-xml-format :only [junit-xml-format-config]]))
 
 
 ;;; Configuration
@@ -15,6 +16,9 @@
        :doc "Midje will report the fact failures and summary using the 
              fns in the configuration map bound to this var."}
   *report-format-config* report-strings-format-config)
+
+(def formatters { "default" report-strings-format-config
+                  "junit-xml" junit-xml-format-config })
 
 (def report-single-fact (:single-fact-fn *report-format-config*))
 

@@ -355,7 +355,6 @@ odd?                   3               falsey)
         second-half {:data-fake true :var #'var-for-merged     :contained {:replaced 222, :extra 3}}
         irrelevant  {:data-fake true :var #'var-for-irrelevant :contained {:retained :FOO :extra :BAR}}
         result (binding-map [first-half second-half irrelevant])]
-    (println (pr-str result))
     (.storage (result #'midje.internal-ideas.t-fakes/var-for-merged))     => {:retained 1, :replaced 222, :extra 3}
     (.storage (result #'midje.internal-ideas.t-fakes/var-for-irrelevant)) => {:retained :FOO, :extra :BAR}))
 
