@@ -13,12 +13,12 @@
   :description "A TDD library for Clojure that supports top-down ('mockish') TDD, encourages readable tests, provides a smooth migration path from clojure.test, balances abstraction and concreteness, and strives for graciousness."
   :url "https://github.com/marick/Midje"
   :dependencies ~(conj common-deps
-                       '[org.clojure/clojure "1.3.0"])
+                       '[org.clojure/clojure "1.4.0"])
 
   :multi-deps {"1.2.0" [[org.clojure/clojure "1.2.0"]]
                "1.2.1" [[org.clojure/clojure "1.2.1"]]
                "1.3.0" [[org.clojure/clojure "1.3.0"]]
-               "1.4.0" [[org.clojure/clojure "1.4.0-beta4"]]
+               "1.4.0" [[org.clojure/clojure "1.4.0"]]
                :all ~common-deps }
   :dev-dependencies [[slamhound "1.2.0"]
                      [jonase/kibit "0.0.3"]
