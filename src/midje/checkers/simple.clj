@@ -54,6 +54,21 @@
        (roughly expected (abs (*M 0.001 expected))))))
 
 
+;; Checker Combinators
+
+(defn every-checker 
+  "Combines multiple checkers into one checker that passes 
+   when all component checkers pass."
+  [& checkers]
+  (as-checker (apply every-pred checkers)))
+
+(defn some-checker 
+  "Combines multiple checkers into one checker that passes 
+   when any of the component checkers pass."
+  [& checkers]
+  (as-checker (apply some-fn-m checkers)))
+
+
 ;; Concerning Throwables
 
 (defmulti throws
@@ -96,4 +111,4 @@
 
 (def-many-methods throws [#{:throwable :predicate}, #{:message :predicate },
                           #{:throwable :message}, #{:throwable :message :predicate}] [& args]
-  (as-checker (apply every-pred-m (map throws args))))
+  (apply every-checker (map throws args)))

@@ -141,3 +141,11 @@
  (fact
    @reported => (three-of checker-fails)))
 
+(facts "about checker cominators" 
+  (some-checker truthy falsey)  => checker?
+  (every-checker truthy falsey) => checker?  
+  
+  3 =>     (every-checker truthy number?)
+  3 =not=> (every-checker truthy falsey)
+  3 =>     (some-checker truthy falsey)
+  3 =not=> (some-checker falsey string?))
