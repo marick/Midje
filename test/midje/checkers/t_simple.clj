@@ -127,7 +127,11 @@
 
 (fact "`throws` can accept multiple messages - imagine regexs for large error mesages"
   (throw-exception "msg") => (throws #"^m" #"g$")
-  (throw-exception "msg") => (throws Error #"^m" #"g$"))
+  (throw-exception "msg") => (throws Error #"^m" #"g$")
+  ;; Note that both regexps should match.
+  (throw-exception "msg") =deny=> (throws Error #"m" #"h"))
+  
+
 
 (fact "`throws` matches any exception that is an instance of expected"
   (throw (NullPointerException.)) => (throws Exception))
