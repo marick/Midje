@@ -7,7 +7,7 @@
         [clojure.core.match :only [match]]
         [midje.util.backwards-compatible-utils :only [every-pred-m]] 
         [midje.util.form-utils :only [regex? record? classic-map? pred-cond macro-for]]
-      	[midje.checkers collection-util util extended-equality chatty defining collection-comparison]
+      	[midje.checkers collection-util util extended-equality extended-falsehood chatty defining collection-comparison]
         [midje.error-handling.exceptions :only [user-error]]))
 
 
@@ -232,6 +232,7 @@ just is also useful if you don't care about order:
   
   Ex. (fact (repeat 100 :a) => (n-of :a 100))"
   [expected expected-count]
+
   (chatty-checker [actual]
     (and (= (count actual) expected-count)
          (every? #(extended-= % expected) actual))))

@@ -1,7 +1,7 @@
 (ns midje.checkers.t-collection-old
   (:use [midje sweet test-util]
-        [midje.checkers.chatty :only [data-laden-falsehood-to-map
-                                      data-laden-falsehood?]]))
+        [midje.checkers.extended-falsehood :only [data-laden-falsehood-to-map
+                                                  data-laden-falsehood?]]))
 
 ;; These are still potentially useful tests from a misguided code organization.
 ;; Delete them as they fail (after moving better tests to t-collection.

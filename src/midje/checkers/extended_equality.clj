@@ -1,7 +1,7 @@
 (ns ^{:doc "`=` extended for regular expressions, functions, etc."}
   midje.checkers.extended-equality
   (:use [clojure.core.match :only [match]]
-        [midje.checkers.chatty :only [data-laden-falsehood?]]
+        [midje.checkers.extended-falsehood :only [data-laden-falsehood?]]
         [midje.util.form-utils :only [classic-map? pairs record? regex?]]))
 
 (defn extended-fn? [x]

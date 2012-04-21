@@ -1,7 +1,7 @@
 (ns midje.checkers.collection-util
   (:use [midje.util.form-utils :only [regex?]]
         [midje.checkers.extended-equality :only [extended-fn?]]
-        [midje.checkers.chatty :only [as-data-laden-falsehood]]))
+        [midje.checkers.extended-falsehood :only [as-data-laden-falsehood]]))
 
 (defn same-lengths? [actual expected]
   (= (count actual) (count expected)))

@@ -1,25 +1,13 @@
 (ns ^{:doc "Checkers that explain more about a failure."}
   midje.checkers.chatty
   (:use [midje.checkers.util :only [named-as-call]]
+        [midje.checkers.extended-falsehood :only [data-laden-falsehood?
+                                                  as-data-laden-falsehood
+                                                  extended-false?]]
         [midje.checkers.defining :only [as-checker]]
         [midje.util.form-utils :only [pairs quoted? single-destructuring-arg->form+name]]))
 
 ;; Note: checkers need to be exported in ../checkers.clj
-
-(defn as-data-laden-falsehood [value] ; was as-chatty-falsehood 
-  (with-meta value {:midje/data-laden-falsehood true}))
-
-(defn data-laden-falsehood? [value]   ; chatty-checker-falsehood
-  (:midje/data-laden-falsehood (meta value)))
-
-(defn data-laden-falsehood-to-map [value]
-  (with-meta value {}))
-
-(defn extended-false? [value]    ; was chattily-false
-  (or (not value)
-      (:midje/data-laden-falsehood (meta value))))
-
-
 
 (defn as-chatty-checker [function]
   (as-checker (vary-meta function assoc :midje/chatty-checker true)))

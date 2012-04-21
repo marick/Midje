@@ -1,21 +1,15 @@
 (ns midje.checkers.t-chatty
   (:use midje.sweet
         [midje.checkers.defining :only [checker?]]
-        [midje.checkers.chatty :only [extended-false? as-data-laden-falsehood
-                                      chatty-worth-reporting-on?
-                                      data-laden-falsehood? chatty-untease
+        [midje.checkers.chatty :only [chatty-worth-reporting-on?
+                                      chatty-untease
                                       chatty-checker?]]
+        [midje.checkers.extended-falsehood :only [data-laden-falsehood?]]
         midje.test-util
         clojure.pprint))
 
-(facts "about an extended notion of falsehood"
-  (extended-false? false) => truthy
-  (extended-false? true) => falsey
-  (extended-false? {:intermediate-results 3}) => falsey
-  (extended-false? (as-data-laden-falsehood {})) => truthy)
 
 (facts "about chatty-checking utility functions"
-  (as-data-laden-falsehood [5]) => data-laden-falsehood?
 
   (chatty-untease 'g-101 '()) => [[] []]
   

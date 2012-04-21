@@ -1,8 +1,8 @@
 (ns midje.checkers.t-collection
   (:use [midje sweet test-util]
         [midje.checkers.defining :only [checker?]]
-        [midje.checkers.chatty :only [data-laden-falsehood-to-map
-                                      data-laden-falsehood?]]
+        [midje.checkers.extended-falsehood :only [data-laden-falsehood-to-map
+                                                  data-laden-falsehood?]]
         midje.util))
 (expose-testables midje.checkers.collection)
 
