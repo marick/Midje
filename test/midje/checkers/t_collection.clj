@@ -1,8 +1,8 @@
 (ns midje.checkers.t-collection
   (:use [midje sweet test-util]
         [midje.checkers.defining :only [checker?]]
-        [midje.checkers.chatty :only [chatty-falsehood-to-map
-                                      chatty-checker-falsehood?]]
+        [midje.checkers.chatty :only [data-laden-falsehood-to-map
+                                      data-laden-falsehood?]]
         midje.util))
 (expose-testables midje.checkers.collection)
 
@@ -141,11 +141,11 @@
   ( (has-suffix #"\d+") "12x") => falsey
   ( (has-prefix #"\d+") "x12") => falsey
 
-  (chatty-falsehood-to-map ( (contains #"a" :in-any-order) "a"))
+  (data-laden-falsehood-to-map ( (contains #"a" :in-any-order) "a"))
   => (contains {:actual "a", :notes (just #"regular expression.*:in-any-order")})
   ["a"] =>  (contains #"a" :in-any-order) ; this is OK because the singleton becomes a vector
 
-  (chatty-falsehood-to-map ( (contains #"a" :gaps-ok) "a"))
+  (data-laden-falsehood-to-map ( (contains #"a" :gaps-ok) "a"))
   => (contains {:actual "a", :notes (just #"regular expression.*:gaps-ok")})
   ["a"] =>  (contains #"a" :gaps-ok) ; this is OK because the singleton becomes a vector
 
@@ -242,13 +242,13 @@
   #{{:a 1} {:b 2}} => (contains [{:a 1} {:b 2}])
   #{{:a 1} {:b 2}} => (contains {:a 1} {:b 2})
 
-  (chatty-falsehood-to-map ( (has-prefix 1) #{1}))
+  (data-laden-falsehood-to-map ( (has-prefix 1) #{1}))
   => (contains {:actual #{1} :notes ["Sets don't have prefixes."]})
-  (chatty-falsehood-to-map ( (has-suffix 1) #{1}))
+  (data-laden-falsehood-to-map ( (has-suffix 1) #{1}))
   => (contains {:actual #{1} :notes ["Sets don't have suffixes."]})
-  (chatty-falsehood-to-map ( (has-prefix 1) {:a 1}))
+  (data-laden-falsehood-to-map ( (has-prefix 1) {:a 1}))
   => (contains {:actual {:a 1} :notes ["Maps don't have prefixes."]})
-  (chatty-falsehood-to-map ( (has-suffix 1) {:a 1}))
+  (data-laden-falsehood-to-map ( (has-suffix 1) {:a 1}))
   => (contains {:actual {:a 1} :notes ["Maps don't have suffixes."]})
   )
 
@@ -299,10 +299,10 @@
  {:a 1, :b odd?} => (contains [:a 1] [:b (exactly odd?)])
  ( (just [ [:a 1] ]) {:a 1, :b 1}) => falsey
 
- (chatty-falsehood-to-map ( (contains [:a 1]) {:a 1}))
+ (data-laden-falsehood-to-map ( (contains [:a 1]) {:a 1}))
  => (contains {:actual {:a 1} :notes (just #"\{:a 1\} is a map.*\[:a 1\]")})
  ;; By the way, that means it'll be counted as false:
- ( (contains [:a 1]) {:a 1}) => chatty-checker-falsehood?
+ ( (contains [:a 1]) {:a 1}) => data-laden-falsehood?
 
  ( (contains [1]) {:a 1}) => (contains {:actual {:a 1}
                                       :notes (just #"\{:a 1\} is a map.*\[1\]")})
@@ -352,103 +352,103 @@
 
 (facts "where actual values are of wrong type for legitimate expected"
 
-  (chatty-falsehood-to-map ( (just "string")        1))
+  (data-laden-falsehood-to-map ( (just "string")        1))
   => (contains {:actual 1})
-  (chatty-falsehood-to-map ( (just {:a 1})        1))
+  (data-laden-falsehood-to-map ( (just {:a 1})        1))
   => (contains {:actual 1 :notes (just #"compare 1.*to \{:a 1\}")})
-  (chatty-falsehood-to-map ( (contains \s)          1))
+  (data-laden-falsehood-to-map ( (contains \s)          1))
   => (contains {:actual 1 :notes (just #"compare 1.*to \\s")})
   ( (contains [1 2])       1)
   => (contains {:actual 1 :notes (just #"compare 1.*to \[1 2\]")})
 
-  (chatty-falsehood-to-map ( (just #"ab")       1))
+  (data-laden-falsehood-to-map ( (just #"ab")       1))
   => (contains {:actual 1 :notes (just #"#\"ab\" can't be used on 1")})
-  (chatty-falsehood-to-map ( (contains #"ab")       1))
+  (data-laden-falsehood-to-map ( (contains #"ab")       1))
   => (contains {:actual 1 :notes (just #"#\"ab\" can't be used on 1")})
-  (chatty-falsehood-to-map ( (has-prefix #"ab")       1))
+  (data-laden-falsehood-to-map ( (has-prefix #"ab")       1))
   => (contains {:actual 1 :notes (just #"#\"\^ab\" can't be used on 1")})
-  (chatty-falsehood-to-map ( (has-suffix #"ab")       1))
+  (data-laden-falsehood-to-map ( (has-suffix #"ab")       1))
   => (contains {:actual 1 :notes (just #"#\"ab\$\" can't be used on 1")})
 
-  (chatty-falsehood-to-map ( (contains {:a 1, :b 2}) {:a 1}))
+  (data-laden-falsehood-to-map ( (contains {:a 1, :b 2}) {:a 1}))
   => (contains {:actual {:a 1} :notes (just "Best match found: {:a 1}")})
-  (chatty-falsehood-to-map ( (just {:a 1, :b 2}) {:a 1}))
+  (data-laden-falsehood-to-map ( (just {:a 1, :b 2}) {:a 1}))
   => (contains {:actual {:a 1} :notes (just #"Expected two elements.*one")})
-  (chatty-falsehood-to-map ( (contains {:a {:b 1}}) {:a 1}) )
+  (data-laden-falsehood-to-map ( (contains {:a {:b 1}}) {:a 1}) )
   => (contains {:actual {:a 1} :notes (just "Best match found: {}")})
 
   ;; Won't work in Clojure 1.3 without some major rework.
-  (chatty-falsehood-to-map ( (contains {:a odd?, :f odd? :g odd?}) {:f 3, :g 6, :a 1}) )
+  (data-laden-falsehood-to-map ( (contains {:a odd?, :f odd? :g odd?}) {:f 3, :g 6, :a 1}) )
   =future=> (contains {:actual {:f 3, :g 6, :a 1}
                 :notes (just [#"Best match found: \{:a 1, :f 3\}\."
                               #"It matched: \{:a odd\?, :f odd\?\}\."])})
-  (chatty-falsehood-to-map ( (contains :a)        {:a 1}))
+  (data-laden-falsehood-to-map ( (contains :a)        {:a 1}))
   => (contains {:actual {:a 1}, :notes (just #"\{:a 1\}.*:a.*map entries")})
   )
 
 (facts "about the notes given to reporting functions"
   "functions and such are printed nicely in the actual match section"
-  (chatty-falsehood-to-map ( (contains [#"1" #"1+" #"1+2"]) [#"1" #"1+"]))
+  (data-laden-falsehood-to-map ( (contains [#"1" #"1+" #"1+2"]) [#"1" #"1+"]))
   => (contains {:notes (contains #"Best match.*\[#\"1\" #\"1\+\"\]")})
 
   ; It'd be nice to make all kinds of recursive function printing work nicely.
   ; [odd? even?] => (contains [(exactly odd?) (exactly odd?)])
   
   "checkers are printed nicely in the expected matched: section"
-  (chatty-falsehood-to-map ( (contains [5 (exactly 4)] :in-any-order) [1 2 4]))
+  (data-laden-falsehood-to-map ( (contains [5 (exactly 4)] :in-any-order) [1 2 4]))
   => (contains {:notes (contains #"It matched.*\[\(exactly 4\)\]")})
 
-  (chatty-falsehood-to-map ( (contains [(just 3) 6]) [[3] 5]))
+  (data-laden-falsehood-to-map ( (contains [(just 3) 6]) [[3] 5]))
   => (contains {:notes (contains #"It matched.*\[\(just 3\)\]")})
 
-  (chatty-falsehood-to-map ( (contains [(contains 3) 6]) [[3] 5]))
+  (data-laden-falsehood-to-map ( (contains [(contains 3) 6]) [[3] 5]))
   => (contains {:notes (contains #"It matched.*\[\(contains 3\)\]")})
 
-  (chatty-falsehood-to-map ( (contains [(has-prefix 3) 6]) [[3] 5]))
+  (data-laden-falsehood-to-map ( (contains [(has-prefix 3) 6]) [[3] 5]))
   => (contains {:notes (contains #"It matched.*\[\(has-prefix 3\)\]")})
 
-  (chatty-falsehood-to-map ( (contains [(has-suffix 3) 6]) [[3] 5]))
+  (data-laden-falsehood-to-map ( (contains [(has-suffix 3) 6]) [[3] 5]))
   => (contains {:notes (contains #"It matched.*\[\(has-suffix 3\)\]")})
 
-  (chatty-falsehood-to-map ( (contains [#"fo+\[" "ba"]) ["foo[" "bar"]))
+  (data-laden-falsehood-to-map ( (contains [#"fo+\[" "ba"]) ["foo[" "bar"]))
   => (contains {:notes (contains #"It matched.*\[#\"fo\+\\\[\"\]")})
 
-  (chatty-falsehood-to-map ( (contains [1 "1\"2" [even?] odd?]) [1 "1\"2" [3]]))
+  (data-laden-falsehood-to-map ( (contains [1 "1\"2" [even?] odd?]) [1 "1\"2" [3]]))
   => (contains {:notes (contains #"It matched.*\[1 \"1\\\"2\"\]")})
 
   "Proper grammar for just errors"
-  (chatty-falsehood-to-map ( (just 1) [1 2]))
+  (data-laden-falsehood-to-map ( (just 1) [1 2]))
   => (contains {:notes ["Expected one element. There were two."]})
-  (chatty-falsehood-to-map ( (just 1) []))
+  (data-laden-falsehood-to-map ( (just 1) []))
   => (contains {:notes ["Expected one element. There were zero."]})
-  (chatty-falsehood-to-map ( (just []) [1]))
+  (data-laden-falsehood-to-map ( (just []) [1]))
   => (contains {:notes ["Expected zero elements. There was one."]})
-  (chatty-falsehood-to-map ( (just [1 2]) [1]))
+  (data-laden-falsehood-to-map ( (just [1 2]) [1]))
   => (contains {:notes ["Expected two elements. There was one."]})
-  (chatty-falsehood-to-map ( (just #{1}) [1 1]))
+  (data-laden-falsehood-to-map ( (just #{1}) [1 1]))
   => (contains {:notes ["Expected one element. There were two."]})
 
 
-  (chatty-falsehood-to-map ((has-prefix '(a b c)) '(a)))
+  (data-laden-falsehood-to-map ((has-prefix '(a b c)) '(a)))
   => (contains {:notes ["A collection with one element cannot match a prefix of size three."]})
 
-  (chatty-falsehood-to-map ((has-suffix '(1)) '()))
+  (data-laden-falsehood-to-map ((has-suffix '(1)) '()))
   => (contains {:notes ["A collection with zero elements cannot match a suffix of size one."]})
 )
 
 (facts "where expected values are of wrong type for legitimate actual"
-  (chatty-falsehood-to-map ( (just "hi")          '(1)))
+  (data-laden-falsehood-to-map ( (just "hi")          '(1)))
   => (contains {:actual (list 1) :notes (just #"\[\]")})
-  (chatty-falsehood-to-map ( (just (atom 0))      '(0)))
+  (data-laden-falsehood-to-map ( (just (atom 0))      '(0)))
   => (contains {:actual '(0) :notes (just #"\[\]")})
-  (chatty-falsehood-to-map ( (contains :a)        {:a 1}))
+  (data-laden-falsehood-to-map ( (contains :a)        {:a 1}))
   => (contains {:actual {:a 1} :notes (just #"\{:a 1\}.*:a.*map entries")})
-  (chatty-falsehood-to-map ( (contains 1)         {:a 1}))
+  (data-laden-falsehood-to-map ( (contains 1)         {:a 1}))
   => (contains {:actual {:a 1} :notes (just #"\{:a 1\}.*1.*map entries")})
-  (chatty-falsehood-to-map ( (just (AB. 1 2)) {:a 1 :b 2}))
+  (data-laden-falsehood-to-map ( (just (AB. 1 2)) {:a 1 :b 2}))
   => (contains {:actual {:a 1 :b 2}
                 :notes (just #"AB.*but.*was.*map")})
-  (chatty-falsehood-to-map ( (just (AB. 1 2)) (AB-different-class. 1 2)))
+  (data-laden-falsehood-to-map ( (just (AB. 1 2)) (AB-different-class. 1 2)))
   => (contains {:actual (AB-different-class. 1 2)
                 :notes (just #"AB.*but.*was.*AB-different-class")})
   )
@@ -467,8 +467,8 @@
     
     [1 3 ] => (n-of odd? 2)
     ["ab" "aab" "aaab"] => (n-of #"a+b" 3)
-    ( (n-of odd? 1) [1 3]) => chatty-checker-falsehood?
-    ( (n-of odd? 3) [1 2 3]) => chatty-checker-falsehood?
+    ( (n-of odd? 1) [1 3]) => data-laden-falsehood?
+    ( (n-of odd? 3) [1 2 3]) => data-laden-falsehood?
   
     [1 1 3 3 5 5 7 7 9 9] => (ten-of odd?)
     [1 1 3 3 5 5 7 7 9] => (nine-of odd?)
@@ -486,8 +486,8 @@
     
     [1 3 2] =not=> (n-of odd? 2)
     ["ab" "aab" "aaab" "ccc"] =not=> (n-of #"a+b" 3)
-    ( (n-of odd? 1) [1]) =not=> chatty-checker-falsehood?
-    ( (n-of odd? 3) [1 3 5]) =not=> chatty-checker-falsehood?
+    ( (n-of odd? 1) [1]) =not=> data-laden-falsehood?
+    ( (n-of odd? 3) [1 3 5]) =not=> data-laden-falsehood?
   
     [1 1 3 3 5 5 7 7 9 9 11] =not=> (ten-of odd?)
     [1 1 3 3 5 5 7 7 9 9] =not=> (nine-of odd?)

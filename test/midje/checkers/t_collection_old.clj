@@ -1,7 +1,7 @@
 (ns midje.checkers.t-collection-old
   (:use [midje sweet test-util]
-        [midje.checkers.chatty :only [chatty-falsehood-to-map
-                                      chatty-checker-falsehood?]]))
+        [midje.checkers.chatty :only [data-laden-falsehood-to-map
+                                      data-laden-falsehood?]]))
 
 ;; These are still potentially useful tests from a misguided code organization.
 ;; Delete them as they fail (after moving better tests to t-collection.
@@ -46,9 +46,9 @@
   ((has-prefix :a) [{ :a 1 }]) => falsey
 
   "sets"
-  ((has-prefix :a) #{:a}) => chatty-checker-falsehood?
-  ((has-prefix #{:a}) #{:a 1}) => chatty-checker-falsehood?
-  ((has-prefix [:a]) #{:a 1}) => chatty-checker-falsehood?
+  ((has-prefix :a) #{:a}) => data-laden-falsehood?
+  ((has-prefix #{:a}) #{:a 1}) => data-laden-falsehood?
+  ((has-prefix [:a]) #{:a 1}) => data-laden-falsehood?
 
   "mixtures"
   [1 2 4] => (has-prefix '(1))

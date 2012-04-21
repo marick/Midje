@@ -1,21 +1,21 @@
 (ns midje.checkers.t-chatty
   (:use midje.sweet
         [midje.checkers.defining :only [checker?]]
-        [midje.checkers.chatty :only [chattily-false? as-chatty-falsehood
+        [midje.checkers.chatty :only [extended-false? as-data-laden-falsehood
                                       chatty-worth-reporting-on?
-                                      chatty-checker-falsehood? chatty-untease
+                                      data-laden-falsehood? chatty-untease
                                       chatty-checker?]]
         midje.test-util
         clojure.pprint))
 
 (facts "about an extended notion of falsehood"
-  (chattily-false? false) => truthy
-  (chattily-false? true) => falsey
-  (chattily-false? {:intermediate-results 3}) => falsey
-  (chattily-false? (as-chatty-falsehood {})) => truthy)
+  (extended-false? false) => truthy
+  (extended-false? true) => falsey
+  (extended-false? {:intermediate-results 3}) => falsey
+  (extended-false? (as-data-laden-falsehood {})) => truthy)
 
 (facts "about chatty-checking utility functions"
-  (as-chatty-falsehood [5]) => chatty-checker-falsehood?
+  (as-data-laden-falsehood [5]) => data-laden-falsehood?
 
   (chatty-untease 'g-101 '()) => [[] []]
   
@@ -51,12 +51,12 @@
   (actual-plus-one-equals-4 3) => true
    
   (let [result (actual-plus-one-equals-4 4)]
-    result => chatty-checker-falsehood?
+    result => data-laden-falsehood?
     result => {:actual 4
               :intermediate-results [ ['(inc actual) 5] ] })
 
   (let [result (no-longer-limited-form 4)]
-    result => chatty-checker-falsehood?
+    result => data-laden-falsehood?
     result => {:actual 4
               :intermediate-results [ ['(inc actual) 5] ['(+ 2 actual) 6] ]}))
 

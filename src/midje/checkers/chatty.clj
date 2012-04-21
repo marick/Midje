@@ -6,34 +6,32 @@
 
 ;; Note: checkers need to be exported in ../checkers.clj
 
-;; TODO: It might make sense to split the notion of extended-falsehood out of
-;; that of chatty checkers, since there are now other kinds of checkers that
-;; generate chatty falsehoods.
+(defn as-data-laden-falsehood [value] ; was as-chatty-falsehood 
+  (with-meta value {:midje/data-laden-falsehood true}))
 
-(defn as-chatty-falsehood [value]
-  (with-meta value {:midje/chatty-checker-falsehood true}))
+(defn data-laden-falsehood? [value]   ; chatty-checker-falsehood
+  (:midje/data-laden-falsehood (meta value)))
 
-(defn chattily-false? [value]
+(defn data-laden-falsehood-to-map [value]
+  (with-meta value {}))
+
+(defn extended-false? [value]    ; was chattily-false
   (or (not value)
-      (:midje/chatty-checker-falsehood (meta value))))
+      (:midje/data-laden-falsehood (meta value))))
+
+
 
 (defn as-chatty-checker [function]
   (as-checker (vary-meta function assoc :midje/chatty-checker true)))
 
-(defn chatty-falsehood-to-map [value]
-  (with-meta value {}))
-
-(defn chatty-checker-falsehood? [value]
-  (:midje/chatty-checker-falsehood (meta value)))
-
-(defn add-actual [actual result]
-  (if (chatty-checker-falsehood? result)
-    (assoc result :actual actual)
-    result))
-  
 (defn chatty-checker? [fn]
   (:midje/chatty-checker (meta fn)))
 
+(defn add-actual [actual result]
+  (if (data-laden-falsehood? result)
+    (assoc result :actual actual)
+    result))
+  
 (defn chatty-worth-reporting-on? [arg]
   (and (or (list? arg) (seq? arg)) ; what started as a list (fn x y) might now be a seq.
        (pos? (count arg))
@@ -57,8 +55,8 @@
     `(as-chatty-checker
       (fn [~arg-form]
         (let [~result-symbol (vec ~complex-forms)]
-          (if (chattily-false? (~f ~@substituted-args))
+          (if (extended-false? (~f ~@substituted-args))
             (let [pairs# (pairs '~complex-forms ~result-symbol)]
-              (as-chatty-falsehood {:actual ~arg-name
+              (as-data-laden-falsehood {:actual ~arg-name
                                     :intermediate-results pairs#}))
             true))))))

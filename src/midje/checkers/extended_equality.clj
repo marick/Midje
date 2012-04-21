@@ -1,7 +1,7 @@
 (ns ^{:doc "`=` extended for regular expressions, functions, etc."}
   midje.checkers.extended-equality
   (:use [clojure.core.match :only [match]]
-        [midje.checkers.chatty :only [chatty-checker-falsehood?]]
+        [midje.checkers.chatty :only [data-laden-falsehood?]]
         [midje.util.form-utils :only [classic-map? pairs record? regex?]]))
 
 (defn extended-fn? [x]
@@ -11,13 +11,13 @@
 (defn extended-= [actual expected]
   (letfn [(evaluate-extended-fn [] 
             (let [function-result (expected actual)]
-              (if (chatty-checker-falsehood? function-result) 
+              (if (data-laden-falsehood? function-result) 
                 false 
                 function-result)))]
     (try
       (match [actual expected]
-        [(a :when chatty-checker-falsehood?) _]    actual
-        [_ (e :when chatty-checker-falsehood?)]    expected
+        [(a :when data-laden-falsehood?) _]    actual
+        [_ (e :when data-laden-falsehood?)]    expected
         [_ (e :when extended-fn?)]                 (evaluate-extended-fn) 
         [(a :when regex?)  (e :when regex?)]       (= (str actual) (str expected))
         [_                 (e :when regex?)]       (re-find expected actual)
