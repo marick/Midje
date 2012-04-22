@@ -21,12 +21,12 @@
 (defn restore-one-root [[^clojure.lang.Var the-var new-value]]
   (if (= new-value unbound-marker)
     (.unbindRoot the-var)
-    (alter-var-root the-var (fn [current-value] new-value))))
+    (alter-var-root the-var (fn [_current-value_] new-value))))
 
 (defn alter-one-root [[^clojure.lang.Var the-var new-value]]
   (if (bound? the-var)
     (let [old-value (deref the-var)]
-      (alter-var-root the-var (fn [current-value] new-value))
+      (alter-var-root the-var (fn [_current-value_] new-value))
       [the-var old-value])
     (do
       (.bindRoot the-var new-value)

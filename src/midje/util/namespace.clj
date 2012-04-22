@@ -4,7 +4,7 @@
   (:require [clojure.zip :as zip]))
 
 
-(defmulti matches-symbols-in-semi-sweet-or-sweet-ns? (fn [symbols treelike] (tree-variant treelike)))
+(defmulti matches-symbols-in-semi-sweet-or-sweet-ns? (fn [_symbols_ treelike] (tree-variant treelike)))
 
 (defmethod matches-symbols-in-semi-sweet-or-sweet-ns? :zipper [symbols loc]
    (matches-symbols-in-semi-sweet-or-sweet-ns? symbols (zip/node loc)))

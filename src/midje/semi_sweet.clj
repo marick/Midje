@@ -54,7 +54,7 @@
      :arrow '~arrow }
      (hash-map-duplicates-ok ~@overrides)))
 
-(letfn [(how-to-handle-check [call-form arrow & _]
+(letfn [(how-to-handle-check [_call-form_ arrow & _]
           (get {=> :expect*
                 =not=> :expect*
                 =deny=> :expect*
@@ -69,7 +69,7 @@
      (midje.semi-sweet/*expect-checking-fn* check# ~fakes)))
 
 (defmethod expect-expansion :expect-macro*
-  [call-form arrow expected-result fakes overrides]
+  [call-form _arrow_ expected-result fakes overrides]
   (let [expanded-macro `(macroexpand-1 '~call-form)
         escaped-expected-result `(quote ~expected-result)]
     (expect-expansion expanded-macro => escaped-expected-result fakes overrides)))

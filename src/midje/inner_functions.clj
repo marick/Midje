@@ -1,7 +1,7 @@
 (ns midje.inner-functions)
 
 
-(defmacro testable-defn [name args & body]
+(defmacro testable-defn [_name_ _args_ & _body_]
   
 )
   

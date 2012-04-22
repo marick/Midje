@@ -27,8 +27,9 @@
       (reset! fallback-line-number raw-lineno)
       (swap! fallback-line-number inc))))
 
-(defn arrow-line-number-from-form [form]
+(defn arrow-line-number-from-form
   "Form is of the form [ <function-call> => .* ]"
+  [form]
   (-> form zip/seq-zip zip/down zip/right arrow-line-number))
 
 (defn form-position [form]

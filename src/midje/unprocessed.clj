@@ -24,7 +24,7 @@
     (note-failure-in-fact))
   (swap! formula-reports conj report-map))
 
-(defn ^{:private true} report-formula-conclusion [report-map]
+(defn ^{:private true} report-formula-conclusion [_]
   (if-let [failure (find-first #(not= :pass (:type %)) (reverse @formula-reports))]
     (report failure)
     (report {:type :pass}) )
@@ -73,7 +73,7 @@
       (report-fn (fail :mock-expected-result-inappropriately-matched actual call))))]
 
 
-  (defmulti ^{:private true} check-result (fn [actual call]
+  (defmulti ^{:private true} check-result (fn [_actual_ call]
                                             [(:desired-check call) (or (:formula call) :fact)] ))
 
   ;; Methods for processing =>/=not=> facts

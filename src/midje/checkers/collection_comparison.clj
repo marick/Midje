@@ -16,28 +16,28 @@
 (defmulti ^{:private true} collection-string
   "Given a list of stringified elements, convert them into appropriate
    collection text."
-  (fn [midje-classification elements] midje-classification))
+  (fn [midje-classification _elements_] midje-classification))
 
-(defmethod collection-string ::map [midje-classification elements]
+(defmethod collection-string ::map [_midje-classification_ elements]
   (str "{" (join ", " (sort elements)) "}"))
 
-(defmethod collection-string ::not-map [midje-classification elements]
+(defmethod collection-string ::not-map [_midje-classification_ elements]
   (str "[" (join " " elements) "]"))
 ;;-
 
 (defmulti best-actual-match
   "Describe the best actuals found in the comparison."
-  (fn [midje-classification comparison] midje-classification))
+  (fn [midje-classification _comparison_] midje-classification))
 
-(defmethod best-actual-match ::not-map [midje-classification comparison]
+(defmethod best-actual-match ::not-map [_midje-classification_ comparison]
   (str "Best match found: " (pr-str (:actual-found comparison))))
 
-(defmethod best-actual-match ::map [midje-classification comparison]
+(defmethod best-actual-match ::map [_midje-classification_ comparison]
   (str "Best match found: " (pr-str (sort-map (:actual-found comparison)))))
 
 (defmulti best-expected-match
   "Describe the best list of expected values found in the comparison."
-  (fn [midje-classification comparison expected] midje-classification))
+  (fn [midje-classification _comparison_ _expected_] midje-classification))
 
 (letfn [(best-expected-match-wrapper
   [midje-classification comparison expected element-maker suffix]
@@ -163,12 +163,12 @@
             (rotations checkers)))]
 
   (defmulti compare-results
-    (fn [actual expected looseness]
+    (fn [actual _expected_ looseness]
       (if (= ::map (midje-classification actual))
         ::map
         [::not-map (or (some #{:in-any-order} looseness) :strict-order)])))
 
-  (defmethod compare-results ::map [actual expected looseness]
+  (defmethod compare-results ::map [actual expected _looseness_]
     (order-free-compare-results expected
       (feasible-permutations (keys expected))
       (fn [permutation]

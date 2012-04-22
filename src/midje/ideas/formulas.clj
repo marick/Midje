@@ -61,7 +61,7 @@
   The midje.ideas.formulas/*num-trials* dynamic var determines
   how many facts are generated per formula."
   {:arglists '([docstring? opts-map? bindings & body])}
-  [& args]
+  [& _args]
   (domonad validate-m [[docstring? opts-map bindings body] (validate &form)
                        fact (formula-fact docstring? body)
                        conclusion-signal `(midje.sweet/fact
