@@ -41,7 +41,7 @@
     "Code to run before a given wrapping target (:facts, :contents, :checks).
   Can take an optional keyword argument :after, for any code to run afterward.
   Used with background and against-background"
-    [wrapping-target before-form & {:keys [after]}]
+    [_wrapping-target_ before-form & {:keys [after]}]
     (ensure-correct-form-variable `(try
                                      ~before-form
                                      ?form
@@ -50,7 +50,7 @@
   (defmacro after 
     "Code to run after a given wrapping target (:facts, :contents, :checks).
   Used with background and against-background"
-    [wrapping-target after-form]
+    [_wrapping-target_ after-form]
     (ensure-correct-form-variable `(try ?form (finally ~after-form))))
 
   (defmacro around 
@@ -63,7 +63,7 @@
                       (print a))) 
      
   Used with background and against-background"
-    [wrapping-target around-form]
+    [_wrapping-target_ around-form]
     (ensure-correct-form-variable around-form)))
 
 (defn seq-headed-by-setup-teardown-form? [forms]
@@ -92,7 +92,7 @@
       (recur (conj expanded (first in-progress))
              (rest in-progress)))))
 
-(defn- ^{:testable true } state-wrapper [[_before-after-or-around_ wrapping-target & _  :as state-description]]
+(defn- ^{:testable true } state-wrapper [[_before-after-or-around_ wrapping-target & _ :as state-description]]
   (with-wrapping-target
     (macroexpand-1 (map-first #(symbol "midje.ideas.background" (name %)) state-description))
     wrapping-target))
