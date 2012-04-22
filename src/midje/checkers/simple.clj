@@ -61,7 +61,7 @@
   "Combines multiple checkers into one checker that passes 
    when all component checkers pass."
   [& checkers]
-  (as-checker (apply every-pred checkers)))
+  (as-checker (apply every-pred-m checkers)))
 
 (defn some-checker 
   "Combines multiple checkers into one checker that passes 
