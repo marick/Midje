@@ -75,7 +75,7 @@
 (letfn [(throwable-as-desired? [throwable desideratum]
            (pred-cond desideratum
                    fn?                        (desideratum throwable)
-                   (some-fn-m string? regex?) (extended-= (.getMessage throwable) desideratum)
+                   (some-fn-m string? regex?) (extended-= (.getMessage ^Throwable throwable) desideratum)
                    class?                     (instance? desideratum throwable)))]
 
   (defchecker throws
@@ -96,7 +96,7 @@
    So, for example, you can write this:
        (fact (foo) => (throws #\"one part\" #\"another part\"))"
     [& desiderata]
-    (checker [wrapped-throwable]
+    (checker [^ICapturedThrowable wrapped-throwable]
              (let [throwable (.throwable wrapped-throwable)
                    evaluations (map (partial throwable-as-desired? throwable) desiderata)
                    failures (filter extended-false? evaluations)]

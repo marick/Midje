@@ -57,4 +57,4 @@
   (instance? CapturedThrowable x))
 
 (defn captured-message [ex]
-  (.getMessage (throwable ex)))
+  (.getMessage ^Throwable (throwable ex)))
