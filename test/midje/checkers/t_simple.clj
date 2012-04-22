@@ -119,6 +119,12 @@
   (throw-exception "msg") => (throws "msg" #(= "msg" (.getMessage %)) Error)
   (throw-exception "msg") => (throws "msg" Error #(= "msg" (.getMessage %))) )
 
+(fact "throws works with checkers that use Midje's extended notion of false"
+  (throw-exception "msg") => (throws #( (contains "m") (.getMessage %)))
+  (throw-exception "msg") =deny=> (throws #( (contains "message") (.getMessage %)))
+  ;; Following would be a user error, but the results should be helpful.
+  (throw-exception "msg") =deny=> (contains "msg"))
+
 (fact "`throws` can even accept multiple predicates"
   (throw-exception "msg") => (throws #(= "msg" (.getMessage %)) #(= "msg" (.getMessage %)) #(= "msg" (.getMessage %)))
   (throw-exception "msg") => (throws "msg" #(= "msg" (.getMessage %)) #(= "msg" (.getMessage %)) #(= "msg" (.getMessage %)))
@@ -145,7 +151,7 @@
  (fact
    @reported => (three-of checker-fails)))
 
-(facts "about checker cominators" 
+(facts "about checker combinators" 
   (some-checker truthy falsey)  => checker?
   (every-checker truthy falsey) => checker?  
   

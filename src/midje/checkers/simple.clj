@@ -3,6 +3,7 @@
 (ns ^{:doc "Prepackaged functions that perform common checks."}
   midje.checkers.simple
   (:use [midje.checkers.defining :only [as-checker checker defchecker]]
+      	[midje.checkers.extended-falsehood :only [extended-false?]]
       	[midje.checkers.extended-equality :only [extended-=]]
       	[midje.checkers.util :only [named-as-call]]
       	[midje.error-handling.exceptions :only [captured-throwable?]]
@@ -71,8 +72,14 @@
 
 ;; Concerning Throwables
 
-(defmulti throws
-  "Checks for a thrown Throwable.
+(letfn [(throwable-as-desired? [throwable desideratum]
+           (pred-cond desideratum
+                   fn?                        (desideratum throwable)
+                   (some-fn-m string? regex?) (extended-= (.getMessage throwable) desideratum)
+                   class?                     (instance? desideratum throwable)))]
+
+  (defchecker throws
+    "Checks for a thrown Throwable.
 
    The most common cases are:
        (fact (foo) => (throws IOException)
@@ -88,27 +95,13 @@
    Arguments can be in any order. Except for a class argument, they can be repeated.
    So, for example, you can write this:
        (fact (foo) => (throws #\"one part\" #\"another part\"))"
-  {:arglists '([& args])}
-  (fn [& args]
-    (domonad set-m [arg args]
-      (pred-cond arg
-        fn?                        :predicate
-        (some-fn-m string? regex?) :message
-        class?                     :throwable ))))
-
-(defmethod throws #{:message } [& expected-msgs]
-  (checker [^ICapturedThrowable wrapped-throwable]
-    (let [actual-msg (.getMessage ^Throwable (.throwable wrapped-throwable))]
-      (every? (partial extended-= actual-msg) expected-msgs))))
-
-(defmethod throws #{:predicate} [& preds]
-  (checker [^ICapturedThrowable wrapped-throwable]
-    ((apply every-pred-m preds) (.throwable wrapped-throwable))))
-
-(defmethod throws #{:throwable} [clazz]
-  (checker [^ICapturedThrowable wrapped-throwable]
-    (instance? clazz (.throwable wrapped-throwable))))
-
-(def-many-methods throws [#{:throwable :predicate}, #{:message :predicate },
-                          #{:throwable :message}, #{:throwable :message :predicate}] [& args]
-  (apply every-checker (map throws args)))
+    [& desiderata]
+    (checker [wrapped-throwable]
+             (let [throwable (.throwable wrapped-throwable)
+                   evaluations (map (partial throwable-as-desired? throwable) desiderata)
+                   failures (filter extended-false? evaluations)]
+               ;; It might be nice to return some sort of composite failure, but I bet 
+               ;; just returning the first one is fine, especially since I expect people
+               ;; will use the class as the first desiderata. 
+               (or (empty? failures) (first failures)))))
+)
