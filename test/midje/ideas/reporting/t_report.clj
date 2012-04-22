@@ -210,17 +210,9 @@
     (nth raw-report 0) => #"FAIL.*some description.* at .*foo.clj:3"
     (nth raw-report 1) => #"a note"))
 
-(fact "report format is dynamically rebindindable"
+(fact "report formatter is dynamically rebindindable"
   (binding [*report-format-config* {:single-fact-fn (fn [_] "successfully rebound")
                                     :summary-fn :irrelevant}]
-
-    (let [failure-map {:type :mock-expected-result-functional-failure
-                       :description ["some description"]
-                       :actual 2
-                       :intermediate-results [['(f 1) 33]]
-                       :position ["foo.clj" 3]
-                       :expected '(test-checker 33)}
-          raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
-
+    (let [raw-report (with-identity-renderer (clojure.test/old-report :irrelevant))]
       (nth raw-report 0) => #"FAIL.*some description.*foo.clj:3"
       (nth raw-report 1) => "successfully rebound")))
