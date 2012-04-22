@@ -20,8 +20,6 @@
 (def formatters { "default" report-strings-format-config
                   "junit-xml" junit-xml-format-config })
 
-(def report-single-fact (:single-fact-fn *report-format-config*))
-
 
 ;;; Reporting
 
@@ -54,7 +52,12 @@
      (#'fact-checks-out?)))
   
 (letfn [(render [m]
-          (->> m report-single-fact flatten (remove nil?) (map *renderer*) doall))]
+          (->> m 
+               (:single-fact-fn *report-format-config*) 
+               flatten 
+               (remove nil?) 
+               (map *renderer*) 
+               doall))]
 
   (defmethod clojure.test/old-report :default [m]
     (inc-report-counter :fail )
