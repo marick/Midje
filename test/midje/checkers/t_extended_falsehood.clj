@@ -11,6 +11,6 @@
   (extended-false? {:intermediate-results 3}) => falsey
   (extended-false? (as-data-laden-falsehood {})) => truthy)
 
-(facts "about utility functions"
-  (as-data-laden-falsehood [5]) => data-laden-falsehood?)
-
+(facts "about data-laden falsehoods"
+  (as-data-laden-falsehood [5]) => data-laden-falsehood?
+  (meta (as-data-laden-falsehood (with-meta [5] {:foo true}))) => (contains {:foo true}))
