@@ -2,6 +2,7 @@
   (:use [clojure.test]
         midje.checkers
         [midje.checkers.extended-equality :only [extended-=]]
+        [midje.checkers.extended-falsehood :only [extended-false?]]
         midje.error-handling.exceptions
         [clojure.set :only [subset?]]
         [midje.util.form-utils :only [macro-for]]))
@@ -56,9 +57,12 @@
 
 ;; Applied to lists of result maps
 (defchecker has-bad-result [reporteds]
-  (some bad-result reporteds))
+  (some (comp not extended-false?) (map bad-result reporteds)))
 (defchecker has-wrong-call-count [reporteds]
-  (some wrong-call-count reporteds))
+  (some (comp not extended-false?) wrong-call-count reporteds))
+(defn passes [reporteds]
+  (every? pass reporteds))
+
 
 (defchecker has-thrown-message [expected]
   (checker [reporteds]
