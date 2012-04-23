@@ -4,13 +4,12 @@
   (:use [clojure.algo.monads :only [defmonad domonad]]
         [clojure.test :only [report]]
         [midje.internal-ideas.file-position :only [form-position]]
-        [midje.util.form-utils :only [named?]]
-        [utilize.seq :only (find-first)]))
+        [midje.util.form-utils :only [named?]]))
                            
 
 ;; Making validation errors
 
-(defn- ^{:testable true } as-validation-error [form]
+(defn- ^{:testable true} as-validation-error [form]
   (vary-meta form assoc :midje/validation-error true))
 
 (defn validation-error-form? [form]
@@ -41,15 +40,16 @@
 
 ;; Validate
 
-(defmulti validate (fn [form & options] 
+(defmulti validate (fn [form & _options_] 
                      (if (named? (first form)) 
                        (name (first form)) 
                        :validate-seq)))
 
-(defmethod validate :validate-seq [form-seq & options] 
-  (letfn [(spread-validation-error [form-seq]
-            (or (find-first validation-error-form? form-seq)
-                form-seq))]
-    (spread-validation-error (map validate form-seq))))
+(defmethod validate :validate-seq [seq-of-forms & _options_]
+  (let [first-validation-error (->> seq-of-forms 
+                                    (map validate) 
+                                    (filter validation-error-form?)
+                                    first)]
+    (or first-validation-error seq-of-forms)))
 
-(defmethod validate :default [form & options] (rest form))
+(defmethod validate :default [form & _options_] (rest form))
