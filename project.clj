@@ -32,4 +32,5 @@
 ;  :warn-on-reflection true      ;; turn on to check production code for reflection
 
   ;; For Clojure snapshots
-  :repositories {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"})
+  :repositories {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"
+                 "stuartsierra-releases" "http://stuartsierra.com/maven2"})
