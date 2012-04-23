@@ -108,22 +108,6 @@ odd?                   3               falsey)
     (supplier) => 2
     (supplier) => 3))
 
-(unfinished called)
-
-(defn caller []
-  (try
-    (called)
-    (catch Exception e nil))
-  (try
-    (called)
-    (catch Exception e nil))
-  (called))
-
-(fact "=streams=> makes thunks of each item on right hand side"
-  (caller) => 7
-  (provided
-    (called) =streams=> [(throw (Exception. "first!")) (throw (Exception. "second!")) 7]))
-
 
 ;;; Handling of default values for fakes
 

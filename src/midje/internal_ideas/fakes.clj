@@ -34,34 +34,6 @@
       (first-named? form "data-fake")))
 
 
-;;; Potential transformations (for thunking) of the right-hand-side of fakes
-
-(defn- on-demand
-  "Produce value of next thunk on each successive call."
-  [thunks]
-  (let [the-stream (atom thunks)]
-    (fn []
-      (when (empty? @the-stream)
-        (throw (user-error "Your =stream=> ran out of values.")))
-      (let [current (first @the-stream)]
-        (swap! the-stream rest)
-        (current)))))
-
-(defmulti updated-rhs (fn [arrow rhs] (name arrow)))
-
-(defmethod updated-rhs :default [arrow rhs]
-  rhs)
-
-(defmethod updated-rhs (name =streams=>) [arrow rhs]
-  (pred-cond rhs
-     vector?            `(repeatedly (#'on-demand (to-thunks ~rhs)))
-     quoted-list-form?  `(repeatedly (#'on-demand (to-thunks ~(second rhs))))
-     seq                rhs       
-    :else               (throw (user-error 
-                                 "This form doesn't look like a valid right-hand-side for =streams=>:"
-                                 (pr-str rhs)))))
-
-
 ;;; Creating fake maps
 
 (defn arg-matcher-maker
@@ -73,11 +45,11 @@
     (fn [actual] (extended-= actual (exactly expected)))
     (fn [actual] (extended-= actual expected))))
 
-(defmulti fn-fake-result-supplier* (fn [arrow & _] arrow))
+(defmulti fn-fake-result-supplier (fn [arrow & _] arrow))
 
-(defmethod fn-fake-result-supplier* => [_arrow_ result] (constantly result))
+(defmethod fn-fake-result-supplier => [_arrow_ result] (constantly result))
 
-(defmethod fn-fake-result-supplier* =streams=> [_arrow_ result-stream]
+(defmethod fn-fake-result-supplier =streams=> [_arrow_ result-stream]
   (let [the-stream (atom result-stream)]
     (fn []
       (when (empty? @the-stream)
@@ -86,18 +58,15 @@
         (swap! the-stream rest)
         current-result))))
 
-(defmethod fn-fake-result-supplier* =throws=> [_arrow_ throwable]
+(defmethod fn-fake-result-supplier =throws=> [_arrow_ throwable]
   (fn []
     (when-not (instance? Throwable throwable) 
       (throw (user-error "Right side of =throws=> should extend Throwable.")))
     (throw throwable)))
 
-(defmethod fn-fake-result-supplier* :default [arrow result-stream]
+(defmethod fn-fake-result-supplier :default [arrow result-stream]
   (throw (user-error "It's likely you misparenthesized your metaconstant prerequisite,"
                      "or that you forgot to use an arrow in your provided form.")))
-
-(defmacro fn-fake-result-supplier [arrow rhs]
-  `(fn-fake-result-supplier* ~arrow ~(updated-rhs arrow rhs)))
 
 (letfn [(make-fake-map [call-form arrow rhs var-sym special-to-fake-type user-override-pairs]
           (let [common-to-all-fakes `{:var (var ~var-sym)

@@ -47,22 +47,6 @@
   (provided
     (number) =streams=> (range) :times 2))
 
-;; When the right-hand-side is an explicit list or vector of values,
-;; the values are not evaluated until asked for.
-
-(def log (atom []))
-(defn log-and-return [n] ; 3 of these will be listed, but only two consumed.
-  (swap! log conj n)
-  n)
-
-(fact "only two stream elements will be evaluated"
-  (against-background (before :facts (reset! log [])))
-  (two-numbers) => 3
-  (provided
-    (number) =streams=> [ (log-and-return 1)
-                          (log-and-return 2)
-                          (log-and-return 3) ])
-  @log => [1 2])
 
 ;; We want to be gracious about errors, so it should be that asking
 ;; for the n+1th value when there are only N fails helpfully:
@@ -112,19 +96,6 @@
 (fact
   @reported => has-wrong-call-count)
 
-;; You can use a quoted list on the right-hand-side, and it works just
-;; as with a vector. This test demonstrates how list elements are also
-;; not evaluated until needed.
-
-(fact "only two stream elements will be evaluated"
-  (against-background (before :facts (reset! log [])))
-  (two-numbers) => 3
-  (provided
-    (number) =streams=> '( (log-and-return 1)
-                           (log-and-return 2)
-                           (log-and-return 3) ))
-  @log => [1 2])
-
 
 ;; Lazy sequences that run out of values generate the
 ;; same error message as non-lazy sequentials.
@@ -138,56 +109,3 @@
 (fact
   @reported => has-bad-result
   @reported => (has-thrown-message useful-message))
-
-
-
-;;;; This does not work
-
-(unfinished a-try)
-
-(defn a-try []
-  (   (fn [] (throw (Exception. "fooooooo"))) ))
-
-(defn msg []
-  (try
-    (a-try)
-    (catch Exception ex
-      (prn "#'msg going to return " (.getMessage ex))
-      (.getMessage ex))))
-
-
-(defn longest-msg []
-  (reduce (fn [so-far text]
-            (prn "longest-msg working with " text)
-            (if (> (count text) (count so-far))
-              text
-              so-far))
-            [(msg) (msg) (msg)]))
-
-; (prn [(msg) (msg) (msg)])
-
-; (prn (longest-msg))
-  
-(future-fact "streaming exceptions actually works"
-  (longest-msg) => "i am long"
-  (provided
-    (a-try) =streams=> [ (throw (Exception. "short"))
-                         (throw (Exception. "shorter"))
-                         (throw (Exception. "i am long")) ]))
-
-
-;; Seems like a simpler way to get a similar failure as the above
-
-;; -- is this related to the way Clojure wraps exceptions in Runtime exceptions?
-;; -- I'm not sure under which circumstances said wrapping happens
-
-(defn a [])
-(defn b [] (a) (a) (a))
-
-(future-fact "prerequisites can throw throwables using =streams=>"
-  (b) => (throws Exception "foo")
-  (provided
-    (a) =streams=> [:no-problem
-                    :fine
-                    (throw (Exception. "foo"))
-                    (throw (Exception. "bar"))]))
