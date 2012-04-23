@@ -1,6 +1,5 @@
 (ns midje.checkers.collection-util
-  (:use [midje.util.form-utils :only [regex?]]
-        [midje.checkers.extended-equality :only [extended-fn?]]
+  (:use [midje.util.form-utils :only [extended-fn? regex?]]
         [midje.checkers.extended-falsehood :only [as-data-laden-falsehood]]))
 
 (defn same-lengths? [actual expected]

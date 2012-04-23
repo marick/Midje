@@ -2,11 +2,7 @@
   midje.checkers.extended-equality
   (:use [clojure.core.match :only [match]]
         [midje.checkers.extended-falsehood :only [data-laden-falsehood?]]
-        [midje.util.form-utils :only [classic-map? pairs record? regex?]]))
-
-(defn extended-fn? [x]
-  (or (fn? x)
-      (= (class x) clojure.lang.MultiFn)))
+        [midje.util.form-utils :only [classic-map? extended-fn? pairs record? regex?]]))
 
 (defn extended-= [actual expected]
   (letfn [(evaluate-extended-fn [] 

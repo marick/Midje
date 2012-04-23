@@ -8,10 +8,10 @@
         [midje.internal-ideas.expect :only [expect? up-to-full-expect-form]]
         [midje.util.form-utils :only [first-named? translate-zipper map-difference
                                       hash-map-duplicates-ok pred-cond to-thunks
-                                      quoted-list-form?]]
+                                      quoted-list-form? extended-fn?]]
         [midje.ideas.metaconstants :only [merge-metaconstants metaconstant-for-form
                                           with-fresh-generated-metaconstant-names]]
-        [midje.checkers.extended-equality :only [extended-= extended-list-= extended-fn?]]
+        [midje.checkers.extended-equality :only [extended-= extended-list-=]]
         [midje.internal-ideas.file-position :only [user-file-position]]
         [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out
                                                    with-pushed-namespace-values

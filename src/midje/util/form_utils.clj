@@ -26,6 +26,10 @@
   
 (defn record? [x]
   (and (map? x) (not (classic-map? x))))
+
+(defn extended-fn? [x]
+  (or (fn? x)
+    (= (class x) clojure.lang.MultiFn)))
   
 (defn symbol-named?
   "Is the thing a symbol with the name given by the string?"
