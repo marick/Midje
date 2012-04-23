@@ -24,8 +24,7 @@
   :dev-dependencies [[slamhound "1.2.0"]
                      [jonase/kibit "0.0.3"]
                      [jonase/eastwood "0.0.2"]
-                     ;;[com.stuartsierra/lazytest "1.2.3"]
-                     ]
+                     [com.stuartsierra/lazytest "1.2.3"]]
 
   ;; automatically detects when your :dependencies key changes and runs
   ;; lein deps behind the scenes when necessary.
