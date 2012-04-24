@@ -4,13 +4,11 @@
         [midje.error-handling.validation-errors :only [validation-error-report-form validate]]
         [midje.util.namespace :only [matches-symbols-in-semi-sweet-or-sweet-ns?]]
         [midje.ideas.metaconstants :only [metaconstant-symbol?]]
-        [midje.ideas.arrow-symbols :only [=contains=>]]))
+        [midje.ideas.arrow-symbols :only [=contains=>]]
+        [midje.util.form-utils :only [fnref-var-object]]))
 
-(letfn [(compiler-will-inline-fn? [fnref-form]
-          (let [v (if (symbol? fnref-form)
-                    fnref-form
-                    (second fnref-form))]
-            (contains? (meta (resolve v)) :inline)))]
+(letfn [(compiler-will-inline-fn? [fnref]
+          (contains? (meta (fnref-var-object fnref)) :inline))]
 
   (defmethod validate "fake" [[_fake_ & fake-form :as form]]
     (let [funcall (first fake-form)]

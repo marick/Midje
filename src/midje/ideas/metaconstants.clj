@@ -1,7 +1,7 @@
 (ns ^{:doc "A notation that avoids confusion between what’s essential 
             about data and what’s accidental. A stand in for constant data."}
   midje.ideas.metaconstants
-  (:use [midje.util.form-utils :only [translate-zipper]]
+  (:use [midje.util.form-utils :only [translate-zipper fnref-symbol]]
         [midje.util.zip :only [skip-down-then-rightmost-leaf]]
         [midje.util.thread-safe-var-nesting :only [unbound-marker]]
         [midje.error-handling.exceptions :only [user-error]]
@@ -113,4 +113,4 @@
                   (assoc current-value function-symbol ((fnil inc 0) (current-value function-symbol))))
         number ((swap! *metaconstant-counts* swap-fn function-symbol)
                   function-symbol)]
-    (symbol (format "...%s-value-%s..." (name function-symbol) number))))
+    (symbol (format "...%s-value-%s..." (name (fnref-symbol function-symbol)) number))))

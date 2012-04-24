@@ -8,7 +8,11 @@
         [midje.internal-ideas.expect :only [expect? up-to-full-expect-form]]
         [midje.util.form-utils :only [first-named? translate-zipper map-difference
                                       hash-map-duplicates-ok pred-cond to-thunks
-                                      quoted-list-form? extended-fn?]]
+                                      quoted-list-form? extended-fn?
+                                      fnref-call-form
+                                      fnref-var-object
+                                      fnref-symbol
+                                      fnref-dereference-form]]
         [midje.ideas.metaconstants :only [merge-metaconstants metaconstant-for-form
                                           with-fresh-generated-metaconstant-names]]
         [midje.checkers.extended-equality :only [extended-= extended-list-=]]
@@ -95,39 +99,6 @@
   
 
 
-;; Function references. These are usually symbols but are sometimes 
-;; the readable representation of vars: (var foo).
-(defn classify-function-reference [reference]
-  (pred-cond reference
-     symbol?        :symbol
-     sequential?    :var-form
-     :else          (throw (Exception. "Programmer error"))))
-
-(defmulti fnref-symbol classify-function-reference)
-(defmethod fnref-symbol :symbol [reference]
-  reference)
-(defmethod fnref-symbol :var-form [reference]
-  (:name (meta reference)))
-  
-(defmulti fnref-var classify-function-reference)
-(defmethod fnref-var :symbol [reference]
-  (resolve reference))
-(defmethod fnref-var :var-form [reference]
-  reference)
-  
-(defmulti fnref-call-form classify-function-reference)
-(defmethod fnref-call-form :symbol [reference]
-  `(var ~reference))
-(defmethod fnref-call-form :var-form [reference]
-  reference)
-  
-(defmulti fnref-dereference classify-function-reference)
-(defmethod fnref-dereference :symbol [reference]
-  reference)
-(defmethod fnref-dereference :var-form [reference]
-  `(deref ~reference))
-  
-
 
 
 (letfn [(make-fake-map [call-form arrow rhs fnref special-to-fake-type user-override-pairs]
@@ -149,14 +120,14 @@
     ;; evaluated as a function call later on. Right approach would
     ;; seem to be '~args. That causes spurious failures. Debug
     ;; someday.
-    (when (statically-disallowed-prerequisite-function (fnref-var fnref))
-      (raise-disallowed-prerequisite-error (fnref-var fnref)))
+    (when (statically-disallowed-prerequisite-function (fnref-var-object fnref))
+      (raise-disallowed-prerequisite-error (fnref-var-object fnref)))
     (make-fake-map call-form arrow (cons result overrides)
       fnref
       `{:arg-matchers (map midje.internal-ideas.fakes/arg-matcher-maker ~(vec args))
         :call-text-for-failures (str '~call-form)
         :value-at-time-of-faking (if (bound? ~(fnref-call-form fnref))
-                                   ~(fnref-dereference fnref))
+                                   ~(fnref-dereference-form fnref))
         :result-supplier (fn-fake-result-supplier ~arrow ~result)
         :type :fake}
       overrides))
@@ -308,17 +279,16 @@
 ;; to generate new fakes.
 
 (defn- ^{:testable true } mockable-funcall? [x]
-  (let [constructor? (fn [fnref-form]
-                       (and (symbol? fnref-form)
-                            (.endsWith (name fnref-form) ".")))
+  (let [constructor? (fn [symbol]
+                       (.endsWith (name symbol) "."))
         special-forms '[quote fn let new]
-        mockable-function-fnref-form? (fn [fnref-form]
-                                  (not (or (some #{fnref-form} special-forms)
-                                           (some #{fnref-form} checker-makers)
-                                           (constructor? fnref-form)
-                                           (checker? (resolve fnref-form)))))]
+        mockable-function? (fn [fnref]
+                             (not (or (some #{fnref} special-forms)
+                                      (some #{fnref} checker-makers)
+                                      (constructor? (fnref-symbol fnref))
+                                      (checker? (fnref-var-object fnref)))))]
     (and (list? x)
-      (mockable-function-fnref-form? (first x)))))
+      (mockable-function? (first x)))))
 
 (letfn [(fake-form-funcall-arglist [[fake funcall => value & overrides :as _fake-form_]]
           (rest funcall))]

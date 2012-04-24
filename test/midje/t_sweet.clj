@@ -358,10 +358,10 @@
 (defn here-and-there []
   (var-inc-local (#'midje.internal-ideas.t-fakes/var-inc 2)))
   
-(future-fact "vars also work with unfolded prerequisites"
+(fact "vars also work with unfolded prerequisites"
   (here-and-there) => 201
   (provided
-   (#'midje.internal-ideas.t-fakes (var-inc-local 2))  => 201))
+   (var-inc-local (#'midje.internal-ideas.t-fakes/var-inc 2)) => 201))
 
 (defn there-and-here []
   (#'midje.internal-ideas.t-fakes/var-inc (var-inc-local 2)))
@@ -369,15 +369,15 @@
 (fact "vars also work with unfolded prerequisites"
   (there-and-here) => 201
   (provided
-   (#'midje.internal-ideas.t-fakes/var-inc (var-inc-local 2))  => 201))
+   (#'midje.internal-ideas.t-fakes/var-inc (var-inc-local 2)) => 201))
 
 (defn over-there-over-there-spread-the-word-to-beware []
   (#'midje.internal-ideas.t-fakes/var-inc
    (#'midje.internal-ideas.t-fakes/var-inc 2)))
   
-(future-fact "vars also work with unfolded prerequisites"
+(fact "vars also work with unfolded prerequisites"
   (over-there-over-there-spread-the-word-to-beware) => 201
   (provided
    (#'midje.internal-ideas.t-fakes/var-inc
-    (#'midje.internal-ideas.t-fakes/var-inc 2))  => 201))
+    (#'midje.internal-ideas.t-fakes/var-inc 2)) => 201))
 
