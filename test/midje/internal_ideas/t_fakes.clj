@@ -159,13 +159,19 @@ odd?                   3               falsey)
 ;; deref is a known special case that has to be detected differently
 ;; than the one above.
 
+(def throwable-received nil)
+
 (try 
   (macroexpand '(fake (deref anything) => 5))
   (catch Throwable ex
-    (fact
-      (let [text (.getMessage ex)]
-        text => #"deref"
-        text => #"interferes with.*Midje"))))
+    ;; Weird things happen with atoms within a catch.
+    (alter-var-root #'throwable-received (constantly ex))))
+
+(fact
+  throwable-received =not=> nil?
+  (let [text (.getMessage throwable-received)]
+    text => #"deref"
+    text => #"interferes with.*Midje"))
 
 ;; And inlined functions can't be faked
 
