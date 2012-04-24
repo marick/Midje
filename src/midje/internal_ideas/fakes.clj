@@ -68,6 +68,25 @@
   (throw (user-error "It's likely you misparenthesized your metaconstant prerequisite,"
                      "or that you forgot to use an arrow in your provided form.")))
 
+(def #^:private disallowed-prerequisite-functions-that-cannot-be-dynamically-detected
+     #{'deref})
+
+(defn #^:private
+  raise-disallowed-prerequisite-error [function-name]
+  (throw
+   (user-error
+    "You seem to have created a prerequisite for"
+    (str (pr-str function-name) " that interferes with that function's use in Midje's")
+    (str "own code. To fix, define a function of your own that uses "
+         (or (:name (meta function-name)) function-name) ", then")
+    "describe that function in a provided clause. For example, instead of this:"
+    "  (provided (every? even? ..xs..) => true)"
+    "do this:"
+    "  (def all-even? (partial every? even?))"
+    "  ;; ..."
+    "  (provided (all-even? ..xs..) => true)")))
+  
+
 (letfn [(make-fake-map [call-form arrow rhs var-sym special-to-fake-type user-override-pairs]
           (let [common-to-all-fakes `{:var (var ~var-sym)
                                       :call-count-atom (atom 0)
@@ -87,6 +106,8 @@
     ;; evaluated as a function call later on. Right approach would
     ;; seem to be '~args. That causes spurious failures. Debug
     ;; someday.
+    (when (disallowed-prerequisite-functions-that-cannot-be-dynamically-detected var-sym)
+      (raise-disallowed-prerequisite-error var-sym))
     (make-fake-map call-form arrow (cons result overrides)
       var-sym
       `{:arg-matchers (map midje.internal-ideas.fakes/arg-matcher-maker ~(vec args))
@@ -141,22 +162,14 @@
 
 (def #^:dynamic #^:private *call-action-count* (atom 0))
 
+
 (defn- ^{:testable true } best-call-action 
   "Returns a fake: when one can handle the call
    Else returns a function: from the first fake with a usable-default-function.
    Returns nil otherwise."
   [function-var actual-args fakes]
   (when (= 2 @*call-action-count*)
-    (throw (user-error "You seem to have created a prerequisite for"
-             (str (pr-str function-var) " that interferes with that function's use in Midje's")
-             (str "own code. To fix, define a function of your own that uses "
-               (or (:name (meta function-var)) function-var) ", then")
-             "describe that function in a provided clause. For example, instead of this:"
-             "  (provided (every? even? ..xs..) => true)"
-             "do this:"
-             "  (def all-even? (partial every? even?))"
-             "  ;; ..."
-             "  (provided (all-even? ..xs..) => true)")))
+    (raise-disallowed-prerequisite-error function-var))
   (if-let [found (find-first (partial call-handled-by-fake? function-var actual-args) fakes)]
     found
     (when-let [fake-with-usable-default (find-first #(and (= function-var (:var %)) 

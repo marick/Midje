@@ -135,6 +135,14 @@ odd?                   3               falsey)
 
 
 ;; However you can't override functions that are used by Midje itself
+;; These are reported thusly:
+
+(defn message-about-mocking-midje-functions [reported]
+  (let [important-error
+        (find-first #(= (:type %) :mock-expected-result-functional-failure)
+                    reported)]
+    (and important-error
+        (.getMessage (.throwable (:actual important-error))))))
 
 (defn all-even? [xs] (every? even? xs))
 
@@ -142,15 +150,22 @@ odd?                   3               falsey)
   (fact "get a user error from nested call to faked `every?`"
      (all-even? ..xs..) => truthy
      (provided (every? even? ..xs..) => true))
-  (let [important-error (find-first #(= (:type %) :mock-expected-result-functional-failure)
-                                     @reported)
-         text (.getMessage (.throwable (:actual important-error)))]
-     
-     (fact
-       text => #"seem to have created a prerequisite"
-       text => #"clojure\.core/every\?"
-       text => #"interferes with.*Midje")))
+  (fact
+    (let [text (message-about-mocking-midje-functions @reported)]
+      text => #"seem to have created a prerequisite"
+      text => #"clojure\.core/every\?"
+      text => #"interferes with.*Midje")))
 
+;; deref is a known special case that has to be detected differently
+;; than the one above.
+
+(try 
+  (macroexpand '(fake (deref anything) => 5))
+  (catch Throwable ex
+    (fact
+      (let [text (.getMessage ex)]
+        text => #"deref"
+        text => #"interferes with.*Midje"))))
 
 ;; And inlined functions can't be faked
 
