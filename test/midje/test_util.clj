@@ -56,12 +56,17 @@
 
 
 ;; Applied to lists of result maps
-(defchecker has-bad-result [reporteds]
-  (some (comp not extended-false?) (map bad-result reporteds)))
-(defchecker has-wrong-call-count [reporteds]
-  (some (comp not extended-false?) wrong-call-count reporteds))
-(defn passes [reporteds]
-  (every? pass reporteds))
+(letfn [(make-collection-checker [unit-checker]
+          (checker [reporteds]
+            (some (comp not extended-false?) (map unit-checker reporteds))))]
+  (defchecker has-bad-result [reporteds]
+    (make-collection-checker bad-result))
+  (defchecker has-wrong-call-count [reporteds]
+    (make-collection-checker wrong-call-count))
+
+  (defn passes [reporteds]
+    (every? pass reporteds))
+)
 
 
 (defchecker has-thrown-message [expected]
