@@ -5,7 +5,8 @@
         [midje.ideas.metaconstants :only [metaconstant-for-form]]
         [utilize.seq :only (find-first only)]
         [midje.test-util]
-        midje.util)
+        midje.util
+        clojure.pprint)
   (:import midje.ideas.metaconstants.Metaconstant))
 
 (expose-testables midje.internal-ideas.fakes)
@@ -36,14 +37,18 @@ odd?                   odd?            TRUTHY
 odd?                   3               falsey)
 
 
-
 (declare f g)
 
-(fact "binding maps contain functions that increment a call count"
-  (let [fake (fake (f 1) => 3)
-        result-map (binding-map [fake])]
-    ( (result-map #'f) 1) => 3
-    @(:call-count-atom fake) => 1))
+(tabular 
+  (fact "binding maps contain functions that increment a call count"
+    (let [fake (fake (?function-reference 1) => 3)
+          result-map (binding-map [fake])]
+      ( (result-map #'f) 1) => 3
+      @(:call-count-atom fake) => 1))
+  ?function-reference
+         f
+        #'f
+        )
 
 (fact "binding maps can also contain Metaconstants to assign"
   (let [data-fakes [(data-fake ...mc... =contains=> {:a 1, :b ...even...})
@@ -219,14 +224,17 @@ odd?                   3               falsey)
     (def not-a-function 3)
     (def a-function (fn [x] x))
     (usable-default-function? (fake (not-a-function 3) => 1)) => falsey
-    (usable-default-function? (fake (a-function 3) => 1)) => truthy)
+    (usable-default-function? (fake (a-function 3) => 1)) => truthy
+    (usable-default-function? (fake (#'a-function 3) => 1)) => truthy)
   (fact "It may not have been marked `unfinished`"
     (unfinished tbd)
     (usable-default-function? (fake (tbd 3) => 1)) => falsey
+    (usable-default-function? (fake (#'tbd 3) => 1)) => falsey
     ;; However, an unfinished-then-redefined function is allowed
     (unfinished forget-to-remove)
     (def forget-to-remove (fn [x] (+ 3 (* 3 x))))
-    (usable-default-function? (fake (forget-to-remove 3) => 1)) => truthy)
+    (usable-default-function? (fake (forget-to-remove 3) => 1)) => truthy
+    (usable-default-function? (fake (#'forget-to-remove 3) => 1)) => truthy)
   (fact "It can be a multimethod"
     (defmulti multimethod type)
     (defmethod multimethod java.lang.String [x] "string me!")
@@ -241,7 +249,7 @@ odd?                   3               falsey)
 (fact "fakes keep track of their call counts"
   (let [fakes [(fake (f 1) => 3)
                (fake (g 1) => 4)
-               (fake (f 2) => 5)]
+               (fake (#'f 2) => 5)]
         counts (fn [] 
                  (map #(deref (:call-count-atom %)) fakes))]
     (handle-mocked-call #'f [1] fakes)    (counts) => [1 0 0]
@@ -256,6 +264,7 @@ odd?                   3               falsey)
 (fact "fakes contain the value of their function-var at moment of binding"
   (:value-at-time-of-faking (fake (unbound-var) => 2)) => nil
   (:value-at-time-of-faking (fake (bound-var) => 888)) => 3
+  (:value-at-time-of-faking (fake (#'bound-var) => 888)) => 3
   (binding [rebound 88]
     (:value-at-time-of-faking (fake (rebound) => 3)) => 88))
 
@@ -334,7 +343,7 @@ odd?                   3               falsey)
   (provided
     (metaconstant-for-form '(h 1)) => '...h-1...)
   "Which means that already-existing substitutions are reused"
-  (augment-substitutions {'(h 1) ...h-1...} '(fake (f (h 1)))) => '{ (h 1) ...h-1... })
+  (augment-substitutions {'(h 1) ...h-1...} '(fake (#'f (h 1)))) => '{ (h 1) ...h-1... })
 
 (fact "fakes are flattened by making substitutions"
   (flatten-fake '(fake (f (g 1) 2 (h 3)) =test=> 33 ...overrides...)
@@ -343,8 +352,8 @@ odd?                   3               falsey)
 
 (fact "generated fakes maintain overrrides"
   (let [g-fake '(midje.semi-sweet/fake (g 1) midje.semi-sweet/=> ...g-1... ...overrides...)
-        h-fake '(midje.semi-sweet/fake (h 3) midje.semi-sweet/=> ...h-1... ...overrides...)]
-    (set (generate-fakes '{ (g 1) ...g-1..., (h 3) ...h-1... } '(...overrides...)))
+        h-fake '(midje.semi-sweet/fake (#'h 3) midje.semi-sweet/=> ...h-1... ...overrides...)]
+    (set (generate-fakes '{ (g 1) ...g-1..., (#'h 3) ...h-1... } '(...overrides...)))
     => #{g-fake h-fake}))
 
 (fact "data-fakes can be converted to metaconstant-bindings"
@@ -373,3 +382,12 @@ odd?                   3               falsey)
                                                             :arrow '=contains=>
                                                             :rhs (contains [{:key :value}])}))
 
+
+;;; DO NOT DELETE
+;;; These are used to test the use of vars to fake private functions
+;;; in another namespace.
+
+(defn- var-inc [x] (inc x))
+(defn- var-inc-user [x] (* x (var-inc x)))
+(defn- var-twice []
+  (var-inc (var-inc 2)))

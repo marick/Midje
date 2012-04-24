@@ -6,8 +6,11 @@
         [midje.ideas.metaconstants :only [metaconstant-symbol?]]
         [midje.ideas.arrow-symbols :only [=contains=>]]))
 
-(letfn [(compiler-will-inline-fn? [fn]
-          (contains? (meta (resolve fn)) :inline ))]
+(letfn [(compiler-will-inline-fn? [fnref-form]
+          (let [v (if (symbol? fnref-form)
+                    fnref-form
+                    (second fnref-form))]
+            (contains? (meta (resolve v)) :inline)))]
 
   (defmethod validate "fake" [[_fake_ & fake-form :as form]]
     (let [funcall (first fake-form)]

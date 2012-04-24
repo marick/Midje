@@ -95,26 +95,37 @@
   
 
 
-;; Function references. These are usually symbols but are sometimes vars.
-;; This isn't a collection because I don't want to allow vars in some cases
-;; that call common code. 
+;; Function references. These are usually symbols but are sometimes 
+;; the readable representation of vars: (var foo).
 (defn classify-function-reference [reference]
-  ;; Not sure we're supposed to depend on java.lang.Symbol
-  (if (symbol? reference) :symbol :var))
+  (pred-cond reference
+     symbol?        :symbol
+     sequential?    :var-form
+     :else          (throw (Exception. "Programmer error"))))
 
 (defmulti fnref-symbol classify-function-reference)
-(defmethod fnref-symbol :symbol [reference] reference)
+(defmethod fnref-symbol :symbol [reference]
+  reference)
+(defmethod fnref-symbol :var-form [reference]
+  (:name (meta reference)))
   
 (defmulti fnref-var classify-function-reference)
 (defmethod fnref-var :symbol [reference]
-  ((ns-map *ns*) reference))
+  (resolve reference))
+(defmethod fnref-var :var-form [reference]
+  reference)
   
 (defmulti fnref-call-form classify-function-reference)
 (defmethod fnref-call-form :symbol [reference]
   `(var ~reference))
+(defmethod fnref-call-form :var-form [reference]
+  reference)
   
-(defmulti fnref-callable classify-function-reference)
-(defmethod fnref-callable :symbol [reference] reference)
+(defmulti fnref-dereference classify-function-reference)
+(defmethod fnref-dereference :symbol [reference]
+  reference)
+(defmethod fnref-dereference :var-form [reference]
+  `(deref ~reference))
   
 
 
@@ -145,7 +156,7 @@
       `{:arg-matchers (map midje.internal-ideas.fakes/arg-matcher-maker ~(vec args))
         :call-text-for-failures (str '~call-form)
         :value-at-time-of-faking (if (bound? ~(fnref-call-form fnref))
-                                   ~(fnref-callable fnref))
+                                   ~(fnref-dereference fnref))
         :result-supplier (fn-fake-result-supplier ~arrow ~result)
         :type :fake}
       overrides))
@@ -193,6 +204,10 @@
            (or (nil? unfinished-fun)
                (not= unfinished-fun value-in-var))))))
 
+;; Used for IFn interface
+(def #^:private ^{:testable true}
+     default-function :value-at-time-of-faking)
+
 (def #^:dynamic #^:private *call-action-count* (atom 0))
 
 
@@ -208,7 +223,7 @@
     (when-let [fake-with-usable-default (find-first #(and (= function-var (:var %)) 
                                                           (usable-default-function? %)) 
                                                     fakes)]
-      (:value-at-time-of-faking fake-with-usable-default))))
+      (default-function fake-with-usable-default))))
 
 (defn- ^{:testable true } handle-mocked-call [function-var actual-args fakes]
   (macrolet [(counting-nested-calls [& forms]
@@ -293,16 +308,17 @@
 ;; to generate new fakes.
 
 (defn- ^{:testable true } mockable-funcall? [x]
-  (let [constructor? (fn [symbol]
-                       (.endsWith (name symbol) "."))
+  (let [constructor? (fn [fnref-form]
+                       (and (symbol? fnref-form)
+                            (.endsWith (name fnref-form) ".")))
         special-forms '[quote fn let new]
-        mockable-function-symbol? (fn [symbol]
-                                    (not (or (some #{symbol} special-forms)
-                                           (some #{symbol} checker-makers)
-                                           (constructor? symbol)
-                                           (checker? (resolve symbol)))))]
+        mockable-function-fnref-form? (fn [fnref-form]
+                                  (not (or (some #{fnref-form} special-forms)
+                                           (some #{fnref-form} checker-makers)
+                                           (constructor? fnref-form)
+                                           (checker? (resolve fnref-form)))))]
     (and (list? x)
-      (mockable-function-symbol? (first x)))))
+      (mockable-function-fnref-form? (first x)))))
 
 (letfn [(fake-form-funcall-arglist [[fake funcall => value & overrides :as _fake-form_]]
           (rest funcall))]

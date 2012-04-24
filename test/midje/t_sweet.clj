@@ -266,14 +266,9 @@
   (provided
     (called 1) => 1))
 
-(defn f [x] (inc x))
-(defn g [x] (* x (f x)))
 
-(future-fact "can fake vars directly"
-  (#'g 2) => 6
-  (provided
-    (#'f 2) => 2))
-  
+
+
 ;; Possibly the most common case
 (after-silently
  (fact
@@ -323,3 +318,66 @@
     (provided
       (foo) => :bar)))
 (fact @noop-fn-count => 1)
+
+
+;; In prerequisites, functions can be referred to by vars as well as symbols
+
+;;; These functions are duplicated in t_fakes.clj, since the whole
+;;; point of allowing vars is to refer to private vars in another
+;;; namespace. To make sure there's no mistakes, these local versions
+;;; are so tagged.
+;;; 
+(defn var-inc-local [x] (inc x))
+(defn var-inc-user-local [x] (* x (var-inc-local x)))
+(defn var-twice-local []
+  (var-inc-local (var-inc-local 2)))
+
+(fact "can fake private remote-namespace functions using vars"
+  (#'midje.internal-ideas.t-fakes/var-inc-user 2) => 400
+  (provided
+    (#'midje.internal-ideas.t-fakes/var-inc 2) => 200))
+
+(fact "and can fake local functions using vars"
+  (#'var-inc-user-local 2) => 400
+  (provided
+    (#'var-inc-local 2) => 200))
+
+(fact "default prerequisites work with vars"
+  (#'midje.internal-ideas.t-fakes/var-twice) => 201
+  (provided
+    (#'midje.internal-ideas.t-fakes/var-inc 2) => 200))
+
+
+;;; Unfolded prerequisites
+
+(fact "vars also work with unfolded prerequisites"
+  (var-twice-local) => 201
+  (provided
+   (var-inc-local (var-inc-local 2))  => 201))
+
+(defn here-and-there []
+  (var-inc-local (#'midje.internal-ideas.t-fakes/var-inc 2)))
+  
+(future-fact "vars also work with unfolded prerequisites"
+  (here-and-there) => 201
+  (provided
+   (#'midje.internal-ideas.t-fakes (var-inc-local 2))  => 201))
+
+(defn there-and-here []
+  (#'midje.internal-ideas.t-fakes/var-inc (var-inc-local 2)))
+  
+(fact "vars also work with unfolded prerequisites"
+  (there-and-here) => 201
+  (provided
+   (#'midje.internal-ideas.t-fakes/var-inc (var-inc-local 2))  => 201))
+
+(defn over-there-over-there-spread-the-word-to-beware []
+  (#'midje.internal-ideas.t-fakes/var-inc
+   (#'midje.internal-ideas.t-fakes/var-inc 2)))
+  
+(future-fact "vars also work with unfolded prerequisites"
+  (over-there-over-there-spread-the-word-to-beware) => 201
+  (provided
+   (#'midje.internal-ideas.t-fakes/var-inc
+    (#'midje.internal-ideas.t-fakes/var-inc 2))  => 201))
+
