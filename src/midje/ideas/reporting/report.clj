@@ -53,7 +53,7 @@
   
 (letfn [(render [m]
           (->> m 
-               (:single-fact-fn *report-format-config*) 
+               ((:single-fact-fn *report-format-config*)) 
                flatten 
                (remove nil?) 
                (map *renderer*) 
