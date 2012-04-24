@@ -68,8 +68,15 @@
   (throw (user-error "It's likely you misparenthesized your metaconstant prerequisite,"
                      "or that you forgot to use an arrow in your provided form.")))
 
-(def #^:private disallowed-prerequisite-functions-that-cannot-be-dynamically-detected
-     #{'deref})
+
+(defn #^:private
+  statically-disallowed-prerequisite-function
+  "To prevent people from mocking functions that Midje itself uses,
+   we mostly rely on dynamic checking. But there are functions within
+   the dynamic checking code that must also not be replaced. These are
+   the ones that are known."
+  [some-var]
+  (#{#'deref} some-var))
 
 (defn #^:private
   raise-disallowed-prerequisite-error [function-name]
@@ -87,8 +94,33 @@
     "  (provided (all-even? ..xs..) => true)")))
   
 
-(letfn [(make-fake-map [call-form arrow rhs var-sym special-to-fake-type user-override-pairs]
-          (let [common-to-all-fakes `{:var (var ~var-sym)
+
+;; Function references. These are usually symbols but are sometimes vars.
+;; This isn't a collection because I don't want to allow vars in some cases
+;; that call common code. 
+(defn classify-function-reference [reference]
+  ;; Not sure we're supposed to depend on java.lang.Symbol
+  (if (symbol? reference) :symbol :var))
+
+(defmulti fnref-symbol classify-function-reference)
+(defmethod fnref-symbol :symbol [reference] reference)
+  
+(defmulti fnref-var classify-function-reference)
+(defmethod fnref-var :symbol [reference]
+  ((ns-map *ns*) reference))
+  
+(defmulti fnref-call-form classify-function-reference)
+(defmethod fnref-call-form :symbol [reference]
+  `(var ~reference))
+  
+(defmulti fnref-callable classify-function-reference)
+(defmethod fnref-callable :symbol [reference] reference)
+  
+
+
+
+(letfn [(make-fake-map [call-form arrow rhs fnref special-to-fake-type user-override-pairs]
+          (let [common-to-all-fakes `{:var ~(fnref-call-form fnref)
                                       :call-count-atom (atom 0)
                                       :position (user-file-position)
 
@@ -101,18 +133,19 @@
               special-to-fake-type
               (apply hash-map-duplicates-ok user-override-pairs)))) ]
 
-  (defn fake* [ [[var-sym & args :as call-form] arrow result & overrides] ]
+  (defn fake* [ [[fnref & args :as call-form] arrow result & overrides] ]
     ;; The (vec args) keeps something like (...o...) from being
     ;; evaluated as a function call later on. Right approach would
     ;; seem to be '~args. That causes spurious failures. Debug
     ;; someday.
-    (when (disallowed-prerequisite-functions-that-cannot-be-dynamically-detected var-sym)
-      (raise-disallowed-prerequisite-error var-sym))
+    (when (statically-disallowed-prerequisite-function (fnref-var fnref))
+      (raise-disallowed-prerequisite-error (fnref-var fnref)))
     (make-fake-map call-form arrow (cons result overrides)
-      var-sym
+      fnref
       `{:arg-matchers (map midje.internal-ideas.fakes/arg-matcher-maker ~(vec args))
         :call-text-for-failures (str '~call-form)
-        :value-at-time-of-faking (if (bound? (var ~var-sym)) ~var-sym)
+        :value-at-time-of-faking (if (bound? ~(fnref-call-form fnref))
+                                   ~(fnref-callable fnref))
         :result-supplier (fn-fake-result-supplier ~arrow ~result)
         :type :fake}
       overrides))
