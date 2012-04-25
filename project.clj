@@ -6,8 +6,7 @@
                    [colorize "0.1.1"]
                    [org.clojure/tools.macro "0.1.1"]
                    [org.clojure/core.incubator "0.1.0"]
-                   [swiss-arrows "0.1.0"]
-                   [org.clojure/core.match "0.2.0-alpha9"]])
+                   [swiss-arrows "0.1.0"]])
 
 (defproject midje "1.4.0-SNAPSHOT"
   :description "A TDD library for Clojure that supports top-down ('mockish') TDD, encourages readable tests, provides a smooth migration path from clojure.test, balances abstraction and concreteness, and strives for graciousness."

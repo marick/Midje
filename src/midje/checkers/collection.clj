@@ -4,7 +4,6 @@
   midje.checkers.collection
   (:use [clojure.set :only [union]]
         [clojure.pprint :only [cl-format]]
-        [clojure.core.match :only [match]]
         [midje.util.backwards-compatible-utils :only [every-pred-m]] 
         [midje.util.form-utils :only [regex? record? classic-map? pred-cond macro-for]]
       	[midje.checkers collection-util util extended-equality extended-falsehood chatty defining collection-comparison]
@@ -66,17 +65,18 @@
     ;;Reduce arguments to standard forms so there are fewer combinations to
     ;;consider. Also blow up for some incompatible forms."
     [actual expected looseness]
-    (compatibility-check actual expected looseness)
-    (match [actual expected]
-      [(a :when sequential?) (e :when set?)]                  [actual (vec expected) (union looseness #{:in-any-order })]
-      [(a :when sequential?) (e :when right-hand-singleton?)] [actual [expected] (union looseness #{:in-any-order })]
-      [(a :when sequential?) _]                               [actual expected looseness]
-      [(a :when map?)        (b :when map?)]                  [actual expected looseness] 
-      [(a :when map?)        _]                               [actual (into {} expected) looseness]
-      [(a :when set?)        _]                               (recur (vec actual) expected looseness-modifiers)
-      [(a :when string?)    (e :when [(complement string?) 
-                                      (complement regex?)])]  (recur (vec actual) expected looseness-modifiers)
-      :else                                                   [actual expected looseness]))
+    (compatibility-check actual expected looseness)  
+    (cond
+      (and (sequential? actual) (set? expected))                  [actual (vec expected) (union looseness #{:in-any-order })]
+      (and (sequential? actual) (right-hand-singleton? expected)) [actual [expected] (union looseness #{:in-any-order })]
+      (sequential? actual)                                        [actual expected looseness]
+      (and (map? actual) (map? expected))  [actual expected looseness]
+      (map? actual)                        [actual (into {} expected) looseness]
+      (set? actual)                        (recur (vec actual) expected looseness-modifiers)
+      (and (string? actual)               
+           (not (string? expected))       
+           (not (regex? expected)))        (recur (vec actual) expected looseness-modifiers)
+      :else                                [actual expected looseness]))
 
   (match? [actual expected looseness]
     (let [comparison (compare-results actual expected looseness)]
