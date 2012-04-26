@@ -2,20 +2,9 @@
   (:use midje.ideas.reporting.report
         [midje sweet test-util]))
 
-;; This set of tests generate failures. The following code prevents
-;; them from being counted as failures when the final summary is
-;; printed. The disadvantage is that legitimate failures won't appear
-;; in the final summary. They will, however, produce failure output,
-;; so that's an acceptable compromise.
-
-(when (nil? clojure.test/*report-counters*)
-  (alter-var-root #'clojure.test/*report-counters*
-                  (constantly (ref clojure.test/*initial-report-counters*))))
-
-(background (around :facts (let [report-counters @clojure.test/*report-counters*]
-                             ?form
-                             (dosync (commute clojure.test/*report-counters* (constantly report-counters)))) ))
-
+;; These tests generate failures to examine. We don't want them to be
+;; added to the total failure count, which should always be zero.
+(without-counting-failures
 
 (let [output (with-out-str
                (fact (+ 1 1) => 3))]
@@ -84,3 +73,5 @@
     output => #"Actual result:\s+5"
     output => #"Checking function:\s+\(every-checker even\? \(throws \"message\"\)\)"
     output => #"even\? => false"))
+
+)  ; end without-counting-failures

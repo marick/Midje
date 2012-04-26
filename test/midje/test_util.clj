@@ -3,6 +3,7 @@
         midje.checkers
         [midje.checkers.extended-equality :only [extended-=]]
         [midje.checkers.extended-falsehood :only [extended-false?]]
+        [midje.sweet :only [against-background]]
         midje.error-handling.exceptions
         [clojure.set :only [subset?]]
         [midje.util.form-utils :only [macro-for]]))
@@ -116,3 +117,26 @@
        (defn ~name ~args
          (swap! ~atom-name inc)
          ~@body))))
+
+
+
+;; Some sets of tests generate failures. The following code prevents
+;; them from being counted as failures when the final summary is
+;; printed. The disadvantage is that legitimate failures won't appear
+;; in the final summary. They will, however, produce failure output,
+;; so that's an acceptable compromise.
+
+(defmacro without-counting-failures [& forms]
+  `(do
+    (when (nil? clojure.test/*report-counters*)
+      (alter-var-root #'clojure.test/*report-counters*
+                      (constantly (ref clojure.test/*initial-report-counters*))))
+
+    (against-background
+      [(around :facts
+               (let [report-counters# @clojure.test/*report-counters*]
+                 ?form
+                 (dosync (commute clojure.test/*report-counters*
+                                  (constantly report-counters#)))))]
+      ~@forms)))
+
