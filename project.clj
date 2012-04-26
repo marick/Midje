@@ -1,4 +1,4 @@
-(def common-deps '[[ordered "1.1.0"]
+(def common-deps '[[ordered "1.2.0"]
                    [org.clojure/math.combinatorics "0.0.1"]
                    [org.clojure/algo.monads "0.1.0"]
                    [org.clojure/core.unify "0.5.2"]
@@ -11,8 +11,8 @@
 (defproject midje "1.4.0-SNAPSHOT"
   :description "A TDD library for Clojure that supports top-down ('mockish') TDD, encourages readable tests, provides a smooth migration path from clojure.test, balances abstraction and concreteness, and strives for graciousness."
   :url "https://github.com/marick/Midje"
-  :dependencies ~(conj common-deps
-                       '[org.clojure/clojure "1.4.0"])
+  :dependencies ~(cons '[org.clojure/clojure "1.4.0"]
+                       common-deps)
 
   :multi-deps {"1.2.0" [[org.clojure/clojure "1.2.0"]]
                "1.2.1" [[org.clojure/clojure "1.2.1"]]
