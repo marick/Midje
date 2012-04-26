@@ -4,7 +4,6 @@
         [midje.util.object-utils :only [function-name function-name-or-spewage named-function?]]
         midje.error-handling.exceptions
         [midje.internal-ideas.fact-context :only [format-nested-descriptions]]
-        [clojure.core.match :only [match]]
         [midje.util.form-utils :only [pred-cond]])
   (:require [midje.util.colorize :as color]))
 
@@ -83,12 +82,20 @@
       (str "    " (pr-str (:actual m)))))
 
   (defmethod report-strings :mock-incorrect-call-count [m]
-    (letfn [(format-one-failure [fail]
-              (let [msg (match [(:expected-count fail) (:actual-count fail)]
-                [nil 0]                  "[expected at least once, actually never called]"
-                [nil act] (cl-format nil "[expected at least once, actually called ~R time~:P]" act)
-                [exp act] (cl-format nil "[expected :times ~A, actually called ~R time~:P]" exp act))]
-                (str "    " (:expected fail) " " msg)))]
+    (letfn [
+      (format-one-failure [fail]
+        (let [exp (:expected-count fail)
+              act (:actual-count fail)
+              msg (cond
+                    (and (nil? exp) (zero? act))
+                    "[expected at least once, actually never called]"
+                  
+                    (nil? exp)
+                    (cl-format nil "[expected at least once, actually called ~R time~:P]" act)
+                  
+                    :else 
+                    (cl-format nil "[expected :times ~A, actually called ~R time~:P]" exp act))]
+          (str "    " (:expected fail) " " msg)))]
 
       (concat
         (list (fail-at (first (:failures m)))

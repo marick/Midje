@@ -1,22 +1,10 @@
 (ns ^{:doc "Utility functions dealing with checking or tranforming forms."}
   midje.util.form-utils
   (:use [midje.util.treelike :only [tree-variant]]
-        [clojure.core.match :only [match]]
+        [midje.util.backwards-compatible-utils :only [every-pred-m]]
         [clojure.set :only [difference]]
         [utilize.seq :only (first-truthy-fn)])
   (:require [clojure.zip :as zip]))
-
-
-(defn single-destructuring-arg->form+name [arg-form]
-  (let [as-symbol          (gensym 'symbol-for-destructured-arg)
-        snd-to-last-is-as? #(= :as (second (reverse %)))
-        has-key-as?        #(contains? % :as)]   
-    (match [arg-form]
-      [(v :when [vector? snd-to-last-is-as?])]  [v (last v)]
-      [(v :when [vector?])]                     [(-> v (conj :as) (conj as-symbol)) as-symbol]
-      [(m :when [map? has-key-as?])]            [m (:as m)]
-      [(m :when [map?])]                        [(assoc m :as as-symbol) as-symbol]
-      :else                                     [arg-form arg-form] )))
 
 (defn regex? [x]
   (= (class x) java.util.regex.Pattern))
@@ -144,6 +132,17 @@
         :else `(if (~pred ~item)
                  ~result
                  (pred-cond ~item ~@preds+results))))
+
+(defn single-destructuring-arg->form+name [arg-form]
+  (let [as-symbol          (gensym 'symbol-for-destructured-arg)
+        snd-to-last-is-as? #(= :as (second (reverse %)))
+        has-key-as?        #(contains? % :as)]
+    (pred-cond arg-form
+      (every-pred-m vector? snd-to-last-is-as?) [arg-form (last arg-form)]
+      vector?                                   [(-> arg-form (conj :as) (conj as-symbol)) as-symbol]
+      (every-pred-m map? has-key-as?)           [arg-form (:as arg-form)]
+      map?                                      [(assoc arg-form :as as-symbol) as-symbol]
+      :else                                     [arg-form arg-form] )))
 
 (defmacro macro-for 
   "Macroexpands the body once for each of the elements in the 

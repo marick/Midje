@@ -9,29 +9,15 @@
               (if (data-laden-falsehood? function-result) 
                 false 
                 function-result)))]
-    (try
-      (cond (data-laden-falsehood? actual)
-            actual
-
-            (data-laden-falsehood? expected)
-            expected
-
-            (extended-fn? expected)
-            (evaluate-extended-fn)
-
-            (and (regex? actual)
-                 (regex? expected))
-            (= (str actual) (str expected))
-
-            (regex? expected)
-            (re-find expected actual)
-
-            (and (record? actual)
-                 (classic-map? expected))
-            (= (into {} actual) expected)
-
-            :else
-            (= actual expected))
+    (try  
+      (cond
+        (data-laden-falsehood? actual)      actual
+        (data-laden-falsehood? expected)    expected
+        (extended-fn? expected)             (evaluate-extended-fn) 
+        (every? regex? [actual expected])   (= (str actual) (str expected))
+        (regex? expected)                   (re-find expected actual)
+        (and (record? actual) (classic-map? expected))   (= (into {} actual) expected)
+        :else                               (= actual expected))
       (catch Throwable ex false))))
 
 (defn extended-list-=
