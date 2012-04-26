@@ -20,7 +20,10 @@
   (as-data-laden-falsehood [5]) => data-laden-falsehood?
   (meta (as-data-laden-falsehood (with-meta [5] {:foo true}))) => (contains {:foo true}))
   
-  
+(facts "user-friendly-falsehood converts extended-falsehood into just false"
+  (user-friendly-falsehood false) => false
+  (user-friendly-falsehood nil) => nil
+  (user-friendly-falsehood (as-data-laden-falsehood {})) => false)
 
   
   

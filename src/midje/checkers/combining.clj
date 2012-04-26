@@ -6,13 +6,34 @@
 
         [midje.checkers.extended-falsehood]))
 
-(defn every-checker 
-  "Combines multiple checkers into one checker that passes 
-   when all component checkers pass."
-  [& checkers]
-  (checker [& args] 
-    (not-any? #(extended-false? (apply % args)) checkers)))
+(defn report-failure [actual checker-form result]
+  (as-data-laden-falsehood {:actual actual
+                            :intermediate-results
+                            [ [checker-form (user-friendly-falsehood result)]]}))
 
+(defn- ^{:testable true}
+  wrap-in-and-checking-form [checker-form to-wrap result-sym actual-sym]
+    `(let [~result-sym ( ~checker-form ~actual-sym)]
+       (if (extended-false? ~result-sym)
+         (report-failure ~actual-sym '~checker-form ~result-sym)
+         ~to-wrap)))
+
+
+(defmacro every-checker
+  "Combines multiple checkers into one checker that passes 
+   when all component checkers pass. If one checker fails,
+   the remainder are not run."
+  [& checker-forms]
+  (let [actual-gensym (gensym "actual-result-")
+        check-result-gensym (gensym "check-result-")
+        checks-form (reduce (fn [to-wrap checker-form] 
+                              (wrap-in-and-checking-form checker-form to-wrap
+                                                         check-result-gensym
+                                                         actual-gensym))
+                            'true
+                            (reverse checker-forms))]
+    `(checker [~actual-gensym] ~checks-form)))
+                       
 (defn some-checker 
   "Combines multiple checkers into one checker that passes 
    when any of the component checkers pass."

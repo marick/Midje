@@ -17,3 +17,7 @@
 (defn extended-true? [value]
   (not (extended-false? value)))
 
+(defn user-friendly-falsehood [value]
+  (if (data-laden-falsehood? value)
+    false
+    value))
