@@ -55,22 +55,6 @@
        (roughly expected (abs (*M 0.001 expected))))))
 
 
-;; Checker Combinators
-
-(defn every-checker 
-  "Combines multiple checkers into one checker that passes 
-   when all component checkers pass."
-  [& checkers]
-  (checker [& args] 
-    (not-any? #(extended-false? (apply % args)) checkers)))
-
-(defn some-checker 
-  "Combines multiple checkers into one checker that passes 
-   when any of the component checkers pass."
-  [& checkers]
-  (as-checker (apply some-fn-m checkers)))
-
-
 ;; Concerning Throwables
 
 (letfn [(throwable-as-desired? [throwable desideratum]
