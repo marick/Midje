@@ -18,7 +18,6 @@
          (report-failure ~actual-sym '~checker-form ~result-sym)
          ~to-wrap)))
 
-
 (defmacro every-checker
   "Combines multiple checkers into one checker that passes 
    when all component checkers pass. If one checker fails,
@@ -34,10 +33,22 @@
                             (reverse checker-forms))]
     `(checker [~actual-gensym] ~checks-form)))
                        
-(defn some-checker 
+
+(defn- ^{:testable true}
+  wrap-in-or-checking-form [checker-form to-wrap actual-sym]
+    `(if (extended-true? (~checker-form ~actual-sym))
+       true
+       ~to-wrap))
+
+(defmacro some-checker
   "Combines multiple checkers into one checker that passes 
-   when any of the component checkers pass."
-  [& checkers]
-  (as-checker (apply some-fn-m checkers)))
-
-
+   when any of the component checkers pass. If one checker
+   passes, the remainder are not run."
+  [& checker-forms]
+  (let [actual-gensym (gensym "actual-result-")
+        checks-form (reduce (fn [to-wrap checker-form] 
+                              (wrap-in-or-checking-form checker-form to-wrap
+                                                        actual-gensym))
+                            'false
+                            (reverse checker-forms))]
+    `(checker [~actual-gensym] ~checks-form)))

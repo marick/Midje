@@ -23,6 +23,7 @@
     3 =not=> checker))
 
 
+;; every-checker 
 (facts "about form of the failure value"
   (let [sanitized (fn [actual]
                     (data-laden-falsehood-to-map
@@ -48,7 +49,9 @@
   (let [checker (every-checker mychatty)]
     (data-laden-falsehood-to-map (checker 3)) => {:actual 3
                                                   :intermediate-results
-                                                  [['mychatty false]]}))
+                                                  [['mychatty false]]})
+  "containers are another form of chatty checker"
+  {:a 1} =not=> (every-checker (contains {:b 1})))
 
 (fact "the empty every-checker passes"
   5 => (every-checker))
@@ -58,17 +61,41 @@
   5 =not=> (every-checker even?
                           (fn [_] (swap! hit-count inc)))
   @hit-count => 0)
-  
 
-(facts "about checker combinators" 
+
+;; some-checker
+
+
+(facts "about some-checker" 
   (some-checker truthy falsey)  => checker?
-  (every-checker truthy falsey) => checker?  
-  
-  3 =>     (every-checker truthy number?)
-  3 =not=> (every-checker truthy falsey)
   3 =>     (some-checker truthy falsey)
   3 =not=> (some-checker falsey string?)
-  
-  "works with chatty checkers' data-laden-falsehoods"
-  {:a 1} =not=> (every-checker (contains {:b 1}))
   {:a 1} =not=> (some-checker  (contains {:b 1})))
+
+(facts "about form of the failure value"
+  (let [checker (some-checker odd?
+                              (roughly 5 3)
+                              (fn [actual] (= (str actual) "6" )))]
+    (checker 400) => false
+    (checker 501) => true
+    (checker 4) => true
+    (checker 6) => true))
+
+(fact "chatty checkers can be wrapped in some-checker"
+  (let [checker (some-checker (chatty-checker [actual]
+                                 (or (= actual 88) (= actual 99)))
+                              even?)]
+    (checker 2) => true
+    (checker 88) => true
+    (checker 3) => false))
+
+(fact "the empty some-checker false"
+  5 =not=> (some-checker))
+
+(def hit-count (atom 0))
+(fact "the first success short-circuits the rest"
+  4 => (some-checker even?
+                     (fn [_] (swap! hit-count inc)))
+  @hit-count => 0)
+
+
