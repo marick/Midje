@@ -81,12 +81,16 @@
    So, for example, you can write this:
        (fact (foo) => (throws #\"one part\" #\"another part\"))"
     [& desiderata]
-    (checker [^ICapturedThrowable wrapped-throwable]
-             (let [throwable (.throwable wrapped-throwable)
-                   evaluations (map (partial throwable-as-desired? throwable) desiderata)
-                   failures (filter extended-false? evaluations)]
-               ;; It might be nice to return some sort of composite failure, but I bet 
-               ;; just returning the first one is fine, especially since I expect people
-               ;; will use the class as the first desiderata. 
-               (or (empty? failures) (first failures)))))
+    (checker [wrapped-throwable]
+     (if-not (instance? ICapturedThrowable wrapped-throwable)
+       false
+       (let [throwable (.throwable wrapped-throwable)
+             evaluations (map (partial throwable-as-desired? throwable)
+                              desiderata)
+             failures (filter extended-false? evaluations)]
+         ;; It might be nice to return some sort of composite
+         ;; failure, but I bet just returning the first one is fine,
+         ;; especially since I expect people will use the class as
+         ;; the first desiderata.
+         (or (empty? failures) (first failures))))))
 )

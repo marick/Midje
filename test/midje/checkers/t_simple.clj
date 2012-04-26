@@ -136,11 +136,15 @@
   (throw-exception "msg") => (throws Error #"^m" #"g$")
   ;; Note that both regexps should match.
   (throw-exception "msg") =deny=> (throws Error #"m" #"h"))
-  
-
 
 (fact "`throws` matches any exception that is an instance of expected"
   (throw (NullPointerException.)) => (throws Exception))
+
+(after-silently
+ (fact "`throws` fails when not given an exception"
+   1 => (throws Exception))
+ (fact
+   @reported => (just checker-fails)))
 
 ;; Unexpected exceptions
 (after-silently
