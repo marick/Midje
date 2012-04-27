@@ -1,6 +1,7 @@
 Available via [clojars](http://clojars.org/search?q=midje)   
 Current stable version: [midje "1.3.1"]    
-Development version: [midje "1.4.0-SNAPSHOT"]
+Development version: [midje "1.4.0-beta1"]  [Changes](https://github.com/marick/Midje/wiki/New-in-1.4)
+
 
 [User guide](https://github.com/marick/Midje/wiki)
 
@@ -49,12 +50,11 @@ Learning Midje
 Midje's features are described in the **[user
 guide](https://github.com/marick/Midje/wiki)**. If
 anything there is unclear, ask in the [mailing
-list](http://groups.google.com/group/midje).
+list](http://groups.google.com/group/midje) or in the #midje
+channel on freenode.
 If you like videos of people programming, here's an
 [8-minute infomercial](http://www.youtube.com/watch?v=a7YtkcIiLGI) that concentrates on transitioning from
 clojure.test. 
-
-There is a  #midje channel on freenode.
 
 Contributors
 ==============
