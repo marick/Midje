@@ -134,3 +134,18 @@
   {:arglists '([doc-string? fact table])}
   [& _]
   (tabular* (keys &env) &form))
+
+
+(defmacro metaconstants
+  "For a few operations, such as printing and equality checking,
+   the Clojure AOT-compiler becomes confused by Midje's auto-generation
+   of metaconstants. If AOT-compiled tests fail when on-the-fly
+   compiled tests failed, declare your metaconstants before use.
+   Example:
+     (metaconstants ..m.. ..m.... .mc.)"
+  [& names]
+  (let [defs (map (fn [name]
+                    `(def ~name (midje.ideas.metaconstants.Metaconstant. '~name {})))
+                  names)]
+    `(do ~@defs)))
+
