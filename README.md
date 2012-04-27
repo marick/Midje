@@ -53,23 +53,8 @@ list](http://groups.google.com/group/midje).
 If you like videos of people programming, here's an
 [8-minute infomercial](http://www.youtube.com/watch?v=a7YtkcIiLGI) that concentrates on transitioning from
 clojure.test. 
-If
-you like looking straight at code, [this heavily annotated
-example](http://github.com/marick/Midje/blob/master/examples/basic/test/basic/core_test.clj)
-  has a bunch. If you want to run that example, you
-  can download it:
 
-1.   [Click here](http://github.com/marick/Midje/raw/master/downloads/examples.zip).
-2.   In a shell, go to the directory your browser unpacked the example into. It should be named `examples`.
-3.   Go to `examples/basic/`.
-4.   Type "./run" or "lein test".
-5.   The facts in `test/*/core_test.clj` will be checked.
-
-You can [download
-everything](http://github.com/marick/Midje/downloads) to get
-more examples.
-
-Or in the #midje channel on freenode!
+There is a  #midje channel on freenode.
 
 Contributors
 ==============
