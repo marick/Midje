@@ -8,8 +8,8 @@ def jar_name
   unless /midje\s+"(\d+\.\d+\.\d+(-RC\d+)?)"/ =~ text ||
          /midje\s+"(\d+\.\d+(\.\d+)*-SNAPSHOT)"/ =~ text || 
          /midje\s+"(\d+\.\d-alpha\d)"/ =~ text || 
-         /midje\s+"(\d+\.\d-beta\d)"/ =~ text
-    puts "Couldn't find version in project file."
+         /midje\s+"(\d+\.\d\.\d-beta\d)"/ =~ text
+    puts "Rake task error: couldn't find version in project file."
     exit 1
   end
   jar = "midje-#{$1}.jar"
