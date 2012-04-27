@@ -1,2 +1,0 @@
-rm downloads/examples.zip
-zip -r downloads/examples.zip examples/basic
