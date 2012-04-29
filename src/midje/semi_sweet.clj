@@ -54,33 +54,27 @@
      :arrow '~arrow }
      (hash-map-duplicates-ok ~@overrides)))
 
-(letfn [(how-to-handle-check [_call-form_ arrow & _]
-          (get {=> :expect*
-                =not=> :expect*
-                =deny=> :expect*
-                =expands-to=> :expect-macro*
-                =future=> :report-future-fact} (name arrow)))]
+(defmulti ^{:private true} expect-expansion (fn [_call-form_ arrow & _]
+                                              (name arrow)))
 
-  (defmulti ^{:private true} expect-expansion how-to-handle-check))
-
-(defmethod expect-expansion :expect*
+(def-many-methods expect-expansion [=> =not=> =deny=>]
   [call-form arrow expected-result fakes overrides]
   `(let [check# (unprocessed-check ~call-form ~arrow ~expected-result ~overrides)]
      (midje.semi-sweet/*expect-checking-fn* check# ~fakes)))
 
-(defmethod expect-expansion :expect-macro*
+(defmethod expect-expansion =expands-to=>
   [call-form _arrow_ expected-result fakes overrides]
   (let [expanded-macro `(macroexpand-1 '~call-form)
         escaped-expected-result `(quote ~expected-result)]
     (expect-expansion expanded-macro => escaped-expected-result fakes overrides)))
 
-(defmethod expect-expansion :report-future-fact
-   [call-form arrow expected-result _fakes_ overrides]
-   `(let [check# (unprocessed-check ~call-form ~arrow ~expected-result ~overrides)]
-      (within-fact-context ~(str call-form)  
-        (clojure.test/report {:type :future-fact
-                              :description @midje.internal-ideas.fact-context/nested-descriptions
-                              :position (:position check#)}))))
+(defmethod expect-expansion =future=>
+  [call-form arrow expected-result _fakes_ overrides]
+  `(let [check# (unprocessed-check ~call-form ~arrow ~expected-result ~overrides)]
+     (within-fact-context ~(str call-form)
+       (clojure.test/report {:type :future-fact
+                             :description @midje.internal-ideas.fact-context/nested-descriptions
+                             :position (:position check#)}))))
 
 ;;; Interface: unfinished
 
