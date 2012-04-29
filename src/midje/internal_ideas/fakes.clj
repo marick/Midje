@@ -96,10 +96,6 @@
     "  (def all-even? (partial every? even?))"
     "  ;; ..."
     "  (provided (all-even? ..xs..) => true)")))
-  
-
-
-
 
 (letfn [(make-fake-map [call-form arrow rhs fnref special-to-fake-type user-override-pairs]
           (let [common-to-all-fakes `{:var ~(fnref-call-form fnref)

@@ -31,10 +31,12 @@
 ;; FURTHERMORE, I wanted to use set operations to check for fake and not-called,
 ;; but those fail for reasons I don't understand. Bah.
 (defn- ^{:testable true } check-for-arrow [arrow]
-  (get {=> :check-match
-        =expands-to=> :check-match
-        =not=> :check-negated-match
-        =deny=> :check-negated-match} (name arrow)))
+  (condp = (name arrow) 
+    => :check-match
+    =expands-to=> :check-match
+    =not=> :check-negated-match
+    =deny=> :check-negated-match
+    nil))
 
 (defmacro unprocessed-check
   "Creates a map that contains a function-ized version of the form being 
@@ -54,7 +56,7 @@
      :arrow '~arrow }
      (hash-map-duplicates-ok ~@overrides)))
 
-(defmulti ^{:private true} expect-expansion (fn [_call-form_ arrow & _]
+(defmulti ^{:private true} expect-expansion (fn [_call-form_ arrow & _rhs_]
                                               (name arrow)))
 
 (def-many-methods expect-expansion [=> =not=> =deny=>]
