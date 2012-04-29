@@ -31,11 +31,10 @@
 ;; FURTHERMORE, I wanted to use set operations to check for fake and not-called,
 ;; but those fail for reasons I don't understand. Bah.
 (defn- ^{:testable true } check-for-arrow [arrow]
-  (condp = (name arrow)
-    => :check-match
-    =expands-to=> :check-match
-    =not=> :check-negated-match
-    =deny=> :check-negated-match))
+  (get {=> :check-match
+        =expands-to=> :check-match
+        =not=> :check-negated-match
+        =deny=> :check-negated-match} (name arrow)))
 
 (defmacro unprocessed-check
   "Creates a map that contains a function-ized version of the form being 
@@ -55,15 +54,17 @@
      :arrow '~arrow }
      (hash-map-duplicates-ok ~@overrides)))
 
-(defmulti ^{:private true} expect-expansion (fn [_call-form_ arrow & _]
-                                               (condp = (name arrow)
-                                                  => :expect*
-                                                  =not=> :expect*
-                                                  =deny=> :expect*
-                                                  =expands-to=> :expect-macro*
-                                                  =future=> :report-future-fact )))
+(letfn [(how-to-handle-check [_call-form_ arrow & _]
+          (get {=> :expect*
+                =not=> :expect*
+                =deny=> :expect*
+                =expands-to=> :expect-macro*
+                =future=> :report-future-fact} (name arrow)))]
 
-(defmethod expect-expansion :expect* [call-form arrow expected-result fakes overrides]
+  (defmulti ^{:private true} expect-expansion how-to-handle-check))
+
+(defmethod expect-expansion :expect*
+  [call-form arrow expected-result fakes overrides]
   `(let [check# (unprocessed-check ~call-form ~arrow ~expected-result ~overrides)]
      (midje.semi-sweet/*expect-checking-fn* check# ~fakes)))
 
