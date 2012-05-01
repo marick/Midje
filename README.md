@@ -3,7 +3,7 @@ Current stable version: [midje "1.3.1"]
 Development version: [midje "1.4.0-beta1"]  [Changes](https://github.com/marick/Midje/wiki/New-in-1.4)
 
 
-[User guide](https://github.com/marick/Midje/wiki)
+[User guide](https://github.com/marick/Midje/wiki)    
 [Tutorial](https://github.com/marick/Midje-quickstart/wiki)
 
 About Midje
