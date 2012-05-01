@@ -1,7 +1,8 @@
 (ns midje.t-sweet
   (:use midje.sweet
         midje.util
-        midje.test-util))
+        midje.test-util)
+  (:require midje.internal-ideas.t-fakes))
 
 (fact "all of Midje's public, API-facing vars have docstrings"
   (map str (remove (comp :doc meta) (vals (ns-publics 'midje.sweet)))) => []
