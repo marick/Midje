@@ -23,6 +23,7 @@
         [midje.error-handling.exceptions :only [user-error]]
         [midje.internal-ideas.wrapping :only [with-wrapping-target]]
         [midje.ideas.arrow-symbols]
+        [midje.config :only [*allow-default-prerequisites*]]
         [clojure.tools.macro :only [macrolet]])
   (:require [clojure.zip :as zip])
   (:import midje.ideas.metaconstants.Metaconstant))
@@ -96,10 +97,6 @@
     "  (def all-even? (partial every? even?))"
     "  ;; ..."
     "  (provided (all-even? ..xs..) => true)")))
-  
-
-
-
 
 (letfn [(make-fake-map [call-form arrow rhs fnref special-to-fake-type user-override-pairs]
           (let [common-to-all-fakes `{:var ~(fnref-call-form fnref)
@@ -168,12 +165,13 @@
 
 
 (defn usable-default-function? [fake]
-  (and (bound? (:var fake))
-    (let [value-in-var (var-get (:var fake))
-          unfinished-fun (:midje/unfinished-fun (meta (:var fake)))]
-      (and (extended-fn? value-in-var)
-           (or (nil? unfinished-fun)
-               (not= unfinished-fun value-in-var))))))
+  (and *allow-default-prerequisites*
+       (bound? (:var fake))
+       (let [value-in-var (var-get (:var fake))
+             unfinished-fun (:midje/unfinished-fun (meta (:var fake)))]
+         (and (extended-fn? value-in-var)
+              (or (nil? unfinished-fun)
+                  (not= unfinished-fun value-in-var))))))
 
 ;; Used for IFn interface
 (def #^:private ^{:testable true}

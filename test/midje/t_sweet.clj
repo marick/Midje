@@ -344,10 +344,10 @@
     (#'var-inc-local 2) => 200))
 
 (fact "default prerequisites work with vars"
-  (#'midje.internal-ideas.t-fakes/var-twice) => 201
-  (provided
-    (#'midje.internal-ideas.t-fakes/var-inc 2) => 200))
-
+  (binding [midje.config/*allow-default-prerequisites* true]
+    (#'midje.internal-ideas.t-fakes/var-twice) => 201
+    (provided
+      (#'midje.internal-ideas.t-fakes/var-inc 2) => 200)))
 
 ;;; Unfolded prerequisites
 

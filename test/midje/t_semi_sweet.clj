@@ -208,9 +208,11 @@
 
 (defn backing-function [s] s)
 
-(fact "mocks are partial: they fall through to any previously defined function"
-  (expect (str (backing-function "returned") " " (backing-function "overridden")) => "returned new value"
-          (fake (backing-function "overridden") => "new value")))
+
+(fact "mocks can be partial: they fall through to any previously defined function"
+    (binding [midje.config/*allow-default-prerequisites* true]
+      (expect (str (backing-function "returned") " " (backing-function "overridden")) => "returned new value"
+              (fake (backing-function "overridden") => "new value"))))
 
 (facts "about checkers"
   (fact "expected results can be functions"

@@ -3,7 +3,7 @@
   (:use [clojure.test])
   (:use [midje.test-util]))
 
-
+(binding [midje.config/*allow-default-prerequisites* false] 
 (defn f [n] n)
 
 (def position-1 9)
@@ -110,9 +110,8 @@
        (name (favorite-animal)) => "betsy"))
    (fact
      @reported => (just [
-              ;; This used to produce a :mock-argument-match-failure because of
-              ;; (name "fred"). Since the name function actually exists, it's
-              ;; used.
+              (contains {:type :mock-argument-match-failure
+                         :position  ["t_line_number_reporting.clj" (+ line-number 5)]})
 			  (contains {:type :mock-incorrect-call-count
                    :failures (just [(contains {:position ["t_line_number_reporting.clj" (+ line-number 5)]
 				                                       :expected-call "(name ...favorite-animal-value-1...)"})
@@ -131,14 +130,14 @@
        (name (favorite-animal 2)) => "jake")) ;; a folded prerequisite can have two errors.
    (fact
      @reported => (just [(contains {:type :mock-incorrect-call-count
-                                    :failures (just [(contains {:position ["t_line_number_reporting.clj" (+ line-number 6)]
+                                    :failures (just [(contains {:position ["t_line_number_reporting.clj" (+ line-number 5)]
 				                                                       :expected-call "(name ...favorite-animal-value-2...)"})
-                                                     (contains {:position ["t_line_number_reporting.clj" (+ line-number 6)]
+                                                     (contains {:position ["t_line_number_reporting.clj" (+ line-number 5)]
                                                                 :expected-call "(favorite-animal 2)"})  ])})
                          pass]))))
 
 
-  (def line-number-separate 141)
+  (def line-number-separate 140)
 (unfinished outermost middlemost innermost)
 (in-separate-namespace
 (background (outermost) => 2)
@@ -158,18 +157,18 @@
 ;; future facts
 (after-silently
  (future-fact "text")
- (fact @reported => (just (contains {:position '("t_line_number_reporting.clj" 160)
+ (fact @reported => (just (contains {:position '("t_line_number_reporting.clj" 159)
 			                               :description ["text"] }))))
 
 (after-silently
  (pending-fact (+ 1 1) => 2)
- (fact @reported => (just (contains {:position '("t_line_number_reporting.clj" 165)
+ (fact @reported => (just (contains {:position '("t_line_number_reporting.clj" 164)
 		                               	:description [nil] }))))
 
 
 ;; Improved error handling for pathological cases
 
-(def line-number-pathological 172)
+(def line-number-pathological 171)
 ;; statements without lists guess 1+ most recent"
 (after-silently
  (fact 
@@ -198,7 +197,7 @@
                                                  (+ line-number-pathological 23)]})])))
 
 
-(def facts-position 201)
+(def facts-position 200)
 (after-silently
  (facts "... also use fallback line number"
    1 => even?  
@@ -218,7 +217,7 @@
 
 ;; Line number reporting for variant expect arrows
 
-(def variant-position 221)
+(def variant-position 220)
 (after-silently 
  (fact
    (+ 1 1) =deny=> 2
@@ -232,7 +231,7 @@
                                                 (+ variant-position 5)]}))))
 
 
-(def tabular-position 235)
+(def tabular-position 234)
 (after-silently
  (tabular
   (fact (inc ?n) => ?n)
@@ -246,3 +245,4 @@
                       (contains {:position ["t_line_number_reporting.clj"
                                             (+ tabular-position 3)]
                                  :binding-note "[?n 2\n                           ?comment \"2\"]"}))))
+)
