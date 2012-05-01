@@ -1,7 +1,8 @@
 (ns midje.t-sweet
   (:use midje.sweet
         midje.util
-        midje.test-util))
+        midje.test-util)
+  (:require midje.internal-ideas.t-fakes))
 
 (fact "all of Midje's public, API-facing vars have docstrings"
   (map str (remove (comp :doc meta) (vals (ns-publics 'midje.sweet)))) => []
@@ -343,10 +344,10 @@
     (#'var-inc-local 2) => 200))
 
 (fact "default prerequisites work with vars"
-  (#'midje.internal-ideas.t-fakes/var-twice) => 201
-  (provided
-    (#'midje.internal-ideas.t-fakes/var-inc 2) => 200))
-
+  (binding [midje.config/*allow-default-prerequisites* true]
+    (#'midje.internal-ideas.t-fakes/var-twice) => 201
+    (provided
+      (#'midje.internal-ideas.t-fakes/var-inc 2) => 200)))
 
 ;;; Unfolded prerequisites
 

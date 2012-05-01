@@ -54,6 +54,7 @@
 (def checker-fails (contains {:type :mock-expected-result-functional-failure}))
 (def wrong-call-count (contains {:type :mock-incorrect-call-count}))
 (def a-validation-error (contains {:type :validation-error}))
+(def no-matching-prerequisite (contains {:type :mock-argument-match-failure}))
 
 
 ;; Applied to lists of result maps
@@ -81,7 +82,7 @@
 
 
 (defn at-line [line-no form] 
-  (with-meta form {:line line-no}))
+   (with-meta form {:line line-no}))
 
 (defmacro validation-error-with-notes [& notes]
   `(just (contains {:notes (just ~@notes)
@@ -140,3 +141,10 @@
                                   (constantly report-counters#)))))]
       ~@forms)))
 
+(def test-output (atom nil))
+
+(defmacro capturing-output [fact1 fact2]
+  `(do
+     (reset! test-output
+             (with-out-str (without-counting-failures ~fact1)))
+     ~fact2))

@@ -23,6 +23,7 @@
         [midje.error-handling.exceptions :only [user-error]]
         [midje.internal-ideas.wrapping :only [with-wrapping-target]]
         [midje.ideas.arrow-symbols]
+        [midje.config :only [*allow-default-prerequisites*]]
         [clojure.tools.macro :only [macrolet]])
   (:require [clojure.zip :as zip])
   (:import midje.ideas.metaconstants.Metaconstant))
@@ -164,12 +165,13 @@
 
 
 (defn usable-default-function? [fake]
-  (and (bound? (:var fake))
-    (let [value-in-var (var-get (:var fake))
-          unfinished-fun (:midje/unfinished-fun (meta (:var fake)))]
-      (and (extended-fn? value-in-var)
-           (or (nil? unfinished-fun)
-               (not= unfinished-fun value-in-var))))))
+  (and *allow-default-prerequisites*
+       (bound? (:var fake))
+       (let [value-in-var (var-get (:var fake))
+             unfinished-fun (:midje/unfinished-fun (meta (:var fake)))]
+         (and (extended-fn? value-in-var)
+              (or (nil? unfinished-fun)
+                  (not= unfinished-fun value-in-var))))))
 
 ;; Used for IFn interface
 (def #^:private ^{:testable true}

@@ -116,78 +116,80 @@ odd?                   3               falsey)
 
 ;;; Handling of default values for fakes
 
-;; In this example, one call to `internal` is faked and one is left alone.
+(binding [midje.config/*allow-default-prerequisites* true]
 
-(defn internal [x] 33)
-(defn external [x] (+ (internal x) (internal (inc x))))
+  ;; In this example, one call to `internal` is faked and one is left alone.
 
-(fact "calls not mentioned in prerequisites are passed through to real code"
-  (external 1) => 0
-  (provided
-    (internal 1) => -33))
+  (defn internal [x] 33)
+  (defn external [x] (+ (internal x) (internal (inc x))))
 
-
-;; The same thing can be done with clojure.core functions
-
-(defn double-partition [first-seq second-seq]
-  (concat (partition-all 1 first-seq) (partition-all 1 second-seq)))
-
-(fact (double-partition [1 2] [3 4]) => [ [1] [2] [3] [4] ])
-
-(fact
-  (double-partition [1 2] ..xs..) => [[1] [2] [..x1..] [..x2..]]
-  (provided (partition-all 1 ..xs..) => [ [..x1..] [..x2..] ]))
+  (fact "calls not mentioned in prerequisites are passed through to real code"
+    (external 1) => 0
+    (provided
+      (internal 1) => -33))
 
 
-;; However you can't override functions that are used by Midje itself
-;; These are reported thusly:
+  ;; The same thing can be done with clojure.core functions
 
-(defn message-about-mocking-midje-functions [reported]
-  (let [important-error
-        (find-first #(= (:type %) :mock-expected-result-functional-failure)
-                    reported)]
-    (and important-error
-        (.getMessage (.throwable (:actual important-error))))))
+  (defn double-partition [first-seq second-seq]
+    (concat (partition-all 1 first-seq) (partition-all 1 second-seq)))
 
-(defn all-even? [xs] (every? even? xs))
+  (fact (double-partition [1 2] [3 4]) => [ [1] [2] [3] [4] ])
 
-(after-silently 
-  (fact "get a user error from nested call to faked `every?`"
+  (fact
+    (double-partition [1 2] ..xs..) => [[1] [2] [..x1..] [..x2..]]
+    (provided (partition-all 1 ..xs..) => [ [..x1..] [..x2..] ]))
+  
+
+  ;; However you can't override functions that are used by Midje itself
+  ;; These are reported thusly:
+
+  (defn message-about-mocking-midje-functions [reported]
+    (let [important-error
+          (find-first #(= (:type %) :mock-expected-result-functional-failure)
+                      reported)]
+      (and important-error
+           (.getMessage (.throwable (:actual important-error))))))
+  
+  (defn all-even? [xs] (every? even? xs))
+  
+  (after-silently 
+   (fact "get a user error from nested call to faked `every?`"
      (all-even? ..xs..) => truthy
      (provided (every? even? ..xs..) => true))
+   (fact
+     (let [text (message-about-mocking-midje-functions @reported)]
+       text => #"seem to have created a prerequisite"
+       text => #"clojure\.core/every\?"
+       text => #"interferes with.*Midje")))
+
+  ;; deref is a known special case that has to be detected differently
+  ;; than the one above.
+
+  (def throwable-received nil)
+  
+  (try 
+    (macroexpand '(fake (deref anything) => 5))
+    (catch Throwable ex
+      ;; Weird things happen with atoms within a catch.
+      (alter-var-root #'throwable-received (constantly ex))))
+  
   (fact
-    (let [text (message-about-mocking-midje-functions @reported)]
-      text => #"seem to have created a prerequisite"
-      text => #"clojure\.core/every\?"
-      text => #"interferes with.*Midje")))
+    throwable-received =not=> nil?
+    (let [text (.getMessage throwable-received)]
+      text => #"deref"
+      text => #"interferes with.*Midje"))
 
-;; deref is a known special case that has to be detected differently
-;; than the one above.
+  ;; And inlined functions can't be faked
 
-(def throwable-received nil)
+  (defn doubler [n] (+ n n))
 
-(try 
-  (macroexpand '(fake (deref anything) => 5))
-  (catch Throwable ex
-    ;; Weird things happen with atoms within a catch.
-    (alter-var-root #'throwable-received (constantly ex))))
-
-(fact
-  throwable-received =not=> nil?
-  (let [text (.getMessage throwable-received)]
-    text => #"deref"
-    text => #"interferes with.*Midje"))
-
-;; And inlined functions can't be faked
-
-(defn doubler [n] (+ n n))
-
-(after-silently
-(fact
-   (doubler 3) => 0
-   (provided
-     (+ 3 3) => 0))
-  (fact @reported => (validation-error-with-notes #"inlined")))
+  (after-silently
+   (fact
+     (doubler 3) => 0
+     (provided
+       (+ 3 3) => 0))
+   (fact @reported => (validation-error-with-notes #"inlined")))
 
 
 ;; How it works
@@ -267,7 +269,7 @@ odd?                   3               falsey)
   (:value-at-time-of-faking (fake (#'bound-var) => 888)) => 3
   (binding [rebound 88]
     (:value-at-time-of-faking (fake (rebound) => 3)) => 88))
-
+)
 
 ;; Folded fakes
 
