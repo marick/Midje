@@ -39,20 +39,16 @@
   (provided
     (getenv "MIDJE_COLORIZE") => anything :times 0))
 
+
+
 (fact 
   (colorize-deftest-output "FAIL in deftest failure message") 
-     => "\u001b[31mFAIL\u001b[0m in deftest failure message"
-  (provided 
-      (fail "FAIL") => "\u001b[31mFAIL\u001b[0m" ))
+     => "\u001b[31mFAIL\u001b[0m in deftest failure message")
 
 (fact 
   (colorize-deftest-output "ERROR in deftest failure message") 
-     => "\u001b[31mERROR\u001b[0m in deftest failure message"
-  (provided 
-      (fail "ERROR") => "\u001b[31mERROR\u001b[0m" ))
+     => "\u001b[31mERROR\u001b[0m in deftest failure message")
 
 (fact 
   (colorize-deftest-output "ERROR in deftest failure message ERROR") 
-     =not=> "\u001b[31mERROR\u001b[0m in deftest failure message \u001b[31mERROR\u001b[0m"
-  (provided 
-      (fail "ERROR") => "\u001b[31mERROR\u001b[0m" ))
+     =not=> "\u001b[31mERROR\u001b[0m in deftest failure message \u001b[31mERROR\u001b[0m")
