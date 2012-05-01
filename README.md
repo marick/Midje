@@ -4,6 +4,7 @@ Development version: [midje "1.4.0-beta1"]  [Changes](https://github.com/marick/
 
 
 [User guide](https://github.com/marick/Midje/wiki)
+[Tutorial](https://github.com/marick/Midje-quickstart/wiki)
 
 About Midje
 =======================
@@ -47,6 +48,7 @@ that are more useful for testing than `odd?` is.
 Learning Midje
 =======================
 
+There is a [tutorial introduction](https://github.com/marick/Midje-quickstart/wiki).
 Midje's features are described in the **[user
 guide](https://github.com/marick/Midje/wiki)**. If
 anything there is unclear, ask in the [mailing
