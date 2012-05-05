@@ -18,7 +18,7 @@
                "1.2.1" [[org.clojure/clojure "1.2.1"]]
                "1.3.0" [[org.clojure/clojure "1.3.0"]]
                "1.4.0" [[org.clojure/clojure "1.4.0"]]
-               "1.5.0" [[org.clojure/clojure "1.5.0-SNAPSHOT"]]
+;               "1.5.0" [[org.clojure/clojure "1.5.0-SNAPSHOT"]]
                :all ~common-deps }
   :dev-dependencies [[slamhound "1.2.0"]
                      [jonase/kibit "0.0.3"]
