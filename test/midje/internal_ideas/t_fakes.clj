@@ -258,11 +258,19 @@ odd?                   3               falsey)
     (handle-mocked-call #'f [1] fakes)    (counts) => [2 0 0]
     (handle-mocked-call #'f [2] fakes)    (counts) => [2 0 1]
     (handle-mocked-call #'g [1] fakes)    (counts) => [2 1 1]))
+)
+;; Closing the binding just above because Clojure 1.3 (and only
+;; Clojure 1.3) becomes confused about unbound vars that are defined
+;; inside of a `binding` scope. The binding in the fact below
+;; causes `bound?` to return true, but dereferencing the var still returns
+;; the magic value #<Unbound Unbound>. 
 
 (def unbound-var)
 (def bound-var 3)
 (def #^:dynamic rebound)
-     
+
+(binding [midje.config/*allow-default-prerequisites* true]
+
 (fact "fakes contain the value of their function-var at moment of binding"
   (:value-at-time-of-faking (fake (unbound-var) => 2)) => nil
   (:value-at-time-of-faking (fake (bound-var) => 888)) => 3
