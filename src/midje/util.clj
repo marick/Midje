@@ -15,4 +15,6 @@
   [namespace & symbols]
   (macro-for [sym symbols, :let [var (ns-resolve namespace sym)]]
              `(-> (def ~sym ~var)
-                  (alter-meta! merge (meta ~var)))))
+                  (alter-meta! merge
+                               (assoc (meta ~var)
+                                      :testable true)))))
