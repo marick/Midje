@@ -28,8 +28,8 @@
         (exposed-testable? (first funcall))
         (validation-error-report-form
           form
-          "A prerequisite cannot be specified on a function exposed via expose-testables."
-          (cl-format nil "Instead, specify it directly on the var: #'~S/~S"
+          "A prerequisite cannot use a symbol exposed via `expose-testables` or `testable-privates`."
+          (cl-format nil "Instead, use the var directly: #'~S/~S"
                      (-> (first funcall) fnref-var-object meta :ns ns-name)
                      (first funcall)))
 
