@@ -8,7 +8,9 @@
         [midje.util.form-utils :only [fnref-var-object]]))
 
 (letfn [(compiler-will-inline-fn? [fnref]
-          (contains? (meta (fnref-var-object fnref)) :inline))]
+          (contains? (meta (fnref-var-object fnref)) :inline))
+        (exposed-testable? [fnref]
+          (contains? (meta (fnref-var-object fnref)) :testable))]
 
   (defmethod validate "fake" [[_fake_ & fake-form :as form]]
     (let [funcall (first fake-form)]
@@ -22,6 +24,11 @@
         (validation-error-report-form
           form
           (cl-format nil "You cannot override the function `~S`: it is inlined by the Clojure compiler." (first funcall)))
+
+        (exposed-testable? (first funcall))
+        (validation-error-report-form
+         form
+         "Prerequisites cannot be specified for private functions exposed with expose-testables.")
 
         :else
         form))))
