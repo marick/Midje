@@ -64,10 +64,11 @@ Contributors
 * Alex Baranosky
 * Phillip Calçado
 * Stuart Halloway
+* Wilkes Joiner
 * Ben Mabey
 * Alan Malloy
 * Brian Marick
 * Bob Martin
 * Dmitri Naumov
 * Sébastien RoccaSerra
-* Wilkes Joiner
+* Greg Spurrier
