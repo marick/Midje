@@ -27,8 +27,11 @@
 
         (exposed-testable? (first funcall))
         (validation-error-report-form
-         form
-         "Prerequisites cannot be specified for private functions exposed with expose-testables.")
+          form
+          "A prerequisite cannot be specified on a function exposed via expose-testables."
+          (cl-format nil "Instead, specify it directly on the var: #'~S/~S"
+                     (-> (first funcall) fnref-var-object meta :ns ns-name)
+                     (first funcall)))
 
         :else
         form))))
