@@ -382,3 +382,8 @@
    (#'midje.internal-ideas.t-fakes/var-inc
     (#'midje.internal-ideas.t-fakes/var-inc 2)) => 201))
 
+(after-silently
+ (future-fact "exceptions do not blow up"
+   "foo" => odd?)
+ (future-fact @reported => (just bad-result)))
+   
