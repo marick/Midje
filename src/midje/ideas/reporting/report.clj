@@ -1,6 +1,7 @@
 (ns ^{:doc "Renders the various reported fact evaluation results."}
   midje.ideas.reporting.report
   (:use clojure.test
+        clojure.test.junit
         [midje.ideas.reporting.string-format :only [report-strings-format-config]]
         [midje.ideas.reporting.junit-xml-format :only [junit-xml-format-config]]))
 
@@ -24,6 +25,7 @@
 ;;; Reporting
 
 (intern (the-ns 'clojure.test) 'old-report clojure.test/report)
+(intern (the-ns 'clojure.test.junit) 'old-junit-report clojure.test.junit/junit-report)
 
 (def #^:dynamic #^:private *renderer* println)
 
@@ -65,4 +67,15 @@
     (render m))
 
   (defmethod clojure.test/old-report :future-fact [m]
-    (render m)))
+    (render m))
+
+  (defmethod clojure.test.junit/old-junit-report :default [m]
+    (inc-report-counter :fail )
+    (note-failure-in-fact)
+    (render m))
+
+  (defmethod clojure.test.junit/old-junit-report :future-fact [m]
+    (render m))
+
+  (defmethod clojure.test.junit/old-junit-report :summary [m])
+  )
