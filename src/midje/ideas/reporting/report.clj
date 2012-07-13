@@ -72,7 +72,12 @@
   (defmethod clojure.test.junit/old-junit-report :default [m]
     (inc-report-counter :fail )
     (note-failure-in-fact)
+    (with-test-out
+      (failure-el (:description m)
+                  (:expected m)
+                  (:actual m)))
     (render m))
+
 
   (defmethod clojure.test.junit/old-junit-report :future-fact [m]
     (render m))
