@@ -24,8 +24,8 @@
 
 ;;; Reporting
 
-(intern (the-ns 'clojure.test) 'old-report clojure.test/report)
-(intern (the-ns 'clojure.test.junit) 'old-junit-report clojure.test.junit/junit-report)
+;(intern (the-ns 'clojure.test) 'old-report clojure.test/report)
+;(intern (the-ns 'clojure.test.junit) 'old-junit-report clojure.test.junit/junit-report)
 
 (def #^:dynamic #^:private *renderer* println)
 
@@ -54,6 +54,14 @@
      (#'fact-checks-out?)))
   
 (letfn [(render [m]
+;          (let [r ((:single-fact-fn *report-format-config*) m)]
+;            (println "single-fact-fn " r))
+;          (let [r (flatten ((:single-fact-fn *report-format-config*) m))]
+;            (println "flattened single-fact-fn " r))
+;          (let [r (map *renderer*
+;                   (remove nil? 
+;                    (flatten ((:single-fact-fn *report-format-config*) m))))]
+;            (println "final single-fact-fn " r))
           (->> m 
                ((:single-fact-fn *report-format-config*)) 
                flatten 
@@ -61,26 +69,30 @@
                (map *renderer*) 
                doall))]
 
-  (defmethod clojure.test/old-report :default [m]
+  (defmethod clojure.test/report :default [m]
     (inc-report-counter :fail )
     (note-failure-in-fact)
     (render m))
 
-  (defmethod clojure.test/old-report :future-fact [m]
+  (defmethod clojure.test/report :future-fact [m]
     (render m))
 
-  (defmethod clojure.test.junit/old-junit-report :default [m]
+  (defmethod clojure.test.junit/junit-report :default [m]
     (inc-report-counter :fail )
     (note-failure-in-fact)
+    (try
     (with-test-out
       (failure-el (:description m)
                   (:expected m)
                   (:actual m)))
+    (catch Exception e
+      (.printStackTrace e)
+      (throw e)))
     (render m))
 
 
-  (defmethod clojure.test.junit/old-junit-report :future-fact [m]
+  (defmethod clojure.test.junit/junit-report :future-fact [m]
     (render m))
 
-  (defmethod clojure.test.junit/old-junit-report :summary [m])
+  (defmethod clojure.test.junit/junit-report :summary [m])
   )
