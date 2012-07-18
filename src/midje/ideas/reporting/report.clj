@@ -24,11 +24,7 @@
 
 ;;; Reporting
 
-;(intern (the-ns 'clojure.test) 'old-report clojure.test/report)
-;(intern (the-ns 'clojure.test.junit) 'old-junit-report clojure.test.junit/junit-report)
-
 (def #^:dynamic #^:private *renderer* println)
-
 
 ;;; This mechanism is only used to make `fact` return appropriate values of
 ;;; true or false. It doesn't piggyback off clojure.test/*report-counters*
@@ -54,14 +50,6 @@
      (#'fact-checks-out?)))
   
 (letfn [(render [m]
-;          (let [r ((:single-fact-fn *report-format-config*) m)]
-;            (println "single-fact-fn " r))
-;          (let [r (flatten ((:single-fact-fn *report-format-config*) m))]
-;            (println "flattened single-fact-fn " r))
-;          (let [r (map *renderer*
-;                   (remove nil? 
-;                    (flatten ((:single-fact-fn *report-format-config*) m))))]
-;            (println "final single-fact-fn " r))
           (->> m 
                ((:single-fact-fn *report-format-config*)) 
                flatten 
@@ -70,7 +58,7 @@
                doall))]
 
   (defmethod clojure.test/report :default [m]
-    (inc-report-counter :fail )
+    (inc-report-counter :fail)
     (note-failure-in-fact)
     (render m))
 
@@ -78,7 +66,7 @@
     (render m))
 
   (defmethod clojure.test.junit/junit-report :default [m]
-    (inc-report-counter :fail )
+    (inc-report-counter :fail)
     (note-failure-in-fact)
     (try
     (with-test-out
