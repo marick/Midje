@@ -53,7 +53,7 @@
 ;; There is syntactic sugar for binding *num-trials*
 (defn-call-countable k-maker [] "k")
 (with-num-trials 1000 
-  (formula [a 1] (k-maker) => "kkkkkk")
+  (formula [a 1] (k-maker) => "k")
   (formula [a 1] (k-maker) => "k")
   (formula [a 1] (k-maker) => "k"))
 (fact @k-maker-count => 3000)
@@ -122,7 +122,7 @@
 
 ;;;; Validation
 
-;; The following facts express an assortment of ways that formulas 
+;; The following factsexpress an assortment of ways that formulas 
 ;; could be expressed with invalid syntax
 
 (unfinished h)
