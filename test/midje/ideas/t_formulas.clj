@@ -53,7 +53,7 @@
 ;; There is syntactic sugar for binding *num-trials*
 (defn-call-countable k-maker [] "k")
 (with-num-trials 1000 
-  (formula [a 1] (k-maker) => "k")
+  (formula [a 1] (k-maker) => "kkkkkk")
   (formula [a 1] (k-maker) => "k")
   (formula [a 1] (k-maker) => "k"))
 (fact @k-maker-count => 3000)

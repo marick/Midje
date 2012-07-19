@@ -85,8 +85,7 @@
                                   (multiwrap <> (against-background-contents-wrappers form))))
   
     expect?      (multiwrap form (forms-to-wrap-around :checks ))
-    fact?        (-<> form
-                      macroexpand)
+    fact?        (macroexpand form)
     sequential?  (preserve-type form (eagerly (map midjcoexpand form)))
     :else        form)) 
 
