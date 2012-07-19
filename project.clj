@@ -8,7 +8,7 @@
                    [org.clojure/core.incubator "0.1.0"]
                    [swiss-arrows "0.1.0"]])
 
-(defproject midje "1.5.0-SNAPSHOT"
+(defproject midje "1.4.0"
   :description "A TDD library for Clojure that supports top-down ('mockish') TDD, encourages readable tests, provides a smooth migration path from clojure.test, balances abstraction and concreteness, and strives for graciousness."
   :url "https://github.com/marick/Midje"
   :dependencies ~(cons '[org.clojure/clojure "1.4.0"]
@@ -18,12 +18,13 @@
                "1.2.1" [[org.clojure/clojure "1.2.1"]]
                "1.3.0" [[org.clojure/clojure "1.3.0"]]
                "1.4.0" [[org.clojure/clojure "1.4.0"]]
-;               "1.5.0" [[org.clojure/clojure "1.5.0-SNAPSHOT"]]
+               "1.5.0" [[org.clojure/clojure "1.5.0-SNAPSHOT"]]
                :all ~common-deps }
   :dev-dependencies [[slamhound "1.2.0"]
                      [jonase/kibit "0.0.3"]
                      [jonase/eastwood "0.0.2"]
                      [com.stuartsierra/lazytest "1.2.3"]]
+  :resource-paths ["test-resources"]
 
   ;; automatically detects when your :dependencies key changes and runs
   ;; lein deps behind the scenes when necessary.

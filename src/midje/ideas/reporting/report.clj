@@ -1,6 +1,7 @@
 (ns ^{:doc "Renders the various reported fact evaluation results."}
   midje.ideas.reporting.report
   (:use clojure.test
+        clojure.test.junit
         [midje.ideas.reporting.string-format :only [report-strings-format-config]]
         [midje.ideas.reporting.junit-xml-format :only [junit-xml-format-config]]))
 
@@ -23,10 +24,7 @@
 
 ;;; Reporting
 
-(intern (the-ns 'clojure.test) 'old-report clojure.test/report)
-
 (def #^:dynamic #^:private *renderer* println)
-
 
 ;;; This mechanism is only used to make `fact` return appropriate values of
 ;;; true or false. It doesn't piggyback off clojure.test/*report-counters*
@@ -59,10 +57,30 @@
                (map *renderer*) 
                doall))]
 
-  (defmethod clojure.test/old-report :default [m]
-    (inc-report-counter :fail )
+  (defmethod clojure.test/report :default [m]
+    (inc-report-counter :fail)
     (note-failure-in-fact)
     (render m))
 
-  (defmethod clojure.test/old-report :future-fact [m]
-    (render m)))
+  (defmethod clojure.test/report :future-fact [m]
+    (render m))
+
+  (defmethod clojure.test.junit/junit-report :default [m]
+    (inc-report-counter :fail)
+    (note-failure-in-fact)
+    (try
+    (with-test-out
+      (failure-el (:description m)
+                  (:expected m)
+                  (:actual m)))
+    (catch Exception e
+      (.printStackTrace e)
+      (throw e)))
+    (render m))
+
+
+  (defmethod clojure.test.junit/junit-report :future-fact [m]
+    (render m))
+
+  (defmethod clojure.test.junit/junit-report :summary [m])
+  )
