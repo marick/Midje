@@ -137,3 +137,8 @@
   (map? {1 'do}) => truthy
   (first (second '(midje.semi-sweet.expect (midje.sweet.fact 1 => 2)))) => 'midje.sweet.fact
   (set? #{1 'do}) => truthy)
+
+(let [around-facts-call-count (atom 0)]
+  (against-background [(around :facts (do (swap! around-facts-call-count inc) ?form))]
+    (fact "around-facts is only called once per fact"
+      @around-facts-call-count => 1)))
