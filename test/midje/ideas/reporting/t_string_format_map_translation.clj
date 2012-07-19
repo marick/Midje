@@ -29,7 +29,7 @@
                      :intermediate-results [ ['(f 1) 33] ]
                      :position ["foo.clj" 3]
                      :expected '(test-checker 33)}
-        raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
+        raw-report (with-identity-renderer (clojure.test/report failure-map))]
 
     (nth raw-report 0) => #"FAIL.*some description.*foo.clj:3"
     (nth raw-report 1) => #"Actual.*did not agree"
@@ -43,7 +43,7 @@
                      :actual 2
                      :position ["foo.clj" 3]
                      :expected 'odd?}
-        raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
+        raw-report (with-identity-renderer (clojure.test/report failure-map))]
     (nth raw-report 0) => #"FAIL.*some description.*foo.clj:3"
     (nth raw-report 1) => #"Actual.*did not agree"
     (nth raw-report 2) => #"Actual.*2"
@@ -56,7 +56,7 @@
                      :expected '(sloobom "forp")
                      :intermediate-results [['(+ 1 "ate") nil]]
                      :position ["foo" 23]}
-        raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
+        raw-report (with-identity-renderer (clojure.test/report failure-map))]
     (nth raw-report 2) => #"result: nil"
     (nth raw-report 3) => #"function: \(sloobom \"forp\""
     (nth raw-report 5) => #"\(\+ 1 \"ate\"\) => nil")
@@ -67,7 +67,7 @@
                      :notes ["NOTE ME!" "ME TOO"]
                      :position ["foo.clj" 3]
                      :expected '(test-checker 33)}
-        raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
+        raw-report (with-identity-renderer (clojure.test/report failure-map))]
     (nth raw-report 0) => #"FAIL.*some description.*foo.clj:3"
     (nth raw-report 1) => #"Actual.*did not agree"
     (nth raw-report 2) => #"Actual.*2"
@@ -83,7 +83,7 @@
                      :actual 2
                      :position ["foo.clj" 3]
                      :expected '(test-checker 33)}
-        raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
+        raw-report (with-identity-renderer (clojure.test/report failure-map))]
 
     (nth raw-report 0) => #"FAIL.*some description.*foo.clj:3"
     (nth raw-report 1) => #"Actual.*was NOT supposed to agree"
@@ -97,7 +97,7 @@
                      :actual '(nil)
                      :position ["foo.clj" 3]
                      :var odd?}
-        raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
+        raw-report (with-identity-renderer (clojure.test/report failure-map))]
     (nth raw-report 0) => #"FAIL.*some description.* at .*foo.clj:3"
     (nth raw-report 1) => #"never said .*odd.* would be needed"
     (nth raw-report 1) =future=> #"never said odd\? would be needed"
@@ -110,7 +110,7 @@
                                   :expected-count nil
                                   :position ["foo.clj" 3]
                                   :expected "(f a)"}] }
-        raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
+        raw-report (with-identity-renderer (clojure.test/report failure-map))]
     (nth raw-report 0) => #"FAIL.*some description.* at .*foo.clj:3"
     (nth raw-report 1) => #"These calls were not made the right number of times"
     (nth raw-report 2) => #"\(f a\)"
@@ -123,7 +123,7 @@
                                   :expected-count 1
                                   :position ["foo.clj" 3]
                                   :expected "(f a)" }] }
-        raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
+        raw-report (with-identity-renderer (clojure.test/report failure-map))]
     (nth raw-report 0) => #"FAIL.*some description.* at .*foo.clj:3"
     (nth raw-report 1) => #"These calls were not made the right number of times"
     (nth raw-report 2) => #"\(f a\)"
@@ -138,7 +138,7 @@
                      :position ["foo.clj" 3]
                      :actual nil
                      :expected "s"}
-        raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
+        raw-report (with-identity-renderer (clojure.test/report failure-map))]
     (nth raw-report 0) => #"FAIL.*some description.* at .*foo.clj:3"
     (nth raw-report 1) => #"Expected: \"s\""
     (nth raw-report 2) => #"Actual: nil"))
@@ -149,7 +149,7 @@
                      :position ["foo.clj" 3]
                      :actual "s"
                      :expected "s"}
-        raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
+        raw-report (with-identity-renderer (clojure.test/report failure-map))]
     (nth raw-report 0) => #"FAIL.*some description.* at .*foo.clj:3"
     (nth raw-report 1) => #"Expected: Anything BUT \"s\""
     (nth raw-report 2) => #"Actual: \"s\""))
@@ -160,7 +160,7 @@
                      :position ["foo.clj" 3]
                      :actual (captured-throwable (Error. "message"))
                      :expected "hi"}
-        raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
+        raw-report (with-identity-renderer (clojure.test/report failure-map))]
     ;; Because midje stack traces are filtered out, there's not much more to check.
     (nth raw-report 2) => #"Error.*message")
 
@@ -172,7 +172,7 @@
                      :description ["some description"]
                      :notes ["message"]
                      :position ["foo.clj" 3]}
-        raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
+        raw-report (with-identity-renderer (clojure.test/report failure-map))]
     (nth raw-report 0) => #"FAIL.*some description.* at .*foo.clj:3"
     (nth raw-report 2) => #"message"))
 
@@ -182,7 +182,7 @@
                      :macro-form '(foo bar)
                      :stacktrace ["one" "two"]
                      :position ["foo.clj" 3]}
-        raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
+        raw-report (with-identity-renderer (clojure.test/report failure-map))]
     (nth raw-report 0) => #"FAIL.*some description.* at .*foo.clj:3"
     (nth raw-report 2) => (contains "(foo bar)")
     (nth raw-report 4) => (contains "one")
@@ -195,7 +195,7 @@
                      :position ["foo.clj" 3]
                      :actual nil
                      :expected "s"}
-        raw-report (with-identity-renderer (clojure.test/old-report failure-map))]
+        raw-report (with-identity-renderer (clojure.test/report failure-map))]
     (nth raw-report 0) => #"FAIL.*some description.* at .*foo.clj:3"
     (nth raw-report 1) => #"a note"))
 
