@@ -87,9 +87,16 @@
     expect?      (multiwrap form (forms-to-wrap-around :checks ))
     fact?        (macroexpand form)
     sequential?  (preserve-type form (eagerly (map midjcoexpand form)))
-    :else        form)) 
+    :else        form))
 
-(defn complete-fact-transformation [description forms]
+;; The rather hackish construction here is to keep
+;; the expanded fact body out of square brackets because
+;; `tabular` expansions use `seq-zip`. 
+(defn define-and-run [metadata expanded-form]
+  `((fn [function#] (function#))
+    (with-meta (fn [] ~expanded-form) '~metadata)))
+
+(defn complete-fact-transformation [metadata forms]
   (let [form-to-run (-> forms
                         annotate-embedded-arrows-with-line-numbers
                         to-semi-sweet
@@ -98,11 +105,15 @@
                         midjcoexpand
                         (multiwrap (forms-to-wrap-around :facts)))]
     (define-metaconstants form-to-run)
-    (report/form-providing-friendly-return-value 
-      `(within-fact-context ~description ~form-to-run))))
+    (define-and-run metadata
+      (report/form-providing-friendly-return-value 
+       `(within-fact-context ~(:midje/description metadata) ~form-to-run)))))
   
 (def-many-methods validate ["fact" "facts"] [[fact-or-facts & args :as form]]
   (if-not (leaves-contain-arrow? (rest form))
     (simple-validation-error-report-form form
-      (format "There is no arrow in your %s form:" (name fact-or-facts)))
-    (pop-docstring args)))
+      (format "There is no arrow in your %s form:" (name fact-or-facts)))))
+
+(defn separate-fact-metadata [fact-form]
+  (let [[docstring body] (pop-docstring (rest fact-form))]
+    [ {:midje/description docstring} body]))

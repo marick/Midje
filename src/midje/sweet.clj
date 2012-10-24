@@ -15,7 +15,7 @@
         [midje.internal-ideas.file-position :only [set-fallback-line-number-from]]
         [midje.ideas.tabular :only [tabular*]]
         [midje.ideas.facts :only [complete-fact-transformation future-fact* midjcoexpand 
-                                  future-fact-variant-names]]
+                                  future-fact-variant-names separate-fact-metadata]]
         [midje.ideas.formulas :only [future-formula-variant-names]]
         [clojure.algo.monads :only [domonad]])
   (:require [midje.ideas.background :as background]
@@ -75,18 +75,19 @@
     
   For more info, see on the wiki: 
   metaconstants, checkers, arrows and specifying call counts"
-  [& forms]
+  [& _] ; we work off &form, not the arguments
   (when (user-desires-checking?)
-    (domonad validate-m [[description forms] (validate &form)]
+    (domonad validate-m [_ (validate &form)
+                         [metadata forms] (separate-fact-metadata &form)]
       (try
         (set-fallback-line-number-from &form)
         (let [[background remainder] (background/separate-background-forms forms)]
           (if (seq background)
             `(against-background ~background (midje.sweet/fact ~@remainder))        	
-            (complete-fact-transformation description remainder)))
+            (complete-fact-transformation metadata remainder)))
         (catch Exception ex
           `(do
-             (midje.internal-ideas.fact-context/within-fact-context ~description
+             (midje.internal-ideas.fact-context/within-fact-context ~(:midje/description metadata)
                (clojure.test/report {:type :exceptional-user-error
                                      :description @midje.internal-ideas.fact-context/nested-descriptions
                                      :macro-form '~&form
