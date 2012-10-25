@@ -7,7 +7,7 @@
         [midje.internal-ideas.expect :only [expect?
                                             wrap-with-expect__then__at-rightmost-expect-leaf]]
         [midje.internal-ideas.file-position :only [annotate-embedded-arrows-with-line-numbers]]
-        [midje.internal-ideas.fact-context :only [within-fact-context]]
+        [midje.internal-ideas.fact-context :only [within-runtime-fact-context]]
         [midje.internal-ideas.wrapping :only [already-wrapped?
                                               multiwrap
                                               with-additional-wrappers
@@ -50,7 +50,7 @@
 (defn future-fact* [form]
   (let [lineno (reader-line-number form)
         [metadata _] (separate-fact-metadata form)]
-    `(within-fact-context ~(:midje/description metadata)
+    `(within-runtime-fact-context ~(:midje/description metadata)
        (clojure.test/report {:type :future-fact
                              :description @midje.internal-ideas.fact-context/nested-descriptions
                              :position (midje.internal-ideas.file-position/line-number-known ~lineno)}))))
@@ -107,7 +107,7 @@
     (define-metaconstants form-to-run)
     (define-and-run metadata
       (report/form-providing-friendly-return-value 
-       `(within-fact-context ~(:midje/description metadata) ~form-to-run)))))
+       `(within-runtime-fact-context ~(:midje/description metadata) ~form-to-run)))))
   
 (def-many-methods validate ["fact" "facts"] [[fact-or-facts & args :as form]]
   (if-not (leaves-contain-arrow? (rest form))

@@ -3,7 +3,7 @@
   (:use [clojure.string :only [join]]
         [clojure.algo.monads :only [domonad]]
         [midje.error-handling.validation-errors :only [simple-validation-error-report-form validate-m validate]]
-        [midje.internal-ideas.fact-context :only [within-fact-context]]
+        [midje.internal-ideas.fact-context :only [within-runtime-fact-context]]
         [midje.internal-ideas.file-position :only [form-with-copied-line-numbers
                                                    form-position]] ; for deprecation
         [midje.ideas.reporting.string-format :only [midje-position-string]] ; for deprecation
@@ -68,7 +68,7 @@
                          expect-forms-with-binding-notes (map add-binding-note
                                                               expect-forms
                                                               ordered-binding-maps)]
-      `(within-fact-context ~description?
+      `(within-runtime-fact-context ~description?
          ~@expect-forms-with-binding-notes))))
 
 (defmethod validate "tabular" [[_tabular_ & form] locals]

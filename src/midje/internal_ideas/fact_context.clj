@@ -5,18 +5,18 @@
 
 (def nested-descriptions (atom []))
 
-(defn- enter-context [description]
+(defn- enter-runtime-context [description]
   (swap! nested-descriptions conj description))
 
-(defn- leave-context []
+(defn- leave-runtime-context []
   (swap! nested-descriptions #(vec (butlast %))))
 
-(defmacro within-fact-context [description & body]
+(defmacro within-runtime-fact-context [description & body]
   `(try
-     (#'enter-context ~description)
+     (#'enter-runtime-context ~description)
      ~@body
      (finally
-       (#'leave-context))))
+       (#'leave-runtime-context))))
 
 
 ;; A way to format the description - keeping formatting separate from representation.

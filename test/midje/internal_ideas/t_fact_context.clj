@@ -7,21 +7,21 @@
 ;"creates nested doc-strings from each surrounding context"   
 
 (deftest within-the-nested-contexts-the-doc-strings-build-up
-  (within-fact-context "level 1"
-    (within-fact-context "level 2"
-      (within-fact-context "level 3"
+  (within-runtime-fact-context "level 1"
+    (within-runtime-fact-context "level 2"
+      (within-runtime-fact-context "level 3"
         (is (= @nested-descriptions ["level 1" "level 2" "level 3"]))))))
 
 (deftest context-descriptions-can-be-nil
-    (within-fact-context "level 1"
-      (within-fact-context nil
-        (within-fact-context "level 3"
+    (within-runtime-fact-context "level 1"
+      (within-runtime-fact-context nil
+        (within-runtime-fact-context "level 3"
           (is (= @nested-descriptions ["level 1" nil "level 3"]))))))
 
 (deftest exceptions-dont-disturbed-the-description-nesting
-  (within-fact-context "level 1"
+  (within-runtime-fact-context "level 1"
     (try
-      (within-fact-context "level 2"
+      (within-runtime-fact-context "level 2"
         (throw (Exception. "boom")))
       (catch Exception e nil))
     (is (= @nested-descriptions ["level 1"]))))
