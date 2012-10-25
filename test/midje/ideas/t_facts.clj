@@ -47,6 +47,19 @@
     )
 
 
+(fact "keywords become true metadata"
+    (let [[meta body] (separate-fact-metadata `(fact :a :b  ~@a-body))]
+      (:a meta) => true
+      (:b meta) => true
+      body => a-body))
+
+
+(fact "metadata can be an explicit map"
+    (let [[meta body] (separate-fact-metadata `(fact name {:a 1}  ~@a-body))]
+      (:midje/name meta) => "name"
+      (:a meta) => 1
+      body => a-body))
+
 
 
 ;; Translating sweet forms into their semi-sweet equivalent

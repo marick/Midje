@@ -127,6 +127,12 @@
 
                     (symbol? head)
                     (recur (add-key :midje/name (name head)) (rest body))
+
+                    (keyword? head)
+                    (recur (add-key head true) (rest body))
+
+                    (map? head)
+                    (recur (merge metadata head) (rest body))
                     
                     :else
                     [metadata body])))]
