@@ -115,5 +115,27 @@
       (format "There is no arrow in your %s form:" (name fact-or-facts)))))
 
 (defn separate-fact-metadata [fact-form]
-  (let [[docstring body] (pop-docstring (rest fact-form))]
-    [ {:midje/description docstring} body]))
+  (letfn [(basic-parse [metadata body]
+            (let [head (first body)
+                  add-key (fn [key value] (assoc metadata key value))]
+
+              (cond (string? head)
+                    (recur (add-key :midje/description head) (rest body))
+
+                    (start-of-checking-arrow-sequence? body)
+                    [metadata body]
+
+                    (symbol? head)
+                    (recur (add-key :midje/name (name head)) (rest body))
+                    
+                    :else
+                    [metadata body])))]
+    (let [[metadata body] (basic-parse {:midje/source fact-form}
+                                       (rest fact-form))
+          metadata (if (and (contains? metadata :midje/description)
+                            (not (contains? metadata :midje/name)))
+                     (assoc metadata :midje/name (:midje/description metadata))
+                     metadata)]
+      [metadata body])))
+
+            
