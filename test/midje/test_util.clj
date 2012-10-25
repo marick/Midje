@@ -55,6 +55,7 @@
 (def wrong-call-count (contains {:type :mock-incorrect-call-count}))
 (def a-validation-error (contains {:type :validation-error}))
 (def no-matching-prerequisite (contains {:type :mock-argument-match-failure}))
+(def future-fact-note (contains {:type :future-fact}))
 
 
 ;; Applied to lists of result maps

@@ -22,14 +22,14 @@
                                        against-background-facts-and-checks-wrappers
                                        against-background?]]
         [midje.ideas.metaconstants :only [define-metaconstants]] 
-        [midje.util.form-utils :only [def-many-methods first-named? translate-zipper pop-docstring 
+        [midje.util.form-utils :only [def-many-methods first-named? translate-zipper
                                       preserve-type quoted? pred-cond reader-line-number named?]]
         [midje.util.laziness :only [eagerly]]
         [midje.util.zip :only [skip-to-rightmost-leaf]]
         [swiss-arrows.core :only [-<>]])
   (:require [clojure.zip :as zip])
   (:require [midje.ideas.reporting.report :as report]))
-(declare midjcoexpand)
+(declare midjcoexpand separate-fact-metadata)
 
 (defn fact? [form]
   (or (first-named? form "fact")
@@ -47,10 +47,10 @@
 (defn future-fact? [form]
   (some (partial first-named? form) future-fact-variant-names ))
 
-(defn future-fact* [[_name_ & args :as forms]]
-  (let [lineno (reader-line-number forms)
-        [description _] (pop-docstring args)]
-    `(within-fact-context ~description 
+(defn future-fact* [form]
+  (let [lineno (reader-line-number form)
+        [metadata _] (separate-fact-metadata form)]
+    `(within-fact-context ~(:midje/description metadata)
        (clojure.test/report {:type :future-fact
                              :description @midje.internal-ideas.fact-context/nested-descriptions
                              :position (midje.internal-ideas.file-position/line-number-known ~lineno)}))))
@@ -114,6 +114,7 @@
     (simple-validation-error-report-form form
       (format "There is no arrow in your %s form:" (name fact-or-facts)))))
 
+            
 (defn separate-fact-metadata [fact-form]
   (letfn [(basic-parse [metadata body]
             (let [head (first body)
@@ -144,4 +145,3 @@
                      metadata)]
       [metadata body])))
 
-            

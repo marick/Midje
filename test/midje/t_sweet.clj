@@ -20,6 +20,17 @@
    (+ 20 20) => 40)
  (fact @reported => (two-of pass)))
 
+(after-silently ; unnamed future fact
+ (future-fact 1 => 2)
+ (fact @reported => (just future-fact-note)))
+              
+(after-silently ; named future fact
+ (future-fact :some-metadata "fact name" 1 => 2)
+ (fact
+   @reported => (just future-fact-note)
+   (first @reported) => (contains {:description ["fact name"]})))
+              
+
 
 (after-silently ; combination, including a future fact
  (facts
@@ -30,6 +41,18 @@
                           (contains {:type :future-fact
                                      :description [nil "(+ 1 \"1\")"]})
                           pass)))
+
+(after-silently ; combination, including a future fact
+ (facts
+   (+ 1 1) => 3
+   (+ 1 "1") =future=> "2"
+   (+ 1 1) => 2)
+ (fact @reported => (just bad-result
+                          (contains {:type :future-fact
+                                     :description [nil "(+ 1 \"1\")"]})
+                          pass)))
+
+
 
 (defn number [] )
 (defn two-numbers [] 
@@ -161,10 +184,10 @@
   (fact @reported => (one-of (contains {:description ["level 1" "level 2" "level 3"]} )))) 
 
 (after-silently
-  (facts "about mathemtics"
+  (facts "about mathematics"
     (future-fact "do in future"
       nil => 1))
-  (fact @reported => (one-of (contains {:description ["about mathemtics" "do in future"]} ))))
+  (fact @reported => (one-of (contains {:description ["about mathematics" "do in future"]} ))))
 
 ;; Background prerequisites
 (unfinished check-f check-g check-h)

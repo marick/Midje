@@ -9,7 +9,7 @@
         midje.error-handling.exceptions
         midje.error-handling.validation-errors
         midje.util.debugging
-        [midje.util.form-utils :only [macro-for pop-docstring]]
+        [midje.util.form-utils :only [macro-for]]
         [midje.internal-ideas.wrapping :only [put-wrappers-into-effect]]
         [midje.internal-ideas.fact-context :only [nested-descriptions]]
         [midje.internal-ideas.file-position :only [set-fallback-line-number-from]]
