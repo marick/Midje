@@ -39,7 +39,7 @@
    (+ 1 1) => 2)
  (fact @reported => (just bad-result
                           (contains {:type :future-fact
-                                     :description [nil "(+ 1 \"1\")"]})
+                                     :description [nil "on `(+ 1 \"1\")`"]})
                           pass)))
 
 (after-silently ; combination, including a future fact
@@ -49,7 +49,7 @@
    (+ 1 1) => 2)
  (fact @reported => (just bad-result
                           (contains {:type :future-fact
-                                     :description [nil "(+ 1 \"1\")"]})
+                                     :description [nil "on `(+ 1 \"1\")`"]})
                           pass)))
 
 

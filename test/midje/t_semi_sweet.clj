@@ -297,7 +297,7 @@
   (after-silently 
    (expect (+ 1 "3") =future=> 3)
    @reported => (one-of (contains {:type :future-fact
-                                   :description ["about =future=>" "(+ 1 \"3\")"] }))))
+                                   :description ["about =future=>" "on `(+ 1 \"3\")`"] }))))
 
 
 
