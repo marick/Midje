@@ -9,6 +9,7 @@
         midje.internal-ideas.file-position
         [midje.internal-ideas.fact-context :only [nested-descriptions within-runtime-fact-context]]
         [midje.util debugging form-utils namespace]
+        [midje.util.deprecation :only [deprecate]]
         midje.error-handling.validation-errors
         midje.error-handling.semi-sweet-validations
         [midje.error-handling.exceptions :only [user-error]]
@@ -101,7 +102,9 @@
      throw Errors if ever called.
      DEPRECATED: Prefer `unfinished`."
     {:deprecated "1.3-alpha2"}
-    [& names] (unfinished* names)))
+    [& names]
+    (deprecate "`only-mocked` will be removed in version 1.6. Use `unfinished` instead.")
+    (unfinished* names)))
 
 
 
@@ -137,6 +140,7 @@
   {:deprecated "1.3-alpha2"
    :arglists '([var-sym & overrides])}
   [forms]
+  (deprecate "`not-called` will be removed in 1.6. Use `(provided (f) => 4 :times 0)` instead.")
   (not-called* forms))
 
 (defn- ^{:testable true } a-fake? [x]

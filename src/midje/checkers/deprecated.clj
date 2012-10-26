@@ -1,6 +1,7 @@
 (ns ^{:doc "Deprecated checkers."}
   midje.checkers.deprecated
   (:use [midje.checkers.defining :only [defchecker]]
+        [midje.util.deprecation :only [deprecate]]
       	[midje.checkers.collection :only [just contains]]))
 
 ;; Note: checkers need to be exported in ../checkers.clj
@@ -12,6 +13,7 @@
   {:deprecated "0.9.0"
    :arglists '([expected])}
   [expected]
+  (deprecate "`map-containing will be removed in 1.6. Use `contains` instead.")
   (contains expected))
 
 (letfn [(one-level-map-flatten [list-like-thing]
@@ -29,6 +31,7 @@
     {:deprecated "0.9.0"
      :arglists '([maps-or-maplist])}
     [& maps-or-maplist]
+    (deprecate "`only-maps-containing will be removed in 1.6. Use `(just [ (contains {..}) ])` instead.")
     (let [expected (one-level-map-flatten maps-or-maplist)
           subfunctions (map contains expected)]
       (just subfunctions :in-any-order)))
@@ -43,6 +46,7 @@
     {:deprecated "0.9.0"
      :arglists '([maps-or-maplist])}
     [& maps-or-maplist]
+    (deprecate "`maps-containing will be removed in 1.6. Use `(contains [ (contains {..}) ])` instead.")
     (let [expected (one-level-map-flatten maps-or-maplist)
           subfunctions (map contains expected)]
       (contains subfunctions :in-any-order :gaps-ok))))
@@ -53,4 +57,5 @@
   {:deprecated "0.9.0"
    :arglists '([expected])}
   [expected]
+  (deprecate "`in-any-order will be removed in 1.6. Use `(just x :in-any-order)` instead.")
   (just expected :in-any-order))
