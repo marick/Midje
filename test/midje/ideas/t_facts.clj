@@ -97,9 +97,3 @@
     (to-semi-sweet form) => form))
 
 
-(each-causes-validation-error #"There is no arrow in your fact form"
-  (fact)
-  (fact "vector fact" [1 2 3 4] (contains 3)))
-
-(causes-validation-error #"There is no arrow in your facts form" 
-  (facts 1))

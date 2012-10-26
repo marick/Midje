@@ -108,11 +108,19 @@
     (define-and-run metadata
       (report/form-providing-friendly-return-value 
        `(within-runtime-fact-context ~(:midje/description metadata) ~form-to-run)))))
-  
+
+
+
 (def-many-methods validate ["fact" "facts"] [[fact-or-facts & args :as form]]
-  (if-not (leaves-contain-arrow? (rest form))
-    (simple-validation-error-report-form form
-      (format "There is no arrow in your %s form:" (name fact-or-facts)))))
+  ;; Removed the check for no arrow because (1) it gives me too many false
+  ;; positives and (2) doesn't fit with new handling of tabulate. Replace
+  ;; someday with a version that correctly detects forms like this:
+  ;; (fact (cons 1 => 2))
+  ;; ... which are the ones I most often mess up.
+  ;; (if-not (leaves-contain-arrow? (rest form))
+  ;;   (simple-validation-error-report-form form
+  ;;     (format "There is no arrow in your %s form:" (name fact-or-facts)))))
+  )
 
             
 (defn separate-fact-metadata [fact-form]
