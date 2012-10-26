@@ -21,7 +21,8 @@
                                        against-background-contents-wrappers
                                        against-background-facts-and-checks-wrappers
                                        against-background?]]
-        [midje.ideas.metaconstants :only [define-metaconstants]] 
+        [midje.ideas.metaconstants :only [define-metaconstants]]
+        [midje.ideas.metadata :only [separate-metadata]]
         [midje.util.form-utils :only [def-many-methods first-named? translate-zipper
                                       preserve-type quoted? pred-cond reader-line-number named?]]
         [midje.util.laziness :only [eagerly]]
@@ -29,7 +30,6 @@
         [swiss-arrows.core :only [-<>]])
   (:require [clojure.zip :as zip])
   (:require [midje.ideas.reporting.report :as report]))
-(declare midjcoexpand separate-fact-metadata)
 
 (defn fact? [form]
   (or (first-named? form "fact")
@@ -49,7 +49,7 @@
 
 (defn future-fact* [form]
   (let [lineno (reader-line-number form)
-        [metadata _] (separate-fact-metadata form)]
+        [metadata _] (separate-metadata form)]
     `(within-runtime-fact-context ~(:midje/description metadata)
        (clojure.test/report {:type :future-fact
                              :description @midje.internal-ideas.fact-context/nested-descriptions
@@ -123,33 +123,3 @@
   )
 
             
-(defn separate-fact-metadata [fact-form]
-  (letfn [(basic-parse [metadata body]
-            (let [head (first body)
-                  add-key (fn [key value] (assoc metadata key value))]
-
-              (cond (string? head)
-                    (recur (add-key :midje/description head) (rest body))
-
-                    (start-of-checking-arrow-sequence? body)
-                    [metadata body]
-
-                    (symbol? head)
-                    (recur (add-key :midje/name (name head)) (rest body))
-
-                    (keyword? head)
-                    (recur (add-key head true) (rest body))
-
-                    (map? head)
-                    (recur (merge metadata head) (rest body))
-                    
-                    :else
-                    [metadata body])))]
-    (let [[metadata body] (basic-parse {:midje/source fact-form}
-                                       (rest fact-form))
-          metadata (if (and (contains? metadata :midje/description)
-                            (not (contains? metadata :midje/name)))
-                     (assoc metadata :midje/name (:midje/description metadata))
-                     metadata)]
-      [metadata body])))
-

@@ -92,15 +92,6 @@
 
 ;; Table Validation
 
-(tabular "can split apart fact forms with optional doc-string"
- (fact 
-   (let [s "string"]
-     (validate '?forms []) => '?expected))
-   ?forms                               ?expected
-   (tabular fact ?a ?b 1 1)             [nil fact [?a ?b] [1 1]]
-   (tabular "string" fact ?a ?b 1 1)    ["string" fact [?a ?b] [1 1]] )
-
-
 (each-causes-validation-error #"There's no table\. \(Misparenthesized form\?\)"
   (tabular
     (fact 
@@ -123,15 +114,6 @@
   (tabular
     (fact
       (+ a b) => result)
-      2    4   999     ))
-
- ; non-literal strings attempted to be used by tabular cause validation trouble
-(def s "non-literal string")
-(causes-validation-error #"a non-literal string for the doc-string"
-  (tabular s
-    (fact
-      (+ a b) => result)
-      a    b   result
       2    4   999     ))
 
 ;; Other tests via midje.sweet API
@@ -262,9 +244,9 @@
 
 (after-silently
   (tabular
-    (fact "add stuff"
+    (fact "add stuff"  ;; Note that this gets promoted to be with `tabular`
       (+ a b) => result)
     
       a    b   result
       2    4   999     )  ;; PURPOSELY FAIL
-  (fact @reported => (one-of (contains {:description [nil "add stuff"]} ))))
+  (fact @reported => (one-of (contains {:description ["add stuff" nil]} ))))

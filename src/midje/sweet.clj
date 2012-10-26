@@ -16,8 +16,9 @@
         [midje.internal-ideas.file-position :only [set-fallback-line-number-from]]
         [midje.ideas.tabular :only [tabular*]]
         [midje.ideas.facts :only [complete-fact-transformation future-fact* midjcoexpand 
-                                  future-fact-variant-names separate-fact-metadata]]
+                                  future-fact-variant-names]]
         [midje.ideas.formulas :only [future-formula-variant-names]]
+        [midje.ideas.metadata :only [separate-metadata]]
         [clojure.algo.monads :only [domonad]])
   (:require [midje.ideas.background :as background]
             [midje.ideas.formulas :as formulas]
@@ -79,7 +80,7 @@
   [& _] ; we work off &form, not the arguments
   (when (user-desires-checking?)
     (domonad validate-m [_ (validate &form)
-                         [metadata forms] (separate-fact-metadata &form)]
+                         [metadata forms] (separate-metadata &form)]
       (try
         (set-fallback-line-number-from &form)
         (let [[background remainder] (background/separate-background-forms forms)]

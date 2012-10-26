@@ -3,6 +3,7 @@
   (:use [clojure.string :only [join]]
         [clojure.algo.monads :only [domonad]]
         [midje.error-handling.validation-errors :only [simple-validation-error-report-form validate-m validate]]
+        [midje.ideas.metadata :only [separate-metadata promote-metadata]]
         [midje.internal-ideas.fact-context :only [within-runtime-fact-context]]
         [midje.internal-ideas.file-position :only [form-with-copied-line-numbers]]
         [midje.util.form-utils :only [pop-docstring translate-zipper]]
@@ -55,30 +56,30 @@
               (partial form-with-copied-line-numbers fact-form)
               (partial unify/substitute fact-form)))]
 
-    (domonad validate-m [[description? fact-form headings-row values] (validate form locals)
+    (domonad validate-m [[metadata fact-form headings-row values] (validate form locals)
                          ordered-binding-maps (table-binding-maps headings-row values)
                          expect-forms (map (macroexpander-for fact-form) ordered-binding-maps)
                          expect-forms-with-binding-notes (map add-binding-note
                                                               expect-forms
                                                               ordered-binding-maps)]
-      `(within-runtime-fact-context ~description?
+      `(midje.sweet/fact ~metadata
          ~@expect-forms-with-binding-notes))))
 
-(defmethod validate "tabular" [[_tabular_ & form] locals]
-  (let [[description? [fact-form & table]] (pop-docstring form)
+(defmethod validate "tabular" [full-form locals]
+  (let [[metadata [fact-form & table]] (separate-metadata (promote-metadata full-form))
         [headings-row values] (headings-rows+values table locals)]
     (cond (empty? table)
-          (simple-validation-error-report-form form
+          (simple-validation-error-report-form full-form
             "There's no table. (Misparenthesized form?)")
       
           (empty? values)
-          (simple-validation-error-report-form form
+          (simple-validation-error-report-form full-form
             "It looks like the table has headings, but no values:")
       
           (empty? headings-row)
-          (simple-validation-error-report-form form
+          (simple-validation-error-report-form full-form
             "It looks like the table has no headings, or perhaps you"
             "tried to use a non-literal string for the doc-string?:")
       
           :else 
-          [description? fact-form headings-row values])))
+          [metadata fact-form headings-row values])))
