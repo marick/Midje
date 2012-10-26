@@ -18,12 +18,12 @@
 (def #^:private deprecation-hack:file-position (atom ""))
 
 (defn- remove-pipes+where [table]
-  (when (and false (#{:where 'where} (first table)))
-    (println "The `where` syntactic sugar for tabular facts is deprecated and will be removed in Midje 1.4."
+  (when (#{:where 'where} (first table))
+    (println "The `where` syntactic sugar for tabular facts is deprecated and will be removed in Midje 1.6."
       @deprecation-hack:file-position))
 
-  (when (and false (some #(= % '|) table))
-    (println "The `|` syntactic sugar for tabular facts is deprecated and will be removed in Midje 1.4."
+  (when (some #(= % '|) table)
+    (println "The `|` syntactic sugar for tabular facts is deprecated and will be removed in Midje 1.6."
       @deprecation-hack:file-position))
 
   (letfn [(strip-off-where [x] (if (#{:where 'where} (first x)) (rest x) x))]
