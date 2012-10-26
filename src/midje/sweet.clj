@@ -135,6 +135,7 @@
            9 10     19 )"
   {:arglists '([doc-string? fact table])}
   [& _]
+  (set-fallback-line-number-from &form)
   (tabular* (keys &env) &form))
 
 

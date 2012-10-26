@@ -4,10 +4,9 @@
         [clojure.algo.monads :only [domonad]]
         [midje.error-handling.validation-errors :only [simple-validation-error-report-form validate-m validate]]
         [midje.internal-ideas.fact-context :only [within-runtime-fact-context]]
-        [midje.internal-ideas.file-position :only [form-with-copied-line-numbers
-                                                   form-position]] ; for deprecation
-        [midje.ideas.reporting.string-format :only [midje-position-string]] ; for deprecation
+        [midje.internal-ideas.file-position :only [form-with-copied-line-numbers]]
         [midje.util.form-utils :only [pop-docstring translate-zipper]]
+        [midje.util.deprecation :only [deprecate]]
         [midje.util.zip :only [skip-to-rightmost-leaf]]
         [midje.internal-ideas.expect :only [expect?]]
         [midje.ideas.arrows :only [above-arrow-sequence__add-key-value__at-arrow]]
@@ -15,16 +14,12 @@
         [utilize.map :only [ordered-zipmap]])
 (:require [midje.util.unify :as unify]))
 
-(def #^:private deprecation-hack:file-position (atom ""))
-
 (defn- remove-pipes+where [table]
   (when (#{:where 'where} (first table))
-    (println "The `where` syntactic sugar for tabular facts is deprecated and will be removed in Midje 1.6."
-      @deprecation-hack:file-position))
+    (deprecate "The `where` syntactic sugar for tabular facts is deprecated and will be removed in Midje 1.6."))
 
   (when (some #(= % '|) table)
-    (println "The `|` syntactic sugar for tabular facts is deprecated and will be removed in Midje 1.6."
-      @deprecation-hack:file-position))
+    (deprecate "The `|` syntactic sugar for tabular facts is deprecated and will be removed in Midje 1.6."))
 
   (letfn [(strip-off-where [x] (if (#{:where 'where} (first x)) (rest x) x))]
     (->> table strip-off-where (remove #(= % '|)))))
@@ -61,8 +56,6 @@
               (partial unify/substitute fact-form)))]
 
     (domonad validate-m [[description? fact-form headings-row values] (validate form locals)
-                         _ (swap! deprecation-hack:file-position
-                                  (constantly (midje-position-string (form-position fact-form))))
                          ordered-binding-maps (table-binding-maps headings-row values)
                          expect-forms (map (macroexpander-for fact-form) ordered-binding-maps)
                          expect-forms-with-binding-notes (map add-binding-note
