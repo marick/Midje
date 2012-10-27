@@ -15,8 +15,10 @@
                                                   within-runtime-fact-context]]
         [midje.internal-ideas.file-position :only [set-fallback-line-number-from]]
         [midje.ideas.tabular :only [tabular*]]
-        [midje.ideas.facts :only [complete-fact-transformation future-fact* midjcoexpand 
+        [midje.ideas.facts :only [complete-fact-transformation future-fact*
+                                  midjcoexpand 
                                   future-fact-variant-names]]
+        [midje.ideas.compendium :only [fact-check-history]]
         [midje.ideas.formulas :only [future-formula-variant-names]]
         [midje.ideas.metadata :only [separate-metadata]]
         [clojure.algo.monads :only [domonad]])
@@ -153,3 +155,20 @@
                   names)]
     `(do ~@defs)))
 
+
+(defn last-fact-checked
+  "The last fact or tabular fact that was checked. Only top-level
+   facts are recorded, not facts nested within them."
+  []
+  @fact-check-history)
+
+(defn recheck-fact 
+  "Recheck the last fact or tabular fact that was checked.
+   When facts are nested, the entire outer-level fact is rechecked."
+  []
+  ((last-fact-checked)))
+
+(defn source-of-last-fact-checked 
+  "Returns the source of the last fact or tabular fact run."
+  []
+  (:midje/source (meta (last-fact-checked))))

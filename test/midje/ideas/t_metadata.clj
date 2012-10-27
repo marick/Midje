@@ -69,7 +69,6 @@
 
   (let [form '(tabular (fact :b ?a => 2) ?a 1)
         promoted (promote-metadata form)]
-    (prn promoted)
     (nth promoted 0) => 'tabular
     (nth promoted 1) => '{:b true,
                           :midje/source (tabular (fact :b ?a => 2) ?a 1)}

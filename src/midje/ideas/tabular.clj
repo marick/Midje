@@ -11,6 +11,7 @@
         [midje.util.zip :only [skip-to-rightmost-leaf]]
         [midje.internal-ideas.expect :only [expect?]]
         [midje.ideas.arrows :only [above-arrow-sequence__add-key-value__at-arrow]]
+        [midje.ideas.compendium :only [working-on-nested-facts]]
         [midje.ideas.metaconstants :only [metaconstant-symbol?]]
         [utilize.map :only [ordered-zipmap]])
 (:require [midje.util.unify :as unify]))
@@ -52,18 +53,20 @@
 
 (defn tabular* [locals form]
   (letfn [(macroexpander-for [fact-form]
-            (comp macroexpand
-              (partial form-with-copied-line-numbers fact-form)
-              (partial unify/substitute fact-form)))]
-
+            (fn [binding-map]
+              (working-on-nested-facts
+               (-> binding-map
+                   ((partial unify/substitute fact-form))
+                   ((partial form-with-copied-line-numbers fact-form))
+                  macroexpand))))]
     (domonad validate-m [[metadata fact-form headings-row values] (validate form locals)
                          ordered-binding-maps (table-binding-maps headings-row values)
                          expect-forms (map (macroexpander-for fact-form) ordered-binding-maps)
                          expect-forms-with-binding-notes (map add-binding-note
                                                               expect-forms
                                                               ordered-binding-maps)]
-      `(midje.sweet/fact ~metadata
-         ~@expect-forms-with-binding-notes))))
+       `(midje.sweet/fact ~metadata
+                          ~@expect-forms-with-binding-notes))))
 
 (defmethod validate "tabular" [full-form locals]
   (let [[metadata [fact-form & table]] (separate-metadata (promote-metadata full-form))

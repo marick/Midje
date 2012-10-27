@@ -23,6 +23,8 @@
                                        against-background?]]
         [midje.ideas.metaconstants :only [define-metaconstants]]
         [midje.ideas.metadata :only [separate-metadata]]
+        [midje.ideas.compendium :only [given-possible-fact-nesting
+                                       possible-history-recordings]]
         [midje.util.form-utils :only [def-many-methods first-named? translate-zipper
                                       preserve-type quoted? pred-cond reader-line-number named?]]
         [midje.util.laziness :only [eagerly]]
@@ -89,25 +91,36 @@
     sequential?  (preserve-type form (eagerly (map midjcoexpand form)))
     :else        form))
 
+
+
 ;; The rather hackish construction here is to keep
 ;; the expanded fact body out of square brackets because
 ;; `tabular` expansions use `seq-zip`. 
 (defn define-and-run [metadata expanded-form]
-  `((fn [function#] (function#))
-    (with-meta (fn [] ~expanded-form) '~metadata)))
+  (let [function-symbol (gensym "fact-function-")]
+    `((fn [~function-symbol]
+        ~@(possible-history-recordings function-symbol)
+        (~function-symbol))
+      (with-meta (fn [] ~expanded-form) '~metadata))))
 
 (defn complete-fact-transformation [metadata forms]
-  (let [form-to-run (-> forms
-                        annotate-embedded-arrows-with-line-numbers
-                        to-semi-sweet
-                        unfold-fakes
-                        surround-with-background-fakes
-                        midjcoexpand
-                        (multiwrap (forms-to-wrap-around :facts)))]
-    (define-metaconstants form-to-run)
-    (define-and-run metadata
-      (report/form-providing-friendly-return-value 
-       `(within-runtime-fact-context ~(:midje/description metadata) ~form-to-run)))))
+  (given-possible-fact-nesting
+    (let [wrap-in-runtime-fact-context
+          (fn [to-be-wrapped]
+            `(within-runtime-fact-context ~(:midje/description metadata)
+                                          ~to-be-wrapped))
+          form-to-run (-> forms
+                          annotate-embedded-arrows-with-line-numbers
+                          to-semi-sweet
+                          unfold-fakes
+                          surround-with-background-fakes
+                          midjcoexpand
+                          (multiwrap (forms-to-wrap-around :facts))
+                          wrap-in-runtime-fact-context
+                          report/form-providing-friendly-return-value
+                          ((partial define-and-run metadata)))]
+      (define-metaconstants form-to-run)
+      form-to-run)))
 
 
 
