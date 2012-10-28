@@ -26,6 +26,10 @@
                     :else
                     [metadata body])))]
     (let [[metadata body] (basic-parse {:midje/source fact-form
+                                        ;; Storing actual namespaces in these
+                                        ;; maps causes bizarre errors in
+                                        ;; seemingly unrelated code.
+                                        :midje/namespace (ns-name *ns*)
                                         :midje/file *file*
                                         :midje/line (:line (meta fact-form))
                                         :midje/true-name (gensym "fact-")}
@@ -37,7 +41,8 @@
       [metadata body])))
 
 (defn without-automatic-metadata [metadata]
-  (dissoc metadata :midje/source :midje/file :midje/line :midje/true-name))
+  (dissoc metadata :midje/source :midje/file :midje/line
+                   :midje/true-name :midje/namespace))
 
 (defn promote-metadata [outer-form]
   (let [[outer-metadata [inner-form & rest-of-outer-body]] (separate-metadata outer-form)

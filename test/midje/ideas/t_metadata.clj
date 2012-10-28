@@ -5,9 +5,14 @@
 (def a-body '((f) => 3))
 
 (facts "about separate-metadata" 
-  (fact "contains the original source"
+  (fact "contains the original source and other info"
     (let [[meta _] (separate-metadata `(fact "doc" ~@a-body))]
-      (:midje/source meta) => `(fact "doc" ~@a-body)))
+      (:midje/source meta) => `(fact "doc" ~@a-body)
+      (:midje/file meta) => "midje/ideas/t_metadata.clj"
+      (:midje/namespace meta) => 'midje.ideas.t-metadata
+      (contains? meta :midje/line) => truthy
+      (contains? meta :midje/true-name) => truthy))
+
   
   (fact "ignores the head of the form"
     (let [[meta _] (separate-metadata `(FOO "doc" ~@a-body))]
@@ -76,6 +81,7 @@
       (:b metadata) => true
       (:midje/source metadata) => '(tabular (fact :b ?a => 2) ?a 1)
       (:midje/file metadata) => "midje/ideas/t_metadata.clj"
+      (:midje/namespace metadata) => 'midje.ideas.t-metadata
       (contains? metadata :midje/line) => truthy
       (contains? metadata :midje/true-name) => truthy)
 

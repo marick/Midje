@@ -20,7 +20,8 @@
                                   future-fact-variant-names]]
         [midje.ideas.compendium :only [dereference-history
                                        compendium-contents
-                                       reset-compendium]]
+                                       reset-compendium
+                                       namespace-facts]]
         [midje.ideas.formulas :only [future-formula-variant-names]]
         [midje.ideas.metadata :only [separate-metadata]]
         [clojure.algo.monads :only [domonad]])
@@ -179,14 +180,13 @@
   "After this, `check-facts` does nothing until new facts are defined."
   []
   (reset-compendium))
-  
-(defn check-facts
-  "TBD"
-  [selector]
-  (let [facts (cond (= selector :all)
-                    (compendium-contents)
 
-                    :else
-                    nil)]
-    (map #((%)) facts)))
-        
+(defn check-facts
+  "With no argument, checks all facts in the compendium.
+   With arguments (namespaces or symbols), only runs facts
+   in those namespaces. Returns true iff all facts check out."
+  [& namespaces]
+  (let [facts (if (empty? namespaces)
+                (compendium-contents)
+                (mapcat namespace-facts namespaces))]
+        (every? true? (map #(%) facts))))

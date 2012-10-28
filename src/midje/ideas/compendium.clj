@@ -27,19 +27,22 @@
          ~form)
     form))
 
-(def compendium (atom {}))
+(def by-namespace-compendium (atom {}))
+
+(defn reset-compendium []
+  (reset! by-namespace-compendium {}))
 
 (defn record-fact-existence [function]
-  (intern 'midje.ideas.compendium (:midje/true-name (meta function)) function))
+  (intern 'midje.ideas.compendium (:midje/true-name (meta function)) function)
+  (swap! by-namespace-compendium
+         #(merge-with concat %
+                      { (:midje/namespace (meta function)) [function] })))
 
 (defn record-fact-check [true-name]
   (reset! fact-check-history true-name))
 
-(defn reset-compendium []
-  (reset! compendium {}))
-
-(defn compendium-contents
-  []
-  (map vals (vals compendium)))
+(defn compendium-contents []
+  (apply concat (vals @by-namespace-compendium)))
   
-
+(defn namespace-facts [namespace]
+  )

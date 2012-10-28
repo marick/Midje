@@ -66,3 +66,40 @@
 (one-plus-one)
 (let [previous (last-fact-checked)]
   (fact previous => (exactly one-plus-one)))
+
+
+;;; Namespace-oriented compendium
+
+(forget-facts)
+
+;; Nothing to do
+(check-facts)
+(check-facts *ns*)
+
+(def named-fact-count (atom 0))
+(def anonymous-fact-count (atom 0))
+
+(fact "my fact"
+  (swap! named-fact-count inc)
+  (+ 1 1) => 2)
+
+(fact 
+  (swap! anonymous-fact-count inc)
+  (+ 1 1) => 2)
+
+(check-facts)
+(fact @named-fact-count => 2)
+(fact @anonymous-fact-count => 2)
+
+;; (check-facts *ns*)
+;; (fact @named-fact-count => 3)
+;; (fact @anonymous-fact-count => 3)
+
+;; (check-facts 'midje.ideas.t-compendium)
+;; (fact @named-fact-count => 4)
+;; (fact @anonymous-fact-count => 4)
+
+;; (check-facts 'clojure.core)
+;; (fact @named-fact-count => 4)
+;; (fact @anonymous-fact-count => 4)
+
