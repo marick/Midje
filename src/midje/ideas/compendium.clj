@@ -21,9 +21,25 @@
   @(ns-resolve 'midje.ideas.compendium @fact-check-history))
   
 
-(defn perhaps-note-check [true-name form]
+(defn wrap-with-check-time-fact-recording [true-name form]
   (if (= *parse-time-fact-level* 1)
-    `(do (swap! fact-check-history (constantly '~true-name))
+    `(do (record-fact-check '~true-name)
          ~form)
     form))
+
+(def compendium (atom {}))
+
+(defn record-fact-existence [function]
+  (intern 'midje.ideas.compendium (:midje/true-name (meta function)) function))
+
+(defn record-fact-check [true-name]
+  (reset! fact-check-history true-name))
+
+(defn reset-compendium []
+  (reset! compendium {}))
+
+(defn compendium-contents
+  []
+  (map vals (vals compendium)))
+  
 

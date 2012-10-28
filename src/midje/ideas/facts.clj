@@ -24,7 +24,9 @@
         [midje.ideas.metaconstants :only [define-metaconstants]]
         [midje.ideas.metadata :only [separate-metadata]]
         [midje.ideas.compendium :only [given-possible-fact-nesting
-                                       perhaps-note-check]]
+                                       record-fact-existence
+                                       record-fact-check
+                                       wrap-with-check-time-fact-recording]]
         [midje.util.form-utils :only [def-many-methods first-named? translate-zipper
                                       preserve-type quoted? pred-cond reader-line-number named?]]
         [midje.util.laziness :only [eagerly]]
@@ -96,12 +98,16 @@
 ;; The rather hackish construction here is to keep
 ;; the expanded fact body out of square brackets because
 ;; `tabular` expansions use `seq-zip`. 
-(defn define-and-run [true-name function-form]
+
+(defn wrap-with-creation-time-fact-recording [function-form]
   (let [function-symbol (gensym "fact-function-")]
     `((fn [~function-symbol]
-        (intern 'midje.ideas.compendium '~true-name ~function-symbol)
-        (~function-symbol))
+        (record-fact-existence ~function-symbol)
+        ~function-symbol)
       ~function-form)))
+
+(defn run-after-creation [function-form]
+  `(~function-form))
 
 (defn complete-fact-transformation [metadata forms]
   (given-possible-fact-nesting
@@ -110,12 +116,10 @@
             `(within-runtime-fact-context ~(:midje/description metadata)
                                           ~to-be-wrapped))
           
-          functionize
+          convert-to-fact-function
           (fn [to-be-wrapped]
             `(with-meta (fn [] ~to-be-wrapped) '~metadata))
 
-          true-name (gensym "fact-")
-          
           form-to-run (-> forms
                           annotate-embedded-arrows-with-line-numbers
                           to-semi-sweet
@@ -125,9 +129,11 @@
                           (multiwrap (forms-to-wrap-around :facts))
                           wrap-in-runtime-fact-context
                           report/form-providing-friendly-return-value
-                          ((partial perhaps-note-check true-name))
-                          functionize
-                          ((partial define-and-run true-name)))]
+                          ((partial wrap-with-check-time-fact-recording
+                                    (:midje/true-name metadata)))
+                          convert-to-fact-function
+                          wrap-with-creation-time-fact-recording
+                          run-after-creation)]
       (define-metaconstants form-to-run)
       form-to-run)))
 

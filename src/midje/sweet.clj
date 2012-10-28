@@ -18,7 +18,9 @@
         [midje.ideas.facts :only [complete-fact-transformation future-fact*
                                   midjcoexpand 
                                   future-fact-variant-names]]
-        [midje.ideas.compendium :only [dereference-history]]
+        [midje.ideas.compendium :only [dereference-history
+                                       compendium-contents
+                                       reset-compendium]]
         [midje.ideas.formulas :only [future-formula-variant-names]]
         [midje.ideas.metadata :only [separate-metadata]]
         [clojure.algo.monads :only [domonad]])
@@ -172,3 +174,19 @@
   "Returns the source of the last fact or tabular fact run."
   []
   (:midje/source (meta (last-fact-checked))))
+
+(defn forget-facts
+  "After this, `check-facts` does nothing until new facts are defined."
+  []
+  (reset-compendium))
+  
+(defn check-facts
+  "TBD"
+  [selector]
+  (let [facts (cond (= selector :all)
+                    (compendium-contents)
+
+                    :else
+                    nil)]
+    (map #((%)) facts)))
+        

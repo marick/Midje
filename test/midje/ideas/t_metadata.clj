@@ -70,8 +70,15 @@
   (let [form '(tabular (fact :b ?a => 2) ?a 1)
         promoted (promote-metadata form)]
     (nth promoted 0) => 'tabular
-    (nth promoted 1) => '{:b true,
-                          :midje/source (tabular (fact :b ?a => 2) ?a 1)}
+
+    (nth promoted 1) => map?
+    (let [metadata (nth promoted 1)]
+      (:b metadata) => true
+      (:midje/source metadata) => '(tabular (fact :b ?a => 2) ?a 1)
+      (:midje/file metadata) => "midje/ideas/t_metadata.clj"
+      (contains? metadata :midje/line) => truthy
+      (contains? metadata :midje/true-name) => truthy)
+
     (nth promoted 2) => '(fact ?a => 2)
     (drop 3 promoted) => '(?a 1)))
                     
