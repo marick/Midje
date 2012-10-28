@@ -56,15 +56,10 @@
 
 (fact (+ 1 1) => 2)
 (def one-plus-one (last-fact-checked))
-(prn (source-of-last-fact-checked))
-(prn (last-fact-checked))
 (fact (+ 2 2) => 4)
 (def two-plus-two (last-fact-checked))
-(prn (source-of-last-fact-checked))
-(prn (last-fact-checked))
 
 (recheck-fact)
-(prn two-plus-two)
 (let [previous (last-fact-checked)]
   (fact previous => (exactly two-plus-two)))
 

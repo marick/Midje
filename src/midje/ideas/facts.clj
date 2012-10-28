@@ -24,7 +24,7 @@
         [midje.ideas.metaconstants :only [define-metaconstants]]
         [midje.ideas.metadata :only [separate-metadata]]
         [midje.ideas.compendium :only [given-possible-fact-nesting
-                                       possible-history-recordings]]
+                                       perhaps-note-check]]
         [midje.util.form-utils :only [def-many-methods first-named? translate-zipper
                                       preserve-type quoted? pred-cond reader-line-number named?]]
         [midje.util.laziness :only [eagerly]]
@@ -96,12 +96,12 @@
 ;; The rather hackish construction here is to keep
 ;; the expanded fact body out of square brackets because
 ;; `tabular` expansions use `seq-zip`. 
-(defn define-and-run [metadata expanded-form]
+(defn define-and-run [true-name function-form]
   (let [function-symbol (gensym "fact-function-")]
     `((fn [~function-symbol]
-        ~@(possible-history-recordings function-symbol)
+        (intern 'midje.ideas.compendium '~true-name ~function-symbol)
         (~function-symbol))
-      (with-meta (fn [] ~expanded-form) '~metadata))))
+      ~function-form)))
 
 (defn complete-fact-transformation [metadata forms]
   (given-possible-fact-nesting
@@ -109,6 +109,13 @@
           (fn [to-be-wrapped]
             `(within-runtime-fact-context ~(:midje/description metadata)
                                           ~to-be-wrapped))
+          
+          functionize
+          (fn [to-be-wrapped]
+            `(with-meta (fn [] ~to-be-wrapped) '~metadata))
+
+          true-name (gensym "fact-")
+          
           form-to-run (-> forms
                           annotate-embedded-arrows-with-line-numbers
                           to-semi-sweet
@@ -118,7 +125,9 @@
                           (multiwrap (forms-to-wrap-around :facts))
                           wrap-in-runtime-fact-context
                           report/form-providing-friendly-return-value
-                          ((partial define-and-run metadata)))]
+                          ((partial perhaps-note-check true-name))
+                          functionize
+                          ((partial define-and-run true-name)))]
       (define-metaconstants form-to-run)
       form-to-run)))
 

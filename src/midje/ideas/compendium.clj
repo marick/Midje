@@ -14,8 +14,16 @@
   `(binding [*parse-time-fact-level* (+ 2 *parse-time-fact-level*)]
      ~@forms))
 
+
 (def fact-check-history (atom (constantly true)))
 
-(defn possible-history-recordings [function-symbol]
+(defn dereference-history []
+  @(ns-resolve 'midje.ideas.compendium @fact-check-history))
+  
+
+(defn perhaps-note-check [true-name form]
   (if (= *parse-time-fact-level* 1)
-    `((swap! fact-check-history (constantly ~function-symbol)))))
+    `(do (swap! fact-check-history (constantly '~true-name))
+         ~form)
+    form))
+

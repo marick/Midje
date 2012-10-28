@@ -18,7 +18,7 @@
         [midje.ideas.facts :only [complete-fact-transformation future-fact*
                                   midjcoexpand 
                                   future-fact-variant-names]]
-        [midje.ideas.compendium :only [fact-check-history]]
+        [midje.ideas.compendium :only [dereference-history]]
         [midje.ideas.formulas :only [future-formula-variant-names]]
         [midje.ideas.metadata :only [separate-metadata]]
         [clojure.algo.monads :only [domonad]])
@@ -160,7 +160,7 @@
   "The last fact or tabular fact that was checked. Only top-level
    facts are recorded, not facts nested within them."
   []
-  @fact-check-history)
+  (dereference-history))
 
 (defn recheck-fact 
   "Recheck the last fact or tabular fact that was checked.
