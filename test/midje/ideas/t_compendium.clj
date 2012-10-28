@@ -79,27 +79,43 @@
 (def named-fact-count (atom 0))
 (def anonymous-fact-count (atom 0))
 
-(fact "my fact"
-  (swap! named-fact-count inc)
-  (+ 1 1) => 2)
 
-(fact 
-  (swap! anonymous-fact-count inc)
-  (+ 1 1) => 2)
+(defn redefine-facts []
+  (forget-facts)
+  (reset! named-fact-count 0)
+  (reset! anonymous-fact-count 0)
+  (fact "my fact"
+    (swap! named-fact-count inc)
+    (+ 1 1) => 2)
 
+  (fact 
+    (swap! anonymous-fact-count inc)
+    (+ 1 1) => 2))
+
+(redefine-facts)
 (check-facts)
 (fact @named-fact-count => 2)
 (fact @anonymous-fact-count => 2)
 
-;; (check-facts *ns*)
-;; (fact @named-fact-count => 3)
-;; (fact @anonymous-fact-count => 3)
 
-;; (check-facts 'midje.ideas.t-compendium)
-;; (fact @named-fact-count => 4)
-;; (fact @anonymous-fact-count => 4)
+(redefine-facts)
+(check-facts *ns*)
+(fact @named-fact-count => 2)
+(fact @anonymous-fact-count => 2)
 
-;; (check-facts 'clojure.core)
-;; (fact @named-fact-count => 4)
-;; (fact @anonymous-fact-count => 4)
+(redefine-facts)
+(check-facts 'midje.ideas.t-compendium)
+(fact @named-fact-count => 2)
+(fact @anonymous-fact-count => 2)
+
+(redefine-facts)
+(check-facts 'clojure.core)
+(fact @named-fact-count => 1)
+(fact @anonymous-fact-count => 1)
+
+(redefine-facts)
+(check-facts *ns* *ns*)
+(fact @named-fact-count => 3)
+(fact @anonymous-fact-count => 3)
+
 

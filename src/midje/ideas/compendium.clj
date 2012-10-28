@@ -45,4 +45,10 @@
   (apply concat (vals @by-namespace-compendium)))
   
 (defn namespace-facts [namespace]
-  )
+  (get @by-namespace-compendium
+       (if (= (type namespace) clojure.lang.Namespace)
+         (ns-name namespace)
+         namespace)))
+
+(defn check-some-facts [fact-functions]
+  (every? true? (map #(%) fact-functions)))

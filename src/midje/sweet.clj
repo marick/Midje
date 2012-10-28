@@ -21,6 +21,7 @@
         [midje.ideas.compendium :only [dereference-history
                                        compendium-contents
                                        reset-compendium
+                                       check-some-facts
                                        namespace-facts]]
         [midje.ideas.formulas :only [future-formula-variant-names]]
         [midje.ideas.metadata :only [separate-metadata]]
@@ -186,7 +187,7 @@
    With arguments (namespaces or symbols), only runs facts
    in those namespaces. Returns true iff all facts check out."
   [& namespaces]
-  (let [facts (if (empty? namespaces)
-                (compendium-contents)
-                (mapcat namespace-facts namespaces))]
-        (every? true? (map #(%) facts))))
+  (check-some-facts
+   (if (empty? namespaces)
+     (compendium-contents)
+     (mapcat namespace-facts namespaces))))
