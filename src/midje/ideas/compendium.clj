@@ -32,15 +32,6 @@
 (defn reset-compendium []
   (reset! by-namespace-compendium {}))
 
-(defn record-fact-existence [function]
-  (intern 'midje.ideas.compendium (:midje/true-name (meta function)) function)
-  (swap! by-namespace-compendium
-         #(merge-with concat %
-                      { (:midje/namespace (meta function)) [function] })))
-
-(defn record-fact-check [true-name]
-  (reset! fact-check-history true-name))
-
 (defn compendium-contents []
   (apply concat (vals @by-namespace-compendium)))
   
@@ -49,6 +40,28 @@
        (if (= (type namespace) clojure.lang.Namespace)
          (ns-name namespace)
          namespace)))
+
+;; TODO: the use of the true-name symbol means accumulation of
+;; non-garbage-collected crud as functions are redefined. Worry about
+;; that later.
+
+;; I must be brain-dead, because this code has got to be way too complicated.
+(defn record-fact-existence [function]
+  (let [metadata (meta function)
+        fact-namespace (:midje/namespace metadata)]
+    (intern 'midje.ideas.compendium (:midje/true-name metadata) function)
+    (when (contains? metadata :midje/name)
+      (let [same-namespace-functions (namespace-facts fact-namespace)
+            without-old (remove (fn [f]
+                                  (= (:midje/name metadata) (:midje/name (meta f))))
+                                same-namespace-functions)]
+        (swap! by-namespace-compendium
+               assoc fact-namespace without-old)))
+    (swap! by-namespace-compendium
+           #(merge-with concat % { fact-namespace [function] }))))
+
+(defn record-fact-check [true-name]
+  (reset! fact-check-history true-name))
 
 (defn check-some-facts [fact-functions]
   (every? true? (map #(%) fact-functions)))

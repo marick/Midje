@@ -118,4 +118,22 @@
 (fact @named-fact-count => 3)
 (fact @anonymous-fact-count => 3)
 
+;;; Redefinitions
+
+(forget-facts)
+
+(def run-count (atom 0))
+
+(fact "name"
+  (swap! run-count inc))
+
+(fact "name"
+  (+ 1 1) => 2)
+
+;; If there are two facts now defined, the run-count will increment when we do this:
+
+(check-facts)
+
+(fact
+  @run-count => 1)
 
