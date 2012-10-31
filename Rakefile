@@ -5,10 +5,10 @@ require 'rake'
 
 def jar_name
   text = File.read('project.clj')
-  unless /midje\s+"(\d+\.\d+\.\d+(-RC\d+)?)"/ =~ text ||
-         /midje\s+"(\d+\.\d+(\.\d+)*-SNAPSHOT)"/ =~ text || 
-         /midje\s+"(\d+\.\d-alpha\d)"/ =~ text || 
-         /midje\s+"(\d+\.\d\.\d-beta\d)"/ =~ text
+  unless / midje\s+"(\d+\.\d+\.\d+(-RC\d+)?)"/ =~ text ||
+         / midje\s+"(\d+\.\d+(\.\d+)*-SNAPSHOT)"/ =~ text || 
+         / midje\s+"(\d+\.\d-alpha\d)"/ =~ text || 
+         / midje\s+"(\d+\.\d\.\d-beta\d)"/ =~ text
     puts "Rake task error: couldn't find version in project file."
     exit 1
   end
@@ -37,10 +37,7 @@ end
 desc "upload to clojars"
 task :upload do
   doit("lein pom")
-  if File.exist?("midje.jar")
-    doit("mv midje.jar #{jar_name} ")
-  end
-  doit("scp pom.xml #{jar_name} clojars@clojars.org:")
+  doit("scp pom.xml target/#{jar_name} clojars@clojars.org:")
 end
 
 desc "Check many versions of Clojure"
