@@ -1,6 +1,10 @@
+1.5-alpha1
+-------------
+* Facts are stashed and can be rechecked.
+   https://github.com/marick/Midje/wiki/Rechecking-facts-in-the-repl
+* Added code to warn (once) of deprecated features.
 
-
-1.4.0 (forthcoming)
+1.4.0 
 ------------- 
 See https://github.com/marick/Midje/wiki/New-in-1.4
 
