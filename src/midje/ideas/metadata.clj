@@ -2,6 +2,8 @@
   midje.ideas.metadata
   (:use [midje.ideas.arrows :only [start-of-checking-arrow-sequence?]]))
 
+(def ^{:dynamic true} metadata-for-fact-group {})
+
 
 (defn separate-metadata [fact-form]
   (letfn [(basic-parse [metadata body]
@@ -38,7 +40,27 @@
                             (not (contains? metadata :midje/name)))
                      (assoc metadata :midje/name (:midje/description metadata))
                      metadata)]
-      [metadata body])))
+      [(merge metadata-for-fact-group metadata) body])))
+
+
+
+(defn wrappable-metadata
+  "This does not include metadata specified by strings or symbols."
+  [forms]
+  (loop [metadata {}
+         [x & xs :as body] forms]
+    (cond (keyword? x)
+          (recur (assoc metadata x true) xs)
+          
+          (map? x)
+          (recur (merge metadata x) xs)
+          
+          :else
+          [metadata body])))
+
+(defmacro with-wrapped-metadata [metadata & body]
+  `(binding [metadata-for-fact-group (merge metadata-for-fact-group ~metadata)]
+         ~@body))
 
 (defn without-automatic-metadata [metadata]
   (dissoc metadata :midje/source :midje/file :midje/line

@@ -21,10 +21,13 @@
         [midje.ideas.compendium :only [dereference-history
                                        compendium-contents
                                        reset-compendium
+                                       forget-facts-in-namespace
                                        check-some-facts
                                        namespace-facts]]
         [midje.ideas.formulas :only [future-formula-variant-names]]
-        [midje.ideas.metadata :only [separate-metadata]]
+        [midje.ideas.metadata :only [separate-metadata
+                                     wrappable-metadata
+                                     with-wrapped-metadata]]
         [clojure.algo.monads :only [domonad]])
   (:require [midje.ideas.background :as background]
             [midje.ideas.formulas :as formulas]
@@ -179,8 +182,12 @@
 
 (defn forget-facts
   "After this, `check-facts` does nothing until new facts are defined."
-  []
-  (reset-compendium))
+  ([]
+     (forget-facts *ns*))
+  ([& namespaces]
+     (if (= namespaces [:all])
+       (reset-compendium)
+       (dorun (map forget-facts-in-namespace namespaces)))))
 
 (defn check-facts
   "With no argument, checks all facts in the compendium.
@@ -191,3 +198,38 @@
    (if (empty? namespaces)
      (compendium-contents)
      (mapcat namespace-facts namespaces))))
+
+(defn fetch-matching-facts
+  "Returns a sequence of all facts matching
+   the predicate. The predicate is given fact metadata. See
+   `check-matching-fact` for midje-supplied metadata"
+  [predicate]
+  (filter (comp predicate meta) (compendium-contents)))
+
+(defn check-matching-facts
+  "The function is given each fact's metadata.
+   It checks each fact that matches the predicate. In addition to
+   user-supplied metadata, facts will also have this metadata:
+
+   :midje/description  The fact's outermost doc-string, if given.
+   :midje/name         The *string* name of the fact. 
+                       Derived from the symbol name of the fact, if given.
+                       Otherwise, the doc string, if given.
+                       Otherwise nothing.
+
+   :midje/namespace    The namespace containing the fact.
+   :midje/file         The file containing the fact.
+   :midje/line         The line number of the fact's first line.
+   :midje/true-name    A symbol that's a unique identifier.
+   :midje/source       The original source of the fact."
+  [predicate]
+  (check-some-facts (fetch-matching-facts predicate)))
+
+
+(defmacro fact-group
+  "Supply default metadata to all facts in the body."
+  [& forms]
+  (let [[metadata body] (wrappable-metadata forms)]
+    (with-wrapped-metadata metadata 
+      (midjcoexpand `(do ~@body)))))
+

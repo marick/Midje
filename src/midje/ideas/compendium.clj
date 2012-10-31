@@ -1,9 +1,10 @@
 (ns ^{:doc "A compendium is 'a collection of concise but detailed information
             about a particular subject. The Midje compendium contains
             the currently relevant facts about your program."}
-  midje.ideas.compendium)
+  midje.ideas.compendium
+  (:use [midje.ideas.metadata :only [separate-metadata]]))
 
-(def ^:dynamic *parse-time-fact-level* 0)
+(def ^{:dynamic true} *parse-time-fact-level* 0)
 
 (defmacro given-possible-fact-nesting [& forms]
   `(binding [*parse-time-fact-level* (inc *parse-time-fact-level*)]
@@ -27,19 +28,28 @@
          ~form)
     form))
 
+(defn- force-namespace-name [namespace-or-symbol]
+  (if (= (type namespace-or-symbol) clojure.lang.Namespace)
+    (ns-name namespace-or-symbol)
+    namespace-or-symbol))
+
 (def by-namespace-compendium (atom {}))
+
+(defn forget-facts-in-namespace [namespace]
+  (swap! by-namespace-compendium dissoc (force-namespace-name namespace)))
+  
 
 (defn reset-compendium []
   (reset! by-namespace-compendium {}))
+
+
 
 (defn compendium-contents []
   (apply concat (vals @by-namespace-compendium)))
   
 (defn namespace-facts [namespace]
   (get @by-namespace-compendium
-       (if (= (type namespace) clojure.lang.Namespace)
-         (ns-name namespace)
-         namespace)))
+       (force-namespace-name namespace)))
 
 ;; TODO: the use of the true-name symbol means accumulation of
 ;; non-garbage-collected crud as functions are redefined. Worry about
@@ -65,3 +75,4 @@
 
 (defn check-some-facts [fact-functions]
   (every? true? (map #(%) fact-functions)))
+

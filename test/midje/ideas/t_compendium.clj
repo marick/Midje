@@ -1,7 +1,9 @@
 (ns midje.ideas.t-compendium
   (:use [midje.sweet]
+        [clojure.pprint]
         [midje.test-util]
         [midje.ideas.compendium]))
+(forget-facts :all)
 
 ;;; Recently-run facts.
 
@@ -93,6 +95,7 @@
     (+ 1 1) => 2))
 
 (redefine-facts)
+
 (check-facts)
 (fact @named-fact-count => 2)
 (fact @anonymous-fact-count => 2)
@@ -136,4 +139,90 @@
 
 (fact
   @run-count => 1)
+
+;;; Run facts matching a predicate
+
+(def simple-fact-run-count (atom 0))
+(def integration-run-count (atom 0))
+
+(defn redefine-facts []
+  (forget-facts)
+  (reset! simple-fact-run-count 0)
+  (reset! integration-run-count 0)
+  (fact simple-fact
+    (swap! simple-fact-run-count inc))
+  (fact :integration
+    (swap! integration-run-count inc)))
+
+(redefine-facts)
+(check-matching-facts #(-> % :midje/name (= "simple-fact")))
+(fact
+  @simple-fact-run-count => 2
+  @integration-run-count => 1)
+
+
+(redefine-facts)
+(check-matching-facts :integration)
+(fact
+  @simple-fact-run-count => 1
+  @integration-run-count => 2)
+
+;;; forget-facts can operate on other than the default namespace.
+
+(def sample-compendium '{user [some-fact], clojure.core [other-fact]})
+(reset! by-namespace-compendium sample-compendium)
+
+(forget-facts)
+
+(let [stashed @by-namespace-compendium]
+  (fact "forget-facts by default forgets the facts in this namespace"
+    stashed => sample-compendium))
+
+(forget-facts *ns*) ; forget the fact we just defined
+
+(let [stashed @by-namespace-compendium]
+  (fact "forget-facts can take a namespace"
+    stashed => sample-compendium))
+
+;; We can also forget namespaces by symbol
+(reset! by-namespace-compendium sample-compendium)
+(forget-facts 'user)
+(let [stashed @by-namespace-compendium]
+  (fact "forget-facts can take a namespace symbol"
+    stashed => '{clojure.core [other-fact]}))
+
+;; :all is a special case
+(reset! by-namespace-compendium sample-compendium)
+(forget-facts :all)
+(let [stashed @by-namespace-compendium]
+  (fact "forget-facts can take :all to forget everything"
+    stashed => {}))
+
+;;; fact groups
+
+(forget-facts)
+
+(fact-group :integration {:timing 3}
+            "strings do not set metadata in fact groups"
+  midje.ideas.metadata/metadata-for-fact-group => {:integration true
+                                                   :timing 3})
+            
+
+(forget-facts)
+(def integration-run-count (atom 0))
+(def not-integration-run-count (atom 0))
+
+(fact-group :integration
+  (fact yes-integration
+    (swap! integration-run-count inc))
+
+  (fact no-integration {:integration false}
+    (swap! not-integration-run-count inc)))
+
+(check-matching-facts :integration)
+
+(fact
+  @integration-run-count => 2
+  @not-integration-run-count => 1)
+
 
