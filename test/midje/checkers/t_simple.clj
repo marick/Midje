@@ -41,44 +41,42 @@
   ( (exactly 1) 2) => falsey
   even? => (exactly even?))
 
-(facts "about roughly"
-  "a checker that produces checkers"
-  #'roughly => checker?
-  roughly => checker?
-  (roughly 3) => checker?
-  (roughly 3 1) => checker?
+(facts "roughly"
+  (fact "is a checker that produces checkers"
+    #'roughly => checker?
+    roughly => checker?
+    (roughly 3) => checker?
+    (roughly 3 1) => checker?)
 
-  "explicit range"
-  0.99 =not=> (roughly 2.0 1.0)
-  3.01 =not=> (roughly 2.0 1.0)
+  (fact "allows an explicit range"
+    0.99 =not=> (roughly 2.0 1.0)
+    3.01 =not=> (roughly 2.0 1.0)
 
-  0.00 => (roughly 1.0 1.0)
-  2.00 => (roughly 1.0 1.0)
+    0.00 => (roughly 1.0 1.0)
+    2.00 => (roughly 1.0 1.0))
 
-  "implicit range"
-  ( (roughly 1000) 998.999) => falsey
-  ( (roughly 1000) 999.001) => truthy
-  ( (roughly 1000) 1000.990) => truthy
-  ( (roughly 1000) 1001.001) => falsey
+  (fact "provides an implicit range if needed"
+    998.999 =not=> (roughly 1000)
+    999.001 => (roughly 1000)
+    1000.990 => (roughly 1000)
+    1001.001 =not=> (roughly 1000))
 
-  "negative numbers"
-  -1 => (roughly -1)
-  -1.00001 => (roughly -1)
-  -0.99999 => (roughly -1)
+  (fact "works with negative numbers"
+    -1 => (roughly -1)
+    -1.00001 => (roughly -1)
+    -0.99999 => (roughly -1)
   
-  -1 => (roughly -1 0.1)
-  -0.90001 => (roughly -1 0.1)
-  -1.00001 => (roughly -1 0.1)
+    -1 => (roughly -1 0.1)
+    -0.90001 => (roughly -1 0.1)
+    -1.00001 => (roughly -1 0.1))
 
-  "old bug"
-  [-0.16227766016837952 6.16227766016838] => (just (roughly -0.1622) (roughly 6.1622))
+  (fact "no longer has an old bug to do with collections"
+    [-0.16227766016837952 6.16227766016838]
+    => (just (roughly -0.1622) (roughly 6.1622)))
 
-  
-  "misc"
-  998.999 =not=> (roughly 1000)
-  999.001 => (roughly 1000)
-  1000.990 => (roughly 1000)
-  1001.001 =not=> (roughly 1000))
+  (fact "non-numbers produces a falsey result"
+    ((roughly 12) nil) => false
+    ((roughly 12) "ba") => false))
 
 (defn throw-exception
   ([] (throw (NullPointerException.)))

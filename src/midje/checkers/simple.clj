@@ -49,7 +49,8 @@
      of the expected value."
     ([expected delta]
        (checker [actual]
-         (and (>= expected (-M actual delta))
+         (and (number? actual)
+              (>= expected (-M actual delta))
               (<= expected (+M actual delta)))))
     ([expected]
        (roughly expected (abs (*M 0.001 expected))))))
