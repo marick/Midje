@@ -1,3 +1,8 @@
+
+1.5-alpha2
+* `roughly` returns false for non-numbers instead of
+  throwing an exception.
+
 1.5-alpha1
 -------------
 * Facts are stashed and can be rechecked.
