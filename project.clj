@@ -6,9 +6,10 @@
                    [colorize "0.1.1" :exclusions [org.clojure/clojure]]
                    [org.clojure/tools.macro "0.1.1"]
                    [org.clojure/core.incubator "0.1.0"]
+                   [bultitude "0.1.7"]
                    [swiss-arrows "0.1.0"]])
 
-(defproject midje "1.5-alpha1"
+(defproject midje "1.5-alpha2"
   :description "A TDD library for Clojure that supports top-down ('mockish') TDD, encourages readable tests, provides a smooth migration path from clojure.test, balances abstraction and concreteness, and strives for graciousness."
   :url "https://github.com/marick/Midje"
   :dependencies ~(cons '[org.clojure/clojure "1.4.0"]
@@ -18,7 +19,7 @@
                                   [jonase/kibit "0.0.3"]
                                   [jonase/eastwood "0.0.2"]
                                   [com.stuartsierra/lazytest "1.2.3"]]
-                   :plugins [[lein-midje "2.0.0"]]}
+                   :plugins [[lein-midje "2.0.1"]]}
              :1.2.0 {:dependencies [[org.clojure/clojure "1.2.0"]]}
              :1.2.1 {:dependencies [[org.clojure/clojure "1.2.1"]]}
              :1.3 {:dependencies [[org.clojure/clojure "1.3.0"]]}

@@ -22,6 +22,7 @@
                                        compendium-contents
                                        reset-compendium
                                        forget-facts-in-namespace
+                                       fact-namespaces
                                        check-some-facts
                                        namespace-facts]]
         [midje.ideas.formulas :only [future-formula-variant-names]]
@@ -233,3 +234,14 @@
     (with-wrapped-metadata metadata 
       (midjcoexpand `(do ~@body)))))
 
+
+(defn load-facts
+  "Load facts from all namespaces within given directories.
+  (load-facts \"dir1\" \"dir2\")
+  - from namespaces like dir1.this.that
+  (load-facts)
+  - load facts from all namespaces under \"test\"
+  (load-facts ... :prefix \"trad\")
+  - include only namespaces whose names begin with \"trad\""
+  [& args]
+  (apply require :reload (apply fact-namespaces args)))

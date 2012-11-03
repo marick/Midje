@@ -2,7 +2,8 @@
             about a particular subject. The Midje compendium contains
             the currently relevant facts about your program."}
   midje.ideas.compendium
-  (:use [midje.ideas.metadata :only [separate-metadata]]))
+  (:use [midje.ideas.metadata :only [separate-metadata]]
+        [bultitude.core :only [namespaces-in-dir]]))
 
 (def ^{:dynamic true} *parse-time-fact-level* 0)
 
@@ -76,3 +77,14 @@
 (defn check-some-facts [fact-functions]
   (every? true? (map #(%) fact-functions)))
 
+;;; Loading facts
+
+(defn fact-namespaces [& args]
+  ;; You get an obscure error if you pass a keyword to
+  ;; namespaces-in-dir. I'd rather accept all kinds of typos than
+  ;; subject a user to that.
+  (let [[dirs [_keyword_ prefix & junk]] (split-with string? args)
+        desireds (if (empty? dirs) ["test"] dirs) 
+        actuals (mapcat namespaces-in-dir desireds)]
+    (filter #(.startsWith (name %) (or prefix "")) actuals)))
+  

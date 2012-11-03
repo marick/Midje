@@ -226,3 +226,33 @@
   @not-integration-run-count => 1)
 
 
+(facts "locating fact namespaces"
+  (fact "defaults to test directory"
+    (let [default-namespaces (fact-namespaces)]
+      default-namespaces => (contains 'midje.ideas.t-compendium)
+      default-namespaces =not=> (contains 'midje.ideas.compendium)))
+
+  (fact "can be given explicit directories" 
+    (let [chosen-namespaces (fact-namespaces "src")]
+      chosen-namespaces =not=> (contains 'midje.ideas.t-compendium)
+      chosen-namespaces => (contains 'midje.ideas.compendium))
+    (let [chosen-namespaces (fact-namespaces "src" "test")]
+      chosen-namespaces => (contains #{'midje.ideas.compendium
+                                       'midje.sweet}
+                                     :gaps-ok)
+      chosen-namespaces => (contains 'behaviors.t-isolated-metaconstants)))
+
+  (fact "can filter by prefix"
+    (let [default-prefix (fact-namespaces :prefix "midje.checkers")]
+      default-prefix => (contains 'midje.checkers.t-chatty)
+      default-prefix =not=> (contains 'midje.ideas.t-compendium)
+      default-prefix =not=> (contains 'midje.ideas.compendium))
+
+    (let [chosen-prefix (fact-namespaces "src" :prefix "midje.ideas")]
+      chosen-prefix => (contains 'midje.ideas.compendium)
+      chosen-prefix =not=> (contains 'midje.checkers.chatty)
+      chosen-prefix =not=> (contains 'midje.ideas.t-compendium))
+
+    ;; truly a prefix
+    (fact-namespaces "src" :prefix "ideas") => empty?))
+
