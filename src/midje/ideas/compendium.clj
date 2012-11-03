@@ -58,13 +58,12 @@
 
 ;; I must be brain-dead, because this code has got to be way too complicated.
 (defn record-fact-existence [function]
-  (let [metadata (meta function)
-        fact-namespace (:midje/namespace metadata)]
-    (intern 'midje.ideas.compendium (:midje/true-name metadata) function)
-    (when (contains? metadata :midje/name)
+  (let [{fact-namespace :midje/namespace true-name :midje/true-name midje-name :midje/name} (meta function)]
+    (intern 'midje.ideas.compendium true-name function)
+    (when midje-name
       (let [same-namespace-functions (namespace-facts fact-namespace)
             without-old (remove (fn [f]
-                                  (= (:midje/name metadata) (:midje/name (meta f))))
+                                  (= midje-name (:midje/name (meta f))))
                                 same-namespace-functions)]
         (swap! by-namespace-compendium
                assoc fact-namespace without-old)))
