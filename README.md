@@ -69,6 +69,8 @@ Contributors
 * Alan Malloy
 * Brian Marick
 * Bob Martin
+* Paudi Moriarty
 * Dmitri Naumov
 * Sébastien RoccaSerra
+* Harri Salokorpi
 * Greg Spurrier

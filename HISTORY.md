@@ -10,6 +10,9 @@
 * Added code to warn (once) of deprecated features.
 * `roughly` returns false for non-numbers instead of
   throwing an exception.
+* `against-background` is only called once per fact (via
+  Harri Salokorpi)
+* `junit-report` can be used with Midje (via Paudi Moriarty)
 
 1.4.0 
 ------------- 
