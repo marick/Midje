@@ -1,13 +1,15 @@
 
 1.5-alpha2
-* `roughly` returns false for non-numbers instead of
-  throwing an exception.
+-------------
+* Added `load-facts`
 
 1.5-alpha1
 -------------
 * Facts are stashed and can be rechecked.
    https://github.com/marick/Midje/wiki/Rechecking-facts-in-the-repl
 * Added code to warn (once) of deprecated features.
+* `roughly` returns false for non-numbers instead of
+  throwing an exception.
 
 1.4.0 
 ------------- 
