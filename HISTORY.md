@@ -1,3 +1,7 @@
+1.5-alpha3
+
+* The `has` collection predicate now works with collection
+  and chatty checkers.
 
 1.5-alpha2
 -------------

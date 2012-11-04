@@ -85,10 +85,26 @@
   [4] => (has-suffix 4)
   [:in-any-order] => (just :in-any-order :in-any-order)
 
+  ;; Has
   [4 4 1] => (has some odd?)
   [1 3 5] => (has every? odd?)
   ( (has some odd?) [34 34 88]) => falsey
   ( (has every? odd?) [1 3 44]) => falsey
+
+  ( (has every? (just {:x pos?})) [{:x 1}]) => truthy
+  ( (has not-every? (just {:x pos?})) [{:x 1} {:x -1}]) => truthy
+  ( (has not-any? (just {:x pos?})) [{:x 1} {:x -1}]) => falsey
+
+  ( (has some (just {:x pos?})) [{:x -1} {:x 1}]) => truthy
+  ( (has some (just {:x pos?})) [{:x -1} {:x -1}]) => falsey
+
+  ( (has every? (chatty-checker [actual] (and (map? actual)
+                                              (odd? (:x actual)))))
+    [{:x 1}]) => truthy
+  ( (has every? (chatty-checker [actual] (and (map? actual)
+                                              (odd? (:x actual)))))
+    [{:x 4}]) => falsey
+         
 
   ;; More than one not enclosed in a collection
   [700 4 5] => (just 4 5 700 :in-any-order)

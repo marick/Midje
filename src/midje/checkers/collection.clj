@@ -6,7 +6,10 @@
         [clojure.pprint :only [cl-format]]
         [midje.util.backwards-compatible-utils :only [every-pred-m]] 
         [midje.util.form-utils :only [regex? record? classic-map? pred-cond macro-for]]
-      	[midje.checkers collection-util util extended-equality extended-falsehood chatty defining collection-comparison]
+      	[midje.checkers collection-util util extended-equality
+                        extended-falsehood chatty
+                        defining collection-comparison]
+        [midje.checkers.extended-falsehood :only [extended-true?]]
         [midje.error-handling.exceptions :only [user-error]]))
 
 
@@ -221,10 +224,13 @@ just is also useful if you don't care about order:
    Ex. (fact (f) => (has every? odd?))"
   [quantifier predicate]
   (checker [actual]
-    (quantifier predicate
-                (if (map? actual)
-                  (vals actual)
-                  actual))))
+    (let [lifted-quantifier
+          (fn [predicate collection]
+            (quantifier #(extended-true? (predicate %)) collection))]
+      (lifted-quantifier predicate
+                  (if (map? actual)
+                    (vals actual)
+                    actual)))))
 
 (defchecker n-of 
   "Checks whether a sequence contains precisely n results, and 
