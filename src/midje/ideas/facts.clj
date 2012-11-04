@@ -100,11 +100,10 @@
 ;; `tabular` expansions use `seq-zip`. 
 
 (defn wrap-with-creation-time-fact-recording [function-form]
-  (let [function-symbol (gensym "fact-function-")]
-    `((fn [~function-symbol]
-        (record-fact-existence ~function-symbol)
-        ~function-symbol)
-      ~function-form)))
+  `((fn [fact-function#]
+      (record-fact-existence fact-function#)
+      fact-function#)
+    ~function-form))
 
 (defn run-after-creation [function-form]
   `(~function-form))
