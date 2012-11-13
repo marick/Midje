@@ -1,8 +1,9 @@
-(ns ^{:doc "A compendium is 'a collection of concise but detailed information
-            about a particular subject. The Midje compendium contains
-            the currently relevant facts about your program."}
-  midje.ideas.compendium
-  (:use [midje.ideas.metadata :only [separate-metadata]]
+(ns ^{:doc "Support for loading, running, and rerunning facts"}
+  midje.ideas.rerunning-facts
+  (:use [midje.ideas.metadata :only [separate-metadata
+                                     fact-name fact-true-name
+                                     fact-source fact-namespace]]
+        [midje.util.form-utils :only [dissoc-keypath]]
         [bultitude.core :only [namespaces-in-dir]]))
 
 (def ^{:dynamic true} *parse-time-fact-level* 0)
@@ -17,10 +18,15 @@
      ~@forms))
 
 
+
+
+
+
+
 (def fact-check-history (atom (constantly true)))
 
 (defn dereference-history []
-  @(ns-resolve 'midje.ideas.compendium @fact-check-history))
+  @(ns-resolve 'midje.ideas.rerunning-facts @fact-check-history))
   
 
 (defn wrap-with-check-time-fact-recording [true-name form]
@@ -52,29 +58,37 @@
   (get @by-namespace-compendium
        (force-namespace-name namespace)))
 
+(defn- forget-old-version-of-fact [fact-function]
+  (let [{fact-namespace :midje/namespace
+         midje-name :midje/name
+         old-definition :midje/source} (meta fact-function)
+         same-namespace-functions (namespace-facts fact-namespace)]
+    (if midje-name
+      (let [without-old (remove (fn [f]
+                                  (= midje-name (:midje/name (meta f))))
+                                same-namespace-functions)]
+        (swap! by-namespace-compendium
+               assoc fact-namespace without-old)))))
+  
 ;; TODO: the use of the true-name symbol means accumulation of
 ;; non-garbage-collected crud as functions are redefined. Worry about
 ;; that later.
 
+
 ;; I must be brain-dead, because this code has got to be way too complicated.
 (defn record-fact-existence [function]
-  (let [{fact-namespace :midje/namespace true-name :midje/true-name midje-name :midje/name} (meta function)]
-    (intern 'midje.ideas.compendium true-name function)
-    (when midje-name
-      (let [same-namespace-functions (namespace-facts fact-namespace)
-            without-old (remove (fn [f]
-                                  (= midje-name (:midje/name (meta f))))
-                                same-namespace-functions)]
-        (swap! by-namespace-compendium
-               assoc fact-namespace without-old)))
+  (forget-old-version-of-fact function)
+  (let [{fact-namespace :midje/namespace
+         true-name :midje/true-name} (meta function)]
+    (intern 'midje.ideas.rerunning-facts true-name function)
     (swap! by-namespace-compendium
            #(merge-with concat % { fact-namespace [function] }))))
-
+  
 (defn record-fact-check [true-name]
   (reset! fact-check-history true-name))
 
 (defn check-some-facts [fact-functions]
-  (every? true? (map #(%) fact-functions)))
+  (every? true? (doall (map #(%) fact-functions))))
 
 ;;; Loading facts
 
@@ -86,4 +100,3 @@
         desireds (if (empty? dirs) ["test"] dirs) 
         actuals (mapcat namespaces-in-dir desireds)]
     (filter #(.startsWith (name %) (or prefix "")) actuals)))
-  

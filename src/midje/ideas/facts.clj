@@ -23,7 +23,7 @@
                                        against-background?]]
         [midje.ideas.metaconstants :only [define-metaconstants]]
         [midje.ideas.metadata :only [separate-metadata]]
-        [midje.ideas.compendium :only [given-possible-fact-nesting
+        [midje.ideas.rerunning-facts :only [given-possible-fact-nesting
                                        record-fact-existence
                                        record-fact-check
                                        wrap-with-check-time-fact-recording]]

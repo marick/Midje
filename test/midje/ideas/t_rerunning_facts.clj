@@ -1,8 +1,14 @@
-(ns midje.ideas.t-compendium
+(ns midje.ideas.t-rerunning-facts
   (:use [midje.sweet]
         [clojure.pprint]
         [midje.test-util]
-        [midje.ideas.compendium]))
+        [midje.ideas.rerunning-facts]
+        [midje.ideas.metadata :only [fact-name fact-true-name
+                                     fact-source fact-namespace]]))
+
+
+;;;;;   The interface
+
 (forget-facts :all)
 
 ;;; Recently-run facts.
@@ -69,6 +75,29 @@
 (let [previous (last-fact-checked)]
   (fact previous => (exactly one-plus-one)))
 
+;; failures do not prevent later facts from being rechecked
+
+(forget-facts)
+(def succeed (atom false))
+(def fail (atom false))
+
+(run-silently
+ (fact "1"
+   (reset! fail :fail)
+   (+ 1 2) => 3333))
+(fact "2"
+  (reset! succeed :succeed)
+  (+ 1 2) => 3)
+
+(reset! succeed false)
+(reset! fail false)
+(run-silently
+ (check-facts))
+
+
+(fact "Both facts were checked"
+  @succeed => :succeed
+  @fail => :fail)
 
 ;;; Namespace-oriented compendium
 
@@ -107,7 +136,7 @@
 (fact @anonymous-fact-count => 2)
 
 (redefine-facts)
-(check-facts 'midje.ideas.t-compendium)
+(check-facts 'midje.ideas.t-rerunning-facts)
 (fact @named-fact-count => 2)
 (fact @anonymous-fact-count => 2)
 
@@ -139,6 +168,26 @@
 
 (fact
   @run-count => 1)
+
+;; Redefinition to an identical form does not produce copies
+(forget-facts)
+
+(fact
+  (swap! run-count inc)
+  (+ 1 2) => 3)
+(fact
+  (swap! run-count inc)
+  (+ 1 2) => 3)
+
+(reset! run-count 0)
+(check-facts)
+
+(let [facts (fetch-matching-facts (constantly true))]
+  (future-fact "There is still only one defined fact."
+    (count facts) => 1
+  @run-count => 1))
+
+
 
 ;;; Run facts matching a predicate
 
@@ -229,15 +278,15 @@
 (facts "locating fact namespaces"
   (fact "defaults to test directory"
     (let [default-namespaces (fact-namespaces)]
-      default-namespaces => (contains 'midje.ideas.t-compendium)
-      default-namespaces =not=> (contains 'midje.ideas.compendium)))
+      default-namespaces => (contains 'midje.ideas.t-rerunning-facts)
+      default-namespaces =not=> (contains 'midje.ideas.rerunning-facts)))
 
   (fact "can be given explicit directories" 
     (let [chosen-namespaces (fact-namespaces "src")]
-      chosen-namespaces =not=> (contains 'midje.ideas.t-compendium)
-      chosen-namespaces => (contains 'midje.ideas.compendium))
+      chosen-namespaces =not=> (contains 'midje.ideas.t-rerunning-facts)
+      chosen-namespaces => (contains 'midje.ideas.rerunning-facts))
     (let [chosen-namespaces (fact-namespaces "src" "test")]
-      chosen-namespaces => (contains #{'midje.ideas.compendium
+      chosen-namespaces => (contains #{'midje.ideas.rerunning-facts
                                        'midje.sweet}
                                      :gaps-ok)
       chosen-namespaces => (contains 'behaviors.t-isolated-metaconstants)))
@@ -245,14 +294,15 @@
   (fact "can filter by prefix"
     (let [default-prefix (fact-namespaces :prefix "midje.checkers")]
       default-prefix => (contains 'midje.checkers.t-chatty)
-      default-prefix =not=> (contains 'midje.ideas.t-compendium)
-      default-prefix =not=> (contains 'midje.ideas.compendium))
+      default-prefix =not=> (contains 'midje.ideas.t-rerunning-facts)
+      default-prefix =not=> (contains 'midje.ideas.rerunning-facts))
 
     (let [chosen-prefix (fact-namespaces "src" :prefix "midje.ideas")]
-      chosen-prefix => (contains 'midje.ideas.compendium)
+      chosen-prefix => (contains 'midje.ideas.rerunning-facts)
       chosen-prefix =not=> (contains 'midje.checkers.chatty)
-      chosen-prefix =not=> (contains 'midje.ideas.t-compendium))
+      chosen-prefix =not=> (contains 'midje.ideas.t-rerunning-facts))
 
     ;; truly a prefix
     (fact-namespaces "src" :prefix "ideas") => empty?))
+
 

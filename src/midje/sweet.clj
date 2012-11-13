@@ -18,7 +18,7 @@
         [midje.ideas.facts :only [complete-fact-transformation future-fact*
                                   midjcoexpand 
                                   future-fact-variant-names]]
-        [midje.ideas.compendium :only [dereference-history
+        [midje.ideas.rerunning-facts :only [dereference-history
                                        compendium-contents
                                        reset-compendium
                                        forget-facts-in-namespace
