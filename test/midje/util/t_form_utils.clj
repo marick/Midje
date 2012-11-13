@@ -45,6 +45,22 @@
 (fact "map-difference"
   (map-difference {:a 1, :b 2} {:a 1, :c 3}) => {:b 2})
 
+(fact "dissoc-keypath"
+  (fact "removes a key/value pair"
+    (dissoc-keypath {:by-name {:name1 1, :name2 2}} [:by-name :name1])
+    =>              {:by-name {          :name2 2}}
+    (dissoc-keypath {:by-name {:name1 1}} [:by-name :name1])
+    =>              {:by-name {        }}
+    (dissoc-keypath {"1" {"2" {"3.1" 3, "3.2" 3}}} ["1" "2" "3.1"])
+    =>              {"1" {"2" {         "3.2" 3}}})
+  (fact "leaves the map alone if the last key is incorrect"
+    (dissoc-keypath {:by-name {:name1 1}} [:by-name :NOTFOUND])
+    =>              {:by-name {:name1 1}})
+  (fact "requires that the path up to the last key exists"
+    (dissoc-keypath {:by-name {:name1 1}} [:NOTFOUND :name1])
+    =not=>          {:NOTFOUND {:name1 1}}))
+
+  
 (fact "apply each function to each corresponding arg" 
   (apply-pairwise [inc dec] [1 1] [2 2]) => [[2 0] [3 1]])
 

@@ -105,6 +105,15 @@
 (defn map-difference [bigger smaller]
   (select-keys bigger (difference (set (keys bigger)) (set (keys smaller)))))
 
+(defn dissoc-keypath
+  "Like `dissoc`, but takes a sequence of keys.
+   There must be at least two keys."
+  [map keys]
+  (let [[path-to-end-key end-key] [(butlast keys) (last keys)]
+        ending-container (get-in map path-to-end-key)
+        without-key (dissoc ending-container end-key)]
+    (assoc-in map path-to-end-key without-key)))
+
 (defn translate-zipper
   "Traverses the zipper - for the first predicate that evaluates to truthy for matching a
   node, calls the corresponding translate function on that node. Then, continues traversing."
