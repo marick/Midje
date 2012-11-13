@@ -1,9 +1,22 @@
 (ns ^{:doc "Metadata is attached to facts and fact tables"}
   midje.ideas.metadata
-  (:use [midje.ideas.arrows :only [start-of-checking-arrow-sequence?]]))
+  (:use [midje.ideas.arrows :only [start-of-checking-arrow-sequence?]])
+  (:require [clojure.string :as str]))
 
 (def ^{:dynamic true} metadata-for-fact-group {})
 
+
+;;; Loaded facts are stored as functions with this metadata:
+
+(def fact-properties
+  [:midje/source :midje/file :midje/line :midje/true-name :midje/namespace
+   :midje/name :midje/description])
+
+(doall (map (fn [property]
+              (intern *ns* (symbol (str "fact-" (name property)))
+                      (fn [fact-function]
+                        (property (meta fact-function)))))
+            fact-properties))
 
 (defn separate-metadata [fact-form]
   (letfn [(basic-parse [metadata body]
