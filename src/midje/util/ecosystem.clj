@@ -1,5 +1,6 @@
 (ns ^{:doc "Environmental factors."}
-  midje.util.ecosystem)
+  midje.util.ecosystem
+  (:use [bultitude.core :only [namespaces-in-dir]]))
 
 (def issues-url "https://github.com/marick/Midje/issues")
 
@@ -37,3 +38,17 @@
   (re-find #"[Ww]in" (System/getProperty "os.name")))
 
 (def line-separator (System/getProperty "line.separator"))
+
+
+
+(defn fact-namespaces
+  "Return the symbols (suitable for `require`) of namespaces
+   that match the args."
+  [& args]
+  ;; You get an obscure error if you pass a keyword to
+  ;; namespaces-in-dir. I'd rather accept all kinds of typos than
+  ;; subject a user to that.
+  (let [[dirs [_keyword_ prefix & junk]] (split-with string? args)
+        desireds (if (empty? dirs) ["test"] dirs) 
+        actuals (mapcat namespaces-in-dir desireds)]
+    (filter #(.startsWith (name %) (or prefix "")) actuals)))
