@@ -1,4 +1,4 @@
-(ns ^{:doc "Support for loading, running, and rerunning facts"}
+(ns ^{:doc "Support for running and rerunning facts"}
   midje.ideas.rerunning-facts
   (:use [midje.ideas.metadata :only [separate-metadata
                                      fact-name fact-true-name

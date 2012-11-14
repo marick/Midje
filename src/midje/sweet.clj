@@ -178,8 +178,6 @@
   []
   ((last-fact-checked)))
 
-;;; There is a compendium of facts.
-
 (defn check-facts
   "With no argument, checks all known facts.
    With arguments (namespaces or symbols), only runs facts
@@ -245,5 +243,7 @@
   - include only namespaces whose names begin with \"trad\""
   [& args]
   ;; Note: if all the namespaces are loaded in a single `require`,
-  ;; Clojure 1.4 (at least) runs out of memory.
+  ;; Clojure 1.4 (at least) runs out of memory. Moreover,
+  ;; (require ns1 ns2 ns3 ... nsN :reload-all) will reload a shared
+  ;; dependency N times.
   (dorun (map #(require % :reload) (apply fact-namespaces args))))

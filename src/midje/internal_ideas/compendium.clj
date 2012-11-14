@@ -87,14 +87,14 @@
   (previous-version [this fact-function]
     (let [[namespace name source]
             ( (juxt fact-namespace fact-name fact-source) fact-function)
-          named-fact (named-fact this namespace name)
-          sourced-fact (sourced-fact this namespace source)]
-      (cond named-fact
-            named-fact
+          existing-named-fact (named-fact this namespace name)
+          existing-sourced-fact (sourced-fact this namespace source)]
+      (cond existing-named-fact
+            existing-named-fact
 
-            (and sourced-fact
-                 (not (fact-name sourced-fact)))
-            sourced-fact
+            (and existing-sourced-fact
+                 (not (fact-name existing-sourced-fact)))
+            existing-sourced-fact
 
             :else
             nil))))
