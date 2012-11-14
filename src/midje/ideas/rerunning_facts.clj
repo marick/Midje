@@ -3,8 +3,18 @@
   (:use [midje.ideas.metadata :only [separate-metadata
                                      fact-name fact-true-name
                                      fact-source fact-namespace]]
-        [midje.util.form-utils :only [dissoc-keypath]]
-        [bultitude.core :only [namespaces-in-dir]]))
+        [midje.util.form-utils :only [dissoc-keypath]])
+  (:require [midje.internal-ideas.compendium :as compendium]))
+
+;;; Where storage happens
+
+;; Note: The history is a symbol that, when looked up in
+;; the `fact-var-namespace`, yields pointer to a fact-function.
+(def fact-check-history (atom (constantly true)))
+
+(def compendium (atom (compendium/fresh-compendium)))
+
+;;; Macroexpansion-time support functions
 
 (def ^{:dynamic true} *parse-time-fact-level* 0)
 
@@ -17,86 +27,45 @@
   `(binding [*parse-time-fact-level* (+ 2 *parse-time-fact-level*)]
      ~@forms))
 
-
-
-
-
-
-
-(def fact-check-history (atom (constantly true)))
-
-(defn dereference-history []
-  @(ns-resolve 'midje.ideas.rerunning-facts @fact-check-history))
-  
-
 (defn wrap-with-check-time-fact-recording [true-name form]
   (if (= *parse-time-fact-level* 1)
     `(do (record-fact-check '~true-name)
          ~form)
     form))
 
-(defn- force-namespace-name [namespace-or-symbol]
-  (if (= (type namespace-or-symbol) clojure.lang.Namespace)
-    (ns-name namespace-or-symbol)
-    namespace-or-symbol))
 
-(def by-namespace-compendium (atom {}))
+;;; Runtime support of a history of which facts run
 
-(defn forget-facts-in-namespace [namespace]
-  (swap! by-namespace-compendium dissoc (force-namespace-name namespace)))
-  
+(defn last-fact-function-run
+  [] 
+  @(ns-resolve compendium/fact-var-namespace @fact-check-history))
 
-(defn reset-compendium []
-  (reset! by-namespace-compendium {}))
-
-
-
-(defn compendium-contents []
-  (apply concat (vals @by-namespace-compendium)))
-  
-(defn namespace-facts [namespace]
-  (get @by-namespace-compendium
-       (force-namespace-name namespace)))
-
-(defn- forget-old-version-of-fact [fact-function]
-  (let [{fact-namespace :midje/namespace
-         midje-name :midje/name
-         old-definition :midje/source} (meta fact-function)
-         same-namespace-functions (namespace-facts fact-namespace)]
-    (if midje-name
-      (let [without-old (remove (fn [f]
-                                  (= midje-name (:midje/name (meta f))))
-                                same-namespace-functions)]
-        (swap! by-namespace-compendium
-               assoc fact-namespace without-old)))))
-  
-;; TODO: the use of the true-name symbol means accumulation of
-;; non-garbage-collected crud as functions are redefined. Worry about
-;; that later.
-
-
-;; I must be brain-dead, because this code has got to be way too complicated.
-(defn record-fact-existence [function]
-  (forget-old-version-of-fact function)
-  (let [{fact-namespace :midje/namespace
-         true-name :midje/true-name} (meta function)]
-    (intern 'midje.ideas.rerunning-facts true-name function)
-    (swap! by-namespace-compendium
-           #(merge-with concat % { fact-namespace [function] }))))
-  
 (defn record-fact-check [true-name]
   (reset! fact-check-history true-name))
 
+
+
+;;; Operations on the mutable compendium
+
+(defn forget-facts-in-namespace [namespace]
+  (swap! compendium compendium/remove-namespace-facts-from namespace))
+
+(defn reset-compendium []
+  (reset! compendium (compendium/fresh-compendium)))
+
+(defn compendium-contents []
+  (compendium/all-facts @compendium))
+  
+(defn namespace-facts [namespace]
+  (compendium/namespace-facts @compendium namespace))
+
+(defn record-fact-existence [fact-function]
+  (if-let [previous (compendium/previous-version @compendium fact-function)]
+    (swap! compendium compendium/remove-from previous))
+  (swap! compendium compendium/add-to fact-function))
+
+;;; Running facts
+  
 (defn check-some-facts [fact-functions]
   (every? true? (doall (map #(%) fact-functions))))
 
-;;; Loading facts
-
-(defn fact-namespaces [& args]
-  ;; You get an obscure error if you pass a keyword to
-  ;; namespaces-in-dir. I'd rather accept all kinds of typos than
-  ;; subject a user to that.
-  (let [[dirs [_keyword_ prefix & junk]] (split-with string? args)
-        desireds (if (empty? dirs) ["test"] dirs) 
-        actuals (mapcat namespaces-in-dir desireds)]
-    (filter #(.startsWith (name %) (or prefix "")) actuals)))

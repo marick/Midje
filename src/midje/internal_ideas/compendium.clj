@@ -5,11 +5,8 @@
   (:use [midje.ideas.metadata :only [fact-name fact-true-name
                                      fact-source fact-namespace]]
         [midje.util.form-utils :only [dissoc-keypath]]))
-(declare assoc-in-ignoring-nil)
-
 
 ;;; Facts are referred to by vars in a namespace
-
 
 (def fact-var-namespace
   (do (in-ns 'midje.fact-var-namespace)
@@ -22,10 +19,19 @@
 (defprotocol CompendiumProtocol
   (add-to [this fact-function])
   (remove-from [this fact-function])
+  (remove-namespace-facts-from [this namespace])
   (namespace-facts [this namespace])
   (all-facts [this])
   (named-fact [this namespace name])
-  (sourced-fact [this namespace source]))
+  (sourced-fact [this namespace source])
+  (previous-version [this fact-function]))
+
+;; The compendium has three maps. One maps a namespace to
+;; lists of facts (which are in the order in which facts were defined,
+;; which is usually the order of facts in the file). The other two
+;; are by [namespace name] and [namespace source] pairs. It would be
+;; smarter to have nested maps {'namespace1 {"name1 ...}}, as removing
+;; all facts from a namespace is likely to be more common than I guessed.
 
 (defrecord Compendium [by-namespace by-name by-source]
   CompendiumProtocol
@@ -62,6 +68,13 @@
           (dissoc-keypath [:by-name [namespace name]])
           (dissoc-keypath [:by-source [namespace source]]))))
 
+  (remove-namespace-facts-from [this namespace]
+    (let [facts (namespace-facts this namespace)]
+      (doall (reduce (fn [compendium fact]
+                       (remove-from compendium fact))
+                     this
+                     facts))))
+
   (namespace-facts [this namespace]
     (get by-namespace (ns-name namespace)))
   (all-facts [this]
@@ -69,17 +82,23 @@
   (named-fact [this namespace name]
     (get by-name [(ns-name namespace) name]))
   (sourced-fact [this namespace source]
-    (get by-source [(ns-name namespace) source])))
+    (get by-source [(ns-name namespace) source]))
+
+  (previous-version [this fact-function]
+    (let [[namespace name source]
+            ( (juxt fact-namespace fact-name fact-source) fact-function)
+          named-fact (named-fact this namespace name)
+          sourced-fact (sourced-fact this namespace source)]
+      (cond named-fact
+            named-fact
+
+            (and sourced-fact
+                 (not (fact-name sourced-fact)))
+            sourced-fact
+
+            :else
+            nil))))
   
 (defn fresh-compendium []
   (Compendium. (sorted-map) {} {}))
-
-
-
-;;;; UTIL
-
-(defn- assoc-in-ignoring-nil [map keys value]
-  (if (nil? (last keys))
-    map
-    (assoc-in map keys value)))
 

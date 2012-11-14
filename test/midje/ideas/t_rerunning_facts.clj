@@ -6,21 +6,26 @@
         [midje.ideas.metadata :only [fact-name fact-true-name
                                      fact-source fact-namespace]]))
 
-
-;;;;;   The interface
-
 (forget-facts :all)
 
-;;; Recently-run facts.
+                                ;;; Rechecking last-checked fact
+
 
 (def run-count (atom 0))
+
 (fact
   (swap! run-count inc)
   (+ 1 1) => 2)
+
 (recheck-fact)
+
 (fact @run-count => 2)
+
 (let [definition (source-of-last-fact-checked)]
   (fact definition => '(fact @run-count => 2)))
+
+
+;; Nesting of facts and most-recently-run fact
 
 (def outer-run-count (atom 0))
 (def inner-run-count (atom 0))
@@ -38,6 +43,7 @@
     @outer-run-count => 2
     @inner-run-count => 2))
 
+;; Multiple nested facts
 
 (def run-count (atom 0))
 (fact "outermost"
@@ -48,7 +54,10 @@
 (recheck-fact)
 (fact
   @run-count => 4)
-  
+
+
+;; Tabular facts count as nested facts
+
 (def run-count (atom 0))
 (tabular "tabular facts count as last-fact checked"
   (fact
@@ -61,7 +70,6 @@
 (fact @run-count => 4)
 
 ;; Facts mark themselves as last-fact-checked each time they're rechecked.
-
 (fact (+ 1 1) => 2)
 (def one-plus-one (last-fact-checked))
 (fact (+ 2 2) => 4)
@@ -74,6 +82,14 @@
 (one-plus-one)
 (let [previous (last-fact-checked)]
   (fact previous => (exactly one-plus-one)))
+
+
+                                ;;; Running facts from the compendium
+(forget-facts)
+
+;; Nothing to do
+(check-facts)
+(check-facts *ns*)
 
 ;; failures do not prevent later facts from being rechecked
 
@@ -99,13 +115,8 @@
   @succeed => :succeed
   @fail => :fail)
 
-;;; Namespace-oriented compendium
 
-(forget-facts)
-
-;; Nothing to do
-(check-facts)
-(check-facts *ns*)
+;;; Variant ways of using check-facts with namespaces
 
 (def named-fact-count (atom 0))
 (def anonymous-fact-count (atom 0))
@@ -121,37 +132,37 @@
 
   (fact 
     (swap! anonymous-fact-count inc)
-    (+ 1 1) => 2))
+    (+ 2 2) => 4))
 
-(redefine-facts)
+(redefine-facts)   
 
-(check-facts)
+(check-facts)                           ; No namespace runs everything
 (fact @named-fact-count => 2)
 (fact @anonymous-fact-count => 2)
 
 
 (redefine-facts)
-(check-facts *ns*)
+(check-facts *ns*)                      ; Explicit namespace arg
 (fact @named-fact-count => 2)
 (fact @anonymous-fact-count => 2)
 
 (redefine-facts)
-(check-facts 'midje.ideas.t-rerunning-facts)
+(check-facts (ns-name *ns*))             ; Symbol namespace name
 (fact @named-fact-count => 2)
 (fact @anonymous-fact-count => 2)
 
 (redefine-facts)
-(check-facts 'clojure.core)
-(fact @named-fact-count => 1)
+(check-facts 'clojure.core)             ; A different namespace
+(fact @named-fact-count => 1)           ; (no rerunning - only initial redefinition)
 (fact @anonymous-fact-count => 1)
 
 (redefine-facts)
-(check-facts *ns* *ns*)
-(fact @named-fact-count => 3)
+(check-facts *ns* *ns*)                 ; Multiple args
+(fact @named-fact-count => 3)           ; (repeating same runs it again)
 (fact @anonymous-fact-count => 3)
 
-;;; Redefinitions
 
+                                ;;; How one redefines facts
 (forget-facts)
 
 (def run-count (atom 0))
@@ -162,12 +173,14 @@
 (fact "name"
   (+ 1 1) => 2)
 
-;; If there are two facts now defined, the run-count will increment when we do this:
+;; If two facts were now defined, the run-count would
+;; increment when we do this:
 
 (check-facts)
-
-(fact
+(fact "But only one is defined"
   @run-count => 1)
+
+
 
 ;; Redefinition to an identical form does not produce copies
 (forget-facts)
@@ -183,13 +196,13 @@
 (check-facts)
 
 (let [facts (fetch-matching-facts (constantly true))]
-  (future-fact "There is still only one defined fact."
+  (future "There is still only one defined fact."
     (count facts) => 1
   @run-count => 1))
 
 
+                                ;;; Run facts matching a predicate
 
-;;; Run facts matching a predicate
 
 (def simple-fact-run-count (atom 0))
 (def integration-run-count (atom 0))
@@ -203,12 +216,13 @@
   (fact :integration
     (swap! integration-run-count inc)))
 
+
+
 (redefine-facts)
 (check-matching-facts #(-> % :midje/name (= "simple-fact")))
 (fact
   @simple-fact-run-count => 2
   @integration-run-count => 1)
-
 
 (redefine-facts)
 (check-matching-facts :integration)
@@ -216,36 +230,42 @@
   @simple-fact-run-count => 1
   @integration-run-count => 2)
 
-;;; forget-facts can operate on other than the default namespace.
 
-(def sample-compendium '{user [some-fact], clojure.core [other-fact]})
-(reset! by-namespace-compendium sample-compendium)
+                                   ;;; forget-facts
 
 (forget-facts)
 
-(let [stashed @by-namespace-compendium]
-  (fact "forget-facts by default forgets the facts in this namespace"
-    stashed => sample-compendium))
+(fact "in-this-namespace"
+  1 => 1)
+(def other-namespace-fact (vary-meta (last-fact-function-run)
+                                     assoc
+                                     :midje/name "other namespace fact"
+                                     :midje/namespace 'clojure.core))
+(record-fact-existence other-namespace-fact)
 
-(forget-facts *ns*) ; forget the fact we just defined
-
-(let [stashed @by-namespace-compendium]
-  (fact "forget-facts can take a namespace"
-    stashed => sample-compendium))
+(forget-facts *ns*)
+(let [this-result (namespace-facts *ns*)
+      other-result (namespace-facts 'clojure.core)]
+  (fact this-result => [])
+  (fact other-result => [other-namespace-fact]))
 
 ;; We can also forget namespaces by symbol
-(reset! by-namespace-compendium sample-compendium)
-(forget-facts 'user)
-(let [stashed @by-namespace-compendium]
-  (fact "forget-facts can take a namespace symbol"
-    stashed => '{clojure.core [other-fact]}))
+(forget-facts 'clojure.core)
+(fact (namespace-facts 'clojure.core) => [])
+
 
 ;; :all is a special case
-(reset! by-namespace-compendium sample-compendium)
 (forget-facts :all)
-(let [stashed @by-namespace-compendium]
-  (fact "forget-facts can take :all to forget everything"
-    stashed => {}))
+(fact 1 => 1)
+(record-fact-existence other-namespace-fact)
+
+(fact
+  (count (compendium-contents)) => 3) ; including self.
+
+(forget-facts :all)
+(let [result (compendium-contents)]
+  (fact result => []))
+
 
 ;;; fact groups
 
@@ -256,6 +276,8 @@
   midje.ideas.metadata/metadata-for-fact-group => {:integration true
                                                    :timing 3})
             
+
+                                        ;;; fact groups
 
 (forget-facts)
 (def integration-run-count (atom 0))
@@ -273,36 +295,5 @@
 (fact
   @integration-run-count => 2
   @not-integration-run-count => 1)
-
-
-(facts "locating fact namespaces"
-  (fact "defaults to test directory"
-    (let [default-namespaces (fact-namespaces)]
-      default-namespaces => (contains 'midje.ideas.t-rerunning-facts)
-      default-namespaces =not=> (contains 'midje.ideas.rerunning-facts)))
-
-  (fact "can be given explicit directories" 
-    (let [chosen-namespaces (fact-namespaces "src")]
-      chosen-namespaces =not=> (contains 'midje.ideas.t-rerunning-facts)
-      chosen-namespaces => (contains 'midje.ideas.rerunning-facts))
-    (let [chosen-namespaces (fact-namespaces "src" "test")]
-      chosen-namespaces => (contains #{'midje.ideas.rerunning-facts
-                                       'midje.sweet}
-                                     :gaps-ok)
-      chosen-namespaces => (contains 'behaviors.t-isolated-metaconstants)))
-
-  (fact "can filter by prefix"
-    (let [default-prefix (fact-namespaces :prefix "midje.checkers")]
-      default-prefix => (contains 'midje.checkers.t-chatty)
-      default-prefix =not=> (contains 'midje.ideas.t-rerunning-facts)
-      default-prefix =not=> (contains 'midje.ideas.rerunning-facts))
-
-    (let [chosen-prefix (fact-namespaces "src" :prefix "midje.ideas")]
-      chosen-prefix => (contains 'midje.ideas.rerunning-facts)
-      chosen-prefix =not=> (contains 'midje.checkers.chatty)
-      chosen-prefix =not=> (contains 'midje.ideas.t-rerunning-facts))
-
-    ;; truly a prefix
-    (fact-namespaces "src" :prefix "ideas") => empty?))
 
 

@@ -18,22 +18,18 @@
         [midje.ideas.facts :only [complete-fact-transformation future-fact*
                                   midjcoexpand 
                                   future-fact-variant-names]]
-        [midje.ideas.rerunning-facts :only [dereference-history
-                                       compendium-contents
-                                       reset-compendium
-                                       forget-facts-in-namespace
-                                       fact-namespaces
-                                       check-some-facts
-                                       namespace-facts]]
         [midje.ideas.formulas :only [future-formula-variant-names]]
         [midje.ideas.metadata :only [separate-metadata
                                      wrappable-metadata
-                                     with-wrapped-metadata]]
+                                     with-wrapped-metadata
+                                     fact-source]]
+        [midje.util.ecosystem :only [fact-namespaces]]
         [clojure.algo.monads :only [domonad]])
   (:require [midje.ideas.background :as background]
             [midje.ideas.formulas :as formulas]
             midje.checkers
-            [midje.ideas.reporting.report :as report]))
+            [midje.ideas.reporting.report :as report]
+            [midje.ideas.rerunning-facts :as rerun]))
 
 (immigrate 'midje.unprocessed)
 (immigrate 'midje.semi-sweet)
@@ -163,12 +159,18 @@
                   names)]
     `(do ~@defs)))
 
+;;; The last fact can be rechecked
 
 (defn last-fact-checked
   "The last fact or tabular fact that was checked. Only top-level
    facts are recorded, not facts nested within them."
   []
-  (dereference-history))
+  (rerun/last-fact-function-run))
+
+(defn source-of-last-fact-checked 
+  "Returns the source of the last fact or tabular fact run."
+  []
+  (fact-source (last-fact-checked)))
 
 (defn recheck-fact 
   "Recheck the last fact or tabular fact that was checked.
@@ -176,36 +178,34 @@
   []
   ((last-fact-checked)))
 
-(defn source-of-last-fact-checked 
-  "Returns the source of the last fact or tabular fact run."
-  []
-  (:midje/source (meta (last-fact-checked))))
+;;; There is a compendium of facts.
+
+(defn check-facts
+  "With no argument, checks all known facts.
+   With arguments (namespaces or symbols), only runs facts
+   in those namespaces. Returns true iff all facts check out."
+  [& namespaces]
+  (rerun/check-some-facts
+   (if (empty? namespaces)
+     (rerun/compendium-contents)
+     (mapcat rerun/namespace-facts namespaces))))
+
 
 (defn forget-facts
   "After this, `check-facts` does nothing until new facts are defined."
   ([]
-     (forget-facts *ns*))
+     (rerun/forget-facts-in-namespace *ns*))
   ([& namespaces]
      (if (= namespaces [:all])
-       (reset-compendium)
-       (dorun (map forget-facts-in-namespace namespaces)))))
-
-(defn check-facts
-  "With no argument, checks all facts in the compendium.
-   With arguments (namespaces or symbols), only runs facts
-   in those namespaces. Returns true iff all facts check out."
-  [& namespaces]
-  (check-some-facts
-   (if (empty? namespaces)
-     (compendium-contents)
-     (mapcat namespace-facts namespaces))))
+       (rerun/reset-compendium)
+       (dorun (map rerun/forget-facts-in-namespace namespaces)))))
 
 (defn fetch-matching-facts
   "Returns a sequence of all facts matching
    the predicate. The predicate is given fact metadata. See
    `check-matching-fact` for midje-supplied metadata"
   [predicate]
-  (filter (comp predicate meta) (compendium-contents)))
+  (filter (comp predicate meta) (rerun/compendium-contents)))
 
 (defn check-matching-facts
   "The function is given each fact's metadata.
@@ -224,7 +224,7 @@
    :midje/true-name    A symbol that's a unique identifier.
    :midje/source       The original source of the fact."
   [predicate]
-  (check-some-facts (fetch-matching-facts predicate)))
+  (rerun/check-some-facts (fetch-matching-facts predicate)))
 
 
 (defmacro fact-group
@@ -244,4 +244,6 @@
   (load-facts ... :prefix \"trad\")
   - include only namespaces whose names begin with \"trad\""
   [& args]
-  (apply require :reload (apply fact-namespaces args)))
+  ;; Note: if all the namespaces are loaded in a single `require`,
+  ;; Clojure 1.4 (at least) runs out of memory.
+  (dorun (map #(require % :reload) (apply fact-namespaces args))))

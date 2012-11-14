@@ -11,19 +11,23 @@
 
 (def common-namespace 'midje.sweet)
 
-(def named (with-meta ['this-vector-represents-a-named-faux-fact]
-                 {:midje/namespace common-namespace
-                  :midje/name "name"
-                  :midje/true-name 'TRUENAME
-                  :midje/source '(source)}))
-(def unnamed (with-meta ['this-vector-represents-an-unnamed-faux-fact]
-                   {:midje/namespace common-namespace
-                    ;; No name
-                    :midje/true-name 'TRUENAME2
-                    :midje/source '(source2)}))
+(defn a-fact [name source]
+  (let [starting-value
+        (if name
+          (with-meta [(str "this-vector-represents-a-faux-fact-named-" name)]
+                     {:midje/name name})
+          (with-meta ["some unnamed fact"]
+                     {}))]
+    (vary-meta starting-value
+               merge {:midje/namespace common-namespace
+                      :midje/true-name (gensym 'TRUENAME-)
+                      :midje/source source})))
 
+(def named (a-fact "named" '(source)))
+(def unnamed (a-fact nil '(source 2)))
+  
 
-;;; The core data structure
+;;; Tests
 
 (fact "an empty compendium"
   (all-facts (fresh-compendium)) => empty?)
@@ -90,4 +94,58 @@
         (sourced-fact result common-namespace (fact-source unnamed)) => nil
         (ns-resolve fact-var-namespace (fact-true-name unnamed)) => nil))))
 
+(fact "entire namespaces' worth of facts can be forgotten"
+  (let [compendium (-> (fresh-compendium)
+                       (add-to named)
+                       (remove-namespace-facts-from common-namespace))]
+    (all-facts compendium) => empty?
+    (namespace-facts compendium common-namespace) => empty?
+    (named-fact compendium common-namespace (fact-name named)) => nil
+    (sourced-fact compendium common-namespace (fact-source named)) => nil
+    (ns-resolve fact-var-namespace (fact-true-name named)) => nil))
 
+
+(letfn [(check [existing possible-match]
+          (-> (fresh-compendium)
+              (add-to existing)
+              (previous-version possible-match)))]
+  (tabular "previous version"
+    (fact 
+      (let [existing ?existing
+            possible-match ?possible]
+        (check existing possible-match) => ?expected))
+    ?existing           ?possible                   ?expected
+
+    ;; Can have same name but different source
+    (a-fact "same-name" '(one source))
+    (a-fact "same-name" '(different source))        existing
+
+    ;; Can have no name but same source
+    (a-fact nil '(same source))
+    (a-fact nil '(same source))                      existing
+
+    ;; Not fooled by different names and same source
+    (a-fact "name1" '(same source))
+    (a-fact "name2" '(same source))                  nil
+
+    ;; An unnamed fact can't match a named one, even if same source
+    (a-fact "name1" '(same source))
+    (a-fact nil '(same source))                      nil
+    
+    ;; A same-sourced fact matches when a name has been added to a no-named version.
+    ;; This lets you replace an unnamed fact by adding a name,
+    ;; reloading it, then changing the source, then reloading again.
+    (a-fact nil '(same source))
+    (a-fact "name" '(same source))                   existing
+
+    ;; Not fooled by different namespaces and same name
+    (a-fact "name1" '(same-source))
+    (vary-meta (a-fact "name1" '(same-source)) assoc :midje/namespace 'clojure.core)
+                                                      nil
+            
+    ;; ... or different namespaces and same source
+    (a-fact nil '(same-source))
+    (vary-meta (a-fact nil '(same-source)) assoc :midje/namespace 'clojure.core)
+                                                      nil
+            
+    ))
