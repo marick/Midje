@@ -62,8 +62,6 @@
       (:a meta) => 1
       body => a-body)))
 
-
-
 (fact "metadata can be promoted from a nested form"
   (let [form '(tabular (fact ?a => 2) ?a 1)]
     (promote-metadata form) => form)
@@ -87,4 +85,14 @@
 
     (nth promoted 2) => '(fact ?a => 2)
     (drop 3 promoted) => '(?a 1)))
-                    
+
+(tabular "fact-body-source converts a fact function into its body (ignoring metadata)"
+  (fact
+    (fact-body-source (with-meta ["faux fact"] {:midje/source ?full-body}))
+    => ?expected)
+  ?full-body                          ?expected
+  '(fact "name" 1 => 2)               '(1 => 2)
+  '(fact [1] => 2)                    '([1] => 2)
+  '(fact {:a 1 :b 2} "name" (dorm))   '((dorm)))
+
+

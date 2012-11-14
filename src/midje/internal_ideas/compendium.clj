@@ -3,7 +3,7 @@
             the currently relevant facts."}
   midje.internal-ideas.compendium
   (:use [midje.ideas.metadata :only [fact-name fact-true-name
-                                     fact-source fact-namespace]]
+                                     fact-body-source fact-namespace]]
         [midje.util.form-utils :only [dissoc-keypath]]))
 
 ;;; Facts are referred to by vars in a namespace
@@ -23,7 +23,7 @@
   (namespace-facts [this namespace])
   (all-facts [this])
   (named-fact [this namespace name])
-  (sourced-fact [this namespace source])
+  (embodied-fact [this namespace source])
   (previous-version [this fact-function]))
 
 ;; The compendium has three maps. One maps a namespace to
@@ -37,7 +37,7 @@
   CompendiumProtocol
   (add-to [this fact-function]
     (let [[namespace name source true-name]
-          ( (juxt fact-namespace fact-name fact-source fact-true-name)
+          ( (juxt fact-namespace fact-name fact-body-source fact-true-name)
             fact-function)
 
           new-namespace-facts
@@ -56,7 +56,7 @@
 
   (remove-from [this fact-function]
     (let [[namespace name source true-name]
-          ( (juxt fact-namespace fact-name fact-source fact-true-name)
+          ( (juxt fact-namespace fact-name fact-body-source fact-true-name)
             fact-function)
 
           new-namespace-facts
@@ -81,20 +81,20 @@
     (apply concat (vals by-namespace)))
   (named-fact [this namespace name]
     (get by-name [(ns-name namespace) name]))
-  (sourced-fact [this namespace source]
+  (embodied-fact [this namespace source]
     (get by-source [(ns-name namespace) source]))
 
   (previous-version [this fact-function]
     (let [[namespace name source]
-            ( (juxt fact-namespace fact-name fact-source) fact-function)
+            ( (juxt fact-namespace fact-name fact-body-source) fact-function)
           existing-named-fact (named-fact this namespace name)
-          existing-sourced-fact (sourced-fact this namespace source)]
+          existing-embodied-fact (embodied-fact this namespace source)]
       (cond existing-named-fact
             existing-named-fact
 
-            (and existing-sourced-fact
-                 (not (fact-name existing-sourced-fact)))
-            existing-sourced-fact
+            (and existing-embodied-fact
+                 (not (fact-name existing-embodied-fact)))
+            existing-embodied-fact
 
             :else
             nil))))

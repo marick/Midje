@@ -4,7 +4,7 @@
         [midje.test-util]
         [midje.internal-ideas.compendium]
         [midje.ideas.metadata :only [fact-name fact-true-name
-                                     fact-source]])
+                                     fact-source fact-body-source]])
   (:import midje.internal_ideas.compendium.Compendium))
 
 ;; Some faux facts to use in tests
@@ -23,8 +23,8 @@
                       :midje/true-name (gensym 'TRUENAME-)
                       :midje/source source})))
 
-(def named (a-fact "named" '(source)))
-(def unnamed (a-fact nil '(source 2)))
+(def named (a-fact "named" '(fact (+ 1 1) => 2)))
+(def unnamed (a-fact nil '(fact 3 => odd?)))
   
 
 ;;; Tests
@@ -38,7 +38,7 @@
     (all-facts compendium) => [named]
     (namespace-facts compendium common-namespace) => [named]
     (named-fact compendium common-namespace (fact-name named)) => named
-    (sourced-fact compendium common-namespace (fact-source named)) => named
+    (embodied-fact compendium common-namespace (fact-body-source named)) => named
     (deref (ns-resolve fact-var-namespace (fact-true-name named))) => named
 
     (fact "adds facts in order"
@@ -50,7 +50,7 @@
         (all-facts compendium) => [named unnamed]
         (namespace-facts compendium common-namespace) => [named unnamed]
         (named-fact compendium common-namespace (fact-name unnamed)) => nil
-        (sourced-fact compendium common-namespace (fact-source unnamed)) => unnamed
+        (embodied-fact compendium common-namespace (fact-body-source unnamed)) => unnamed
         (deref (ns-resolve fact-var-namespace (fact-true-name unnamed))) => unnamed))))
 
 (fact "when namespaces are called for, they can be a symbol"
@@ -60,11 +60,11 @@
         symbol-namespace (ns-name true-namespace)]
     (namespace-facts compendium true-namespace) => [named]
     (named-fact compendium true-namespace (fact-name named)) => named
-    (sourced-fact compendium true-namespace (fact-source named)) => named
+    (embodied-fact compendium true-namespace (fact-body-source named)) => named
 
     (namespace-facts compendium symbol-namespace) => [named]
     (named-fact compendium symbol-namespace (fact-name named)) => named
-    (sourced-fact compendium symbol-namespace (fact-source named)) => named))
+    (embodied-fact compendium symbol-namespace (fact-body-source named)) => named))
 
     
 (fact "deleting from the compendium"
@@ -76,22 +76,22 @@
     (namespace-facts compendium common-namespace) => [named unnamed]
     (named-fact compendium common-namespace (fact-name named)) => named
     (named-fact compendium common-namespace (fact-name unnamed)) => nil
-    (sourced-fact compendium common-namespace (fact-source named)) => named
-    (sourced-fact compendium common-namespace (fact-source unnamed)) => unnamed
+    (embodied-fact compendium common-namespace (fact-body-source named)) => named
+    (embodied-fact compendium common-namespace (fact-body-source unnamed)) => unnamed
 
     (fact "deletes named facts"
       (let [result (remove-from compendium named)]
         (all-facts result) => [unnamed]
         (namespace-facts result common-namespace) => [unnamed]
         (named-fact result common-namespace (fact-name named)) => nil
-        (sourced-fact result common-namespace (fact-source named)) => nil
+        (embodied-fact result common-namespace (fact-source named)) => nil
         (ns-resolve fact-var-namespace (fact-true-name named)) => nil))
 
     (fact "also deletes unnamed facts"
       (let [result (remove-from compendium unnamed)]
         (all-facts result) => [named]
         (namespace-facts result common-namespace) => [named]
-        (sourced-fact result common-namespace (fact-source unnamed)) => nil
+        (embodied-fact result common-namespace (fact-source unnamed)) => nil
         (ns-resolve fact-var-namespace (fact-true-name unnamed)) => nil))))
 
 (fact "entire namespaces' worth of facts can be forgotten"
@@ -101,7 +101,7 @@
     (all-facts compendium) => empty?
     (namespace-facts compendium common-namespace) => empty?
     (named-fact compendium common-namespace (fact-name named)) => nil
-    (sourced-fact compendium common-namespace (fact-source named)) => nil
+    (embodied-fact compendium common-namespace (fact-source named)) => nil
     (ns-resolve fact-var-namespace (fact-true-name named)) => nil))
 
 
@@ -117,35 +117,36 @@
     ?existing           ?possible                   ?expected
 
     ;; Can have same name but different source
-    (a-fact "same-name" '(one source))
-    (a-fact "same-name" '(different source))        existing
+    (a-fact "same-name" '(fact one source))
+    (a-fact "same-name" '(fact different source))        existing
 
     ;; Can have no name but same source
-    (a-fact nil '(same source))
-    (a-fact nil '(same source))                      existing
+    (a-fact nil '(fact same source))
+    (a-fact nil '(fact same source))                      existing
 
     ;; Not fooled by different names and same source
-    (a-fact "name1" '(same source))
-    (a-fact "name2" '(same source))                  nil
+    (a-fact "name1" '(fact same source))
+    (a-fact "name2" '(fact same source))                  nil
 
-    ;; An unnamed fact can't match a named one, even if same source
-    (a-fact "name1" '(same source))
-    (a-fact nil '(same source))                      nil
-    
     ;; A same-sourced fact matches when a name has been added to a no-named version.
     ;; This lets you replace an unnamed fact by adding a name,
     ;; reloading it, then changing the source, then reloading again.
-    (a-fact nil '(same source))
-    (a-fact "name" '(same source))                   existing
+    (a-fact nil '(fact same source))
+    (a-fact "name" '(fact "name" same source))            existing
 
+    ;; An unnamed fact can't match a named one, even if same source
+    ;; (which ought to be impossible)
+    (a-fact "name1" '(fact same source))
+    (a-fact nil '(fact same source))                      nil
+    
     ;; Not fooled by different namespaces and same name
-    (a-fact "name1" '(same-source))
-    (vary-meta (a-fact "name1" '(same-source)) assoc :midje/namespace 'clojure.core)
-                                                      nil
+    (a-fact "name1" '(fact same-source))
+    (vary-meta (a-fact "name1" '(fact same-source)) assoc :midje/namespace 'clojure.core)
+                                                          nil
             
     ;; ... or different namespaces and same source
-    (a-fact nil '(same-source))
-    (vary-meta (a-fact nil '(same-source)) assoc :midje/namespace 'clojure.core)
-                                                      nil
+    (a-fact nil '(fact same-source))
+    (vary-meta (a-fact nil '(fact same-source)) assoc :midje/namespace 'clojure.core)
+                                                          nil
             
     ))

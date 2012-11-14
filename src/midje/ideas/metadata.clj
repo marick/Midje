@@ -5,7 +5,6 @@
 
 (def ^{:dynamic true} metadata-for-fact-group {})
 
-
 ;;; Loaded facts are stored as functions with this metadata:
 
 (def fact-properties
@@ -17,6 +16,10 @@
                       (fn [fact-function]
                         (property (meta fact-function)))))
             fact-properties))
+
+(declare separate-metadata)
+(defn fact-body-source [fact-function]
+  (second (separate-metadata (fact-source fact-function))))
 
 (defn separate-metadata [fact-form]
   (letfn [(basic-parse [metadata body]
@@ -54,7 +57,6 @@
                      (assoc metadata :midje/name (:midje/description metadata))
                      metadata)]
       [(merge metadata-for-fact-group metadata) body])))
-
 
 
 (defn wrappable-metadata
