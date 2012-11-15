@@ -26,69 +26,67 @@
   (embodied-fact [this namespace source])
   (previous-version [this fact-function]))
 
-;; The compendium has three maps. One maps a namespace to
-;; lists of facts (which are in the order in which facts were defined,
-;; which is usually the order of facts in the file). The other two
-;; are by [namespace name] and [namespace source] pairs. It would be
-;; smarter to have nested maps {'namespace1 {"name1 ...}}, as removing
-;; all facts from a namespace is likely to be more common than I guessed.
+;; The compendium has three maps, each keyed by a namespace name.
+;; 
+;; One maps that namespace to a list of facts (in the order in which
+;; the facts were defined, which is usually the order of facts in the file.
+;; This map is sorted alphabetically.
+;;
+;; Another maps to a by-name map of facts for quick lookup by name.
+;;
+;; Another maps to a by-body-source map to allow quick checks for
+;; reloading of identical facts.
 
 (defrecord Compendium [by-namespace by-name by-source]
   CompendiumProtocol
   (add-to [this fact-function]
-    (let [[namespace name source true-name]
+    (let [[namespace name body-source true-name]
           ( (juxt fact-namespace fact-name fact-body-source fact-true-name)
-            fact-function)
-
-          new-namespace-facts
-          (conj (by-namespace namespace []) fact-function)]
-
-      (letfn [(assoc-pair [map submap-key key]
-                (if key
-                  (assoc-in map [submap-key [namespace key]] fact-function)
-                  map))]
-        (intern fact-var-namespace true-name fact-function)
-        (-> this 
-            (assoc-in [:by-namespace namespace] new-namespace-facts)
-            (assoc-pair :by-name name)
-            (assoc-pair :by-source source)))))
+            fact-function)]
+      (intern fact-var-namespace true-name fact-function)
+      (-> this 
+          (assoc-in [:by-namespace namespace]
+                    (conj (by-namespace namespace []) fact-function))
+          (#(if name
+              (assoc-in % [:by-name namespace name] fact-function)
+              %))
+          (assoc-in [:by-source namespace body-source] fact-function))))
 
 
   (remove-from [this fact-function]
-    (let [[namespace name source true-name]
+    (let [[namespace name body-source true-name]
           ( (juxt fact-namespace fact-name fact-body-source fact-true-name)
-            fact-function)
-
-          new-namespace-facts
-          (remove (partial = fact-function) (by-namespace namespace))]
-      
+            fact-function)]
       (ns-unmap fact-var-namespace true-name)
-      (-> this 
-          (assoc-in [:by-namespace namespace] new-namespace-facts)
-          (dissoc-keypath [:by-name [namespace name]])
-          (dissoc-keypath [:by-source [namespace source]]))))
+      (-> this
+          (assoc-in [:by-namespace namespace]
+                    (remove #(= % fact-function) (by-namespace namespace)))
+          (dissoc-keypath [:by-name namespace name])
+          (dissoc-keypath [:by-source namespace body-source]))))
 
   (remove-namespace-facts-from [this namespace]
-    (let [facts (namespace-facts this namespace)]
-      (doall (reduce (fn [compendium fact]
-                       (remove-from compendium fact))
-                     this
-                     facts))))
+    (let [namespace-name (ns-name namespace)]
+      (dorun (map #(ns-unmap fact-var-namespace (fact-true-name %))
+                  (by-namespace namespace-name)))
+      (-> this 
+          (dissoc-keypath [:by-namespace namespace-name])
+          (dissoc-keypath [:by-name namespace-name])
+          (dissoc-keypath [:by-source namespace-name]))))
 
   (namespace-facts [this namespace]
-    (get by-namespace (ns-name namespace)))
+    (get by-namespace (ns-name namespace) []))
   (all-facts [this]
     (apply concat (vals by-namespace)))
   (named-fact [this namespace name]
-    (get by-name [(ns-name namespace) name]))
-  (embodied-fact [this namespace source]
-    (get by-source [(ns-name namespace) source]))
+    (get-in by-name [(ns-name namespace) name]))
+  (embodied-fact [this namespace body-source]
+    (get-in by-source [(ns-name namespace) body-source]))
 
   (previous-version [this fact-function]
-    (let [[namespace name source]
+    (let [[namespace name body-source]
             ( (juxt fact-namespace fact-name fact-body-source) fact-function)
           existing-named-fact (named-fact this namespace name)
-          existing-embodied-fact (embodied-fact this namespace source)]
+          existing-embodied-fact (embodied-fact this namespace body-source)]
       (cond existing-named-fact
             existing-named-fact
 

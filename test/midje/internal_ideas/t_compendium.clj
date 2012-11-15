@@ -30,7 +30,11 @@
 ;;; Tests
 
 (fact "an empty compendium"
-  (all-facts (fresh-compendium)) => empty?)
+  (let [compendium (fresh-compendium)]
+    (all-facts compendium) => empty?
+    (namespace-facts compendium common-namespace) => empty?
+    (named-fact compendium common-namespace (fact-name named)) => nil
+    (embodied-fact compendium common-namespace (fact-body-source named)) => nil))
 
 (fact "adding a fact to the compendium"
   (let [compendium (-> (fresh-compendium)
@@ -94,16 +98,27 @@
         (embodied-fact result common-namespace (fact-source unnamed)) => nil
         (ns-resolve fact-var-namespace (fact-true-name unnamed)) => nil))))
 
-(fact "entire namespaces' worth of facts can be forgotten"
-  (let [compendium (-> (fresh-compendium)
-                       (add-to named)
-                       (remove-namespace-facts-from common-namespace))]
-    (all-facts compendium) => empty?
-    (namespace-facts compendium common-namespace) => empty?
-    (named-fact compendium common-namespace (fact-name named)) => nil
-    (embodied-fact compendium common-namespace (fact-source named)) => nil
-    (ns-resolve fact-var-namespace (fact-true-name named)) => nil))
+(fact "forgetting an entire namespaces' worth of facts"
+  (fact "can use a namespace name"
+    (let [compendium (-> (fresh-compendium)
+                         (add-to named)
+                         (remove-namespace-facts-from common-namespace))]
+      (all-facts compendium) => empty?    
+      (namespace-facts compendium common-namespace) => empty?
+      (named-fact compendium common-namespace (fact-name named)) => nil
+      (embodied-fact compendium common-namespace (fact-source named)) => nil
+      (ns-resolve fact-var-namespace (fact-true-name named)) => nil))
+  (fact "can use a namespace itself"
+    (let [compendium (-> (fresh-compendium)
+                         (add-to named)
+                         (remove-namespace-facts-from (the-ns common-namespace)))]
+      (all-facts compendium) => empty?    
+      (namespace-facts compendium common-namespace) => empty?
+      (named-fact compendium common-namespace (fact-name named)) => nil
+      (embodied-fact compendium common-namespace (fact-source named)) => nil
+      (ns-resolve fact-var-namespace (fact-true-name named)) => nil)))
 
+  
 
 (letfn [(check [existing possible-match]
           (-> (fresh-compendium)

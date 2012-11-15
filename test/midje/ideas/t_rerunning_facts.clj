@@ -7,7 +7,6 @@
                                      fact-source fact-namespace]]))
 
 (forget-facts :all)
-
                                 ;;; Rechecking last-checked fact
 
 
@@ -246,7 +245,7 @@
 (forget-facts *ns*)
 (let [this-result (namespace-facts *ns*)
       other-result (namespace-facts 'clojure.core)]
-  (fact this-result => [])
+  (fact this-result => empty?)
   (fact other-result => [other-namespace-fact]))
 
 ;; We can also forget namespaces by symbol
@@ -264,7 +263,7 @@
 
 (forget-facts :all)
 (let [result (compendium-contents)]
-  (fact result => []))
+  (fact result => empty?))
 
 
 ;;; fact groups
