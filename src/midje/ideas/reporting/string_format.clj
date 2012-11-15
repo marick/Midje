@@ -5,7 +5,8 @@
         midje.error-handling.exceptions
         [midje.internal-ideas.fact-context :only [format-nested-descriptions]]
         [midje.util.form-utils :only [pred-cond]])
-  (:require [midje.util.colorize :as color]))
+  (:require [midje.util.colorize :as color]
+            [clojure.string :as str]))
 
 
 ;;; Formatting Single Fact
@@ -119,54 +120,52 @@
 
 ;;; Formatting Summary of Facts
 
-(defn report-strings-summary [exit-after-tests?]
-  `(fn [namespaces#]
-     (let [midje-passes# (:pass @clojure.test/*report-counters*)
-           midje-fails# (:fail @clojure.test/*report-counters*)
-           midje-failure-message# (condp = midje-fails#
-                                    0 (color/pass (format "All claimed facts (%d) have been confirmed." midje-passes#))
-                                    1 (str (color/fail "FAILURE:")
-                                        (format " %d fact was not confirmed." midje-fails#))
-                                    (str (color/fail "FAILURE:")
-                                      (format " %d facts were not confirmed." midje-fails#)))
-                                   
-           potential-consolation# (condp = midje-passes#
-                                    0 ""
-                                    1 "(But 1 was.)"
-                                    (format "(But %d were.)" midje-passes#))
+(defn run-clojure-test [namespaces]
+  (let [output-catcher (java.io.StringWriter.)
+        ct-result (binding [clojure.test/*test-out* output-catcher]
+                             (apply clojure.test/run-tests namespaces))]
+    {:test-count (:test ct-result)
+     :fail-count (+ (:fail ct-result) (:error ct-result))
+     :lines (-> output-catcher .toString str/split-lines)}))
 
-           midje-consolation# (if (> midje-fails# 0) potential-consolation# "")
+(defn print-clojure-test-result-lines [result]
+  (when (pos? (:fail-count result))
+    (println (color/note ">>> Output from clojure.test tests:"))
+    (dorun (map (comp println color/colorize-deftest-output)
+                (drop-last 2 (:lines result))))))
 
-           ; Stashed clojure.test output
-           ct-output-catcher# (java.io.StringWriter.)
-           ct-result# (binding [clojure.test/*test-out* ct-output-catcher#]
-                        (apply ~'clojure.test/run-tests namespaces#))
-           ct-output# (-> ct-output-catcher#
-                          .toString
-                          clojure.string/split-lines)
-           ct-failures-and-errors# (+ (:fail ct-result#) (:error ct-result#))
-           ct-some-kind-of-fail?# (> ct-failures-and-errors# 0)]
+(defn print-clojure-test-summary-lines [result]
+  (println (color/note ">>> clojure.test summary:"))
+  (println (first (take-last 2 (:lines result))))
+  (println ( (if (pos? (:fail-count result)) color/fail color/pass)
+             (last (:lines result)))))
 
-       (when ct-some-kind-of-fail?#
-         ;; For some reason, empty lines are swallowed, so I use >>> to
-         ;; demarcate sections.
-         (println (color/note ">>> Output from clojure.test tests:"))
-         (dorun (map (comp println color/colorize-deftest-output)
-                  (drop-last 2 ct-output#))))
+(defn print-midje-summary-line [result]
+  (let [midje-failure-message (condp = (:fail result)
+                                0 (color/pass (format "All claimed facts (%d) have been confirmed." (:pass result)))
+                                1 (str (color/fail "FAILURE:")
+                                       (format " %d fact was not confirmed." (:fail result)))
+                                (str (color/fail "FAILURE:")
+                                     (format " %d facts were not confirmed." (:fail result))))
+        
+        potential-consolation (condp = (:pass result)
+                                0 ""
+                                1 "(But 1 was.)"
+                                (format "(But %d were.)" (:pass result)))
 
-       (when (> (:test ct-result#) 0)
-         (println (color/note ">>> clojure.test summary:"))
-         (println (first (take-last 2 ct-output#)))
-         (println ( (if ct-some-kind-of-fail?# color/fail color/pass) (last ct-output#)))
-         (println (color/note ">>> Midje summary:")))
+        midje-consolation (if (pos? (:fail result)) potential-consolation "")]
+    (println midje-failure-message midje-consolation)))
 
-       (println midje-failure-message# midje-consolation#)
-
-       ;; A non-nil return value is printed, so I'll just exit here.
-       (when ~exit-after-tests?
-         (System/exit (+ midje-fails#
-                        (:error ct-result#)
-                        (:fail ct-result#)))))))
+(defn report-strings-summary
+  ([midje-result clojure-test-result]
+     (when (pos? (:test-count clojure-test-result))
+       (print-clojure-test-result-lines clojure-test-result)
+       (print-clojure-test-summary-lines clojure-test-result)
+       (println (color/note ">>> Midje summary:")))
+     (print-midje-summary-line midje-result))
+  ([midje-result]
+     (report-strings-summary midje-result {:test-count 0})))
+    
 
 
 ;; Config to expose to reporting namespace, which it will use to show 
