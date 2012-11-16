@@ -9,7 +9,7 @@
 (facts "locating fact namespaces"
   (fact "defaults to test directory"
     (let [default-namespaces (fact-namespaces)]
-      default-namespaces => (contains 'midje.ideas.t-rerunning-facts)
+      default-namespaces => (contains 'midje.t-repl)
       default-namespaces =not=> (contains 'midje.ideas.rerunning-facts)))
 
   (fact "can be given explicit directories" 

@@ -9,6 +9,7 @@
         midje.error-handling.exceptions
         midje.error-handling.validation-errors
         midje.util.debugging
+        [midje.repl :only [forget-results]]
         [midje.util.form-utils :only [macro-for]]
         [midje.internal-ideas.wrapping :only [put-wrappers-into-effect]]
         [midje.internal-ideas.fact-context :only [nested-descriptions
@@ -21,15 +22,12 @@
         [midje.ideas.formulas :only [future-formula-variant-names]]
         [midje.ideas.metadata :only [separate-metadata
                                      wrappable-metadata
-                                     with-wrapped-metadata
-                                     fact-source]]
-        [midje.util.ecosystem :only [fact-namespaces]]
+                                     with-wrapped-metadata]]
         [clojure.algo.monads :only [domonad]])
   (:require [midje.ideas.background :as background]
             [midje.ideas.formulas :as formulas]
             midje.checkers
-            [midje.ideas.reporting.report :as report]
-            [midje.ideas.rerunning-facts :as rerun]))
+            [midje.ideas.reporting.report :as report]))
 
 (immigrate 'midje.unprocessed)
 (immigrate 'midje.semi-sweet)
@@ -159,72 +157,6 @@
                   names)]
     `(do ~@defs)))
 
-;;; The last fact can be rechecked
-
-(defn last-fact-checked
-  "The last fact or tabular fact that was checked. Only top-level
-   facts are recorded, not facts nested within them."
-  []
-  (rerun/last-fact-function-run))
-
-(defn source-of-last-fact-checked 
-  "Returns the source of the last fact or tabular fact run."
-  []
-  (fact-source (last-fact-checked)))
-
-(defn recheck-fact 
-  "Recheck the last fact or tabular fact that was checked.
-   When facts are nested, the entire outer-level fact is rechecked."
-  []
-  ((last-fact-checked)))
-
-(defn check-facts
-  "With no argument, checks all known facts.
-   With arguments (namespaces or symbols), only runs facts
-   in those namespaces. Returns true iff all facts check out."
-  [& namespaces]
-  (rerun/check-some-facts
-   (if (empty? namespaces)
-     (rerun/compendium-contents)
-     (mapcat rerun/namespace-facts namespaces))))
-
-
-(defn forget-facts
-  "After this, `check-facts` does nothing until new facts are defined."
-  ([]
-     (rerun/forget-facts-in-namespace *ns*))
-  ([& namespaces]
-     (if (= namespaces [:all])
-       (rerun/reset-compendium)
-       (dorun (map rerun/forget-facts-in-namespace namespaces)))))
-
-(defn fetch-matching-facts
-  "Returns a sequence of all facts matching
-   the predicate. The predicate is given fact metadata. See
-   `check-matching-fact` for midje-supplied metadata"
-  [predicate]
-  (filter (comp predicate meta) (rerun/compendium-contents)))
-
-(defn check-matching-facts
-  "The function is given each fact's metadata.
-   It checks each fact that matches the predicate. In addition to
-   user-supplied metadata, facts will also have this metadata:
-
-   :midje/description  The fact's outermost doc-string, if given.
-   :midje/name         The *string* name of the fact. 
-                       Derived from the symbol name of the fact, if given.
-                       Otherwise, the doc string, if given.
-                       Otherwise nothing.
-
-   :midje/namespace    The namespace containing the fact.
-   :midje/file         The file containing the fact.
-   :midje/line         The line number of the fact's first line.
-   :midje/true-name    A symbol that's a unique identifier.
-   :midje/source       The original source of the fact."
-  [predicate]
-  (rerun/check-some-facts (fetch-matching-facts predicate)))
-
-
 (defmacro fact-group
   "Supply default metadata to all facts in the body."
   [& forms]
@@ -232,18 +164,4 @@
     (with-wrapped-metadata metadata 
       (midjcoexpand `(do ~@body)))))
 
-
-(defn load-facts
-  "Load facts from all namespaces within given directories.
-  (load-facts \"dir1\" \"dir2\")
-  - from namespaces like dir1.this.that
-  (load-facts)
-  - load facts from all namespaces under \"test\"
-  (load-facts ... :prefix \"trad\")
-  - include only namespaces whose names begin with \"trad\""
-  [& args]
-  ;; Note: if all the namespaces are loaded in a single `require`,
-  ;; Clojure 1.4 (at least) runs out of memory. Moreover,
-  ;; (require ns1 ns2 ns3 ... nsN :reload-all) will reload a shared
-  ;; dependency N times.
-  (dorun (map #(require % :reload) (apply fact-namespaces args))))
+(forget-results)  ; actually initializes for the first time.

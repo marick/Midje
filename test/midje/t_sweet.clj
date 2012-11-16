@@ -1,7 +1,8 @@
 (ns midje.t-sweet
   (:use midje.sweet
         midje.util
-        midje.test-util)
+        midje.test-util
+        [midje.repl :only [forget-facts check-matching-facts]])
   (:require midje.internal-ideas.t-fakes))
 
 (fact "all of Midje's public, API-facing vars have docstrings"
@@ -410,3 +411,33 @@
    "foo" => odd?)
  (future-fact @reported => (just bad-result)))
    
+;;; fact groups
+
+(forget-facts)
+
+(fact-group :integration {:timing 3}
+            "strings do not set metadata in fact groups"
+  midje.ideas.metadata/metadata-for-fact-group => {:integration true
+                                                   :timing 3})
+            
+
+                                        ;;; fact groups
+
+(forget-facts)
+(def integration-run-count (atom 0))
+(def not-integration-run-count (atom 0))
+
+(fact-group :integration
+  (fact yes-integration
+    (swap! integration-run-count inc))
+
+  (fact no-integration {:integration false}
+    (swap! not-integration-run-count inc)))
+
+(check-matching-facts :integration)
+
+(fact
+  @integration-run-count => 2
+  @not-integration-run-count => 1)
+
+

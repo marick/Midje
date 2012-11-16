@@ -1,10 +1,14 @@
-(ns midje.ideas.t-rerunning-facts
+(ns midje.t-repl
   (:use [midje.sweet]
+        [midje.repl]
         [clojure.pprint]
         [midje.test-util]
-        [midje.ideas.rerunning-facts]
         [midje.ideas.metadata :only [fact-name fact-true-name
-                                     fact-source fact-namespace]]))
+                                     fact-source fact-namespace]]
+        [midje.ideas.rerunning-facts :only [last-fact-function-run
+                                            record-fact-existence
+                                            namespace-facts
+                                            compendium-contents]]))
 
 (forget-facts :all)
                                 ;;; Rechecking last-checked fact
@@ -264,35 +268,5 @@
 (forget-facts :all)
 (let [result (compendium-contents)]
   (fact result => empty?))
-
-
-;;; fact groups
-
-(forget-facts)
-
-(fact-group :integration {:timing 3}
-            "strings do not set metadata in fact groups"
-  midje.ideas.metadata/metadata-for-fact-group => {:integration true
-                                                   :timing 3})
-            
-
-                                        ;;; fact groups
-
-(forget-facts)
-(def integration-run-count (atom 0))
-(def not-integration-run-count (atom 0))
-
-(fact-group :integration
-  (fact yes-integration
-    (swap! integration-run-count inc))
-
-  (fact no-integration {:integration false}
-    (swap! not-integration-run-count inc)))
-
-(check-matching-facts :integration)
-
-(fact
-  @integration-run-count => 2
-  @not-integration-run-count => 1)
 
 
