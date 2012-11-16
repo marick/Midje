@@ -3,8 +3,7 @@
             clojure.test, balances abstraction and concreteness, and strives for 
             graciousness."}
   midje.sweet
-  (:use clojure.test
-        [midje.util.namespace :only [immigrate intern+keep-meta]]
+  (:use [midje.util.namespace :only [immigrate intern+keep-meta]]
         midje.production-mode
         midje.error-handling.exceptions
         midje.error-handling.validation-errors
@@ -26,8 +25,8 @@
         [clojure.algo.monads :only [domonad]])
   (:require [midje.ideas.background :as background]
             [midje.ideas.formulas :as formulas]
-            midje.checkers
-            [midje.ideas.reporting.report :as report]))
+            [clojure.test :as ct]
+            midje.checkers))
 
 (immigrate 'midje.unprocessed)
 (immigrate 'midje.semi-sweet)
@@ -94,11 +93,11 @@
         (catch Exception ex
           `(do
              (within-runtime-fact-context ~(:midje/description metadata)
-               (clojure.test/report {:type :exceptional-user-error
-                                     :description @nested-descriptions
-                                     :macro-form '~&form
-                                     :stacktrace '~(user-error-exception-lines ex)
-                                     :position (midje.internal-ideas.file-position/line-number-known ~(:line (meta &form)))}))
+               (ct/report {:type :exceptional-user-error
+                           :description @nested-descriptions
+                           :macro-form '~&form
+                           :stacktrace '~(user-error-exception-lines ex)
+                           :position (midje.internal-ideas.file-position/line-number-known ~(:line (meta &form)))}))
              false))))))
 
 (defmacro facts 

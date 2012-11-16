@@ -3,8 +3,8 @@
   (:use [midje.ideas.metadata :only [fact-source]]
         [midje.util.ecosystem :only [fact-namespaces]]
         [midje.ideas.reporting.string-format :only [report-strings-summary]])
-  (:require clojure.test
-            [midje.ideas.rerunning-facts :as rerun]))
+  (:require [midje.ideas.rerunning-facts :as rerun]
+            [midje.clojure-test-facade :as ctf]))
 
 
 ;;; The last fact can be rechecked
@@ -92,9 +92,7 @@
 ;;; TODO - the workflow these imply needs testing
 
 
-(defn forget-results []
-  (alter-var-root (var clojure.test/*report-counters*)
-                  (fn [_#] (ref clojure.test/*initial-report-counters*))))
+(def forget-results ctf/zero-counters)
 
 (defn report-results []
-  (report-strings-summary @clojure.test/*report-counters*))
+  (report-strings-summary (ctf/counters)))
