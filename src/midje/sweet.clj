@@ -8,7 +8,6 @@
         midje.error-handling.exceptions
         midje.error-handling.validation-errors
         midje.util.debugging
-        [midje.repl :only [forget-results]]
         [midje.util.form-utils :only [macro-for]]
         [midje.internal-ideas.wrapping :only [put-wrappers-into-effect]]
         [midje.internal-ideas.fact-context :only [nested-descriptions
@@ -162,5 +161,3 @@
   (let [[metadata body] (wrappable-metadata forms)]
     (with-wrapped-metadata metadata 
       (midjcoexpand `(do ~@body)))))
-
-(forget-results)  ; actually initializes for the first time.
