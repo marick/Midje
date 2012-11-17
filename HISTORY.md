@@ -1,7 +1,10 @@
 1.5-alpha3
-
+ 
 * The `has` collection predicate now works with collection
   and chatty checkers.
+* We no longer support Clojure 1.2.0. (1.2.1 still works.)
+* midje.repl namespace created.
+* The :check-only-at-load-time metadata was added.
 
 1.5-alpha2
 -------------
