@@ -77,10 +77,6 @@
   (compendium/namespace-facts @compendium namespace))
 
 (defn record-fact-existence [fact-function]
-  (when (:check-only-at-load-time (meta fact-function))
-    (prn "WELL! I shall not save this:")
-    (pprint (macroexpand-1 (:midje/source (meta fact-function)))))
-         
   (when-not (:check-only-at-load-time (meta fact-function))
     (if-let [previous (compendium/previous-version @compendium fact-function)]
       (swap! compendium compendium/remove-from previous))
