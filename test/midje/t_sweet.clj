@@ -437,6 +437,7 @@
 (check-matching-facts :integration)
 
 (fact
+  :check-only-at-load-time
   @integration-run-count => 2
   @not-integration-run-count => 1)
 

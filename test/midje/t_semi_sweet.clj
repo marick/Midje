@@ -306,16 +306,16 @@
 
 
 
- (facts "about =expands-to=>"
-   :check-only-at-load-time
-   (fact "calls blah with quoted code"
-     (some-macro 8) =expands-to=> (clojure.core/+ 100 200 8))
-   (fact "fails if expansion does not match expected list"
-     (after-silently 
-      (fact (some-macro 1) =expands-to=> (clojure.core/- 100 200 1))
-      @reported => (one-of (contains {:type :mock-expected-result-failure
-                                      :actual `(clojure.core/+ 100 200 1)
-                                      :expected `(clojure.core/- 100 200 1)})))))
+(facts "about =expands-to=>"
+  :check-only-at-load-time
+  (fact "calls macro to expand and compares to (unquoted) list"
+    (some-macro 8) =expands-to=> (clojure.core/+ 100 200 8))
+  (fact "fails if expansion does not match expected list"
+    (after-silently 
+     (fact (some-macro 1) =expands-to=> (clojure.core/- 100 200 1))
+     @reported => (one-of (contains {:type :mock-expected-result-failure
+                                     :actual `(clojure.core/+ 100 200 1)
+                                     :expected `(clojure.core/- 100 200 1)})))))
  
 (fact "add form info to unprocessed check so tool creators can introspect them"
   (unprocessed-check (+ 1 1) ..arrow.. 2 []) => (contains {:call-form '(+ 1 1) 

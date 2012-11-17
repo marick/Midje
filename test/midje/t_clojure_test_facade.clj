@@ -29,6 +29,7 @@
 (let [result (with-isolated-counters
                (run-tests ['midje.t-clojure-test-facade]))]
   (fact
+    :check-only-at-load-time
     (:test-count result) => 0
     (:fail-count result) => 0
     (:lines result) => ["",
