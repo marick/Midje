@@ -3,7 +3,8 @@
   (:use [midje.ideas.metadata :only [fact-source]]
         [midje.util.ecosystem :only [fact-namespaces]]
         [midje.ideas.reporting.string-format :only [report-strings-summary]])
-  (:require [midje.ideas.rerunning-facts :as rerun]
+  (:require midje.sweet
+            [midje.ideas.rerunning-facts :as rerun]
             [midje.clojure-test-facade :as ctf]))
 
 
@@ -26,7 +27,7 @@
   []
   ((last-fact-checked)))
 
-(defn check-facts
+(defn unobtrusive-check-facts
   "With no argument, checks all known facts.
    With arguments (namespaces or symbols), only runs facts
    in those namespaces. Returns true iff all facts check out."
@@ -36,14 +37,26 @@
      (rerun/compendium-contents)
      (mapcat rerun/namespace-facts namespaces))))
 
+(declare report-results)
+
+(defmacro ^{:private true} report-check-group [& body]
+  `(do (ctf/zero-counters)
+       ~@body
+       (report-results)))
+
+(defn check-facts [& args]
+  (report-check-group 
+   (apply unobtrusive-check-facts args)))
+
 (defn forget-facts
   "After this, `check-facts` does nothing until new facts are defined."
   ([]
-     (rerun/forget-facts-in-namespace *ns*))
+     (forget-facts *ns*))
   ([& namespaces]
      (if (= namespaces [:all])
        (rerun/reset-compendium)
-       (dorun (map rerun/forget-facts-in-namespace namespaces)))))
+       (dorun (map rerun/forget-facts-in-namespace namespaces)))
+     :done))
 
 (defn fetch-matching-facts
   "Returns a sequence of all facts matching
@@ -84,15 +97,11 @@
   ;; Clojure 1.4 (at least) runs out of memory. Moreover,
   ;; (require ns1 ns2 ns3 ... nsN :reload-all) will reload a shared
   ;; dependency N times.
-  (dorun (map #(require % :reload) (apply fact-namespaces args))))
-
-
-
-
-;;; TODO - the workflow these imply needs testing
-
+  (report-check-group
+   (dorun (map #(require % :reload) (apply fact-namespaces args)))))
 
 (def forget-results ctf/zero-counters)
 
 (defn report-results []
   (report-strings-summary (ctf/counters)))
+
