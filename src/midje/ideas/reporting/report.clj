@@ -43,6 +43,13 @@
 (defn- fact-checks-out? []
   (not *failure-in-fact*))
 
+;; This turns off "Testing ...." lines, which I hate, especially
+;; when there's no failure output. The type check is because
+;; `lein test` overrides clojure.test/report with a non-multimethod.
+(when (= clojure.lang.MultiFn (type clojure.test/report))
+  (defmethod clojure.test/report :begin-test-ns [m]))
+
+
 (defn form-providing-friendly-return-value [test-form]
   `(do 
      (#'fact-begins)
