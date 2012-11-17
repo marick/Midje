@@ -24,9 +24,10 @@
         [midje.ideas.metaconstants :only [define-metaconstants]]
         [midje.ideas.metadata :only [separate-metadata]]
         [midje.ideas.rerunning-facts :only [given-possible-fact-nesting
-                                       record-fact-existence
-                                       record-fact-check
-                                       wrap-with-check-time-fact-recording]]
+                                            record-fact-existence
+                                            record-fact-check
+                                            wrap-with-creation-time-fact-recording
+                                            wrap-with-check-time-fact-recording]]
         [midje.util.form-utils :only [def-many-methods first-named? translate-zipper
                                       preserve-type quoted? pred-cond reader-line-number named?]]
         [midje.util.laziness :only [eagerly]]
@@ -94,16 +95,6 @@
     :else        form))
 
 
-
-;; The rather hackish construction here is to keep
-;; the expanded fact body out of square brackets because
-;; `tabular` expansions use `seq-zip`. 
-
-(defn wrap-with-creation-time-fact-recording [function-form]
-  `((fn [fact-function#]
-      (record-fact-existence fact-function#)
-      fact-function#)
-    ~function-form))
 
 (defn run-after-creation [function-form]
   `(~function-form))

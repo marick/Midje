@@ -3,8 +3,11 @@
   (:use [midje.ideas.metadata :only [separate-metadata
                                      fact-name fact-true-name
                                      fact-source fact-namespace]]
+        clojure.pprint
         [midje.util.form-utils :only [dissoc-keypath]])
   (:require [midje.internal-ideas.compendium :as compendium]))
+
+;;; Note: This code is tested indirectly, via t_sweet.clj and t_repl.clj.
 
 ;;; Where storage happens
 
@@ -18,6 +21,9 @@
 
 (def ^{:dynamic true} *parse-time-fact-level* 0)
 
+(defn- working-on-top-level-fact? []
+  (= *parse-time-fact-level* 1))
+  
 (defmacro given-possible-fact-nesting [& forms]
   `(binding [*parse-time-fact-level* (inc *parse-time-fact-level*)]
      ~@forms))
@@ -28,11 +34,22 @@
      ~@forms))
 
 (defn wrap-with-check-time-fact-recording [true-name form]
-  (if (= *parse-time-fact-level* 1)
+  (if (working-on-top-level-fact?)
     `(do (record-fact-check '~true-name)
          ~form)
     form))
 
+;; The rather hackish construction here is to keep
+;; the expanded fact body out of square brackets because
+;; `tabular` expansions use `seq-zip`. 
+
+(defn wrap-with-creation-time-fact-recording [function-form]
+  (if (working-on-top-level-fact?)
+    `((fn [fact-function#]
+        (record-fact-existence fact-function#)
+        fact-function#)
+      ~function-form)
+    function-form))
 
 ;;; Runtime support of a history of which facts run
 

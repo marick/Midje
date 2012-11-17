@@ -32,7 +32,7 @@
 
 (def outer-run-count (atom 0))
 (def inner-run-count (atom 0))
-(fact "The last fact check is the outermost nested check"
+(fact "The last fact checked is the outermost nested check"
   (swap! outer-run-count inc)
   (+ 1 1) => 2
   (fact "inner fact"
@@ -87,12 +87,42 @@
   (fact previous => (exactly one-plus-one)))
 
 
+                                ;;; Which facts are stored in the compendium
+
+;; Nested facts are not.
+
+(forget-facts)
+
+(def inner-count (atom 0))
+(def outer-count (atom 0))
+
+(fact "outer"
+  1 => 1
+  (swap! outer-count inc)
+  (fact "inner"
+    (swap! inner-count inc)
+    2 => 2))
+
+(let [contents (compendium-contents)]
+  (fact "only outer fact is available"
+    (count contents) => 1
+    (:midje/name (meta (first contents))) => "outer"))
+
+;; Both get run, though.
+(unobtrusive-check-facts)
+
+(fact
+  @outer-count => 2
+  @inner-count => 2)
+
+
+
                                 ;;; Running facts from the compendium
 (forget-facts)
 
 ;; Nothing to do
-(check-facts)
-(check-facts *ns*)
+(unobtrusive-check-facts)
+(unobtrusive-check-facts *ns*)
 
 ;; failures do not prevent later facts from being rechecked
 
@@ -111,7 +141,7 @@
 (reset! succeed false)
 (reset! fail false)
 (run-silently
- (check-facts))
+ (unobtrusive-check-facts))
 
 
 (fact "Both facts were checked"
@@ -119,7 +149,9 @@
   @fail => :fail)
 
 
-;;; Variant ways of using check-facts with namespaces
+
+
+;;; Variant ways of using unobtrusive-check-facts with namespaces
 
 (def named-fact-count (atom 0))
 (def anonymous-fact-count (atom 0))
@@ -139,28 +171,28 @@
 
 (redefine-facts)   
 
-(check-facts)                           ; No namespace runs everything
+(unobtrusive-check-facts)                           ; No namespace runs everything
 (fact @named-fact-count => 2)
 (fact @anonymous-fact-count => 2)
 
 
 (redefine-facts)
-(check-facts *ns*)                      ; Explicit namespace arg
+(unobtrusive-check-facts *ns*)                      ; Explicit namespace arg
 (fact @named-fact-count => 2)
 (fact @anonymous-fact-count => 2)
 
 (redefine-facts)
-(check-facts (ns-name *ns*))             ; Symbol namespace name
+(unobtrusive-check-facts (ns-name *ns*))             ; Symbol namespace name
 (fact @named-fact-count => 2)
 (fact @anonymous-fact-count => 2)
 
 (redefine-facts)
-(check-facts 'clojure.core)             ; A different namespace
+(unobtrusive-check-facts 'clojure.core)             ; A different namespace
 (fact @named-fact-count => 1)           ; (no rerunning - only initial redefinition)
 (fact @anonymous-fact-count => 1)
 
 (redefine-facts)
-(check-facts *ns* *ns*)                 ; Multiple args
+(unobtrusive-check-facts *ns* *ns*)                 ; Multiple args
 (fact @named-fact-count => 3)           ; (repeating same runs it again)
 (fact @anonymous-fact-count => 3)
 
@@ -179,7 +211,7 @@
 ;; If two facts were now defined, the run-count would
 ;; increment when we do this:
 
-(check-facts)
+(unobtrusive-check-facts)
 (fact "But only one is defined"
   @run-count => 1)
 
@@ -196,7 +228,7 @@
   (+ 1 2) => 3)
 
 (reset! run-count 0)
-(check-facts)
+(unobtrusive-check-facts)
 
 (let [facts (fetch-matching-facts (constantly true))]
   (future "There is still only one defined fact."
@@ -207,30 +239,30 @@
                                 ;;; Run facts matching a predicate
 
 
-(def simple-fact-run-count (atom 0))
+(def unobtrusive-fact-run-count (atom 0))
 (def integration-run-count (atom 0))
 
 (defn redefine-facts []
   (forget-facts)
-  (reset! simple-fact-run-count 0)
+  (reset! unobtrusive-fact-run-count 0)
   (reset! integration-run-count 0)
-  (fact simple-fact
-    (swap! simple-fact-run-count inc))
+  (fact unobtrusive-fact
+    (swap! unobtrusive-fact-run-count inc))
   (fact :integration
     (swap! integration-run-count inc)))
 
 
 
 (redefine-facts)
-(check-matching-facts #(-> % :midje/name (= "simple-fact")))
+(check-matching-facts #(-> % :midje/name (= "unobtrusive-fact")))
 (fact
-  @simple-fact-run-count => 2
+  @unobtrusive-fact-run-count => 2
   @integration-run-count => 1)
 
 (redefine-facts)
 (check-matching-facts :integration)
 (fact
-  @simple-fact-run-count => 1
+  @unobtrusive-fact-run-count => 1
   @integration-run-count => 2)
 
 
