@@ -105,10 +105,22 @@
           (fn [to-be-wrapped]
             `(within-runtime-fact-context ~(:midje/description metadata)
                                           ~to-be-wrapped))
+
+          this-function-here (gensym 'this-function-here-)
           
           convert-to-fact-function
           (fn [to-be-wrapped]
-            `(with-meta (fn [] ~to-be-wrapped) '~metadata))
+            `(letfn [(base-function# [] ~to-be-wrapped)
+                     (~this-function-here []
+                       (with-meta base-function# '~metadata))]
+                 (~this-function-here)))
+
+          ;; convert-to-fact-function
+          ;; (fn [to-be-wrapped]
+          ;;   `(with-meta
+          ;;      (letfn [(~this-function-here [] ~to-be-wrapped)]
+          ;;        ~this-function-here)
+          ;;      '~metadata))
 
           form-to-run (-> forms
                           annotate-embedded-arrows-with-line-numbers
@@ -119,8 +131,7 @@
                           (multiwrap (forms-to-wrap-around :facts))
                           wrap-in-runtime-fact-context
                           report/form-providing-friendly-return-value
-                          ((partial wrap-with-check-time-fact-recording
-                                    (:midje/true-name metadata)))
+                          (wrap-with-check-time-fact-recording this-function-here)
                           convert-to-fact-function
                           wrap-with-creation-time-fact-recording
                           run-after-creation)]

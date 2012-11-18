@@ -9,12 +9,6 @@
 
 ;;; Note: This code is tested indirectly, via t_sweet.clj and t_repl.clj.
 
-;;; Where storage happens
-
-;; Note: The history is a symbol that, when looked up in
-;; the `fact-var-namespace`, yields pointer to a fact-function.
-(def fact-check-history (atom (constantly true)))
-
 (def compendium (atom (compendium/fresh-compendium)))
 
 ;;; Macroexpansion-time support functions
@@ -33,9 +27,9 @@
   `(binding [*parse-time-fact-level* (+ 2 *parse-time-fact-level*)]
      ~@forms))
 
-(defn wrap-with-check-time-fact-recording [true-name form]
+(defn wrap-with-check-time-fact-recording [form this-function-here-symbol]
   (if (working-on-top-level-fact?)
-    `(do (record-fact-check '~true-name)
+    `(do (record-fact-check (~this-function-here-symbol))
          ~form)
     form))
 
@@ -51,18 +45,17 @@
       ~function-form)
     function-form))
 
-;;; Runtime support of a history of which facts run
-
-(defn last-fact-function-run
-  [] 
-  @(ns-resolve compendium/fact-var-namespace @fact-check-history))
-
-(defn record-fact-check [true-name]
-  (reset! fact-check-history true-name))
-
 
 
 ;;; Operations on the mutable compendium
+
+(defn last-fact-function-run []
+  (:last-fact-checked @compendium))
+
+(defn record-fact-check [function]
+  (when-not (:check-only-at-load-time (meta function))
+    (swap! compendium assoc :last-fact-checked function)))
+
 
 (defn forget-facts-in-namespace [namespace]
   (swap! compendium compendium/remove-namespace-facts-from namespace))

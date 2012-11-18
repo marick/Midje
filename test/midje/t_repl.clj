@@ -11,8 +11,8 @@
                                             compendium-contents]]))
 
 (forget-facts :all)
-                                ;;; Rechecking last-checked fact
 
+                                ;;; Rechecking last-checked fact
 
 (def run-count (atom 0))
 
@@ -23,6 +23,10 @@
 (recheck-fact)
 
 (fact @run-count => 2)
+
+(prn midje.ideas.rerunning-facts/compendium)
+(prn (:last-fact-checked @midje.ideas.rerunning-facts/compendium))
+(prn (meta (:last-fact-checked @midje.ideas.rerunning-facts/compendium)))
 
 (let [definition (source-of-last-fact-checked)]
   (fact definition => '(fact @run-count => 2)))
@@ -300,5 +304,4 @@
 (forget-facts :all)
 (let [result (compendium-contents)]
   (fact result => empty?))
-
 

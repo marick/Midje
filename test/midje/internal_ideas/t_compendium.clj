@@ -32,6 +32,7 @@
 (fact "an empty compendium"
   (let [compendium (fresh-compendium)]
     (all-facts compendium) => empty?
+;    ((:last-fact-checked compendium)) => "No fact has been checked."
     (namespace-facts compendium common-namespace) => empty?
     (named-fact compendium common-namespace (fact-name named)) => nil
     (embodied-fact compendium common-namespace (fact-body-source named)) => nil))
@@ -40,10 +41,9 @@
   (let [compendium (-> (fresh-compendium)
                        (add-to named))]
     (all-facts compendium) => [named]
-    (namespace-facts compendium common-namespace) => [named]
+;    ((:last-fact-checked compendium)) => "No fact has been checked."
     (named-fact compendium common-namespace (fact-name named)) => named
     (embodied-fact compendium common-namespace (fact-body-source named)) => named
-    (deref (ns-resolve fact-var-namespace (fact-true-name named))) => named
 
     (fact "adds facts in order"
       (namespace-facts (add-to compendium unnamed) common-namespace)
@@ -54,8 +54,7 @@
         (all-facts compendium) => [named unnamed]
         (namespace-facts compendium common-namespace) => [named unnamed]
         (named-fact compendium common-namespace (fact-name unnamed)) => nil
-        (embodied-fact compendium common-namespace (fact-body-source unnamed)) => unnamed
-        (deref (ns-resolve fact-var-namespace (fact-true-name unnamed))) => unnamed))))
+        (embodied-fact compendium common-namespace (fact-body-source unnamed)) => unnamed))))
 
 (fact "when namespaces are called for, they can be a symbol"
   (let [compendium (-> (fresh-compendium)
@@ -72,6 +71,9 @@
 
     
 (fact "deleting from the compendium"
+  ;; Note: even if the last fact checked is deleted from the compendium,
+  ;; it remains the last-fact-checked. (More strictly: I'm leaving the behavior
+  ;; undefined.
   (let [compendium (-> (fresh-compendium)
                        (add-to named)
                        (add-to unnamed))]
@@ -88,15 +90,13 @@
         (all-facts result) => [unnamed]
         (namespace-facts result common-namespace) => [unnamed]
         (named-fact result common-namespace (fact-name named)) => nil
-        (embodied-fact result common-namespace (fact-source named)) => nil
-        (ns-resolve fact-var-namespace (fact-true-name named)) => nil))
+        (embodied-fact result common-namespace (fact-source named)) => nil))
 
     (fact "also deletes unnamed facts"
       (let [result (remove-from compendium unnamed)]
         (all-facts result) => [named]
         (namespace-facts result common-namespace) => [named]
-        (embodied-fact result common-namespace (fact-source unnamed)) => nil
-        (ns-resolve fact-var-namespace (fact-true-name unnamed)) => nil))))
+        (embodied-fact result common-namespace (fact-source unnamed)) => nil))))
 
 (fact "forgetting an entire namespaces' worth of facts"
   (fact "can use a namespace name"
@@ -106,8 +106,7 @@
       (all-facts compendium) => empty?    
       (namespace-facts compendium common-namespace) => empty?
       (named-fact compendium common-namespace (fact-name named)) => nil
-      (embodied-fact compendium common-namespace (fact-source named)) => nil
-      (ns-resolve fact-var-namespace (fact-true-name named)) => nil))
+      (embodied-fact compendium common-namespace (fact-source named)) => nil))
   (fact "can use a namespace itself"
     (let [compendium (-> (fresh-compendium)
                          (add-to named)
@@ -115,10 +114,8 @@
       (all-facts compendium) => empty?    
       (namespace-facts compendium common-namespace) => empty?
       (named-fact compendium common-namespace (fact-name named)) => nil
-      (embodied-fact compendium common-namespace (fact-source named)) => nil
-      (ns-resolve fact-var-namespace (fact-true-name named)) => nil)))
+      (embodied-fact compendium common-namespace (fact-source named)) => nil)))
 
-  
 
 (letfn [(check [existing possible-match]
           (-> (fresh-compendium)
@@ -165,3 +162,4 @@
                                                           nil
             
     ))
+

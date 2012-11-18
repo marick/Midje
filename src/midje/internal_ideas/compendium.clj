@@ -6,14 +6,6 @@
                                      fact-body-source fact-namespace]]
         [midje.util.form-utils :only [dissoc-keypath]]))
 
-;;; Facts are referred to by vars in a namespace
-
-(def fact-var-namespace
-  (do (in-ns 'midje.fact-var-namespace)
-      (let [retval *ns*]
-        (in-ns 'midje.internal-ideas.compendium)
-        retval)))
-
 ;;; Facts are stored in a compendium:
 
 (defprotocol CompendiumProtocol
@@ -25,6 +17,7 @@
   (named-fact [this namespace name])
   (embodied-fact [this namespace source])
   (previous-version [this fact-function]))
+    
 
 ;; The compendium has three maps, each keyed by a namespace name.
 ;; 
@@ -37,13 +30,12 @@
 ;; Another maps to a by-body-source map to allow quick checks for
 ;; reloading of identical facts.
 
-(defrecord Compendium [by-namespace by-name by-source]
+(defrecord Compendium [by-namespace by-name by-source last-fact-checked]
   CompendiumProtocol
   (add-to [this fact-function]
     (let [[namespace name body-source true-name]
           ( (juxt fact-namespace fact-name fact-body-source fact-true-name)
             fact-function)]
-      (intern fact-var-namespace true-name fact-function)
       (-> this 
           (assoc-in [:by-namespace namespace]
                     (conj (by-namespace namespace []) fact-function))
@@ -57,7 +49,6 @@
     (let [[namespace name body-source true-name]
           ( (juxt fact-namespace fact-name fact-body-source fact-true-name)
             fact-function)]
-      (ns-unmap fact-var-namespace true-name)
       (-> this
           (assoc-in [:by-namespace namespace]
                     (remove #(= % fact-function) (by-namespace namespace)))
@@ -66,8 +57,6 @@
 
   (remove-namespace-facts-from [this namespace]
     (let [namespace-name (ns-name namespace)]
-      (dorun (map #(ns-unmap fact-var-namespace (fact-true-name %))
-                  (by-namespace namespace-name)))
       (-> this 
           (dissoc-keypath [:by-namespace namespace-name])
           (dissoc-keypath [:by-name namespace-name])
@@ -96,7 +85,8 @@
 
             :else
             nil))))
-  
-(defn fresh-compendium []
-  (Compendium. (sorted-map) {} {}))
+
+  (defn fresh-compendium []
+  (Compendium. (sorted-map) {} {}
+               (fn [] "No fact has been checked.")))
 
