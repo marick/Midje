@@ -11,41 +11,6 @@
 
 (def compendium (atom (compendium/fresh-compendium)))
 
-;;; Macroexpansion-time support functions
-
-(def ^{:dynamic true} *parse-time-fact-level* 0)
-
-(defn- working-on-top-level-fact? []
-  (= *parse-time-fact-level* 1))
-  
-(defmacro given-possible-fact-nesting [& forms]
-  `(binding [*parse-time-fact-level* (inc *parse-time-fact-level*)]
-     ~@forms))
-
-(defmacro working-on-nested-facts [& forms]
-  ;; Make sure we don't treat this as a top-level fact
-  `(binding [*parse-time-fact-level* (+ 2 *parse-time-fact-level*)]
-     ~@forms))
-
-(defn wrap-with-check-time-fact-recording [form this-function-here-symbol]
-  (if (working-on-top-level-fact?)
-    `(do (record-fact-check (~this-function-here-symbol))
-         ~form)
-    form))
-
-;; The rather hackish construction here is to keep
-;; the expanded fact body out of square brackets because
-;; `tabular` expansions use `seq-zip`. 
-
-(defn wrap-with-creation-time-fact-recording [function-form]
-  (if (working-on-top-level-fact?)
-    `((fn [fact-function#]
-        (record-fact-existence fact-function#)
-        fact-function#)
-      ~function-form)
-    function-form))
-
-
 
 ;;; Operations on the mutable compendium
 
