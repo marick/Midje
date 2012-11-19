@@ -3,47 +3,46 @@
         [midje.repl]
         [clojure.pprint]
         [midje.test-util]
-        [midje.ideas.metadata :only [fact-name fact-source fact-namespace]]
-        [midje.ideas.rerunning-facts :only [last-fact-function-run
-                                            record-fact-existence
-                                            namespace-facts
-                                            compendium-contents]]))
+        [midje.ideas.metadata :only [fact-name fact-source fact-namespace]])
+  (:require [midje.internal-ideas.compendium :as compendium]))
 
 (forget-facts :all)
 
                                 ;;; Rechecking last-checked fact
 
+
 (def run-count (atom 0))
 
 (fact
-  (swap! run-count inc)
+  (reset! run-count 1)
   (+ 1 1) => 2)
 
 (recheck-fact)
 
-(fact @run-count => 2)
+(fact :check-only-at-load-time
+  @run-count => 1)
 
 (let [definition (source-of-last-fact-checked)]
-  (fact definition => '(fact @run-count => 2)))
-
+  (fact definition => '(fact (reset! run-count 1) (+ 1 1) => 2)))
 
 ;; Nesting of facts and most-recently-run fact
 
 (def outer-run-count (atom 0))
 (def inner-run-count (atom 0))
-(fact "The last fact checked is the outermost nested check"
+(fact outer
   (swap! outer-run-count inc)
   (+ 1 1) => 2
-  (fact "inner fact"
+  (fact inner
     (swap! inner-run-count inc)
     (fact (- 1 1) => 0)))
+
 (recheck-fact)
 
-(let [fact-name (:midje/name (meta last-fact-checked))]
-  (fact
-    "The last fact check is the outermost nested check"
-    @outer-run-count => 2
-    @inner-run-count => 2))
+(fact "The last fact check is the outermost nested check"
+  :check-only-at-load-time
+  (fact-name (last-fact-checked)) => "outer"
+  @outer-run-count => 2
+  @inner-run-count => 2)
 
 ;; Multiple nested facts
 
@@ -53,14 +52,17 @@
     (swap! run-count inc))
   (fact "inner 2"
     (swap! run-count inc)))
+
 (recheck-fact)
-(fact
+
+(fact :check-only-at-load-time
   @run-count => 4)
 
 
 ;; Tabular facts count as nested facts
 
 (def run-count (atom 0))
+
 (tabular "tabular facts count as last-fact checked"
   (fact
     (swap! run-count inc)
@@ -68,8 +70,11 @@
   ?a ?b ?c
   1  2  3
   2  2  4)
+
 (recheck-fact)
-(fact @run-count => 4)
+
+(fact :check-only-at-load-time
+  @run-count => 4)
 
 ;; Facts mark themselves as last-fact-checked each time they're
 ;; rechecked.  Note that a new fact-function is spawned off for
@@ -82,12 +87,15 @@
 (def two-plus-two (last-fact-checked))
 
 (recheck-fact)
-(let [previous (last-fact-checked)]
-  (fact (fact-source previous) => (fact-source two-plus-two)))
+
+(fact :check-only-at-load-time
+  (fact-source (last-fact-checked)) => (fact-source two-plus-two))
 
 (one-plus-one)
-(let [previous (last-fact-checked)]
-  (fact (fact-source previous) => (exactly (fact-source one-plus-one))))
+(fact :check-only-at-load-time
+  (fact-source (last-fact-checked)) => (exactly (fact-source one-plus-one)))
+
+
 
 
                                 ;;; Which facts are stored in the compendium
@@ -106,10 +114,10 @@
     (swap! inner-count inc)
     2 => 2))
 
-(let [contents (compendium-contents)]
-  (fact "only outer fact is available"
-    (count contents) => 1
-    (:midje/name (meta (first contents))) => "outer"))
+(fact "only outer fact is available"
+  :check-only-at-load-time
+  (count (all-facts)) => 1
+  (fact-name (first (all-facts))) => "outer")
 
 ;; Both get run, though.
 (unobtrusive-check-facts)
@@ -143,61 +151,57 @@
 
 (reset! succeed false)
 (reset! fail false)
-(run-silently
- (unobtrusive-check-facts))
-
+(run-silently (unobtrusive-check-facts))
 
 (fact "Both facts were checked"
+  :check-only-at-load-time
   @succeed => :succeed
   @fail => :fail)
 
 
 
-
 ;;; Variant ways of using unobtrusive-check-facts with namespaces
+
+(forget-facts)
 
 (def named-fact-count (atom 0))
 (def anonymous-fact-count (atom 0))
 
+(fact "my fact"
+  (swap! named-fact-count inc)
+  (+ 1 1) => 2)
 
-(defn redefine-facts []
-  (forget-facts)
-  (reset! named-fact-count 0)
-  (reset! anonymous-fact-count 0)
-  (fact "my fact"
-    (swap! named-fact-count inc)
-    (+ 1 1) => 2)
-
-  (fact 
-    (swap! anonymous-fact-count inc)
-    (+ 2 2) => 4))
-
-(redefine-facts)   
+(fact 
+  (swap! anonymous-fact-count inc)
+  (+ 2 2) => 4)
 
 (unobtrusive-check-facts)                           ; No namespace runs everything
-(fact @named-fact-count => 2)
-(fact @anonymous-fact-count => 2)
+(fact :check-only-at-load-time
+  @named-fact-count => 2
+  @anonymous-fact-count => 2)
 
 
-(redefine-facts)
 (unobtrusive-check-facts *ns*)                      ; Explicit namespace arg
-(fact @named-fact-count => 2)
-(fact @anonymous-fact-count => 2)
+(fact :check-only-at-load-time
+  @named-fact-count => 3
+  @anonymous-fact-count => 3)
 
-(redefine-facts)
 (unobtrusive-check-facts (ns-name *ns*))             ; Symbol namespace name
-(fact @named-fact-count => 2)
-(fact @anonymous-fact-count => 2)
+(fact :check-only-at-load-time
+  @named-fact-count => 4
+  @anonymous-fact-count => 4)
 
-(redefine-facts)
 (unobtrusive-check-facts 'clojure.core)             ; A different namespace
-(fact @named-fact-count => 1)           ; (no rerunning - only initial redefinition)
-(fact @anonymous-fact-count => 1)
+(fact :check-only-at-load-time
+  @named-fact-count => 4
+  @anonymous-fact-count => 4)
 
-(redefine-facts)
 (unobtrusive-check-facts *ns* *ns*)                 ; Multiple args
-(fact @named-fact-count => 3)           ; (repeating same runs it again)
-(fact @anonymous-fact-count => 3)
+(fact :check-only-at-load-time
+  @named-fact-count => 6
+  @anonymous-fact-count => 6)
+
+
 
 
                                 ;;; How one redefines facts
@@ -209,63 +213,60 @@
   (swap! run-count inc))
 
 (fact "name"
-  (+ 1 1) => 2)
+  @run-count => 1)
 
 ;; If two facts were now defined, the run-count would
 ;; increment when we do this:
 
 (unobtrusive-check-facts)
 (fact "But only one is defined"
+  :check-only-at-load-time
   @run-count => 1)
 
-
-
 ;; Redefinition to an identical form does not produce copies
+(reset! run-count 0)
 (forget-facts)
 
 (fact
   (swap! run-count inc)
   (+ 1 2) => 3)
+(fact :check-only-at-load-time @run-count => 1)
+
 (fact
   (swap! run-count inc)
   (+ 1 2) => 3)
+(fact :check-only-at-load-time @run-count => 2)
 
-(reset! run-count 0)
+(fact "There is still only one defined fact."
+  :check-only-at-load-time
+  (count (all-facts)) => 1)
+
 (unobtrusive-check-facts)
+(fact :check-only-at-load-time @run-count => 3)
 
-(let [facts (fetch-matching-facts (constantly true))]
-  (future "There is still only one defined fact."
-    (count facts) => 1
-  @run-count => 1))
 
 
                                 ;;; Run facts matching a predicate
-
+(forget-facts)
 
 (def unobtrusive-fact-run-count (atom 0))
 (def integration-run-count (atom 0))
 
-(defn redefine-facts []
-  (forget-facts)
-  (reset! unobtrusive-fact-run-count 0)
-  (reset! integration-run-count 0)
-  (fact unobtrusive-fact
-    (swap! unobtrusive-fact-run-count inc))
-  (fact :integration
-    (swap! integration-run-count inc)))
+(fact unobtrusive-fact
+  (swap! unobtrusive-fact-run-count inc))
+(fact :integration
+  (swap! integration-run-count inc))
 
 
-
-(redefine-facts)
 (check-matching-facts #(-> % :midje/name (= "unobtrusive-fact")))
+
 (fact
   @unobtrusive-fact-run-count => 2
   @integration-run-count => 1)
 
-(redefine-facts)
 (check-matching-facts :integration)
 (fact
-  @unobtrusive-fact-run-count => 1
+  @unobtrusive-fact-run-count => 2
   @integration-run-count => 2)
 
 
@@ -275,32 +276,38 @@
 
 (fact "in-this-namespace"
   1 => 1)
-(def other-namespace-fact (vary-meta (last-fact-function-run)
+(def other-namespace-fact (vary-meta (last-fact-checked)
                                      assoc
                                      :midje/name "other namespace fact"
                                      :midje/namespace 'clojure.core))
-(record-fact-existence other-namespace-fact)
+(compendium/record-fact-existence! other-namespace-fact)
+
+(fact :check-only-at-load-time
+  (count (all-facts)) => 2)
 
 (forget-facts *ns*)
-(let [this-result (namespace-facts *ns*)
-      other-result (namespace-facts 'clojure.core)]
-  (fact this-result => empty?)
-  (fact other-result => [other-namespace-fact]))
+
+(fact :check-only-at-load-time
+  (compendium/namespace-facts<> *ns*) => empty?
+  (compendium/namespace-facts<> 'clojure.core) => [other-namespace-fact])
 
 ;; We can also forget namespaces by symbol
 (forget-facts 'clojure.core)
-(fact (namespace-facts 'clojure.core) => [])
+(fact :check-only-at-load-time
+  (compendium/namespace-facts<> 'clojure.core) => [])
 
 
 ;; :all is a special case
 (forget-facts :all)
 (fact 1 => 1)
-(record-fact-existence other-namespace-fact)
+(compendium/record-fact-existence! other-namespace-fact)
 
-(fact
-  (count (compendium-contents)) => 3) ; including self.
+(fact :check-only-at-load-time
+  (count (all-facts)) => 2)
 
 (forget-facts :all)
-(let [result (compendium-contents)]
-  (fact result => empty?))
+
+(fact :check-only-at-load-time
+  (all-facts) => empty?)
+
 

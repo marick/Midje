@@ -4,8 +4,7 @@
         [midje.util form-utils]
         [midje.test-util]
         midje.util)
-  (:require [clojure.zip :as zip]
-            [midje.ideas.rerunning-facts :as rerun]))
+  (:require [clojure.zip :as zip]))
 (expose-testables midje.semi-sweet)
  
 (unfinished faked-function mocked-function other-function)

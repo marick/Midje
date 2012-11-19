@@ -3,7 +3,8 @@
             clojure.test, balances abstraction and concreteness, and strives for 
             graciousness."}
   midje.sweet
-  (:use [midje.util.namespace :only [immigrate intern+keep-meta]]
+  (:use clojure.pprint
+        [midje.util.namespace :only [immigrate intern+keep-meta]]
         midje.production-mode
         midje.error-handling.exceptions
         midje.error-handling.validation-errors
@@ -25,6 +26,7 @@
   (:require [midje.ideas.background :as background]
             [midje.ideas.formulas :as formulas]
             [clojure.test :as ct]
+            [midje.ideas.metadata :as metadata]
             midje.checkers))
 
 (immigrate 'midje.unprocessed)
@@ -82,7 +84,7 @@
   [& _] ; we work off &form, not the arguments
   (when (user-desires-checking?)
     (domonad validate-m [_ (validate &form)
-                         [metadata forms] (separate-metadata &form)]
+                         [metadata forms] (metadata/separate-metadata &form)]
       (try
         (set-fallback-line-number-from &form)
         (let [[background remainder] (background/separate-background-forms forms)]
@@ -158,6 +160,6 @@
 (defmacro fact-group
   "Supply default metadata to all facts in the body."
   [& forms]
-  (let [[metadata body] (wrappable-metadata forms)]
-    (with-wrapped-metadata metadata 
+  (let [[metadata body] (metadata/wrappable-metadata forms)]
+    (metadata/with-wrapped-metadata metadata 
       (midjcoexpand `(do ~@body)))))

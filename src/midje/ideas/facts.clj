@@ -23,14 +23,14 @@
                                        against-background?]]
         [midje.ideas.metaconstants :only [define-metaconstants]]
         [midje.ideas.metadata :only [separate-metadata]]
-        [midje.ideas.rerunning-facts :only [record-fact-existence record-fact-check]]
         [midje.util.form-utils :only [def-many-methods first-named? translate-zipper
                                       preserve-type quoted? pred-cond reader-line-number named?]]
         [midje.util.laziness :only [eagerly]]
         [midje.util.zip :only [skip-to-rightmost-leaf]]
         [swiss-arrows.core :only [-<>]])
   (:require [clojure.zip :as zip])
-  (:require [midje.ideas.reporting.report :as report]))
+  (:require [midje.ideas.reporting.report :as report]
+            [midje.internal-ideas.compendium :as compendium]))
 
 (defn fact? [form]
   (or (first-named? form "fact")
@@ -147,7 +147,7 @@
   ([expanded-body metadata this-function-here-symbol]
      (letfn [(put-check-time-fact-recording-in-body [body]
                (if (working-on-top-level-fact?)
-                 `(do (record-fact-check (~this-function-here-symbol))
+                 `(do (compendium/record-fact-check! (~this-function-here-symbol))
                       ~body)
                  body))
              
@@ -171,7 +171,7 @@
           (wrap-with-creation-time-fact-recording [function-form]
             (if (working-on-top-level-fact?)
               `((fn [fact-function#]
-                  (record-fact-existence fact-function#)
+                  (compendium/record-fact-existence! fact-function#)
                   fact-function#)
                 ~function-form)
               function-form))
@@ -206,4 +206,5 @@
        (expand-fact-body metadata)
        (convert-expanded-body-to-compendium-form metadata)
        wrap-with-load-time-code)))
-                                   
+
+

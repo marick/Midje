@@ -86,7 +86,32 @@
             :else
             nil))))
 
-  (defn fresh-compendium []
+(defn fresh []
   (Compendium. (sorted-map) {} {}
                (fn [] "No fact has been checked.")))
 
+;;; Functions on the mutable compendium.
+;;; Functions that change the state are marked with !
+;;; Functions that refer to it are marked with <> for no particular reason.
+
+(def global (atom (fresh)))
+
+(defn fresh! []
+  (reset! global (fresh)))
+
+(defn record-fact-check! [function]
+  (when-not (:check-only-at-load-time (meta function))
+    (swap! global assoc :last-fact-checked function)))
+
+(defn record-fact-existence! [fact-function]
+  (when-not (:check-only-at-load-time (meta fact-function))
+    (if-let [previous (previous-version @global fact-function)]
+      (swap! global remove-from previous))
+    (swap! global add-to fact-function)))
+
+(defn remove-namespace-facts-from! [namespace]
+  (swap! global remove-namespace-facts-from namespace))
+
+(defn all-facts<> [] (all-facts @global))
+(defn namespace-facts<> [namespace] (namespace-facts @global namespace))
+(defn last-fact-checked<> [] (:last-fact-checked @global))

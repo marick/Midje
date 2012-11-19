@@ -28,7 +28,7 @@
 ;;; Tests
 
 (fact "an empty compendium"
-  (let [compendium (fresh-compendium)]
+  (let [compendium (fresh)]
     (all-facts compendium) => empty?
 ;    ((:last-fact-checked compendium)) => "No fact has been checked."
     (namespace-facts compendium common-namespace) => empty?
@@ -36,7 +36,7 @@
     (embodied-fact compendium common-namespace (fact-body-source named)) => nil))
 
 (fact "adding a fact to the compendium"
-  (let [compendium (-> (fresh-compendium)
+  (let [compendium (-> (fresh)
                        (add-to named))]
     (all-facts compendium) => [named]
 ;    ((:last-fact-checked compendium)) => "No fact has been checked."
@@ -55,7 +55,7 @@
         (embodied-fact compendium common-namespace (fact-body-source unnamed)) => unnamed))))
 
 (fact "when namespaces are called for, they can be a symbol"
-  (let [compendium (-> (fresh-compendium)
+  (let [compendium (-> (fresh)
                        (add-to named))
         true-namespace (the-ns common-namespace)
         symbol-namespace (ns-name true-namespace)]
@@ -72,7 +72,7 @@
   ;; Note: even if the last fact checked is deleted from the compendium,
   ;; it remains the last-fact-checked. (More strictly: I'm leaving the behavior
   ;; undefined.
-  (let [compendium (-> (fresh-compendium)
+  (let [compendium (-> (fresh)
                        (add-to named)
                        (add-to unnamed))]
 
@@ -98,7 +98,7 @@
 
 (fact "forgetting an entire namespaces' worth of facts"
   (fact "can use a namespace name"
-    (let [compendium (-> (fresh-compendium)
+    (let [compendium (-> (fresh)
                          (add-to named)
                          (remove-namespace-facts-from common-namespace))]
       (all-facts compendium) => empty?    
@@ -106,7 +106,7 @@
       (named-fact compendium common-namespace (fact-name named)) => nil
       (embodied-fact compendium common-namespace (fact-source named)) => nil))
   (fact "can use a namespace itself"
-    (let [compendium (-> (fresh-compendium)
+    (let [compendium (-> (fresh)
                          (add-to named)
                          (remove-namespace-facts-from (the-ns common-namespace)))]
       (all-facts compendium) => empty?    
@@ -116,7 +116,7 @@
 
 
 (letfn [(check [existing possible-match]
-          (-> (fresh-compendium)
+          (-> (fresh)
               (add-to existing)
               (previous-version possible-match)))]
   (tabular "previous version"
