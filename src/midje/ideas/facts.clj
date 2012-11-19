@@ -56,6 +56,37 @@
                              :description @midje.internal-ideas.fact-context/nested-descriptions
                              :position (midje.internal-ideas.file-position/line-number-known ~lineno)}))))
 
+                                ;;; Fact processing
+
+;; There are three stages to fact processing:
+;; * Body processing: the convertion of arrow and provided forms into their
+;;   semi-sweet forms, the insertion of background data, line numbering, etc.
+;;   
+;; * Compendium processing: wrapping the body in a function form that supports
+;;   rerunning and history keeping.
+;;   
+;; * Load-time processing: wrapping the final form in code that does whatever
+;;   should be done the first time the fact is loaded. (Such as running it for
+;;   the first time.)
+
+;;; Support code 
+
+(def ^{:dynamic true} *parse-time-fact-level* 0)
+
+(defn- working-on-top-level-fact? []
+  (= *parse-time-fact-level* 1))
+  
+(defmacro given-possible-fact-nesting [& forms]
+  `(binding [*parse-time-fact-level* (inc *parse-time-fact-level*)]
+     ~@forms))
+
+(defmacro working-on-nested-facts [& forms]
+  ;; Make sure we don't treat this as a top-level fact
+  `(binding [*parse-time-fact-level* (+ 2 *parse-time-fact-level*)]
+     ~@forms))
+
+;;; Body Processing
+
 (defn to-semi-sweet
   "Convert sweet keywords into their semi-sweet equivalents.
    1) Arrow sequences become expect forms.
@@ -90,48 +121,29 @@
     sequential?  (preserve-type form (eagerly (map midjcoexpand form)))
     :else        form))
 
-
-;;; Macroexpansion-time support functions
-
-(def ^{:dynamic true} *parse-time-fact-level* 0)
-
-(defn- working-on-top-level-fact? []
-  (= *parse-time-fact-level* 1))
-  
-(defmacro given-possible-fact-nesting [& forms]
-  `(binding [*parse-time-fact-level* (inc *parse-time-fact-level*)]
-     ~@forms))
-
-(defmacro working-on-nested-facts [& forms]
-  ;; Make sure we don't treat this as a top-level fact
-  `(binding [*parse-time-fact-level* (+ 2 *parse-time-fact-level*)]
-     ~@forms))
-
-;; ;; The rather hackish construction here is to keep
-;; ;; the expanded fact body out of square brackets because
-;; ;; `tabular` expansions use `seq-zip`. 
-
-;; (defn wrap-with-creation-time-fact-recording [function-form]
-;;   (if (working-on-top-level-fact?)
-;;     `((fn [fact-function#]
-;;         (record-fact-existence fact-function#)
-;;         fact-function#)
-;;       ~function-form)
-;;     function-form))
+(defn expand-fact-body [forms metadata]
+    (letfn [(wrap-in-runtime-fact-context [to-be-wrapped]
+              `(within-runtime-fact-context ~(:midje/description metadata)
+                                            ~to-be-wrapped))]
+      (-> forms
+          annotate-embedded-arrows-with-line-numbers
+          to-semi-sweet
+          unfold-fakes
+          surround-with-background-fakes
+          midjcoexpand
+          (multiwrap (forms-to-wrap-around :facts))
+          wrap-in-runtime-fact-context
+          report/form-providing-friendly-return-value)))
 
 
-;; (defn convert-to-fact-function [to-be-wrapped this-function-here-symbol metadata]
-;;   `(letfn [(base-function# [] ~to-be-wrapped)
-;;            (~this-function-here-symbol []
-;;              (with-meta base-function# '~metadata))]
-;;      (~this-function-here-symbol)))
-
+;;; Compendium processing
 
 (defn convert-expanded-body-to-compendium-form
   ([expanded-body metadata]
      (convert-expanded-body-to-compendium-form expanded-body metadata
                                                (gensym 'this-function-here-)))
-  
+
+  ;; Having two versions lets tests not get stuck with a gensym.
   ([expanded-body metadata this-function-here-symbol]
      (letfn [(put-check-time-fact-recording-in-body [body]
                (if (working-on-top-level-fact?)
@@ -149,45 +161,30 @@
            put-check-time-fact-recording-in-body
            make-a-form-that-returns-a-fact-function-that-knows-itself))))
 
-            ;; The rather hackish construction here is to keep
-            ;; the expanded fact body out of square brackets because
-            ;; `tabular` expansions use `seq-zip`. 
-(defn wrap-with-creation-time-fact-recording [function-form]
-  (if (working-on-top-level-fact?)
-    `((fn [fact-function#]
-        (record-fact-existence fact-function#)
-        fact-function#)
-      ~function-form)
-    function-form))
 
+;;; Load-time processing
 
+(defn wrap-with-load-time-code [function-form]
+  (letfn [;; The rather hackish construction here is to keep
+          ;; the expanded fact body out of square brackets because
+          ;; `tabular` expansions use `seq-zip`. 
+          (wrap-with-creation-time-fact-recording [function-form]
+            (if (working-on-top-level-fact?)
+              `((fn [fact-function#]
+                  (record-fact-existence fact-function#)
+                  fact-function#)
+                ~function-form)
+              function-form))
+          
+          (run-after-creation [function-form]
+            `(~function-form))]
 
+    (define-metaconstants function-form)
+    (-> function-form
+        wrap-with-creation-time-fact-recording
+        run-after-creation)))
 
-(defn run-after-creation [function-form]
-  `(~function-form))
-
-(defn complete-fact-transformation [metadata forms]
-  (given-possible-fact-nesting
-    (let [wrap-in-runtime-fact-context
-          (fn [to-be-wrapped]
-            `(within-runtime-fact-context ~(:midje/description metadata)
-                                          ~to-be-wrapped))
-          form-to-run (-> forms
-                          annotate-embedded-arrows-with-line-numbers
-                          to-semi-sweet
-                          unfold-fakes
-                          surround-with-background-fakes
-                          midjcoexpand
-                          (multiwrap (forms-to-wrap-around :facts))
-                          wrap-in-runtime-fact-context
-                          report/form-providing-friendly-return-value
-                          (convert-expanded-body-to-compendium-form metadata)
-                          wrap-with-creation-time-fact-recording
-                          run-after-creation)]
-      (define-metaconstants form-to-run)
-      form-to-run)))
-
-
+;;; There could be validation here, but none has proven useful.
 
 (def-many-methods validate ["fact" "facts"] [[fact-or-facts & args :as form]]
   ;; Removed the check for no arrow because (1) it gives me too many false
@@ -200,4 +197,13 @@
   ;;     (format "There is no arrow in your %s form:" (name fact-or-facts)))))
   )
 
-            
+
+;;; Ta-da!
+
+(defn complete-fact-transformation [metadata forms]
+  (given-possible-fact-nesting
+   (-> forms
+       (expand-fact-body metadata)
+       (convert-expanded-body-to-compendium-form metadata)
+       wrap-with-load-time-code)))
+                                   
