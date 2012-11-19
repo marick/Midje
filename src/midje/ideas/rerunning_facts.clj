@@ -1,7 +1,7 @@
 (ns ^{:doc "Support for running and rerunning facts"}
   midje.ideas.rerunning-facts
   (:use [midje.ideas.metadata :only [separate-metadata
-                                     fact-name fact-true-name
+                                     fact-name
                                      fact-source fact-namespace]]
         clojure.pprint
         [midje.util.form-utils :only [dissoc-keypath]])

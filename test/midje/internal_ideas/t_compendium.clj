@@ -3,8 +3,7 @@
         [clojure.pprint]
         [midje.test-util]
         [midje.internal-ideas.compendium]
-        [midje.ideas.metadata :only [fact-name fact-true-name
-                                     fact-source fact-body-source]])
+        [midje.ideas.metadata :only [fact-name fact-source fact-body-source]])
   (:import midje.internal_ideas.compendium.Compendium))
 
 ;; Some faux facts to use in tests
@@ -20,7 +19,6 @@
                      {}))]
     (vary-meta starting-value
                merge {:midje/namespace common-namespace
-                      :midje/true-name (gensym 'TRUENAME-)
                       :midje/source source})))
 
 (def named (a-fact "named" '(fact (+ 1 1) => 2)))

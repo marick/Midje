@@ -2,7 +2,7 @@
             about a particular subject'. The Midje compendium contains
             the currently relevant facts."}
   midje.internal-ideas.compendium
-  (:use [midje.ideas.metadata :only [fact-name fact-true-name
+  (:use [midje.ideas.metadata :only [fact-name
                                      fact-body-source fact-namespace]]
         [midje.util.form-utils :only [dissoc-keypath]]))
 
@@ -33,8 +33,8 @@
 (defrecord Compendium [by-namespace by-name by-source last-fact-checked]
   CompendiumProtocol
   (add-to [this fact-function]
-    (let [[namespace name body-source true-name]
-          ( (juxt fact-namespace fact-name fact-body-source fact-true-name)
+    (let [[namespace name body-source]
+          ( (juxt fact-namespace fact-name fact-body-source)
             fact-function)]
       (-> this 
           (assoc-in [:by-namespace namespace]
@@ -46,8 +46,8 @@
 
 
   (remove-from [this fact-function]
-    (let [[namespace name body-source true-name]
-          ( (juxt fact-namespace fact-name fact-body-source fact-true-name)
+    (let [[namespace name body-source]
+          ( (juxt fact-namespace fact-name fact-body-source)
             fact-function)]
       (-> this
           (assoc-in [:by-namespace namespace]

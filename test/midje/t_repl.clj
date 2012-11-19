@@ -3,8 +3,7 @@
         [midje.repl]
         [clojure.pprint]
         [midje.test-util]
-        [midje.ideas.metadata :only [fact-name fact-true-name
-                                     fact-source fact-namespace]]
+        [midje.ideas.metadata :only [fact-name fact-source fact-namespace]]
         [midje.ideas.rerunning-facts :only [last-fact-function-run
                                             record-fact-existence
                                             namespace-facts

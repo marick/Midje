@@ -8,7 +8,7 @@
 ;;; Loaded facts are stored as functions with this metadata:
 
 (def fact-properties
-  [:midje/source :midje/file :midje/line :midje/true-name :midje/namespace
+  [:midje/source :midje/file :midje/line :midje/namespace
    :midje/name :midje/description])
 
 (doall (map (fn [property]
@@ -49,8 +49,7 @@
                                         ;; seemingly unrelated code.
                                         :midje/namespace (ns-name *ns*)
                                         :midje/file *file*
-                                        :midje/line (:line (meta fact-form))
-                                        :midje/true-name (gensym "fact-")}
+                                        :midje/line (:line (meta fact-form))}
                                        (rest fact-form))
           metadata (if (and (contains? metadata :midje/description)
                             (not (contains? metadata :midje/name)))
@@ -78,8 +77,7 @@
          ~@body))
 
 (defn without-automatic-metadata [metadata]
-  (dissoc metadata :midje/source :midje/file :midje/line
-                   :midje/true-name :midje/namespace))
+  (dissoc metadata :midje/source :midje/file :midje/line :midje/namespace))
 
 (defn promote-metadata [outer-form]
   (let [[outer-metadata [inner-form & rest-of-outer-body]] (separate-metadata outer-form)

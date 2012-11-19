@@ -10,8 +10,7 @@
       (:midje/source meta) => `(fact "doc" ~@a-body)
       (:midje/file meta) => "midje/ideas/t_metadata.clj"
       (:midje/namespace meta) => 'midje.ideas.t-metadata
-      (contains? meta :midje/line) => truthy
-      (contains? meta :midje/true-name) => truthy))
+      (contains? meta :midje/line) => truthy))
 
   
   (fact "ignores the head of the form"
@@ -80,8 +79,7 @@
       (:midje/source metadata) => '(tabular (fact :b ?a => 2) ?a 1)
       (:midje/file metadata) => "midje/ideas/t_metadata.clj"
       (:midje/namespace metadata) => 'midje.ideas.t-metadata
-      (contains? metadata :midje/line) => truthy
-      (contains? metadata :midje/true-name) => truthy)
+      (contains? metadata :midje/line) => truthy)
 
     (nth promoted 2) => '(fact ?a => 2)
     (drop 3 promoted) => '(?a 1)))

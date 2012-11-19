@@ -79,7 +79,6 @@
    :midje/namespace    The namespace containing the fact.
    :midje/file         The file containing the fact.
    :midje/line         The line number of the fact's first line.
-   :midje/true-name    A symbol that's a unique identifier.
    :midje/source       The original source of the fact."
   [predicate]
   (rerun/check-some-facts (fetch-matching-facts predicate)))
