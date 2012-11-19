@@ -107,16 +107,51 @@
   `(binding [*parse-time-fact-level* (+ 2 *parse-time-fact-level*)]
      ~@forms))
 
-(defn wrap-with-check-time-fact-recording [form this-function-here-symbol]
-  (if (working-on-top-level-fact?)
-    `(do (record-fact-check (~this-function-here-symbol))
-         ~form)
-    form))
+;; ;; The rather hackish construction here is to keep
+;; ;; the expanded fact body out of square brackets because
+;; ;; `tabular` expansions use `seq-zip`. 
 
-;; The rather hackish construction here is to keep
-;; the expanded fact body out of square brackets because
-;; `tabular` expansions use `seq-zip`. 
+;; (defn wrap-with-creation-time-fact-recording [function-form]
+;;   (if (working-on-top-level-fact?)
+;;     `((fn [fact-function#]
+;;         (record-fact-existence fact-function#)
+;;         fact-function#)
+;;       ~function-form)
+;;     function-form))
 
+
+;; (defn convert-to-fact-function [to-be-wrapped this-function-here-symbol metadata]
+;;   `(letfn [(base-function# [] ~to-be-wrapped)
+;;            (~this-function-here-symbol []
+;;              (with-meta base-function# '~metadata))]
+;;      (~this-function-here-symbol)))
+
+
+(defn convert-expanded-body-to-compendium-form
+  ([expanded-body metadata]
+     (convert-expanded-body-to-compendium-form expanded-body metadata
+                                               (gensym 'this-function-here-)))
+  
+  ([expanded-body metadata this-function-here-symbol]
+     (letfn [(put-check-time-fact-recording-in-body [body]
+               (if (working-on-top-level-fact?)
+                 `(do (record-fact-check (~this-function-here-symbol))
+                      ~body)
+                 body))
+             
+             (make-a-form-that-returns-a-fact-function-that-knows-itself [body]
+               `(letfn [(base-function# [] ~body)
+                        (~this-function-here-symbol []
+                          (with-meta base-function# '~metadata))]
+                  (~this-function-here-symbol)))]
+       
+       (-> expanded-body
+           put-check-time-fact-recording-in-body
+           make-a-form-that-returns-a-fact-function-that-knows-itself))))
+
+            ;; The rather hackish construction here is to keep
+            ;; the expanded fact body out of square brackets because
+            ;; `tabular` expansions use `seq-zip`. 
 (defn wrap-with-creation-time-fact-recording [function-form]
   (if (working-on-top-level-fact?)
     `((fn [fact-function#]
@@ -124,6 +159,7 @@
         fact-function#)
       ~function-form)
     function-form))
+
 
 
 
@@ -136,23 +172,6 @@
           (fn [to-be-wrapped]
             `(within-runtime-fact-context ~(:midje/description metadata)
                                           ~to-be-wrapped))
-
-          this-function-here (gensym 'this-function-here-)
-          
-          convert-to-fact-function
-          (fn [to-be-wrapped]
-            `(letfn [(base-function# [] ~to-be-wrapped)
-                     (~this-function-here []
-                       (with-meta base-function# '~metadata))]
-                 (~this-function-here)))
-
-          ;; convert-to-fact-function
-          ;; (fn [to-be-wrapped]
-          ;;   `(with-meta
-          ;;      (letfn [(~this-function-here [] ~to-be-wrapped)]
-          ;;        ~this-function-here)
-          ;;      '~metadata))
-
           form-to-run (-> forms
                           annotate-embedded-arrows-with-line-numbers
                           to-semi-sweet
@@ -162,8 +181,7 @@
                           (multiwrap (forms-to-wrap-around :facts))
                           wrap-in-runtime-fact-context
                           report/form-providing-friendly-return-value
-                          (wrap-with-check-time-fact-recording this-function-here)
-                          convert-to-fact-function
+                          (convert-expanded-body-to-compendium-form metadata)
                           wrap-with-creation-time-fact-recording
                           run-after-creation)]
       (define-metaconstants form-to-run)

@@ -24,10 +24,6 @@
 
 (fact @run-count => 2)
 
-(prn midje.ideas.rerunning-facts/compendium)
-(prn (:last-fact-checked @midje.ideas.rerunning-facts/compendium))
-(prn (meta (:last-fact-checked @midje.ideas.rerunning-facts/compendium)))
-
 (let [definition (source-of-last-fact-checked)]
   (fact definition => '(fact @run-count => 2)))
 
@@ -76,7 +72,11 @@
 (recheck-fact)
 (fact @run-count => 4)
 
-;; Facts mark themselves as last-fact-checked each time they're rechecked.
+;; Facts mark themselves as last-fact-checked each time they're
+;; rechecked.  Note that a new fact-function is spawned off for
+;; storage each time a fact is run. This is a side effect of the need
+;; to keep metadata around. There may be a way to avoid the
+;; duplication, but I don't see it right now.
 (fact (+ 1 1) => 2)
 (def one-plus-one (last-fact-checked))
 (fact (+ 2 2) => 4)
@@ -84,11 +84,11 @@
 
 (recheck-fact)
 (let [previous (last-fact-checked)]
-  (fact previous => (exactly two-plus-two)))
+  (fact (fact-source previous) => (fact-source two-plus-two)))
 
 (one-plus-one)
 (let [previous (last-fact-checked)]
-  (fact previous => (exactly one-plus-one)))
+  (fact (fact-source previous) => (exactly (fact-source one-plus-one))))
 
 
                                 ;;; Which facts are stored in the compendium

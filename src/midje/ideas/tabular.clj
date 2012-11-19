@@ -44,12 +44,20 @@
     (str "[" (join "\n                           " formatted-entries) "]")))
 
 (defn- ^{:testable true } add-binding-note
-  [expect-containing-form ordered-binding-map]
-  (translate-zipper expect-containing-form
-    expect?
-    (fn [loc] (skip-to-rightmost-leaf
-                (above-arrow-sequence__add-key-value__at-arrow
-                  :binding-note (format-binding-map ordered-binding-map) loc)))))
+  [letfn-fact-form ordered-binding-map]
+  (letfn [(translate-letfn-body [expect-containing-form]
+           (translate-zipper expect-containing-form
+                             expect? one-binding-note))
+          (one-binding-note [loc]
+            (skip-to-rightmost-leaf
+             (above-arrow-sequence__add-key-value__at-arrow
+              :binding-note (format-binding-map ordered-binding-map) loc)))]
+    (if (and (sequential? (first letfn-fact-form))
+             (= (ffirst letfn-fact-form) 'clojure.core/letfn))
+      (let [letfn-body (-> letfn-fact-form first second first rest second)]
+        (clojure.walk/prewalk-replace {letfn-body (translate-letfn-body letfn-body)}
+                                      letfn-fact-form))
+      letfn-fact-form)))
 
 (defn tabular* [locals form]
   (letfn [(macroexpander-for [fact-form]
