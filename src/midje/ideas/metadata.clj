@@ -11,8 +11,14 @@
   [:midje/source :midje/file :midje/line :midje/namespace
    :midje/name :midje/description])
 
+(defn metadata-function-name [property]
+  (symbol (str "fact-" (name property))))
+
 (doall (map (fn [property]
-              (intern *ns* (symbol (str "fact-" (name property)))
+              (intern *ns* (vary-meta
+                            (metadata-function-name property) assoc
+                            :arglists '([fact-function])
+                            :doc (str "Return the " (name property) " of the given fact.\n  Facts are in the form returned by `fetch-facts`."))
                       (fn [fact-function]
                         (property (meta fact-function)))))
             fact-properties))
