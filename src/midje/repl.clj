@@ -1,26 +1,61 @@
-(ns ^{:doc "Functions useful when using Midje in the repl or from the command line."}
+(ns ^{:doc "Functions useful when using Midje in the repl or from the command line.
+            See `midje-repl-help` for details."}
   midje.repl
   (:use [midje.ideas.metadata :only [fact-source]]
-        [midje.util.ecosystem :only [fact-namespaces]]
         [midje.ideas.reporting.string-format :only [report-strings-summary]])
   (:require midje.sweet
             [midje.clojure-test-facade :as ctf]
-            [midje.internal-ideas.compendium :as compendium]))
-  
-(defn- check-some-facts [fact-functions]
-  (every? true? (doall (map #(%) fact-functions))))
+            [midje.internal-ideas.compendium :as compendium]
+            [midje.util.colorize :as color]
+            [clojure.string :as str]
+            [midje.util.ecosystem :as ecosystem]
+            [midje.util.form-utils :as form]))
 
-(defn unobtrusive-check-facts
-  "With no argument, checks all known facts.
-   With arguments (namespaces or symbols), only runs facts
-   in those namespaces. Returns true iff all facts check out."
-  [& namespaces]
-  (check-some-facts
-   (if (empty? namespaces)
-     (compendium/all-facts<>)
-     (mapcat compendium/namespace-facts<> namespaces))))
+(println (color/note "Run `(midje-repl-help)` for a list of functions."))
 
-(defn report-results []
+(defn midje-repl-help []
+  (println "Here are Midje repl functions. Use `doc` for more info.")
+  (println "Note that `midje.sweet` is not automatically loaded.")
+  (println "If you want to define facts in the repl, `use` or `require` it.")
+  (println)
+  (println "----- Loading facts")
+  (println "(load-facts)             ; load facts below \"test\"")
+  (println "(load-facts \"<dir>\" \"<dir>\" :prefix \"string\")")
+  (println)
+  (println "----- Running facts")
+  (println "(check-facts)                 ; check in current namespace")
+  (println "(check-facts <ns> <ns>...)    ; check given namespaces")
+  (println "(check-facts :all)            ; check all loaded facts")
+  (println "(check-facts-matching <pred>) ; <pred> matches on fact metadata")
+  (println "(check-facts-named <name>)    ; regex or substring match.")
+  (println)
+  (println "(recheck-fact)                ; Check just-checked fact again.")
+  (println "(rcf)                         ; Synonym for above.")
+  (println) 
+  (println "Note: facts with `:check-only-at-load-time`")
+  (println "metadata do not get stored for rerunning.")
+  (println)
+  (println "----- Forgetting facts")
+  (println "Same notation as the `check-facts` family, but with")
+  (println "\"forget\" instead of \"check\"")
+  (println)
+  (println "----- Fetching fact functions")
+  (println "Same notation as the `check-facts` family, but with")
+  (println "\"fetch\" instead of \"check\"")
+  (println)
+  (println "Apply a fact function to cause it to check itself.")
+  (println "To query fact function metadata, use these:")
+  (println "-- (fact-name)                ; might be nil")
+  (println "-- (fact-source)")
+  (println "-- (fact-file)")
+  (println "-- (fact-line)")
+  (println "-- (fact-namespace)")
+  (println "-- (fact-description)         ; the doc string; might be nil")
+  )
+
+                                        ;;; Util  
+
+(defn- report-results []
   (report-strings-summary (ctf/counters)))
 
 (defmacro ^{:private true} report-check-group [& body]
@@ -37,14 +72,69 @@
   (load-facts)
   - load facts from all namespaces under \"test\"
   (load-facts ... :prefix \"trad\")
-  - include only namespaces whose names begin with \"trad\""
+  - include only namespaces whose names begin with \"trad\"
+  (load-facts ... :verbose)
+  - show all the namespaces being loaded"
   [& args]
   ;; Note: if all the namespaces are loaded in a single `require`,
   ;; Clojure 1.4 (at least) runs out of memory. Moreover,
   ;; (require ns1 ns2 ns3 ... nsN :reload-all) will reload a shared
   ;; dependency N times.
-  (report-check-group
-   (dorun (map #(require % :reload) (apply fact-namespaces args)))))
+  (let [[verbose? args] (form/separate-by #(= % :verbose) args)]
+        (let [namespaces (apply ecosystem/fact-namespaces args)]
+          (cond (empty? namespaces)
+                (println (color/note "Warning: No matching namespaces."))
+
+                verbose?
+                (println (color/note (str "Loading " (str/join ", " namespaces))))
+
+                :else 
+                (do
+                  (print (color/note (str "Loading " (str/join ", " (take 3 namespaces)))))
+                  (if (> (count namespaces) 3) (print (color/note "... (use :verbose) for more")))
+                  (println)))
+          (report-check-group
+           (dorun (map #(require % :reload) namespaces))))))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+(defn- check-some-facts [fact-functions]
+  (every? true? (doall (map #(%) fact-functions))))
+
+(defn unobtrusive-check-facts
+  "With no argument, checks all known facts.
+   With arguments (namespaces or symbols), only runs facts
+   in those namespaces. Returns true iff all facts check out."
+  [& namespaces]
+  (check-some-facts
+   (if (empty? namespaces)
+     (compendium/all-facts<>)
+     (mapcat compendium/namespace-facts<> namespaces))))
 
                                 ;;; Facts recorded at load time
 

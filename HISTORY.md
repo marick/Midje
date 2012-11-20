@@ -5,6 +5,7 @@
 * We no longer support Clojure 1.2.0. (1.2.1 still works.)
 * midje.repl namespace created.
 * The :check-only-at-load-time metadata was added.
+* `midje-help` and `midje-repl-help` added.
 
 1.5-alpha2
 -------------
