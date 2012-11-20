@@ -71,6 +71,7 @@ Contributors
 * Bob Martin
 * Paudi Moriarty
 * Dmitri Naumov
+* Dave Ray
 * Sébastien RoccaSerra
 * Harri Salokorpi
 * Greg Spurrier

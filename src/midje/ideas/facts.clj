@@ -151,7 +151,7 @@
                       ~body)
                  body))
              
-             (make-a-form-that-returns-a-fact-function-that-knows-itself [body]
+             (make-a-form-that-returns-a-self-aware-fact-function [body]
                `(letfn [(base-function# [] ~body)
                         (~this-function-here-symbol []
                           (with-meta base-function# '~metadata))]
@@ -159,7 +159,7 @@
        
        (-> expanded-body
            put-check-time-fact-recording-in-body
-           make-a-form-that-returns-a-fact-function-that-knows-itself))))
+           make-a-form-that-returns-a-self-aware-fact-function))))
 
 
 ;;; Load-time processing
