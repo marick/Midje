@@ -27,6 +27,7 @@
             [midje.ideas.formulas :as formulas]
             [clojure.test :as ct]
             [midje.ideas.metadata :as metadata]
+            [midje.util.colorize :as color]
             midje.checkers))
 
 (immigrate 'midje.unprocessed)
@@ -163,3 +164,15 @@
   (let [[metadata body] (metadata/wrappable-metadata forms)]
     (metadata/with-wrapped-metadata metadata 
       (midjcoexpand `(do ~@body)))))
+
+(try
+  (throw (Exception.))
+  (catch Exception e
+    (when-not (empty? (filter #(.contains % "clojure.main$repl$read_eval_print")
+                              (map str (.getStackTrace e))))
+      (println (color/note "For usage examples, see `(midje-help)`.")))))
+
+(defn midje-help
+  "Print useful information."
+  []
+  (println (color/fail "Not implemented yet.")))
