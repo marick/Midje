@@ -3,7 +3,8 @@
   (:use [midje.util.form-utils :only [macro-for]]))
 
 (defmacro expose-testables
-  "Enables testing of vars in the target ns which have ^:testable metadata"
+  "Enables testing of vars in the target ns which have ^:testable metadata.
+   Note that the namespace names should not be quoted."
   [target-ns]
   (macro-for [[sym var] (ns-interns target-ns)
               :when (:testable (meta var))]

@@ -2,11 +2,104 @@
   (:use [midje.sweet]
         [midje.repl]
         [clojure.pprint]
-        [midje.test-util]
-        [midje.ideas.metadata :only [fact-name fact-source fact-namespace]])
-  (:require [midje.internal-ideas.compendium :as compendium]))
+        [midje.test-util])
+  (:require [midje.internal-ideas.compendium :as compendium]
+            midje.util))
 
+                                ;;; Forgetting facts
+(defn add-fact
+  [& args]
+  (compendium/record-fact-existence!
+   (with-meta (gensym)
+     (merge {:midje/namespace 'midje.sweet :midje/name "with a name"
+             :a-property true :midje/source '(code)}
+            (apply hash-map args)))))
+
+
+;; all of them
+(fact (count (fetch-facts :all)) => pos?)
 (forget-facts :all)
+(fact :check-only-at-load-time
+  (fetch-facts :all) => empty?)
+
+;; no argument defaults to this namespace
+(add-fact :midje/namespace (ns-name *ns*))
+(forget-facts)
+(fact :check-only-at-load-time
+  (fetch-facts :all) => empty)
+
+(add-fact :midje/namespace 'midje.sweet)
+(forget-facts)
+(fact :check-only-at-load-time "won't change anything"
+  (count (fetch-facts :all)) => 1)
+(forget-facts :all)
+
+;; Explicit argument
+(add-fact :midje/namespace (ns-name *ns*))
+(add-fact :midje/namespace 'midje.sweet)
+(forget-facts *ns*)
+(fact :check-only-at-load-time
+  (count (fetch-facts *ns*)) => zero?
+  (count (fetch-facts 'midje.sweet)) => pos?)
+
+(forget-facts 'midje.sweet)
+(fact :check-only-at-load-time
+  (count (fetch-facts *ns*)) => zero?
+  (count (fetch-facts 'midje.sweet)) => zero?)
+
+;; By name
+
+(defn names
+  ([]
+     (names (fetch-facts :all)))
+  ([facts]
+     (map fact-name facts)))
+
+(defn three-names []
+  (add-fact :midje/name "abcde")
+  (add-fact :midje/name "bcdef")
+  (add-fact :midje/name "ghi"))
+
+(three-names)
+(forget-facts "bcd")
+(fact :check-only-at-load-time
+  (names) => ["ghi"])
+
+(forget-facts)
+(three-names)
+(forget-facts #"bcd")
+(fact :check-only-at-load-time
+  (names) => ["ghi"])
+(forget-facts :all)
+
+;; By metadata
+(add-fact :midje/name "fred")
+(add-fact :midje/name "betty" :translation true)
+
+(forget-facts :translation)
+(fact :check-only-at-load-time
+  (names) => ["fred"])
+(forget-facts :all)
+
+;; By predicate
+(add-fact :midje/name "to be removed" :a true :b true)
+(add-fact :midje/name "bad-b" :a true :b false)
+(add-fact :midje/name "bad-a" :a false :b true)
+
+(forget-facts #(and (:a %) (:b %)))
+(fact :check-only-at-load-time
+  (names) => (contains "bad-a" "bad-b" :in-any-order))
+(forget-facts :all)
+
+
+
+
+
+
+
+(comment
+
+
 
                                 ;;; Rechecking last-checked fact
 
@@ -94,6 +187,7 @@
 (one-plus-one)
 (fact :check-only-at-load-time
   (fact-source (last-fact-checked)) => (exactly (fact-source one-plus-one)))
+
 
 
 
@@ -270,44 +364,58 @@
   @integration-run-count => 2)
 
 
-                                   ;;; forget-facts
 
-(forget-facts)
-
-(fact "in-this-namespace"
-  1 => 1)
-(def other-namespace-fact (vary-meta (last-fact-checked)
-                                     assoc
-                                     :midje/name "other namespace fact"
-                                     :midje/namespace 'clojure.core))
-(compendium/record-fact-existence! other-namespace-fact)
-
-(fact :check-only-at-load-time
-  (count (all-facts)) => 2)
-
-(forget-facts *ns*)
-
-(fact :check-only-at-load-time
-  (compendium/namespace-facts<> *ns*) => empty?
-  (compendium/namespace-facts<> 'clojure.core) => [other-namespace-fact])
-
-;; We can also forget namespaces by symbol
-(forget-facts 'clojure.core)
-(fact :check-only-at-load-time
-  (compendium/namespace-facts<> 'clojure.core) => [])
+)
 
 
-;; :all is a special case
-(forget-facts :all)
-(fact 1 => 1)
-(compendium/record-fact-existence! other-namespace-fact)
+(midje.util/expose-testables midje.repl)
+(alias 'ctf 'midje.clojure-test-facade)
 
-(fact :check-only-at-load-time
-  (count (all-facts)) => 2)
+(fact "can find paths to load from project.clj"
+  (fact "if it exists"
+    (paths-to-load) => ["/test1" "/src1"]
+    (provided (leiningen.core.project/read) => {:test-paths ["/test1"]
+                                                :source-paths ["/src1"]}))
 
-(forget-facts :all)
+  (fact "and provides a default if it does not"
+    (paths-to-load) => ["test"]
+    (provided (leiningen.core.project/read)
+              =throws=> (new java.io.FileNotFoundException))))
 
-(fact :check-only-at-load-time
-  (all-facts) => empty?)
 
+(fact "expand-namespaces returns namespace symbols"
+  (fact "from symbols or strings"
+    (expand-namespaces ["explicit-namespace1"]) => ['explicit-namespace1]
+    (expand-namespaces ['explicit-namespace2]) => ['explicit-namespace2])
+
+  (fact "can 'unglob' wildcards"
+    (expand-namespaces ["ns.foo.*"]) => '[ns.foo.bar ns.foo.baz]
+    (provided (bultitude.core/namespaces-on-classpath :prefix "ns.foo.")
+              => '[ns.foo.bar ns.foo.baz])
+
+    (expand-namespaces ['ns.foo.*]) => '[ns.foo.bar ns.foo.baz]
+    (provided (bultitude.core/namespaces-on-classpath :prefix "ns.foo.")
+              => '[ns.foo.bar ns.foo.baz])))
+
+(fact "load-facts"
+  (against-background ; These always happen.
+    (ctf/zero-counters) => anything
+    ;; Lookup expanded namespaces
+    (require ...expanded... :reload) => anything
+    (forget-facts ..expanded..) => anything
+    (#'midje.repl/report-summary) => anything)
+
+  (load-facts 'ns.foo) => nil
+  (provided
+    (#'midje.repl/expand-namespaces ['ns.foo]) => [..expanded..])
+
+  (load-facts :verbose 'ns.foo) => nil
+  (provided
+    (#'midje.repl/expand-namespaces ['ns.foo]) => [..expanded..]
+    (println anything) => nil)
+
+  (load-facts) => nil
+  (provided
+    (#'midje.repl/paths-to-load) => [..path..]
+    (bultitude.core/namespaces-in-dir ..path..) => [...expanded...]))
 

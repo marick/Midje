@@ -56,11 +56,14 @@
           (dissoc-keypath [:by-source namespace body-source]))))
 
   (remove-namespace-facts-from [this namespace]
-    (let [namespace-name (ns-name namespace)]
-      (-> this 
-          (dissoc-keypath [:by-namespace namespace-name])
-          (dissoc-keypath [:by-name namespace-name])
-          (dissoc-keypath [:by-source namespace-name]))))
+    (if (and (symbol? namespace)
+             (not (find-ns namespace)))
+      this
+      (let [namespace-name (ns-name namespace)]
+        (-> this 
+            (dissoc-keypath [:by-namespace namespace-name])
+            (dissoc-keypath [:by-name namespace-name])
+            (dissoc-keypath [:by-source namespace-name])))))
 
   (namespace-facts [this namespace]
     (get by-namespace (ns-name namespace) []))
