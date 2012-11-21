@@ -112,7 +112,9 @@
       (all-facts compendium) => empty?    
       (namespace-facts compendium common-namespace) => empty?
       (named-fact compendium common-namespace (fact-name named)) => nil
-      (embodied-fact compendium common-namespace (fact-source named)) => nil)))
+      (embodied-fact compendium common-namespace (fact-source named)) => nil))
+  (fact "it is ok if the compendium doesn't exist"
+    (remove-namespace-facts-from (fresh) 'some.imaginary.namespace)))
 
 
 (letfn [(check [existing possible-match]

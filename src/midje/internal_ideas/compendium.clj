@@ -112,6 +112,9 @@
 (defn remove-namespace-facts-from! [namespace]
   (swap! global remove-namespace-facts-from namespace))
 
+(defn remove-from! [namespace]
+  (swap! global remove-from namespace))
+
 (defn all-facts<> [] (all-facts @global))
 (defn namespace-facts<> [namespace] (namespace-facts @global namespace))
 (defn last-fact-checked<> [] (:last-fact-checked @global))
