@@ -7,7 +7,8 @@
                    [org.clojure/tools.macro "0.1.1"]
                    [org.clojure/core.incubator "0.1.0"]
                    [bultitude "0.1.7"]
-                   [swiss-arrows "0.1.0"]])
+                   [swiss-arrows "0.1.0"]
+                   [gui-diff "0.3.8"]])
 
 (defproject midje "1.5-alpha3"
   :description "A TDD library for Clojure that supports top-down ('mockish') TDD, encourages readable tests, provides a smooth migration path from clojure.test, balances abstraction and concreteness, and strives for graciousness."
