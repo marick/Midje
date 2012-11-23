@@ -46,14 +46,21 @@
 
 
   (remove-from [this fact-function]
-    (let [[namespace name body-source]
-          ( (juxt fact-namespace fact-name fact-body-source)
-            fact-function)]
+    (letfn [(vector-remove [vector target]
+              (let [index-to-exclude (.indexOf vector target)]
+                  (assert (not (neg? index-to-exclude)))
+                  (into (subvec vector 0 index-to-exclude)
+                        (subvec vector (inc index-to-exclude)))))]
+      (let [[namespace name body-source]
+            ( (juxt fact-namespace fact-name fact-body-source)
+              fact-function)
+
+            new-namespace-facts
+            (vector-remove (by-namespace namespace) fact-function)]
       (-> this
-          (assoc-in [:by-namespace namespace]
-                    (remove #(= % fact-function) (by-namespace namespace)))
+          (assoc-in [:by-namespace namespace] new-namespace-facts)
           (dissoc-keypath [:by-name namespace name])
-          (dissoc-keypath [:by-source namespace body-source]))))
+          (dissoc-keypath [:by-source namespace body-source])))))
 
   (remove-namespace-facts-from [this namespace]
     (if (and (symbol? namespace)
