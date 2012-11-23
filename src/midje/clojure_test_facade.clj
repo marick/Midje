@@ -15,11 +15,25 @@
 ;; Midje is really useful any more. The only reason for it that I can
 ;; think of is so that `lein test` works with Midje. 
 
+(defn set-counters [map]
+  (alter-var-root #'ct/*report-counters*
+                  (constantly (ref map))))
+
 (defn zero-counters []
-  (alter-var-root (var ct/*report-counters*)
-                  (fn [_#] (ref ct/*initial-report-counters*))))
+  (set-counters ct/*initial-report-counters*))
 
 (defn counters []  @ct/*report-counters*)
+
+(defmacro ignoring-counter-changes [& forms]
+  `(let [stashed-counters# (counters)]
+    (try 
+      ~@forms
+    (finally
+       (set-counters stashed-counters#)))))
+
+(defn reset-counters [counters]
+  (alter-var-root (var ct/*report-counters*)
+                  (constantly counters)))
 
 (defmacro with-isolated-counters [& body]
   `(let [original-value# ct/*report-counters*]
