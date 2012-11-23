@@ -33,11 +33,13 @@
     [(set options) non-options]))
 
 (defn- print-fact-position [fact-function]
-  (println (or (fact-name fact-function)
+  (println (color/note
+            "Checking "
+            (or (fact-name fact-function)
                (fact-description fact-function)
                (str "fact at " (midje-position-string
                                 [(fact-file fact-function)
-                                 (fact-line fact-function)])))))
+                                 (fact-line fact-function)]))))))
 
 
 
