@@ -1,9 +1,12 @@
 (ns midje.t-sweet
   (:use midje.sweet
         midje.util
-        midje.test-util
-        [midje.repl :only [forget-facts check-matching-facts]])
-  (:require midje.internal-ideas.t-fakes))
+        midje.test-util)
+  (:require midje.internal-ideas.t-fakes
+            [midje.clojure-test-facade :as ctf]
+            [midje.repl :as repl]
+            [midje.ideas.metadata :as metadata]))
+
 
 (fact "all of Midje's public, API-facing vars have docstrings"
   (map str (remove (comp :doc meta) (vals (ns-publics 'midje.sweet)))) => []
@@ -413,17 +416,14 @@
    
 ;;; fact groups
 
-(forget-facts)
-
 (fact-group :integration {:timing 3}
             "strings do not set metadata in fact groups"
-  midje.ideas.metadata/metadata-for-fact-group => {:integration true
+  metadata/metadata-for-fact-group => {:integration true
                                                    :timing 3})
             
 
                                         ;;; fact groups
 
-(forget-facts)
 (def integration-run-count (atom 0))
 (def not-integration-run-count (atom 0))
 
@@ -434,11 +434,11 @@
   (fact no-integration {:integration false}
     (swap! not-integration-run-count inc)))
 
-(check-matching-facts :integration)
+(ctf/ignoring-counter-changes
+ ;; Don't step on the running count up to this point.
+ (repl/check-facts :no-summary :integration))
 
 (fact
   :check-only-at-load-time
   @integration-run-count => 2
   @not-integration-run-count => 1)
-
-

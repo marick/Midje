@@ -129,150 +129,26 @@
             (compendium/remove-namespace-facts-from! arg)))))
 
 
-
-
-
                                 ;;; Checking facts
 
-
-
-(defn check-facts
-  [& args]
+(defn- check-facts-once-given [fact-functions options]
   (ctf/zero-counters)
-  (let [[options args] (separate-options [:quiet :verbose] args)
-        fact-functions (apply fetch-facts args)
-        results (doall (map (fn [fun]
+  (let [results (doall (map (fn [fun]
                               (when (options :verbose)
                                 (print-fact-position fun))
                               (fun))
                             fact-functions))]
-    (when-not (options :quiet)
+    (when-not (options :no-summary)
       (report-strings-summary (ctf/counters)))
     (every? true? results)))
-
-
-
-
-
-
-(comment
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                                ;;; Facts recorded at load time
-
-(defn check-facts [& args]
-  (report-check-group 
-   (apply unobtrusive-check-facts args)))
-
-
-
-
-
-
-
-
-
-
-
-(defn forget-facts
-  "After this, `check-facts` does nothing until new facts are defined."
-  ([]
-     (forget-facts *ns*))
-  ([& namespaces]
-     (if (= namespaces [:all])
-       (compendium/fresh!)
-       (dorun (map compendium/remove-namespace-facts-from! namespaces)))
-     :done))
-
-(defn fetch-matching-facts
-  "Returns a sequence of all facts matching
-   the predicate. The predicate is given fact metadata. See
-   `check-matching-fact` for midje-supplied metadata"
-  [predicate]
-  (filter (comp predicate meta)
-          (compendium/all-facts<>)))
-
-(defn check-matching-facts
-  "The function is given each fact's metadata.
-   It checks each fact that matches the predicate. In addition to
-   user-supplied metadata, facts will also have this metadata:
-
-   :midje/description  The fact's outermost doc-string, if given.
-   :midje/name         The *string* name of the fact. 
-                       Derived from the symbol name of the fact, if given.
-                       Otherwise, the doc string, if given.
-                       Otherwise nothing.
-
-   :midje/namespace    The namespace containing the fact.
-   :midje/file         The file containing the fact.
-   :midje/line         The line number of the fact's first line.
-   :midje/source       The original source of the fact."
-  [predicate]
-  (check-some-facts (fetch-matching-facts predicate)))
-
-(defn all-facts []
-  (compendium/all-facts<>))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   
 
-(defn unobtrusive-check-facts
-  "With no argument, checks all known facts.
-   With arguments (namespaces or symbols), only runs facts
-   in those namespaces. Returns true iff all facts check out."
-  [& namespaces]
-  (check-some-facts
-   (if (empty? namespaces)
-     (compendium/all-facts<>)
-     (mapcat compendium/namespace-facts<> namespaces))))
-
-
-                                ;;; The history of checking results
-
-(def forget-results ctf/zero-counters)
-
-
+(defn check-facts
+  [& args]
+  (let [[options args] (separate-options [:no-summary :verbose] args)
+        fact-functions (apply fetch-facts args)]
+    (check-facts-once-given fact-functions options)))
+    
 
                                 ;;; The history of checked facts
 
@@ -290,11 +166,11 @@
 (defn recheck-fact 
   "Recheck the last fact or tabular fact that was checked.
    When facts are nested, the entire outer-level fact is rechecked."
-  []
-  ((last-fact-checked)))
+  [& args]
+  (let [[options _] (separate-options [:no-summary :verbose] args)]
+    (check-facts-once-given [(last-fact-checked)] options)))
 
-)
-
+(def rcf recheck-fact)
 
 
 (println (color/note "Run `(midje-repl-help)` for a list of functions."))
@@ -314,6 +190,12 @@
   (println "(check-facts :all)              ; check all loaded facts")
   (println "(check-facts <pred-or-keyword>) ; checked against fact metadata")
   (println "(check-facts-named <name>)      ; regex or substring match.")
+  (println)
+  (println "Add a :verbose option to print a fact's name or location")
+  (println "before it's run. Add :no-summary to prevent an end-of-run")
+  (println "summary from being printed.")
+  (println)
+  (println "----- Rerunning facts")
   (println)
   (println "(recheck-fact)                ; Check just-checked fact again.")
   (println "(rcf)                         ; Synonym for above.")

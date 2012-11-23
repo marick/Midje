@@ -4,6 +4,7 @@
         [clojure.pprint]
         [midje.test-util])
   (:require [midje.internal-ideas.compendium :as compendium]
+            [midje.clojure-test-facade :as ctf]
             midje.util))
 
                                 ;;; Forgetting facts
@@ -17,7 +18,10 @@
 
 
 ;; all of them
-(fact (count (fetch-facts :all)) => pos?)
+
+(fact (* 2 2) => (+ 2 2)) ;; make sure one exists
+(fact :check-only-at-load-time
+  (count (fetch-facts :all)) => pos?)
 (forget-facts :all)
 (fact :check-only-at-load-time
   (fetch-facts :all) => empty?)
@@ -89,20 +93,200 @@
 (forget-facts #(and (:a %) (:b %)))
 (fact :check-only-at-load-time
   (names) => (contains "bad-a" "bad-b" :in-any-order))
+
+                        ;;; Fetching facts -- is adequately tested above
+
+
+                        ;;; Running facts
+
+;; Because running facts steps on the cumulative count of failures,
+;; and because I don't want that affected, wrap it.
+(ctf/ignoring-counter-changes
+
 (forget-facts :all)
 
+;; Nothing to do, but we're quiet about it.
+(check-facts :no-summary)
+(check-facts *ns* :no-summary)
+
+
+;; Running facts resets the fact count before running.
+
+(fact 1 => 1)
+(fact 2 => 2)
+
+(fact :check-only-at-load-time
+  (:pass (ctf/counters)) => 2)
+
+(check-facts :no-summary)
+
+(fact :check-only-at-load-time
+  (:pass (ctf/counters)) => 2)
 
 
 
+;; Old bug: failures prevented later facts from being checked.
+(def succeed (atom false))
+(def fail (atom false))
+
+(run-silently
+ (fact "1"
+   (reset! fail :fail)
+   (+ 1 2) => 3333))
+(fact "2"
+  (reset! succeed :succeed)
+  (+ 1 2) => 3)
+
+(reset! succeed false)
+(reset! fail false)
+(run-silently
+ (check-facts :no-summary))
+
+(fact "Both facts were checked"
+  :check-only-at-load-time
+  @succeed => :succeed
+  @fail => :fail)
+
+;;; Variant ways of using check-facts
+
+;;  with namespaces
+(forget-facts :all)
+
+(def named-fact-count (atom 0))
+(def anonymous-fact-count (atom 0))
+
+(fact "my fact"
+  (swap! named-fact-count inc)
+  (+ 1 1) => 2)
+
+(fact 
+  (swap! anonymous-fact-count inc)
+  (+ 2 2) => 4)
+
+(check-facts :no-summary)                                 ; run this namespace
+
+(fact :check-only-at-load-time
+  @named-fact-count => 2
+  @anonymous-fact-count => 2)
+
+(check-facts *ns* :no-summary)                            ; Explicit namespace arg
+(fact :check-only-at-load-time
+  @named-fact-count => 3
+  @anonymous-fact-count => 3)
+
+(check-facts (ns-name *ns*) :no-summary)                 ; Symbol namespace name
+(fact :check-only-at-load-time
+  @named-fact-count => 4
+  @anonymous-fact-count => 4)
+
+(check-facts 'clojure.core :no-summary)                 ; A different namespace
+(fact :check-only-at-load-time
+  @named-fact-count => 4
+  @anonymous-fact-count => 4)
+
+(check-facts :no-summary *ns* *ns*)                    ; Multiple args
+(fact :check-only-at-load-time
+  @named-fact-count => 6
+  @anonymous-fact-count => 6)
 
 
+;; Run facts matching a predicate
+(forget-facts)
 
-(comment
+(def unobtrusive-fact-run-count (atom 0))
+(def integration-run-count (atom 0))
 
+(fact unobtrusive-fact
+  (swap! unobtrusive-fact-run-count inc))
+(fact :integration
+  (swap! integration-run-count inc))
+
+
+(check-facts :no-summary
+             #(-> % :midje/name (= "unobtrusive-fact")))
+
+(fact
+  :check-only-at-load-time
+  @unobtrusive-fact-run-count => 2
+  @integration-run-count => 1)
+
+(check-facts :integration :no-summary)
+(fact
+  :check-only-at-load-time
+  @unobtrusive-fact-run-count => 2
+  @integration-run-count => 2)
+
+
+                   ;;; Some details about how the compendium works
+
+;; Nested facts are not included.
+(forget-facts)
+
+(def inner-count (atom 0))
+(def outer-count (atom 0))
+
+(fact "outer"
+  1 => 1
+  (swap! outer-count inc)
+  (fact "inner"
+    (swap! inner-count inc)
+    2 => 2))
+
+(fact "only outer fact is available"
+  :check-only-at-load-time
+  (count (fetch-facts :all)) => 1
+  (fact-name (first (fetch-facts :all))) => "outer")
+
+;; Both get run, though.
+(check-facts :no-summary)
+
+(fact
+  @outer-count => 2
+  @inner-count => 2)
+
+
+;;; How one redefines facts
+(forget-facts :all)
+
+(def run-count (atom 0))
+
+(fact "name"
+  (swap! run-count inc))
+
+(fact "name"
+  @run-count => 1)
+
+;; If two facts were now defined, the run-count would
+;; increment when we do this:
+
+(check-facts :no-summary)
+(fact "But only one is defined"
+  :check-only-at-load-time
+  @run-count => 1)
+
+;;; Redefinition to an identical form does not produce copies
+(reset! run-count 0)
+(forget-facts :all)
+
+(fact
+  (swap! run-count inc)
+  (+ 1 2) => 3)
+(fact :check-only-at-load-time @run-count => 1)
+
+(fact
+  (swap! run-count inc)
+  (+ 1 2) => 3)
+(fact :check-only-at-load-time @run-count => 2)
+
+(fact "There is still only one defined fact."
+  :check-only-at-load-time
+  (count (fetch-facts :all)) => 1)
+
+(check-facts :no-summary)
+(fact :check-only-at-load-time @run-count => 3)
 
 
                                 ;;; Rechecking last-checked fact
-
 
 (def run-count (atom 0))
 
@@ -110,13 +294,25 @@
   (reset! run-count 1)
   (+ 1 1) => 2)
 
-(recheck-fact)
+(recheck-fact :no-summary)
 
 (fact :check-only-at-load-time
   @run-count => 1)
 
-(let [definition (source-of-last-fact-checked)]
-  (fact definition => '(fact (reset! run-count 1) (+ 1 1) => 2)))
+(fact :check-only-at-load-time
+  (source-of-last-fact-checked)
+  => '(fact (reset! run-count 1) (+ 1 1) => 2))
+
+;; Rechecking a fact resets the summary counters.
+
+(fact :check-only-at-load-time
+  ;; Previous results still in counters
+  (> (:pass (ctf/counters)) 1) => truthy)
+
+(rcf :no-summary)
+
+(fact :check-only-at-load-time
+  (:pass (ctf/counters)) => 1)
 
 ;; Nesting of facts and most-recently-run fact
 
@@ -129,7 +325,7 @@
     (swap! inner-run-count inc)
     (fact (- 1 1) => 0)))
 
-(recheck-fact)
+(rcf :no-summary)
 
 (fact "The last fact check is the outermost nested check"
   :check-only-at-load-time
@@ -146,7 +342,7 @@
   (fact "inner 2"
     (swap! run-count inc)))
 
-(recheck-fact)
+(recheck-fact :no-summary)
 
 (fact :check-only-at-load-time
   @run-count => 4)
@@ -164,7 +360,7 @@
   1  2  3
   2  2  4)
 
-(recheck-fact)
+(recheck-fact :no-summary)
 
 (fact :check-only-at-load-time
   @run-count => 4)
@@ -179,7 +375,7 @@
 (fact (+ 2 2) => 4)
 (def two-plus-two (last-fact-checked))
 
-(recheck-fact)
+(recheck-fact :no-summary)
 
 (fact :check-only-at-load-time
   (fact-source (last-fact-checked)) => (fact-source two-plus-two))
@@ -189,184 +385,7 @@
   (fact-source (last-fact-checked)) => (exactly (fact-source one-plus-one)))
 
 
-
-
-
-                                ;;; Which facts are stored in the compendium
-
-;; Nested facts are not.
-
-(forget-facts)
-
-(def inner-count (atom 0))
-(def outer-count (atom 0))
-
-(fact "outer"
-  1 => 1
-  (swap! outer-count inc)
-  (fact "inner"
-    (swap! inner-count inc)
-    2 => 2))
-
-(fact "only outer fact is available"
-  :check-only-at-load-time
-  (count (all-facts)) => 1
-  (fact-name (first (all-facts))) => "outer")
-
-;; Both get run, though.
-(unobtrusive-check-facts)
-
-(fact
-  @outer-count => 2
-  @inner-count => 2)
-
-
-
-                                ;;; Running facts from the compendium
-(forget-facts)
-
-;; Nothing to do
-(unobtrusive-check-facts)
-(unobtrusive-check-facts *ns*)
-
-;; failures do not prevent later facts from being rechecked
-
-(forget-facts)
-(def succeed (atom false))
-(def fail (atom false))
-
-(run-silently
- (fact "1"
-   (reset! fail :fail)
-   (+ 1 2) => 3333))
-(fact "2"
-  (reset! succeed :succeed)
-  (+ 1 2) => 3)
-
-(reset! succeed false)
-(reset! fail false)
-(run-silently (unobtrusive-check-facts))
-
-(fact "Both facts were checked"
-  :check-only-at-load-time
-  @succeed => :succeed
-  @fail => :fail)
-
-
-
-;;; Variant ways of using unobtrusive-check-facts with namespaces
-
-(forget-facts)
-
-(def named-fact-count (atom 0))
-(def anonymous-fact-count (atom 0))
-
-(fact "my fact"
-  (swap! named-fact-count inc)
-  (+ 1 1) => 2)
-
-(fact 
-  (swap! anonymous-fact-count inc)
-  (+ 2 2) => 4)
-
-(unobtrusive-check-facts)                           ; No namespace runs everything
-(fact :check-only-at-load-time
-  @named-fact-count => 2
-  @anonymous-fact-count => 2)
-
-
-(unobtrusive-check-facts *ns*)                      ; Explicit namespace arg
-(fact :check-only-at-load-time
-  @named-fact-count => 3
-  @anonymous-fact-count => 3)
-
-(unobtrusive-check-facts (ns-name *ns*))             ; Symbol namespace name
-(fact :check-only-at-load-time
-  @named-fact-count => 4
-  @anonymous-fact-count => 4)
-
-(unobtrusive-check-facts 'clojure.core)             ; A different namespace
-(fact :check-only-at-load-time
-  @named-fact-count => 4
-  @anonymous-fact-count => 4)
-
-(unobtrusive-check-facts *ns* *ns*)                 ; Multiple args
-(fact :check-only-at-load-time
-  @named-fact-count => 6
-  @anonymous-fact-count => 6)
-
-
-
-
-                                ;;; How one redefines facts
-(forget-facts)
-
-(def run-count (atom 0))
-
-(fact "name"
-  (swap! run-count inc))
-
-(fact "name"
-  @run-count => 1)
-
-;; If two facts were now defined, the run-count would
-;; increment when we do this:
-
-(unobtrusive-check-facts)
-(fact "But only one is defined"
-  :check-only-at-load-time
-  @run-count => 1)
-
-;; Redefinition to an identical form does not produce copies
-(reset! run-count 0)
-(forget-facts)
-
-(fact
-  (swap! run-count inc)
-  (+ 1 2) => 3)
-(fact :check-only-at-load-time @run-count => 1)
-
-(fact
-  (swap! run-count inc)
-  (+ 1 2) => 3)
-(fact :check-only-at-load-time @run-count => 2)
-
-(fact "There is still only one defined fact."
-  :check-only-at-load-time
-  (count (all-facts)) => 1)
-
-(unobtrusive-check-facts)
-(fact :check-only-at-load-time @run-count => 3)
-
-
-
-                                ;;; Run facts matching a predicate
-(forget-facts)
-
-(def unobtrusive-fact-run-count (atom 0))
-(def integration-run-count (atom 0))
-
-(fact unobtrusive-fact
-  (swap! unobtrusive-fact-run-count inc))
-(fact :integration
-  (swap! integration-run-count inc))
-
-
-(check-matching-facts #(-> % :midje/name (= "unobtrusive-fact")))
-
-(fact
-  @unobtrusive-fact-run-count => 2
-  @integration-run-count => 1)
-
-(check-matching-facts :integration)
-(fact
-  @unobtrusive-fact-run-count => 2
-  @integration-run-count => 2)
-
-
-
-)
-
+                                        ;;; Some utilities
 
 (midje.util/expose-testables midje.repl)
 (alias 'ctf 'midje.clojure-test-facade)
@@ -419,3 +438,4 @@
     (#'midje.repl/paths-to-load) => [..path..]
     (bultitude.core/namespaces-in-dir ..path..) => [...expanded...]))
 
+) ;; ignoring counter changes
