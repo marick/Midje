@@ -1,6 +1,7 @@
 (ns ^{:doc "The default report format. Prints in colorized strings."} 
   midje.ideas.reporting.string-format
   (:use [clojure.pprint :only [cl-format]]
+        [gui-diff.internal :only [nested-sort]]
         [midje.util.object-utils :only [function-name function-name-or-spewage named-function?]]
         midje.error-handling.exceptions
         [midje.internal-ideas.fact-context :only [format-nested-descriptions]]
@@ -14,11 +15,14 @@
 (defn midje-position-string [[filename line-num]]
   (format "(%s:%s)" filename line-num))
 
+(defn- pr-sorted [x]
+  (pr-str (nested-sort x)))
+
 (defn- ^{:testable true} attractively-stringified-form [form]
   (pred-cond form
     named-function?     (format "a function named '%s'" (function-name form))
     captured-throwable? (friendly-stacktrace form)
-    :else               (pr-str form)))
+    :else               (pr-sorted form)))
 
 (letfn [(fail-at [m]
           (let [description (when-let [doc (format-nested-descriptions (:description m))]
@@ -38,13 +42,13 @@
   (defmethod report-strings :mock-expected-result-failure [m]
     (list
       (fail-at m)
-      (str "    Expected: " (pr-str (:expected m)))
+      (str "    Expected: " (pr-sorted (:expected m)))
       (str "      Actual: " (attractively-stringified-form (:actual m)))))
 
   (defmethod report-strings :mock-expected-result-inappropriately-matched [m]
     (list
       (fail-at m)
-      (str "    Expected: Anything BUT " (pr-str (:expected m)))
+      (str "    Expected: Anything BUT " (pr-sorted (:expected m)))
       (str "      Actual: " (attractively-stringified-form (:actual m)))))
 
   (defmethod report-strings :mock-expected-result-functional-failure [m]
@@ -56,7 +60,7 @@
       (if (:intermediate-results m)
         (cons "    During checking, these intermediate values were seen:"
           (for [[form value] (:intermediate-results m)]
-            (format "       %s => %s" (pr-str form) (pr-str value)))))
+            (format "       %s => %s" (pr-str form) (pr-sorted value)))))
       (if (:notes m)
         (cons "    The checker said this about the reason:"
           (indented (:notes m))))))

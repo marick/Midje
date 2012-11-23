@@ -188,7 +188,7 @@
   (println "(check-facts)                   ; check in current namespace")
   (println "(check-facts <ns> <ns>...)      ; check given namespaces")
   (println "(check-facts :all)              ; check all loaded facts")
-  (println "(check-facts <pred-or-keyword>) ; checked against fact metadata")
+  (println "(check-facts <pred-or-keyword>) ; <pred> applied to fact metadata")
   (println "(check-facts-named <name>)      ; regex or substring match.")
   (println)
   (println "Add a :verbose option to print a fact's name or location")
