@@ -91,7 +91,8 @@
                 :else 
                 (do
                   (print (color/note (str "Loading " (str/join ", " (take 3 namespaces)))))
-                  (if (> (count namespaces) 3) (print (color/note "... (use :verbose) for more")))
+                  (when (> (count namespaces) 3)
+                    (print (color/note "... \nCall (load-facts :verbose) for a full list of loaded namespaces.")))
                   (println)))
           (report-check-group
            (dorun (map #(require % :reload) namespaces))))))
