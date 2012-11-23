@@ -26,7 +26,7 @@
   (println "(check-facts)                 ; check in current namespace")
   (println "(check-facts <ns> <ns>...)    ; check given namespaces")
   (println "(check-facts :all)            ; check all loaded facts")
-  (println "(check-facts-matching <pred>) ; <pred> matches on fact metadata")
+  (println "(check-matching-facts <pred>) ; <pred> matches on fact metadata")
   (println "(check-facts-named <name>)    ; regex or substring match.")
   (println)
   (println "(recheck-fact)                ; Check just-checked fact again.")
