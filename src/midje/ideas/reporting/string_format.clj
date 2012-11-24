@@ -146,11 +146,11 @@
 
 (defn print-midje-summary-line [result]
   (let [midje-failure-message (condp = (:fail result)
-                                0 (color/pass (format "All claimed facts (%d) have been confirmed." (:pass result)))
+                                0 (color/pass (format "All claims (%d) have been confirmed." (:pass result)))
                                 1 (str (color/fail "FAILURE:")
-                                       (format " %d fact was not confirmed." (:fail result)))
+                                       (format " %d claim was not confirmed." (:fail result)))
                                 (str (color/fail "FAILURE:")
-                                     (format " %d facts were not confirmed." (:fail result))))
+                                     (format " %d claims were not confirmed." (:fail result))))
         
         potential-consolation (condp = (:pass result)
                                 0 ""
