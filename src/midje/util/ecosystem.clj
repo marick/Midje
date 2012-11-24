@@ -52,3 +52,13 @@
         desireds (if (empty? dirs) ["test"] dirs) 
         actuals (mapcat namespaces-in-dir desireds)]
     (filter #(.startsWith (name %) (or prefix "")) actuals)))
+
+
+(defn running-in-repl? []
+  (try
+    (throw (Exception.))
+  (catch Exception e
+    (not (empty? (filter #(.contains % "clojure.main$repl$read_eval_print")
+                         (map str (.getStackTrace e))))))))
+
+  

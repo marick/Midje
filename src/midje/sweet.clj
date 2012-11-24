@@ -28,6 +28,7 @@
             [clojure.test :as ct]
             [midje.ideas.metadata :as metadata]
             [midje.util.colorize :as color]
+            [midje.util.ecosystem :as ecosystem]
             midje.checkers))
 
 (immigrate 'midje.unprocessed)
@@ -165,12 +166,9 @@
     (metadata/with-wrapped-metadata metadata 
       (midjcoexpand `(do ~@body)))))
 
-(try
-  (throw (Exception.))
-  (catch Exception e
-    (when-not (empty? (filter #(.contains % "clojure.main$repl$read_eval_print")
-                              (map str (.getStackTrace e))))
-      (println (color/note "For usage examples, see `(midje-help)`.")))))
+
+(if (ecosystem/running-in-repl?)
+  (println (color/note "For usage examples, see `(midje-help)`.")))
 
 (defn midje-help
   "Print useful information."

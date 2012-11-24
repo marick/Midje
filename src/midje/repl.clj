@@ -172,8 +172,8 @@
 
 (def rcf recheck-fact)
 
-
-(println (color/note "Run `(midje-repl-help)` for a list of functions."))
+(if (ecosystem/running-in-repl?)
+  (println (color/note "Run `(midje-repl-help)` for a list of functions.")))
 
 (defn midje-repl-help []
   (println "Here are Midje repl functions. Use `doc` for more info.")
