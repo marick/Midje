@@ -63,7 +63,7 @@
   "Load given namespaces, described with symbols or strings.
    If none are given, all the namespaces in the project.clj's
    :test-paths and :source-paths will be loaded.
-   But If there's no project.clj, all namespaces under \"test\"
+   But if there's no project.clj, all namespaces under \"test\"
    will be loaded.
 
    A partial namespace ending in a `*` will load all sub-namespaces.
@@ -87,7 +87,18 @@
 
                                 ;;; Fetching facts
 
-(defn fetch-facts [& args]
+(defn fetch-facts
+  "Fetches the facts described by the args.
+   If there are no args, fetches the facts in the current namespace (*ns*).
+   * if an arg is a namespace or a symbol naming one,
+       it fetches the facts in that namespace.
+   * (fetch-facts :all) fetches all the facts in all the namespaces.
+   * If the argument is a function or a keyword, it is applied to the
+       metadata of all known facts. Those that match are returned.
+   * If the argument is a string or regexp, any fact whose name
+       (typically the doc string) matches the argument is returned.
+       Matches are position independent: \"word\" matches \"a word b\"."
+  [& args]
   (let [args (if (empty? args) [*ns*] args)]
     (mapcat (fn [arg]
               (cond (string? arg)
@@ -112,7 +123,18 @@
                                 ;;; Forgetting facts
 
 
-(defn forget-facts [& args]
+(defn forget-facts 
+  "Fetches the facts described by the args.
+   If there are no args, forgets the facts in the current namespace (*ns*).
+   * if an arg is a namespace or a symbol naming one,
+       it forgets the facts in that namespace.
+   * (forget-facts :all) forgets all the facts in all the namespaces.
+   * If the argument is a function or a keyword, it is applied to the
+       metadata of all known facts. Those that match become forgotten..
+   * If the argument is a string or regexp, any fact whose name
+       (typically the doc string) matches the argument is forgotten.
+       Matches are position independent: \"word\" matches \"a word b\"."
+  [& args]
   (let [args (if (empty? args) [*ns*] args)]
     (doseq [arg args]
       (cond (= arg :all)
@@ -144,6 +166,17 @@
   
 
 (defn check-facts
+  "Checks the facts described by the args.
+   If there are no args, checks the facts in the current namespace (*ns*).
+   * if an arg is a namespace or a symbol naming one,
+       it checks the facts in that namespace.
+   * (check-facts :all) checks all the facts in all the namespaces.
+   * If the argument is a function or a keyword, it is applied to the
+       metadata of all known facts. Those that match are checked.
+   * If the argument is a string or regexp, any fact whose name
+       (typically the doc string) matches the argument is checked.
+       Matches are position independent: \"word\" matches \"a word b\".
+   The return value is `true` if all the facts check out."
   [& args]
   (let [[options args] (separate-options [:no-summary :verbose] args)
         fact-functions (apply fetch-facts args)]
@@ -165,17 +198,21 @@
 
 (defn recheck-fact 
   "Recheck the last fact or tabular fact that was checked.
-   When facts are nested, the entire outer-level fact is rechecked."
+   When facts are nested, the entire outer-level fact is rechecked.
+   The result is true if the fact checks out.
+   Use :no-summary if you don't want success or failure text printed."
   [& args]
-  (let [[options _] (separate-options [:no-summary :verbose] args)]
+  (let [[options _] (separate-options [:no-summary] args)]
     (check-facts-once-given [(last-fact-checked)] options)))
 
-(def rcf recheck-fact)
+(def ^{:doc "Synonym for `recheck-fact`."} rcf recheck-fact)
 
 (if (ecosystem/running-in-repl?)
   (println (color/note "Run `(midje-repl-help)` for a list of functions.")))
 
-(defn midje-repl-help []
+(defn midje-repl-help
+  "Describes the difference functions that can be applied in the repl."
+  []
   (println "Here are Midje repl functions. Use `doc` for more info.")
   (println "Note that `midje.sweet` is not automatically loaded.")
   (println "If you want to define facts in the repl, `use` or `require` it.")

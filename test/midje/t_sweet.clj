@@ -12,7 +12,9 @@
   (map str (remove (comp :doc meta) (vals (ns-publics 'midje.sweet)))) => []
   (map str (remove (comp :doc meta) (vals (ns-publics 'midje.semi-sweet)))) => []
   (map str (remove (comp :doc meta) (vals (ns-publics 'midje.unprocessed)))) => []
-  (map str (remove (comp :doc meta) (vals (ns-publics 'midje.util)))) => [])
+  (map str (remove (comp :doc meta) (vals (ns-publics 'midje.util)))) => []
+  (map str (remove (comp :doc meta) (vals (ns-publics 'midje.repl)))) => [])
+
 
 (after-silently ; failing
  (fact (+ 1 1) => 3)
