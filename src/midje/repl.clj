@@ -19,6 +19,7 @@
 (namespace/immigrate-from 'midje.ideas.metadata
                           (map metadata/metadata-function-name
                                metadata/fact-properties))
+(namespace/immigrate 'midje.sweet)
 (declare forget-facts)
 
 
