@@ -94,16 +94,9 @@
           (map str namespaces)))
 
 
-(defn load-facts
-  "Load given namespaces, described with symbols or strings.
-   If none are given, all the namespaces in the project.clj's
-   :test-paths and :source-paths will be loaded.
-   But if there's no project.clj, all namespaces under \"test\"
-   will be loaded.
-
-   A partial namespace ending in a `*` will load all sub-namespaces.
-   Example: (load-facts 'rose.ideas.*)"
-  [ & args]
+(defn load-facts*
+  "Functional form of `load-facts`."
+  [args]
   (let [[print-level args] (separate-verbosity args)
         desired-namespaces (if (empty? args)
                              (mapcat namespaces-in-dir (paths-to-load))
@@ -116,6 +109,20 @@
     (report-summary print-level)
     nil))
 
+(defmacro load-facts 
+  "Load given namespaces, described with unquoted symbols, as in:
+     (load-facts midje.t-sweet)
+   If no namespaces are given, all the namespaces in the project.clj's
+   :test-paths and :source-paths will be loaded.
+   But if there's no project.clj, all namespaces under \"test\"
+   will be loaded.
+
+   A partial namespace ending in a `*` will load all sub-namespaces.
+   Example: (load-facts midje.ideas.*)"
+  [& args]
+  (let [error-fixed (map #(if (form/quoted? %) (second %) %)
+                         args)]
+    `(load-facts* '~error-fixed)))
 
 
                                 ;;; Fetching facts
