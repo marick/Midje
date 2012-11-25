@@ -422,15 +422,15 @@
     (require ...expanded... :reload) => anything
     (report-summary) => anything)
 
-  (load-facts :nothing 'ns.foo) => nil
+  (load-facts :print-nothing 'ns.foo) => nil
   (provided
     (#'midje.repl/expand-namespaces ['ns.foo]) => [..expanded..])
 
-  (load-facts :nothing 'ns.foo*) => nil
+  (load-facts :print-nothing 'ns.foo*) => nil
   (provided
     (#'midje.repl/expand-namespaces ['ns.foo*]) => [..expanded..])
 
-  (load-facts :nothing) => nil
+  (load-facts :print-nothing) => nil
   (provided
     (#'midje.repl/paths-to-load) => [..path..]
     (bultitude.core/namespaces-in-dir ..path..) => [..expanded..]))

@@ -28,7 +28,7 @@
                                 ;;; Utilities for printing
 ;;; TODO: These should migrate elsewhere.
 
-(def ^{:private true} level-names [:nothing :no-summary :normal :namespaces :facts])
+(def ^{:private true} level-names [:print-nothing :no-summary :normal :print-namespaces :print-facts])
 (def ^{:private true} levels      [-2        -1           0       1           2])
 (def ^{:private true :testable true} names-to-levels (zipmap level-names levels))
 (def ^{:private true :testable true} levels-to-names (zipmap levels level-names))
@@ -40,7 +40,7 @@
      non-levels]))
 
 (defn- report-best-fact-name [fact-function print-level]
-  (when (>= print-level (names-to-levels :facts))
+  (when (>= print-level (names-to-levels :print-facts))
     (println (color/note
               "Checking "
               (or (fact-name fact-function)
@@ -56,7 +56,7 @@
 (def ^{:private true} last-namespace-shown (atom nil))
 
 (defn- ^{:testable true} report-changed-namespace [namespace print-level]
-  (when (and (>= print-level (names-to-levels :namespaces))
+  (when (and (>= print-level (names-to-levels :print-namespaces))
              (not= namespace @last-namespace-shown))
       (println (color/note (str "= Namespace " namespace)))
       (swap! last-namespace-shown (constantly namespace))))
@@ -171,7 +171,7 @@
        it forgets the facts in that namespace.
    * (forget-facts :all) forgets all the facts in all the namespaces.
    * If the argument is a function or a keyword, it is applied to the
-       metadata of all known facts. Those that match become forgotten..
+       metadata of all known facts. Those that match are forgotten.
    * If the argument is a string or regexp, any fact whose name
        (typically the doc string) matches the argument is forgotten.
        Matches are position independent: \"word\" matches \"a word b\"."
@@ -206,14 +206,7 @@
    * If the argument is a string or regexp, any fact whose name
        (typically the doc string) matches the argument is checked.
        Matches are position independent: \"word\" matches \"a word b\".
-   The return value is `true` if all the facts check out.
-
-   Normally, the output is a single summary line, but there are
-   four \"print levels\":
-      0 prevents the summary message from printing.
-      1 is the normal level.
-      2 adds namespaces to the output.
-      3 describes each facts as it's checked."
+   The return value is `true` if all the facts check out."
   [& args]
   (let [[print-level args] (separate-verbosity args)
         fact-functions (apply fetch-facts args)]
@@ -236,14 +229,7 @@
 (defn recheck-fact 
   "Recheck the last fact or tabular fact that was checked.
    When facts are nested, the entire outer-level fact is rechecked.
-   The result is true if the fact checks out.
-
-   Normally, the output is a single summary line, but there are
-   four \"print levels\":
-      0 prevents the summary message from printing.
-      1 is the normal level.
-      2 adds the namespace to the output.
-      3 describes the fact as it's checked."
+   The result is true if the fact checks out."
   [& args]
   (let [[print-level _] (separate-verbosity args)]
     (check-facts-once-given [(last-fact-checked)] print-level)))
@@ -257,7 +243,7 @@
   (println)
   (println "Here are Midje repl functions. Use `doc` for more info.")
   (println "To control verbosity of output, use print levels defined ")
-  (println "in `print-level-help`")
+  (println "by `(print-level-help)`.")
   (println)
   (println "----- Loading facts")
   (println "You load facts by namespace. Namespace names need not be quoted.")
@@ -272,7 +258,6 @@
   (println "(check-facts-named <name>)      ; regex or substring match.")
   (println)
   (println "----- Rerunning facts")
-  (println)
   (println "(recheck-fact)                ; Check just-checked fact again.")
   (println "(rcf)                         ; Synonym for above.")
   (println)
@@ -287,8 +272,8 @@
   (println "Same notation as the `check-facts` family, but with")
   (println "\"fetch\" instead of \"check\"")
   (println)
-  (println "The return value is a sequence of functions. You can")
-  (println "apply these functions to check the facts.")
+  (println "The return value is a sequence of functions. Calling such")
+  (println "a function checks the fact.")
   (println)
   (println "To query fact function metadata, use these:")
   (println "-- (fact-name <ff>)                ; result might be nil")
@@ -300,3 +285,27 @@
   (println)
   )
 
+(defn print-level-help
+  "Description of print levels."
+  []
+  (println "The `load-facts`, `check-facts`, and `recheck-fact`")
+  (println "functions normally print any fact failures and a final")
+  (println "summary. The detail printed can be adjusted by passing")
+  (println "either certain keywords or corresponding numbers to the")
+  (println "functions. (The numbers are easier to remember.)")
+  (println "For example, here's how you check all facts in the most")
+  (println "verbose way:")
+  (println "  (check-facts :all 2)")
+  (println "  (check-facts :all :print-facts)")
+  (println)
+  (println "Here are all the variants:")
+  (println)
+  (println ":normal           (0)  -- failures and a summary.")
+  (println ":no-summary       (-1) -- failures only.")
+  (println ":print-nothing    (-2) -- nothing is printed.")
+  (println "                       -- (but return value can be checked)")
+  (println ":print-namespaces (1)  -- print the namespace for each group of facts.")
+  (println ":print-facts      (2)  -- print fact descriptions in addition to namespaces.")
+  )
+
+  
