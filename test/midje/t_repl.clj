@@ -1,6 +1,5 @@
 (ns midje.t-repl
-  (:use [midje.sweet]
-        [midje.repl]
+  (:use midje.repl
         [clojure.pprint]
         [midje.test-util])
   (:require [midje.internal-ideas.compendium :as compendium]
@@ -418,24 +417,22 @@
 
 (fact "load-facts"
   (against-background ; These always happen.
-    (ctf/zero-counters) => anything
-    ;; Lookup expanded namespaces
-    (require ...expanded... :reload) => anything
+    (forget-past-results) => anything
     (forget-facts ..expanded..) => anything
-    (#'midje.repl/report-summary) => anything)
+    (require ...expanded... :reload) => anything
+    (report-summary) => anything)
 
-  (load-facts 'ns.foo) => nil
+  (load-facts :nothing 'ns.foo) => nil
   (provided
     (#'midje.repl/expand-namespaces ['ns.foo]) => [..expanded..])
 
-  (load-facts :verbose 'ns.foo) => nil
+  (load-facts :nothing 'ns.foo*) => nil
   (provided
-    (#'midje.repl/expand-namespaces ['ns.foo]) => [..expanded..]
-    (println anything) => nil)
+    (#'midje.repl/expand-namespaces ['ns.foo*]) => [..expanded..])
 
-  (load-facts) => nil
+  (load-facts :nothing) => nil
   (provided
     (#'midje.repl/paths-to-load) => [..path..]
-    (bultitude.core/namespaces-in-dir ..path..) => [...expanded...]))
+    (bultitude.core/namespaces-in-dir ..path..) => [..expanded..]))
 
 ) ;; ignoring counter changes

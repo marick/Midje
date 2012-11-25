@@ -24,25 +24,59 @@
 
 
 
-                                ;;; Utilities
+                                ;;; Utilities for printing
+;;; TODO: These should migrate elsewhere.
 
-(defn- report-summary []
-  (report-strings-summary (ctf/counters)))
+(def ^{:private true} level-names [:nothing :no-summary :normal :namespaces :facts])
+(def ^{:private true} levels      [-2        -1           0       1           2])
+(def ^{:private true :testable true} names-to-levels (zipmap level-names levels))
+(def ^{:private true :testable true} levels-to-names (zipmap levels level-names))
 
-(defn- separate-options [possible-options args]
-  (let [[options non-options] (form/separate-by (set possible-options) args)]
-    [(set options) non-options]))
+(defn- ^{:testable true} separate-verbosity [args]
+  (let [args (replace names-to-levels args)
+        [print-level non-levels] (form/separate-by number? args)]
+    [(or (first print-level) (names-to-levels :normal))
+     non-levels]))
 
-(defn- print-fact-position [fact-function]
-  (println (color/note
-            "Checking "
-            (or (fact-name fact-function)
-               (fact-description fact-function)
-               (str "fact at " (midje-position-string
-                                [(fact-file fact-function)
-                                 (fact-line fact-function)]))))))
+(defn- report-best-fact-name [fact-function print-level]
+  (when (>= print-level (names-to-levels :facts))
+    (println (color/note
+              "Checking "
+              (or (fact-name fact-function)
+                  (fact-description fact-function)
+                  (str "fact at " (midje-position-string
+                                   [(fact-file fact-function)
+                                    (fact-line fact-function)])))))))
+
+(defn- ^{:testable true} report-summary [print-level]
+  (when (> print-level (names-to-levels :no-summary))
+    (report-strings-summary (ctf/counters))))
+
+(def ^{:private true} last-namespace-shown (atom nil))
+
+(defn- ^{:testable true} report-changed-namespace [namespace print-level]
+  (when (and (>= print-level (names-to-levels :namespaces))
+             (not= namespace @last-namespace-shown))
+      (println (color/note (str "= Namespace " namespace)))
+      (swap! last-namespace-shown (constantly namespace))))
 
 
+                                ;;; Miscellaneous utilities
+
+(defn- ^{:testable true} forget-past-results []
+    (ctf/zero-counters)
+    (reset! last-namespace-shown nil))
+
+(defn- check-facts-once-given [fact-functions print-level]
+  (forget-past-results)
+  (let [run-one (fn [fun]
+                  (report-changed-namespace (fact-namespace fun) print-level)
+                  (report-best-fact-name fun print-level)
+                  (fun))
+        results (doall (map run-one fact-functions))]
+    (report-summary print-level)
+    (every? true? results)))
+  
 
                                 ;;; Loading facts from the repl
 
@@ -68,20 +102,18 @@
    will be loaded.
 
    A partial namespace ending in a `*` will load all sub-namespaces.
-   Example: (load-facts 'rose.ideas.*)
-   Including the `:verbose` keyword causes each namespace to be printed
-   as it's loaded."
+   Example: (load-facts 'rose.ideas.*)"
   [ & args]
-  (let [[options args] (separate-options [:verbose] args)
+  (let [[print-level args] (separate-verbosity args)
         desired-namespaces (if (empty? args)
                              (mapcat namespaces-in-dir (paths-to-load))
                              (expand-namespaces args))]
-    (ctf/zero-counters)
+    (forget-past-results)
     (doseq [ns desired-namespaces]
       (forget-facts ns)
-      (when (options :verbose) (println (color/note (str ns))))
+      (report-changed-namespace ns print-level)
       (require ns :reload))
-    (report-summary)
+    (report-summary print-level)
     nil))
 
 
@@ -154,17 +186,6 @@
 
                                 ;;; Checking facts
 
-(defn- check-facts-once-given [fact-functions options]
-  (ctf/zero-counters)
-  (let [results (doall (map (fn [fun]
-                              (when (options :verbose)
-                                (print-fact-position fun))
-                              (fun))
-                            fact-functions))]
-    (when-not (options :no-summary)
-      (report-strings-summary (ctf/counters)))
-    (every? true? results)))
-  
 
 (defn check-facts
   "Checks the facts described by the args.
@@ -177,11 +198,18 @@
    * If the argument is a string or regexp, any fact whose name
        (typically the doc string) matches the argument is checked.
        Matches are position independent: \"word\" matches \"a word b\".
-   The return value is `true` if all the facts check out."
+   The return value is `true` if all the facts check out.
+
+   Normally, the output is a single summary line, but there are
+   four \"print levels\":
+      0 prevents the summary message from printing.
+      1 is the normal level.
+      2 adds namespaces to the output.
+      3 describes each facts as it's checked."
   [& args]
-  (let [[options args] (separate-options [:no-summary :verbose] args)
+  (let [[print-level args] (separate-verbosity args)
         fact-functions (apply fetch-facts args)]
-    (check-facts-once-given fact-functions options)))
+    (check-facts-once-given fact-functions print-level)))
     
 
                                 ;;; The history of checked facts
@@ -201,26 +229,32 @@
   "Recheck the last fact or tabular fact that was checked.
    When facts are nested, the entire outer-level fact is rechecked.
    The result is true if the fact checks out.
-   Use :no-summary if you don't want success or failure text printed."
+
+   Normally, the output is a single summary line, but there are
+   four \"print levels\":
+      0 prevents the summary message from printing.
+      1 is the normal level.
+      2 adds the namespace to the output.
+      3 describes the fact as it's checked."
   [& args]
-  (let [[options _] (separate-options [:no-summary] args)]
-    (check-facts-once-given [(last-fact-checked)] options)))
+  (let [[print-level _] (separate-verbosity args)]
+    (check-facts-once-given [(last-fact-checked)] print-level)))
 
 (def ^{:doc "Synonym for `recheck-fact`."} rcf recheck-fact)
 
 (if (ecosystem/running-in-repl?)
-  (println (color/note "Run `(midje-repl-help)` for a list of functions.")))
+  (println (color/note "Run `(midje-repl-help)` for descriptions of Midje repl functions.")))
 
-(defn midje-repl-help
-  "Describes the difference functions that can be applied in the repl."
-  []
+(defn ^{:doc "Midje repl help"} midje-repl-help []
+  (println)
   (println "Here are Midje repl functions. Use `doc` for more info.")
-  (println "Note that `midje.sweet` is not automatically loaded.")
-  (println "If you want to define facts in the repl, `use` or `require` it.")
+  (println "To control verbosity of output, use print levels defined ")
+  (println "in `print-level-help`")
   (println)
   (println "----- Loading facts")
-  (println "(load-facts)             ; load facts below \"test\"")
-  (println "(load-facts \"<dir>\" \"<dir>\" :prefix \"string\")")
+  (println "You load facts by namespace. Namespace names need not be quoted.")
+  (println "(load-facts <ns> <ns>...)")
+  (println "(load-facts midje.util.*)       ; Load all namespaces below midje.util.")
   (println)
   (println "----- Running facts")
   (println "(check-facts)                   ; check in current namespace")
@@ -229,15 +263,11 @@
   (println "(check-facts <pred-or-keyword>) ; <pred> applied to fact metadata")
   (println "(check-facts-named <name>)      ; regex or substring match.")
   (println)
-  (println "Add a :verbose option to print a fact's name or location")
-  (println "before it's run. Add :no-summary to prevent an end-of-run")
-  (println "summary from being printed.")
-  (println)
   (println "----- Rerunning facts")
   (println)
   (println "(recheck-fact)                ; Check just-checked fact again.")
   (println "(rcf)                         ; Synonym for above.")
-  (println) 
+  (println)
   (println "Note: facts with `:check-only-at-load-time`")
   (println "metadata do not get stored for rerunning.")
   (println)
@@ -245,17 +275,20 @@
   (println "Same notation as the `check-facts` family, but with")
   (println "\"forget\" instead of \"check\"")
   (println)
-  (println "----- Fetching fact functions")
+  (println "----- Fetching facts")
   (println "Same notation as the `check-facts` family, but with")
   (println "\"fetch\" instead of \"check\"")
   (println)
-  (println "Apply a fact function to cause it to check itself.")
+  (println "The return value is a sequence of functions. You can")
+  (println "apply these functions to check the facts.")
+  (println)
   (println "To query fact function metadata, use these:")
-  (println "-- (fact-name)                ; might be nil")
-  (println "-- (fact-source)")
-  (println "-- (fact-file)")
-  (println "-- (fact-line)")
-  (println "-- (fact-namespace)")
-  (println "-- (fact-description)         ; the doc string; might be nil")
+  (println "-- (fact-name <ff>)                ; result might be nil")
+  (println "-- (fact-source <ff>)")
+  (println "-- (fact-file <ff>)")
+  (println "-- (fact-line <ff>)")
+  (println "-- (fact-namespace <ff>)")
+  (println "-- (fact-description <ff>)         ; the doc string; might be nil")
+  (println)
   )
 

@@ -168,9 +168,7 @@
 
 
 (if (ecosystem/running-in-repl?)
-  (println (color/note "For usage examples, see `(midje-help)`.")))
+  (println (color/note "For Midje usage, run `(midje-help)`.")))
 
-(defn midje-help
-  "Print useful information."
-  []
-  (println (color/fail "Not implemented yet.")))
+(defn ^{:doc "Midje help"} midje-help []
+  (println "Not written yet."))
