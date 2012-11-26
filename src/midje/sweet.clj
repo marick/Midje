@@ -19,16 +19,13 @@
                                   midjcoexpand 
                                   future-fact-variant-names]]
         [midje.ideas.formulas :only [future-formula-variant-names]]
-        [midje.ideas.metadata :only [separate-metadata
-                                     wrappable-metadata
-                                     with-wrapped-metadata]]
         [clojure.algo.monads :only [domonad]])
   (:require [midje.ideas.background :as background]
             [midje.ideas.formulas :as formulas]
+            [midje.doc :as doc]
             [clojure.test :as ct]
             [midje.ideas.metadata :as metadata]
-            [midje.util.colorize :as color]
-            [midje.util.ecosystem :as ecosystem]
+            [midje.util.namespace :as namespace]
             midje.checkers))
 
 (immigrate 'midje.unprocessed)
@@ -44,6 +41,10 @@
 (intern+keep-meta *ns* 'after   #'background/after)
 (intern+keep-meta *ns* 'around  #'background/around)
 (intern+keep-meta *ns* 'formula #'formulas/formula)
+
+(when (doc/appropriate?)
+  (namespace/immigrate-from 'midje.doc doc/for-sweet)
+  (doc/midje-notice))
 
 (defmacro background 
   "Runs facts against setup code which is run before, around, or after 
@@ -167,124 +168,3 @@
       (midjcoexpand `(do ~@body)))))
 
 
-(if (ecosystem/running-in-repl?)
-  (println (color/note "For Midje usage, run `(midje-help)`.")))
-
-(defn ^{:doc "Midje help"} midje-help [& args]
-  (if (empty? args)
-    (do 
-      (println "** Topics:")
-      (println "* (midje-help :checkers)")
-      (println "* (midje-help :prerequisites)  ; deferring coding of helper functions.")
-      (println "* (midje-help :setup)          ; and teardown too")
-      (println "* (midje-help :arrows)         ; variants on =>")
-      (println)
-      (println "** About facts")
-      (println "* A common form:")
-      (println "(fact ")
-      (println "  (let [result (prime-ish 5)]")
-      (println "    result => odd?")
-      (println "    result => (roughly 13)")
-      (println)
-      (println "* Nested facts")
-      (println "(facts \"about life\"")
-      (println "  (facts \"about birth\"...)")
-      (println "  (facts \"about childhood\"...)")
-      (println "  ...)")
-      (println)
-      (println "* metadata")
-      (println "(fact :integration ...)")
-      (println "(fact {priority 5} ...)"))
-    (doseq [topic args]
-      (condp = topic
-        :checkers
-        (do 
-          (println "** Checkers:")
-          (println "(facts \"about checkers\"")
-          (println "  (f) => truthy")
-          (println "  (f) => falsey")
-          (println "  (f) => irrelevant ; or `anything`")
-          (println "  (f) => (exactly odd?) ; when function is returned")
-          (println "  (f) => (roughly 10 0.1)")
-          (println "  (f) => (throws SomeException \"with message\")")
-          (println "  (f) => (contains [1 2 3]) ; works with strings, maps, etc.")
-          (println "  (f) => (contains [1 2 3] :in-any-order :gaps-ok)")
-          (println "  (f) => (just [1 2 3])")
-          (println "  (f) => (has every? odd?)")
-          (println "  (f) => (nine-of odd?) ; must be exactly 9 odd values.")
-          (println "  (f) => (every-checker odd? (roughly 9)) ; both must be true")
-          (println "  (f) => (some-checker odd? (roughly 9)) ; one must be true")
-          (println))
-
-        :prerequisites
-        (do
-          (println "** Prerequisites")
-          (println "* Prerequisites and top-down TDD:")
-          (println "(unfinished char-value chars)")
-          (println "(fact \"a row value is composed of character values\"")
-          (println "   (row-value ..row..) => \"53\"")
-          (println "   (provided")
-          (println "     (chars ..row..) => [..five.. ..three..]")
-          (println "     (char-value ..five..) => \"5\"")
-          (println "     (char-value ..three..) => \"3\"))")
-          (println)
-          (println "* Prerequisites can be defaulted for claims within a fact:")
-          (println "(fact \"No one is ready until everyone is ready.\"")
-          (println "  (against-background")
-          (println "     (pilot-ready) => true, (copilot-ready) => true,")
-          (println "     (flight-engineer-ready) => true)")
-          (println)
-          (println "   (ready) => truthy")
-          (println "   (ready) => falsey (provided (pilot-ready) => false)")
-          (println "   (ready) => falsey (provided (copilot-ready) => false)")
-          (println "   (ready) => falsey (provided (flight-engineer-ready) => false)")
-          (println)
-          (println "* Prerequisites can also be wrapped around facts.")
-          (println "(against-background [(pilot-ready) => true")
-          (println "                     (copilot-ready) => true")
-          (println "                     (flight-engineer-ready) => true]")
-          (println "  (fact \"No one is ready until everyone is ready.\"")
-          (println "    (ready) => truthy")
-          (println "    (ready) => falsey (provided (pilot-ready) => false)")
-          (println "    (ready) => falsey (provided (copilot-ready) => false)")
-          (println "    (ready) => falsey (provided (flight-engineer-ready) => false))")
-          (println))
-
-        :setup
-        (do
-          (println "** Setup/Teardown")
-          (println "* Around facts")
-          (println "(against-background [(before :facts (do-this))")
-          (println "                     (after :facts (do-that))")
-          (println "                     (around :facts (wrapping-around ?form))]")
-          (println "   (fact ...)")
-          (println "   (fact ...)")
-          (println)
-          (println "* Around checks")
-          (println "(against-background [(before :checks (do-this))")
-          (println "                     (after :checks (do-that))")
-          (println "                     (around :checks (wrapping-around ?form))]")
-          (println "   (fact ...)")
-          (println "   (fact ...)")
-          (println)
-          (println "* Setup/teardown can be placed within fact bodies")
-          (println "(fact ")
-          (println "  (against-background")
-          (println "     (before :checks (do-this))")
-          (println "     (after :checks (do-that))")
-          (println "     (around :checks (wrapping-around ?form)))")
-          (println "  ...)")
-          (println))
-
-        :arrows
-        (do
-          (println "** Arrow forms")
-          (println "* Claims")
-          (println "5     =not=>    even?      ; Invert the check. Synonym: =deny=>")
-          (println "(f)   =future=> :halts?    ; don't check, but issue reminder.")
-          (println "(m x) =expands-to=> form   ; expand macro and check result")
-          (println)
-          (println "* Prerequisites")
-          (println "..meta.. =contains=> {:a 1} ; partial specification of map-like object")
-          (println "(f)      =streams=>  (range 5 1000)")
-          (println "(f)      =throws=>   (IllegalArgumentException. \"boom\")"))))))
