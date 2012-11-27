@@ -4,7 +4,6 @@
         [gui-diff.internal :only [nested-sort]]
         [midje.util.object-utils :only [function-name function-name-or-spewage named-function?]]
         midje.error-handling.exceptions
-        [midje.internal-ideas.fact-context :only [format-nested-descriptions]]
         [midje.util.form-utils :only [pred-cond]])
   (:require [midje.util.colorize :as color]
             [clojure.string :as str]))
@@ -23,6 +22,14 @@
     named-function?     (format "a function named '%s'" (function-name form))
     captured-throwable? (friendly-stacktrace form)
     :else               (pr-sorted form)))
+
+(defn format-nested-descriptions
+  "Takes vector like [\"about cars\" nil \"sports cars are fast\"] and returns non-nils joined with -'s
+   => \"about cars - sports cars are fast\""
+  [nested-description-vector]
+  (when-let [non-nil (seq (remove nil? nested-description-vector))]
+    (str/join " - " non-nil)))
+
 
 (letfn [(fail-at [m]
           (let [description (when-let [doc (format-nested-descriptions (:description m))]

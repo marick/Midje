@@ -29,12 +29,3 @@
 (deftest outside-of-the-contexts-there-is-no-fact-description-at-all 
     (is (= @nested-descriptions [])))
 
-(tabular "nested-descriptions can be formatted as '-' separated"
-  (fact 
-    (format-nested-descriptions descriptions) => result)
-  
-  descriptions      result
-  ["a" "b" "c"]     "a - b - c" 
-  ["a" nil "c"]     "a - c"
-  nil               nil
-  []                nil )

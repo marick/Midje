@@ -19,13 +19,3 @@
        (#'leave-runtime-context))))
 
 
-;; A way to format the description - keeping formatting separate from representation.
-
-; Used in the report
-
-(defn format-nested-descriptions
-  "Takes vector like [\"about cars\" nil \"sports cars are fast\"] and returns non-nils joined with -'s
-   => \"about cars - sports cars are fast\""
-  [nested-description-vector]
-  (when-let [non-nil (seq (remove nil? nested-description-vector))]
-    (join " - " non-nil)))

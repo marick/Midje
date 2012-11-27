@@ -5,6 +5,18 @@
   (:require [clojure.test :as t]
             [clojure.test.junit :as junit]))
 
+
+(tabular "nested-descriptions can be formatted as '-' separated"
+  (fact 
+    (format-nested-descriptions descriptions) => result)
+  
+  descriptions      result
+  ["a" "b" "c"]     "a - b - c" 
+  ["a" nil "c"]     "a - c"
+  nil               nil
+  []                nil )
+
+
 ;; These tests generate failures to examine. We don't want them to be
 ;; added to the total failure count, which should always be zero.
 (without-counting-failures
