@@ -22,7 +22,6 @@
                                        against-background-facts-and-checks-wrappers
                                        against-background?]]
         [midje.ideas.metaconstants :only [define-metaconstants]]
-        [midje.ideas.metadata :only [separate-metadata]]
         [midje.util.form-utils :only [def-many-methods first-named? translate-zipper
                                       preserve-type quoted? pred-cond reader-line-number named?]]
         [midje.util.laziness :only [eagerly]]
@@ -30,6 +29,8 @@
         [swiss-arrows.core :only [-<>]])
   (:require [clojure.zip :as zip])
   (:require [midje.internal-ideas.compendium :as compendium]
+            [midje.ideas.reporting.levels :as levelly]
+            [midje.ideas.metadata :as metadata]
             midje.ideas.reporting.report))
 
 (defn fact? [form]
@@ -50,7 +51,7 @@
 
 (defn future-fact* [form]
   (let [lineno (reader-line-number form)
-        [metadata _] (separate-metadata form)]
+        [metadata _] (metadata/separate-metadata form)]
     `(within-runtime-fact-context ~(:midje/description metadata)
        (clojure.test/report {:type :future-fact
                              :description @midje.internal-ideas.fact-context/nested-descriptions
@@ -203,7 +204,8 @@
   (when (:midje/top-level-fact? (meta fact-function))
     (compendium/record-fact-check! fact-function))
   (#'midje.ideas.reporting.report/fact-begins)
-  (within-runtime-fact-context (:midje/description (meta fact-function))
-   (fact-function))
+  (levelly/report-changed-namespace (metadata/fact-namespace fact-function))
+  (levelly/report-checking-fact fact-function)
+  (within-runtime-fact-context (metadata/fact-description fact-function)
+      (fact-function))
   (#'midje.ideas.reporting.report/fact-checks-out?))
-    

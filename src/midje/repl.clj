@@ -31,11 +31,7 @@
 
 (defn- check-facts-once-given [fact-functions]
   (levelly/forget-past-results)
-  (let [run-one (fn [fun]
-                  (levelly/report-changed-namespace (fact-namespace fun))
-                  (levelly/report-checking-fact fun)
-                  (fact/check-one fun))
-        results (doall (map run-one fact-functions))]
+  (let [results (doall (map fact/check-one fact-functions))]
     (levelly/report-summary)
     (every? true? results)))
   

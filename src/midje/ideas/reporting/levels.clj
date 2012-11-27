@@ -5,8 +5,7 @@
         [midje.error-handling.exceptions :only [user-error]]
         midje.ideas.reporting.level-defs
         clojure.pprint)
-  (:require midje.sweet
-            [midje.clojure-test-facade :as ctf]
+  (:require [midje.clojure-test-facade :as ctf]
             [midje.util.colorize :as color]
             [midje.config :as config]
             [clojure.string :as str]

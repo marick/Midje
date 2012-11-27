@@ -13,7 +13,7 @@
     => (throws #":unknown.*not a valid :print-level"))
 
   (fact "the appropriate functions call validate"
-    (let [valid-map {:print-level ..whatever..}]
+    (let [valid-map {:print-level :print-normally}]
       (config/with-temporary-config valid-map) => irrelevant
       (provided (config/validate! valid-map) => anything)
 
