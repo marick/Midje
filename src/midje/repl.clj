@@ -28,14 +28,14 @@
                                 ;;; Miscellaneous utilities
 
 
-(defn- check-facts-once-given [fact-functions print-level]
+(defn- check-facts-once-given [fact-functions]
   (levelly/forget-past-results)
   (let [run-one (fn [fun]
-                  (levelly/report-changed-namespace (fact-namespace fun) print-level)
-                  (levelly/report-best-fact-name fun print-level)
+                  (levelly/report-changed-namespace (fact-namespace fun))
+                  (levelly/report-checking-fact fun)
                   (fun))
         results (doall (map run-one fact-functions))]
-    (levelly/report-summary print-level)
+    (levelly/report-summary)
     (every? true? results)))
   
 
@@ -59,17 +59,17 @@
 (defn load-facts*
   "Functional form of `load-facts`."
   [args]
-  (let [[print-level args] (levelly/separate-verbosity args)
-        desired-namespaces (if (empty? args)
-                             (mapcat namespaces-in-dir (paths-to-load))
-                             (expand-namespaces args))]
+  (levelly/obeying-print-levels [args args]
+    (let [desired-namespaces (if (empty? args)
+                               (mapcat namespaces-in-dir (paths-to-load))
+                               (expand-namespaces args))]
     (levelly/forget-past-results)
     (doseq [ns desired-namespaces]
       (forget-facts ns)
-      (levelly/report-changed-namespace ns print-level)
+      (levelly/report-changed-namespace ns)
       (require ns :reload))
-    (levelly/report-summary print-level)
-    nil))
+    (levelly/report-summary)
+    nil)))
 
 (defmacro load-facts 
   "Load given namespaces, described with unquoted symbols, as in:
@@ -169,9 +169,9 @@
        Matches are position independent: \"word\" matches \"a word b\".
    The return value is `true` if all the facts check out."
   [& args]
-  (let [[print-level args] (levelly/separate-verbosity args)
-        fact-functions (apply fetch-facts args)]
-    (check-facts-once-given fact-functions print-level)))
+  (levelly/obeying-print-levels [args args]
+    (let [fact-functions (apply fetch-facts args)]
+    (check-facts-once-given fact-functions))))
     
 
                                 ;;; The history of checked facts
@@ -192,8 +192,8 @@
    When facts are nested, the entire outer-level fact is rechecked.
    The result is true if the fact checks out."
   [& args]
-  (let [[print-level _] (levelly/separate-verbosity args)]
-    (check-facts-once-given [(last-fact-checked)] print-level)))
+  (levelly/obeying-print-levels [args args]
+    (check-facts-once-given [(last-fact-checked)])))
 
 (def ^{:doc "Synonym for `recheck-fact`."} rcf recheck-fact)
 

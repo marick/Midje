@@ -5,7 +5,10 @@
   (:require [midje.internal-ideas.compendium :as compendium]
             [midje.clojure-test-facade :as ctf]
             [midje.ideas.reporting.levels :as levelly]
+            [midje.config :as config]
             midje.util))
+
+(config/with-temporary-config {:print-level :print-no-summary}
 
                                 ;;; Forgetting facts
 (defn add-fact
@@ -106,8 +109,8 @@
 (forget-facts :all)
 
 ;; Nothing to do, but we're quiet about it.
-(check-facts :print-no-summary)
-(check-facts *ns* :print-no-summary)
+(check-facts)
+(check-facts *ns*)
 
 
 ;; Running facts resets the fact count before running.
@@ -118,7 +121,7 @@
 (fact :check-only-at-load-time
   (:pass (ctf/counters)) => 2)
 
-(check-facts :print-no-summary)
+(check-facts)
 
 (fact :check-only-at-load-time
   (:pass (ctf/counters)) => 2)
@@ -140,7 +143,7 @@
 (reset! succeed false)
 (reset! fail false)
 (run-silently
- (check-facts :print-no-summary))
+ (check-facts))
 
 (fact "Both facts were checked"
   :check-only-at-load-time
@@ -163,28 +166,28 @@
   (swap! anonymous-fact-count inc)
   (+ 2 2) => 4)
 
-(check-facts :print-no-summary)                                 ; run this namespace
+(check-facts)                                 ; run this namespace
 
 (fact :check-only-at-load-time
   @named-fact-count => 2
   @anonymous-fact-count => 2)
 
-(check-facts *ns* :print-no-summary)                            ; Explicit namespace arg
+(check-facts *ns*)                            ; Explicit namespace arg
 (fact :check-only-at-load-time
   @named-fact-count => 3
   @anonymous-fact-count => 3)
 
-(check-facts (ns-name *ns*) :print-no-summary)                 ; Symbol namespace name
+(check-facts (ns-name *ns*))                 ; Symbol namespace name
 (fact :check-only-at-load-time
   @named-fact-count => 4
   @anonymous-fact-count => 4)
 
-(check-facts 'clojure.core :print-no-summary)                 ; A different namespace
+(check-facts 'clojure.core)                 ; A different namespace
 (fact :check-only-at-load-time
   @named-fact-count => 4
   @anonymous-fact-count => 4)
 
-(check-facts :print-no-summary *ns* *ns*)                    ; Multiple args
+(check-facts *ns* *ns*)                    ; Multiple args
 (fact :check-only-at-load-time
   @named-fact-count => 6
   @anonymous-fact-count => 6)
@@ -202,7 +205,7 @@
   (swap! integration-run-count inc))
 
 
-(check-facts :print-no-summary
+(check-facts
              #(-> % :midje/name (= "unobtrusive-fact")))
 
 (fact
@@ -210,7 +213,7 @@
   @unobtrusive-fact-run-count => 2
   @integration-run-count => 1)
 
-(check-facts :integration :print-no-summary)
+(check-facts :integration)
 (fact
   :check-only-at-load-time
   @unobtrusive-fact-run-count => 2
@@ -238,7 +241,7 @@
   (fact-name (first (fetch-facts :all))) => "outer")
 
 ;; Both get run, though.
-(check-facts :print-no-summary)
+(check-facts)
 
 (fact
   @outer-count => 2
@@ -259,7 +262,7 @@
 ;; If two facts were now defined, the run-count would
 ;; increment when we do this:
 
-(check-facts :print-no-summary)
+(check-facts)
 (fact "But only one is defined"
   :check-only-at-load-time
   @run-count => 1)
@@ -282,7 +285,7 @@
   :check-only-at-load-time
   (count (fetch-facts :all)) => 1)
 
-(check-facts :print-no-summary)
+(check-facts)
 (fact :check-only-at-load-time @run-count => 3)
 
 
@@ -294,7 +297,7 @@
   (reset! run-count 1)
   (+ 1 1) => 2)
 
-(recheck-fact :print-no-summary)
+(recheck-fact)
 
 (fact :check-only-at-load-time
   @run-count => 1)
@@ -309,7 +312,7 @@
   ;; Previous results still in counters
   (> (:pass (ctf/counters)) 1) => truthy)
 
-(rcf :print-no-summary)
+(rcf)
 
 (fact :check-only-at-load-time
   (:pass (ctf/counters)) => 1)
@@ -325,7 +328,7 @@
     (swap! inner-run-count inc)
     (fact (- 1 1) => 0)))
 
-(rcf :print-no-summary)
+(rcf)
 
 (fact "The last fact check is the outermost nested check"
   :check-only-at-load-time
@@ -342,7 +345,7 @@
   (fact "inner 2"
     (swap! run-count inc)))
 
-(recheck-fact :print-no-summary)
+(recheck-fact)
 
 (fact :check-only-at-load-time
   @run-count => 4)
@@ -360,7 +363,7 @@
   1  2  3
   2  2  4)
 
-(recheck-fact :print-no-summary)
+(recheck-fact)
 
 (fact :check-only-at-load-time
   @run-count => 4)
@@ -375,7 +378,7 @@
 (fact (+ 2 2) => 4)
 (def two-plus-two (last-fact-checked))
 
-(recheck-fact :print-no-summary)
+(recheck-fact)
 
 (fact :check-only-at-load-time
   (fact-source (last-fact-checked)) => (fact-source two-plus-two))
@@ -420,8 +423,7 @@
   (against-background ; These always happen.
     (levelly/forget-past-results) => anything
     (forget-facts ..expanded..) => anything
-    (require ...expanded... :reload) => anything
-    (levelly/report-summary -2) => anything)
+    (require ...expanded... :reload) => anything)
 
   (load-facts :print-nothing 'ns.foo) => nil
   (provided
@@ -437,3 +439,4 @@
     (bultitude.core/namespaces-in-dir ..path..) => [..expanded..]))
 
 ) ;; ignoring counter changes
+)
