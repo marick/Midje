@@ -44,20 +44,36 @@
     (str "[" (join "\n                           " formatted-entries) "]")))
 
 (defn- ^{:testable true } add-binding-note
-  [letfn-fact-form ordered-binding-map]
-  (letfn [(translate-letfn-body [expect-containing-form]
+  [checking-fact-form ordered-binding-map]
+  ;; A binding note should be added if the structure of the
+  ;; `checking-fact-form` is this:
+  ;;    (check-one-fact
+  ;;      (letfn [...] <letfn-body>
+  ;;
+  ;; It is the <letfn-body> that must be searched for expect forms,
+  ;; which then have annotations added to them.
+  (letfn [(acceptable-body? []
+            (and (sequential? checking-fact-form)
+                 (symbol? (first checking-fact-form))
+                 (= (name (first checking-fact-form)) "check-one")))
+
+          (target-body []
+            (-> checking-fact-form second second first rest second))
+
+          (translate-letfn-body [expect-containing-form]
            (translate-zipper expect-containing-form
                              expect? one-binding-note))
+
           (one-binding-note [loc]
             (skip-to-rightmost-leaf
              (above-arrow-sequence__add-key-value__at-arrow
               :binding-note (format-binding-map ordered-binding-map) loc)))]
-    (if (and (sequential? (first letfn-fact-form))
-             (= (ffirst letfn-fact-form) 'clojure.core/letfn))
-      (let [letfn-body (-> letfn-fact-form first second first rest second)]
+
+    (if (acceptable-body?)
+      (let [letfn-body (target-body)]
         (clojure.walk/prewalk-replace {letfn-body (translate-letfn-body letfn-body)}
-                                      letfn-fact-form))
-      letfn-fact-form)))
+                                      checking-fact-form))
+      checking-fact-form)))
 
 (defn tabular* [locals form]
   (letfn [(macroexpander-for [fact-form]

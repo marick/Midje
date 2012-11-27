@@ -29,10 +29,8 @@
         [midje.util.zip :only [skip-to-rightmost-leaf]]
         [swiss-arrows.core :only [-<>]])
   (:require [clojure.zip :as zip])
-  (:require [midje.ideas.reporting.report :as report]
-            [midje.internal-ideas.compendium :as compendium]))
-
-(declare creation-time-fact-processing with-top-level-fact-at-check-time with-fact-at-check-time)
+  (:require [midje.internal-ideas.compendium :as compendium]
+            midje.ideas.reporting.report))
 
 (defn fact? [form]
   (or (first-named? form "fact")
@@ -124,47 +122,34 @@
     :else        form))
 
 (defn expand-fact-body [forms metadata]
-    (letfn [(wrap-in-runtime-fact-context [to-be-wrapped]
-              `(within-runtime-fact-context ~(:midje/description metadata)
-                                            ~to-be-wrapped))]
-      (-> forms
-          annotate-embedded-arrows-with-line-numbers
-          to-semi-sweet
-          unfold-fakes
-          surround-with-background-fakes
-          midjcoexpand
-          (multiwrap (forms-to-wrap-around :facts))
-          wrap-in-runtime-fact-context
-          report/form-providing-friendly-return-value)))
+  (-> forms
+      annotate-embedded-arrows-with-line-numbers
+      to-semi-sweet
+      unfold-fakes
+      surround-with-background-fakes
+      midjcoexpand
+      (multiwrap (forms-to-wrap-around :facts))))
 
 
-;;; Compendium processing
+;;; Check-time processing
 
-(defn convert-expanded-body-to-compendium-form
+(defn wrap-with-check-time-code
   ([expanded-body metadata]
-     (convert-expanded-body-to-compendium-form expanded-body metadata
+     (wrap-with-check-time-code expanded-body metadata
                                                (gensym 'this-function-here-)))
 
   ;; Having two versions lets tests not get stuck with a gensym.
   ([expanded-body metadata this-function-here-symbol]
-     (letfn [(put-check-time-fact-recording-in-body [body]
-               (if (working-on-top-level-fact?)
-                 `(do (compendium/record-fact-check! (~this-function-here-symbol))
-                      ~body)
-                 body))
-             
-             (make-a-form-that-returns-a-self-aware-fact-function [body]
-               `(letfn [(base-function# [] ~body)
-                        (~this-function-here-symbol []
-                          (with-meta base-function# '~metadata))]
-                  (~this-function-here-symbol)))]
-       
-       (-> expanded-body
-           put-check-time-fact-recording-in-body
-           make-a-form-that-returns-a-self-aware-fact-function))))
-
+     `(letfn [(base-function# [] ~expanded-body)
+              (~this-function-here-symbol []
+                (with-meta base-function#
+                  (merge '~metadata
+                         {:midje/top-level-fact? ~(working-on-top-level-fact?)})))]
+        (~this-function-here-symbol))))
 
 ;;; Load-time processing
+
+(declare check-one)
 
 (defn wrap-with-creation-time-code [function-form]
   (letfn [;; The rather hackish construction here is to keep
@@ -173,14 +158,10 @@
           (wrap-with-creation-time-fact-recording [function-form]
             (if (working-on-top-level-fact?)
               `(creation-time-fact-processing ~function-form)
-              ;; `((fn [fact-function#]
-              ;;     (creation-time-fact-processing fact-function#)
-              ;;     fact-function#)
-              ;;   ~function-form)
               function-form))
           
           (run-after-creation [function-form]
-            `(~function-form))]
+            `(check-one ~function-form))]
 
     (define-metaconstants function-form)
     (-> function-form
@@ -207,19 +188,22 @@
   (given-possible-fact-nesting
    (-> forms
        (expand-fact-body metadata)
-       (convert-expanded-body-to-compendium-form metadata)
+       (wrap-with-check-time-code metadata)
        wrap-with-creation-time-code)))
 
 
 ;;; Fact execution utilities
 
+
 (defn creation-time-fact-processing [fact-function]
   (compendium/record-fact-existence! fact-function)
   fact-function)
 
-(defn with-top-level-fact-at-check-time [fact-function]
-  (prn "top time" (meta fact-function)))
-
-(defn with-fact-at-check-time [fact-function]
-  (prn "top time" (meta fact-function)))
-  
+(defn check-one [fact-function]
+  (when (:midje/top-level-fact? (meta fact-function))
+    (compendium/record-fact-check! fact-function))
+  (#'midje.ideas.reporting.report/fact-begins)
+  (within-runtime-fact-context (:midje/description (meta fact-function))
+   (fact-function))
+  (#'midje.ideas.reporting.report/fact-checks-out?))
+    

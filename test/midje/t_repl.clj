@@ -383,7 +383,7 @@
 (fact :check-only-at-load-time
   (fact-source (last-fact-checked)) => (fact-source two-plus-two))
 
-(one-plus-one)
+(check-one-fact one-plus-one)
 (fact :check-only-at-load-time
   (fact-source (last-fact-checked)) => (exactly (fact-source one-plus-one)))
 

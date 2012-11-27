@@ -193,10 +193,11 @@
   => [ (ordered-map '?a 1, '?b 2, '?result 3) ])
 
 (defn as-received-by-add-binding-note [body]
-  (list (facts/convert-expanded-body-to-compendium-form
-         body
-         {:some-fact-metadata true}
-         'symbol-to-name-function-with)))
+  (facts/wrap-with-creation-time-code 
+    (facts/wrap-with-check-time-code
+      body
+      {:some-fact-metadata true}
+      'symbol-to-name-function-with)))
 
 
 (tabular (fact ?comment

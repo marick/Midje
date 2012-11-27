@@ -4,6 +4,7 @@
   (:use [bultitude.core :only [namespaces-in-dir namespaces-on-classpath]]
         clojure.pprint)
   (:require midje.sweet
+            [midje.ideas.facts :as fact]
             [midje.internal-ideas.compendium :as compendium]
             [midje.ideas.reporting.levels :as levelly]
             [midje.ideas.metadata :as metadata]
@@ -33,7 +34,7 @@
   (let [run-one (fn [fun]
                   (levelly/report-changed-namespace (fact-namespace fun))
                   (levelly/report-checking-fact fun)
-                  (fun))
+                  (fact/check-one fun))
         results (doall (map run-one fact-functions))]
     (levelly/report-summary)
     (every? true? results)))
@@ -155,6 +156,9 @@
 
                                 ;;; Checking facts
 
+(def ^{:doc "Check a single fact. Takes as its argument a function such
+    as is returned by `last-fact-checked`."}
+  check-one-fact fact/check-one)
 
 (defn check-facts
   "Checks the facts described by the args.

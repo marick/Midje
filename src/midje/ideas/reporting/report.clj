@@ -50,12 +50,6 @@
   (defmethod clojure.test/report :begin-test-ns [m]))
 
 
-(defn form-providing-friendly-return-value [test-form]
-  `(do 
-     (#'fact-begins)
-     ~test-form
-     (#'fact-checks-out?)))
-  
 (letfn [(render [m]
           (->> m 
                ((:single-fact-fn *report-format-config*)) 
