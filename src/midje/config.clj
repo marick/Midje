@@ -3,7 +3,8 @@
   (:refer-clojure :exclude [assoc!])
   (:use [midje.error-handling.exceptions :only [user-error]])
   (:require midje.ideas.reporting.level-defs
-            [clojure.set :as set]))
+            [clojure.set :as set]
+            [midje.util.ecosystem :as ecosystem]))
   
 
 
@@ -51,3 +52,5 @@
   [& kvs]
   (merge! (apply hash-map kvs)))
 
+(if (ecosystem/has-config-file?)
+  (load-file ecosystem/config-file-name))

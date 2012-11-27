@@ -1,6 +1,7 @@
 (ns ^{:doc "Environmental factors."}
   midje.util.ecosystem
-  (:use [bultitude.core :only [namespaces-in-dir]]))
+  (:use [bultitude.core :only [namespaces-in-dir]])
+  (:require [clojure.string :as str]))
 
 (def issues-url "https://github.com/marick/Midje/issues")
 
@@ -61,4 +62,14 @@
     (not (empty? (filter #(.contains % "clojure.main$repl$read_eval_print")
                          (map str (.getStackTrace e))))))))
 
+(def config-file-name (str/join java.io.File/separator
+                                [(getenv "HOME") ".midje"]))
   
+(defn has-config-file? []
+  (if (not (getenv "HOME"))
+    false
+    (.exists (new java.io.File config-file-name))))
+
+        
+
+        
