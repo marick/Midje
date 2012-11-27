@@ -63,7 +63,7 @@
                          (map str (.getStackTrace e))))))))
 
 (def config-file-name (str/join java.io.File/separator
-                                [(getenv "HOME") ".midje"]))
+                                [(getenv "HOME") ".midje.clj"]))
   
 (defn has-config-file? []
   (if (not (getenv "HOME"))
