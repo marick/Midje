@@ -32,6 +32,8 @@
   (:require [midje.ideas.reporting.report :as report]
             [midje.internal-ideas.compendium :as compendium]))
 
+(declare creation-time-fact-processing with-top-level-fact-at-check-time with-fact-at-check-time)
+
 (defn fact? [form]
   (or (first-named? form "fact")
       (first-named? form "facts")))
@@ -164,16 +166,17 @@
 
 ;;; Load-time processing
 
-(defn wrap-with-load-time-code [function-form]
+(defn wrap-with-creation-time-code [function-form]
   (letfn [;; The rather hackish construction here is to keep
           ;; the expanded fact body out of square brackets because
           ;; `tabular` expansions use `seq-zip`. 
           (wrap-with-creation-time-fact-recording [function-form]
             (if (working-on-top-level-fact?)
-              `((fn [fact-function#]
-                  (compendium/record-fact-existence! fact-function#)
-                  fact-function#)
-                ~function-form)
+              `(creation-time-fact-processing ~function-form)
+              ;; `((fn [fact-function#]
+              ;;     (creation-time-fact-processing fact-function#)
+              ;;     fact-function#)
+              ;;   ~function-form)
               function-form))
           
           (run-after-creation [function-form]
@@ -205,6 +208,18 @@
    (-> forms
        (expand-fact-body metadata)
        (convert-expanded-body-to-compendium-form metadata)
-       wrap-with-load-time-code)))
+       wrap-with-creation-time-code)))
 
 
+;;; Fact execution utilities
+
+(defn creation-time-fact-processing [fact-function]
+  (compendium/record-fact-existence! fact-function)
+  fact-function)
+
+(defn with-top-level-fact-at-check-time [fact-function]
+  (prn "top time" (meta fact-function)))
+
+(defn with-fact-at-check-time [fact-function]
+  (prn "top time" (meta fact-function)))
+  
