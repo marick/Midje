@@ -95,7 +95,7 @@
             (complete-fact-transformation metadata remainder)))
         (catch Exception ex
           `(do
-             (fact-context/within-runtime-fact-context ~(:midje/description metadata)
+             (fact-context/adds ~(:midje/description metadata)
                (ct/report {:type :exceptional-user-error
                            :description (fact-context/nested-descriptions)
                            :macro-form '~&form

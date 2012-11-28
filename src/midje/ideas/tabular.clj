@@ -4,7 +4,6 @@
         [clojure.algo.monads :only [domonad]]
         [midje.error-handling.validation-errors :only [simple-validation-error-report-form validate-m validate]]
         [midje.ideas.metadata :only [separate-metadata promote-metadata]]
-        [midje.internal-ideas.fact-context :only [within-runtime-fact-context]]
         [midje.internal-ideas.file-position :only [form-with-copied-line-numbers]]
         [midje.util.form-utils :only [pop-docstring translate-zipper]]
         [midje.util.deprecation :only [deprecate]]

@@ -206,6 +206,6 @@
   (#'midje.ideas.reporting.report/fact-begins)
   (levelly/report-changed-namespace (metadata/fact-namespace fact-function))
   (levelly/report-checking-fact fact-function)
-  (fact-context/within-runtime-fact-context (metadata/fact-description fact-function)
+  (fact-context/adds (metadata/fact-description fact-function)
       (fact-function))
   (#'midje.ideas.reporting.report/fact-checks-out?))
