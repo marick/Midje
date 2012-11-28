@@ -95,12 +95,11 @@
             (complete-fact-transformation metadata remainder)))
         (catch Exception ex
           `(do
-             (fact-context/adds ~(:midje/description metadata)
-               (ct/report {:type :exceptional-user-error
-                           :description (fact-context/nested-descriptions)
-                           :macro-form '~&form
-                           :stacktrace '~(user-error-exception-lines ex)
-                           :position (midje.internal-ideas.file-position/line-number-known ~(:line (meta &form)))}))
+             (ct/report {:type :exceptional-user-error
+                         :description (fact-context/nested-descriptions ~(:midje/description metadata))
+                         :macro-form '~&form
+                         :stacktrace '~(user-error-exception-lines ex)
+                         :position (midje.internal-ideas.file-position/line-number-known ~(:line (meta &form)))})
              false))))))
 
 (defmacro facts 
