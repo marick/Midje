@@ -94,3 +94,29 @@
   '(fact {:a 1 :b 2} "name" (dorm))   '((dorm)))
 
 
+;;; Predicate constructors
+
+
+(fact "name matching"
+  (name-matches? "foo" {:midje/name "ofoop"}) => true
+  (name-matches? "foo" {:midje/name "ooop"}) => false
+  (name-matches? "foo" {}) => false
+  (name-matches? #"fo." {:midje/name "ofop"}) => true
+  (name-matches? #"fo." {:midje/name "ooop"}) => false
+  (name-matches? #"fo." {}) => false)
+    
+(fact "filter predicates"
+  (fact "single entries"
+    ((filter-pred-for-fact-creation "foo") {:midje/name "ofoop"}) => true
+    ((filter-pred-for-fact-creation #"foo") {:midje/name "ofoop"}) => true
+    ((filter-pred-for-fact-creation #"foo") {}) => false
+    ((filter-pred-for-fact-creation :valiant) {:valiant "yes!"}) => true
+    ((filter-pred-for-fact-creation :valiant) {}) => false
+    ((filter-pred-for-fact-creation #(= "yes!" (:valiant %))) {:valiant "yes!"}) => true
+    ((filter-pred-for-fact-creation #(= "yes!" (:valiant %))) {:valiant "nope"}) => false)
+
+  (fact "multiple entries act as 'or'"
+    (let [combo (filter-pred-for-fact-creation #"foo" :valiant)]
+      (combo {:midje/name "ofoop"}) => true
+      (combo {:valiant true}) => true
+      (combo {}) => false)))

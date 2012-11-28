@@ -1,6 +1,7 @@
 (ns ^{:doc "Metadata is attached to facts and fact tables"}
   midje.ideas.metadata
   (:use [midje.ideas.arrows :only [start-of-checking-arrow-sequence?]])
+  (:require [midje.util.form-utils :as form])
   (:require [clojure.string :as str]))
 
 (def ^{:dynamic true} metadata-for-fact-group {})
@@ -98,3 +99,26 @@
           :else
           outer-form)))
 
+(defn name-matcher? [desired]
+  (or (string? desired)
+      (form/regex? desired)))
+
+(defn strictly [loose-predicate]
+  (comp not not loose-predicate))
+
+(def any? (strictly some))  ; Sigh.
+
+(defn name-matches? [desired metadata]
+  (if-let [given-name (:midje/name metadata)]
+    (if (string? desired)
+      (.contains given-name desired)
+      ((strictly re-find) desired given-name))
+    false))
+
+(defn filter-pred-for-fact-creation [& desireds]
+  (letfn [(make-one [desired]
+            (if (name-matcher? desired)
+              (partial name-matches? desired)
+              (strictly desired)))]
+    (fn [metadata]
+      (any? true? ((apply juxt (map make-one desireds)) metadata)))))

@@ -63,6 +63,10 @@
     (levelly/forget-past-results)
     (doseq [ns desired-namespaces]
       (forget-facts ns)
+      ;; Following strictly unnecessary, but slightly useful because
+      ;; it reports the changed namespace before the first fact loads.
+      ;; That way, some error in the fresh namespace won't appear to
+      ;; come from the last-loaded namespace.
       (levelly/report-changed-namespace ns)
       (require ns :reload))
     (levelly/report-summary)
@@ -100,13 +104,8 @@
   [& args]
   (let [args (if (empty? args) [*ns*] args)]
     (mapcat (fn [arg]
-              (cond (string? arg)
-                    (filter #(and (fact-name %)
-                                  (.contains (fact-name %) arg))
-                            (compendium/all-facts<>))
-                    
-                    (form/regex? arg)
-                    (filter #(re-find arg (fact-name %))
+              (cond (metadata/name-matcher? arg)
+                    (filter (comp (partial metadata/name-matches? arg) meta)
                             (compendium/all-facts<>))
                     
                     (= arg :all)
@@ -167,7 +166,11 @@
    * If the argument is a string or regexp, any fact whose name
        (typically the doc string) matches the argument is checked.
        Matches are position independent: \"word\" matches \"a word b\".
-   The return value is `true` if all the facts check out."
+   The return value is `true` if all the facts check out.
+
+   Note: Multiple arguments have the effect of concatenating the
+   matches for each one. That can lead to duplicates. I'll fix it
+   if anyone ever cares."
   [& args]
   (levelly/obeying-print-levels [args args]
     (let [fact-functions (apply fetch-facts args)]
