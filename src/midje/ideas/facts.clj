@@ -52,10 +52,10 @@
 (defn future-fact* [form]
   (let [lineno (reader-line-number form)
         [metadata _] (metadata/separate-metadata form)]
-    `(fact-context/within-runtime-fact-context ~(:midje/description metadata)
-       (clojure.test/report {:type :future-fact
-                             :description (fact-context/nested-descriptions)
-                             :position (midje.internal-ideas.file-position/line-number-known ~lineno)}))))
+    `(clojure.test/report {:type :future-fact
+                           :description (fact-context/nested-descriptions
+                                         ~(:midje/description metadata))
+                           :position (midje.internal-ideas.file-position/line-number-known ~lineno)})))
 
                                 ;;; Fact processing
 

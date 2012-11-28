@@ -75,10 +75,10 @@
 (defmethod expect-expansion =future=>
   [call-form arrow expected-result _fakes_ overrides]
   `(let [check# (unprocessed-check ~call-form ~arrow ~expected-result ~overrides)]
-     (fact-context/within-runtime-fact-context ~(str "on `" call-form "`")
-       (clojure.test/report {:type :future-fact
-                             :description (fact-context/nested-descriptions)
-                             :position (:position check#)}))))
+     (clojure.test/report {:type :future-fact
+                           :description (fact-context/nested-descriptions
+                                         ~(str "on `" call-form "`"))
+                           :position (:position check#)})))
 
 ;;; Interface: unfinished
 

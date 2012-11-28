@@ -29,3 +29,9 @@
 (deftest outside-of-the-contexts-there-is-no-fact-description-at-all 
     (is (= (nested-descriptions) [])))
 
+(deftest nested-descriptions-can-take-an-argument-to-tack-on
+  (within-runtime-fact-context "level 1"
+    (within-runtime-fact-context "level 2"
+      (within-runtime-fact-context "level 3"
+        (is (= (nested-descriptions "level 4")
+               ["level 1" "level 2" "level 3" "level 4"]))))))

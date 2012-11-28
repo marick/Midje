@@ -5,8 +5,9 @@
 
 (def ^{:dynamic true} *fact-context* [])
 
-(defn nested-descriptions []
-  *fact-context*)
+(defn nested-descriptions
+  ([] *fact-context*)
+  ([addition] (conj *fact-context* addition)))
 
 (defmacro within-runtime-fact-context [description & body]
   `(binding [*fact-context* (conj *fact-context* ~description)]
