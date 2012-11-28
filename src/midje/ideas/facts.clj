@@ -7,7 +7,6 @@
         [midje.internal-ideas.expect :only [expect?
                                             wrap-with-expect__then__at-rightmost-expect-leaf]]
         [midje.internal-ideas.file-position :only [annotate-embedded-arrows-with-line-numbers]]
-        [midje.internal-ideas.fact-context :only [within-runtime-fact-context]]
         [midje.internal-ideas.wrapping :only [already-wrapped?
                                               multiwrap
                                               with-additional-wrappers
@@ -30,6 +29,7 @@
   (:require [clojure.zip :as zip])
   (:require [midje.internal-ideas.compendium :as compendium]
             [midje.ideas.reporting.levels :as levelly]
+            [midje.internal-ideas.fact-context :as fact-context]
             [midje.ideas.metadata :as metadata]
             midje.ideas.reporting.report))
 
@@ -52,9 +52,9 @@
 (defn future-fact* [form]
   (let [lineno (reader-line-number form)
         [metadata _] (metadata/separate-metadata form)]
-    `(within-runtime-fact-context ~(:midje/description metadata)
+    `(fact-context/within-runtime-fact-context ~(:midje/description metadata)
        (clojure.test/report {:type :future-fact
-                             :description @midje.internal-ideas.fact-context/nested-descriptions
+                             :description (fact-context/nested-descriptions)
                              :position (midje.internal-ideas.file-position/line-number-known ~lineno)}))))
 
                                 ;;; Fact processing
@@ -206,6 +206,6 @@
   (#'midje.ideas.reporting.report/fact-begins)
   (levelly/report-changed-namespace (metadata/fact-namespace fact-function))
   (levelly/report-checking-fact fact-function)
-  (within-runtime-fact-context (metadata/fact-description fact-function)
+  (fact-context/within-runtime-fact-context (metadata/fact-description fact-function)
       (fact-function))
   (#'midje.ideas.reporting.report/fact-checks-out?))

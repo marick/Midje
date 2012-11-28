@@ -7,7 +7,6 @@
   (:use clojure.test
         midje.internal-ideas.fakes
         midje.internal-ideas.file-position
-        [midje.internal-ideas.fact-context :only [nested-descriptions within-runtime-fact-context]]
         [midje.util debugging form-utils namespace]
         [midje.util.deprecation :only [deprecate]]
         midje.error-handling.validation-errors
@@ -18,7 +17,9 @@
         midje.production-mode
         [clojure.algo.monads :only [domonad]]
         clojure.pprint
-        [clojure.string :only [join]]))
+        [clojure.string :only [join]])
+  (:require [midje.internal-ideas.fact-context :as fact-context]))
+
 (immigrate 'midje.unprocessed)
 (immigrate 'midje.ideas.arrow-symbols)
 
@@ -45,7 +46,7 @@
    failure. See 'expect*'."
   [call-form arrow expected-result overrides]
   `(merge
-    {:description @nested-descriptions
+    {:description (fact-context/nested-descriptions)
      :function-under-test (fn [] ~call-form)
      :expected-result ~expected-result
      :desired-check ~(check-for-arrow arrow)
@@ -74,9 +75,9 @@
 (defmethod expect-expansion =future=>
   [call-form arrow expected-result _fakes_ overrides]
   `(let [check# (unprocessed-check ~call-form ~arrow ~expected-result ~overrides)]
-     (within-runtime-fact-context ~(str "on `" call-form "`")
+     (fact-context/within-runtime-fact-context ~(str "on `" call-form "`")
        (clojure.test/report {:type :future-fact
-                             :description @nested-descriptions
+                             :description (fact-context/nested-descriptions)
                              :position (:position check#)}))))
 
 ;;; Interface: unfinished

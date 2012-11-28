@@ -11,8 +11,6 @@
         midje.util.debugging
         [midje.util.form-utils :only [macro-for]]
         [midje.internal-ideas.wrapping :only [put-wrappers-into-effect]]
-        [midje.internal-ideas.fact-context :only [nested-descriptions
-                                                  within-runtime-fact-context]]
         [midje.internal-ideas.file-position :only [set-fallback-line-number-from]]
         [midje.ideas.tabular :only [tabular*]]
         [midje.ideas.facts :only [complete-fact-transformation future-fact*
@@ -23,6 +21,7 @@
   (:require [midje.ideas.background :as background]
             [midje.ideas.formulas :as formulas]
             [midje.doc :as doc]
+            [midje.internal-ideas.fact-context :as fact-context]
             [clojure.test :as ct]
             [midje.ideas.metadata :as metadata]
             [midje.util.namespace :as namespace]
@@ -96,9 +95,9 @@
             (complete-fact-transformation metadata remainder)))
         (catch Exception ex
           `(do
-             (within-runtime-fact-context ~(:midje/description metadata)
+             (fact-context/within-runtime-fact-context ~(:midje/description metadata)
                (ct/report {:type :exceptional-user-error
-                           :description @nested-descriptions
+                           :description (fact-context/nested-descriptions)
                            :macro-form '~&form
                            :stacktrace '~(user-error-exception-lines ex)
                            :position (midje.internal-ideas.file-position/line-number-known ~(:line (meta &form)))}))
