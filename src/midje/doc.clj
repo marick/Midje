@@ -5,16 +5,19 @@
             [midje.util.ecosystem :as ecosystem]))
 
 (def appropriate? ecosystem/running-in-repl?)
-(def for-sweet '[midje-help])
+(def for-sweet '[midje-help midje-configuration-help])
 (def for-repl  '[midje-repl-help print-level-help])
 
 (defn repl-notice []
   (println (color/note "Run `(midje-repl-help)` for descriptions of Midje repl functions.")))
 
 (defn midje-notice []
-  (println (color/note "For Midje usage, run `(midje-help)`.")))
+  (println (color/note "For Midje usage, run `(midje-help)`."))
+  (println (color/note "For Midje configuration options, run `(midje-configuration-help)`.")))
 
-(defn ^{:doc "Midje repl help"} midje-repl-help []
+(defn midje-repl-help
+  "Midje repl help"
+  []
   (println)
   (println "Here are Midje repl functions. Use `doc` for more info.")
   (println "To control verbosity of output, use print levels defined ")
@@ -94,7 +97,9 @@
 
 
 
-(defn ^{:doc "Midje help"} midje-help [& args]
+(defn midje-help
+  "Midje help"
+  [& args]
   (if (empty? args)
     (do 
       (println "** Topics:")
@@ -212,3 +217,8 @@
           (println "..meta.. =contains=> {:a 1} ; partial specification of map-like object")
           (println "(f)      =streams=>  (range 5 1000)")
           (println "(f)      =throws=>   (IllegalArgumentException. \"boom\")"))))))
+
+(defn midje-configuration-help
+  "What can go in the .midje.clj files."
+  []
+  "Not implemented yet.")
