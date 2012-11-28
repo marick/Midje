@@ -6,6 +6,8 @@
   (:require [midje.config :as config]))
 (expose-testables midje.ideas.reporting.levels)
 
+(config/with-temporary-config {:print-level :print-normally}
+
 (facts "about levels"
   (-> -2 levels-to-names names-to-levels) => -2
   (-> -1 levels-to-names names-to-levels) => -1
@@ -91,3 +93,4 @@
       (with-out-str (report-changed-namespace "something")) => #"something")))
 
 
+)

@@ -7,14 +7,17 @@
             [midje.util.ecosystem :as ecosystem]))
   
 
-
+;; TODO: In 1.6 or later, *allow-default-prerequisites* should be merged
+;; into the *config* map.
 (def ^{:dynamic true
        :doc "controls whether unmatched prerequisites 'fall through' to real function"}
      *allow-default-prerequisites* false)
 
 
 (def ^{:dynamic true}
-  *config* {:print-level :print-normally})
+  *config* {:print-level :print-normally
+            :visible-deprecation true
+            :visible-future true})
 
 (defmulti validate-key! first)
 (defmethod validate-key! :print-level [[_ value]]

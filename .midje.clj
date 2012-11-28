@@ -1,0 +1,1 @@
+(assoc! :visible-deprecation false)
