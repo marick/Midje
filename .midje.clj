@@ -1,1 +1,1 @@
-(assoc! :visible-deprecation false)
+(override-with :visible-deprecation false)

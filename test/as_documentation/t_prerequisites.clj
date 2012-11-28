@@ -1,7 +1,8 @@
 (ns as-documentation.t-prerequisites
   (:use midje.sweet
         midje.util
-        midje.test-util))
+        midje.test-util)
+  (:require [midje.config :as config]))
 
 ;; One development path is to work top-down and use the `provided`
 ;; clause to substitute prerequisite values.
@@ -124,10 +125,10 @@
    @reported => (contains no-matching-prerequisite bad-result)))
 
 ;; However, it's also possible to ask that unmatched calls default to
-;; the real values:
+;; the real values. The config/with-temporary-config simulates the
+;; loading of a .midje.clj file.
 
-(binding [midje.config/*allow-default-prerequisites* true]
-
+(config/with-temporary-config {:allow-default-prerequisites true}
   (after-silently
    (fact
      (using-function 4) => (+ 80 4)

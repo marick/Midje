@@ -5,6 +5,7 @@
   (:require midje.internal-ideas.t-fakes
             [midje.clojure-test-facade :as ctf]
             [midje.repl :as repl]
+            [midje.config :as config]
             [midje.ideas.metadata :as metadata]))
 
 
@@ -373,7 +374,7 @@
     (#'var-inc-local 2) => 200))
 
 (fact "default prerequisites work with vars"
-  (binding [midje.config/*allow-default-prerequisites* true]
+  (config/with-temporary-config {:allow-default-prerequisites true}
     (#'midje.internal-ideas.t-fakes/var-twice) => 201
     (provided
       (#'midje.internal-ideas.t-fakes/var-inc 2) => 200)))

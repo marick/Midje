@@ -4,7 +4,8 @@
         [midje.util form-utils]
         [midje.test-util]
         midje.util)
-  (:require [clojure.zip :as zip]))
+  (:require [clojure.zip :as zip]
+            [midje.config :as config]))
 (expose-testables midje.semi-sweet)
  
 (unfinished faked-function mocked-function other-function)
@@ -210,9 +211,9 @@
 
 
 (fact "mocks can be partial: they fall through to any previously defined function"
-    (binding [midje.config/*allow-default-prerequisites* true]
-      (expect (str (backing-function "returned") " " (backing-function "overridden")) => "returned new value"
-              (fake (backing-function "overridden") => "new value"))))
+  (config/with-temporary-config {:allow-default-prerequisites true}
+    (expect (str (backing-function "returned") " " (backing-function "overridden")) => "returned new value"
+            (fake (backing-function "overridden") => "new value"))))
 
 (facts "about checkers"
   (fact "expected results can be functions"

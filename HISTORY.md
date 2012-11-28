@@ -7,7 +7,12 @@
 * The :check-only-at-load-time metadata was added.
 * `midje-help` and `midje-repl-help` added.
 * In failures, maps and sets are printed in sort order,
-  which allows easier comparison of actual to expected results. 
+  which allows easier comparison of actual to expected
+  results.
+* Now reads ~/.midje.clj and .midje.clj for configuration.
+* :print-level can be set in the configuration.
+* :visible-deprecation can be set in the configuration.
+* :allow-default-prerequisites can be set in the configuration.
 
 
 1.5-alpha2

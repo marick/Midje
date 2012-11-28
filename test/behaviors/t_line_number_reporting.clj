@@ -3,7 +3,7 @@
   (:use [clojure.test])
   (:use [midje.test-util]))
 
-(binding [midje.config/*allow-default-prerequisites* false] 
+
 (defn f [n] n)
 
 (def position-1 9)
@@ -245,4 +245,4 @@
                       (contains {:position ["t_line_number_reporting.clj"
                                             (+ tabular-position 3)]
                                  :binding-note "[?n 2\n                           ?comment \"2\"]"}))))
-)
+

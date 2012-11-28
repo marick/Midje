@@ -1,6 +1,5 @@
 (ns ^{:doc "Customizable configuration"}
   midje.config
-  (:refer-clojure :exclude [assoc!])
   (:use [midje.error-handling.exceptions :only [user-error]])
   (:require midje.ideas.reporting.level-defs
             [clojure.set :as set]
@@ -8,16 +7,19 @@
   
 
 ;; TODO: In 1.6 or later, *allow-default-prerequisites* should be merged
-;; into the *config* map.
+;; into the *config* map. A deprecation notice has been added where it's used.
 (def ^{:dynamic true
-       :doc "controls whether unmatched prerequisites 'fall through' to real function"}
+       :doc "Controls whether unmatched prerequisites 'fall through' to real function.
+             DEPRECATED: Use config variable :allow-default-prerequisites instead."
+       :deprecated "1.5"}
      *allow-default-prerequisites* false)
 
 
 (def ^{:dynamic true}
   *config* {:print-level :print-normally
             :visible-deprecation true
-            :visible-future true})
+            :visible-future true
+            :allow-default-prerequisites false})
 
 (defmulti validate-key! first)
 (defmethod validate-key! :print-level [[_ value]]
@@ -41,19 +43,19 @@
 (defn choice
   "Returns the configuration value of `key`"
   [key] (*config* key))
-  
-(defn merge! 
+
+(defn merge-permanently! 
   "Merges the given map into the root configuration.
    Does not affect any temporary (dynamic) configurations."
   [additions]
   (validate! additions)
   (alter-var-root #'*config* merge additions))
   
-(defn assoc! 
+(defn override-with
   "Adds key-value pairs to the root configuration.
    Does not affect any temporary (dynamic) configurations."
   [& kvs]
-  (merge! (apply hash-map kvs)))
+  (merge-permanently! (apply hash-map kvs)))
 
 (when (ecosystem/has-home-config-file?)
   (load-file ecosystem/home-config-file-name))
