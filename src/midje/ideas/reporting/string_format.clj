@@ -6,6 +6,7 @@
         midje.error-handling.exceptions
         [midje.util.form-utils :only [pred-cond]])
   (:require [midje.util.colorize :as color]
+            [midje.config :as config]
             [clojure.string :as str]))
 
 
@@ -80,10 +81,11 @@
       (str "    Checking function: " (pr-str (:expected m)))))
 
   (defmethod report-strings :future-fact [m]
-    (list
-      (str "\n" (color/note "WORK TO DO") " "
-        (when-let [doc (format-nested-descriptions (:description m))] (str (pr-str doc) " "))
-        "at " (midje-position-string (:position m)))))
+    (when (config/choice :visible-future)
+      (list
+       (str "\n" (color/note "WORK TO DO") " "
+            (when-let [doc (format-nested-descriptions (:description m))] (str (pr-str doc) " "))
+            "at " (midje-position-string (:position m))))))
 
   (defmethod report-strings :mock-argument-match-failure [m]
     (list

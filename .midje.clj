@@ -1,1 +1,2 @@
-(override-with :visible-deprecation false)
+(override-with :visible-deprecation false
+               :visible-future false)

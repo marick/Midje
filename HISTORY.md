@@ -13,7 +13,7 @@
 * :print-level can be set in the configuration.
 * :visible-deprecation can be set in the configuration.
 * :allow-default-prerequisites can be set in the configuration.
-
+* :visible-future can be set in the configuration.
 
 1.5-alpha2
 -------------
