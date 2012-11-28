@@ -62,13 +62,20 @@
     (not (empty? (filter #(.contains % "clojure.main$repl$read_eval_print")
                          (map str (.getStackTrace e))))))))
 
-(def config-file-name (str/join java.io.File/separator
-                                [(getenv "HOME") ".midje.clj"]))
-  
-(defn has-config-file? []
-  (if (not (getenv "HOME"))
-    false
-    (.exists (new java.io.File config-file-name))))
+(def home-config-file-name (str/join java.io.File/separator
+                                     [(getenv "HOME") ".midje.clj"]))
+(def project-config-file-name ".midje.clj")
+
+(defn- file-exists? [name]
+  (.isFile (new java.io.File name)))
+
+(defn has-home-config-file? []
+  (and (getenv "HOME") (file-exists? home-config-file-name)))
+
+(defn has-project-config-file? []
+  (file-exists? project-config-file-name))
+
+
 
         
 

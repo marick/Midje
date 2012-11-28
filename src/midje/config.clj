@@ -52,5 +52,7 @@
   [& kvs]
   (merge! (apply hash-map kvs)))
 
-(if (ecosystem/has-config-file?)
-  (load-file ecosystem/config-file-name))
+(when (ecosystem/has-home-config-file?)
+  (load-file ecosystem/home-config-file-name))
+(when (ecosystem/has-project-config-file?)
+  (load-file ecosystem/project-config-file-name))
