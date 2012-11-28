@@ -3,22 +3,12 @@
   midje.internal-ideas.fact-context
   (:use [clojure.string :only [join]]))
 
-(def fact-context (atom []))
+(def ^{:dynamic true} *fact-context* [])
 
 (defn nested-descriptions []
-  @fact-context)
-
-(defn- enter-runtime-context [description]
-  (swap! fact-context conj description))
-
-(defn- leave-runtime-context []
-  (swap! fact-context #(vec (butlast %))))
+  *fact-context*)
 
 (defmacro within-runtime-fact-context [description & body]
-  `(try
-     (#'enter-runtime-context ~description)
-     ~@body
-     (finally
-       (#'leave-runtime-context))))
-
+  `(binding [*fact-context* (conj *fact-context* ~description)]
+     ~@body))
 
