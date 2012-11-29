@@ -17,7 +17,7 @@
   "Returns precisely true if actual is not nil and not false."
   [actual] 
   (and (not (captured-throwable? actual))
-       (not (not actual))))
+       (boolean actual)))
 (defalias TRUTHY truthy)
 
 (defchecker falsey 

@@ -104,9 +104,9 @@
       (form/regex? desired)))
 
 (defn strictly [loose-predicate]
-  (comp not not loose-predicate))
+  (comp boolean loose-predicate))
 
-(def any? (strictly some))  ; Sigh.
+(def any? (strictly some))
 
 (defn name-matches? [desired metadata]
   (if-let [given-name (:midje/name metadata)]

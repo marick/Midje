@@ -61,7 +61,7 @@
   ;; TODO: One of those two differences is the difference between
   ;; a blowup in PersistentArrayMap and no blowup. Should investigate.
   [predicate forms]
-  (let [ensure-truthful (comp not not predicate)]
+  (let [ensure-truthful (comp boolean predicate)]
     (let [group (group-by ensure-truthful forms)]
       [ (group true) (group false) ])))
 

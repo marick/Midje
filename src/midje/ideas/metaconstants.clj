@@ -29,7 +29,7 @@
 
 (defn metaconstant-symbol? [x]
   (and (symbol? x)
-    (-> x normalized-metaconstant not not)))
+    (-> x normalized-metaconstant boolean)))
 
 (deftype Metaconstant [name ^clojure.lang.Associative storage]
   Object
