@@ -46,7 +46,7 @@
   [checking-fact-form ordered-binding-map]
   ;; A binding note should be added if the structure of the
   ;; `checking-fact-form` is this:
-  ;;    (check-one-fact
+  ;;    (creation-time-check
   ;;      (letfn [...] <letfn-body>
   ;;
   ;; It is the <letfn-body> that must be searched for expect forms,
@@ -54,7 +54,7 @@
   (letfn [(acceptable-body? []
             (and (sequential? checking-fact-form)
                  (symbol? (first checking-fact-form))
-                 (= (name (first checking-fact-form)) "check-one")))
+                 (= (name (first checking-fact-form)) "creation-time-check")))
 
           (target-body []
             (-> checking-fact-form second second first rest second))

@@ -151,7 +151,7 @@
 
 ;;; Load-time processing
 
-(declare check-one)
+(declare creation-time-check)
 
 (defn wrap-with-creation-time-code [function-form]
   (letfn [;; The rather hackish construction here is to keep
@@ -163,7 +163,7 @@
               function-form))
           
           (run-after-creation [function-form]
-            `(check-one ~function-form))]
+            `(creation-time-check ~function-form))]
 
     (define-metaconstants function-form)
     (-> function-form
@@ -221,3 +221,7 @@
            (vec (map #(if (fn? %) "<some function>" %) 
                        (:created-from (meta fact-creation-filter))))
            " will be created."))))
+
+(defn creation-time-check [fact-function]
+  (when (config/choice :check-after-creation)
+    (check-one fact-function)))

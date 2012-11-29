@@ -42,7 +42,7 @@
     (to-semi-sweet form) => form))
 
 
-;;; When a fact is turned into nothing.
+;;; When a fact's loading is modified
 
 (let [result (metadata/obeying-metadata-filters [args [(constantly false)]]
                                                 (constantly false)
@@ -57,3 +57,6 @@
   (fact
     result => #"This fact was ignored because of the current configuration."
     result => #"foo"))
+
+(config/with-augmented-config {:check-after-creation false}
+  (with-out-str (fact 1 => 2)) => "")
