@@ -98,12 +98,12 @@
 
 
 (fact "name matching"
-  (name-matches? "foo" {:midje/name "ofoop"}) => true
-  (name-matches? "foo" {:midje/name "ooop"}) => false
-  (name-matches? "foo" {}) => false
-  (name-matches? #"fo." {:midje/name "ofop"}) => true
-  (name-matches? #"fo." {:midje/name "ooop"}) => false
-  (name-matches? #"fo." {}) => false)
+  ((name-matcher-for "foo") {:midje/name "ofoop"}) => true
+  ((name-matcher-for "foo") {:midje/name "ooop"}) => false
+  ((name-matcher-for "foo") {}) => false
+  ((name-matcher-for #"fo.") {:midje/name "ofop"}) => true
+  ((name-matcher-for #"fo.") {:midje/name "ooop"}) => false
+  ((name-matcher-for #"fo.") {}) => false)
     
 (fact "filter predicates"
   (fact "single entries"
@@ -124,3 +124,11 @@
   (fact "have information about how they were created"
     (:created-from (meta (filter-pred-for-fact-creation :oddity :valiant)))
     => [:oddity :valiant]))
+
+
+(fact "it knows how to separate out metadata-filtering arguments"
+  (let [[filter remainder]
+        (separate-metadata-filters [#"a regex" "a string" 'a-symbol 6 fn? :a-keyword]
+                                   (fn plain-argument?? [arg] false))]
+    filter => (contains [#"a regex" "a string" fn? :a-keyword])
+    remainder => ['a-symbol 6]))

@@ -9,6 +9,22 @@
 (defn regex? [x]
   (= (class x) java.util.regex.Pattern))
 
+(defn stringlike?
+  "String or regex"
+  [x]
+  (or (string? x)
+      (regex? x)))
+
+(defn stringlike-matches? [stringlike given]
+  (cond (not (string? given))
+        false
+
+        (string? stringlike)
+        (.contains given stringlike)
+
+        :else
+        (boolean (re-find stringlike given))))
+
 (defn classic-map? [x]
   (.isInstance clojure.lang.APersistentMap x))
   
@@ -48,6 +64,28 @@
   [form]
   (and (reader-list-form? form)
        (quoted? form)))
+
+;;; Some higher-order predicate helpers
+
+(defn strictly [loose-predicate]
+  (comp boolean loose-predicate))
+
+(def any? (strictly some))
+
+(defn any-pred-from
+  "Returns a function that returns strictly true iff any
+   of the predicates is truthy of the function's single argument.
+   ( (any-of? even? odd?) 3) => true
+   Stops checking after first success."
+  [preds]
+  (fn [arg]
+    (loop [[candidate & remainder :as preds] preds]
+      (cond (empty? preds)  false
+            (candidate arg) true
+            :else           (recur remainder)))))
+  
+
+;;; Etc.
 
 (defn preserve-type
   "If the original form was a vector, make the transformed form a vector too."

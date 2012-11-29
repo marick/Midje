@@ -105,7 +105,7 @@
   (let [args (if (empty? args) [*ns*] args)]
     (mapcat (fn [arg]
               (cond (metadata/name-matcher? arg)
-                    (filter (comp (partial metadata/name-matches? arg) meta)
+                    (filter (comp (metadata/name-matcher-for arg) meta)
                             (compendium/all-facts<>))
                     
                     (= arg :all)

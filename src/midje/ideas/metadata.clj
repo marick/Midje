@@ -99,28 +99,22 @@
           :else
           outer-form)))
 
-(defn name-matcher? [desired]
-  (or (string? desired)
-      (form/regex? desired)))
+                                        ;;; Working with metadata
 
-(defn strictly [loose-predicate]
-  (comp boolean loose-predicate))
+(defn separate-metadata-filters [args plain-argument?]
+  (form/separate-by #(and (not (plain-argument? %))
+                          ((form/any-pred-from [string? form/regex? fn? keyword?]) %))
+                    args))
 
-(def any? (strictly some))
-
-(defn name-matches? [desired metadata]
-  (if-let [given-name (:midje/name metadata)]
-    (if (string? desired)
-      (.contains given-name desired)
-      ((strictly re-find) desired given-name))
-    false))
+(def name-matcher? form/stringlike?)
+(defn name-matcher-for [stringlike]
+  (fn [metadata] (form/stringlike-matches? stringlike (:midje/name metadata))))
 
 (defn filter-pred-for-fact-creation [& desireds]
   (letfn [(make-one [desired]
             (if (name-matcher? desired)
-              (partial name-matches? desired)
-              (strictly desired)))]
-    (vary-meta 
-     (fn [metadata]
-       (any? true? ((apply juxt (map make-one desireds)) metadata)))
+              (name-matcher-for desired)
+              (form/strictly desired)))]
+    (vary-meta
+     (form/any-pred-from (map make-one desireds))
      assoc :created-from desireds)))

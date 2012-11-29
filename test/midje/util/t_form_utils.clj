@@ -124,3 +124,25 @@
 
 (fact "sort a map"
   (sort-map {:z 26 :b 2 :a 1}) => {:a 1 :b 2 :z 26})
+
+
+(fact "any-pred-from"
+  ((any-pred-from [odd? even?]) 1) => true
+  ((any-pred-from [pos? neg?]) 0) => false
+  ((any-pred-from [:key :word]) {:key false}) => false
+  ((any-pred-from [:key :word]) {:key false :word 3}) => true
+  ((any-pred-from [#{1 2} #{3 4}]) 3) => true
+  ;; stops at first match
+  ((any-pred-from [(partial = 3) (fn[_](throw (new Error "boom!")))]) 3) => true)
+
+(fact "stringlike-matches?"
+  (stringlike-matches? "foo" "ofoop") => true
+  (stringlike-matches? "foo" "ooop") => false
+  (stringlike-matches? "foo" nil) => false
+  (stringlike-matches? "foo" [1 2 3]) => false
+  (stringlike-matches? #"fo." "ofop") => true
+  (stringlike-matches? #"fo." "ooop") => false
+  (stringlike-matches? #"fo." false) => false)
+    
+
+  
