@@ -1,6 +1,7 @@
 (ns midje.ideas.t-metadata
   (:use midje.ideas.metadata
-        midje.sweet midje.test-util))
+        midje.sweet midje.test-util)
+  (:require [midje.config :as config]))
 
 (def a-body '((f) => 3))
 
@@ -97,33 +98,27 @@
 ;;; Predicate constructors
 
 
-(fact "name matching"
-  ((name-matcher-for "foo") {:midje/name "ofoop"}) => true
-  ((name-matcher-for "foo") {:midje/name "ooop"}) => false
-  ((name-matcher-for "foo") {}) => false
-  ((name-matcher-for #"fo.") {:midje/name "ofop"}) => true
-  ((name-matcher-for #"fo.") {:midje/name "ooop"}) => false
-  ((name-matcher-for #"fo.") {}) => false)
-    
 (fact "filter predicates"
-  (fact "single entries"
-    ((filter-pred-for-fact-creation "foo") {:midje/name "ofoop"}) => true
-    ((filter-pred-for-fact-creation #"foo") {:midje/name "ofoop"}) => true
-    ((filter-pred-for-fact-creation #"foo") {}) => false
-    ((filter-pred-for-fact-creation :valiant) {:valiant "yes!"}) => true
-    ((filter-pred-for-fact-creation :valiant) {}) => false
-    ((filter-pred-for-fact-creation #(= "yes!" (:valiant %))) {:valiant "yes!"}) => true
-    ((filter-pred-for-fact-creation #(= "yes!" (:valiant %))) {:valiant "nope"}) => false)
+  (letfn [(b [& kvs] (with-meta a-body (apply hash-map kvs)))]
+    (fact "single entries"
+      ((desired-fact-predicate-from ["foo"]) (b :midje/name "ofoop")) => true
+      ((desired-fact-predicate-from [#"foo"])  (b :midje/name "ofoop")) => true
+      ((desired-fact-predicate-from [#"foo"])  (b                    )) => false
+
+      ((desired-fact-predicate-from [:valiant]) (b :valiant "yes!")) => true
+      ((desired-fact-predicate-from [:valiant]) (b                )) => false
+      ((desired-fact-predicate-from [#(= "yes!" (:valiant %))]) (b :valiant "yes!")) => true
+      ((desired-fact-predicate-from [#(= "yes!" (:valiant %))]) (b :valiant "nope")) => false)
 
   (fact "multiple entries act as 'or'"
-    (let [combo (filter-pred-for-fact-creation #"foo" :valiant)]
-      (combo {:midje/name "ofoop"}) => true
-      (combo {:valiant true}) => true
-      (combo {}) => false))
+    (let [combo (desired-fact-predicate-from [#"foo" :valiant])]
+      (combo (b :midje/name "ofoop")) => true
+      (combo (b :valiant true)) => true
+      (combo (b              )) => false))
 
   (fact "have information about how they were created"
-    (:created-from (meta (filter-pred-for-fact-creation :oddity :valiant)))
-    => [:oddity :valiant]))
+    (:created-from (meta (desired-fact-predicate-from [:oddity :valiant])))
+    => [:oddity :valiant])))
 
 
 (fact "it knows how to separate out metadata-filtering arguments"
@@ -132,3 +127,18 @@
                                    (fn plain-argument?? [arg] false))]
     filter => (contains [#"a regex" "a string" fn? :a-keyword])
     remainder => ['a-symbol 6]))
+
+
+(fact "filters can be attached to the config"
+  (obeying-metadata-filters [args [:keyword "string" :all *ns* 'symbol 0]]
+                            (partial = :all)
+     args => [:all *ns* 'symbol 0]
+     (let [desired? (:desired-fact? config/*config*)]
+       (desired? a-body) => false
+       (desired? (with-meta a-body {:keyword 5})) => true
+       (desired? (with-meta a-body {:keyword false})) => false
+       (desired? (with-meta a-body {:midje/name "has string"})) => true
+       ;; :all does not count as a filter description
+       (desired? (with-meta a-body {:all true})) => false)))
+       
+         

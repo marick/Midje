@@ -101,20 +101,35 @@
 
                                         ;;; Working with metadata
 
+(def describes-name-matcher? form/stringlike?)
+(defn describes-callable-matcher? [arg]
+  (or (fn? arg) (keyword? arg)))
+
+(defn name-matcher-for [desired]
+  #(form/stringlike-matches? desired (fact-name %)))
+(defn callable-matcher-for [desired]
+  (comp desired meta))
+(defn appropriate-matcher-for [desired]
+  ( (if (describes-name-matcher? desired) name-matcher-for callable-matcher-for) 
+    desired))
+
+(defn desired-fact-predicate-from [desireds]
+  (vary-meta
+     (form/any-pred-from (map appropriate-matcher-for desireds))
+     assoc :created-from desireds))
+
 (defn separate-metadata-filters [args plain-argument?]
   (form/separate-by #(and (not (plain-argument? %))
                           ((form/any-pred-from [string? form/regex? fn? keyword?]) %))
                     args))
 
-(def name-matcher? form/stringlike?)
-(defn name-matcher-for [stringlike]
-  (fn [metadata] (form/stringlike-matches? stringlike (:midje/name metadata))))
+(defmacro obeying-metadata-filters
+  [[arglist-name original-args] plain-argument? & body]
+  `(let [[filters# ~arglist-name] (separate-metadata-filters ~original-args
+                                                             ~plain-argument?)]
+     (config/with-temporary-config {:desired-fact?
+                                    (desired-fact-predicate-from filters#)}
+       ~@body)))
 
-(defn filter-pred-for-fact-creation [& desireds]
-  (letfn [(make-one [desired]
-            (if (name-matcher? desired)
-              (name-matcher-for desired)
-              (form/strictly desired)))]
-    (vary-meta
-     (form/any-pred-from (map make-one desireds))
-     assoc :created-from desireds)))
+
+

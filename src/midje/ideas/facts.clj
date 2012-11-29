@@ -199,13 +199,13 @@
 ;; and then thrown away. I think this is unavoidable if you want the
 ;; filter predicate to be applied in the repl.
 (defn creation-time-fact-processing [fact-function]
-  (when ((config/choice :filter-pred-for-fact-creation) (meta fact-function))
+  (when ((config/choice :desired-fact?) (meta fact-function))
     (compendium/record-fact-existence! fact-function)
     fact-function))
 
 
 (defn check-one [fact-function]
-  (let [fact-creation-filter (config/choice :filter-pred-for-fact-creation)]
+  (let [fact-creation-filter (config/choice :desired-fact?)]
     (if (fact-creation-filter (meta fact-function))
       (do
         (when (:midje/top-level-fact? (meta fact-function))
@@ -218,5 +218,6 @@
         (#'midje.ideas.reporting.report/fact-checks-out?))
       (str "This fact was ignored because of the current configuration. "
            "Only facts matching "
-           (:created-from (meta fact-creation-filter))
+           (vec (map #(if (fn? %) "<some function>" %) 
+                       (:created-from (meta fact-creation-filter))))
            " will be created."))))

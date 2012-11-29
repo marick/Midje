@@ -2,7 +2,8 @@
   (:use midje.ideas.facts
         midje.sweet midje.test-util)
   (:require [clojure.zip :as zip]
-            [midje.config :as config]))
+            [midje.config :as config]
+            [midje.ideas.metadata :as metadata]))
 
 
 
@@ -43,10 +44,16 @@
 
 ;;; When a fact is turned into nothing.
 
-(let [result (config/with-temporary-config
-               {:filter-pred-for-fact-creation
-                (with-meta (constantly false) {:created-from 'creation-list})}
+(let [result (metadata/obeying-metadata-filters [args [(constantly false)]]
+                                                (constantly false)
                (fact 1 => 2))]
   (fact
     result => #"This fact was ignored because of the current configuration."
-    result => #"(?sm)creation-list"))
+    result => #"some function"))
+
+(let [result (metadata/obeying-metadata-filters [args ["foo"]]
+                                                (constantly false)
+               (fact "no match" 1 => 2))]
+  (fact
+    result => #"This fact was ignored because of the current configuration."
+    result => #"foo"))

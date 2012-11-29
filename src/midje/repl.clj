@@ -104,15 +104,16 @@
   [& args]
   (let [args (if (empty? args) [*ns*] args)]
     (mapcat (fn [arg]
-              (cond (metadata/name-matcher? arg)
-                    (filter (comp (metadata/name-matcher-for arg) meta)
+              (cond (metadata/describes-name-matcher? arg)
+                    (filter (metadata/name-matcher-for arg)
                             (compendium/all-facts<>))
                     
                     (= arg :all)
                     (compendium/all-facts<>)
                     
-                    (or (fn? arg) (keyword? arg))
-                    (filter (comp arg meta) (compendium/all-facts<>))
+                    (metadata/describes-callable-matcher? arg)
+                    (filter (metadata/callable-matcher-for arg)
+                            (compendium/all-facts<>))
                     
                     :else
                     (compendium/namespace-facts<> arg)))

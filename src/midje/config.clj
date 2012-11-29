@@ -23,7 +23,7 @@
 
             ;; The following aren't changed by users.
             ;; Should they be in the fact-context?
-            :filter-pred-for-fact-creation (constantly true)})
+            :desired-fact? (constantly true)})
 
 (defmulti validate-key! first)
 (defmethod validate-key! :print-level [[_ value]]
