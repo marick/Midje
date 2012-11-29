@@ -119,4 +119,8 @@
     (let [combo (filter-pred-for-fact-creation #"foo" :valiant)]
       (combo {:midje/name "ofoop"}) => true
       (combo {:valiant true}) => true
-      (combo {}) => false)))
+      (combo {}) => false))
+
+  (fact "have information about how they were created"
+    (:created-from (meta (filter-pred-for-fact-creation :oddity :valiant)))
+    => [:oddity :valiant]))

@@ -19,7 +19,11 @@
   *config* {:print-level :print-normally
             :visible-deprecation true
             :visible-future true
-            :allow-default-prerequisites false})
+            :allow-default-prerequisites false
+
+            ;; The following aren't changed by users.
+            ;; Should they be in the fact-context?
+            :filter-pred-for-fact-creation (constantly true)})
 
 (defmulti validate-key! first)
 (defmethod validate-key! :print-level [[_ value]]
@@ -30,7 +34,7 @@
   (let [extras (set/difference (set (keys changes))
                                (set (keys *config*)))]
     (when (not (empty? extras))
-      (throw (user-error (str "These are not configuration keys: " extras)))))
+      (throw (user-error (str "These are not configuration keys: " (vec extras))))))
   (dorun (map validate-key! changes)))
 
   

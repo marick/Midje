@@ -120,5 +120,7 @@
             (if (name-matcher? desired)
               (partial name-matches? desired)
               (strictly desired)))]
-    (fn [metadata]
-      (any? true? ((apply juxt (map make-one desireds)) metadata)))))
+    (vary-meta 
+     (fn [metadata]
+       (any? true? ((apply juxt (map make-one desireds)) metadata)))
+     assoc :created-from desireds)))

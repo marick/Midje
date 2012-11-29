@@ -31,6 +31,7 @@
             [midje.ideas.reporting.levels :as levelly]
             [midje.internal-ideas.fact-context :as fact-context]
             [midje.ideas.metadata :as metadata]
+            [midje.config :as config]
             midje.ideas.reporting.report))
 
 (defn fact? [form]
@@ -192,20 +193,30 @@
        (wrap-with-check-time-code metadata)
        wrap-with-creation-time-code)))
 
-
 ;;; Fact execution utilities
 
-
+;; It's kind of annoying that the entire expansion is created, evaluated, 
+;; and then thrown away. I think this is unavoidable if you want the
+;; filter predicate to be applied in the repl.
 (defn creation-time-fact-processing [fact-function]
-  (compendium/record-fact-existence! fact-function)
-  fact-function)
+  (when ((config/choice :filter-pred-for-fact-creation) (meta fact-function))
+    (compendium/record-fact-existence! fact-function)
+    fact-function))
+
 
 (defn check-one [fact-function]
-  (when (:midje/top-level-fact? (meta fact-function))
-    (compendium/record-fact-check! fact-function))
-  (#'midje.ideas.reporting.report/fact-begins)
-  (levelly/report-changed-namespace (metadata/fact-namespace fact-function))
-  (levelly/report-checking-fact fact-function)
-  (fact-context/adds (metadata/fact-description fact-function)
-      (fact-function))
-  (#'midje.ideas.reporting.report/fact-checks-out?))
+  (let [fact-creation-filter (config/choice :filter-pred-for-fact-creation)]
+    (if (fact-creation-filter (meta fact-function))
+      (do
+        (when (:midje/top-level-fact? (meta fact-function))
+          (compendium/record-fact-check! fact-function))
+        (#'midje.ideas.reporting.report/fact-begins)
+        (levelly/report-changed-namespace (metadata/fact-namespace fact-function))
+        (levelly/report-checking-fact fact-function)
+        (fact-context/adds (metadata/fact-description fact-function)
+                           (fact-function))
+        (#'midje.ideas.reporting.report/fact-checks-out?))
+      (str "This fact was ignored because of the current configuration. "
+           "Only facts matching "
+           (:created-from (meta fact-creation-filter))
+           " will be created."))))

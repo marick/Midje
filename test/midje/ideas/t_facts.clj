@@ -1,7 +1,8 @@
 (ns midje.ideas.t-facts
   (:use midje.ideas.facts
         midje.sweet midje.test-util)
-  (:require [clojure.zip :as zip]))
+  (:require [clojure.zip :as zip]
+            [midje.config :as config]))
 
 
 
@@ -40,3 +41,12 @@
     (to-semi-sweet form) => form))
 
 
+;;; When a fact is turned into nothing.
+
+(let [result (config/with-temporary-config
+               {:filter-pred-for-fact-creation
+                (with-meta (constantly false) {:created-from 'creation-list})}
+               (fact 1 => 2))]
+  (fact
+    result => #"This fact was ignored because of the current configuration."
+    result => #"(?sm)creation-list"))
