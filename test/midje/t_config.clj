@@ -6,7 +6,7 @@
   (let [stashed-config config/*config*]
     (try
       (config/choice :print-level) =not=> :print-nothing
-      (config/with-temporary-config {:print-level :print-facts}
+      (config/with-augmented-config {:print-level :print-facts}
         ;; emphasizes that override overrides the root binding
         (config/override-with :print-level :print-nothing))
       (config/choice :print-level) => :print-nothing
@@ -26,7 +26,7 @@
     (let [stashed-config config/*config*
           valid-map {:print-level :print-normally}]
       (try
-        (config/with-temporary-config valid-map) => irrelevant
+        (config/with-augmented-config valid-map) => irrelevant
         (provided (config/validate! valid-map) => anything)
 
         (config/merge-permanently! valid-map) => irrelevant
@@ -40,9 +40,9 @@
 
 
 
-(fact "with-temporary-config"
-  (config/with-temporary-config {:print-level :print-no-summary}
+(fact "with-augmented-config"
+  (config/with-augmented-config {:print-level :print-no-summary}
     (config/choice :print-level) => :print-no-summary
-    (config/with-temporary-config {:print-level 0}
+    (config/with-augmented-config {:print-level 0}
       (config/choice :print-level) => 0)))
 

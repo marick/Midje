@@ -125,10 +125,10 @@
    @reported => (contains no-matching-prerequisite bad-result)))
 
 ;; However, it's also possible to ask that unmatched calls default to
-;; the real values. The config/with-temporary-config simulates the
+;; the real values. The config/with-augmented-config simulates the
 ;; loading of a .midje.clj file.
 
-(config/with-temporary-config {:allow-default-prerequisites true}
+(config/with-augmented-config {:allow-default-prerequisites true}
   (after-silently
    (fact
      (using-function 4) => (+ 80 4)

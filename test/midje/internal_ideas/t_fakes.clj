@@ -263,7 +263,7 @@ odd?                   3               falsey)
 
 ;; Same as above, but using the new config variable
 
-(config/with-temporary-config {:allow-default-prerequisites true}
+(config/with-augmented-config {:allow-default-prerequisites true}
 
   ;; In this example, one call to `internal` is faked and one is left alone.
 
@@ -419,7 +419,7 @@ odd?                   3               falsey)
 (def bound-var 3)
 (def #^:dynamic rebound)
 
-(config/with-temporary-config {:allow-default-prerequisites true}
+(config/with-augmented-config {:allow-default-prerequisites true}
 
 (fact "fakes contain the value of their function-var at moment of binding"
   (:value-at-time-of-faking (fake (unbound-var) => 2)) => nil

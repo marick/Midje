@@ -73,15 +73,29 @@
     nil)))
 
 (defmacro load-facts 
-  "Load given namespaces, described with unquoted symbols, as in:
-     (load-facts midje.t-sweet)
+  "Load given namespaces, as in:
+     (load-facts midje.t-sweet midje.t-repl)
+   Note that namespace names need not be quoted.
+
    If no namespaces are given, all the namespaces in the project.clj's
    :test-paths and :source-paths will be loaded.
    But if there's no project.clj, all namespaces under \"test\"
    will be loaded.
 
    A partial namespace ending in a `*` will load all sub-namespaces.
-   Example: (load-facts midje.ideas.*)"
+   Example: (load-facts midje.ideas.*)
+
+   By default, all facts are loaded from the namespaces. You can, however,
+   add further arguments. Only facts matching one or more of the arguments
+   are loaded. The arguments are:
+
+   :keyword      -- Does the metadata have a truthy value for the keyword?
+   \"string\"    -- Does the fact's name contain the given string? 
+   #\"regex\"    -- Does any part of the fact's name match the regex?
+   a function    -- Does the function return a truthy value when given
+                    the fact's metadata?
+
+   In addition, you can adjust what's printed. See `(print-level-help)`."
   [& args]
   (let [error-fixed (map #(if (form/quoted? %) (second %) %)
                          args)]
@@ -91,16 +105,23 @@
                                 ;;; Fetching facts
 
 (defn fetch-facts
-  "Fetches the facts described by the args.
-   If there are no args, fetches the facts in the current namespace (*ns*).
-   * if an arg is a namespace or a symbol naming one,
-       it fetches the facts in that namespace.
-   * (fetch-facts :all) fetches all the facts in all the namespaces.
-   * If the argument is a function or a keyword, it is applied to the
-       metadata of all known facts. Those that match are returned.
-   * If the argument is a string or regexp, any fact whose name
-       (typically the doc string) matches the argument is returned.
-       Matches are position independent: \"word\" matches \"a word b\"."
+  "Fetch facts that have already been defined, whether by loading
+   them from a file or via the repl.
+
+   (fetch-facts)                  -- defined in the current namespace
+   (fetch-facts *ns* midje.t-repl -- defined in named namespaces
+                                     (Names need not be quoted.)
+   (fetch-facts :all)             -- defined anywhere
+
+   You can further filter the facts by giving more arguments. Facts matching
+   any of the arguments are included in the result. The arguments are:
+
+   :keyword      -- Does the metadata have a truthy value for the keyword?
+   \"string\"    -- Does the fact's name contain the given string? 
+   #\"regex\"    -- Does any part of the fact's name match the regex?
+   a function    -- Does the function return a truthy value when given
+                    the fact's metadata?"
+
   [& args]
   (let [args (if (empty? args) [*ns*] args)]
     (mapcat (fn [arg]
@@ -123,16 +144,23 @@
 
 
 (defn forget-facts 
-  "Fetches the facts described by the args.
-   If there are no args, forgets the facts in the current namespace (*ns*).
-   * if an arg is a namespace or a symbol naming one,
-       it forgets the facts in that namespace.
-   * (forget-facts :all) forgets all the facts in all the namespaces.
-   * If the argument is a function or a keyword, it is applied to the
-       metadata of all known facts. Those that match are forgotten.
-   * If the argument is a string or regexp, any fact whose name
-       (typically the doc string) matches the argument is forgotten.
-       Matches are position independent: \"word\" matches \"a word b\"."
+  "Forget defined facts so that they will not be found by `check-facts`
+   or `fetch-facts`.
+
+   (forget-facts)                  -- defined in the current namespace
+   (forget-facts *ns* midje.t-repl -- defined in named namespaces
+                                      (Names need not be quoted.)
+   (forget-facts :all)             -- defined anywhere
+
+   You can further filter the facts by giving more arguments. Facts matching
+   any of the arguments are the ones that are forgotten. The arguments are:
+
+   :keyword      -- Does the metadata have a truthy value for the keyword?
+   \"string\"    -- Does the fact's name contain the given string? 
+   #\"regex\"    -- Does any part of the fact's name match the regex?
+   a function    -- Does the function return a truthy value when given
+                    the fact's metadata?"
+
   [& args]
   (let [args (if (empty? args) [*ns*] args)]
     (doseq [arg args]
@@ -157,21 +185,23 @@
   check-one-fact fact/check-one)
 
 (defn check-facts
-  "Checks the facts described by the args.
-   If there are no args, checks the facts in the current namespace (*ns*).
-   * if an arg is a namespace or a symbol naming one,
-       it checks the facts in that namespace.
-   * (check-facts :all) checks all the facts in all the namespaces.
-   * If the argument is a function or a keyword, it is applied to the
-       metadata of all known facts. Those that match are checked.
-   * If the argument is a string or regexp, any fact whose name
-       (typically the doc string) matches the argument is checked.
-       Matches are position independent: \"word\" matches \"a word b\".
-   The return value is `true` if all the facts check out.
+  "Check facts that have already been defined.
 
-   Note: Multiple arguments have the effect of concatenating the
-   matches for each one. That can lead to duplicates. I'll fix it
-   if anyone ever cares."
+   (check-facts)                  -- defined in the current namespace
+   (check-facts *ns* midje.t-repl -- defined in named namespaces
+                                     (Names need not be quoted.)
+   (check-facts :all)             -- defined anywhere
+
+   You can further filter the facts by giving more arguments. Facts matching
+   any of the arguments are the ones that are checked. The arguments are:
+
+   :keyword      -- Does the metadata have a truthy value for the keyword?
+   \"string\"    -- Does the fact's name contain the given string? 
+   #\"regex\"    -- Does any part of the fact's name match the regex?
+   a function    -- Does the function return a truthy value when given
+                    the fact's metadata?
+
+   In addition, you can adjust what's printed. See `(print-level-help)`."
   [& args]
   (levelly/obeying-print-levels [args args]
     (let [fact-functions (apply fetch-facts args)]
@@ -194,10 +224,13 @@
 (defn recheck-fact 
   "Recheck the last fact or tabular fact that was checked.
    When facts are nested, the entire outer-level fact is rechecked.
-   The result is true if the fact checks out."
-  [& args]
-  (levelly/obeying-print-levels [args args]
-    (check-facts-once-given [(last-fact-checked)])))
+   The result is true if the fact checks out.
+
+   You can adjust what's printed. See `(print-level-help)`."
+  ([]
+     (check-facts-once-given [(last-fact-checked)]))
+  ([print-level]
+     (levelly/obeying-print-levels [print-level] (recheck-fact))))
 
 (def ^{:doc "Synonym for `recheck-fact`."} rcf recheck-fact)
 

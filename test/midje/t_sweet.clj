@@ -374,7 +374,7 @@
     (#'var-inc-local 2) => 200))
 
 (fact "default prerequisites work with vars"
-  (config/with-temporary-config {:allow-default-prerequisites true}
+  (config/with-augmented-config {:allow-default-prerequisites true}
     (#'midje.internal-ideas.t-fakes/var-twice) => 201
     (provided
       (#'midje.internal-ideas.t-fakes/var-inc 2) => 200)))

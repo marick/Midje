@@ -6,7 +6,7 @@
   (:require [midje.config :as config]))
 (expose-testables midje.ideas.reporting.levels)
 
-(config/with-temporary-config {:print-level :print-normally}
+(config/with-augmented-config {:print-level :print-normally}
 
 (facts "about levels"
   (-> -2 levels-to-names names-to-levels) => -2
@@ -58,22 +58,22 @@
         desc-fact (with-meta (fn[]) {:midje/description "desc"})
         unnamed (with-meta (fn[]) {:midje/file "file" :midje/line 3})]
     (fact "prints nothing unless at :print-facts level"
-      (config/with-temporary-config
+      (config/with-augmented-config
         {:print-level (dec (names-to-levels :print-facts))}
         (with-out-str (report-checking-fact name+desc-fact)) => ""))
 
     (fact "prints names in preference to descriptions"
-      (config/with-temporary-config {:print-level :print-facts}
+      (config/with-augmented-config {:print-level :print-facts}
         (with-out-str (report-checking-fact name+desc-fact)) => #"Checking named"
         (with-out-str (report-checking-fact desc-fact)) => #"Checking desc"
         (with-out-str (report-checking-fact unnamed))
         => #"Checking fact at \(file:3\)"))))
 
 (fact "report-summary"
-  (config/with-temporary-config {:print-level :print-no-summary}
+  (config/with-augmented-config {:print-level :print-no-summary}
     (with-out-str (report-summary)) => "")
   
-  (config/with-temporary-config
+  (config/with-augmented-config
     {:print-level (inc (names-to-levels :print-no-summary))}
     (with-out-str (report-summary)) => #"All claims.*have been confirmed"
     (provided
@@ -82,12 +82,12 @@
 (fact "report on a namespace"
   (fact "Not normally printed"
     (with-out-str (report-changed-namespace 'ignored)) => ""
-    (config/with-temporary-config
+    (config/with-augmented-config
       {:print-level (dec (names-to-levels :print-namespaces))}
       (with-out-str (report-changed-namespace 'ignored)) => ""))
 
   (fact "reports only when namespace changes"
-    (config/with-temporary-config {:print-level :print-namespaces}
+    (config/with-augmented-config {:print-level :print-namespaces}
       (reset! last-namespace-shown "nothing")
       (with-out-str (report-changed-namespace "nothing")) => ""
       (with-out-str (report-changed-namespace "something")) => #"something")))

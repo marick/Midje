@@ -8,7 +8,7 @@
             [midje.config :as config]
             midje.util))
 
-(config/with-temporary-config {:print-level :print-no-summary}
+(config/with-augmented-config {:print-level :print-no-summary}
 
                                 ;;; Forgetting facts
 (defn add-fact

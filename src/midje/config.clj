@@ -20,6 +20,7 @@
             :visible-deprecation true
             :visible-future true
             :allow-default-prerequisites false
+            :check-after-creation true
 
             ;; The following aren't changed by users.
             ;; Should they be in the fact-context?
@@ -38,7 +39,7 @@
   (dorun (map validate-key! changes)))
 
   
-(defmacro with-temporary-config [additions & body]
+(defmacro with-augmented-config [additions & body]
   `(let [true-map# ~additions]
      (validate! true-map#)
      (binding [*config* (merge *config* true-map#)]

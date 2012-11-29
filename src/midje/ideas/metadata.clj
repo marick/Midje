@@ -127,7 +127,7 @@
   [[arglist-name original-args] plain-argument? & body]
   `(let [[filters# ~arglist-name] (separate-metadata-filters ~original-args
                                                              ~plain-argument?)]
-     (config/with-temporary-config {:desired-fact?
+     (config/with-augmented-config {:desired-fact?
                                     (desired-fact-predicate-from filters#)}
        ~@body)))
 
