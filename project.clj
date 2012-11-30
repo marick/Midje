@@ -21,7 +21,7 @@
                                   [jonase/kibit "0.0.3"]
                                   [jonase/eastwood "0.0.2"]
                                   [org.clojure/tools.namespace "0.2.1"]]
-                   :plugins [[lein-midje "2.0.1"]]}
+                   :plugins [[lein-midje "2.0.2"]]}
              :1.2.0 {:dependencies [[org.clojure/clojure "1.2.0"]]}
              :1.2.1 {:dependencies [[org.clojure/clojure "1.2.1"]]}
              :1.3 {:dependencies [[org.clojure/clojure "1.3.0"]]}
