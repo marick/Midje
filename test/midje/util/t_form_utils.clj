@@ -133,7 +133,9 @@
   ((any-pred-from [:key :word]) {:key false :word 3}) => true
   ((any-pred-from [#{1 2} #{3 4}]) 3) => true
   ;; stops at first match
-  ((any-pred-from [(partial = 3) (fn[_](throw (new Error "boom!")))]) 3) => true)
+  ((any-pred-from [(partial = 3) (fn[_](throw (new Error "boom!")))]) 3) => true
+  ;; Any empty list means that everything matches
+  ((any-pred-from []) 3) => true)
 
 (fact "stringlike-matches?"
   (stringlike-matches? "foo" "ofoop") => true

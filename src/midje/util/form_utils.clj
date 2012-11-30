@@ -78,11 +78,13 @@
    ( (any-of? even? odd?) 3) => true
    Stops checking after first success."
   [preds]
-  (fn [arg]
-    (loop [[candidate & remainder :as preds] preds]
-      (cond (empty? preds)  false
-            (candidate arg) true
-            :else           (recur remainder)))))
+  (if (empty? preds)
+    (constantly true)
+    (fn [arg]
+      (loop [[candidate & remainder :as preds] preds]
+        (cond (empty? preds)  false
+              (candidate arg) true
+              :else           (recur remainder))))))
   
 
 ;;; Etc.
