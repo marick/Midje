@@ -10,7 +10,7 @@
 
 ;; These tests generate failures to examine. We don't want them to be
 ;; added to the total failure count, which should always be zero.
-(without-counting-failures
+(without-changing-cumulative-totals
 
 (fact "string positions have filenames and line numbers"
   (midje-position-string ["filename.clj" 33]) => "(filename.clj:33)")
@@ -199,4 +199,4 @@
     (nth raw-report 0) => #"FAIL.*some description.* at .*foo.clj:3"
     (nth raw-report 1) => #"a note"))
 
-)  ; end without-counting-failures
+)  ; end without-changing-cumulative-totals

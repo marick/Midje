@@ -3,10 +3,12 @@
         midje.checkers
         [midje.checkers.extended-equality :only [extended-=]]
         [midje.checkers.extended-falsehood :only [extended-false?]]
-        [midje.sweet :only [against-background]]
         midje.error-handling.exceptions
         [clojure.set :only [subset?]]
-        [midje.util.form-utils :only [macro-for]]))
+        [midje.util.form-utils :only [macro-for]])
+  (:require [midje.clojure-test-facade :as ctf]
+            [midje.config :as config]))
+
 
 (def reported (atom []))
 
@@ -15,8 +17,8 @@
     (reset! reported [])
     (f)))
 
-(defmacro run-silently [run-form]
-  `(run-without-reporting (fn [] ~run-form)))
+(defmacro run-silently [& run-forms]
+  `(run-without-reporting (fn [] ~@run-forms)))
 
 (defmacro after-silently [example-form & check-forms]
    `(do
@@ -128,24 +130,28 @@
 ;; in the final summary. They will, however, produce failure output,
 ;; so that's an acceptable compromise.
 
-(defmacro without-counting-failures [& forms]
-  `(do
-    (when (nil? clojure.test/*report-counters*)
-      (alter-var-root #'clojure.test/*report-counters*
-                      (constantly (ref clojure.test/*initial-report-counters*))))
+(defmacro without-changing-cumulative-totals [& forms]
+  `(ctf/ignoring-counter-changes ~@forms))
 
-    (against-background
-      [(around :facts
-               (let [report-counters# @clojure.test/*report-counters*]
-                 ?form
-                 (dosync (commute clojure.test/*report-counters*
-                                  (constantly report-counters#)))))]
-      ~@forms)))
+(defmacro without-externally-visible-changes [& body]
+  `(config/with-augmented-config {:print-level :print-nothing}
+     (without-changing-cumulative-totals ~@body)))
+
+;; This notes when a test incorrectly stepped on the running
+;; count that you see from `lein midje`.
+(defmacro confirming-cumulative-totals-not-stepped-on [& body]
+  `(let [stashed-counters# (ctf/counters)]
+     ~@body
+     (midje.sweet/fact "Checking whether cumulative totals were stepped on"
+       (>= (:pass (ctf/counters)) (:pass stashed-counters#)) midje.sweet/=> true
+       (>= (:fail (ctf/counters)) (:fail stashed-counters#)) midje.sweet/=> true)))
+
+
 
 (def test-output (atom nil))
 
 (defmacro capturing-output [fact1 fact2]
   `(do
      (reset! test-output
-             (with-out-str (without-counting-failures ~fact1)))
+             (with-out-str (without-changing-cumulative-totals ~fact1)))
      ~fact2))

@@ -19,7 +19,7 @@
 
 ;; These tests generate failures to examine. We don't want them to be
 ;; added to the total failure count, which should always be zero.
-(without-counting-failures
+(without-changing-cumulative-totals
  
 (fact "report formatter is dynamically rebindable"
   (let [message {:type :mock-expected-result-failure :description "FAILURE" :expected 1 :actual 2}]
@@ -62,4 +62,4 @@
   (let [message {:type :summary :description "FUTURE FACT"}]
     (junit/junit-report message)) => nil)
 
-)  ; end without-counting-failures
+)  ; end without-changing-cumulative-totals

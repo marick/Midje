@@ -4,7 +4,7 @@
 
 ;; These tests generate failures to examine. We don't want them to be
 ;; added to the total failure count, which should always be zero.
-(without-counting-failures
+(without-changing-cumulative-totals
 
 (let [output (with-out-str
                (fact (+ 1 1) => 3))]
@@ -74,4 +74,4 @@
     output => #"Checking function:\s+\(every-checker even\? \(throws \"message\"\)\)"
     output => #"even\? => false"))
 
-)  ; end without-counting-failures
+)  ; end without-changing-cumulative-totals
