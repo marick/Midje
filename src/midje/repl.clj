@@ -9,6 +9,7 @@
             [midje.ideas.reporting.levels :as levelly]
             [midje.ideas.metadata :as metadata]
             [midje.doc :as doc]
+            [midje.config :as config]
             [leiningen.core.project :as project]
             [midje.util.form-utils :as form]
             [midje.util.namespace :as namespace]))
@@ -28,15 +29,22 @@
 
                                 ;;; Miscellaneous utilities
 
+(def ^{:private true} all-keyword-is-not-a-filter
+  ;; Prevent namespace arguments from being treated as filters
+  (partial = :all))
+
+(defn- fetch-facts-by-namespaces [namespaces]
+  (let [namespaces (if (empty? namespaces) [*ns*] namespaces)]
+    (mapcat #(if (= % :all)
+               (compendium/all-facts<>)
+               (compendium/namespace-facts<> %))
+            namespaces)))
 
 (defn- check-facts-once-given [fact-functions]
   (levelly/forget-past-results)
   (let [results (doall (map fact/check-one fact-functions))]
     (levelly/report-summary)
     (every? true? results)))
-  
-
-                                ;;; Loading facts from the repl
 
 (defn- ^{:testable true} paths-to-load []
   (try
@@ -52,25 +60,27 @@
           (map str namespaces)))
 
 
-(declare forget-facts)
+
+                                ;;; Loading facts from the repl
 (defn load-facts*
   "Functional form of `load-facts`."
   [args]
   (levelly/obeying-print-levels [args args]
-    (let [desired-namespaces (if (empty? args)
-                               (mapcat namespaces-in-dir (paths-to-load))
-                               (expand-namespaces args))]
-    (levelly/forget-past-results)
-    (doseq [ns desired-namespaces]
-      (forget-facts ns)
-      ;; Following strictly unnecessary, but slightly useful because
-      ;; it reports the changed namespace before the first fact loads.
-      ;; That way, some error in the fresh namespace won't appear to
-      ;; come from the last-loaded namespace.
-      (levelly/report-changed-namespace ns)
-      (require ns :reload))
-    (levelly/report-summary)
-    nil)))
+    (metadata/obeying-metadata-filters [args args] all-keyword-is-not-a-filter
+      (let [desired-namespaces (if (empty? args)
+                                 (mapcat namespaces-in-dir (paths-to-load))
+                                 (expand-namespaces args))]
+        (levelly/forget-past-results)
+        (doseq [ns desired-namespaces]
+          (compendium/remove-namespace-facts-from! ns)
+          ;; Following strictly unnecessary, but slightly useful because
+          ;; it reports the changed namespace before the first fact loads.
+          ;; That way, some error in the fresh namespace won't appear to
+          ;; come from the last-loaded namespace.
+          (levelly/report-changed-namespace ns)
+          (require ns :reload))
+        (levelly/report-summary)
+        nil))))
 
 (defmacro load-facts 
   "Load given namespaces, as in:
@@ -102,7 +112,9 @@
     `(load-facts* '~error-fixed)))
 
 
-                                ;;; Fetching facts
+
+
+                                ;;; Fetching loaded facts
 
 (defn fetch-facts
   "Fetch facts that have already been defined, whether by loading
@@ -123,25 +135,14 @@
                     the fact's metadata?"
 
   [& args]
-  (let [args (if (empty? args) [*ns*] args)]
-    (mapcat (fn [arg]
-              (cond (metadata/describes-name-matcher? arg)
-                    (filter (metadata/name-matcher-for arg)
-                            (compendium/all-facts<>))
-                    
-                    (= arg :all)
-                    (compendium/all-facts<>)
-                    
-                    (metadata/describes-callable-matcher? arg)
-                    (filter (metadata/callable-matcher-for arg)
-                            (compendium/all-facts<>))
-                    
-                    :else
-                    (compendium/namespace-facts<> arg)))
-            args)))
+  (let [[filters namespaces]
+        (metadata/separate-metadata-filters args all-keyword-is-not-a-filter)
 
-                                ;;; Forgetting facts
+        fact-functions (fetch-facts-by-namespaces namespaces)]
+    (filter (metadata/desired-fact-predicate-from filters) fact-functions)))
 
+
+                              ;;; Forgetting loaded facts
 
 (defn forget-facts 
   "Forget defined facts so that they will not be found by `check-facts`
@@ -162,23 +163,21 @@
                     the fact's metadata?"
 
   [& args]
-  (let [args (if (empty? args) [*ns*] args)]
-    (doseq [arg args]
-      (cond (= arg :all)
-            (compendium/fresh!)
+  (let [[filters namespaces]
+        (metadata/separate-metadata-filters args all-keyword-is-not-a-filter)
 
-            (or (string? arg)
-                (form/regex? arg)
-                (fn? arg)
-                (keyword? arg))
-            (doseq [fact (fetch-facts arg)]
-              (compendium/remove-from! fact))
-                    
-            :else
-            (compendium/remove-namespace-facts-from! arg)))))
+        namespaces (if (empty? namespaces) [*ns*] namespaces)]
+    (if (empty? filters)
+      ;; a rare concession to efficiency
+      (doseq [ns namespaces]
+        (if (= ns :all)
+          (compendium/fresh!)
+          (compendium/remove-namespace-facts-from! ns)))
+      (doseq [fact-function (apply fetch-facts args)]
+        (compendium/remove-from! fact-function)))))
 
-
-                                ;;; Checking facts
+    
+                                ;;; Checking loaded facts
 
 (def ^{:doc "Check a single fact. Takes as its argument a function such
     as is returned by `last-fact-checked`."}
@@ -208,6 +207,7 @@
     (check-facts-once-given fact-functions))))
     
 
+
                                 ;;; The history of checked facts
 
 (defn last-fact-checked
@@ -226,11 +226,13 @@
    When facts are nested, the entire outer-level fact is rechecked.
    The result is true if the fact checks out.
 
-   You can adjust what's printed. See `(print-level-help)`."
+   The optional argument lets you adjust what's printed.
+   See `(print-level-help)` for legal values."
   ([]
      (check-facts-once-given [(last-fact-checked)]))
   ([print-level]
-     (levelly/obeying-print-levels [print-level] (recheck-fact))))
+     (config/with-augmented-config {:print-level print-level}
+       (recheck-fact))))
 
 (def ^{:doc "Synonym for `recheck-fact`."} rcf recheck-fact)
 

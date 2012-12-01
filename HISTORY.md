@@ -14,6 +14,9 @@
 * :visible-deprecation can be set in the configuration.
 * :allow-default-prerequisites can be set in the configuration.
 * :visible-future can be set in the configuration.
+* :check-after-creation can be set in the configuration.
+* `load-facts` now prevents facts from being created if they're
+  excluded by the argument list.
 
 1.5-alpha2
 -------------

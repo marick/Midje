@@ -199,15 +199,19 @@
 ;; and then thrown away. I think this is unavoidable if you want the
 ;; filter predicate to be applied in the repl.
 (defn creation-time-fact-processing [fact-function]
-  (when ((config/choice :desired-fact?) (meta fact-function))
+  (when ((config/choice :desired-fact?) fact-function)
     (compendium/record-fact-existence! fact-function)
     fact-function))
 
 
 (defn check-one [fact-function]
   (let [fact-creation-filter (config/choice :desired-fact?)]
-    (if (fact-creation-filter (meta fact-function))
+    (if (fact-creation-filter fact-function)
       (do
+        ;; The fact is recorded on entry so that if a fact is
+        ;; rechecked inside the midje.t-repl tests, the rechecked
+        ;; fact stays the last-fact-checked (because it overwrites
+        ;; the fact that's testing it).
         (when (:midje/top-level-fact? (meta fact-function))
           (compendium/record-fact-check! fact-function))
         (#'midje.ideas.reporting.report/fact-begins)
