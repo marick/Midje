@@ -3,7 +3,8 @@
   (:use clojure.test
         clojure.test.junit
         [midje.ideas.reporting.string-format :only [report-strings-format-config]]
-        [midje.ideas.reporting.junit-xml-format :only [junit-xml-format-config]]))
+        [midje.ideas.reporting.junit-xml-format :only [junit-xml-format-config]])
+  (:require [midje.ideas.reporting.levels :as levelly]))
 
 
 ;;; Configuration
@@ -50,26 +51,27 @@
   (defmethod clojure.test/report :begin-test-ns [m]))
 
 
-(letfn [(render [m]
-          (->> m 
-               ((:single-fact-fn *report-format-config*)) 
-               flatten 
-               (remove nil?) 
-               (map *renderer*) 
-               doall))]
+(defn render [m]
+  (when (levelly/above? :print-nothing)
+    (->> m 
+         ((:single-fact-fn *report-format-config*)) 
+         flatten 
+         (remove nil?) 
+         (map *renderer*) 
+         doall)))
 
-  (defmethod clojure.test/report :default [m]
-    (inc-report-counter :fail)
-    (note-failure-in-fact)
-    (render m))
+(defmethod clojure.test/report :default [m]
+  (inc-report-counter :fail)
+  (note-failure-in-fact)
+  (render m))
 
-  (defmethod clojure.test/report :future-fact [m]
-    (render m))
+(defmethod clojure.test/report :future-fact [m]
+  (render m))
 
-  (defmethod clojure.test.junit/junit-report :default [m]
-    (inc-report-counter :fail)
-    (note-failure-in-fact)
-    (try
+(defmethod clojure.test.junit/junit-report :default [m]
+  (inc-report-counter :fail)
+  (note-failure-in-fact)
+  (try
     (with-test-out
       (failure-el (:description m)
                   (:expected m)
@@ -77,11 +79,10 @@
     (catch Exception e
       (.printStackTrace e)
       (throw e)))
-    (render m))
+  (render m))
 
 
-  (defmethod clojure.test.junit/junit-report :future-fact [m]
-    (render m))
+(defmethod clojure.test.junit/junit-report :future-fact [m]
+  (render m))
 
-  (defmethod clojure.test.junit/junit-report :summary [m])
-  )
+(defmethod clojure.test.junit/junit-report :summary [m])

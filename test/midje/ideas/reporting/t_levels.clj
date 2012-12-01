@@ -3,7 +3,9 @@
         midje.ideas.reporting.levels
         [midje sweet util test-util]
         [midje.clojure-test-facade :only [counters]])
-  (:require [midje.config :as config]))
+  (:require [midje.config :as config]
+            [midje.ideas.reporting.report :as report]))
+
 (expose-testables midje.ideas.reporting.levels)
 
 (config/with-augmented-config {:print-level :print-normally}
@@ -92,5 +94,14 @@
       (with-out-str (report-changed-namespace "nothing")) => ""
       (with-out-str (report-changed-namespace "something")) => #"something")))
 
+(fact "no reporting at all"
+  :check-only-at-load-time
+  (config/with-augmented-config
+    {:print-level (names-to-levels :print-nothing)}
+    (with-out-str
+      (report/render '{:type :mock-expected-result-failure,
+                       :description [], :position ["t_levels.clj" 96],
+                       :actual 1, :expected 2}))
+    => ""))
 
-)
+) ; restore print levels to user default
