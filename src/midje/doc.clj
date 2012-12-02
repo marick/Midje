@@ -2,11 +2,15 @@
   midje.doc
   (:use clojure.pprint)
   (:require [midje.util.colorize :as color]
+            [clojure.java.browse :as browse]
             [midje.util.ecosystem :as ecosystem]))
 
 (def appropriate? ecosystem/running-in-repl?)
-(def for-sweet '[midje-help midje-configuration-help])
-(def for-repl  '[midje-repl-help print-level-help])
+(def for-sweet '[midje-help
+                 midje-configuration-help
+                 print-level-help
+                 guide])
+(def for-repl  '[midje-repl-help])
 
 (defn repl-notice []
   (println (color/note "Run `(midje-repl-help)` for descriptions of Midje repl functions.")))
@@ -14,6 +18,23 @@
 (defn midje-notice []
   (println (color/note "For Midje usage, run `(midje-help)`."))
   (println (color/note "For Midje configuration options, run `(midje-configuration-help)`.")))
+
+
+(def guide-topics {
+ 'future-facts  "https://github.com/marick/Midje/wiki/Future-facts"
+ 'partial-prerequisites "https://github.com/marick/Midje/wiki/Partial-prerequisites"
+})
+                    
+(defmacro guide
+  "Open a web page that addresses a particular topic"
+  [topic]
+  `(if-let [url# (guide-topics '~topic)]
+     (browse/browse-url url#)
+     (do 
+       (println "There is no such topic. Did you mean one of these?")
+       (doseq [topic# (keys guide-topics)]
+         (println "   " topic#)))))
+  
 
 (defn midje-repl-help
   "Midje repl help"
@@ -226,4 +247,35 @@
 (defn midje-configuration-help
   "What can go in the .midje.clj files."
   []
-  "Not implemented yet.")
+  (println "On startup, Midje loads ${HOME}/.midje.clj and ./.midje.clj")
+  (println "(in that order). To affect the default configuration, use")
+  (println "code like this:")
+  (println "    (override-with :visible-deprecation false")
+  (println "                   :visible-future false")
+  (println "                   :print-level :print-namespaces)")
+  (println)
+  (println "You can temporarily override the configuration like this:")
+  (println "    (midje.config/with-augmented-config {:print-level :print-no-summary}")
+  (println "       <forms>...)")
+  (println)
+  (println "------ Configuration keywords")
+  (println ":print-level                  ; Verbosity of printing.")
+  (println "                              ; See `(print-level-help)`")
+  (println)
+  (println ":check-after-creation         ; Should facts be checked as they're loaded?")
+  (println "                              ; Default true.")
+  (println)
+  (println ":visible-deprecation          ; Whether information about deprecated")
+  (println "                              ; features or functions is printed.")
+  (println "                              ; Default true.")
+  (println)
+  (println ":visible-future               ; Whether future facts produce output.")
+  (println "                              ; Default true.")
+  (println "                              ; More: `(guide future-facts)`")
+  (println)
+  (println ":partial-prerequisites        ; Whether the real function can be used.")
+  (println "                              ; Default false.")
+  (println "                              ; More: `(guide partial-prerequisites)`")
+  (println)
+  )
+
