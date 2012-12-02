@@ -12,7 +12,7 @@
 * Now reads ~/.midje.clj and .midje.clj for configuration.
 * :print-level can be set in the configuration.
 * :visible-deprecation can be set in the configuration.
-* :allow-default-prerequisites can be set in the configuration.
+* :partial-prerequisites can be set in the configuration.
 * :visible-future can be set in the configuration.
 * :check-after-creation can be set in the configuration.
 * `load-facts` now prevents facts from being created if they're

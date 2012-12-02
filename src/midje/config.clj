@@ -10,7 +10,7 @@
 ;; into the *config* map. A deprecation notice has been added where it's used.
 (def ^{:dynamic true
        :doc "Controls whether unmatched prerequisites 'fall through' to real function.
-             DEPRECATED: Use config variable :allow-default-prerequisites instead."
+             DEPRECATED: Use config variable :partial-prerequisites instead."
        :deprecated "1.5"}
      *allow-default-prerequisites* false)
 
@@ -19,7 +19,7 @@
   *config* {:print-level :print-normally
             :visible-deprecation true
             :visible-future true
-            :allow-default-prerequisites false
+            :partial-prerequisites false
             :check-after-creation true
 
             ;; The following aren't changed by users.

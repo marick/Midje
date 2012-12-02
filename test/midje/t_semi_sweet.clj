@@ -211,7 +211,7 @@
 
 
 (fact "mocks can be partial: they fall through to any previously defined function"
-  (config/with-augmented-config {:allow-default-prerequisites true}
+  (config/with-augmented-config {:partial-prerequisites true}
     (expect (str (backing-function "returned") " " (backing-function "overridden")) => "returned new value"
             (fake (backing-function "overridden") => "new value"))))
 

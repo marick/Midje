@@ -128,7 +128,7 @@
 ;; the real values. The config/with-augmented-config simulates the
 ;; loading of a .midje.clj file.
 
-(config/with-augmented-config {:allow-default-prerequisites true}
+(config/with-augmented-config {:partial-prerequisites true}
   (after-silently
    (fact
      (using-function 4) => (+ 80 4)

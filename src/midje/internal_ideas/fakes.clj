@@ -169,7 +169,7 @@
   (when config/*allow-default-prerequisites*
     (deprecate "*allow-default-prerequisites* is deprecated and will be removed in Midje 1.6.\nUse config variable :allow-default-prerequisites instead."))
   (and (or config/*allow-default-prerequisites*
-           (config/choice :allow-default-prerequisites))
+           (config/choice :partial-prerequisites))
        (bound? (:var fake))
        (let [value-in-var (var-get (:var fake))
              unfinished-fun (:midje/unfinished-fun (meta (:var fake)))]
