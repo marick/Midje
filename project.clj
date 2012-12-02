@@ -9,7 +9,7 @@
                    [bultitude "0.1.7"]
                    [leiningen-core "2.0.0-preview10"]
                    [swiss-arrows "0.1.0"]
-                   [gui-diff "0.3.8"]])
+                   [gui-diff "0.3.9"]])
 
 (defproject midje "1.5-alpha3"
   :description "A TDD library for Clojure that supports top-down ('mockish') TDD, encourages readable tests, provides a smooth migration path from clojure.test, balances abstraction and concreteness, and strives for graciousness."
