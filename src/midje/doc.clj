@@ -27,7 +27,8 @@
                  midje-print-level
                  midje-print-levels
                  guide])
-(def for-repl  '[midje-repl])
+(def for-repl  '[midje-repl
+                 midje-repl-working-set])
 
 (def ^{:doc "
    Detailed help:
@@ -52,19 +53,23 @@
   To control verbosity of output, use print levels described by
   `(doc midje-print-levels)`.
 
+  The repl tools track the namespaces you're currently working
+  on in the \"working set\". See `(doc midje-repl-working-set)`.
+
   ----- Loading facts
   You load facts by namespace.
   (load-facts <ns> <ns>...)
   (load-facts 'midje.util.*)      ; Load all namespaces below midje.util.
+  (load-facts)                    ; Reload the working set namespaces.
   (load-facts <ns> :integration)  ; Apply filters to facts.
 
   ----- Checking facts, once loaded
-  (check-facts)                     ; in current namespace
+  (check-facts)                     ; in the working set
   (check-facts <ns> <ns>...)        ; in given namespaces
   (check-facts :all)                ; all defined facts
   (check-facts :all :integration)   ; all integration tests
-  (check-facts \"partial\")         ; in this namespace when
-                                    ; name contains \"partial\"
+  (check-facts \"partial\")         ; all files in the working set
+                                    ; whose name contains \"partial\"
   There are other filter arguments.
 
   ----- Rerunning facts
@@ -96,6 +101,51 @@
   -- (fact-namespace <ff>)
   -- (fact-description <ff>)         ; the doc string; might be nil
   "} midje-repl)
+
+;; working set
+(def ^{:doc "
+  The working set is a list of namespaces used as the
+  default argument to repl functions. For example:
+
+    ;; Load multiple namespaces' worth of facts:
+    (load-facts 'midje.util.*)
+
+    ;; Reload them:
+    (load-facts)
+
+    ;; Check them:
+    (check-facts)
+
+    ;; Forget them:
+    (forget-facts) 
+
+    ;; In the above case, `forget-facts` doesn't
+    ;; clear the working set, so you can reload it:
+    (load-facts)
+
+  The working set changes whenever namespace-like arguments
+  are given to the repl functions. (\"Namespace-like\" arguments
+  are namespaces, symbols naming namespaces, `:all`, and
+  wildcarded namespaces like `midje.ideas.*`.
+
+  You can see the current working set with `(working-set)`.
+
+  Here is an example of the use of the working set:
+
+    ;; Suppose there are two test namespaces,
+    ;; `test.t1` and `test.t2`.
+    (load-facts :all)
+
+    ;; Check both sets of facts.
+    (check-facts)
+
+    ;; Check only one namespace
+    (check-facts 'test.t1)
+
+    ;; The working set is now only `test.t1`, so
+    ;; `(forget-facts)` would only facts facts
+    ;; in that namespace.
+  "} midje-repl-working-set)
 
 ;; print-levels
 (def ^{:doc "
