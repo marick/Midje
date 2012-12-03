@@ -53,6 +53,9 @@
     (catch java.io.FileNotFoundException e
       ["test"])))
 
+(defn- ^{:testable true} project-namespaces []
+  (mapcat namespaces-in-dir (paths-to-load)))
+
 (defn- ^{:testable true} expand-namespaces [namespaces]
   (mapcat #(if (= \* (last %))
              (namespaces-on-classpath :prefix (apply str (butlast %)))
@@ -90,7 +93,7 @@
   (levelly/obeying-print-levels [args args]
     (metadata/obeying-metadata-filters [args args] all-keyword-is-not-a-filter
       (let [desired-namespaces (if (empty? args)
-                                 (mapcat namespaces-in-dir (paths-to-load))
+                                 (project-namespaces)
                                  (expand-namespaces args))]
         (levelly/forget-past-results)
         (doseq [ns desired-namespaces]

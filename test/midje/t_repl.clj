@@ -8,60 +8,7 @@
             [midje.config :as config]
             midje.util))
 
-
-;;;; === PART 1: Loading facts from files
-
-(confirming-cumulative-totals-not-stepped-on
- (without-changing-cumulative-totals
-  (fact "load-facts"
-    (against-background ; These always happen.
-      (levelly/forget-past-results) => anything
-      (forget-facts 'a-namespace) => anything
-      (require 'a-namespace :reload) => anything)
-    
-    (load-facts :print-nothing 'ns.foo) => nil
-    (provided
-      (#'midje.repl/expand-namespaces ['ns.foo]) => ['a-namespace])
-    
-    (load-facts :print-nothing 'ns.foo*) => nil
-    (provided
-      (#'midje.repl/expand-namespaces ['ns.foo*]) => ['a-namespace])
-    
-    (load-facts :print-nothing) => nil
-    (provided
-      (#'midje.repl/paths-to-load) => ["a path"]
-      (bultitude.core/namespaces-in-dir "a path") => ['a-namespace]))
- 
- 
-      ;;; Do a little real loading
-
-  (require 'midje.t-repl-helper)
-  (forget-facts 'midje.t-repl-helper)
-  (fact (fetch-facts 'midje.t-repl-helper) => empty?)
-
-  (load-facts 'midje.t-repl-helper :non-featherian :print-no-summary)
-  (fact
-    (let [loaded (fetch-facts 'midje.t-repl-helper)]
-      (count loaded) => 1
-      (fact-name (first loaded)) => "a non-featherian test"))
-
-  ;; Loading a file erases the previous version.
-  (forget-facts :all)
-  (load-facts 'midje.t-repl-helper :print-no-summary)
-  (fact :check-only-at-load-time
-    (count (fetch-facts :all)) => 2)
-
-  (load-facts :print-no-summary 'midje.t-repl-helper "simple")
-  (fact :check-only-at-load-time
-    (let [facts-known (fetch-facts :all)]
-      (count facts-known) => 1
-      (map fact-name facts-known) => ["a simple test"]))
-  
-  
- )
-
-
-;;;; ==== PART 2: Working with loaded facts
+;;;; === Util
 
  (defn add-fact
    [& args]
@@ -81,6 +28,56 @@
 
  (defn compendium-count [arg]
    (count (fetch-facts arg)))
+
+
+;;;; === PART 1: Loading facts from files
+
+(confirming-cumulative-totals-not-stepped-on
+ (without-changing-cumulative-totals
+  (fact "load-facts" :check-only-at-load-time
+    (fact "Can load namespace by symbol"
+      (forget-facts :all)
+      (load-facts 'midje.t-repl-helper :print-no-summary)
+      (count (fetch-facts :all)) => 2)
+
+    (fact "Can load namespace by its object"
+      (forget-facts :all)
+      (load-facts (the-ns 'midje.t-repl-helper) :print-no-summary)
+      (count (fetch-facts :all)) => 2)
+
+    (fact "Loading a file erases the previous version"
+      (forget-facts :all)
+      ;; Put in a dummy fact so we can see that it's erased.
+      (add-fact :midje/namespace 'midje.t-repl-helper
+                :midje/name "FAKE")
+      (count (fetch-facts :all)) => 1
+      (load-facts (the-ns 'midje.t-repl-helper) :print-no-summary)
+      (count (fetch-facts :all)) => 2
+      (filter #(= (fact-name %) "FAKE") (fetch-facts :all)) => empty?)
+  
+    (fact "metadata filters are obeyed"
+      (load-facts 'midje.t-repl-helper :non-featherian :print-no-summary)
+      (let [loaded (fetch-facts 'midje.t-repl-helper)]
+        (count loaded) => 1
+        (fact-name (first loaded)) => "a non-featherian test")
+
+      (load-facts :print-no-summary 'midje.t-repl-helper "simple")
+      (let [loaded (fetch-facts :all)]
+        (count loaded) => 1
+        (map fact-name loaded) => ["a simple test"]))
+
+    (fact "the :all argument"
+      (load-facts :print-no-summary 'midje.t-repl-helper "simple") => anything
+      (provided
+        (#'midje.repl/project-namespaces) => ['midje.t-repl-helper])
+      (let [loaded (fetch-facts :all)]
+        (count loaded) => 1
+        (map fact-name loaded) => ["a simple test"]))
+  )    
+ )
+
+
+;;;; ==== PART 2: Working with loaded facts
 
  
                                 ;;; Fetching facts
