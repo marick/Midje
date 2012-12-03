@@ -53,6 +53,8 @@
 (defmethod quoted? :form [form]
   (first-named? form "quote"))
 
+(def dequote #(if (quoted? %) (second %) %))
+
 
 (defn reader-list-form?
   "True if the form is a parenthesized list of the sort the reader can return."

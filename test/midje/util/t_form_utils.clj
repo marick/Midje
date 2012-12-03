@@ -148,3 +148,8 @@
     
 
   
+(fact "can unquote a form"
+  (dequote '1) => 1
+  (dequote 1) => 1
+  (dequote '(some form)) => '(some form))
+
