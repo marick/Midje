@@ -107,7 +107,8 @@
 (def global (atom (fresh)))
 
 (defn fresh! []
-  (reset! global (fresh)))
+  (reset! global (fresh))
+  true)
 
 (defn record-fact-check! [function]
   (when-not (:check-only-at-load-time (meta function))
