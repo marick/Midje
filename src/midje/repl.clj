@@ -62,9 +62,31 @@
 
 
                                 ;;; Loading facts from the repl
-(defn load-facts*
-  "Functional form of `load-facts`."
-  [args]
+(defn load-facts
+  "Load given namespaces, as in:
+     (load-facts 'midje.t-sweet 'midje.t-repl)
+
+   If no namespaces are given, all the namespaces in the project.clj's
+   :test-paths and :source-paths will be loaded.
+   But if there's no project.clj, all namespaces under \"test\"
+   will be loaded.
+
+   A partial namespace ending in a `*` will load all sub-namespaces.
+   Example: (load-facts 'midje.ideas.*)
+
+   By default, all facts are loaded from the namespaces. You can, however,
+   add further arguments. Only facts matching one or more of the arguments
+   are loaded. The arguments are:
+
+   :keyword      -- Does the metadata have a truthy value for the keyword?
+   \"string\"    -- Does the fact's name contain the given string? 
+   #\"regex\"    -- Does any part of the fact's name match the regex?
+   a function    -- Does the function return a truthy value when given
+                    the fact's metadata?
+
+   In addition, you can adjust what's printed during loading.
+   See `(doc midje-print-levels)`."
+  [& args]
   (levelly/obeying-print-levels [args args]
     (metadata/obeying-metadata-filters [args args] all-keyword-is-not-a-filter
       (let [desired-namespaces (if (empty? args)
@@ -81,36 +103,6 @@
           (require ns :reload))
         (levelly/report-summary)
         nil))))
-
-(defmacro load-facts 
-  "Load given namespaces, as in:
-     (load-facts midje.t-sweet midje.t-repl)
-   Note that namespace names need not be quoted.
-
-   If no namespaces are given, all the namespaces in the project.clj's
-   :test-paths and :source-paths will be loaded.
-   But if there's no project.clj, all namespaces under \"test\"
-   will be loaded.
-
-   A partial namespace ending in a `*` will load all sub-namespaces.
-   Example: (load-facts midje.ideas.*)
-
-   By default, all facts are loaded from the namespaces. You can, however,
-   add further arguments. Only facts matching one or more of the arguments
-   are loaded. The arguments are:
-
-   :keyword      -- Does the metadata have a truthy value for the keyword?
-   \"string\"    -- Does the fact's name contain the given string? 
-   #\"regex\"    -- Does any part of the fact's name match the regex?
-   a function    -- Does the function return a truthy value when given
-                    the fact's metadata?
-
-   In addition, you can adjust what's printed. See `(print-level-help)`."
-  [& args]
-  (let [error-fixed (map #(if (form/quoted? %) (second %) %)
-                         args)]
-    `(load-facts* '~error-fixed)))
-
 
 
 
@@ -200,7 +192,7 @@
    a function    -- Does the function return a truthy value when given
                     the fact's metadata?
 
-   In addition, you can adjust what's printed. See `(print-level-help)`."
+   In addition, you can adjust what's printed. See `(doc midje-print-levels)`."
   [& args]
   (levelly/obeying-print-levels [args args]
     (let [fact-functions (apply fetch-facts args)]

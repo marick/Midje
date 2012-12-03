@@ -27,11 +27,6 @@
     (provided
       (#'midje.repl/expand-namespaces ['ns.foo*]) => ['a-namespace])
     
-    ;; Note that quoting is not required
-    (load-facts :print-nothing ns.foo*) => nil
-    (provided
-      (#'midje.repl/expand-namespaces ['ns.foo*]) => ['a-namespace])
-    
     (load-facts :print-nothing) => nil
     (provided
       (#'midje.repl/paths-to-load) => ["a path"]
@@ -44,7 +39,7 @@
   (forget-facts 'midje.t-repl-helper)
   (fact (fetch-facts 'midje.t-repl-helper) => empty?)
 
-  (load-facts midje.t-repl-helper :non-featherian :print-no-summary)
+  (load-facts 'midje.t-repl-helper :non-featherian :print-no-summary)
   (fact
     (let [loaded (fetch-facts 'midje.t-repl-helper)]
       (count loaded) => 1
@@ -52,11 +47,11 @@
 
   ;; Loading a file erases the previous version.
   (forget-facts :all)
-  (load-facts midje.t-repl-helper :print-no-summary)
+  (load-facts 'midje.t-repl-helper :print-no-summary)
   (fact :check-only-at-load-time
     (count (fetch-facts :all)) => 2)
 
-  (load-facts :print-no-summary midje.t-repl-helper "simple")
+  (load-facts :print-no-summary 'midje.t-repl-helper "simple")
   (fact :check-only-at-load-time
     (let [facts-known (fetch-facts :all)]
       (count facts-known) => 1
