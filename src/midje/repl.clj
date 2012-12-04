@@ -71,13 +71,16 @@
   "Load given namespaces, as in:
      (load-facts 'midje.t-sweet 'midje.t-repl)
 
-   If no namespaces are given, all the namespaces in the project.clj's
+   A partial namespace ending in a `*` will load all sub-namespaces.
+   Example: (load-facts 'midje.ideas.*)
+
+   If the :all argument is given, all the namespaces in the project.clj's
    :test-paths and :source-paths will be loaded.
    But if there's no project.clj, all namespaces under \"test\"
    will be loaded.
 
-   A partial namespace ending in a `*` will load all sub-namespaces.
-   Example: (load-facts 'midje.ideas.*)
+   If no namespace arguments are given, the working set is reloaded.
+   (See `(doc midje-repl-working-set)`.)
 
    By default, all facts are loaded from the namespaces. You can, however,
    add further arguments. Only facts matching one or more of the arguments
