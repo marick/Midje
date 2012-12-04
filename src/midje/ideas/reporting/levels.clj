@@ -14,8 +14,10 @@
 
 (defn separate-print-levels [args]
   (let [args (replace names-to-levels args)
-        [print-level non-levels] (form/separate-by number? args)]
-    [(or (first print-level) (normalize (config/choice :print-level)))
+        [[print-level & extras] non-levels] (form/separate-by number? args)]
+    (when (seq extras)
+      (throw (user-error "You have extra print level names or numbers.")))
+    [(normalize (or print-level (config/choice :print-level)))
      non-levels]))
 
 (defmacro obeying-print-levels [[arglist-name original-args] & body]

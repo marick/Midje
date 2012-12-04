@@ -41,8 +41,12 @@
   (separate-print-levels [:print-nothing :all])
   => [(names-to-levels :print-nothing) [:all]]
   (separate-print-levels ['a (names-to-levels :print-facts) 'b])
-  => [(names-to-levels :print-facts) '[a b]])
-  
+  => [(names-to-levels :print-facts) '[a b]]
+
+  ;; checks for valid levels
+  (separate-print-levels [500 'something]) =>  (throws Error)
+  (separate-print-levels [:print-nothing :print-facts]) => (throws Error))
+
 (fact "can override print levels temporarily"
   (config/choice :print-level) => :print-normally
   (obeying-print-levels [args [:foo :bar :print-facts]]
