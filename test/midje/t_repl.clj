@@ -8,6 +8,7 @@
             [midje.ideas.reporting.level-defs :as deflevels]
             [midje.config :as config]
             midje.util))
+(midje.util/expose-testables midje.repl)
 
 ;;;; === Util
 
@@ -73,21 +74,28 @@
       (load-facts 'midje.t-repl-helper :non-featherian :print-no-summary)
       (forget-facts :all)
       (load-facts)
-      (map fact-name (fetch-facts :all)) => ["a non-featherian test"])
+      (map fact-name (fetch-facts 'midje.t-repl-helper)) => ["a non-featherian test"])
 
-    (fact "repetition not affected by intervening check-facts"
+    (future-fact "repetition not affected by intervening check-facts"
       (load-facts 'midje.t-repl-helper :non-featherian :print-no-summary)
-      (check-facts 'midje.util :print-no-summary)
+      (check-facts ':all :print-no-summary)
       (forget-facts :all)
       (load-facts)
-      (map fact-name (fetch-facts :all)) => ["a non-featherian test"])
+      (map fact-name (fetch-facts 'midje.t-repl-helper)) => ["a non-featherian test"])
 
-    (future-fact "the effect of load-facts on check-facts is like check-facts itself"
-      (check-facts 'midje.t-repl-help "simple" :print-no-summary)
-      (@next-fetch-facts-args) => '[midje.t-repl-help "simple" :print-no-summary]
-      (load-facts 'midje.t-repl-h* :non-featherian :print-no-summary)
-      (@next-fetch-facts-args) => '[midje.t-repl-help :non-featherian :print-no-summary])
-      
+    (fact "load-facts sets up default arguments for fetch-facts"
+      (load-facts :all "simple" :print-no-summary) => anything
+      (provided
+        (#'midje.repl/project-namespaces) => ['midje.t-repl-helper])
+      ;; The double @ is because of importing testables.
+      @@fetch-default-args => (just [:all "simple" :print-no-summary]
+                                    :in-any-order)
+
+      (load-facts 'midje.t-repl-h* :non-featherian :print-no-summary) => anything
+      (provided (#'midje.repl/unglob-partial-namespaces ['midje.t-repl-h*])
+                => '[midje.t-repl-helper])
+      @@fetch-default-args => (just ['midje.t-repl-helper :non-featherian
+                                     (deflevels/normalize :print-no-summary)]))
   )    
  )
 
@@ -465,7 +473,6 @@
 
 
 ;;;; ==== PART 5: Utilities
-(midje.util/expose-testables midje.repl)
 
 (fact "can find paths to load from project.clj"
   (fact "if it exists"
@@ -479,17 +486,17 @@
               =throws=> (new java.io.FileNotFoundException))))
 
 
-(fact "unglob-namespace-suggestions returns namespace symbols"
+(fact "unglob-partial-namespaces returns namespace symbols"
   (fact "from symbols or strings"
-    (unglob-namespace-suggestions ["explicit-namespace1"]) => ['explicit-namespace1]
-    (unglob-namespace-suggestions ['explicit-namespace2]) => ['explicit-namespace2])
+    (unglob-partial-namespaces ["explicit-namespace1"]) => ['explicit-namespace1]
+    (unglob-partial-namespaces ['explicit-namespace2]) => ['explicit-namespace2])
 
   (fact "can 'unglob' wildcards"
-    (unglob-namespace-suggestions ["ns.foo.*"]) => '[ns.foo.bar ns.foo.baz]
+    (unglob-partial-namespaces ["ns.foo.*"]) => '[ns.foo.bar ns.foo.baz]
     (provided (bultitude.core/namespaces-on-classpath :prefix "ns.foo.")
               => '[ns.foo.bar ns.foo.baz])
 
-    (unglob-namespace-suggestions ['ns.foo.*]) => '[ns.foo.bar ns.foo.baz]
+    (unglob-partial-namespaces ['ns.foo.*]) => '[ns.foo.bar ns.foo.baz]
     (provided (bultitude.core/namespaces-on-classpath :prefix "ns.foo.")
               => '[ns.foo.bar ns.foo.baz])))
 
@@ -509,12 +516,14 @@
                   :print-level (deflevels/normalize :print-nothing)}))
 
   ;; all + redundant namespace, print level, filters
-  (let [args '[:all ns.ns :print-namespaces "name-match" :keyword]]
-    (decompose-args args)
-    => (contains {:all? true,
-                  :original-args args
-                  :print-level (deflevels/normalize :print-namespaces)
-                  :filters ["name-match" :keyword]}))
+  ;; also check that the filter function is installed
+  (let [args '[:all ns.ns :print-namespaces "name-match" :keyword]
+        actual (decompose-args args)]
+    actual => (contains {:all? true,
+                         :original-args args
+                         :print-level (deflevels/normalize :print-namespaces)
+                         :filters ["name-match" :keyword]})
+    ( (:filter-function actual) (with-meta (fn[]) {:keyword true})) => true)
 
   ;; From disk, all, print level
   (let [args '[:all :print-namespaces]]

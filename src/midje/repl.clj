@@ -58,34 +58,41 @@
              [(symbol %)])
           (map str namespaces)))
 
-(defn decompose-args
+(defn- ^{:testable true} decompose-args
   ([original-args]
-     (let [[print-level args] (levelly/separate-print-levels original-args)
-           [filters args] (metadata/separate-metadata-filters
-                              args all-keyword-is-not-a-filter)]
+     (let [[print-level args]
+             (levelly/separate-print-levels original-args)
+           [filters filter-function args]
+             (metadata/separate-filters args all-keyword-is-not-a-filter)]
     {:all? (do-to-all? args)
-     :namespaces (if-not (do-to-all? args) args)
+     :namespaces args
      :original-args original-args,
      :print-level print-level
-     :filters filters}))
+     :filters filters
+     :filter-function filter-function
+     :fetch-default-args original-args}))
   ([original-args working-off-disk]
-     (let [base (decompose-args original-args)
-           partial-namespaces (:namespaces base)]
+     (let [base (decompose-args original-args)]
        (merge base
-              {:namespaces (if (:all? base)
-                             (project-namespaces)
-                             (unglob-partial-namespaces partial-namespaces))}))))
+              {:load-default-args (:original-args base)}
+              (if (:all? base)
+                {:namespaces (project-namespaces)}
+                (let [expanded (unglob-partial-namespaces (:namespaces base))]
+                  {:namespaces expanded
+                   :fetch-default-args (concat expanded
+                                               (:filters base)
+                                               [(:print-level base)])}))))))
+        
   
 
                                 ;;; Loading facts from the repl
 
 
-(def ^{:private true, :testable true} next-load-facts-args (atom [:all]))
-(defmacro ^{:private true}
-  adjust-load-facts-args-with-history [[out in] & body]
-  `(let [~out (if (empty? ~in) @next-load-facts-args ~in)]
-     (reset! next-load-facts-args ~out)
-     ~@body))
+(def ^{:private true, :testable true} load-default-args (atom [:all]))
+(def ^{:private true, :testable true} fetch-default-args (atom [:all]))
+
+(defn- either-args [given default]
+  (if (empty? given) default given))
 
 
 (defn load-facts
@@ -115,23 +122,23 @@
 
    If `load-facts` is given no arguments, it reuses the previous arguments."
   [& args]
-  (adjust-load-facts-args-with-history [args args]
-    (levelly/obeying-print-levels [args args]
-      (metadata/obeying-metadata-filters [args args] all-keyword-is-not-a-filter
-        (let [desired-namespaces (form/pred-cond args
-                                    do-to-all?  (project-namespaces)
-                                    :else (unglob-partial-namespaces args))]
-          (levelly/forget-past-results)
-          (doseq [ns desired-namespaces]
-            (compendium/remove-namespace-facts-from! ns)
-            ;; Following strictly unnecessary, but slightly useful because
-            ;; it reports the changed namespace before the first fact loads.
-            ;; That way, some error in the fresh namespace won't appear to
-            ;; come from the last-loaded namespace.
-            (levelly/report-changed-namespace ns)
-            (require ns :reload))
-          (levelly/report-summary)
-          nil)))))
+  (let [memorable-args (either-args args @load-default-args)
+        argmap (decompose-args memorable-args :namespaces-from-disk)]
+    (reset! load-default-args (:load-default-args argmap))
+    (reset! fetch-default-args (:fetch-default-args argmap))
+    (config/with-augmented-config {:print-level (:print-level argmap)
+                                   :desired-fact? (:filter-function argmap)}
+      (levelly/forget-past-results)
+      (doseq [ns (:namespaces argmap)]
+        (compendium/remove-namespace-facts-from! ns)
+        ;; Following strictly unnecessary, but slightly useful because
+        ;; it reports the changed namespace before the first fact loads.
+        ;; That way, some error in the fresh namespace won't appear to
+        ;; come from the last-loaded namespace.
+        (levelly/report-changed-namespace ns)
+        (require ns :reload))
+      (levelly/report-summary)
+      nil)))
 
 
 
