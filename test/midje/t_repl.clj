@@ -5,6 +5,7 @@
   (:require [midje.internal-ideas.compendium :as compendium]
             [midje.clojure-test-facade :as ctf]
             [midje.ideas.reporting.levels :as levelly]
+            [midje.ideas.reporting.level-defs :as deflevels]
             [midje.config :as config]
             midje.util))
 
@@ -80,6 +81,13 @@
       (forget-facts :all)
       (load-facts)
       (map fact-name (fetch-facts :all)) => ["a non-featherian test"])
+
+    (future-fact "the effect of load-facts on check-facts is like check-facts itself"
+      (check-facts 'midje.t-repl-help "simple" :print-no-summary)
+      (@next-fetch-facts-args) => '[midje.t-repl-help "simple" :print-no-summary]
+      (load-facts 'midje.t-repl-h* :non-featherian :print-no-summary)
+      (@next-fetch-facts-args) => '[midje.t-repl-help :non-featherian :print-no-summary])
+      
   )    
  )
 
@@ -484,6 +492,55 @@
     (unglob-namespace-suggestions ['ns.foo.*]) => '[ns.foo.bar ns.foo.baz]
     (provided (bultitude.core/namespaces-on-classpath :prefix "ns.foo.")
               => '[ns.foo.bar ns.foo.baz])))
- 
+
+(fact "decomposing arglists"
+  (against-background
+    (compendium/all-facts<>) => ['ns.all-facts])
+
+  ;; just namespaces
+  (let [args '[ns.ns ns.ns2]]
+    (decompose-args args) => (contains {:all? false,
+                                        :namespaces args}))
+  ;; all and print level
+  (let [args '[:all :print-nothing]]
+    (decompose-args args)
+    => (contains {:all? true,
+                  :original-args args
+                  :print-level (deflevels/normalize :print-nothing)}))
+
+  ;; all + redundant namespace, print level, filters
+  (let [args '[:all ns.ns :print-namespaces "name-match" :keyword]]
+    (decompose-args args)
+    => (contains {:all? true,
+                  :original-args args
+                  :print-level (deflevels/normalize :print-namespaces)
+                  :filters ["name-match" :keyword]}))
+
+  ;; From disk, all, print level
+  (let [args '[:all :print-namespaces]]
+    (decompose-args args :from-disk)
+    => (contains {:all? true,
+                  :namespaces '[ns.project]
+                  :original-args args
+                  :filters nil})
+    (provided (#'midje.repl/project-namespaces) => ['ns.project]))
+
+
+  ;; From disk, partial namespace, default print level, filter
+  (let [args '[midje.repl.* :integration]]
+    (config/with-augmented-config {:print-level :print-nothing}
+      (decompose-args args :from-disk))
+    => (contains {:all? false,
+                  :namespaces '[midje.repl.foo midje.repl.bar]
+                  :original-args args
+                  :print-level (deflevels/normalize :print-nothing)
+                  :filters [:integration]})
+      (provided (#'midje.repl/unglob-partial-namespaces ['midje.repl.*])
+                => '[midje.repl.foo midje.repl.bar]))
+
+
+  )
+
+
 )      ; confirming-cumulative-totals-not-stepped-on
 

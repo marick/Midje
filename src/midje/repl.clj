@@ -33,16 +33,14 @@
   ;; Prevent namespace arguments from being treated as filters
   (partial = :all))
 
-(def ^{:private true} do-to-all? (partial some #{:all}))
+(defn- do-to-all? [args]
+  (boolean (some #{:all} args)))
 
 (defn- check-facts-once-given [fact-functions]
   (levelly/forget-past-results)
   (let [results (doall (map fact/check-one fact-functions))]
     (levelly/report-summary)
     (every? true? results)))
-
-                                ;;; Loading facts from the repl
-
 
 (defn- ^{:testable true} project-directories []
   (try
@@ -54,11 +52,33 @@
 (defn- ^{:testable true} project-namespaces []
   (mapcat namespaces-in-dir (project-directories)))
 
-(defn- ^{:testable true} unglob-namespace-suggestions [namespaces]
+(defn- ^{:testable true} unglob-partial-namespaces [namespaces]
   (mapcat #(if (= \* (last %))
              (namespaces-on-classpath :prefix (apply str (butlast %)))
              [(symbol %)])
           (map str namespaces)))
+
+(defn decompose-args
+  ([original-args]
+     (let [[print-level args] (levelly/separate-print-levels original-args)
+           [filters args] (metadata/separate-metadata-filters
+                              args all-keyword-is-not-a-filter)]
+    {:all? (do-to-all? args)
+     :namespaces (if-not (do-to-all? args) args)
+     :original-args original-args,
+     :print-level print-level
+     :filters filters}))
+  ([original-args working-off-disk]
+     (let [base (decompose-args original-args)
+           partial-namespaces (:namespaces base)]
+       (merge base
+              {:namespaces (if (:all? base)
+                             (project-namespaces)
+                             (unglob-partial-namespaces partial-namespaces))}))))
+  
+
+                                ;;; Loading facts from the repl
+
 
 (def ^{:private true, :testable true} next-load-facts-args (atom [:all]))
 (defmacro ^{:private true}
@@ -100,7 +120,7 @@
       (metadata/obeying-metadata-filters [args args] all-keyword-is-not-a-filter
         (let [desired-namespaces (form/pred-cond args
                                     do-to-all?  (project-namespaces)
-                                    :else (unglob-namespace-suggestions args))]
+                                    :else (unglob-partial-namespaces args))]
           (levelly/forget-past-results)
           (doseq [ns desired-namespaces]
             (compendium/remove-namespace-facts-from! ns)
