@@ -4,6 +4,7 @@
   midje.internal-ideas.compendium
   (:use [midje.ideas.metadata :only [fact-name
                                      fact-body-source fact-namespace]]
+        [midje.error-handling.exceptions :only [user-error]]
         [midje.util.form-utils :only [dissoc-keypath]]))
 
 ;;; Facts are stored in a compendium:
@@ -29,6 +30,15 @@
 ;;
 ;; Another maps to a by-body-source map to allow quick checks for
 ;; reloading of identical facts.
+
+(defn friendly-ns-name [symbol-or-namespace]
+  (when (and (symbol? symbol-or-namespace)
+             (not (find-ns symbol-or-namespace)))
+    (throw (user-error (str "You tried to work with `" symbol-or-namespace
+                             "` but that namespace has never been loaded."))))
+  (ns-name symbol-or-namespace))
+  
+  
 
 (defrecord Compendium [by-namespace by-name by-source last-fact-checked]
   CompendiumProtocol
@@ -66,20 +76,20 @@
     (if (and (symbol? namespace)
              (not (find-ns namespace)))
       this
-      (let [namespace-name (ns-name namespace)]
+      (let [namespace-name (friendly-ns-name namespace)]
         (-> this 
             (dissoc-keypath [:by-namespace namespace-name])
             (dissoc-keypath [:by-name namespace-name])
             (dissoc-keypath [:by-source namespace-name])))))
 
   (namespace-facts [this namespace]
-    (get by-namespace (ns-name namespace) []))
+    (get by-namespace (friendly-ns-name namespace) []))
   (all-facts [this]
     (apply concat (vals by-namespace)))
   (named-fact [this namespace name]
-    (get-in by-name [(ns-name namespace) name]))
+    (get-in by-name [(friendly-ns-name namespace) name]))
   (embodied-fact [this namespace body-source]
-    (get-in by-source [(ns-name namespace) body-source]))
+    (get-in by-source [(friendly-ns-name namespace) body-source]))
 
   (previous-version [this fact-function]
     (let [[namespace name body-source]
