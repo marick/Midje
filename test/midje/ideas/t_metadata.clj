@@ -129,6 +129,18 @@
     remainder => ['a-symbol 6]))
 
 
+(fact "it knows how to separate out metadata-filtering arguments"
+  (let [[filter filter-function remainder]
+        (separate-filters [#"a regex" "a string" 'a-symbol 6 map? :a-keyword]
+                          (fn plain-argument?? [arg] false))]
+    filter => (contains #"a regex" "a string" (exactly map?) :a-keyword)
+    (filter-function (with-meta (fn[]) {:midje/name "matches a regex"})) => true
+    (filter-function (with-meta (fn[]) {:midje/name "matches a string"})) => true
+    (filter-function (with-meta (fn[]) {})) => true
+    (filter-function (with-meta (fn[]) {:a-keyword 'yes})) => true
+    remainder => ['a-symbol 6]))
+
+
 (fact "filters can be attached to the config"
   (obeying-metadata-filters [args [:keyword "string" :all *ns* 'symbol 0]]
                             (partial = :all)

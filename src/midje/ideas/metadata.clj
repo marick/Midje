@@ -118,6 +118,15 @@
      (form/any-pred-from (map appropriate-matcher-for desireds))
      assoc :created-from desireds))
 
+(defn separate-filters [args plain-argument?]
+  (let [[filters remainder]
+        (form/separate-by #(and (not (plain-argument? %))
+                                ((form/any-pred-from [string? form/regex? fn? keyword?]) %))
+                          args)]
+    [filters
+     (desired-fact-predicate-from filters)
+     remainder]))
+
 (defn separate-metadata-filters [args plain-argument?]
   (form/separate-by #(and (not (plain-argument? %))
                           ((form/any-pred-from [string? form/regex? fn? keyword?]) %))
