@@ -67,23 +67,6 @@
       (provided
         (#'midje.repl/project-namespaces) => ['midje.t-repl-helper])
       (map fact-name (fetch-facts :all)) => ["a simple test"])
-
-    (fact "load-facts changes the working set"
-      (forget-facts :all)
-      (load-facts :print-no-summary 'midje.t-repl-helper)
-      (forget-facts :all)
-      (working-set) => ['midje.t-repl-helper]
-      (load-facts :non-featherian :print-no-summary)
-      (map fact-name (fetch-facts :all)) => ["a non-featherian test"]
-
-      ;; Also works with :all 
-      (forget-facts :all)
-      (load-facts :print-no-summary 'midje.t-repl-helper)
-      (forget-facts :all)
-      (working-set) => ['midje.t-repl-helper]
-      (load-facts :non-featherian :print-no-summary)
-      (map fact-name (fetch-facts :all)) => ["a non-featherian test"]
-      )
   )    
  )
 
@@ -119,21 +102,6 @@
    => ["f - second - midje.ideas.facts" "p - third - midje.repl"]
    )
 
- (fact "fetch-facts both obeys and sets the working set"
-   :check-only-at-load-time
-   (forget-facts :all)
-   (load-facts 'midje.t-repl-helper :print-no-summary)
-   (working-set) => ['midje.t-repl-helper]
-   (count (fetch-facts)) => 2
-
-   (add-fact :midje/namespace 'midje.ideas.facts :midje/name "new")
-   (count (fetch-facts 'midje.ideas.facts)) => 1
-   (working-set) => ['midje.ideas.facts]
-   (map fact-name (fetch-facts)) => ["new"])
-
-   
-
- 
 
                                 ;;; Forgetting facts
 
@@ -141,11 +109,6 @@
  (fact (* 2 2) => (+ 2 2)) ;; make sure one exists
  (fact :check-only-at-load-time (compendium-count :all) => pos?)
  (forget-facts :all)
- (fact :check-only-at-load-time (compendium-count :all) => zero?)
-
- ;; no argument: defaults to this namespace
- (add-fact :midje/namespace (ns-name *ns*))
- (forget-facts)
  (fact :check-only-at-load-time (compendium-count :all) => zero?)
 
  (add-fact :midje/namespace 'midje.sweet)
@@ -208,7 +171,7 @@
 
  (forget-facts :all)
  (fact "the-name" 1 => 1)
- (def the-fact (first (fetch-facts)))
+ (def the-fact (first (fetch-facts 'midje.t-repl)))
 
          ;;; Checking one fact
 
@@ -248,18 +211,18 @@
     :check-only-at-load-time
     (config/with-augmented-config {:print-level :print-nothing}
       ;; Despite above config.
-      (with-out-str (check-facts :print-namespaces)) => #"Namespace midje.t-repl")
+      (with-out-str (check-facts 'midje.t-repl :print-namespaces)) => #"Namespace midje.t-repl")
 
     (fact "return values still hold, though"
-      (check-facts "the-name" :print-nothing) => true
-      (check-facts :print-nothing) => false))
+      (check-facts 'midje.t-repl "the-name" :print-nothing) => true
+      (check-facts 'midje.t-repl :print-nothing) => false))
 
   (fact "check-facts resets the counter"
     :check-only-at-load-time
-    (check-facts "the-name" :print-nothing)
+    (check-facts 'midje.t-repl "the-name" :print-nothing)
     (:pass (ctf/counters)) => 1
     ;; no change below because of auto-zeroing
-    (check-facts "the-name" :print-nothing)
+    (check-facts 'midje.t-repl "the-name" :print-nothing)
     (:pass (ctf/counters)) => 1)
 
   (fact "check-facts takes the usual arguments"
@@ -271,10 +234,6 @@
 
       ;; But let's try a few
     (config/with-augmented-config {:print-level :print-nothing}
-      (check-facts)
-      (:pass (ctf/counters)) => 1
-      (:fail (ctf/counters)) => 1
-
       (check-facts 'midje.config)
       (:pass (ctf/counters)) => 0
       (:fail (ctf/counters)) => 0
@@ -299,11 +258,11 @@
 
   (fact "confirm the ordering of facts"
     :check-only-at-load-time
-    (map fact-name (fetch-facts)) => ["1" "2"])
+    (map fact-name (fetch-facts 'midje.t-repl)) => ["1" "2"])
   
   (fact "Both facts were checked"
     :check-only-at-load-time
-    (check-facts :print-nothing)
+    (check-facts 'midje.t-repl :print-nothing)
     (:pass (ctf/counters)) => 1
     (:fail (ctf/counters)) => 1)
   )
@@ -366,7 +325,7 @@
    
    (fact
      :check-only-at-load-time
-     (without-changing-cumulative-totals (check-facts))
+     (without-changing-cumulative-totals (check-facts :all))
      @outer-count => 2
      @inner-count => 2)
    

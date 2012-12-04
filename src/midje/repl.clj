@@ -33,6 +33,8 @@
   ;; Prevent namespace arguments from being treated as filters
   (partial = :all))
 
+(def ^{:private true} do-to-all? (partial some #{:all}))
+
 (defn- check-facts-once-given [fact-functions]
   (levelly/forget-past-results)
   (let [results (doall (map fact/check-one fact-functions))]
@@ -55,14 +57,6 @@
              [(symbol %)])
           (map str namespaces)))
 
-(def ^{:private true} working-set-atom (atom []))
-(defn working-set
-  "The working set contains namespace names (symbols).
-  Those namespaces have recently been used as either
-  explicit or implicit arguments to repl functions like
-  `load-facts` or `check-facts`."
-  [] @working-set-atom)
-
 
                                 ;;; Loading facts from the repl
 (defn load-facts
@@ -77,9 +71,6 @@
    But if there's no project.clj, all namespaces under \"test\"
    will be loaded.
 
-   If no namespace arguments are given, the working set is reloaded.
-   (See `(doc midje-repl-working-set)`.)
-
    By default, all facts are loaded from the namespaces. You can, however,
    add further arguments. Only facts matching one or more of the arguments
    are loaded. The arguments are:
@@ -91,13 +82,14 @@
                     the fact's metadata?
 
    In addition, you can adjust what's printed during loading.
-   See `(doc midje-print-levels)`."
+   See `(doc midje-print-levels)`.
+
+   If `load-facts` is given no arguments, it reuses the previous arguments."
   [& args]
   (levelly/obeying-print-levels [args args]
     (metadata/obeying-metadata-filters [args args] all-keyword-is-not-a-filter
       (let [desired-namespaces (form/pred-cond args
-                                  empty? (working-set)
-                                  (partial some #{:all})  (project-namespaces)
+                                  do-to-all?  (project-namespaces)
                                   :else (expand-namespaces args))]
         (levelly/forget-past-results)
         (doseq [ns desired-namespaces]
@@ -108,7 +100,6 @@
           ;; come from the last-loaded namespace.
           (levelly/report-changed-namespace ns)
           (require ns :reload))
-        (reset! working-set-atom desired-namespaces)
         (levelly/report-summary)
         nil))))
 
@@ -122,8 +113,6 @@
 
    (fetch-facts *ns* 'midje.t-repl)  -- facts defined in these namespaces
    (fetch-facts :all)                -- all known facts
-   (fetch-facts)                     -- facts in the working set
-                                        `(doc midje-repl-working-set)`
 
    You can further filter the facts by giving more arguments. Facts matching
    any of the arguments are included in the result. The arguments are:
@@ -132,18 +121,18 @@
    \"string\"    -- Does the fact's name contain the given string? 
    #\"regex\"    -- Does any part of the fact's name match the regex?
    a function    -- Does the function return a truthy value when given
-                    the fact's metadata?"
+                    the fact's metadata?
+
+   If no arguments are given, it reuses the arguments from the most
+   recent `check-facts`, `fetch-facts`, or `load-facts`."
 
   [& args]
   (let [[filters namespaces]
         (metadata/separate-metadata-filters args all-keyword-is-not-a-filter)
 
-        desired-namespaces (if (empty? namespaces) (working-set) namespaces)
-
-        fact-functions (if (some #{:all} desired-namespaces)
+        fact-functions (if (do-to-all? namespaces)
                          (compendium/all-facts<>)
-                         (mapcat compendium/namespace-facts<> desired-namespaces))]
-    (reset! working-set-atom desired-namespaces)
+                         (mapcat compendium/namespace-facts<> namespaces))]
     (filter (metadata/desired-fact-predicate-from filters) fact-functions)))
 
 
@@ -153,9 +142,7 @@
   "Forget defined facts so that they will not be found by `check-facts`
    or `fetch-facts`.
 
-   (forget-facts)                  -- defined in the current namespace
    (forget-facts *ns* midje.t-repl -- defined in named namespaces
-                                      (Names need not be quoted.)
    (forget-facts :all)             -- defined anywhere
 
    You can further filter the facts by giving more arguments. Facts matching
@@ -169,17 +156,17 @@
 
   [& args]
   (let [[filters namespaces]
-        (metadata/separate-metadata-filters args all-keyword-is-not-a-filter)
-
-        namespaces (if (empty? namespaces) [*ns*] namespaces)]
-    (if (empty? filters)
-      ;; a rare concession to efficiency
-      (doseq [ns namespaces]
-        (if (= ns :all)
+        (metadata/separate-metadata-filters args all-keyword-is-not-a-filter)]
+    
+    ;; a rare concession to efficiency
+    (cond (and (empty? filters) (do-to-all? namespaces))
           (compendium/fresh!)
-          (compendium/remove-namespace-facts-from! ns)))
-      (doseq [fact-function (apply fetch-facts args)]
-        (compendium/remove-from! fact-function)))))
+
+          (empty? filters)
+          (dorun (map compendium/remove-namespace-facts-from! namespaces))
+
+          :else
+          (dorun (map compendium/remove-from! (apply fetch-facts args))))))
 
     
                                 ;;; Checking loaded facts
@@ -191,9 +178,7 @@
 (defn check-facts
   "Check facts that have already been defined.
 
-   (check-facts)                  -- defined in the current namespace
    (check-facts *ns* midje.t-repl -- defined in named namespaces
-                                     (Names need not be quoted.)
    (check-facts :all)             -- defined anywhere
 
    You can further filter the facts by giving more arguments. Facts matching
@@ -205,11 +190,14 @@
    a function    -- Does the function return a truthy value when given
                     the fact's metadata?
 
-   In addition, you can adjust what's printed. See `(doc midje-print-levels)`."
+   In addition, you can adjust what's printed. See `(doc midje-print-levels)`.
+
+   If no arguments are given, it reuses the arguments from the most
+   recent `check-facts`, `fetch-facts`, or `load-facts`."
+
   [& args]
   (levelly/obeying-print-levels [args args]
-    (let [fact-functions (apply fetch-facts args)]
-    (check-facts-once-given fact-functions))))
+    (check-facts-once-given (apply fetch-facts args))))
     
 
 

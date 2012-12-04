@@ -439,7 +439,7 @@
 
 (ctf/ignoring-counter-changes
  ;; Don't step on the running count up to this point.
- (repl/check-facts :print-no-summary :integration))
+ (repl/check-facts *ns* :print-no-summary :integration))
 
 (fact
   :check-only-at-load-time
