@@ -27,7 +27,7 @@
                  midje-print-level
                  midje-print-levels
                  guide])
-(def for-repl  '[midje-repl midje-filters])
+(def for-repl  '[midje-repl])
 
 (def ^{:doc "
    Detailed help:

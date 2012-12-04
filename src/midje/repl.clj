@@ -41,7 +41,10 @@
     (levelly/report-summary)
     (every? true? results)))
 
-(defn- ^{:testable true} paths-to-load []
+                                ;;; Loading facts from the repl
+
+
+(defn- ^{:testable true} project-directories []
   (try
     (let [project (project/read)]
       (concat (:test-paths project) (:source-paths project)))
@@ -49,16 +52,22 @@
       ["test"])))
 
 (defn- ^{:testable true} project-namespaces []
-  (mapcat namespaces-in-dir (paths-to-load)))
+  (mapcat namespaces-in-dir (project-directories)))
 
-(defn- ^{:testable true} expand-namespaces [namespaces]
+(defn- ^{:testable true} unglob-namespace-suggestions [namespaces]
   (mapcat #(if (= \* (last %))
              (namespaces-on-classpath :prefix (apply str (butlast %)))
              [(symbol %)])
           (map str namespaces)))
 
+(def ^{:private true, :testable true} next-load-facts-args (atom [:all]))
+(defmacro ^{:private true}
+  adjust-load-facts-args-with-history [[out in] & body]
+  `(let [~out (if (empty? ~in) @next-load-facts-args ~in)]
+     (reset! next-load-facts-args ~out)
+     ~@body))
 
-                                ;;; Loading facts from the repl
+
 (defn load-facts
   "Load given namespaces, as in:
      (load-facts 'midje.t-sweet 'midje.t-repl)
@@ -86,22 +95,23 @@
 
    If `load-facts` is given no arguments, it reuses the previous arguments."
   [& args]
-  (levelly/obeying-print-levels [args args]
-    (metadata/obeying-metadata-filters [args args] all-keyword-is-not-a-filter
-      (let [desired-namespaces (form/pred-cond args
-                                  do-to-all?  (project-namespaces)
-                                  :else (expand-namespaces args))]
-        (levelly/forget-past-results)
-        (doseq [ns desired-namespaces]
-          (compendium/remove-namespace-facts-from! ns)
-          ;; Following strictly unnecessary, but slightly useful because
-          ;; it reports the changed namespace before the first fact loads.
-          ;; That way, some error in the fresh namespace won't appear to
-          ;; come from the last-loaded namespace.
-          (levelly/report-changed-namespace ns)
-          (require ns :reload))
-        (levelly/report-summary)
-        nil))))
+  (adjust-load-facts-args-with-history [args args]
+    (levelly/obeying-print-levels [args args]
+      (metadata/obeying-metadata-filters [args args] all-keyword-is-not-a-filter
+        (let [desired-namespaces (form/pred-cond args
+                                    do-to-all?  (project-namespaces)
+                                    :else (unglob-namespace-suggestions args))]
+          (levelly/forget-past-results)
+          (doseq [ns desired-namespaces]
+            (compendium/remove-namespace-facts-from! ns)
+            ;; Following strictly unnecessary, but slightly useful because
+            ;; it reports the changed namespace before the first fact loads.
+            ;; That way, some error in the fresh namespace won't appear to
+            ;; come from the last-loaded namespace.
+            (levelly/report-changed-namespace ns)
+            (require ns :reload))
+          (levelly/report-summary)
+          nil)))))
 
 
 

@@ -67,6 +67,19 @@
       (provided
         (#'midje.repl/project-namespaces) => ['midje.t-repl-helper])
       (map fact-name (fetch-facts :all)) => ["a simple test"])
+
+    (fact "no arguments repeats previous arguments"
+      (load-facts 'midje.t-repl-helper :non-featherian :print-no-summary)
+      (forget-facts :all)
+      (load-facts)
+      (map fact-name (fetch-facts :all)) => ["a non-featherian test"])
+
+    (fact "repetition not affected by intervening check-facts"
+      (load-facts 'midje.t-repl-helper :non-featherian :print-no-summary)
+      (check-facts 'midje.util :print-no-summary)
+      (forget-facts :all)
+      (load-facts)
+      (map fact-name (fetch-facts :all)) => ["a non-featherian test"])
   )    
  )
 
@@ -448,27 +461,27 @@
 
 (fact "can find paths to load from project.clj"
   (fact "if it exists"
-    (paths-to-load) => ["/test1" "/src1"]
+    (project-directories) => ["/test1" "/src1"]
     (provided (leiningen.core.project/read) => {:test-paths ["/test1"]
                                                 :source-paths ["/src1"]}))
 
   (fact "and provides a default if it does not"
-    (paths-to-load) => ["test"]
+    (project-directories) => ["test"]
     (provided (leiningen.core.project/read)
               =throws=> (new java.io.FileNotFoundException))))
 
 
-(fact "expand-namespaces returns namespace symbols"
+(fact "unglob-namespace-suggestions returns namespace symbols"
   (fact "from symbols or strings"
-    (expand-namespaces ["explicit-namespace1"]) => ['explicit-namespace1]
-    (expand-namespaces ['explicit-namespace2]) => ['explicit-namespace2])
+    (unglob-namespace-suggestions ["explicit-namespace1"]) => ['explicit-namespace1]
+    (unglob-namespace-suggestions ['explicit-namespace2]) => ['explicit-namespace2])
 
   (fact "can 'unglob' wildcards"
-    (expand-namespaces ["ns.foo.*"]) => '[ns.foo.bar ns.foo.baz]
+    (unglob-namespace-suggestions ["ns.foo.*"]) => '[ns.foo.bar ns.foo.baz]
     (provided (bultitude.core/namespaces-on-classpath :prefix "ns.foo.")
               => '[ns.foo.bar ns.foo.baz])
 
-    (expand-namespaces ['ns.foo.*]) => '[ns.foo.bar ns.foo.baz]
+    (unglob-namespace-suggestions ['ns.foo.*]) => '[ns.foo.bar ns.foo.baz]
     (provided (bultitude.core/namespaces-on-classpath :prefix "ns.foo.")
               => '[ns.foo.bar ns.foo.baz])))
  
