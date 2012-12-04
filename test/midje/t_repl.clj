@@ -57,22 +57,33 @@
   
     (fact "metadata filters are obeyed"
       (load-facts 'midje.t-repl-helper :non-featherian :print-no-summary)
-      (let [loaded (fetch-facts 'midje.t-repl-helper)]
-        (count loaded) => 1
-        (fact-name (first loaded)) => "a non-featherian test")
+      (map fact-name (fetch-facts :all)) => ["a non-featherian test"]
 
       (load-facts :print-no-summary 'midje.t-repl-helper "simple")
-      (let [loaded (fetch-facts :all)]
-        (count loaded) => 1
-        (map fact-name loaded) => ["a simple test"]))
+      (map fact-name (fetch-facts :all)) => ["a simple test"])
 
     (fact "the :all argument"
-      (load-facts :print-no-summary 'midje.t-repl-helper "simple") => anything
+      (load-facts :print-no-summary :all "simple") => anything
       (provided
         (#'midje.repl/project-namespaces) => ['midje.t-repl-helper])
-      (let [loaded (fetch-facts :all)]
-        (count loaded) => 1
-        (map fact-name loaded) => ["a simple test"]))
+      (map fact-name (fetch-facts :all)) => ["a simple test"])
+
+    (fact "load-facts changes the metadata"
+      (forget-facts :all)
+      (load-facts :print-no-summary 'midje.t-repl-helper)
+      (forget-facts :all)
+      (working-set) => ['midje.t-repl-helper]
+      (load-facts :non-featherian :print-no-summary)
+      (map fact-name (fetch-facts :all)) => ["a non-featherian test"]
+
+      ;; Also works with :all 
+      (forget-facts :all)
+      (load-facts :print-no-summary 'midje.t-repl-helper)
+      (forget-facts :all)
+      (working-set) => ['midje.t-repl-helper]
+      (load-facts :non-featherian :print-no-summary)
+      (map fact-name (fetch-facts :all)) => ["a non-featherian test"]
+      )
   )    
  )
 

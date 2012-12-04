@@ -62,6 +62,8 @@
              [(symbol %)])
           (map str namespaces)))
 
+(def ^{:private true} working-set-atom (atom []))
+(defn working-set [] @working-set-atom)
 
 
                                 ;;; Loading facts from the repl
@@ -92,9 +94,10 @@
   [& args]
   (levelly/obeying-print-levels [args args]
     (metadata/obeying-metadata-filters [args args] all-keyword-is-not-a-filter
-      (let [desired-namespaces (if (empty? args)
-                                 (project-namespaces)
-                                 (expand-namespaces args))]
+      (let [desired-namespaces (form/pred-cond args
+                                  empty? (working-set)
+                                  (partial some #{:all})  (project-namespaces)
+                                  :else (expand-namespaces args))]
         (levelly/forget-past-results)
         (doseq [ns desired-namespaces]
           (compendium/remove-namespace-facts-from! ns)
@@ -104,6 +107,7 @@
           ;; come from the last-loaded namespace.
           (levelly/report-changed-namespace ns)
           (require ns :reload))
+        (reset! working-set-atom desired-namespaces)
         (levelly/report-summary)
         nil))))
 
