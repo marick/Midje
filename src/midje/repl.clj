@@ -33,13 +33,6 @@
   ;; Prevent namespace arguments from being treated as filters
   (partial = :all))
 
-(defn- fetch-facts-by-namespaces [namespaces]
-  (let [namespaces (if (empty? namespaces) [*ns*] namespaces)]
-    (mapcat #(if (= % :all)
-               (compendium/all-facts<>)
-               (compendium/namespace-facts<> %))
-            namespaces)))
-
 (defn- check-facts-once-given [fact-functions]
   (levelly/forget-past-results)
   (let [results (doall (map fact/check-one fact-functions))]
@@ -145,7 +138,12 @@
   (let [[filters namespaces]
         (metadata/separate-metadata-filters args all-keyword-is-not-a-filter)
 
-        fact-functions (fetch-facts-by-namespaces namespaces)]
+        desired-namespaces (if (empty? namespaces) (working-set) namespaces)
+
+        fact-functions (if (some #{:all} desired-namespaces)
+                         (compendium/all-facts<>)
+                         (mapcat compendium/namespace-facts<> desired-namespaces))]
+    (reset! working-set-atom desired-namespaces)
     (filter (metadata/desired-fact-predicate-from filters) fact-functions)))
 
 

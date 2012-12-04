@@ -68,7 +68,7 @@
         (#'midje.repl/project-namespaces) => ['midje.t-repl-helper])
       (map fact-name (fetch-facts :all)) => ["a simple test"])
 
-    (fact "load-facts changes the metadata"
+    (fact "load-facts changes the working set"
       (forget-facts :all)
       (load-facts :print-no-summary 'midje.t-repl-helper)
       (forget-facts :all)
@@ -103,7 +103,6 @@
  (add-fact :midje/namespace 'midje.config :midje/name      "z - first - integration" :integration true)
 
  (fact :check-only-at-load-time
-   (names (fetch-facts)) => ["m - fourth - midje.t-repl" "a - fifth - midje.t-repl"]
    (names (fetch-facts *ns*)) => ["m - fourth - midje.t-repl" "a - fifth - midje.t-repl"]
    (names (fetch-facts 'midje.ideas.facts)) => ["f - second - midje.ideas.facts"]
 
@@ -119,6 +118,20 @@
    (names (fetch-facts "midje.ideas.facts" "p - third - midje.repl" :all))
    => ["f - second - midje.ideas.facts" "p - third - midje.repl"]
    )
+
+ (fact "fetch-facts both obeys and sets the working set"
+   :check-only-at-load-time
+   (forget-facts :all)
+   (load-facts 'midje.t-repl-helper :print-no-summary)
+   (working-set) => ['midje.t-repl-helper]
+   (count (fetch-facts)) => 2
+
+   (add-fact :midje/namespace 'midje.ideas.facts :midje/name "new")
+   (count (fetch-facts 'midje.ideas.facts)) => 1
+   (working-set) => ['midje.ideas.facts]
+   (map fact-name (fetch-facts)) => ["new"])
+
+   
 
  
 
