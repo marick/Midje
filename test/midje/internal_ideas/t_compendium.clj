@@ -68,15 +68,12 @@
     (embodied-fact compendium symbol-namespace (fact-body-source named)) => named))
 
 
-(fact "there is a useful error message when the symbol does not name a loaded namespace"
-  (remove-namespace-facts-from (fresh) 'no-such-namespace)
-  => (throws Error #"namespace.*never been loaded")
-  
+(fact "there is sometimes a useful error message when the symbol does not name a loaded namespace"
   (namespace-facts (fresh) 'no-such-namespace)
   => (throws Error #"namespace.*never been loaded")
 
   (named-fact (fresh) 'no-such-namespace "something")
-  => (throws Error #"namespace.*no-such-namespace.*never been loaded"))
+  => (throws Error #"no-such-namespace.*never been loaded"))
   
 
     
