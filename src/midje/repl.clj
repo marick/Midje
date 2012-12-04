@@ -63,7 +63,12 @@
           (map str namespaces)))
 
 (def ^{:private true} working-set-atom (atom []))
-(defn working-set [] @working-set-atom)
+(defn working-set
+  "The working set contains namespace names (symbols).
+  Those namespaces have recently been used as either
+  explicit or implicit arguments to repl functions like
+  `load-facts` or `check-facts`."
+  [] @working-set-atom)
 
 
                                 ;;; Loading facts from the repl
