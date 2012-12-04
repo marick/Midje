@@ -122,10 +122,10 @@
   "Fetch facts that have already been defined, whether by loading
    them from a file or via the repl.
 
-   (fetch-facts)                  -- defined in the current namespace
-   (fetch-facts *ns* midje.t-repl -- defined in named namespaces
-                                     (Names need not be quoted.)
-   (fetch-facts :all)             -- defined anywhere
+   (fetch-facts *ns* 'midje.t-repl)  -- facts defined in these namespaces
+   (fetch-facts :all)                -- all known facts
+   (fetch-facts)                     -- facts in the working set
+                                        `(doc midje-repl-working-set)`
 
    You can further filter the facts by giving more arguments. Facts matching
    any of the arguments are included in the result. The arguments are:
