@@ -94,9 +94,7 @@
       (load-facts 'midje.t-repl-h* :non-featherian :print-no-summary) => anything
       (provided (#'midje.repl/unglob-partial-namespaces ['midje.t-repl-h*])
                 => '[midje.t-repl-helper])
-      @@fetch-default-args => (just ['midje.t-repl-helper :non-featherian
-                                     (deflevels/normalize :print-no-summary)]))
-  )    
+      @@fetch-default-args => ['midje.t-repl-helper :non-featherian :print-no-summary]))
  )
 
 
@@ -555,7 +553,7 @@
     (deduce-user-intention args :for-in-memory-facts)
     => (contains {:all? true,
                   :original-args args
-                  :print-level (deflevels/normalize :print-nothing)}))
+                  :print-level :print-nothing}))
 
   ;; all + redundant namespace, print level, filters
   ;; also check that the filter function is installed
@@ -563,7 +561,7 @@
         actual (deduce-user-intention args :for-in-memory-facts)]
     actual => (contains {:all? true,
                          :original-args args
-                         :print-level (deflevels/normalize :print-namespaces)
+                         :print-level :print-namespaces
                          :filters ["name-match" :keyword]})
     ( (:filter-function actual) (with-meta (fn[]) {:keyword true})) => true)
 
@@ -584,14 +582,21 @@
     => (contains {:all? false,
                   :namespaces '[midje.repl.foo midje.repl.bar]
                   :original-args args
-                  :print-level (deflevels/normalize :print-nothing)
+                  :print-level :print-nothing
                   :filters [:integration]})
       (provided (#'midje.repl/unglob-partial-namespaces ['midje.repl.*])
                 => '[midje.repl.foo midje.repl.bar]))
-
-
   )
 
+ (without-changing-cumulative-totals
+  (fact "print-levels are not stored if not given"
+    (deduce-user-intention '[:all :metadata] :for-in-memory-facts)
+    => (contains {:fetch-default-args '[:all :metadata]})
+
+    (deduce-user-intention '[midje.t-repl :metadata] :for-facts-anywhere)
+    => (contains {:fetch-default-args '[midje.t-repl :metadata]
+                  :load-default-args '[midje.t-repl :metadata]})))
+              
 
 )      ; confirming-cumulative-totals-not-stepped-on
 

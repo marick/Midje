@@ -33,19 +33,21 @@
   
 (facts "separating levels out of argument lists"
   (separate-print-levels [])
-  => [(names-to-levels :print-normally) nil]
+  => [ [] :print-normally nil ]
   (separate-print-levels [:print-nothing])
-  => [(names-to-levels :print-nothing) nil]
+  => [[:print-nothing] :print-nothing nil]
   (separate-print-levels [:all :print-nothing])
-  => [(names-to-levels :print-nothing) [:all]]
+  => [[:print-nothing] :print-nothing [:all]]
   (separate-print-levels [:print-nothing :all])
-  => [(names-to-levels :print-nothing) [:all]]
-  (separate-print-levels ['a (names-to-levels :print-facts) 'b])
-  => [(names-to-levels :print-facts) '[a b]]
+  => [[:print-nothing] :print-nothing [:all]]
+  (let [number-form (names-to-levels :print-facts)]
+        (separate-print-levels ['a number-form 'b])
+        => [[number-form] number-form '[a b]])
 
   ;; checks for valid levels
-  (separate-print-levels [500 'something]) =>  (throws Error)
-  (separate-print-levels [:print-nothing :print-facts]) => (throws Error))
+  (separate-print-levels [500 'something]) => (throws Error #"500.*not.*valid")
+  (separate-print-levels [:print-nothing :print-facts])
+  => (throws Error #"extra.*print.*level"))
 
 (fact "report fact being checked"
   (let [name+desc-fact (with-meta (fn[])

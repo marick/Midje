@@ -97,29 +97,29 @@
   "This has to be public because multimethods are second-class."
   (fn [_ type] type))
 (defmethod deduce-user-intention :for-in-memory-facts [original-args type]
-  (let [[print-level args]
-        (levelly/separate-print-levels original-args)
+  (let [[given-level-seq print-level-to-use args]
+          (levelly/separate-print-levels original-args)
         [filters filter-function args]
-        (metadata/separate-filters args all-keyword-is-not-a-filter)]
+          (metadata/separate-filters args all-keyword-is-not-a-filter)]
     {:all? (do-to-all? args)
      :namespaces args
      :original-args original-args,
-     :print-level print-level
+     :given-level-seq given-level-seq
+     :print-level print-level-to-use
      :filters filters
      :filter-function filter-function
      :fetch-default-args original-args}))
 (defmethod deduce-user-intention :for-facts-anywhere [original-args type]
   (let [base (deduce-user-intention original-args :for-in-memory-facts)]
     (merge base
-           {:load-default-args (:original-args base)}
+           {:load-default-args original-args}
            (if (:all? base)
              {:namespaces (project-namespaces)}
              (let [expanded (unglob-partial-namespaces (:namespaces base))]
                {:namespaces expanded
                 :fetch-default-args (concat expanded
                                             (:filters base)
-                                            [(:print-level base)])})))))
-
+                                            (:given-level-seq base))})))))
 
 
 ;;; A DSLish way of defining intention-obeying functions.

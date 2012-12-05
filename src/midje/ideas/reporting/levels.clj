@@ -13,12 +13,14 @@
             [midje.util.form-utils :as form]))
 
 (defn separate-print-levels [args]
-  (let [args (replace names-to-levels args)
-        [[print-level & extras] non-levels] (form/separate-by number? args)]
+  (let [[[print-level & extras] non-levels] (form/separate-by valids args)]
     (when (seq extras)
       (throw (user-error "You have extra print level names or numbers.")))
-    [(normalize (or print-level (config/choice :print-level)))
-     non-levels]))
+    (dorun (map validate-level! (filter number? args)))
+      
+    (if print-level
+      [[print-level]  print-level                   non-levels]
+      [[           ]  (config/choice :print-level)  non-levels])))
 
 
 (defn level-checker [operation]
