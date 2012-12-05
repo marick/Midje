@@ -60,11 +60,15 @@
   (load-facts <ns> <ns>...)
   (load-facts 'midje.util.*)      ; Load all namespaces below midje.util.
   (load-facts <ns> :integration)  ; Filter to just integration tests.
+  (load-facts)                    ; Repeat most recent load-facts.
 
   ----- Checking facts, once loaded
   (check-facts <ns> <ns>...)        ; in given namespaces
   (check-facts :all)                ; all defined facts
   (check-facts :all :integration)   ; all integration tests
+
+  Note: `check-facts` with no argument will check the same facts
+  as the most recent `check-facts` or `load-facts`.
 
   ----- Rerunning facts
   (recheck-fact)                ; Check just-checked fact again.
