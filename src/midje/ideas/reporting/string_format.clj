@@ -153,7 +153,7 @@
   (println ( (if (pos? (:fail-count result)) color/fail color/pass)
              (last (:lines result)))))
 
-(defn print-midje-summary-line [result]
+(defn- print-something-actually-happened-summary-results [result]
   (let [midje-failure-message (condp = (:fail result)
                                 0 (color/pass (format "All claims (%d) have been confirmed." (:pass result)))
                                 1 (str (color/fail "FAILURE:")
@@ -168,6 +168,15 @@
 
         midje-consolation (if (pos? (:fail result)) potential-consolation "")]
     (println midje-failure-message midje-consolation)))
+
+(defn print-nothing-was-tried-summary-results []
+  (println (color/note "No claims were checked. Is that what you wanted?")))
+
+(defn print-midje-summary-line [result]
+  (if (pos? (+ (:fail result) (:pass result)))
+    (print-something-actually-happened-summary-results result)
+    (print-nothing-was-tried-summary-results)))
+
 
 (defn report-strings-summary
   ([midje-result clojure-test-result]
