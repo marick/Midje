@@ -16,6 +16,6 @@
       (some-fn-m seq? list?)  (m (apply list (map eagerly form)))
       vector?                 (m (vec (map eagerly form)))
       map?                    (m (into form (map eagerly form)))
-      set?                    (m (into (if (sorted? form) (sorted-set) #{}) (map eagerly form)))
+      set?                    (m (into (empty form) (map eagerly form)))
       :else                   form)))
 
