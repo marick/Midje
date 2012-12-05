@@ -547,11 +547,12 @@
 
   ;; just namespaces
   (let [args '[ns.ns ns.ns2]]
-    (deduce-user-intention args) => (contains {:all? false,
-                                        :namespaces args}))
+    (deduce-user-intention args :for-in-memory-facts)
+    => (contains {:all? false,:namespaces args}))
+
   ;; all and print level
   (let [args '[:all :print-nothing]]
-    (deduce-user-intention args)
+    (deduce-user-intention args :for-in-memory-facts)
     => (contains {:all? true,
                   :original-args args
                   :print-level (deflevels/normalize :print-nothing)}))
@@ -559,7 +560,7 @@
   ;; all + redundant namespace, print level, filters
   ;; also check that the filter function is installed
   (let [args '[:all ns.ns :print-namespaces "name-match" :keyword]
-        actual (deduce-user-intention args)]
+        actual (deduce-user-intention args :for-in-memory-facts)]
     actual => (contains {:all? true,
                          :original-args args
                          :print-level (deflevels/normalize :print-namespaces)
@@ -568,7 +569,7 @@
 
   ;; From disk, all, print level
   (let [args '[:all :print-namespaces]]
-    (deduce-user-intention args :from-disk)
+    (deduce-user-intention args :for-facts-anywhere)
     => (contains {:all? true,
                   :namespaces '[ns.project]
                   :original-args args
@@ -579,7 +580,7 @@
   ;; From disk, partial namespace, default print level, filter
   (let [args '[midje.repl.* :integration]]
     (config/with-augmented-config {:print-level :print-nothing}
-      (deduce-user-intention args :from-disk))
+      (deduce-user-intention args :for-facts-anywhere))
     => (contains {:all? false,
                   :namespaces '[midje.repl.foo midje.repl.bar]
                   :original-args args

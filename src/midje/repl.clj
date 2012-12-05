@@ -58,12 +58,14 @@
              [(symbol %)])
           (map str namespaces)))
 
-(defn- ^{:testable true} deduce-user-intention
-  ([original-args]
-     (let [[print-level args]
-             (levelly/separate-print-levels original-args)
-           [filters filter-function args]
-             (metadata/separate-filters args all-keyword-is-not-a-filter)]
+(defmulti deduce-user-intention
+  "This has to be public because multimethods are second-class."
+  (fn [_ type] type))
+(defmethod deduce-user-intention :for-in-memory-facts [original-args type]
+  (let [[print-level args]
+        (levelly/separate-print-levels original-args)
+        [filters filter-function args]
+        (metadata/separate-filters args all-keyword-is-not-a-filter)]
     {:all? (do-to-all? args)
      :namespaces args
      :original-args original-args,
@@ -71,19 +73,20 @@
      :filters filters
      :filter-function filter-function
      :fetch-default-args original-args}))
-  ([original-args working-off-disk]
-     (let [base (deduce-user-intention original-args)]
-       (merge base
-              {:load-default-args (:original-args base)}
-              (if (:all? base)
-                {:namespaces (project-namespaces)}
-                (let [expanded (unglob-partial-namespaces (:namespaces base))]
-                  {:namespaces expanded
-                   :fetch-default-args (concat expanded
-                                               (:filters base)
-                                               [(:print-level base)])}))))))
-        
-  
+(defmethod deduce-user-intention :for-facts-anywhere [original-args type]
+  (let [base (deduce-user-intention original-args :for-in-memory-facts)]
+    (merge base
+           {:load-default-args (:original-args base)}
+           (if (:all? base)
+             {:namespaces (project-namespaces)}
+             (let [expanded (unglob-partial-namespaces (:namespaces base))]
+               {:namespaces expanded
+                :fetch-default-args (concat expanded
+                                            (:filters base)
+                                            [(:print-level base)])})))))
+
+
+
 
                                 ;;; Loading facts from the repl
 
@@ -98,25 +101,40 @@
   (reset! fetch-default-args (:fetch-default-args intention))
   (when (contains? intention :load-default-args)
     (reset! load-default-args (:load-default-args intention))))
+(def ^{:private true} and-update-defaults! update-defaults!)
+(def ^{:private true} without-updating-defaults (fn [intention] ))
 
-(defn- obey-load-facts-intention [intention]
-  (update-defaults! intention)
-  (config/with-augmented-config {:print-level (:print-level intention)
-                                 :desired-fact? (:filter-function intention)}
-    (levelly/forget-past-results)
-    (doseq [ns (:namespaces intention)]
-      (compendium/remove-namespace-facts-from! ns)
-      ;; Following strictly unnecessary, but slightly useful because
-      ;; it reports the changed namespace before the first fact loads.
-      ;; That way, some error in the fresh namespace won't appear to
-      ;; come from the last-loaded namespace.
-      (levelly/report-changed-namespace ns)
-      (require ns :reload))
-    (levelly/report-summary)
-    nil))
+(def ^{:private true} default-atoms
+  {:for-in-memory-facts 'fetch-default-args
+   :for-facts-anywhere 'load-default-args})
 
 
-(defn load-facts
+(defmacro ^{:private true} def-obedient-function
+  [function-name scope update worker-function docstring]
+  (let [default-atom (scope default-atoms)]
+    `(defn ~function-name
+       ~docstring
+       [& args#]
+       (let [intention# (deduce-user-intention (either-args args# @~default-atom)
+                                               ~scope)]
+         (~update intention#)
+         (~worker-function intention#)))))
+
+(def-obedient-function load-facts :for-facts-anywhere and-update-defaults!
+  (fn [intention]
+    (config/with-augmented-config {:print-level (:print-level intention)
+                                   :desired-fact? (:filter-function intention)}
+      (levelly/forget-past-results)
+      (doseq [ns (:namespaces intention)]
+        (compendium/remove-namespace-facts-from! ns)
+        ;; Following strictly unnecessary, but slightly useful because
+        ;; it reports the changed namespace before the first fact loads.
+        ;; That way, some error in the fresh namespace won't appear to
+        ;; come from the last-loaded namespace.
+        (levelly/report-changed-namespace ns)
+        (require ns :reload))
+      (levelly/report-summary)
+      nil))
   "Load given namespaces, as in:
      (load-facts 'midje.t-sweet 'midje.t-repl)
 
@@ -142,27 +160,19 @@
    See `(doc midje-print-levels)`.
 
    If `load-facts` is given no arguments, it reuses the previous arguments."
-  [& args]
-  (let [memorable-args (either-args args @load-default-args)]
-    (obey-load-facts-intention
-     (deduce-user-intention memorable-args :namespaces-from-disk))))
-
+)
 
                                 ;;; Fetching loaded facts
 
-(defn- obey-fetch-facts-intention-without-side-effects [intention]
+;; An independent function because it's not just used by fetch-facts.
+(defn- fetch-intended-facts [intention]
   (let [fact-functions (if (:all? intention)
                          (compendium/all-facts<>)
                          (mapcat compendium/namespace-facts<> (:namespaces intention)))]
     (filter (:filter-function intention) fact-functions)))
 
-(defn- obey-fetch-facts-intention [intention]
-  (update-defaults! intention)
-  (obey-fetch-facts-intention-without-side-effects intention))
-
-
-
-(defn fetch-facts
+(def-obedient-function fetch-facts :for-in-memory-facts and-update-defaults!
+  fetch-intended-facts
   "Fetch facts that have already been defined, whether by loading
    them from a file or via the repl.
 
@@ -180,32 +190,24 @@
 
    If no arguments are given, it reuses the arguments from the most
    recent `check-facts`, `fetch-facts`, or `load-facts`."
-
-  [& args]
-  (let [memorable-args (either-args args @fetch-default-args)]
-    (obey-fetch-facts-intention
-     (deduce-user-intention memorable-args))))
+)
      
 
                               ;;; Forgetting loaded facts
 
-(defn- obey-forget-facts-intention [intention]
-  ;; Do NOT update defaults.
-    
-  ;; a rare concession to efficiency
-  (cond (and (empty? (:filters intention)) (:all? intention))
-        (compendium/fresh!)
-        
-        (empty? (:filters intention))
-        (dorun (map compendium/remove-namespace-facts-from!
-                    (:namespaces intention)))
-
-        :else
-        (dorun (map compendium/remove-from!
-                    (obey-fetch-facts-intention-without-side-effects intention)))))
-
-
-(defn forget-facts 
+(def-obedient-function forget-facts :for-in-memory-facts without-updating-defaults
+  (fn [intention]
+    ;; a rare concession to efficiency
+    (cond (and (empty? (:filters intention)) (:all? intention))
+          (compendium/fresh!)
+          
+          (empty? (:filters intention))
+          (dorun (map compendium/remove-namespace-facts-from!
+                      (:namespaces intention)))
+          
+          :else
+          (dorun (map compendium/remove-from!
+                      (fetch-intended-facts intention)))))
   "Forget defined facts so that they will not be found by `check-facts`
    or `fetch-facts`.
 
@@ -222,11 +224,7 @@
    #\"regex\"    -- Does any part of the fact's name match the regex?
    a function    -- Does the function return a truthy value when given
                     the fact's metadata?"
-
-  [& args]
-  (let [memorable-args (either-args args @fetch-default-args)]
-    (obey-forget-facts-intention
-     (deduce-user-intention memorable-args))))
+  )
      
 
     
@@ -236,12 +234,11 @@
     as is returned by `last-fact-checked`."}
   check-one-fact fact/check-one)
 
-(defn- obey-check-facts-intention [intention]
-    (update-defaults! intention) ; indirect instruction to (fetch-facts)
-    (config/with-augmented-config {:print-level (:print-level intention)}
-      (check-facts-once-given (fetch-facts))))
 
-(defn check-facts
+(def-obedient-function check-facts :for-in-memory-facts and-update-defaults!
+  (fn [intention]
+    (config/with-augmented-config {:print-level (:print-level intention)}
+      (check-facts-once-given (fetch-intended-facts intention))))
   "Check facts that have already been defined.
 
    (check-facts *ns* midje.t-repl -- defined in named namespaces
@@ -260,11 +257,7 @@
 
    If no arguments are given, it reuses the arguments from the most
    recent `check-facts`, `fetch-facts`, or `load-facts`."
-
-  [& args]
-  (let [memorable-args (either-args args @fetch-default-args)]
-    (obey-check-facts-intention
-     (deduce-user-intention memorable-args))))
+  )
     
 
 
