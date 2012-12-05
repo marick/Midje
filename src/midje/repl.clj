@@ -236,6 +236,11 @@
     as is returned by `last-fact-checked`."}
   check-one-fact fact/check-one)
 
+(defn- obey-check-facts-intention [intention]
+    (update-defaults! intention) ; indirect instruction to (fetch-facts)
+    (config/with-augmented-config {:print-level (:print-level intention)}
+      (check-facts-once-given (fetch-facts))))
+
 (defn check-facts
   "Check facts that have already been defined.
 
@@ -257,8 +262,9 @@
    recent `check-facts`, `fetch-facts`, or `load-facts`."
 
   [& args]
-  (levelly/obeying-print-levels [args args]
-    (check-facts-once-given (apply fetch-facts args))))
+  (let [memorable-args (either-args args @fetch-default-args)]
+    (obey-check-facts-intention
+     (deduce-user-intention memorable-args))))
     
 
 

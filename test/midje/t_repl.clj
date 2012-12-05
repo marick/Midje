@@ -297,12 +297,7 @@
 
   (fact "check-facts takes the usual arguments"
     :check-only-at-load-time
-    (config/with-augmented-config {:print-level :print-no-summary}
-      ;; Because it uses fetch-facts
-      (do (check-facts 'arg) (:pass (ctf/counters))) => 0
-      (provided (fetch-facts 'arg) => []))
-
-      ;; But let's try a few
+    ;; Most of the work is done by fetch-facts, but let's try a few
     (config/with-augmented-config {:print-level :print-nothing}
       (check-facts 'midje.config)
       (:pass (ctf/counters)) => 0
@@ -319,6 +314,11 @@
       (check-facts :all :tinkerbell)
       (:pass (ctf/counters)) => 0
       (:fail (ctf/counters)) => 0))
+
+  (fact "check-facts affects the next check-facts/fetch-facts"
+    (check-facts 'midje.t-repl "the-name" :print-nothing) => true
+    (check-facts) => true
+    (map fact-name (fetch-facts)) => ["the-name"])
 
   ;; Old bug. A failure prevented further facts from being checked.
   (forget-facts :all)
