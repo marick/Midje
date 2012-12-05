@@ -81,7 +81,7 @@
       (check-facts ':all :print-no-summary)
       (forget-facts :all)
       (load-facts)
-      (map fact-name (fetch-facts)) => ["a non-featherian test"])
+      (map fact-name (fetch-facts :all)) => ["a non-featherian test"])
 
     (fact "load-facts sets up default arguments for fetch-facts"
       (load-facts :all "simple" :print-no-summary) => anything
@@ -115,14 +115,29 @@
  (add-fact :midje/namespace 'midje.config :midje/name      "z - first - integration" :integration true)
 
  (fact :check-only-at-load-time
-   (names (fetch-facts *ns*)) => ["m - fourth - midje.t-repl" "a - fifth - midje.t-repl"]
-   (names (fetch-facts 'midje.ideas.facts)) => ["f - second - midje.ideas.facts"]
+   ;; In some of these, I check that changing the argument to fetch-facts affects the default.
+   (let [expected ["m - fourth - midje.t-repl" "a - fifth - midje.t-repl"]]
+     (names (fetch-facts *ns*)) => expected
+     (names (fetch-facts)) => expected
+     (names (fetch-facts)) => expected)
+
+   (let [expected ["f - second - midje.ideas.facts"]]
+     (names (fetch-facts 'midje.ideas.facts)) => expected
+     (names (fetch-facts)) => expected)
 
    ;; if explicit namespace order is given, it's obeyed
-   (names (fetch-facts 'midje.t-repl 'midje.config)) => ["m - fourth - midje.t-repl" "a - fifth - midje.t-repl" "z - first - integration" ]
-   (names (fetch-facts :all)) => ["z - first - integration" "f - second - midje.ideas.facts" "p - third - midje.repl" "m - fourth - midje.t-repl" "a - fifth - midje.t-repl"]
+   (let [expected ["m - fourth - midje.t-repl" "a - fifth - midje.t-repl" "z - first - integration" ]]
+     (names (fetch-facts 'midje.t-repl 'midje.config)) => expected
+     (names (fetch-facts)) => expected)
 
-   (names (fetch-facts :all "n")) => ["z - first - integration" "f - second - midje.ideas.facts"]
+   (let [expected ["z - first - integration" "f - second - midje.ideas.facts" "p - third - midje.repl" "m - fourth - midje.t-repl" "a - fifth - midje.t-repl"]]
+     (names (fetch-facts :all)) => expected
+     (names (fetch-facts)) => expected)
+
+   (let [expected ["z - first - integration" "f - second - midje.ideas.facts"]]
+     (names (fetch-facts :all "n")) => expected
+     (names (fetch-facts)) => expected)
+   
    (names (fetch-facts 'midje.ideas.facts #"q")) => []
    (names (fetch-facts :all :integration)) => ["z - first - integration"]
    (names (fetch-facts *ns* :integration)) => []
@@ -130,6 +145,10 @@
    (names (fetch-facts "midje.ideas.facts" "p - third - midje.repl" :all))
    => ["f - second - midje.ideas.facts" "p - third - midje.repl"]
    )
+
+ 
+
+   
 
 
                                 ;;; Forgetting facts
