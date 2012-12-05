@@ -242,10 +242,13 @@
 (def ^{:doc "
   On startup, Midje loads ${HOME}/.midje.clj and ./.midje.clj
   (in that order). To affect the default configuration, use
-  code like this:
-      (override-with :visible-deprecation false
-                     :visible-future false
-                     :print-level :print-namespaces)
+  code like this in those files:
+      (change-defaults :visible-deprecation false
+                       :visible-future false
+                       :print-level :print-namespaces)
+
+  If you want different configurations for repl and command-line
+  Midje, use the `running-in-repl?` predicate.
   
   You can temporarily override the configuration like this:
       (midje.config/with-augmented-config {:print-level :print-no-summary}

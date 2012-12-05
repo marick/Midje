@@ -1,6 +1,8 @@
 (ns ^{:doc "Customizable configuration"}
   midje.config
-  (:use [midje.error-handling.exceptions :only [user-error]])
+  (:use [midje.error-handling.exceptions :only [user-error]]
+        ;; use this one function so that it's available to config files
+        [midje.util.ecosystem :only [running-in-repl?]])
   (:require midje.ideas.reporting.level-defs
             [clojure.set :as set]
             [midje.util.ecosystem :as ecosystem]))
@@ -56,7 +58,7 @@
   (validate! additions)
   (alter-var-root #'*config* merge additions))
   
-(defn override-with
+(defn change-defaults
   "Adds key-value pairs to the root configuration.
    Does not affect any temporary (dynamic) configurations."
   [& kvs]

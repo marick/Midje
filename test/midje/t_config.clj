@@ -2,13 +2,13 @@
   (:use [midje sweet util test-util])
   (:require [midje.config :as config]))
 
-(fact "overriding defaults"
+(fact "changing defaults"
   (let [stashed-config config/*config*]
     (try
       (config/choice :print-level) =not=> :print-nothing
       (config/with-augmented-config {:print-level :print-facts}
         ;; emphasizes that override overrides the root binding
-        (config/override-with :print-level :print-nothing))
+        (config/change-defaults :print-level :print-nothing))
       (config/choice :print-level) => :print-nothing
     (finally
      (config/merge-permanently! stashed-config)))))
@@ -32,7 +32,7 @@
         (config/merge-permanently! valid-map) => irrelevant
         (provided (config/validate! valid-map) => anything)
 
-        (config/override-with :print-level :print-normally) => irrelevant
+        (config/change-defaults :print-level :print-normally) => irrelevant
         (provided (config/validate! valid-map) => anything)
 
       (finally
