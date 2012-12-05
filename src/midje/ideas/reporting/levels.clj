@@ -20,11 +20,6 @@
     [(normalize (or print-level (config/choice :print-level)))
      non-levels]))
 
-(defmacro obeying-print-levels [[arglist-name original-args] & body]
-  `(let [[level# ~arglist-name] (separate-print-levels ~original-args)]
-     (validate-level! level#)
-     (config/with-augmented-config {:print-level (normalize level#)}
-       ~@body)))
 
 (defn level-checker [operation]
   (fn [level-name]

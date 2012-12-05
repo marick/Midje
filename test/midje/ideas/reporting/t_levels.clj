@@ -47,17 +47,6 @@
   (separate-print-levels [500 'something]) =>  (throws Error)
   (separate-print-levels [:print-nothing :print-facts]) => (throws Error))
 
-(fact "can override print levels temporarily"
-  (config/choice :print-level) => :print-normally
-  (obeying-print-levels [args [:foo :bar :print-facts]]
-     args => [:foo :bar]
-     (config/choice :print-level) => (names-to-levels :print-facts))
-  (let [args '[a b 2]]
-    (obeying-print-levels [args args]
-      args => '[a b]
-      (config/choice :print-level) => 2)))
-                        
-
 (fact "report fact being checked"
   (let [name+desc-fact (with-meta (fn[])
                          {:midje/name "named" :midje/description "desc"})

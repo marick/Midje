@@ -127,18 +127,3 @@
      (desired-fact-predicate-from filters)
      remainder]))
 
-(defn separate-metadata-filters [args plain-argument?]
-  (form/separate-by #(and (not (plain-argument? %))
-                          ((form/any-pred-from [string? form/regex? fn? keyword?]) %))
-                    args))
-
-(defmacro obeying-metadata-filters
-  [[arglist-name original-args] plain-argument? & body]
-  `(let [[filters# ~arglist-name] (separate-metadata-filters ~original-args
-                                                             ~plain-argument?)]
-     (config/with-augmented-config {:desired-fact?
-                                    (desired-fact-predicate-from filters#)}
-       ~@body)))
-
-
-

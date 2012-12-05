@@ -41,22 +41,5 @@
                                       (fake (m 1) => 33))]
     (to-semi-sweet form) => form))
 
-
-;;; When a fact's loading is modified
-
-(let [result (metadata/obeying-metadata-filters [args [(constantly false)]]
-                                                (constantly false)
-               (fact 1 => 2))]
-  (fact
-    result => #"This fact was ignored because of the current configuration."
-    result => #"some function"))
-
-(let [result (metadata/obeying-metadata-filters [args ["foo"]]
-                                                (constantly false)
-               (fact "no match" 1 => 2))]
-  (fact
-    result => #"This fact was ignored because of the current configuration."
-    result => #"foo"))
-
 (config/with-augmented-config {:check-after-creation false}
   (with-out-str (fact 1 => 2)) => "")
