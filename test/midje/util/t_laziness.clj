@@ -73,6 +73,14 @@
   (eagerly (Foo. 4 5)) => (Foo. 4 5)
   (eagerly [(Foo. 4 5)]) => [(Foo. 4 5)])
 
+(defn- nearby-item-comparator [a b]
+  (let [item-key (juxt :timestamp :id)]
+    (compare (item-key b) (item-key a))))
+
+(fact "eagerly doesn't barf on sorted-sets with custom comparators... See issue: #158"
+      (eagerly (sorted-set-by nearby-item-comparator {:timestamp 0 :id 0} {:timestamp 1 :id 1}))
+      => (sorted-set-by nearby-item-comparator {:timestamp 0 :id 0} {:timestamp 1 :id 1}))
+
 (fact "eagerly does NOT preserve identical? for collections even if they had no lazy seqs"
   (let [lazied (with-meta '(1 2 3) {:original :metadata})
         eagered (eagerly lazied)]

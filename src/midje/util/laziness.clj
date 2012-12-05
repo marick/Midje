@@ -1,7 +1,8 @@
 (ns ^{:doc "To evaluate a fact it needs to be eagerly evaluated."}
   midje.util.laziness
   (:use [midje.util.form-utils :only [pred-cond]]
-        [midje.util.backwards-compatible-utils :only [some-fn-m]])) 
+        [midje.util.backwards-compatible-utils :only [some-fn-m]])
+  (:import clojure.lang.Sorted)) 
 
 (defn eagerly
   "Descend form, converting all lazy seqs into lists.
@@ -16,6 +17,9 @@
       (some-fn-m seq? list?)  (m (apply list (map eagerly form)))
       vector?                 (m (vec (map eagerly form)))
       map?                    (m (into form (map eagerly form)))
-      set?                    (m (into (if (sorted? form) (sorted-set) #{}) (map eagerly form)))
+      set?                    (m (into (if (sorted? form)
+                                          (sorted-set-by (.comparator ^Sorted form))
+                                          #{})
+                                       (map eagerly form)))
       :else                   form)))
 
