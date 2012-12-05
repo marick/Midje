@@ -58,7 +58,7 @@
              [(symbol %)])
           (map str namespaces)))
 
-(defn- ^{:testable true} decompose-args
+(defn- ^{:testable true} deduce-user-intention
   ([original-args]
      (let [[print-level args]
              (levelly/separate-print-levels original-args)
@@ -72,7 +72,7 @@
      :filter-function filter-function
      :fetch-default-args original-args}))
   ([original-args working-off-disk]
-     (let [base (decompose-args original-args)]
+     (let [base (deduce-user-intention original-args)]
        (merge base
               {:load-default-args (:original-args base)}
               (if (:all? base)
@@ -93,6 +93,27 @@
 
 (defn- either-args [given default]
   (if (empty? given) default given))
+
+(defn- update-defaults! [intention]
+  (reset! fetch-default-args (:fetch-default-args intention))
+  (when (contains? intention :load-default-args)
+    (reset! load-default-args (:load-default-args intention))))
+
+(defn obey-load-facts-intention [intention]
+  (update-defaults! intention)
+  (config/with-augmented-config {:print-level (:print-level intention)
+                                 :desired-fact? (:filter-function intention)}
+    (levelly/forget-past-results)
+    (doseq [ns (:namespaces intention)]
+      (compendium/remove-namespace-facts-from! ns)
+      ;; Following strictly unnecessary, but slightly useful because
+      ;; it reports the changed namespace before the first fact loads.
+      ;; That way, some error in the fresh namespace won't appear to
+      ;; come from the last-loaded namespace.
+      (levelly/report-changed-namespace ns)
+      (require ns :reload))
+    (levelly/report-summary)
+    nil))
 
 
 (defn load-facts
@@ -122,24 +143,9 @@
 
    If `load-facts` is given no arguments, it reuses the previous arguments."
   [& args]
-  (let [memorable-args (either-args args @load-default-args)
-        argmap (decompose-args memorable-args :namespaces-from-disk)]
-    (reset! load-default-args (:load-default-args argmap))
-    (reset! fetch-default-args (:fetch-default-args argmap))
-    (config/with-augmented-config {:print-level (:print-level argmap)
-                                   :desired-fact? (:filter-function argmap)}
-      (levelly/forget-past-results)
-      (doseq [ns (:namespaces argmap)]
-        (compendium/remove-namespace-facts-from! ns)
-        ;; Following strictly unnecessary, but slightly useful because
-        ;; it reports the changed namespace before the first fact loads.
-        ;; That way, some error in the fresh namespace won't appear to
-        ;; come from the last-loaded namespace.
-        (levelly/report-changed-namespace ns)
-        (require ns :reload))
-      (levelly/report-summary)
-      nil)))
-
+  (let [memorable-args (either-args args @load-default-args)]
+    (obey-load-facts-intention
+     (deduce-user-intention memorable-args :namespaces-from-disk))))
 
 
                                 ;;; Fetching loaded facts

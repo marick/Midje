@@ -506,11 +506,11 @@
 
   ;; just namespaces
   (let [args '[ns.ns ns.ns2]]
-    (decompose-args args) => (contains {:all? false,
+    (deduce-user-intention args) => (contains {:all? false,
                                         :namespaces args}))
   ;; all and print level
   (let [args '[:all :print-nothing]]
-    (decompose-args args)
+    (deduce-user-intention args)
     => (contains {:all? true,
                   :original-args args
                   :print-level (deflevels/normalize :print-nothing)}))
@@ -518,7 +518,7 @@
   ;; all + redundant namespace, print level, filters
   ;; also check that the filter function is installed
   (let [args '[:all ns.ns :print-namespaces "name-match" :keyword]
-        actual (decompose-args args)]
+        actual (deduce-user-intention args)]
     actual => (contains {:all? true,
                          :original-args args
                          :print-level (deflevels/normalize :print-namespaces)
@@ -527,7 +527,7 @@
 
   ;; From disk, all, print level
   (let [args '[:all :print-namespaces]]
-    (decompose-args args :from-disk)
+    (deduce-user-intention args :from-disk)
     => (contains {:all? true,
                   :namespaces '[ns.project]
                   :original-args args
@@ -538,7 +538,7 @@
   ;; From disk, partial namespace, default print level, filter
   (let [args '[midje.repl.* :integration]]
     (config/with-augmented-config {:print-level :print-nothing}
-      (decompose-args args :from-disk))
+      (deduce-user-intention args :from-disk))
     => (contains {:all? false,
                   :namespaces '[midje.repl.foo midje.repl.bar]
                   :original-args args
