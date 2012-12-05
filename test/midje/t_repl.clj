@@ -208,32 +208,32 @@
    (fetched-names :all) => (contains "bad-a" "bad-b" :in-any-order))
 
 
- (fact "interactions between forget-facts and other functions"
-   :check-only-at-load-time
-   (fact "it can get its default from load-facts"
-     (forget-facts :all)
-     (add-fact :midje/namespace 'midje.ideas.facts :midje/name "not forgotten")
-     (load-facts 'midje.t-repl-helper :print-nothing)
-     (forget-facts)
-     (map fact-name (compendium/all-facts<>)) => ["not forgotten"])
-
-   (fact "it can get its default from check-facts"
-     (forget-facts :all)
-     (load-facts 'midje.t-repl-helper :print-nothing)
-     (check-facts 'midje.t-repl-helper :non-featherian :print-nothing)
-     (forget-facts)
-     (map fact-name (compendium/namespace-facts<> 'midje.t-repl-helper))
-     =not=> ["a non-featherian test"])
-   
-   (fact "forget-facts does not affect check-facts"
-     (forget-facts :all)
-     (load-facts 'midje.t-repl-helper :non-featherian :print-nothing)
-     (add-fact :midje/namespace 'midje.ideas.facts)
-     (forget-facts 'midje.ideas.facts)
-     (map fact-name (fetch-facts)) => ["a non-featherian test"]))
-   
-   
-
+ (without-changing-cumulative-totals
+  (fact "interactions between forget-facts and other functions"
+    :check-only-at-load-time
+    (fact "it can get its default from load-facts"
+      (forget-facts :all)
+      (add-fact :midje/namespace 'midje.ideas.facts :midje/name "not forgotten")
+      (load-facts 'midje.t-repl-helper :print-nothing)
+      (forget-facts)
+      (map fact-name (compendium/all-facts<>)) => ["not forgotten"])
+    
+    (fact "it can get its default from check-facts"
+      (forget-facts :all)
+      (load-facts 'midje.t-repl-helper :print-nothing)
+      (check-facts 'midje.t-repl-helper :non-featherian :print-nothing)
+      (forget-facts)
+      (map fact-name (compendium/namespace-facts<> 'midje.t-repl-helper))
+      =not=> ["a non-featherian test"])
+    
+    (fact "forget-facts does not affect check-facts"
+      (forget-facts :all)
+      (load-facts 'midje.t-repl-helper :non-featherian :print-nothing)
+      (add-fact :midje/namespace 'midje.ideas.facts)
+      (forget-facts 'midje.ideas.facts)
+      (map fact-name (fetch-facts)) => ["a non-featherian test"]))
+  )
+  
 
 
 
