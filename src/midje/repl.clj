@@ -27,21 +27,53 @@
 
 
 
-                                ;;; Miscellaneous utilities
+                                ;;; User Intentions
 
-(def ^{:private true} all-keyword-is-not-a-filter
-  ;; Prevent namespace arguments from being treated as filters
-  (partial = :all))
+;; We go to some trouble to have a mostly-consistent interface to the functions
+;; {load,fetch,check,forget}-facts. The arguments to the functions are bundled
+;; together into a map that controls:
+;;
+;; Which namespaces should be used.
+;; Which output should be printed
+;; Whether facts in namespaces should be filtered.
+;; Whether the default case for future uses should be changed.
 
+
+;; The `:all` keyword means "do this function to all namespaces". 
 (defn- do-to-all? [args]
   (boolean (some #{:all} args)))
+;; It has to be distinguished from arguments that set up filters.
+(def ^{:private true} all-keyword-is-not-a-filter
+  (partial = :all))
 
-(defn- check-facts-once-given [fact-functions]
-  (levelly/forget-past-results)
-  (let [results (doall (map fact/check-one fact-functions))]
-    (levelly/report-summary)
-    (every? true? results)))
 
+;; Loading has a different way of naming namespaces than the other
+;; functions. (For example, it supports wildcards.) So there are two
+;; sets of defaults: one for it, one for the other functions. (I use
+;; fetch as an exemplar.)
+(def ^{:private true, :testable true} load-default-args (atom [:all]))
+(def ^{:private true, :testable true} fetch-default-args (atom [:all]))
+
+;; The cases in which each is appropriate.
+(def ^{:private true} default-atoms
+  {:for-in-memory-facts 'fetch-default-args
+   :for-facts-anywhere 'load-default-args})
+
+;; Depending on the function chosen, the user may intend to update
+;; neither, both, or only the fetch-class default. 
+
+(defn- and-update-defaults! [intention]
+  (reset! fetch-default-args (:fetch-default-args intention))
+  (when (contains? intention :load-default-args)
+    (reset! load-default-args (:load-default-args intention))))
+(defn- without-updating-defaults [intention] "do nothing")
+
+
+
+
+
+;; When referring to namespaces on disk, the user intends
+;; a swath of namespaces. These functions find them.
 (defn- ^{:testable true} project-directories []
   (try
     (let [project (project/read)]
@@ -57,6 +89,9 @@
              (namespaces-on-classpath :prefix (apply str (butlast %)))
              [(symbol %)])
           (map str namespaces)))
+
+
+;; This function makes user intentions explicit.
 
 (defmulti deduce-user-intention
   "This has to be public because multimethods are second-class."
@@ -87,27 +122,7 @@
 
 
 
-
-                                ;;; Loading facts from the repl
-
-
-(def ^{:private true, :testable true} load-default-args (atom [:all]))
-(def ^{:private true, :testable true} fetch-default-args (atom [:all]))
-
-(defn- either-args [given default]
-  (if (empty? given) default given))
-
-(defn- update-defaults! [intention]
-  (reset! fetch-default-args (:fetch-default-args intention))
-  (when (contains? intention :load-default-args)
-    (reset! load-default-args (:load-default-args intention))))
-(def ^{:private true} and-update-defaults! update-defaults!)
-(def ^{:private true} without-updating-defaults (fn [intention] ))
-
-(def ^{:private true} default-atoms
-  {:for-in-memory-facts 'fetch-default-args
-   :for-facts-anywhere 'load-default-args})
-
+;;; A DSLish way of defining intention-obeying functions.
 
 (defmacro ^{:private true} def-obedient-function
   [function-name scope update worker-function docstring]
@@ -115,10 +130,14 @@
     `(defn ~function-name
        ~docstring
        [& args#]
-       (let [intention# (deduce-user-intention (either-args args# @~default-atom)
-                                               ~scope)]
+       (let [args-to-use# (if (empty? args#) @~default-atom args#)
+             intention# (deduce-user-intention args-to-use# ~scope)]
          (~update intention#)
          (~worker-function intention#)))))
+
+
+
+                                ;;; Loading facts from the repl
 
 (def-obedient-function load-facts :for-facts-anywhere and-update-defaults!
   (fn [intention]
@@ -234,6 +253,11 @@
     as is returned by `last-fact-checked`."}
   check-one-fact fact/check-one)
 
+(defn- check-facts-once-given [fact-functions]
+  (levelly/forget-past-results)
+  (let [results (doall (map check-one-fact fact-functions))]
+    (levelly/report-summary)
+    (every? true? results)))
 
 (def-obedient-function check-facts :for-in-memory-facts and-update-defaults!
   (fn [intention]
