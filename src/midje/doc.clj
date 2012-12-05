@@ -80,7 +80,7 @@
 
   ----- Forgetting facts
   Same notation as the `check-facts` family, but with
-  \"forget\" instead of \"check\"
+  \"forget\" instead of \"check\".
 
   ----- Fetching facts
   Same notation as the `check-facts` family, but with
