@@ -7,7 +7,7 @@
         [midje.checkers.defining :only [checker? checker-makers]]
         [midje.internal-ideas.expect :only [expect? up-to-full-expect-form]]
         [midje.util.form-utils :only [first-named? translate-zipper map-difference
-                                      hash-map-duplicates-ok pred-cond to-thunks
+                                      hash-map-duplicates-ok pred-cond
                                       quoted-list-form? extended-fn?
                                       fnref-call-form
                                       fnref-var-object
