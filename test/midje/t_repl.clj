@@ -146,8 +146,6 @@
    => ["f - second - midje.ideas.facts" "p - third - midje.repl"]
    )
 
- 
-
    
 
 
@@ -159,12 +157,8 @@
  (forget-facts :all)
  (fact :check-only-at-load-time (compendium-count :all) => zero?)
 
- (add-fact :midje/namespace 'midje.sweet)
- (forget-facts) ; won't change anything - midje.sweet is not this namespace
- (fact :check-only-at-load-time (compendium-count :all) => 1)
- (forget-facts :all)
-
  ;; Explicit namespace argument
+ (forget-facts :all)
  (add-fact :midje/namespace (ns-name *ns*))
  (add-fact :midje/namespace 'midje.sweet)
  (forget-facts *ns*)
@@ -212,6 +206,34 @@
  (forget-facts :all #(and (:a %) (:b %)))
  (fact :check-only-at-load-time
    (fetched-names :all) => (contains "bad-a" "bad-b" :in-any-order))
+
+
+ (fact "interactions between forget-facts and other functions"
+   :check-only-at-load-time
+   (fact "it can get its default from load-facts"
+     (forget-facts :all)
+     (add-fact :midje/namespace 'midje.ideas.facts :midje/name "not forgotten")
+     (load-facts 'midje.t-repl-helper :print-nothing)
+     (forget-facts)
+     (map fact-name (compendium/all-facts<>)) => ["not forgotten"])
+
+   (fact "it can get its default from check-facts"
+     (forget-facts :all)
+     (load-facts 'midje.t-repl-helper :print-nothing)
+     (check-facts 'midje.t-repl-helper :non-featherian :print-nothing)
+     (forget-facts)
+     (map fact-name (compendium/namespace-facts<> 'midje.t-repl-helper))
+     =not=> ["a non-featherian test"])
+   
+   (fact "forget-facts does not affect check-facts"
+     (forget-facts :all)
+     (load-facts 'midje.t-repl-helper :non-featherian :print-nothing)
+     (add-fact :midje/namespace 'midje.ideas.facts)
+     (forget-facts 'midje.ideas.facts)
+     (map fact-name (fetch-facts)) => ["a non-featherian test"]))
+   
+   
+
 
 
 

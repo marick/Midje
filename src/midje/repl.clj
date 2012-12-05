@@ -150,12 +150,15 @@
 
                                 ;;; Fetching loaded facts
 
-(defn- obey-fetch-facts-intention [intention]
-  (update-defaults! intention)
+(defn- obey-fetch-facts-intention-without-side-effects [intention]
   (let [fact-functions (if (:all? intention)
                          (compendium/all-facts<>)
                          (mapcat compendium/namespace-facts<> (:namespaces intention)))]
     (filter (:filter-function intention) fact-functions)))
+
+(defn- obey-fetch-facts-intention [intention]
+  (update-defaults! intention)
+  (obey-fetch-facts-intention-without-side-effects intention))
 
 
 
@@ -186,12 +189,30 @@
 
                               ;;; Forgetting loaded facts
 
+(defn- obey-forget-facts-intention [intention]
+  ;; Do NOT update defaults.
+    
+  ;; a rare concession to efficiency
+  (cond (and (empty? (:filters intention)) (:all? intention))
+        (compendium/fresh!)
+        
+        (empty? (:filters intention))
+        (dorun (map compendium/remove-namespace-facts-from!
+                    (:namespaces intention)))
+
+        :else
+        (dorun (map compendium/remove-from!
+                    (obey-fetch-facts-intention-without-side-effects intention)))))
+
+
 (defn forget-facts 
   "Forget defined facts so that they will not be found by `check-facts`
    or `fetch-facts`.
 
    (forget-facts *ns* midje.t-repl -- defined in named namespaces
    (forget-facts :all)             -- defined anywhere
+   (forget-facts)                  -- forget facts worked on by most
+                                      recent `check-facts` or `load-facts`.
 
    You can further filter the facts by giving more arguments. Facts matching
    any of the arguments are the ones that are forgotten. The arguments are:
@@ -203,18 +224,10 @@
                     the fact's metadata?"
 
   [& args]
-  (let [[filters namespaces]
-        (metadata/separate-metadata-filters args all-keyword-is-not-a-filter)]
-    
-    ;; a rare concession to efficiency
-    (cond (and (empty? filters) (do-to-all? namespaces))
-          (compendium/fresh!)
-
-          (empty? filters)
-          (dorun (map compendium/remove-namespace-facts-from! namespaces))
-
-          :else
-          (dorun (map compendium/remove-from! (apply fetch-facts args))))))
+  (let [memorable-args (either-args args @fetch-default-args)]
+    (obey-forget-facts-intention
+     (deduce-user-intention memorable-args))))
+     
 
     
                                 ;;; Checking loaded facts
