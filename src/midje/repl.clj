@@ -99,7 +99,7 @@
   (when (contains? intention :load-default-args)
     (reset! load-default-args (:load-default-args intention))))
 
-(defn obey-load-facts-intention [intention]
+(defn- obey-load-facts-intention [intention]
   (update-defaults! intention)
   (config/with-augmented-config {:print-level (:print-level intention)
                                  :desired-fact? (:filter-function intention)}
@@ -150,6 +150,15 @@
 
                                 ;;; Fetching loaded facts
 
+(defn- obey-fetch-facts-intention [intention]
+  (update-defaults! intention)
+  (let [fact-functions (if (:all? intention)
+                         (compendium/all-facts<>)
+                         (mapcat compendium/namespace-facts<> (:namespaces intention)))]
+    (filter (:filter-function intention) fact-functions)))
+
+
+
 (defn fetch-facts
   "Fetch facts that have already been defined, whether by loading
    them from a file or via the repl.
@@ -170,14 +179,10 @@
    recent `check-facts`, `fetch-facts`, or `load-facts`."
 
   [& args]
-  (let [[filters namespaces]
-        (metadata/separate-metadata-filters args all-keyword-is-not-a-filter)
-
-        fact-functions (if (do-to-all? namespaces)
-                         (compendium/all-facts<>)
-                         (mapcat compendium/namespace-facts<> namespaces))]
-    (filter (metadata/desired-fact-predicate-from filters) fact-functions)))
-
+  (let [memorable-args (either-args args @fetch-default-args)]
+    (obey-fetch-facts-intention
+     (deduce-user-intention memorable-args))))
+     
 
                               ;;; Forgetting loaded facts
 

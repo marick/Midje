@@ -40,21 +40,21 @@
     (fact "Can load namespace by symbol"
       (forget-facts :all)
       (load-facts 'midje.t-repl-helper :print-no-summary)
-      (count (fetch-facts :all)) => 2)
+      (count (fetch-facts)) => 2)
 
     (fact "Can load namespace by its object"
       (forget-facts :all)
       (load-facts (the-ns 'midje.t-repl-helper) :print-no-summary)
-      (count (fetch-facts :all)) => 2)
+      (count (fetch-facts)) => 2)
 
     (fact "Loading a file erases the previous version"
       (forget-facts :all)
       ;; Put in a dummy fact so we can see that it's erased.
       (add-fact :midje/namespace 'midje.t-repl-helper
                 :midje/name "FAKE")
-      (count (fetch-facts :all)) => 1
+      (count (fetch-facts)) => 1
       (load-facts (the-ns 'midje.t-repl-helper) :print-no-summary)
-      (count (fetch-facts :all)) => 2
+      (count (fetch-facts)) => 2
       (filter #(= (fact-name %) "FAKE") (fetch-facts :all)) => empty?)
   
     (fact "metadata filters are obeyed"
@@ -62,7 +62,7 @@
       (map fact-name (fetch-facts :all)) => ["a non-featherian test"]
 
       (load-facts :print-no-summary 'midje.t-repl-helper "simple")
-      (map fact-name (fetch-facts :all)) => ["a simple test"])
+      (map fact-name (fetch-facts)) => ["a simple test"])
 
     (fact "the :all argument"
       (load-facts :print-no-summary :all "simple") => anything
@@ -74,14 +74,14 @@
       (load-facts 'midje.t-repl-helper :non-featherian :print-no-summary)
       (forget-facts :all)
       (load-facts)
-      (map fact-name (fetch-facts 'midje.t-repl-helper)) => ["a non-featherian test"])
+      (map fact-name (fetch-facts)) => ["a non-featherian test"])
 
     (future-fact "repetition not affected by intervening check-facts"
       (load-facts 'midje.t-repl-helper :non-featherian :print-no-summary)
       (check-facts ':all :print-no-summary)
       (forget-facts :all)
       (load-facts)
-      (map fact-name (fetch-facts 'midje.t-repl-helper)) => ["a non-featherian test"])
+      (map fact-name (fetch-facts)) => ["a non-featherian test"])
 
     (fact "load-facts sets up default arguments for fetch-facts"
       (load-facts :all "simple" :print-no-summary) => anything
