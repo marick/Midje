@@ -92,13 +92,13 @@
       (provided
         (#'midje.repl/project-namespaces) => ['midje.t-repl-helper])
       ;; The double @ is because of importing testables.
-      @@fetch-default-args => (just [:all "simple" :print-no-summary]
+      @@fetch-namespace-args => (just [:all "simple" :print-no-summary]
                                     :in-any-order)
 
       (load-facts 'midje.t-repl-h* :non-featherian :print-no-summary) => anything
       (provided (#'midje.repl/unglob-partial-namespaces ['midje.t-repl-h*])
                 => '[midje.t-repl-helper])
-      @@fetch-default-args => ['midje.t-repl-helper :non-featherian :print-no-summary]))
+      @@fetch-namespace-args => ['midje.t-repl-helper :non-featherian :print-no-summary]))
  )
 
 
@@ -550,7 +550,7 @@
   ;; just namespaces
   (let [args '[ns.ns ns.ns2]]
     (deduce-user-intention args :for-in-memory-facts)
-    => (contains {:all? false,:namespaces args}))
+    => (contains {:all? false,:namespaces-to-use args}))
 
   ;; all and print level
   (let [args '[:all :print-nothing]]
@@ -566,16 +566,16 @@
     actual => (contains {:all? true,
                          :original-args args
                          :print-level :print-namespaces
-                         :filters ["name-match" :keyword]})
+                         :given-filters ["name-match" :keyword]})
     ( (:filter-function actual) (with-meta (fn[]) {:keyword true})) => true)
 
   ;; From disk, all, print level
   (let [args '[:all :print-namespaces]]
     (deduce-user-intention args :for-facts-anywhere)
     => (contains {:all? true,
-                  :namespaces '[ns.project]
+                  :namespaces-to-use '[ns.project]
                   :original-args args
-                  :filters nil})
+                  :given-filters nil})
     (provided (#'midje.repl/project-namespaces) => ['ns.project]))
 
 
@@ -584,10 +584,10 @@
     (config/with-augmented-config {:print-level :print-nothing}
       (deduce-user-intention args :for-facts-anywhere))
     => (contains {:all? false,
-                  :namespaces '[midje.repl.foo midje.repl.bar]
+                  :namespaces-to-use '[midje.repl.foo midje.repl.bar]
                   :original-args args
                   :print-level :print-nothing
-                  :filters [:integration]})
+                  :given-filters [:integration]})
       (provided (#'midje.repl/unglob-partial-namespaces ['midje.repl.*])
                 => '[midje.repl.foo midje.repl.bar]))
   )
@@ -595,11 +595,11 @@
  (without-changing-cumulative-totals
   (fact "print-levels are not stored if not given"
     (deduce-user-intention '[:all :metadata] :for-in-memory-facts)
-    => (contains {:fetch-default-args '[:all :metadata]})
+    => (contains {:fetch-namespace-args '[:all :metadata]})
 
     (deduce-user-intention '[midje.t-repl :metadata] :for-facts-anywhere)
-    => (contains {:fetch-default-args '[midje.t-repl :metadata]
-                  :load-default-args '[midje.t-repl :metadata]})))
+    => (contains {:fetch-namespace-args '[midje.t-repl :metadata]
+                  :load-namespace-args '[midje.t-repl :metadata]})))
               
 
 )      ; confirming-cumulative-totals-not-stepped-on

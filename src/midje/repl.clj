@@ -70,21 +70,21 @@
 ;; functions. (For example, it supports wildcards.) So there are two
 ;; sets of defaults: one for it, one for the other functions. (I use
 ;; fetch as an exemplar.)
-(def ^{:private true, :testable true} load-default-args (atom [:all]))
-(def ^{:private true, :testable true} fetch-default-args (atom [:all]))
+(def ^{:private true, :testable true} load-namespace-args (atom [:all]))
+(def ^{:private true, :testable true} fetch-namespace-args (atom [:all]))
 
 ;; The cases in which each is appropriate.
 (def ^{:private true} default-atoms
-  {:for-in-memory-facts 'fetch-default-args
-   :for-facts-anywhere 'load-default-args})
+  {:for-in-memory-facts 'fetch-namespace-args
+   :for-facts-anywhere 'load-namespace-args})
 
 ;; Depending on the function chosen, the user may intend to update
 ;; neither, both, or only the fetch-class default. 
 
 (defn- and-update-defaults! [intention]
-  (reset! fetch-default-args (:fetch-default-args intention))
-  (when (contains? intention :load-default-args)
-    (reset! load-default-args (:load-default-args intention))))
+  (reset! fetch-namespace-args (:fetch-namespace-args intention))
+  (when (contains? intention :load-namespace-args)
+    (reset! load-namespace-args (:load-namespace-args intention))))
 (defn- without-updating-defaults [intention] "do nothing")
 
 
@@ -115,29 +115,37 @@
 (defmulti deduce-user-intention
   "This has to be public because multimethods are second-class."
   (fn [_ type] type))
-(defmethod deduce-user-intention :for-in-memory-facts [original-args type]
+
+(defmethod deduce-user-intention :common [original-args type]
   (let [[given-level-seq print-level-to-use args]
           (levelly/separate-print-levels original-args)
         [filters filter-function args]
           (metadata/separate-filters args all-keyword-is-not-a-filter)]
-    {:all? (do-to-all? args)
-     :namespaces args
+    {:given-level-seq given-level-seq
+     :given-filters filters
+     :given-namespace-args args
+
+     :all? (do-to-all? args)
      :original-args original-args,
-     :given-level-seq given-level-seq
      :print-level print-level-to-use
-     :filters filters
-     :filter-function filter-function
-     :fetch-default-args original-args}))
+     :filter-function filter-function}))
+  
+(defmethod deduce-user-intention :for-in-memory-facts [original-args type]
+  (let [base (deduce-user-intention original-args :common)]
+    (merge base
+           {:namespaces-to-use (:given-namespace-args base)
+            :fetch-namespace-args original-args})))
+
 (defmethod deduce-user-intention :for-facts-anywhere [original-args type]
   (let [base (deduce-user-intention original-args :for-in-memory-facts)]
     (merge base
-           {:load-default-args original-args}
+           {:load-namespace-args original-args}
            (if (:all? base)
-             {:namespaces (project-namespaces)}
-             (let [expanded (unglob-partial-namespaces (:namespaces base))]
-               {:namespaces expanded
-                :fetch-default-args (concat expanded
-                                            (:filters base)
+             {:namespaces-to-use (project-namespaces)}
+             (let [expanded (unglob-partial-namespaces (:given-namespace-args base))]
+               {:namespaces-to-use expanded
+                :fetch-namespace-args (concat expanded
+                                            (:given-filters base)
                                             (:given-level-seq base))})))))
 
 
@@ -163,7 +171,7 @@
     (config/with-augmented-config {:print-level (:print-level intention)
                                    :desired-fact? (:filter-function intention)}
       (levelly/forget-past-results)
-      (doseq [ns (:namespaces intention)]
+      (doseq [ns (:namespaces-to-use intention)]
         (compendium/remove-namespace-facts-from! ns)
         ;; Following strictly unnecessary, but slightly useful because
         ;; it reports the changed namespace before the first fact loads.
@@ -206,7 +214,7 @@
 (defn- fetch-intended-facts [intention]
   (let [fact-functions (if (:all? intention)
                          (compendium/all-facts<>)
-                         (mapcat compendium/namespace-facts<> (:namespaces intention)))]
+                         (mapcat compendium/namespace-facts<> (:namespaces-to-use intention)))]
     (filter (:filter-function intention) fact-functions)))
 
 (def-obedient-function fetch-facts :for-in-memory-facts and-update-defaults!
@@ -236,12 +244,12 @@
 (def-obedient-function forget-facts :for-in-memory-facts without-updating-defaults
   (fn [intention]
     ;; a rare concession to efficiency
-    (cond (and (empty? (:filters intention)) (:all? intention))
+    (cond (and (empty? (:given-filters intention)) (:all? intention))
           (compendium/fresh!)
           
-          (empty? (:filters intention))
+          (empty? (:given-filters intention))
           (dorun (map compendium/remove-namespace-facts-from!
-                      (:namespaces intention)))
+                      (:namespaces-to-use intention)))
           
           :else
           (dorun (map compendium/remove-from!
