@@ -124,7 +124,11 @@
   :print-facts        (2)  -- print fact descriptions in addition to namespaces.
 "} midje-print-levels)
 
-(def midje-print-level midje-print-levels)
+(defn alternate-doc-source [copy original]
+  (intern *ns* (vary-meta copy assoc :doc (:doc (meta (resolve original))))))
+
+(alternate-doc-source 'midje-print-level 'midje-print-levels)
+
 
 (def ^{:doc "
   * A common form:
@@ -143,8 +147,8 @@
     (fact :integration ...)
     (fact {:priority 5} ...)
 "} midje-facts)
-(def midje-fact midje-facts)
 
+(alternate-doc-source 'midje-fact 'midje-facts)
 
 (def ^{:doc "
   (facts \"about checkers\"
@@ -224,8 +228,7 @@
        ...)
 "} midje-setup)
 
-(def midje-teardown midje-setup)
-
+(alternate-doc-source 'midje-teardown 'midje-setup)
 
 (def ^{:doc "
   * For checks
