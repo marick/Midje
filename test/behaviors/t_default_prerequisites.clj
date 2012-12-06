@@ -5,7 +5,6 @@
 (defn calls-nothing [])
 (unfinished unused)
 
-(fact "background prerequisites don't have to be used"
-  (expect (calls-nothing) => nil
-          (tag-as-background-fake (fake (unused) => 3 :type :background))))
-
+(against-background [(unused 3) => 4]
+  (fact 
+    (calls-nothing) => nil))

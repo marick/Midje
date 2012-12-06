@@ -196,7 +196,7 @@ odd?                   3               falsey)
 ;; How it works
 
 (defn #^:dynamic function-symbol-of-interest [n] n)
-(defn other-function-symbol)
+(defn other-function-symbol [])
 
 (fact "best-call-action returns nil [failure], fake [to get value], or default-function"
   (let [matching-fake (fake (function-symbol-of-interest 3) => 4)]
@@ -342,7 +342,7 @@ odd?                   3               falsey)
 ;; How it works
 
 (defn #^:dynamic function-symbol-of-interest [n] n)
-(defn other-function-symbol)
+(defn other-function-symbol [])
 
 (fact "best-call-action returns nil [failure], fake [to get value], or default-function"
   (let [matching-fake (fake (function-symbol-of-interest 3) => 4)]

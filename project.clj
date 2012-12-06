@@ -26,7 +26,7 @@
              :1.2.1 {:dependencies [[org.clojure/clojure "1.2.1"]]}
              :1.3 {:dependencies [[org.clojure/clojure "1.3.0"]]}
              :1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
-             :1.5 {:dependencies [[org.clojure/clojure "1.4.0"]]}}
+             :1.5 {:dependencies [[org.clojure/clojure "1.5.0-beta1"]]}}
   :resource-paths ["test-resources"]
   :license {:name "The MIT License (MIT)"
             :url "http://opensource.org/licenses/mit-license.php"
