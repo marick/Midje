@@ -10,9 +10,25 @@
             [midje.ideas.metadata :as metadata]
             [midje.doc :as doc]
             [midje.config :as config]
-            [leiningen.core.project :as project]
             [midje.util.form-utils :as form]
+            [midje.util.ecosystem :as ecosystem]
             [midje.util.namespace :as namespace]))
+
+;; Supply function to leiningen.core.project.
+;; Note that it does not work to put the following code into
+;; midje.util.backwards-compatible-utils.
+
+(in-ns 'clojure.core)
+(if-not (resolve 'ex-info)
+  (defn ex-info
+    ([msg map]
+       (RuntimeException. msg))
+    ([msg map cause]
+       (RuntimeException. msg cause))))
+(in-ns 'midje.repl)
+
+(require '[leiningen.core.project :as project])
+
 
 (namespace/immigrate-from 'midje.ideas.metadata
                           (map metadata/metadata-function-name
