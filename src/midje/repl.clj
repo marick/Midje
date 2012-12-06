@@ -11,8 +11,13 @@
             [midje.doc :as doc]
             [midje.config :as config]
             [midje.util.form-utils :as form]
+            [midje.util.colorize :as color]
             [midje.util.ecosystem :as ecosystem]
             [midje.util.namespace :as namespace]))
+
+(when (and (ecosystem/running-in-repl?) (ecosystem/clojure-1-2-X?))
+  (println (color/fail "The Midje repl tools don't work on Clojure 1.2.X")))
+(ecosystem/when-1-3+
 
 ;; Supply function to leiningen.core.project.
 ;; Note that it does not work to put the following code into
@@ -26,9 +31,7 @@
     ([msg map cause]
        (RuntimeException. msg cause))))
 (in-ns 'midje.repl)
-
 (require '[leiningen.core.project :as project])
-
 
 (namespace/immigrate-from 'midje.ideas.metadata
                           (map metadata/metadata-function-name
@@ -329,3 +332,5 @@
 
 (def ^{:doc "Synonym for `recheck-fact`."} rcf recheck-fact)
 
+
+)

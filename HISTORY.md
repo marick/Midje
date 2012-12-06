@@ -1,22 +1,18 @@
 1.5-alpha3
  
-* The `has` collection predicate now works with collection
-  and chatty checkers.
-* We no longer support Clojure 1.2.0. (1.2.1 still works.)
-* midje.repl namespace created.
-* The :check-only-at-load-time metadata was added.
-* `midje-help` and `midje-repl-help` added.
+* midje.repl namespace created (does not work for
+  Clojure 1.2.X)
+* Now reads ~/.midje.clj and .midje.clj for configuration.
+  Configuration keys: :print-level, :visible-deprecation,
+  :visible-future, :check-after-creation, :partial-prerequisites,
+* Doc strings that explain the repl, midje, major topics.
+
 * In failures, maps and sets are printed in sort order,
   which allows easier comparison of actual to expected
   results.
-* Now reads ~/.midje.clj and .midje.clj for configuration.
-* :print-level can be set in the configuration.
-* :visible-deprecation can be set in the configuration.
-* :partial-prerequisites can be set in the configuration.
-* :visible-future can be set in the configuration.
-* :check-after-creation can be set in the configuration.
-* `load-facts` now prevents facts from being created if they're
-  excluded by the argument list.
+* The `has` collection predicate now works with collection
+  and chatty checkers.
+* The :check-only-at-load-time metadata was added.
 
 1.5-alpha2
 -------------

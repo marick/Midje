@@ -9,6 +9,10 @@
   (and (= 1 (:major *clojure-version*))
        (= 3 (:minor *clojure-version*))))
 
+(defn clojure-1-2-X? []
+  (and (= 1 (:major *clojure-version*))
+       (= 2 (:minor *clojure-version*))))
+
 (defn clojure-1-2-0? []
   (and (= 1 (:major *clojure-version*))
        (= 2 (:minor *clojure-version*))

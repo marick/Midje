@@ -4,7 +4,11 @@
         [midje.test-util]
         [midje.internal-ideas.compendium]
         [midje.ideas.metadata :only [fact-name fact-source fact-body-source]])
-  (:import midje.internal_ideas.compendium.Compendium))
+  (:require [midje.util.ecosystem :as ecosystem]))
+
+(if (ecosystem/clojure-1-2-0?)
+  (import 'midje.internal-ideas.compendium.Compendium)
+  (import 'midje.internal_ideas.compendium.Compendium))
 
 ;; Some faux facts to use in tests
 

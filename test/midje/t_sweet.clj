@@ -6,6 +6,7 @@
             [midje.clojure-test-facade :as ctf]
             [midje.repl :as repl]
             [midje.config :as config]
+            [midje.util.ecosystem :as ecosystem]
             [midje.ideas.metadata :as metadata]))
 
 
@@ -427,6 +428,8 @@
 
                                         ;;; fact groups
 
+
+
 (def integration-run-count (atom 0))
 (def not-integration-run-count (atom 0))
 
@@ -437,11 +440,13 @@
   (fact no-integration {:integration false}
     (swap! not-integration-run-count inc)))
 
-(ctf/ignoring-counter-changes
- ;; Don't step on the running count up to this point.
- (repl/check-facts *ns* :print-no-summary :integration))
-
-(fact
-  :check-only-at-load-time
-  @integration-run-count => 2
-  @not-integration-run-count => 1)
+(ecosystem/when-1-3+
+ (ctf/ignoring-counter-changes
+  ;; Don't step on the running count up to this point.
+  (repl/check-facts *ns* :print-no-summary :integration))
+ 
+ (fact
+   :check-only-at-load-time
+   @integration-run-count => 2
+   @not-integration-run-count => 1)
+)

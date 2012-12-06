@@ -7,7 +7,11 @@
             [midje.ideas.reporting.levels :as levelly]
             [midje.ideas.reporting.level-defs :as deflevels]
             [midje.config :as config]
+            [midje.util.ecosystem :as ecosystem]
             midje.util))
+
+(ecosystem/when-1-3+
+
 (midje.util/expose-testables midje.repl)
 
 ;;;; === Util
@@ -600,3 +604,4 @@
 
 )      ; confirming-cumulative-totals-not-stepped-on
 
+)
