@@ -7,7 +7,7 @@
     (try
       (config/choice :print-level) =not=> :print-nothing
       (config/with-augmented-config {:print-level :print-facts}
-        ;; emphasizes that override overrides the root binding
+        ;; emphasizes that changes override the root binding
         (config/change-defaults :print-level :print-nothing))
       (config/choice :print-level) => :print-nothing
     (finally
