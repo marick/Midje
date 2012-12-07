@@ -569,7 +569,7 @@
                   :memory-command [:all]
                   :namespaces-to-use [:all]
                   :given-namespace-args [:all]
-                  :given-filter-args nil
+                  :given-filter-args empty?
                   :given-level-args [:print-nothing]}))
 
   ;; all + redundant namespace, print level, filters
@@ -594,7 +594,7 @@
                   :memory-command [:all]
                   :disk-command [:all]
                   :given-namespace-args [:all]
-                  :given-filter-args nil
+                  :given-filter-args empty?
                   :given-level-args [:print-namespaces]})
     (provided (#'midje.repl/project-namespaces)
                 => '[midje.repl.foo midje.repl.bar]))
@@ -609,11 +609,62 @@
                   :disk-command '[midje.repl.*]
                   :given-namespace-args '[midje.repl.*]
                   :given-filter-args [:integration]
-                  :given-level-args []
+                  :given-level-args empty?
                   :namespaces-to-use '[midje.repl.foo midje.repl.bar]})
     (provided (#'midje.repl/unglob-partial-namespaces ['midje.repl.*])
               => '[midje.repl.foo midje.repl.bar]))
   )
+
+(facts "about what it means to leave out arguments"
+  ;; Command type doesn't matter for this test. I'll vary it just because.
+  (letfn [(set-previous-args [args command-type]
+            (and-update-defaults! (deduce-user-intention args command-type)
+                                  command-type))
+          (after [command-type first-args second-args]
+            (set-previous-args first-args command-type)
+            (deduce-user-intention second-args command-type))]
+            
+    (fact "as before, all left out means all are replaced"
+      (after :memory-command '[ns :filter :print-facts] [])
+      => (contains {:given-namespace-args '[ns]
+                    :given-filter-args '[:filter]
+                    :given-level-args '[:print-facts]}))
+
+    (fact "filter can be replaced"
+      (after :memory-command '[ns :filter :print-facts]
+                              [   "other filter"])
+      => (contains {:given-namespace-args '[ns]
+                    :given-filter-args '["other filter"]
+                    :given-level-args '[:print-facts]}))
+
+    (fact "print-level can be replaced, too"
+      (after :disk-command '[ns :filter        :print-facts]
+                            [                  :print-nothing])
+      => (contains {:given-namespace-args '[ns]
+                    :given-filter-args '[:filter]
+                    :given-level-args '[:print-nothing]}))
+
+    (fact "both non-namespace args can be replaced"
+      (after :memory-command '[ns :filter        :print-facts]
+                              [   "other filter" :print-nothing])
+      => (contains {:given-namespace-args '[ns]
+                    :given-filter-args '["other filter"]
+                    :given-level-args '[:print-nothing]}))
+
+    (fact ":all counts as a namespace replacement"
+      (after :memory-command '[ns :filter :print-facts] [:all])
+      => (contains {:given-namespace-args '[:all]
+                    :given-filter-args empty?
+                    :given-level-args empty?}))
+
+
+    (fact "mentioning levels in replacement doesn't stop filters from being zeroed"
+      (after :memory-command '[:all :filter :print-facts] '[ns :print-nothing])
+      => (contains {:given-namespace-args '[ns]
+                    :given-filter-args empty?
+                    :given-level-args '[:print-nothing]}))))
+
+
 
  (without-changing-cumulative-totals
   (fact "print-levels are not recorded if not given"

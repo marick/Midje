@@ -66,29 +66,43 @@
   (partial = :all))
 
 
-;; Loading has a different way of naming namespaces than the other
-;; functions. (For example, it supports wildcards.) So there are two
-;; sets of defaults: one for it, one for the other functions. (I use
-;; fetch as an exemplar.)
+;; Defaulting. The basic rule for defaults is that if you don't
+;; mention a namespace in a command, the previous print levels,
+;; filters, and namespaces are reused. If you do, all of them are
+;; replaced.
+
+;; Further, loading has a different way of working with namespaces
+;; than the other functions. (For example, it supports wildcards.)
+;; Moreover, loading affects the defaults for other functions, but
+;; other functions don't affect loading defaults.
+
+;; So there are two sets of defaults: one for `:disk-commands` and one
+;; for `:memory-commands`. As a trick to eliminate some if statements,
+;; the respective "command types" are used to store the namespace
+;; defaults. 
 
 (def ^{:private true, :testable true}
   default-args (atom {:memory-command
-                      {:given-namespace-args [:all]
+                      {:memory-command [:all]
                        :given-filter-args []
                        :given-level-args []}
                       :disk-command
-                      {:given-namespace-args [:all]
+                      {:disk-command [:all]
                        :given-filter-args []
                        :given-level-args []}}))
 
-;; Depending on the function chosen, the user may intend to update
-;; neither, both, or only the fetch-class default.
+(defn- default-as-needed [command-type arg-type given]
+  (if (empty? given)
+    (get-in @default-args [command-type arg-type])
+    given))
 
 (defn- update-one-default! [intention command-type]
   (swap! default-args
-         assoc command-type (select-keys intention
-                                  [command-type :given-filter-args :given-level-args])))
+         assoc command-type
+         (select-keys intention
+                      [command-type :given-filter-args :given-level-args])))
 
+;; The funny name is because it's used in a DSL below. 
 (defn- ^{:testable true} and-update-defaults! [intention command-type]
   (update-one-default! intention :memory-command)
   (when (= command-type :disk-command)
@@ -121,19 +135,20 @@
 (defn- ^{:testable true} defaulting-args [original-args command-type]
   (let [[given-level-seq print-level-to-use args]
           (levelly/separate-print-levels original-args)
-        [filters filter-function args]
+        [filters filter-function namespaces]
         (metadata/separate-filters args all-keyword-is-not-a-filter)]
 
-    (if (empty? args)
-      (let [command-components (command-type @default-args)]
-        (defaulting-args (apply concat (vals command-components))
-                         command-type))
-        
-      {:given-namespace-args args
+    (if (empty? namespaces)
+      (defaulting-args
+        (mapcat (partial default-as-needed command-type)
+                [command-type :given-filter-args :given-level-args]
+                [namespaces filters given-level-seq])
+        command-type)
+      {:given-namespace-args namespaces
        :given-filter-args filters
        :given-level-args given-level-seq
        
-       :all? (do-to-all? args)
+       :all? (do-to-all? namespaces)
        :print-level print-level-to-use
        :filter-function filter-function})))
 
@@ -141,17 +156,25 @@
 (defmulti deduce-user-intention
   "This has to be public because multimethods are second-class."
   (fn [_ namespace-source] namespace-source))
+
+;;; The namespaces in the command arguments affect three different keys:
+;;; :given-namespace-args holds the literal values originally given.
+;;; That is used to calculate :namespaces-to-use, which is what the
+;;; code for the command works with. It is also used to recalculate the
+;;; defaults, which will be either :memory-command or both :memory-command
+;;; and :disk-command. (Remember, those two keys are both arguments to 
+;;; choose code to run and the name of remembered values.)
   
-(defmethod deduce-user-intention :memory-command [original-args command-type]
-  (let [base (defaulting-args original-args command-type)]
+(defmethod deduce-user-intention :memory-command [original-args _]
+  (let [base (defaulting-args original-args :memory-command)]
     (merge base
            {:namespaces-to-use (:given-namespace-args base)
-            command-type (:given-namespace-args base)})))
+            :memory-command (:given-namespace-args base)})))
 
-(defmethod deduce-user-intention :disk-command [original-args command-type]
+(defmethod deduce-user-intention :disk-command [original-args _]
   (let [base (defaulting-args original-args :disk-command)]
     (merge base
-           {command-type (:given-namespace-args base)}
+           {:disk-command (:given-namespace-args base)}
            (if (:all? base)
              {:namespaces-to-use (project-namespaces)
               :memory-command [:all]}
@@ -205,7 +228,7 @@
 
    By default, all facts are loaded from the namespaces. You can, however,
    add further arguments. Only facts matching one or more of the arguments
-   are loaded. The arguments are:
+   are loaded. The filter arguments are:
 
    :keyword      -- Does the metadata have a truthy value for the keyword?
    \"string\"    -- Does the fact's name contain the given string? 
@@ -216,7 +239,10 @@
    In addition, you can adjust what's printed during loading.
    See `(doc midje-print-levels)`.
 
-   If `load-facts` is given no arguments, it reuses the previous arguments."
+   If the call doesn't mention any namespaces, the ones from
+   the previous `load-facts` are reused. The filters and print-levels
+   are also reused, unless they're overridden with explicit arguments.
+   "
 )
 
                                 ;;; Fetching loaded facts
@@ -235,6 +261,7 @@
 
    (fetch-facts *ns* 'midje.t-repl)  -- facts defined in these namespaces
    (fetch-facts :all)                -- all known facts
+   (fetch-facts)                     -- reuse previous arguments
 
    You can further filter the facts by giving more arguments. Facts matching
    any of the arguments are included in the result. The arguments are:
@@ -245,8 +272,11 @@
    a function    -- Does the function return a truthy value when given
                     the fact's metadata?
 
-   If no arguments are given, it reuses the arguments from the most
-   recent `check-facts`, `fetch-facts`, or `load-facts`."
+   If the call doesn't mention any namespaces, the ones from the
+   previous `load-facts`, `check-facts`, or `fetch-facts` are
+   reused. The filters and print-levels are also reused, unless
+   they're overridden with explicit arguments.
+   "
 )
      
 
@@ -271,7 +301,8 @@
    (forget-facts *ns* midje.t-repl -- defined in named namespaces
    (forget-facts :all)             -- defined anywhere
    (forget-facts)                  -- forget facts worked on by most
-                                      recent `check-facts` or `load-facts`.
+                                      recent `check-facts`, `load-facts`,
+                                      or `fetch-facts`.
 
    You can further filter the facts by giving more arguments. Facts matching
    any of the arguments are the ones that are forgotten. The arguments are:
@@ -280,7 +311,10 @@
    \"string\"    -- Does the fact's name contain the given string? 
    #\"regex\"    -- Does any part of the fact's name match the regex?
    a function    -- Does the function return a truthy value when given
-                    the fact's metadata?"
+                    the fact's metadata?
+
+   Filters from the previous command are reused unless they're overridden.
+   "
   )
      
 
@@ -303,8 +337,9 @@
       (check-facts-once-given (fetch-intended-facts intention))))
   "Check facts that have already been defined.
 
-   (check-facts *ns* midje.t-repl -- defined in named namespaces
-   (check-facts :all)             -- defined anywhere
+   (check-facts *ns* midje.t-repl) -- defined in named namespaces
+   (check-facts :all)              -- defined anywhere
+   (check-facts)                   -- check same facts again
 
    You can further filter the facts by giving more arguments. Facts matching
    any of the arguments are the ones that are checked. The arguments are:
@@ -317,8 +352,11 @@
 
    In addition, you can adjust what's printed. See `(doc midje-print-levels)`.
 
-   If no arguments are given, it reuses the arguments from the most
-   recent `check-facts`, `fetch-facts`, or `load-facts`."
+   If the call doesn't mention any namespaces, the ones from the
+   previous `load-facts`, `check-facts`, or `fetch-facts` are
+   reused. The filters and print-levels are also reused, unless
+   they're overridden with explicit arguments.
+   "
   )
     
 
