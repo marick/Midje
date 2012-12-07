@@ -666,7 +666,7 @@
 
 
 
- (without-changing-cumulative-totals
+(without-changing-cumulative-totals
   (fact "print-levels are not recorded if not given"
     (and-update-defaults!
       (deduce-user-intention '[:all :metadata] :memory-command)
@@ -681,6 +681,26 @@
 
     (deduce-user-intention [] :memory-command) => (contains {:given-level-args []})
     (deduce-user-intention [] :disk-command) => (contains {:given-level-args []})))
+
+
+(without-changing-cumulative-totals
+ (forget-facts :all)
+ (config/with-augmented-config {:print-level :print-nothing}
+   (fact :fail 1 => 2)
+   (fact :succeed 1 => 1)
+
+   (let [mixed-results (check-facts-once-given (fetch-facts :all))
+         all-pass (check-facts-once-given (fetch-facts :succeed))
+         all-fail (check-facts-once-given (fetch-facts :fail))
+         no-results (check-facts-once-given (fetch-facts :none))]
+     (config/with-augmented-config {:print-level :print-no-summary}
+       (fact
+         mixed-results => false
+         all-pass => true
+         all-fail => false
+         no-results => nil)))))
+     
+
               
 
 

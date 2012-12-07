@@ -170,7 +170,7 @@
     (println midje-failure-message midje-consolation)))
 
 (defn print-nothing-was-tried-summary-results []
-  (println (color/note "No claims were checked. Is that what you wanted?")))
+  (println (color/note "No facts were checked. Is that what you wanted?")))
 
 (defn print-midje-summary-line [result]
   (if (pos? (+ (:fail result) (:pass result)))

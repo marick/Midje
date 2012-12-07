@@ -325,11 +325,13 @@
     as is returned by `last-fact-checked`."}
   check-one-fact fact/check-one)
 
-(defn- check-facts-once-given [fact-functions]
+(defn- ^{:testable true} check-facts-once-given [fact-functions]
   (levelly/forget-past-results)
   (let [results (doall (map check-one-fact fact-functions))]
     (levelly/report-summary)
-    (every? true? results)))
+    (if (empty? results)
+      nil
+      (every? true? results))))
 
 (def-obedient-function :memory-command check-facts and-update-defaults!
   (fn [intention]
