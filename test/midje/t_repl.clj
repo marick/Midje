@@ -80,7 +80,7 @@
       (load-facts)
       (map fact-name (fetch-facts)) => ["a non-featherian test"])
 
-    (future-fact "repetition not affected by intervening check-facts"
+    (fact "repetition not affected by intervening check-facts"
       (load-facts 'midje.t-repl-helper :non-featherian :print-no-summary)
       (check-facts ':all :print-no-summary)
       (forget-facts :all)
@@ -91,16 +91,23 @@
       (load-facts :all "simple" :print-no-summary) => anything
       (provided
         (#'midje.repl/project-namespaces) => ['midje.t-repl-helper])
-      ;; The double @ is because of importing testables.
-      @@fetch-namespace-args => (just [:all "simple" :print-no-summary]
-                                    :in-any-order)
+
+      (defaulting-args [] :memory-command)
+      => (contains '{:given-level-args [:print-no-summary]
+                     :given-filter-args ["simple"]
+                     :given-namespace-args [:all]})
 
       (load-facts 'midje.t-repl-h* :non-featherian :print-no-summary) => anything
-      (provided (#'midje.repl/unglob-partial-namespaces ['midje.t-repl-h*])
-                => '[midje.t-repl-helper])
-      @@fetch-namespace-args => ['midje.t-repl-helper :non-featherian :print-no-summary]))
- )
+      (provided
+        (#'midje.repl/unglob-partial-namespaces ['midje.t-repl-h*]) => '[midje.t-repl-helper])
 
+      (defaulting-args [] :memory-command)
+      => (contains '{:given-level-args [:print-no-summary]
+                    :given-filter-args [:non-featherian]
+                    :given-namespace-args [midje.t-repl-helper]}))
+    
+  )
+ )
 
 ;;;; ==== PART 2: Working with loaded facts
 
@@ -549,58 +556,82 @@
 
   ;; just namespaces
   (let [args '[ns.ns ns.ns2]]
-    (deduce-user-intention args :for-in-memory-facts)
-    => (contains {:all? false,:namespaces-to-use args}))
+    (deduce-user-intention args :memory-command)
+    => (contains {:all? false
+                  :namespaces-to-use args
+                  :memory-command args}))
 
   ;; all and print level
   (let [args '[:all :print-nothing]]
-    (deduce-user-intention args :for-in-memory-facts)
+    (deduce-user-intention args :memory-command)
     => (contains {:all? true,
-                  :original-args args
-                  :print-level :print-nothing}))
+                  :print-level :print-nothing
+                  :memory-command [:all]
+                  :namespaces-to-use [:all]
+                  :given-namespace-args [:all]
+                  :given-filter-args nil
+                  :given-level-args [:print-nothing]}))
 
   ;; all + redundant namespace, print level, filters
   ;; also check that the filter function is installed
   (let [args '[:all ns.ns :print-namespaces "name-match" :keyword]
-        actual (deduce-user-intention args :for-in-memory-facts)]
+        actual (deduce-user-intention args :memory-command)]
     actual => (contains {:all? true,
-                         :original-args args
                          :print-level :print-namespaces
-                         :given-filters ["name-match" :keyword]})
+                         :namespaces-to-use '[:all ns.ns]
+                         :memory-command '[:all ns.ns]
+                         :given-namespace-args '[:all ns.ns]
+                         :given-filter-args ["name-match" :keyword]
+                         :given-level-args [:print-namespaces]})
     ( (:filter-function actual) (with-meta (fn[]) {:keyword true})) => true)
 
   ;; From disk, all, print level
   (let [args '[:all :print-namespaces]]
-    (deduce-user-intention args :for-facts-anywhere)
+    (deduce-user-intention args :disk-command)
     => (contains {:all? true,
-                  :namespaces-to-use '[ns.project]
-                  :original-args args
-                  :given-filters nil})
-    (provided (#'midje.repl/project-namespaces) => ['ns.project]))
-
+                  :print-level :print-namespaces
+                  :namespaces-to-use '[midje.repl.foo midje.repl.bar]
+                  :memory-command [:all]
+                  :disk-command [:all]
+                  :given-namespace-args [:all]
+                  :given-filter-args nil
+                  :given-level-args [:print-namespaces]})
+    (provided (#'midje.repl/project-namespaces)
+                => '[midje.repl.foo midje.repl.bar]))
 
   ;; From disk, partial namespace, default print level, filter
   (let [args '[midje.repl.* :integration]]
     (config/with-augmented-config {:print-level :print-nothing}
-      (deduce-user-intention args :for-facts-anywhere))
+      (deduce-user-intention args :disk-command))
     => (contains {:all? false,
-                  :namespaces-to-use '[midje.repl.foo midje.repl.bar]
-                  :original-args args
                   :print-level :print-nothing
-                  :given-filters [:integration]})
-      (provided (#'midje.repl/unglob-partial-namespaces ['midje.repl.*])
-                => '[midje.repl.foo midje.repl.bar]))
+                  :memory-command '[midje.repl.foo midje.repl.bar]
+                  :disk-command '[midje.repl.*]
+                  :given-namespace-args '[midje.repl.*]
+                  :given-filter-args [:integration]
+                  :given-level-args []
+                  :namespaces-to-use '[midje.repl.foo midje.repl.bar]})
+    (provided (#'midje.repl/unglob-partial-namespaces ['midje.repl.*])
+              => '[midje.repl.foo midje.repl.bar]))
   )
 
  (without-changing-cumulative-totals
-  (fact "print-levels are not stored if not given"
-    (deduce-user-intention '[:all :metadata] :for-in-memory-facts)
-    => (contains {:fetch-namespace-args '[:all :metadata]})
+  (fact "print-levels are not recorded if not given"
+    (and-update-defaults!
+      (deduce-user-intention '[:all :metadata] :memory-command)
+      :memory-command)
+    (deduce-user-intention [] :memory-command)
+    => (contains {:given-level-args []})
 
-    (deduce-user-intention '[midje.t-repl :metadata] :for-facts-anywhere)
-    => (contains {:fetch-namespace-args '[midje.t-repl :metadata]
-                  :load-namespace-args '[midje.t-repl :metadata]})))
+    
+    (and-update-defaults!
+      (deduce-user-intention '[midje.t-repl :metadata] :disk-command)
+      :disk-command)
+
+    (deduce-user-intention [] :memory-command) => (contains {:given-level-args []})
+    (deduce-user-intention [] :disk-command) => (contains {:given-level-args []})))
               
+
 
 )      ; confirming-cumulative-totals-not-stepped-on
 

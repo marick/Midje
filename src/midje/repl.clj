@@ -70,24 +70,30 @@
 ;; functions. (For example, it supports wildcards.) So there are two
 ;; sets of defaults: one for it, one for the other functions. (I use
 ;; fetch as an exemplar.)
-(def ^{:private true, :testable true} load-namespace-args (atom [:all]))
-(def ^{:private true, :testable true} fetch-namespace-args (atom [:all]))
 
-;; The cases in which each is appropriate.
-(def ^{:private true} default-atoms
-  {:for-in-memory-facts 'fetch-namespace-args
-   :for-facts-anywhere 'load-namespace-args})
+(def ^{:private true, :testable true}
+  default-args (atom {:memory-command
+                      {:given-namespace-args [:all]
+                       :given-filter-args []
+                       :given-level-args []}
+                      :disk-command
+                      {:given-namespace-args [:all]
+                       :given-filter-args []
+                       :given-level-args []}}))
 
 ;; Depending on the function chosen, the user may intend to update
-;; neither, both, or only the fetch-class default. 
+;; neither, both, or only the fetch-class default.
 
-(defn- and-update-defaults! [intention]
-  (reset! fetch-namespace-args (:fetch-namespace-args intention))
-  (when (contains? intention :load-namespace-args)
-    (reset! load-namespace-args (:load-namespace-args intention))))
-(defn- without-updating-defaults [intention] "do nothing")
+(defn- update-one-default! [intention command-type]
+  (swap! default-args
+         assoc command-type (select-keys intention
+                                  [command-type :given-filter-args :given-level-args])))
 
-
+(defn- ^{:testable true} and-update-defaults! [intention command-type]
+  (update-one-default! intention :memory-command)
+  (when (= command-type :disk-command)
+    (update-one-default! intention :disk-command)))
+(defn- without-updating-defaults [intention scope] "do nothing")
 
 
 
@@ -112,61 +118,66 @@
 
 ;; This function makes user intentions explicit.
 
-(defmulti deduce-user-intention
-  "This has to be public because multimethods are second-class."
-  (fn [_ type] type))
-
-(defmethod deduce-user-intention :common [original-args type]
+(defn- ^{:testable true} defaulting-args [original-args command-type]
   (let [[given-level-seq print-level-to-use args]
           (levelly/separate-print-levels original-args)
         [filters filter-function args]
-          (metadata/separate-filters args all-keyword-is-not-a-filter)]
-    {:given-level-seq given-level-seq
-     :given-filters filters
-     :given-namespace-args args
+        (metadata/separate-filters args all-keyword-is-not-a-filter)]
 
-     :all? (do-to-all? args)
-     :original-args original-args,
-     :print-level print-level-to-use
-     :filter-function filter-function}))
+    (if (empty? args)
+      (let [command-components (command-type @default-args)]
+        (defaulting-args (apply concat (vals command-components))
+                         command-type))
+        
+      {:given-namespace-args args
+       :given-filter-args filters
+       :given-level-args given-level-seq
+       
+       :all? (do-to-all? args)
+       :print-level print-level-to-use
+       :filter-function filter-function})))
+
+
+(defmulti deduce-user-intention
+  "This has to be public because multimethods are second-class."
+  (fn [_ namespace-source] namespace-source))
   
-(defmethod deduce-user-intention :for-in-memory-facts [original-args type]
-  (let [base (deduce-user-intention original-args :common)]
+(defmethod deduce-user-intention :memory-command [original-args command-type]
+  (let [base (defaulting-args original-args command-type)]
     (merge base
            {:namespaces-to-use (:given-namespace-args base)
-            :fetch-namespace-args original-args})))
+            command-type (:given-namespace-args base)})))
 
-(defmethod deduce-user-intention :for-facts-anywhere [original-args type]
-  (let [base (deduce-user-intention original-args :for-in-memory-facts)]
+(defmethod deduce-user-intention :disk-command [original-args command-type]
+  (let [base (defaulting-args original-args :disk-command)]
     (merge base
-           {:load-namespace-args original-args}
+           {command-type (:given-namespace-args base)}
            (if (:all? base)
-             {:namespaces-to-use (project-namespaces)}
+             {:namespaces-to-use (project-namespaces)
+              :memory-command [:all]}
              (let [expanded (unglob-partial-namespaces (:given-namespace-args base))]
                {:namespaces-to-use expanded
-                :fetch-namespace-args (concat expanded
-                                            (:given-filters base)
-                                            (:given-level-seq base))})))))
-
+                :memory-command expanded})))))
 
 ;;; A DSLish way of defining intention-obeying functions.
 
 (defmacro ^{:private true} def-obedient-function
-  [function-name scope update worker-function docstring]
-  (let [default-atom (scope default-atoms)]
-    `(defn ~function-name
-       ~docstring
-       [& args#]
-       (let [args-to-use# (if (empty? args#) @~default-atom args#)
-             intention# (deduce-user-intention args-to-use# ~scope)]
-         (~update intention#)
-         (~worker-function intention#)))))
+  [command-type function-name update worker-function docstring]
+  `(defn ~function-name
+     ~docstring
+     [& args#]
+     (let [intention# (deduce-user-intention args# ~command-type)
+           result# (~worker-function intention#)]
+       ;; By doing this after calculating the result, we prevent
+       ;; a bad set of arguments from polluting the defaults.
+       (~update intention# ~command-type)
+       result#)))
 
 
 
                                 ;;; Loading facts from the repl
 
-(def-obedient-function load-facts :for-facts-anywhere and-update-defaults!
+(def-obedient-function :disk-command load-facts and-update-defaults!
   (fn [intention]
     (config/with-augmented-config {:print-level (:print-level intention)
                                    :desired-fact? (:filter-function intention)}
@@ -217,7 +228,7 @@
                          (mapcat compendium/namespace-facts<> (:namespaces-to-use intention)))]
     (filter (:filter-function intention) fact-functions)))
 
-(def-obedient-function fetch-facts :for-in-memory-facts and-update-defaults!
+(def-obedient-function :memory-command fetch-facts and-update-defaults!
   fetch-intended-facts
   "Fetch facts that have already been defined, whether by loading
    them from a file or via the repl.
@@ -241,13 +252,13 @@
 
                               ;;; Forgetting loaded facts
 
-(def-obedient-function forget-facts :for-in-memory-facts without-updating-defaults
+(def-obedient-function :memory-command forget-facts without-updating-defaults
   (fn [intention]
     ;; a rare concession to efficiency
-    (cond (and (empty? (:given-filters intention)) (:all? intention))
+    (cond (and (empty? (:given-filter-args intention)) (:all? intention))
           (compendium/fresh!)
           
-          (empty? (:given-filters intention))
+          (empty? (:given-filter-args intention))
           (dorun (map compendium/remove-namespace-facts-from!
                       (:namespaces-to-use intention)))
           
@@ -286,7 +297,7 @@
     (levelly/report-summary)
     (every? true? results)))
 
-(def-obedient-function check-facts :for-in-memory-facts and-update-defaults!
+(def-obedient-function :memory-command check-facts and-update-defaults!
   (fn [intention]
     (config/with-augmented-config {:print-level (:print-level intention)}
       (check-facts-once-given (fetch-intended-facts intention))))
