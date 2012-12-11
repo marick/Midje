@@ -35,7 +35,23 @@
       arglist))
 
 (defmacro chatty-checker
-  "Create a function that returns either true or a detailed description of a failure."
+  "Create a function that returns either true or a description of a failure
+   that shows the value of subexpressions. For example, consider this:
+
+     (fact 4 => (fn [actual] (< (h actual) (g actual))))
+
+  The failure message only tells you that 4 was a failing value. Contrast
+  to the following:
+
+     (fact 4 => (chatty-checker [actual] (< (h actual) (g actual))))
+
+  The failure output will contain the value of (h actual) and (g actual).
+
+  For more, see `(guide chatty-checkers)`.
+
+  Note: if you want your checkers to be `and` or `or` expressions, use
+  `every-checker` or `some-checker` in preference to `chatty-checker`.
+  "
   [ [actual-arg] [f & args] ]
   (let [result-symbol (gensym "chatty-intermediate-results-")
         [complex-forms substituted-args] (chatty-untease result-symbol args)

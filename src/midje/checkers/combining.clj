@@ -21,7 +21,17 @@
 (defmacro every-checker
   "Combines multiple checkers into one checker that passes 
    when all component checkers pass. If one checker fails,
-   the remainder are not run."
+   the remainder are not run. The output shows which checker
+   failed.
+
+   Example:
+
+       (fact 3 => (every-checker odd? neg?))
+       FAIL ...
+       ...
+       During checking, these intermediate values were seen:
+          neg? => false
+  "
   [& checker-forms]
   (let [actual-gensym (gensym "actual-result-")
         check-result-gensym (gensym "check-result-")
@@ -43,7 +53,10 @@
 (defmacro some-checker
   "Combines multiple checkers into one checker that passes 
    when any of the component checkers pass. If one checker
-   passes, the remainder are not run."
+   passes, the remainder are not run. Example:
+
+      (fact 3 => (some-checker even? neg?)) ; fails
+   "
   [& checker-forms]
   (let [actual-gensym (gensym "actual-result-")
         checks-form (reduce (fn [to-wrap checker-form] 

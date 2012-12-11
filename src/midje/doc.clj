@@ -18,6 +18,7 @@
                  midje-facts
                  midje-fact
                  midje-checkers
+                 midje-defining
                  midje-prerequisites
                  midje-arrows
                  midje-setup
@@ -34,6 +35,7 @@
    (doc midje-facts)         -- The basic form.
    (doc midje-prerequisites) -- For top-down test-driven design.
    (doc midje-checkers)      -- Predefined predicates to use with arrows.
+   (doc midje-defining)      -- Defining checkers
    (doc midje-arrows)        -- Alternate ways of describing the relationship
                              -- between actual and expected values.
    (doc midje-setup)         -- Setup and teardown for facts and checkers.
@@ -167,6 +169,41 @@
     (f) => (some-checker odd? (roughly 9))) ; one must be true
   "} midje-checkers)
 
+(def ^{:doc "
+  Any function can be used on the right-hand side of a check:
+      (fact 500 => (fn [actual] (> actual 100)))
+
+  In the left-hand side of a prerequisite, use `checker` or
+  `as-checker` to define the checker:
+      (provided
+         (f (checker [arg] (> arg 100))) => 3
+         (h (as-checker even?)) => 4)
+
+  Checkers can be named with `defchecker`:
+        (defchecker twosie [actual]
+           (and (pos? actual) (even? actual)))
+        (fact 2 => twosie)
+
+        (defchecker roughly [expected delta]
+           (checker [actual]
+              (and (number? actual)
+                   ...)))
+       (fact 1.1 => (roughly 1 0.2))
+
+  Chatty checkers print the values of subexpressions in the
+  case of a failure:
+
+       (fact 4 => (chatty-checker [actual] (< (h actual) (g actual))))
+
+  Use `every-checker` or `some-checker` to define checkers for
+  boolean expressions:
+
+       (def pleasingly-positive (every-checker number? even? pos?))
+       (fact 4 => pleasingly-positive)
+
+       (def unnatural-number (some-checker (complement number?) odd? neg?))
+       (fact 'fred => unnatural-number)
+  "} midje-defining)        
 
 (def ^{:doc "
   * Prerequisites and top-down TDD:
@@ -282,6 +319,8 @@
 
 (def guide-topics {
  'future-facts  "https://github.com/marick/Midje/wiki/Future-facts"
+ 'checkers-within-prerequisites "https://github.com/marick/Midje/wiki/Checkers-within-prerequisites"
+ 'chatty-checkers "https://github.com/marick/Midje/wiki/Chatty-checkers"                   
  'partial-prerequisites "https://github.com/marick/Midje/wiki/Partial-prerequisites"
 })
                     
