@@ -195,6 +195,37 @@
 
 ;;; Fact execution utilities
 
+(defn check-one [fact-function]
+  (letfn [(check-fact-in-context []
+            (levelly/report-checking-fact fact-function)
+            (fact-context/adds (metadata/fact-description fact-function)
+                               (fact-function)))]
+
+    (let [top-level? (:midje/top-level-fact? (meta fact-function))
+          fact-creation-filter (config/choice :desired-fact?)]
+      (cond (not (fact-creation-filter fact-function))
+            (str "This fact was ignored because of the current configuration. "
+                 "Only facts matching "
+                 (vec (map #(if (fn? %) "<some function>" %) 
+                           (:created-from (meta fact-creation-filter))))
+                 " will be created.")
+            
+            (not top-level?)
+            (check-fact-in-context)
+
+            :else-top-level-fact-to-check
+            (do
+              ;; The fact is recorded on entry so that if a fact is
+              ;; rechecked inside the midje.t-repl tests, the rechecked
+              ;; fact stays the last-fact-checked (because it overwrites
+              ;; the fact that's testing it).
+              (compendium/record-fact-check! fact-function)
+              (#'midje.ideas.reporting.report/fact-begins)
+              (levelly/report-changed-namespace (metadata/fact-namespace fact-function))
+              (check-fact-in-context)
+              (#'midje.ideas.reporting.report/fact-checks-out?))))))
+
+
 ;; It's kind of annoying that the entire expansion is created, evaluated, 
 ;; and then thrown away. I think this is unavoidable if you want the
 ;; filter predicate to be applied in the repl.
@@ -203,29 +234,8 @@
     (compendium/record-fact-existence! fact-function)
     fact-function))
 
-
-(defn check-one [fact-function]
-  (let [fact-creation-filter (config/choice :desired-fact?)]
-    (if (fact-creation-filter fact-function)
-      (do
-        ;; The fact is recorded on entry so that if a fact is
-        ;; rechecked inside the midje.t-repl tests, the rechecked
-        ;; fact stays the last-fact-checked (because it overwrites
-        ;; the fact that's testing it).
-        (when (:midje/top-level-fact? (meta fact-function))
-          (compendium/record-fact-check! fact-function))
-        (#'midje.ideas.reporting.report/fact-begins)
-        (levelly/report-changed-namespace (metadata/fact-namespace fact-function))
-        (levelly/report-checking-fact fact-function)
-        (fact-context/adds (metadata/fact-description fact-function)
-                           (fact-function))
-        (#'midje.ideas.reporting.report/fact-checks-out?))
-      (str "This fact was ignored because of the current configuration. "
-           "Only facts matching "
-           (vec (map #(if (fn? %) "<some function>" %) 
-                       (:created-from (meta fact-creation-filter))))
-           " will be created."))))
-
 (defn creation-time-check [fact-function]
   (when (config/choice :check-after-creation)
     (check-one fact-function)))
+
+

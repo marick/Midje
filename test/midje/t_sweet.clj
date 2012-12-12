@@ -309,29 +309,52 @@
      (called irrelevant) => 1 :times 0))
  (fact @reported => (contains (contains {:type :mock-incorrect-call-count
                                          :failures (contains (contains {:actual-count 1}))}))))
-    
-
-(def #^:dynamic *fact-retval* (fact
-                               (+ 1 1) => 2
-                               "some random return value"))
-(fact "fact returns true on success"
-   *fact-retval* => true)
 
 
-(def #^:dynamic  *fact-retval* (fact
-                                (+ 1 1) => 2
-                                (midje.ideas.reporting.report/note-failure-in-fact)
-                                "some random return value"))
-(fact "fact returns false on failure"
-  *fact-retval* => false)
+                                ;;; Facts have return values
 
+(config/with-augmented-config {:print-level :print-nothing}
+ (without-changing-cumulative-totals
 
-(def #^:dynamic *fact-retval* (fact
-                               (+ 1 1) => 2
-                               "some random return value"))
-(fact "a fact's return value is not affected by previous failures"
-  *fact-retval* => true)
+  (def should-be-true-because-of-fact-success
+    (fact "fact returns true on success"
+      (+ 1 1) => 2
+      "some random return value"))
+  
+  (def should-be-false-because-of-fact-failure
+    (fact "fact returns false on failure"
+      (+ 1 1) => 3
+      (+ 1 1) => 2
+      "some random return value"))
+  
+  (def should-be-true-despite-previous-failue
+    (fact "a fact's return value is not affected by previous failures"
+      (+ 1 1) => 2
+      "some random return value"))
 
+  (def should-be-true-because-of-lower-levels
+    (fact "an outer level fact is true if lower level facts are"
+      (fact (+ 1 3) => 4)
+      (fact (- 1 3) => -2)))
+
+  (def should-be-false-because-of-lower-level
+    (fact "an outer level fact is false if any lower level facts are"
+      (fact
+        (fact (inc 1) => 1))
+      (fact (inc 1) => 2)))
+  ))
+
+(fact
+  should-be-true-because-of-fact-success => true
+  should-be-false-because-of-fact-failure => false
+  should-be-true-despite-previous-failue => true
+  should-be-true-because-of-lower-levels => true
+  should-be-false-because-of-lower-level => false)
+  
+                         
+
+                         ;;;; 
+                         
 (defn a [])
 (defn b [] (a))
 
