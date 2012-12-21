@@ -71,7 +71,7 @@
     (fact "the :all argument"
       (load-facts :print-no-summary :all "simple") => anything
       (provided
-        (#'midje.repl/project-namespaces) => ['midje.t-repl-helper])
+        (ecosystem/project-namespaces) => ['midje.t-repl-helper])
       (map fact-name (fetch-facts :all)) => ["a simple test"])
 
     (fact "no arguments repeats previous arguments"
@@ -90,7 +90,7 @@
     (fact "load-facts sets up default arguments for fetch-facts"
       (load-facts :all "simple" :print-no-summary) => anything
       (provided
-        (#'midje.repl/project-namespaces) => ['midje.t-repl-helper])
+        (ecosystem/project-namespaces) => ['midje.t-repl-helper])
 
       (defaulting-args [] :memory-command)
       => (contains '{:given-level-args [:print-no-summary]
@@ -99,7 +99,7 @@
 
       (load-facts 'midje.t-repl-h* :non-featherian :print-no-summary) => anything
       (provided
-        (#'midje.repl/unglob-partial-namespaces ['midje.t-repl-h*]) => '[midje.t-repl-helper])
+        (ecosystem/unglob-partial-namespaces ['midje.t-repl-h*]) => '[midje.t-repl-helper])
 
       (defaulting-args [] :memory-command)
       => (contains '{:given-level-args [:print-no-summary]
@@ -524,32 +524,6 @@
 
 ;;;; ==== PART 5: Utilities
 
-(fact "can find paths to load from project.clj"
-  (fact "if it exists"
-    (project-directories) => ["/test1" "/src1"]
-    (provided (leiningen.core.project/read) => {:test-paths ["/test1"]
-                                                :source-paths ["/src1"]}))
-
-  (fact "and provides a default if it does not"
-    (project-directories) => ["test"]
-    (provided (leiningen.core.project/read)
-              =throws=> (new java.io.FileNotFoundException))))
-
-
-(fact "unglob-partial-namespaces returns namespace symbols"
-  (fact "from symbols or strings"
-    (unglob-partial-namespaces ["explicit-namespace1"]) => ['explicit-namespace1]
-    (unglob-partial-namespaces ['explicit-namespace2]) => ['explicit-namespace2])
-
-  (fact "can 'unglob' wildcards"
-    (unglob-partial-namespaces ["ns.foo.*"]) => '[ns.foo.bar ns.foo.baz]
-    (provided (bultitude.core/namespaces-on-classpath :prefix "ns.foo.")
-              => '[ns.foo.bar ns.foo.baz])
-
-    (unglob-partial-namespaces ['ns.foo.*]) => '[ns.foo.bar ns.foo.baz]
-    (provided (bultitude.core/namespaces-on-classpath :prefix "ns.foo.")
-              => '[ns.foo.bar ns.foo.baz])))
-
 (fact "decomposing arglists"
   (against-background
     (compendium/all-facts<>) => ['ns.all-facts])
@@ -596,7 +570,7 @@
                   :given-namespace-args [:all]
                   :given-filter-args empty?
                   :given-level-args [:print-namespaces]})
-    (provided (#'midje.repl/project-namespaces)
+    (provided (ecosystem/project-namespaces)
                 => '[midje.repl.foo midje.repl.bar]))
 
   ;; From disk, partial namespace, default print level, filter
@@ -611,7 +585,7 @@
                   :given-filter-args [:integration]
                   :given-level-args empty?
                   :namespaces-to-use '[midje.repl.foo midje.repl.bar]})
-    (provided (#'midje.repl/unglob-partial-namespaces ['midje.repl.*])
+    (provided (ecosystem/unglob-partial-namespaces ['midje.repl.*])
               => '[midje.repl.foo midje.repl.bar]))
   )
 

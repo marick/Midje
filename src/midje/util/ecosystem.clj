@@ -1,7 +1,8 @@
 (ns ^{:doc "Environmental factors."}
   midje.util.ecosystem
-  (:use [bultitude.core :only [namespaces-in-dir]])
-  (:require [clojure.string :as str]))
+  (:use [bultitude.core :only [namespaces-in-dir namespaces-on-classpath]])
+  (:require [clojure.string :as str]
+            midje.util.backwards-compatible-utils))
 
 (def issues-url "https://github.com/marick/Midje/issues")
 
@@ -80,7 +81,26 @@
   (file-exists? project-config-file-name))
 
 
+;;; Working with project trees
 
-        
+(when-1-3+
+  (require '[leiningen.core.project :as project])
 
-        
+  ;; When referring to namespaces on disk, the user intends
+  ;; a swath of namespaces. These functions find them.
+  (defn project-directories []
+    (try
+      (let [project (project/read)]
+        (concat (:test-paths project) (:source-paths project)))
+      (catch java.io.FileNotFoundException e
+        ["test"])))
+  
+  (defn project-namespaces []
+    (mapcat namespaces-in-dir (project-directories)))
+  
+  (defn unglob-partial-namespaces [namespaces]
+    (mapcat #(if (= \* (last %))
+               (namespaces-on-classpath :prefix (apply str (butlast %)))
+               [(symbol %)])
+            (map str namespaces)))
+)

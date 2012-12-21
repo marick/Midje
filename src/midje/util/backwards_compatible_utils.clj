@@ -81,3 +81,11 @@
          ([x y z] (some #(or (% x) (% y) (% z)) ps))
          ([x y z & args] (or (spn x y z)
                              (some #(some % args) ps)))))))
+
+
+(when-not (ns-resolve 'clojure.core 'ex-info)
+  (intern 'clojure.core 'ex-info
+          (fn ([msg map]
+                 (RuntimeException. msg))
+            ([msg map cause]
+               (RuntimeException. msg cause)))))

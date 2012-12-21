@@ -1,8 +1,7 @@
 (ns ^{:doc "Functions useful when using Midje in the repl or from the command line.
             See `midje-repl-help` for details."}
   midje.repl
-  (:use [bultitude.core :only [namespaces-in-dir namespaces-on-classpath]]
-        clojure.pprint)
+  (:use clojure.pprint)
   (:require midje.sweet
             [midje.ideas.facts :as fact]
             [midje.internal-ideas.compendium :as compendium]
@@ -18,20 +17,6 @@
 (when (and (ecosystem/running-in-repl?) (ecosystem/clojure-1-2-X?))
   (println (color/fail "The Midje repl tools don't work on Clojure 1.2.X")))
 (ecosystem/when-1-3+
-
-;; Supply function to leiningen.core.project.
-;; Note that it does not work to put the following code into
-;; midje.util.backwards-compatible-utils.
-
-(in-ns 'clojure.core)
-(if-not (resolve 'ex-info)
-  (defn ex-info
-    ([msg map]
-       (RuntimeException. msg))
-    ([msg map cause]
-       (RuntimeException. msg cause))))
-(in-ns 'midje.repl)
-(require '[leiningen.core.project :as project])
 
 (namespace/immigrate-from 'midje.ideas.metadata
                           (map metadata/metadata-function-name
@@ -111,25 +96,6 @@
 
 
 
-;; When referring to namespaces on disk, the user intends
-;; a swath of namespaces. These functions find them.
-(defn- ^{:testable true} project-directories []
-  (try
-    (let [project (project/read)]
-      (concat (:test-paths project) (:source-paths project)))
-    (catch java.io.FileNotFoundException e
-      ["test"])))
-
-(defn- ^{:testable true} project-namespaces []
-  (mapcat namespaces-in-dir (project-directories)))
-
-(defn- ^{:testable true} unglob-partial-namespaces [namespaces]
-  (mapcat #(if (= \* (last %))
-             (namespaces-on-classpath :prefix (apply str (butlast %)))
-             [(symbol %)])
-          (map str namespaces)))
-
-
 ;; This function makes user intentions explicit.
 
 (defn- ^{:testable true} defaulting-args [original-args command-type]
@@ -176,9 +142,9 @@
     (merge base
            {:disk-command (:given-namespace-args base)}
            (if (:all? base)
-             {:namespaces-to-use (project-namespaces)
+             {:namespaces-to-use (ecosystem/project-namespaces)
               :memory-command [:all]}
-             (let [expanded (unglob-partial-namespaces (:given-namespace-args base))]
+             (let [expanded (ecosystem/unglob-partial-namespaces (:given-namespace-args base))]
                {:namespaces-to-use expanded
                 :memory-command expanded})))))
 

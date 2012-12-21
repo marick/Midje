@@ -36,3 +36,35 @@
     ;; truly a prefix
     (fact-namespaces "src" :prefix "ideas") => empty?))
 
+
+;;; Directory structure
+
+(when-1-3+
+
+  (fact "can find paths to load from project.clj"
+    (fact "if it exists"
+      (project-directories) => ["/test1" "/src1"]
+      (provided (leiningen.core.project/read) => {:test-paths ["/test1"]
+                                                  :source-paths ["/src1"]}))
+    
+    (fact "and provides a default if it does not"
+      (project-directories) => ["test"]
+      (provided (leiningen.core.project/read)
+                =throws=> (new java.io.FileNotFoundException))))
+  
+  
+  (fact "unglob-partial-namespaces returns namespace symbols"
+    (fact "from symbols or strings"
+      (unglob-partial-namespaces ["explicit-namespace1"]) => ['explicit-namespace1]
+      (unglob-partial-namespaces ['explicit-namespace2]) => ['explicit-namespace2])
+    
+    (fact "can 'unglob' wildcards"
+      (unglob-partial-namespaces ["ns.foo.*"]) => '[ns.foo.bar ns.foo.baz]
+      (provided (bultitude.core/namespaces-on-classpath :prefix "ns.foo.")
+                => '[ns.foo.bar ns.foo.baz])
+      
+      (unglob-partial-namespaces ['ns.foo.*]) => '[ns.foo.bar ns.foo.baz]
+      (provided (bultitude.core/namespaces-on-classpath :prefix "ns.foo.")
+                => '[ns.foo.bar ns.foo.baz])))
+  
+  )
