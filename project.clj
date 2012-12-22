@@ -20,7 +20,7 @@
   :profiles {:dev {:dependencies [[slamhound "1.2.0"]
                                   [jonase/kibit "0.0.3"]
                                   [jonase/eastwood "0.0.2"]
-                                  [org.clojure/tools.namespace "0.2.1"]]
+                                  [org.clojure/tools.namespace "0.2.2"]]
                    :plugins [[lein-midje "2.0.3"]]}
              :1.2.0 {:dependencies [[org.clojure/clojure "1.2.0"]]}
              :1.2.1 {:dependencies [[org.clojure/clojure "1.2.1"]]}

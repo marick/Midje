@@ -358,4 +358,36 @@
 (def ^{:doc "Synonym for `recheck-fact`."} rcf recheck-fact)
 
 
+                                ;;; Autotest
+
+(defmulti autotest (fn [& args]
+                     (or ((set args) :stop)
+                         ((set args) :pause)
+                         ((set args) :resume)
+                         (pos? (count args)))))
+
+(def autotest-interval (atom 5000))
+
+(defmethod autotest :default []
+  (autotest :each @autotest-interval))
+
+(defmethod autotest true [& args]
+  (let [options (apply hash-map args)]
+    (swap! autotest-interval #(or (:each options) %))
+    (println)
+    (ecosystem/load-everything)
+    (autotest :resume)))
+
+(defmethod autotest :resume [_]
+  (ecosystem/schedule :autotest ecosystem/load-changed @autotest-interval)
+  true)
+
+(defmethod autotest :stop [_]
+  (ecosystem/stop :autotest)
+  true)
+
+(defmethod autotest :pause [_]
+  (autotest :stop))
+
+
 )

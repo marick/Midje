@@ -2,7 +2,9 @@
   midje.util.ecosystem
   (:use [bultitude.core :only [namespaces-in-dir namespaces-on-classpath]])
   (:require [clojure.string :as str]
-            midje.util.backwards-compatible-utils))
+            midje.util.backwards-compatible-utils)
+  (:import [java.util.concurrent ScheduledThreadPoolExecutor TimeUnit]))
+
 
 (def issues-url "https://github.com/marick/Midje/issues")
 
@@ -81,6 +83,19 @@
   (file-exists? project-config-file-name))
 
 
+;;; Subprocesses 
+
+(def scheduled-futures (atom {}))
+
+(defn schedule [service-tag function interval]
+  (let [executor (ScheduledThreadPoolExecutor. 1)
+        future (.scheduleWithFixedDelay executor function 0 interval TimeUnit/MILLISECONDS)]
+    (swap! scheduled-futures assoc service-tag future)))
+
+(defn stop [service-tag]
+  (.cancel (service-tag @scheduled-futures) true)
+  (swap! scheduled-futures dissoc service-tag))
+
 ;;; Working with project trees
 
 (when-1-3+
@@ -103,4 +118,71 @@
                (namespaces-on-classpath :prefix (apply str (butlast %)))
                [(symbol %)])
             (map str namespaces)))
+
+
+  (require '[clojure.tools.namespace.repl :as nsrepl])
+  (require '[clojure.tools.namespace.dir :as nsdir])
+  (require '[clojure.tools.namespace.track :as nstrack])
+  (require '[clojure.tools.namespace.reload :as nsreload])
+
+  (defonce watched-directories (project-directories))
+  (defonce nstracker (atom (nstrack/tracker)))
+  (def unload-key :clojure.tools.namespace.track/unload)
+  (def load-key :clojure.tools.namespace.track/load)
+  (def filemap-key :clojure.tools.namespace.file/filemap)
+  (def time-key :clojure.tools.namespace.dir/time)
+  
+  (defn file-modification-time [file]
+    (.lastModified file))
+
+  (defn latest-modification-time []
+    (apply max (map file-modification-time (keys (filemap-key @nstracker)))))
+
+  (defn novel-namespaces [namespace-finder]
+    (swap! nstracker #(apply namespace-finder % watched-directories))
+    (load-key @nstracker))
+
+  (defn invert [map]
+    (reduce (fn [so-far [key val]]
+              (assoc so-far val key))
+            {}
+            map))
+
+ (defn do-requires [[next-ns & remainder]]
+     (when next-ns
+       (let [result (try (require next-ns :reload)
+                         (catch Throwable t t))]
+         (if (isa? (class result) Throwable)
+           (do 
+             (println "PROGRAM ERROR in" next-ns)
+             (println (.getMessage result))
+             (when (running-in-repl?)
+               (println "The exception has been stored in #'*e, so `pst` will show the stack trace.")
+               (if (thread-bound? #'*e)
+                 (set! *e result)
+                 (alter-var-root #'clojure.core/*e (constantly result))))
+             (println "SHOULD HAVE STRIPPED OUT DEPENDENCIES"))
+           (recur remainder)))))
+    
+  (defn require-novelty [namespace-finder]
+    (let [work-list (novel-namespaces namespace-finder)
+          timestamp (System/currentTimeMillis)]
+      (when (not (empty? work-list))
+        (println "\n==========")
+        (println '== 'Reloading work-list)
+        (do-requires work-list)
+        ;; There are cases in which default behavior of tools.namespace
+        ;; sets the timestamp such that failing files will keep being
+        ;; reloaded. So we use our own interpretation.
+        (swap! nstracker assoc
+               load-key []
+               unload-key []  ; This is mainly for tidiness, since we never unload
+               time-key timestamp))))
+        
+
+  (defn load-everything []
+    (require-novelty nsdir/scan-all))
+  
+  (defn load-changed [& args]
+    (require-novelty nsdir/scan))
 )

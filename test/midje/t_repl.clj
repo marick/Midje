@@ -521,8 +521,47 @@
       (last-fact-checked) => (exactly one-plus-one))
     )
 
+;;;; ==== PART 5: Autotest
 
-;;;; ==== PART 5: Utilities
+(fact "autotest"
+
+  (fact "provides default values"
+    (config/with-augmented-config {:partial-prerequisites true}
+      (autotest) => anything
+      (provided
+        (autotest :each 5000) => anything)))
+
+  (fact "uses ecosystem tools"
+    (with-out-str (autotest :each 10000)) => anything
+    (provided
+      (ecosystem/load-everything) => anything
+      (ecosystem/schedule :autotest ecosystem/load-changed 10000) => anything))
+
+  (fact "has a memory for default values"
+    (config/with-augmented-config {:partial-prerequisites true}
+      (autotest) => anything
+      (provided
+        (autotest :each 10000) => anything)))
+
+  (fact "can stop autotesting"
+    (autotest :stop) => anything
+    (provided
+      (ecosystem/stop :autotest) => anything))
+
+  (fact "can pause (same as stopping)"
+    (autotest :pause) => anything
+    (provided
+      (ecosystem/stop :autotest) => anything))
+
+  (fact "can resume"
+    (with-out-str (autotest :resume)) => anything
+    (provided
+      (ecosystem/load-everything) => anything :times 0
+      (ecosystem/schedule :autotest ecosystem/load-changed 10000) => anything)))
+
+
+               
+;;;; ==== PART 6: Utilities
 
 (fact "decomposing arglists"
   (against-background
