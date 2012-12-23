@@ -68,3 +68,34 @@
                 => '[ns.foo.bar ns.foo.baz])))
   
   )
+
+
+;;; Working with modification times and dependencies
+
+(when-1-3+
+
+ (fact "working with the tools.namespace tracker structure"
+   (against-background (file-modification-time ..file1..) => 222
+                       (file-modification-time ..file2..) => 3333)
+   (let [core-tracker
+         {time-key 11
+          unload-key [..ns1.. ..ns2..]
+          load-key [..ns1.. ..ns2..]
+          filemap-key {..file1.. ..ns1..
+                       ..file2.. ..ns2..}}]
+     (facts "modification times"
+       (latest-modification-time core-tracker) => 3333
+       (latest-modification-time (assoc core-tracker load-key [])) => 11
+       (autotest-augment-tracker core-tracker) => (contains {next-time-key 3333}))
+
+     (facts "creating the tracker appropriate for the next check"
+       (autotest-next-tracker (autotest-augment-tracker core-tracker))
+       => (contains {time-key 3333, unload-key [], load-key []})))
+
+
+   (fact "a namespace and all that depend on it can be removed"
+     (let [dependency-tracker {load-key [..core-ns.. ..depends-on-core.. ..does-not-depend..]
+                               deps-key {:dependents {..core-ns.. #{..depends-on-core..}}}}]
+       (without-first-required-and-dependents dependency-tracker) => (contains {load-key [..does-not-depend..]}))))
+ )
+                              

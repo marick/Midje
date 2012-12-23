@@ -1,6 +1,7 @@
 (ns ^{:doc "Environmental factors."}
   midje.util.ecosystem
-  (:use [bultitude.core :only [namespaces-in-dir namespaces-on-classpath]])
+  (:use [bultitude.core :only [namespaces-in-dir namespaces-on-classpath]]
+        [midje.util.form-utils :only [invert]])
   (:require [clojure.string :as str]
             midje.util.backwards-compatible-utils)
   (:import [java.util.concurrent ScheduledThreadPoolExecutor TimeUnit]))
@@ -127,26 +128,50 @@
 
   (defonce watched-directories (project-directories))
   (defonce nstracker (atom (nstrack/tracker)))
+
   (def unload-key :clojure.tools.namespace.track/unload)
   (def load-key :clojure.tools.namespace.track/load)
   (def filemap-key :clojure.tools.namespace.file/filemap)
+  (def deps-key :clojure.tools.namespace.track/deps)
   (def time-key :clojure.tools.namespace.dir/time)
+  (def next-time-key :next-time)
   
   (defn file-modification-time [file]
     (.lastModified file))
 
-  (defn latest-modification-time []
-    (apply max (map file-modification-time (keys (filemap-key @nstracker)))))
+  (defn latest-modification-time [nstracker]
+    (let [ns-to-file (invert (filemap-key nstracker))
+          relevant-files (map ns-to-file (load-key nstracker))]
+      (apply max (time-key nstracker)
+                 (map file-modification-time relevant-files))))
+
+
+  (defn autotest-augment-tracker [nstracker]
+    (assoc nstracker next-time-key (latest-modification-time nstracker)))
+
+  (defn autotest-next-tracker [nstracker]
+    (assoc nstracker
+           time-key (next-time-key nstracker)
+           unload-key []
+           load-key []))
+           
+  (defn without-first-required-and-dependents [nstracker]
+    (let [[first & remainder] (load-key nstracker)
+          first-dependents (get-in nstracker [deps-key :dependents first] #{})
+          surviving-remainder (remove first-dependents remainder)]
+      (assoc nstracker load-key surviving-remainder)))
+
+
+
+
+
+
+
+
 
   (defn novel-namespaces [namespace-finder]
     (swap! nstracker #(apply namespace-finder % watched-directories))
     (load-key @nstracker))
-
-  (defn invert [map]
-    (reduce (fn [so-far [key val]]
-              (assoc so-far val key))
-            {}
-            map))
 
  (defn do-requires [[next-ns & remainder]]
      (when next-ns
