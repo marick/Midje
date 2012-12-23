@@ -2,12 +2,14 @@
   (:use midje.repl
         [clojure.pprint]
         [midje.test-util])
-  (:require [midje.internal-ideas.compendium :as compendium]
+  (:require [midje.config :as config]
             [midje.clojure-test-facade :as ctf]
             [midje.ideas.reporting.levels :as levelly]
             [midje.ideas.reporting.level-defs :as deflevels]
-            [midje.config :as config]
+            [midje.internal-ideas.compendium :as compendium]
+            [midje.internal-ideas.project-state :as project-state]
             [midje.util.ecosystem :as ecosystem]
+            [midje.util.scheduling :as scheduling]
             midje.util))
 
 (ecosystem/when-1-3+
@@ -71,7 +73,7 @@
     (fact "the :all argument"
       (load-facts :print-no-summary :all "simple") => anything
       (provided
-        (ecosystem/project-namespaces) => ['midje.t-repl-helper])
+        (project-state/namespaces) => ['midje.t-repl-helper])
       (map fact-name (fetch-facts :all)) => ["a simple test"])
 
     (fact "no arguments repeats previous arguments"
@@ -90,7 +92,7 @@
     (fact "load-facts sets up default arguments for fetch-facts"
       (load-facts :all "simple" :print-no-summary) => anything
       (provided
-        (ecosystem/project-namespaces) => ['midje.t-repl-helper])
+        (project-state/namespaces) => ['midje.t-repl-helper])
 
       (defaulting-args [] :memory-command)
       => (contains '{:given-level-args [:print-no-summary]
@@ -99,7 +101,7 @@
 
       (load-facts 'midje.t-repl-h* :non-featherian :print-no-summary) => anything
       (provided
-        (ecosystem/unglob-partial-namespaces ['midje.t-repl-h*]) => '[midje.t-repl-helper])
+        (project-state/unglob-partial-namespaces ['midje.t-repl-h*]) => '[midje.t-repl-helper])
 
       (defaulting-args [] :memory-command)
       => (contains '{:given-level-args [:print-no-summary]
@@ -523,41 +525,44 @@
 
 ;;;; ==== PART 5: Autotest
 
+
 (fact "autotest"
 
+  ;; double @s are a side effect of immigrating privates
   (fact "provides default values"
     (config/with-augmented-config {:partial-prerequisites true}
       (autotest) => anything
       (provided
-        (autotest :each 5000) => anything)))
+        (autotest :each @@autotest-interval) => anything)))
 
   (fact "uses ecosystem tools"
     (with-out-str (autotest :each 10000)) => anything
     (provided
-      (ecosystem/load-everything) => anything
-      (ecosystem/schedule :autotest ecosystem/load-changed 10000) => anything))
+      (project-state/load-everything) => anything
+      (scheduling/schedule :autotest project-state/load-changed 10000) => anything))
 
   (fact "has a memory for default values"
+    @@autotest-interval => 10000
     (config/with-augmented-config {:partial-prerequisites true}
       (autotest) => anything
       (provided
-        (autotest :each 10000) => anything)))
+        (autotest :each @@autotest-interval) => anything)))
 
   (fact "can stop autotesting"
     (autotest :stop) => anything
     (provided
-      (ecosystem/stop :autotest) => anything))
+      (scheduling/stop :autotest) => anything))
 
   (fact "can pause (same as stopping)"
     (autotest :pause) => anything
     (provided
-      (ecosystem/stop :autotest) => anything))
+      (scheduling/stop :autotest) => anything))
 
   (fact "can resume"
     (with-out-str (autotest :resume)) => anything
     (provided
-      (ecosystem/load-everything) => anything :times 0
-      (ecosystem/schedule :autotest ecosystem/load-changed 10000) => anything)))
+      (project-state/load-everything) => anything :times 0
+      (scheduling/schedule :autotest project-state/load-changed 10000) => anything)))
 
 
                
@@ -609,7 +614,7 @@
                   :given-namespace-args [:all]
                   :given-filter-args empty?
                   :given-level-args [:print-namespaces]})
-    (provided (ecosystem/project-namespaces)
+    (provided (project-state/namespaces)
                 => '[midje.repl.foo midje.repl.bar]))
 
   ;; From disk, partial namespace, default print level, filter
@@ -624,7 +629,7 @@
                   :given-filter-args [:integration]
                   :given-level-args empty?
                   :namespaces-to-use '[midje.repl.foo midje.repl.bar]})
-    (provided (ecosystem/unglob-partial-namespaces ['midje.repl.*])
+    (provided (project-state/unglob-partial-namespaces ['midje.repl.*])
               => '[midje.repl.foo midje.repl.bar]))
   )
 

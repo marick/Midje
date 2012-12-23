@@ -1,11 +1,6 @@
 (ns ^{:doc "Environmental factors."}
   midje.util.ecosystem
-  (:use [bultitude.core :only [namespaces-in-dir namespaces-on-classpath]]
-        [midje.util.form-utils :only [invert]])
-  (:require [clojure.string :as str]
-            midje.util.backwards-compatible-utils)
-  (:import [java.util.concurrent ScheduledThreadPoolExecutor TimeUnit]))
-
+  (:require [clojure.string :as str]))
 
 (def issues-url "https://github.com/marick/Midje/issues")
 
@@ -48,21 +43,6 @@
 
 (def line-separator (System/getProperty "line.separator"))
 
-
-
-(defn fact-namespaces
-  "Return the symbols (suitable for `require`) of namespaces
-   that match the args."
-  [& args]
-  ;; You get an obscure error if you pass a keyword to
-  ;; namespaces-in-dir. I'd rather accept all kinds of typos than
-  ;; subject a user to that.
-  (let [[dirs [_keyword_ prefix & junk]] (split-with string? args)
-        desireds (if (empty? dirs) ["test"] dirs) 
-        actuals (mapcat namespaces-in-dir desireds)]
-    (filter #(.startsWith (name %) (or prefix "")) actuals)))
-
-
 (defn running-in-repl? []
   (try
     (throw (Exception.))
@@ -84,130 +64,3 @@
   (file-exists? project-config-file-name))
 
 
-;;; Subprocesses 
-
-(def scheduled-futures (atom {}))
-
-(defn schedule [service-tag function interval]
-  (let [executor (ScheduledThreadPoolExecutor. 1)
-        future (.scheduleWithFixedDelay executor function 0 interval TimeUnit/MILLISECONDS)]
-    (swap! scheduled-futures assoc service-tag future)))
-
-(defn stop [service-tag]
-  (.cancel (service-tag @scheduled-futures) true)
-  (swap! scheduled-futures dissoc service-tag))
-
-;;; Working with project trees
-
-(when-1-3+
-  (require '[leiningen.core.project :as project])
-
-  ;; When referring to namespaces on disk, the user intends
-  ;; a swath of namespaces. These functions find them.
-  (defn project-directories []
-    (try
-      (let [project (project/read)]
-        (concat (:test-paths project) (:source-paths project)))
-      (catch java.io.FileNotFoundException e
-        ["test"])))
-  
-  (defn project-namespaces []
-    (mapcat namespaces-in-dir (project-directories)))
-  
-  (defn unglob-partial-namespaces [namespaces]
-    (mapcat #(if (= \* (last %))
-               (namespaces-on-classpath :prefix (apply str (butlast %)))
-               [(symbol %)])
-            (map str namespaces)))
-
-
-  (require '[clojure.tools.namespace.repl :as nsrepl])
-  (require '[clojure.tools.namespace.dir :as nsdir])
-  (require '[clojure.tools.namespace.track :as nstrack])
-  (require '[clojure.tools.namespace.reload :as nsreload])
-
-  (defonce watched-directories (project-directories))
-  (defonce nstracker (atom (nstrack/tracker)))
-
-  (def unload-key :clojure.tools.namespace.track/unload)
-  (def load-key :clojure.tools.namespace.track/load)
-  (def filemap-key :clojure.tools.namespace.file/filemap)
-  (def deps-key :clojure.tools.namespace.track/deps)
-  (def time-key :clojure.tools.namespace.dir/time)
-  (def next-time-key :next-time)
-  
-  (defn file-modification-time [file]
-    (.lastModified file))
-
-  (defn latest-modification-time [nstracker]
-    (let [ns-to-file (invert (filemap-key nstracker))
-          relevant-files (map ns-to-file (load-key nstracker))]
-      (apply max (time-key nstracker)
-                 (map file-modification-time relevant-files))))
-
-
-  (defn autotest-augment-tracker [nstracker]
-    (assoc nstracker next-time-key (latest-modification-time nstracker)))
-
-  (defn autotest-next-tracker [nstracker]
-    (assoc nstracker
-           time-key (next-time-key nstracker)
-           unload-key []
-           load-key []))
-           
-  (defn without-first-required-and-dependents [nstracker]
-    (let [[first & remainder] (load-key nstracker)
-          first-dependents (get-in nstracker [deps-key :dependents first] #{})
-          surviving-remainder (remove first-dependents remainder)]
-      (assoc nstracker load-key surviving-remainder)))
-
-
-
-
-
-
-
-
-
-  (defn novel-namespaces [namespace-finder]
-    (swap! nstracker #(apply namespace-finder % watched-directories))
-    (load-key @nstracker))
-
- (defn do-requires [[next-ns & remainder]]
-     (when next-ns
-       (let [result (try (require next-ns :reload)
-                         (catch Throwable t t))]
-         (if (isa? (class result) Throwable)
-           (do 
-             (println "PROGRAM ERROR in" next-ns)
-             (println (.getMessage result))
-             (when (running-in-repl?)
-               (println "The exception has been stored in #'*e, so `pst` will show the stack trace.")
-               (if (thread-bound? #'*e)
-                 (set! *e result)
-                 (alter-var-root #'clojure.core/*e (constantly result))))
-             (println "SHOULD HAVE STRIPPED OUT DEPENDENCIES"))
-           (recur remainder)))))
-    
-  (defn require-novelty [namespace-finder]
-    (let [work-list (novel-namespaces namespace-finder)
-          timestamp (System/currentTimeMillis)]
-      (when (not (empty? work-list))
-        (println "\n==========")
-        (println '== 'Reloading work-list)
-        (do-requires work-list)
-        ;; There are cases in which default behavior of tools.namespace
-        ;; sets the timestamp such that failing files will keep being
-        ;; reloaded. So we use our own interpretation.
-        (swap! nstracker assoc
-               load-key []
-               unload-key []  ; This is mainly for tidiness, since we never unload
-               time-key timestamp))))
-        
-
-  (defn load-everything []
-    (require-novelty nsdir/scan-all))
-  
-  (defn load-changed [& args]
-    (require-novelty nsdir/scan))
-)

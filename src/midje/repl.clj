@@ -3,15 +3,17 @@
   midje.repl
   (:use clojure.pprint)
   (:require midje.sweet
-            [midje.ideas.facts :as fact]
-            [midje.internal-ideas.compendium :as compendium]
-            [midje.ideas.reporting.levels :as levelly]
-            [midje.ideas.metadata :as metadata]
             [midje.doc :as doc]
             [midje.config :as config]
+            [midje.ideas.facts :as fact]
+            [midje.ideas.reporting.levels :as levelly]
+            [midje.ideas.metadata :as metadata]
+            [midje.internal-ideas.compendium :as compendium]
+            [midje.internal-ideas.project-state :as project-state]
             [midje.util.form-utils :as form]
             [midje.util.colorize :as color]
             [midje.util.ecosystem :as ecosystem]
+            [midje.util.scheduling :as scheduling]
             [midje.util.namespace :as namespace]))
 
 (when (and (ecosystem/running-in-repl?) (ecosystem/clojure-1-2-X?))
@@ -142,9 +144,9 @@
     (merge base
            {:disk-command (:given-namespace-args base)}
            (if (:all? base)
-             {:namespaces-to-use (ecosystem/project-namespaces)
+             {:namespaces-to-use (project-state/namespaces)
               :memory-command [:all]}
-             (let [expanded (ecosystem/unglob-partial-namespaces (:given-namespace-args base))]
+             (let [expanded (project-state/unglob-partial-namespaces (:given-namespace-args base))]
                {:namespaces-to-use expanded
                 :memory-command expanded})))))
 
@@ -360,13 +362,34 @@
 
                                 ;;; Autotest
 
-(defmulti autotest (fn [& args]
-                     (or ((set args) :stop)
-                         ((set args) :pause)
-                         ((set args) :resume)
-                         (pos? (count args)))))
+(def ^{:private true, :testable true}
+  autotest-interval (atom 500))
 
-(def autotest-interval (atom 5000))
+(defmulti autotest
+  "`autotest` checks frequently for changed files. It reloads those files
+  and all files that depend on them. Since test files depend on source files,
+  that typically results in facts being reloaded and checked. 
+
+  `autotest` monitors all the files in the project.clj's :source-paths
+  and :test-paths. If you don't have a project.clj file, don't use
+  autotest.
+
+  `autotest` can be given an :each argument to control how often
+  it checks for modified files. The argument is in milliseconds:
+
+      (autotest :each 1000) ; check each second.
+
+  `autotest` can take special keyword arguments:
+
+     (autotest :stop)   ; stop checking
+     (autotest :pause)  ; pause checking
+     (autotest :resume) ; continue after a :pause
+  "
+  (fn [& args]
+    (or ((set args) :stop)
+        ((set args) :pause)
+        ((set args) :resume)
+        (pos? (count args)))))
 
 (defmethod autotest :default []
   (autotest :each @autotest-interval))
@@ -375,19 +398,17 @@
   (let [options (apply hash-map args)]
     (swap! autotest-interval #(or (:each options) %))
     (println)
-    (ecosystem/load-everything)
+    (project-state/load-everything)
     (autotest :resume)))
 
 (defmethod autotest :resume [_]
-  (ecosystem/schedule :autotest ecosystem/load-changed @autotest-interval)
+  (scheduling/schedule :autotest project-state/load-changed @autotest-interval)
   true)
 
 (defmethod autotest :stop [_]
-  (ecosystem/stop :autotest)
+  (scheduling/stop :autotest)
   true)
 
 (defmethod autotest :pause [_]
   (autotest :stop))
-
-
 )

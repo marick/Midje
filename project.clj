@@ -9,6 +9,7 @@
                    [bultitude "0.1.7"]
                    [leiningen-core "2.0.0-preview10"]
                    [swiss-arrows "0.1.0"]
+                   [org.clojure/tools.namespace "0.2.2"]
                    [gui-diff "0.3.9"]])
 
 (defproject midje "1.5-alpha4"
@@ -19,8 +20,7 @@
 
   :profiles {:dev {:dependencies [[slamhound "1.2.0"]
                                   [jonase/kibit "0.0.3"]
-                                  [jonase/eastwood "0.0.2"]
-                                  [org.clojure/tools.namespace "0.2.2"]]
+                                  [jonase/eastwood "0.0.2"]]
                    :plugins [[lein-midje "2.0.3"]]}
              :1.2.0 {:dependencies [[org.clojure/clojure "1.2.0"]]}
              :1.2.1 {:dependencies [[org.clojure/clojure "1.2.1"]]}
