@@ -45,6 +45,9 @@
 (fact "map-difference"
   (map-difference {:a 1, :b 2} {:a 1, :c 3}) => {:b 2})
 
+(fact "invert"
+  (invert {:a 1, :b 2}) => {1 :a, 2 :b})
+
 (fact "dissoc-keypath"
   (fact "removes a key/value pair"
     (dissoc-keypath {:by-name {:name1 1, :name2 2}} [:by-name :name1])

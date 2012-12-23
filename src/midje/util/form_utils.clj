@@ -147,6 +147,15 @@
 (defn map-difference [bigger smaller]
   (select-keys bigger (difference (set (keys bigger)) (set (keys smaller)))))
 
+(defn invert
+  "Produce a map with values as keys.
+   Values are assumed unique."
+  [map]
+  (reduce (fn [so-far [key val]]
+            (assoc so-far val key))
+          {}
+          map))
+
 (defn dissoc-keypath
   "Like `dissoc`, but takes a sequence of keys.
    There must be at least two keys."
