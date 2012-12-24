@@ -35,31 +35,60 @@
       (unglob-partial-namespaces ['ns.foo.*]) => '[ns.foo.bar ns.foo.baz]
       (provided (bultitude.core/namespaces-on-classpath :prefix "ns.foo.")
                 => '[ns.foo.bar ns.foo.baz])))
+
+
+
   
 ;;; Working with modification times and dependencies
 
- (fact "working with the tools.namespace tracker structure"
+ (fact "The files to load can be used to find a modification time"
    (against-background (file-modification-time ..file1..) => 222
                        (file-modification-time ..file2..) => 3333)
-   (let [core-tracker
-         {time-key 11
-          unload-key [..ns1.. ..ns2..]
-          load-key [..ns1.. ..ns2..]
-          filemap-key {..file1.. ..ns1..
-                       ..file2.. ..ns2..}}]
-     (facts "modification times"
-       (latest-modification-time core-tracker) => 3333
-       (latest-modification-time (assoc core-tracker load-key [])) => 11
-       (autotest-augment-tracker core-tracker) => (contains {next-time-key 3333}))
+   
+   (let [empty-tracker {time-key 11
+                        load-key []
+                        filemap-key {..file1.. ..ns1..
+                                     ..file2.. ..ns2..}}
+         tracker-with-changes (assoc empty-tracker load-key [..ns1.. ..ns2..])]
+         
+     (latest-modification-time empty-tracker) => 11
+     (latest-modification-time tracker-with-changes) => 3333
+     
+     (prepare-for-next-check empty-tracker) => (contains {time-key 11, unload-key [], load-key []})
+     (prepare-for-next-check tracker-with-changes) => (contains {time-key 3333, unload-key [], load-key []})))
 
-     (facts "creating the tracker appropriate for the next check"
-       (autotest-next-tracker (autotest-augment-tracker core-tracker))
-       => (contains {time-key 3333, unload-key [], load-key []})))
+       
+ (fact "a dependents cleaner knows how to remove namespaces that depend on a namespace"
+   (let [tracker {deps-key {:dependents {..ns1.. [..ns2..]
+                                         ..ns2.. []
+                                         ..ns3.. []}}}
+         cleaner (make-dependents-cleaner tracker)]
+     (cleaner ..ns1.. [..ns2.. ..ns3..]) => [..ns3..]
+     (cleaner ..ns2.. [..ns1.. ..ns3..]) => [..ns1.. ..ns3..]))
 
 
-   (fact "a namespace and all that depend on it can be removed"
-     (let [dependency-tracker {load-key [..core-ns.. ..depends-on-core.. ..does-not-depend..]
-                               deps-key {:dependents {..core-ns.. #{..depends-on-core..}}}}]
-       (without-first-to-load-and-dependents dependency-tracker) => (contains {load-key [..does-not-depend..]}))))
+ (def cleaner) ; standin for the calculated dependency cleaner
+ (fact "A namespace list can be loaded, obeying dependents"
+   (load-namespace-list! [] cleaner) => anything
+
+   (load-namespace-list! [..ns1.. ..ns2..] cleaner) => anything
+   (provided
+     (require ..ns1.. :reload) => nil
+     (require ..ns2.. :reload) => nil)
+
+   (load-namespace-list! [..ns1.. ..ns2..] cleaner) => anything
+   (provided
+     (require ..ns1.. :reload) => nil
+     (require ..ns2.. :reload) => nil)
+
+
+   (let [throwable (Error.)]
+     (load-namespace-list! [..ns1.. ..ns2.. ..ns3..] cleaner) => anything
+     (provided
+       (require ..ns1.. :reload) =throws=> throwable
+       (show-failure ..ns1.. throwable) => anything
+       (cleaner ..ns1.. [..ns2.. ..ns3..]) => [..ns3..]
+       (require ..ns3.. :reload) => nil))
+   )
+
  )
-                              
