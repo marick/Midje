@@ -43,13 +43,6 @@
 
 (def line-separator (System/getProperty "line.separator"))
 
-(defn running-in-repl? []
-  (try
-    (throw (Exception.))
-  (catch Exception e
-    (not (empty? (filter #(.contains % "clojure.main$repl$read_eval_print")
-                         (map str (.getStackTrace e))))))))
-
 (def home-config-file-name (str/join java.io.File/separator
                                      [(getenv "HOME") ".midje.clj"]))
 (def project-config-file-name ".midje.clj")

@@ -3,6 +3,7 @@
             clojure.test, balances abstraction and concreteness, and strives for 
             graciousness."}
   midje.sweet
+  (:require midje.config) ; This should load first.
   (:use clojure.pprint
         [midje.util.namespace :only [immigrate intern+keep-meta]]
         midje.production-mode

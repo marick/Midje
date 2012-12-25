@@ -3,9 +3,10 @@
   (:use clojure.pprint)
   (:require [midje.util.colorize :as color]
             [clojure.java.browse :as browse]
+            [midje.config :as config]
             [midje.util.ecosystem :as ecosystem]))
 
-(def appropriate? ecosystem/running-in-repl?)
+(def appropriate? config/running-in-repl?)
 
 (defn repl-notice []
   (println (color/note "Run `(doc midje-repl)` for descriptions of Midje repl functions.")))

@@ -5,6 +5,7 @@
         [bultitude.core :only [namespaces-in-dir namespaces-on-classpath]])
   (:require [midje.util.ecosystem :as ecosystem]
             [midje.util.colorize :as color]
+            [midje.config :as config]
             midje.util.backwards-compatible-utils))
 
 (ecosystem/when-1-3+
@@ -63,7 +64,7 @@
  (defn show-failure [the-ns throwable]
    (println (color/fail "LOAD FAILURE for " (ns-name the-ns)))
    (println (.getMessage throwable))
-   (when (ecosystem/running-in-repl?)
+   (when (config/running-in-repl?)
      (println "The exception has been stored in #'*e, so `pst` will show the stack trace.")
      (if (thread-bound? #'*e)
        (set! *e throwable)

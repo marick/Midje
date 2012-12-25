@@ -1,12 +1,25 @@
 (ns ^{:doc "Customizable configuration"}
   midje.config
-  (:use [midje.error-handling.exceptions :only [user-error]]
-        ;; use this one function so that it's available to config files
-        [midje.util.ecosystem :only [running-in-repl?]])
+  (:use [midje.error-handling.exceptions :only [user-error]])
   (:require midje.ideas.reporting.level-defs
             [clojure.set :as set]
             [midje.util.ecosystem :as ecosystem]))
   
+;;; I consider whether we're running in the repl part of the config. This matters because
+;;; threads can't examine the stack to see if they're in the repl. So we check once at
+;;; startup time.
+
+(def ^{:private true} started-in-repl?
+     (try
+       (throw (Exception.))
+       (catch Exception e
+         (not (empty? (filter #(.contains % "clojure.main$repl$read_eval_print")
+                              (map str (.getStackTrace e))))))))
+
+(defn running-in-repl? []
+  started-in-repl?)
+
+
 
 ;; TODO: In 1.6 or later, *allow-default-prerequisites* should be merged
 ;; into the *config* map. A deprecation notice has been added where it's used.
@@ -68,3 +81,5 @@
   (load-file ecosystem/home-config-file-name))
 (when (ecosystem/has-project-config-file?)
   (load-file ecosystem/project-config-file-name))
+
+

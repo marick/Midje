@@ -16,7 +16,7 @@
             [midje.util.scheduling :as scheduling]
             [midje.util.namespace :as namespace]))
 
-(when (and (ecosystem/running-in-repl?) (ecosystem/clojure-1-2-X?))
+(when (and (config/running-in-repl?) (ecosystem/clojure-1-2-X?))
   (println (color/fail "The Midje repl tools don't work on Clojure 1.2.X")))
 (ecosystem/when-1-3+
 
