@@ -4,6 +4,7 @@
         [swiss-arrows.core :only [-<>]]
         [bultitude.core :only [namespaces-in-dir namespaces-on-classpath]])
   (:require [midje.util.ecosystem :as ecosystem]
+            [midje.util.colorize :as color]
             midje.util.backwards-compatible-utils))
 
 (ecosystem/when-1-3+
@@ -55,17 +56,12 @@
  (defn file-modification-time [file]
    (.lastModified file))
 
- ;; What happens in preparation for next tick.
- (defn prepare-for-next-check [state-tracker]
-   (assoc state-tracker time-key (latest-modification-time state-tracker)
-                        unload-key []
-                        load-key []))
 
 
  ;; This is what happens between the above.
 
  (defn show-failure [the-ns throwable]
-   (println "LOAD FAILURE for" (ns-name the-ns))
+   (println (color/fail "LOAD FAILURE for " (ns-name the-ns)))
    (println (.getMessage throwable))
    (when (ecosystem/running-in-repl?)
      (println "The exception has been stored in #'*e, so `pst` will show the stack trace.")
@@ -97,10 +93,20 @@
      (apply max (time-key state-tracker)
             (map file-modification-time relevant-files))))
 
+  ;; What happens in preparation for next tick.
+ (defn prepare-for-next-check [state-tracker]
+   (assoc state-tracker time-key (latest-modification-time state-tracker)
+                        unload-key []
+                        load-key []))
+
 
  (defn load-affected-files! [state-tracker]
-   (load-namespace-list! (load-key state-tracker)
-                         (make-dependents-cleaner state-tracker))
+   (let [namespaces (load-key state-tracker)]
+     (when (not (empty? namespaces))
+       (println (color/note "\n==========="))
+       (println (color/note "Loading " (pr-str namespaces))))
+     (load-namespace-list! namespaces
+                           (make-dependents-cleaner state-tracker)))
    state-tracker)
  
  (defn loader-for-affected-files-found-by [project-scanner]
