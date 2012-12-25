@@ -62,7 +62,7 @@
    (let [tracker {deps-key {:dependents {..ns1.. [..ns2..]
                                          ..ns2.. []
                                          ..ns3.. []}}}
-         cleaner (dependents-cleaner-fn tracker)]
+         cleaner (mkfn:clean-dependents tracker)]
      (cleaner ..ns1.. [..ns2.. ..ns3..]) => [..ns3..]
      (cleaner ..ns2.. [..ns1.. ..ns3..]) => [..ns1.. ..ns3..]))
 

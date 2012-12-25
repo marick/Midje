@@ -87,7 +87,7 @@
      (when (not (empty? namespaces))
        (recur (shorten-ns-list-by-trying-first namespaces))))))
 
- (defn dependents-cleaner-fn [state-tracker]
+ (defn mkfn:clean-dependents [state-tracker]
    (fn [namespace possible-dependents]
      (let [actual-dependents (set (get-in state-tracker [deps-key :dependents namespace]))]
        (remove actual-dependents possible-dependents))))
@@ -99,7 +99,7 @@
        (println (color/note "Loading " (pr-str namespaces)))
        (levelly/forget-past-results)
        (require-namespaces! namespaces
-                            (dependents-cleaner-fn state-tracker))
+                            (mkfn:clean-dependents state-tracker))
        (levelly/report-summary))
      state-tracker))
 
@@ -108,7 +108,7 @@
                         unload-key []
                         load-key []))
 
- (defn scan-and-react-fn [dirs scanner]
+ (defn mkfn:scan-and-react [dirs scanner]
    (fn []
      (swap! state-tracker
             #(let [new-tracker (apply scanner % dirs)]
@@ -116,10 +116,10 @@
                (prepare-for-next-scan new-tracker)))))
 
 
- (defn react-to-changes-fn [dirs]
-   (scan-and-react-fn dirs nsdir/scan))
+ (defn mkfn:react-to-changes [dirs]
+   (mkfn:scan-and-react dirs nsdir/scan))
 
  (defn load-everything [dirs]
-   ((scan-and-react-fn dirs nsdir/scan-all)))
+   ((mkfn:scan-and-react dirs nsdir/scan-all)))
 
 )

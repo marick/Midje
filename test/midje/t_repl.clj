@@ -540,7 +540,7 @@
     (provided
       (project-state/load-everything @@autotest-dirs) => anything
       (scheduling/schedule :autotest
-                           (project-state/react-to-changes-fn @@autotest-dirs)
+                           (project-state/mkfn:react-to-changes @@autotest-dirs)
                            10000)
       => anything))
 
@@ -566,7 +566,7 @@
     (provided
       (project-state/load-everything) => anything :times 0 ;; NOT called
       (scheduling/schedule :autotest
-                           (project-state/react-to-changes-fn @@autotest-dirs)
+                           (project-state/mkfn:react-to-changes @@autotest-dirs)
                            10000)
       => anything)))
 
