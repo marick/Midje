@@ -372,7 +372,7 @@
 
   `autotest` monitors all the files in the project.clj's :source-paths
   and :test-paths. If you don't have a project.clj file, don't use
-  autotest.
+  `autotest`.
 
   `autotest` can be given an :each argument to control how often
   it checks for modified files. The argument is in milliseconds:
@@ -383,7 +383,7 @@
 
      (autotest :stop)   ; stop checking
      (autotest :pause)  ; pause checking
-     (autotest :resume) ; continue after a :pause
+     (autotest :resume) ; continue after a pause
   "
   (fn [& args]
     (or ((set args) :stop)

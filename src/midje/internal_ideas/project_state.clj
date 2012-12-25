@@ -6,6 +6,7 @@
   (:require [midje.util.ecosystem :as ecosystem]
             [midje.util.colorize :as color]
             [midje.config :as config]
+            [midje.ideas.reporting.levels :as levelly]
             midje.util.backwards-compatible-utils))
 
 (ecosystem/when-1-3+
@@ -105,10 +106,12 @@
    (let [namespaces (load-key state-tracker)]
      (when (not (empty? namespaces))
        (println (color/note "\n==========="))
-       (println (color/note "Loading " (pr-str namespaces))))
-     (load-namespace-list! namespaces
-                           (make-dependents-cleaner state-tracker)))
-   state-tracker)
+       (println (color/note "Loading " (pr-str namespaces)))
+       (levelly/forget-past-results)
+       (load-namespace-list! namespaces
+                             (make-dependents-cleaner state-tracker))
+       (levelly/report-summary))
+     state-tracker))
  
  (defn loader-for-affected-files-found-by [project-scanner]
    (fn []
