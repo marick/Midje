@@ -365,7 +365,7 @@
 (def ^{:private true, :testable true}
   autotest-interval (atom 500))
 
-(defmulti autotest
+(defn autotest
   "`autotest` checks frequently for changed files. It reloads those files
   and all files that depend on them. Since test files depend on source files,
   that typically results in facts being reloaded and checked. 
@@ -385,30 +385,25 @@
      (autotest :pause)  ; pause checking
      (autotest :resume) ; continue after a pause
   "
-  (fn [& args]
-    (or ((set args) :stop)
-        ((set args) :pause)
-        ((set args) :resume)
-        (pos? (count args)))))
+  [& args]
+  (let [setargs (set args)]
+    (cond (or (setargs :stop)
+              (setargs :pause))
+          (scheduling/stop :autotest)
+          
+          (setargs :resume)
+          (scheduling/schedule :autotest
+                               project-state/load-changed
+                               @autotest-interval)
+          
+          (pos? (count args))
+          (let [options (apply hash-map args)]
+            (swap! autotest-interval #(or (:each options) %))
+            (println)
+            (project-state/load-everything)
+            (autotest :resume))
+          
+          :else
+          (autotest :each @autotest-interval))))
 
-(defmethod autotest :default []
-  (autotest :each @autotest-interval))
-
-(defmethod autotest true [& args]
-  (let [options (apply hash-map args)]
-    (swap! autotest-interval #(or (:each options) %))
-    (println)
-    (project-state/load-everything)
-    (autotest :resume)))
-
-(defmethod autotest :resume [_]
-  (scheduling/schedule :autotest project-state/load-changed @autotest-interval)
-  true)
-
-(defmethod autotest :stop [_]
-  (scheduling/stop :autotest)
-  true)
-
-(defmethod autotest :pause [_]
-  (autotest :stop))
 )
