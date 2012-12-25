@@ -364,6 +364,8 @@
 
 (def ^{:private true, :testable true}
   autotest-interval (atom 500))
+(def ^{:private true, :testable true}
+  autotest-dirs (atom (project-state/directories)))
 
 (defn autotest
   "`autotest` checks frequently for changed files. It reloads those files
@@ -393,14 +395,14 @@
           
           (setargs :resume)
           (scheduling/schedule :autotest
-                               project-state/load-changed
+                               (project-state/react-to-changes-fn @autotest-dirs)
                                @autotest-interval)
           
           (pos? (count args))
           (let [options (apply hash-map args)]
             (swap! autotest-interval #(or (:each options) %))
             (println)
-            (project-state/load-everything)
+            (project-state/load-everything @autotest-dirs)
             (autotest :resume))
           
           :else

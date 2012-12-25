@@ -538,8 +538,11 @@
   (fact "uses ecosystem tools"
     (with-out-str (autotest :each 10000)) => anything
     (provided
-      (project-state/load-everything) => anything
-      (scheduling/schedule :autotest project-state/load-changed 10000) => anything))
+      (project-state/load-everything @@autotest-dirs) => anything
+      (scheduling/schedule :autotest
+                           (project-state/react-to-changes-fn @@autotest-dirs)
+                           10000)
+      => anything))
 
   (fact "has a memory for default values"
     @@autotest-interval => 10000
@@ -561,8 +564,11 @@
   (fact "can resume"
     (with-out-str (autotest :resume)) => anything
     (provided
-      (project-state/load-everything) => anything :times 0
-      (scheduling/schedule :autotest project-state/load-changed 10000) => anything)))
+      (project-state/load-everything) => anything :times 0 ;; NOT called
+      (scheduling/schedule :autotest
+                           (project-state/react-to-changes-fn @@autotest-dirs)
+                           10000)
+      => anything)))
 
 
                

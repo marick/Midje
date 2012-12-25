@@ -54,39 +54,39 @@
      (latest-modification-time empty-tracker) => 11
      (latest-modification-time tracker-with-changes) => 3333
      
-     (prepare-for-next-check empty-tracker) => (contains {time-key 11, unload-key [], load-key []})
-     (prepare-for-next-check tracker-with-changes) => (contains {time-key 3333, unload-key [], load-key []})))
+     (prepare-for-next-scan empty-tracker) => (contains {time-key 11, unload-key [], load-key []})
+     (prepare-for-next-scan tracker-with-changes) => (contains {time-key 3333, unload-key [], load-key []})))
 
        
  (fact "a dependents cleaner knows how to remove namespaces that depend on a namespace"
    (let [tracker {deps-key {:dependents {..ns1.. [..ns2..]
                                          ..ns2.. []
                                          ..ns3.. []}}}
-         cleaner (make-dependents-cleaner tracker)]
+         cleaner (dependents-cleaner-fn tracker)]
      (cleaner ..ns1.. [..ns2.. ..ns3..]) => [..ns3..]
      (cleaner ..ns2.. [..ns1.. ..ns3..]) => [..ns1.. ..ns3..]))
 
 
  (def cleaner) ; standin for the calculated dependency cleaner
  (fact "A namespace list can be loaded, obeying dependents"
-   (load-namespace-list! [] cleaner) => anything
+   (require-namespaces! [] cleaner) => anything
 
-   (load-namespace-list! [..ns1.. ..ns2..] cleaner) => anything
+   (require-namespaces! [..ns1.. ..ns2..] cleaner) => anything
    (provided
      (require ..ns1.. :reload) => nil
      (require ..ns2.. :reload) => nil)
 
-   (load-namespace-list! [..ns1.. ..ns2..] cleaner) => anything
+   (require-namespaces! [..ns1.. ..ns2..] cleaner) => anything
    (provided
      (require ..ns1.. :reload) => nil
      (require ..ns2.. :reload) => nil)
 
 
    (let [throwable (Error.)]
-     (load-namespace-list! [..ns1.. ..ns2.. ..ns3..] cleaner) => anything
+     (require-namespaces! [..ns1.. ..ns2.. ..ns3..] cleaner) => anything
      (provided
        (require ..ns1.. :reload) =throws=> throwable
-       (show-failure ..ns1.. throwable) => anything
+       (inform-user-of-require-failure ..ns1.. throwable) => anything
        (cleaner ..ns1.. [..ns2.. ..ns3..]) => [..ns3..]
        (require ..ns3.. :reload) => nil))
    )

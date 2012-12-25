@@ -48,21 +48,19 @@
 
  ;; Global state.
 
- (defonce state-tracker (atom (assoc (nstrack/tracker)
-                                     :desired-directories (directories))))
+ (defonce state-tracker (atom (nstrack/tracker)))
 
- ;; What happens when the clock ticks.
- (defn reflect-state-changes [state-tracker project-scanner]
-   (apply project-scanner state-tracker (:desired-directories state-tracker)))
- 
  (defn file-modification-time [file]
    (.lastModified file))
 
+ (defn latest-modification-time [state-tracker]
+   (let [ns-to-file (invert (filemap-key state-tracker))
+         relevant-files (map ns-to-file (load-key state-tracker))]
+     (apply max (time-key state-tracker)
+            (map file-modification-time relevant-files))))
 
 
- ;; This is what happens between the above.
-
- (defn show-failure [the-ns throwable]
+ (defn inform-user-of-require-failure [the-ns throwable]
    (println (color/fail "LOAD FAILURE for " (ns-name the-ns)))
    (println (.getMessage throwable))
    (when (config/running-in-repl?)
@@ -71,56 +69,57 @@
        (set! *e throwable)
        (alter-var-root #'clojure.core/*e (constantly throwable)))))
 
- (defn shorten-ns-list-by-trying-first [[the-ns & remainder] dependents-cleaner]
-   (let [result (try (require the-ns :reload) (catch Throwable t t))]
-     (if (isa? (class result) Throwable)
-       (do (show-failure the-ns result)
-           (dependents-cleaner the-ns remainder))
-       remainder)))
+ (defn require-namespaces! [namespaces clean-dependents]
+   (letfn [(broken-source-file? [the-ns]
+             (try
+               (require the-ns :reload)
+               false
+             (catch Throwable t
+               (inform-user-of-require-failure the-ns t)
+               true)))
 
- (defn load-namespace-list! [namespaces dependents-cleaner]
+           (shorten-ns-list-by-trying-first [[the-ns & remainder]]
+             (if (broken-source-file? the-ns)
+               (clean-dependents the-ns remainder)
+               remainder))]
+
    (loop [namespaces namespaces]
      (when (not (empty? namespaces))
-       (recur (shorten-ns-list-by-trying-first namespaces
-                                               dependents-cleaner)))))
+       (recur (shorten-ns-list-by-trying-first namespaces))))))
 
- (defn make-dependents-cleaner [state-tracker]
+ (defn dependents-cleaner-fn [state-tracker]
    (fn [namespace possible-dependents]
      (let [actual-dependents (set (get-in state-tracker [deps-key :dependents namespace]))]
        (remove actual-dependents possible-dependents))))
 
- (defn latest-modification-time [state-tracker]
-   (let [ns-to-file (invert (filemap-key state-tracker))
-         relevant-files (map ns-to-file (load-key state-tracker))]
-     (apply max (time-key state-tracker)
-            (map file-modification-time relevant-files))))
-
-  ;; What happens in preparation for next tick.
- (defn prepare-for-next-check [state-tracker]
-   (assoc state-tracker time-key (latest-modification-time state-tracker)
-                        unload-key []
-                        load-key []))
-
-
- (defn load-affected-files! [state-tracker]
+ (defn react-to-tracker! [state-tracker]
    (let [namespaces (load-key state-tracker)]
      (when (not (empty? namespaces))
        (println (color/note "\n==========="))
        (println (color/note "Loading " (pr-str namespaces)))
        (levelly/forget-past-results)
-       (load-namespace-list! namespaces
-                             (make-dependents-cleaner state-tracker))
+       (require-namespaces! namespaces
+                            (dependents-cleaner-fn state-tracker))
        (levelly/report-summary))
      state-tracker))
- 
- (defn loader-for-affected-files-found-by [project-scanner]
-   (fn []
-     (swap! state-tracker #(-<> %
-                                (reflect-state-changes <> project-scanner)
-                                load-affected-files!
-                                prepare-for-next-check))))
 
- (def load-everything (loader-for-affected-files-found-by nsdir/scan-all))
- (def load-changed (loader-for-affected-files-found-by nsdir/scan))
+ (defn prepare-for-next-scan [state-tracker]
+   (assoc state-tracker time-key (latest-modification-time state-tracker)
+                        unload-key []
+                        load-key []))
+
+ (defn scan-and-react-fn [dirs scanner]
+   (fn []
+     (swap! state-tracker
+            #(let [new-tracker (apply scanner % dirs)]
+               (react-to-tracker! new-tracker)
+               (prepare-for-next-scan new-tracker)))))
+
+
+ (defn react-to-changes-fn [dirs]
+   (scan-and-react-fn dirs nsdir/scan))
+
+ (defn load-everything [dirs]
+   ((scan-and-react-fn dirs nsdir/scan-all)))
 
 )
