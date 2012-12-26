@@ -1,6 +1,6 @@
 (ns ^{:doc "What we know about the changing project file/namespace tree."}
   midje.internal-ideas.project-state
-  (:use [midje.util.form-utils :only [invert]]
+  (:use [midje.util.form-utils :only [invert separate-by]]
         [swiss-arrows.core :only [-<>]]
         [bultitude.core :only [namespaces-in-dir namespaces-on-classpath]])
   (:require [midje.util.ecosystem :as ecosystem]
@@ -87,11 +87,20 @@
      (when (not (empty? namespaces))
        (recur (shorten-ns-list-by-trying-first namespaces))))))
 
+ ;; TODO: clojure.tools.namespace also finds a transitive closure when it finds
+ ;; the namespaces to reload, but I don't see quite how to hook into that mechanism,
+ ;; so I roll my own.
  (defn mkfn:clean-dependents [state-tracker]
-   (fn [namespace possible-dependents]
-     (let [actual-dependents (set (get-in state-tracker [deps-key :dependents namespace]))]
-       (remove actual-dependents possible-dependents))))
-
+   (fn [failing-namespace other-namespaces]
+     (loop [[root-to-handle & roots-to-handle-later] [failing-namespace]
+            surviving-namespaces other-namespaces]
+       (if (nil? root-to-handle)
+         surviving-namespaces
+         (let [actual-dependent-set (set (get-in state-tracker [deps-key :dependents root-to-handle]))
+               [new-roots unkilled-descendents] (separate-by actual-dependent-set surviving-namespaces)]
+           (recur (concat roots-to-handle-later new-roots)
+                  unkilled-descendents))))))
+         
  (defn react-to-tracker! [state-tracker]
    (let [namespaces (load-key state-tracker)]
      (when (not (empty? namespaces))
