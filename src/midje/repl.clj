@@ -406,6 +406,7 @@
             (autotest :resume))
           
           :else
-          (autotest :each @autotest-interval))))
+          (autotest :each @autotest-interval))
+    true))
 
 )
