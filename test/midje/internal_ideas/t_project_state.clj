@@ -60,11 +60,12 @@
        
  (fact "a dependents cleaner knows how to remove namespaces that depend on a namespace"
    (let [tracker {deps-key {:dependents {..ns1.. [..ns2..]
-                                         ..ns2.. []
+                                         ..ns2.. [..ns3..]
                                          ..ns3.. []}}}
          cleaner (mkfn:clean-dependents tracker)]
-     (cleaner ..ns1.. [..ns2.. ..ns3..]) => [..ns3..]
-     (cleaner ..ns2.. [..ns1.. ..ns3..]) => [..ns1.. ..ns3..]))
+     (cleaner ..ns1.. [..ns2.. ..ns3..]) => empty?
+     (cleaner ..ns2.. [..ns1.. ..ns3..]) => [..ns1..]
+     (cleaner ..ns3.. [..ns1..]) => [..ns1..]))
 
 
  (def cleaner) ; standin for the calculated dependency cleaner
