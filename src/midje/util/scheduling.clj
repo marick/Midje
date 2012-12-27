@@ -5,12 +5,14 @@
 
 (def scheduled-futures (atom {}))
 
-(defn schedule [service-tag function interval]
-  (let [executor (ScheduledThreadPoolExecutor. 1)
-        future (.scheduleWithFixedDelay executor function 0 interval TimeUnit/MILLISECONDS)]
-    (swap! scheduled-futures assoc service-tag future)))
-
 (defn stop [service-tag]
   (.cancel (service-tag @scheduled-futures) true)
   (swap! scheduled-futures dissoc service-tag))
+
+(defn schedule [service-tag function interval]
+  (when (@scheduled-futures service-tag)
+    (stop service-tag))
+  (let [executor (ScheduledThreadPoolExecutor. 1)
+        future (.scheduleWithFixedDelay executor function 0 interval TimeUnit/MILLISECONDS)]
+    (swap! scheduled-futures assoc service-tag future)))
 
