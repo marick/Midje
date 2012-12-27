@@ -52,11 +52,15 @@
 (def ^{:doc 
   "
   Here are Midje repl functions. Use `doc` for more info on each one.
-  To control verbosity of output, use print levels described by
+  To control verbosity of output, use the print levels described by
   `(doc midje-print-levels)`.
   Some functions take filter arguments that narrow down which facts
   within a namespace are acted upon. See the individual doc strings
   for details.
+
+  ----- Autotest
+
+  (autotest)       ; Reload changed files and all their dependents.
 
   ----- Loading facts
   You load facts by namespace.

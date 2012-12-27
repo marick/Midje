@@ -527,36 +527,24 @@
 
 
 (fact "autotest"
-
-  ;; double @s are a side effect of immigrating privates
-  (fact "provides default values"
-    (config/with-augmented-config {:partial-prerequisites true}
-      (autotest) => anything
-      (provided
-        (autotest :each @@autotest-interval) => anything)))
-
-  (fact "uses ecosystem tools"
-    (with-out-str (autotest :each 10000)) => anything
+  (against-background (autotest-interval) => ..interval..
+                      (autotest-dirs) => ..dirs..)
+  (fact "schedules reactions to changes"
+    (autotest) => anything
     (provided
-      (project-state/load-everything @@autotest-dirs) => anything
+      (project-state/load-everything ..dirs..) => anything
       (scheduling/schedule :autotest
-                           (project-state/mkfn:react-to-changes @@autotest-dirs)
-                           10000)
-      => anything))
-
-  (fact "has a memory for default values"
-    @@autotest-interval => 10000
-    (config/with-augmented-config {:partial-prerequisites true}
-      (autotest) => anything
-      (provided
-        (autotest :each @@autotest-interval) => anything)))
+                           (project-state/mkfn:react-to-changes ..dirs..)
+                           ..interval..) => anything))
 
   (fact "can stop autotesting"
     (autotest :stop) => anything
     (provided
       (scheduling/stop :autotest) => anything))
 
-  (fact "can pause (same as stopping)"
+  (fact "can pause"
+    ;; This is the same as stopping, except for the expectation that the
+    ;; next call will be (autotest :resume) rather than ().
     (autotest :pause) => anything
     (provided
       (scheduling/stop :autotest) => anything))
@@ -566,9 +554,19 @@
     (provided
       (project-state/load-everything) => anything :times 0 ;; NOT called
       (scheduling/schedule :autotest
-                           (project-state/mkfn:react-to-changes @@autotest-dirs)
-                           10000)
-      => anything)))
+                           (project-state/mkfn:react-to-changes ..dirs..)
+                           ..interval..)
+      => anything))
+
+  (fact "can be used to set default values"
+    (config/with-augmented-config {:partial-prerequisites true}
+      (autotest :dirs [] :interval 5) => anything
+      (provided
+        (set-autotest-options! {:dirs [] :interval 5}) => anything
+        (autotest) => anything)))
+)
+  
+
 
 
                

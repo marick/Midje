@@ -362,51 +362,76 @@
 
                                 ;;; Autotest
 
-(def ^{:private true, :testable true}
-  autotest-interval (atom 500))
-(def ^{:private true, :testable true}
-  autotest-dirs (atom (project-state/directories)))
+(defonce ^{:private true, :testable true}
+  autotest-options
+  (atom {:interval 500
+         :dirs (project-state/directories)}))
+
+(defn set-autotest-options!
+  "Set autotest options without starting autotesting."
+  [map]
+  (swap! autotest-options merge map))
+
+(defn autotest-interval
+  "How often should autotest check for changed files?"
+  [] (:interval @autotest-options))
+(defn autotest-dirs
+  "Which directories should autotest track for changes?"
+  [] (:dirs @autotest-options))
 
 (defn autotest
   "`autotest` checks frequently for changed files. It reloads those files
   and all files that depend on them. Since test files depend on source files,
   that typically results in facts being reloaded and checked. 
 
-  `autotest` monitors all the files in the project.clj's :source-paths
-  and :test-paths. If you don't have a project.clj file, don't use
-  `autotest`.
+  By default, `autotest` monitors all the files in the
+  project.clj's :source-paths and :test-paths. If you don't have a
+  project.clj file, don't use `autotest`. To change the default, 
+  give the `:dirs` argument:
 
-  `autotest` can be given an :each argument to control how often
+     (autotest :dirs [\"test/midje/util\" \"src/midje/util\"])
+
+  This is useful in large projects. Note that `autotest` doesn't follow
+  dependencies outside the given directories. If `test/midje/util/A`
+  depends on `some-untracked-dir/B` that depends on `src/midje/util/C`,
+  a change to `C` will not cause `A` to be reloaded.
+
+  `autotest` can also be given an `:interval` argument to control how often
   it checks for modified files. The argument is in milliseconds:
 
-      (autotest :each 1000) ; check each second.
+      (autotest :interval 1000) ; check each second.
+
+  The default is to check twice each second.
 
   `autotest` can take special keyword arguments:
 
      (autotest :stop)   ; stop checking
      (autotest :pause)  ; pause checking
      (autotest :resume) ; continue after a pause
+
   "
   [& args]
-  (let [setargs (set args)]
-    (cond (or (setargs :stop)
-              (setargs :pause))
-          (scheduling/stop :autotest)
-          
-          (setargs :resume)
-          (scheduling/schedule :autotest
-                               (project-state/mkfn:react-to-changes @autotest-dirs)
-                               @autotest-interval)
-          
-          (pos? (count args))
-          (let [options (apply hash-map args)]
-            (swap! autotest-interval #(or (:each options) %))
-            (println)
-            (project-state/load-everything @autotest-dirs)
-            (autotest :resume))
-          
-          :else
-          (autotest :each @autotest-interval))
+  (letfn [(start-periodic-check []
+            (scheduling/schedule :autotest
+                                 (project-state/mkfn:react-to-changes (autotest-dirs))
+                                 (autotest-interval)))]
+    (let [setargs (set args)]
+      (cond (or (setargs :stop)
+                (setargs :pause))
+            (scheduling/stop :autotest)
+            
+            (setargs :resume)
+            (start-periodic-check)
+
+            (pos? (count args))
+            (do
+              (set-autotest-options! (apply hash-map args))
+              (autotest))
+            
+            :else
+            (do
+              (project-state/load-everything (autotest-dirs))
+              (start-periodic-check))))
     true))
 
 )
