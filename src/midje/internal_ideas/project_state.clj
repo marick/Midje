@@ -49,6 +49,11 @@
  ;; Global state.
 
  (defonce state-tracker (atom (nstrack/tracker)))
+ (def respond-to-require-failure (fn [& args]))
+
+ (defmacro on-require-failure [args & forms]
+   `(alter-var-root ~#'respond-to-require-failure
+                    (constantly (fn ~args ~@forms))))
 
  (defn file-modification-time [file]
    (.lastModified file))
@@ -60,22 +65,13 @@
             (map file-modification-time relevant-files))))
 
 
- (defn inform-user-of-require-failure [the-ns throwable]
-   (println (color/fail "LOAD FAILURE for " (ns-name the-ns)))
-   (println (.getMessage throwable))
-   (when (config/running-in-repl?)
-     (println "The exception has been stored in #'*e, so `pst` will show the stack trace.")
-     (if (thread-bound? #'*e)
-       (set! *e throwable)
-       (alter-var-root #'clojure.core/*e (constantly throwable)))))
-
  (defn require-namespaces! [namespaces clean-dependents]
    (letfn [(broken-source-file? [the-ns]
              (try
                (require the-ns :reload)
                false
              (catch Throwable t
-               (inform-user-of-require-failure the-ns t)
+               (respond-to-require-failure the-ns t)
                true)))
 
            (shorten-ns-list-by-trying-first [[the-ns & remainder]]

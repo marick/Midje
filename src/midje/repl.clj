@@ -362,6 +362,16 @@
 
                                 ;;; Autotest
 
+(defonce ^{:doc "Stores last exception encountered in autotesting"}
+  *me nil)
+
+(project-state/on-require-failure [the-ns throwable]
+  (println (color/fail "LOAD FAILURE for " (ns-name the-ns)))
+  (println (.getMessage throwable))
+  (when (config/running-in-repl?)
+    (println "The exception has been stored in #'*me, so `(pst *me)` will show the stack trace.")
+    (alter-var-root #'*me (constantly throwable))))
+
 (defonce ^{:private true, :testable true}
   autotest-options
   (atom {:interval 500
@@ -378,6 +388,8 @@
 (defn autotest-dirs
   "Which directories should autotest track for changes?"
   [] (:dirs @autotest-options))
+
+
 
 (defn autotest
   "`autotest` checks frequently for changed files. It reloads those files
