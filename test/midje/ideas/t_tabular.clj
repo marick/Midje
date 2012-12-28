@@ -270,3 +270,29 @@
       a    b   result
       2    4   999     )  ;; PURPOSELY FAIL
   (fact @reported => (one-of (contains {:description ["add stuff" nil]} ))))
+
+
+;;; Bug fixes
+
+(unfinished g)
+
+(defn f [arg] (g arg))
+
+(def before-fact (atom 0))
+(def before-check (atom 0))
+
+(against-background [(g "OK3") => 3
+                     (before :facts (swap! before-fact inc))
+                     (before :checks (swap! before-check inc))]
+  (tabular
+    (fact
+      (f ?foo) => 3
+      (f ?foo) => 3)
+    ?foo
+    "OK3"))
+
+(fact
+  @before-fact => 1
+  @before-check => 2)
+
+

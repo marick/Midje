@@ -51,13 +51,23 @@
   ;;
   ;; It is the <letfn-body> that must be searched for expect forms,
   ;; which then have annotations added to them.
-  (letfn [(acceptable-body? []
-            (and (sequential? checking-fact-form)
-                 (symbol? (first checking-fact-form))
-                 (= (name (first checking-fact-form)) "creation-time-check")))
+  (letfn [(headed-by? [form string]
+            (and (sequential? form)
+                 (symbol? (first form))
+                 (= (name (first form)) string)))
+
+          (acceptable-body? []
+            (headed-by? checking-fact-form "creation-time-check"))
 
           (target-body []
-            (-> checking-fact-form second second first rest second))
+            ;; This is horrible. `tabular` can be wrapped around two different
+            ;; trees, depending on whether there's a wrapping `against-background`.
+            ;; This handles that. I am ashamed of the losingness that is against-background. 
+            (let [possible-letfn (second checking-fact-form)
+                  definite-letfn (if (headed-by? possible-letfn "letfn")
+                                   possible-letfn
+                                   (second possible-letfn))]
+            (-> definite-letfn second first rest second)))
 
           (translate-letfn-body [expect-containing-form]
            (translate-zipper expect-containing-form
