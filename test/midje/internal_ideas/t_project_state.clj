@@ -69,6 +69,11 @@
 
 
  (def cleaner) ; standin for the calculated dependency cleaner
+ (def failure-record (atom {}))
+ (on-require-failure [ns throwable]
+   (swap! failure-record (constantly {:ns ns, :throwable throwable})))
+ 
+
  (fact "A namespace list can be loaded, obeying dependents"
    (require-namespaces! [] cleaner) => anything
 
@@ -82,14 +87,14 @@
      (require ..ns1.. :reload) => nil
      (require ..ns2.. :reload) => nil)
 
+   
 
    (let [throwable (Error.)]
      (require-namespaces! [..ns1.. ..ns2.. ..ns3..] cleaner) => anything
      (provided
        (require ..ns1.. :reload) =throws=> throwable
-       (inform-user-of-require-failure ..ns1.. throwable) => anything
        (cleaner ..ns1.. [..ns2.. ..ns3..]) => [..ns3..]
-       (require ..ns3.. :reload) => nil))
-   )
+       (require ..ns3.. :reload) => nil)
+     @failure-record => {:ns ..ns1.. :throwable throwable}))
 
  )
