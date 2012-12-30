@@ -3,6 +3,7 @@
   midje.repl
   (:use clojure.pprint)
   (:require midje.sweet
+            [clojure.set :as set]
             [midje.doc :as doc]
             [midje.config :as config]
             [midje.ideas.facts :as fact]
@@ -168,12 +169,28 @@
 
                                 ;;; Loading facts from the repl
 
+;; Loading does not use (require ns :reload). The reason is that :all includes
+;; both :test and :source namespaces. If :reload were used, source namespaces
+;; would be loaded twice: once indirectly via the tests, and once directly.
+;; Instead, we hackishly make Clojure forget that it's loaded certain namespaces.
+;; We then load namespaces only if they haven't been loaded before. That will
+;; typically mean that source namespace won't be loaded. (Note that this depends
+;; on test namespaces preceding source namespaces.)
+
+(defn- forget-certain-namespaces! [namespaces]
+  (dosync (alter @#'clojure.core/*loaded-libs* set/difference (set namespaces))))
+
+(defn- unloaded? [ns]
+  (not (contains? @@#'clojure.core/*loaded-libs* ns)))
+
+
 (def-obedient-function :disk-command load-facts and-update-defaults!
   (fn [intention]
     (config/with-augmented-config {:print-level (:print-level intention)
                                    :desired-fact? (:filter-function intention)}
       (levelly/forget-past-results)
-      (doseq [ns (:namespaces-to-use intention)]
+      (forget-certain-namespaces! (:namespaces-to-use intention))
+      (doseq [ns (:namespaces-to-use intention) :when (unloaded? ns)]
         (compendium/remove-namespace-facts-from! ns)
         ;; Following strictly unnecessary, but slightly useful because
         ;; it reports the changed namespace before the first fact loads.
