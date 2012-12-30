@@ -23,12 +23,19 @@
  (defn directories []
    (try
      (let [project (project/read)]
+       ;; Note that order is important here; see below.
        (concat (:test-paths project) (:source-paths project)))
      (catch java.io.FileNotFoundException e
        ["test"])))
 
  (defn namespaces []
    (mapcat namespaces-in-dir (directories)))
+
+ ;; For some purposes, it matters that the :tests files
+ ;; come before the :sources files. That happens to always be
+ ;; true, but the names below emphasize it.
+ (def directories-test-first directories)
+ (def namespaces-test-first namespaces)
 
  (defn unglob-partial-namespaces [namespaces]
    (mapcat #(if (= \* (last %))
