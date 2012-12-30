@@ -3,13 +3,14 @@
   (:require [midje.config :as config]))
 
 (fact "changing defaults"
-  (let [stashed-config config/*config*]
+  (let [stashed-config config/*config*
+        original-print-level (config/choice :print-level)]
     (try
-      (config/choice :print-level) =not=> :print-nothing
+      original-print-level =not=> :print-nothing
       (config/with-augmented-config {:print-level :print-facts}
         ;; emphasizes that changes override the root binding
         (config/change-defaults :print-level :print-nothing))
-      (config/choice :print-level) => :print-nothing
+      (config/choice :print-level) => original-print-level
     (finally
      (config/merge-permanently! stashed-config)))))
 
