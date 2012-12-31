@@ -152,7 +152,6 @@
                                        (format " %d claim was not confirmed." (:fail result)))
                                 (str (color/fail "FAILURE:")
                                      (format " %d claims were not confirmed." (:fail result))))
-        
         potential-consolation (condp = (:pass result)
                                 0 ""
                                 1 "(But 1 was.)"
@@ -169,13 +168,19 @@
     (print-something-actually-happened-summary-results result)
     (print-nothing-was-tried-summary-results)))
 
+(def ^{:private true} previous-failure-count-atom (atom 0))
+
+(defn previous-failure-count []
+  @previous-failure-count-atom)
 
 (defn report-strings-summary
   ([midje-result clojure-test-result]
      (when (pos? (:test-count clojure-test-result))
-       (print-clojure-test-result-lines clojure-test-result)
+       (print-clojure-test-result-lines clojure-test-result) 
        (print-clojure-test-summary-lines clojure-test-result)
        (println (color/note ">>> Midje summary:")))
+     (reset! previous-failure-count-atom (+ (:fail midje-result)
+                                           (or (:fail-count clojure-test-result) 0)))
      (print-midje-summary-line midje-result))
   ([midje-result]
      (report-strings-summary midje-result {:test-count 0})))

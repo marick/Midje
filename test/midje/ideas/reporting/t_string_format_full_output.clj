@@ -1,6 +1,7 @@
 (ns midje.ideas.reporting.t-string-format-full-output
   (:use midje.ideas.reporting.report
-        [midje sweet test-util]))
+        [midje sweet test-util])
+  (:require [midje.ideas.reporting.string-format :as kludge]))
 
 ;; These tests generate failures to examine. We don't want them to be
 ;; added to the total failure count, which should always be zero.
@@ -73,5 +74,23 @@
     output => #"Actual result:\s+5"
     output => #"Checking function:\s+\(every-checker even\? \(throws \"message\"\)\)"
     output => #"even\? => false"))
+
+(facts "about recording error counts"
+  (kludge/previous-failure-count) => 0
+
+  (with-out-str (kludge/report-strings-summary {:fail 1, :pass 12}))
+  (kludge/previous-failure-count) => 1
+
+  (with-out-str (kludge/report-strings-summary {:fail 0, :pass 0}))
+  (kludge/previous-failure-count) => 0
+
+  (with-out-str (kludge/report-strings-summary {:fail 1, :pass 12} {:test-count 0 :fail-count 0}))
+  (kludge/previous-failure-count) => 1
+
+  (with-out-str (kludge/report-strings-summary {:fail 12, :pass 12} {:test-count 0}))
+  (kludge/previous-failure-count) => 12
+
+  (with-out-str (kludge/report-strings-summary {:fail 1, :pass 12} {:test-count 3 :fail-count 3}))
+  (kludge/previous-failure-count) => 4)
 
 )  ; end without-changing-cumulative-totals
