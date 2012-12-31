@@ -123,9 +123,6 @@
        :filter-function filter-function})))
 
 
-(defmulti deduce-user-intention
-  "This has to be public because multimethods are second-class."
-  (fn [_ namespace-source] namespace-source))
 
 ;;; The namespaces in the command arguments affect three different keys:
 ;;; :given-namespace-args holds the literal values originally given.
@@ -134,14 +131,16 @@
 ;;; defaults, which will be either :memory-command or both :memory-command
 ;;; and :disk-command. (Remember, those two keys are both arguments to 
 ;;; choose code to run and the name of remembered values.)
-  
-(defmethod deduce-user-intention :memory-command [original-args _]
+
+;;; These aren't multimethods because multimethods play poorly with
+;;; private status and the reloading that lein-midje does.
+(defn- deduce-user-intention-for-memory-command [original-args]
   (let [base (defaulting-args original-args :memory-command)]
     (merge base
            {:namespaces-to-use (:given-namespace-args base)
             :memory-command (:given-namespace-args base)})))
 
-(defmethod deduce-user-intention :disk-command [original-args _]
+(defn- deduce-user-intention-for-disk-command [original-args]
   (let [base (defaulting-args original-args :disk-command)]
     (merge base
            {:disk-command (:given-namespace-args base)}
@@ -151,6 +150,11 @@
              (let [expanded (project-state/unglob-partial-namespaces (:given-namespace-args base))]
                {:namespaces-to-use expanded
                 :memory-command expanded})))))
+
+(defn- ^{:testable true} deduce-user-intention [true-args namespace-source]
+  (if (= namespace-source :memory-command)
+    (deduce-user-intention-for-memory-command true-args)
+    (deduce-user-intention-for-disk-command true-args)))
 
 ;;; A DSLish way of defining intention-obeying functions.
 
