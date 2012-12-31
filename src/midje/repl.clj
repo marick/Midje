@@ -9,6 +9,8 @@
             [midje.clojure-test-facade :as ctf]
             [midje.ideas.facts :as fact]
             [midje.ideas.reporting.levels :as levelly]
+            ;; This is so gross. The reporting stuff needs to be fixed.
+            [midje.ideas.reporting.string-format :as string-format]
             [midje.ideas.metadata :as metadata]
             [midje.internal-ideas.compendium :as compendium]
             [midje.internal-ideas.project-state :as project-state]
@@ -204,8 +206,8 @@
           ;; come from the last-loaded namespace.
           (levelly/report-changed-namespace ns)
           (require ns :reload))
-        (levelly/report-summary (ctf/run-clojure-test namespaces)))
-      nil))
+        (levelly/report-summary (ctf/run-clojure-test namespaces))
+        (string-format/previous-failure-count))))
   "Load given namespaces, as in:
      (load-facts 'midje.t-sweet 'midje.t-repl)
 
