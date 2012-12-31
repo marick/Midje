@@ -21,7 +21,7 @@
   :profiles {:dev {:dependencies [[slamhound "1.2.0"]
                                   [jonase/kibit "0.0.3"]
                                   [jonase/eastwood "0.0.2"]]
-                   :plugins [[lein-midje "2.0.3"]]}
+                   :plugins [[lein-midje "3.0-alpha1"]]}
              :1.2.0 {:dependencies [[org.clojure/clojure "1.2.0"]]}
              :1.2.1 {:dependencies [[org.clojure/clojure "1.2.1"]]}
              :1.3 {:dependencies [[org.clojure/clojure "1.3.0"]]}
