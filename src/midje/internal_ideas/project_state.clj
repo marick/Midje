@@ -7,6 +7,7 @@
             [midje.util.colorize :as color]
             [midje.config :as config]
             [midje.ideas.reporting.levels :as levelly]
+            [midje.clojure-test-facade :as ctf]
             midje.util.backwards-compatible-utils))
 
 (ecosystem/when-1-3+
@@ -112,8 +113,9 @@
        (levelly/forget-past-results)
        (require-namespaces! namespaces
                             (mkfn:clean-dependents state-tracker))
-       (levelly/report-summary))
-     state-tracker))
+       (levelly/report-summary (ctf/run-clojure-test namespaces))
+))
+     state-tracker)
 
  (defn prepare-for-next-scan [state-tracker]
    (assoc state-tracker time-key (latest-modification-time state-tracker)

@@ -54,3 +54,12 @@
         {:test-count (:test ct-result)
          :fail-count (+ (:fail ct-result) (:error ct-result))
          :lines (-> ct/*test-out* .toString str/split-lines)}))))
+
+(defn run-clojure-test [namespaces]
+  (let [output-catcher (java.io.StringWriter.)
+        ct-result (binding [clojure.test/*test-out* output-catcher]
+                             (apply clojure.test/run-tests namespaces))]
+    {:test-count (:test ct-result)
+     :fail-count (+ (:fail ct-result) (:error ct-result))
+     :lines (-> output-catcher .toString str/split-lines)}))
+

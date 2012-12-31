@@ -133,14 +133,6 @@
 
 ;;; Formatting Summary of Facts
 
-(defn run-clojure-test [namespaces]
-  (let [output-catcher (java.io.StringWriter.)
-        ct-result (binding [clojure.test/*test-out* output-catcher]
-                             (apply clojure.test/run-tests namespaces))]
-    {:test-count (:test ct-result)
-     :fail-count (+ (:fail ct-result) (:error ct-result))
-     :lines (-> output-catcher .toString str/split-lines)}))
-
 (defn print-clojure-test-result-lines [result]
   (when (pos? (:fail-count result))
     (println (color/note ">>> Output from clojure.test tests:"))

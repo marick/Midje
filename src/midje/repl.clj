@@ -6,6 +6,7 @@
             [clojure.set :as set]
             [midje.doc :as doc]
             [midje.config :as config]
+            [midje.clojure-test-facade :as ctf]
             [midje.ideas.facts :as fact]
             [midje.ideas.reporting.levels :as levelly]
             [midje.ideas.metadata :as metadata]
@@ -189,16 +190,17 @@
     (config/with-augmented-config {:print-level (:print-level intention)
                                    :desired-fact? (:filter-function intention)}
       (levelly/forget-past-results)
-      (forget-certain-namespaces! (:namespaces-to-use intention))
-      (doseq [ns (:namespaces-to-use intention) :when (unloaded? ns)]
-        (compendium/remove-namespace-facts-from! ns)
-        ;; Following strictly unnecessary, but slightly useful because
-        ;; it reports the changed namespace before the first fact loads.
-        ;; That way, some error in the fresh namespace won't appear to
-        ;; come from the last-loaded namespace.
-        (levelly/report-changed-namespace ns)
-        (require ns :reload))
-      (levelly/report-summary)
+      (let [namespaces (:namespaces-to-use intention)]
+        (forget-certain-namespaces! namespaces)
+        (doseq [ns namespaces :when (unloaded? ns)]
+          (compendium/remove-namespace-facts-from! ns)
+          ;; Following strictly unnecessary, but slightly useful because
+          ;; it reports the changed namespace before the first fact loads.
+          ;; That way, some error in the fresh namespace won't appear to
+          ;; come from the last-loaded namespace.
+          (levelly/report-changed-namespace ns)
+          (require ns :reload))
+        (levelly/report-summary (ctf/run-clojure-test namespaces)))
       nil))
   "Load given namespaces, as in:
      (load-facts 'midje.t-sweet 'midje.t-repl)

@@ -41,9 +41,13 @@
                                         [(metadata/fact-file fact-function)
                                          (metadata/fact-line fact-function)]))))))))
 
-(defn report-summary []
-  (when (above? :print-no-summary)
-    (report-strings-summary (ctf/counters))))
+(defn report-summary
+  ([]
+     (when (above? :print-no-summary)
+       (report-strings-summary (ctf/counters))))
+  ([clojure-test-results]
+     (when (above? :print-no-summary)
+       (report-strings-summary (ctf/counters) clojure-test-results))))
 
 (def last-namespace-shown (atom nil))
 
