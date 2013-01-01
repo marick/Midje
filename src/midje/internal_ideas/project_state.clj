@@ -108,7 +108,7 @@
  (defn react-to-tracker! [state-tracker]
    (let [namespaces (load-key state-tracker)]
      (when (not (empty? namespaces))
-       (println (color/note "\n==========="))
+       (println (color/note "\n======================================================================"))
        (println (color/note "Loading " (pr-str namespaces)))
        (levelly/forget-past-results)
        (require-namespaces! namespaces
