@@ -3,7 +3,7 @@
   (:use [midje.util.form-utils :only [invert separate-by]]
         [swiss-arrows.core :only [-<>]]
         [bultitude.core :only [namespaces-in-dir namespaces-on-classpath]])
-  (:require [midje.internal-ideas.boundaries :as boundaries]
+  (:require [midje.internal-ideas.emission-boundaries :as emission-boundary]
             [midje.util.ecosystem :as ecosystem]
             [midje.util.colorize :as color]
             [midje.config :as config]
@@ -109,7 +109,7 @@
  (defn react-to-tracker! [state-tracker]
    (let [namespaces (load-key state-tracker)]
      (when (not (empty? namespaces))
-       (boundaries/within-namespace-stream namespaces config/no-overrides
+       (emission-boundary/around-namespace-stream namespaces config/no-overrides
          (println (color/note "\n======================================================================"))
          (println (color/note "Loading " (pr-str namespaces)))
          (require-namespaces! namespaces

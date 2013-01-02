@@ -12,7 +12,7 @@
             [midje.ideas.metadata :as metadata]
             [midje.internal-ideas.compendium :as compendium]
             [midje.internal-ideas.project-state :as project-state]
-            [midje.internal-ideas.boundaries :as boundaries]
+            [midje.internal-ideas.emission-boundaries :as emission-boundary]
             [midje.util.form-utils :as form]
             [midje.util.colorize :as color]
             [midje.util.ecosystem :as ecosystem]
@@ -193,9 +193,9 @@
 (def-obedient-function :disk-command load-facts and-update-defaults!
   (fn [intention]
     (let [namespaces (:namespaces-to-use intention)]
-      (boundaries/within-namespace-stream namespaces
-                                          {:print-level (:print-level intention)
-                                           :desired-fact? (:filter-function intention)}
+      (emission-boundary/around-namespace-stream namespaces
+                                                 {:print-level (:print-level intention)
+                                                  :desired-fact? (:filter-function intention)}
         (forget-certain-namespaces! namespaces)
         (doseq [ns namespaces :when (unloaded? ns)]
           (compendium/remove-namespace-facts-from! ns)
@@ -316,7 +316,7 @@
   check-one-fact fact/check-one)
 
 (defn- ^{:testable true} check-facts-once-given [fact-functions]
-  (boundaries/within-fact-function-stream fact-functions config/no-overrides
+  (emission-boundary/around-fact-function-stream fact-functions config/no-overrides
     (doseq [f fact-functions] (check-one-fact f))))
 
 
