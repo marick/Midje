@@ -3,7 +3,8 @@
   (:use [midje.util.form-utils :only [invert separate-by]]
         [swiss-arrows.core :only [-<>]]
         [bultitude.core :only [namespaces-in-dir namespaces-on-classpath]])
-  (:require [midje.util.ecosystem :as ecosystem]
+  (:require [midje.internal-ideas.boundaries :as boundaries]
+            [midje.util.ecosystem :as ecosystem]
             [midje.util.colorize :as color]
             [midje.config :as config]
             [midje.ideas.reporting.levels :as levelly]
@@ -108,14 +109,11 @@
  (defn react-to-tracker! [state-tracker]
    (let [namespaces (load-key state-tracker)]
      (when (not (empty? namespaces))
-       (println (color/note "\n======================================================================"))
-       (println (color/note "Loading " (pr-str namespaces)))
-       (levelly/forget-past-results)
-       (require-namespaces! namespaces
-                            (mkfn:clean-dependents state-tracker))
-       (levelly/report-summary (ctf/run-clojure-test namespaces))
-))
-     state-tracker)
+       (boundaries/within-namespace-stream namespaces config/no-overrides
+         (println (color/note "\n======================================================================"))
+         (println (color/note "Loading " (pr-str namespaces)))
+         (require-namespaces! namespaces
+                              (mkfn:clean-dependents state-tracker))))))
 
  (defn prepare-for-next-scan [state-tracker]
    (assoc state-tracker time-key (latest-modification-time state-tracker)

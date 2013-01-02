@@ -83,3 +83,5 @@
   (load-file ecosystem/project-config-file-name))
 
 
+;; Convenience
+(def no-overrides {})

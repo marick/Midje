@@ -9,11 +9,10 @@
             [midje.clojure-test-facade :as ctf]
             [midje.ideas.facts :as fact]
             [midje.ideas.reporting.levels :as levelly]
-            ;; This is so gross. The reporting stuff needs to be fixed.
-            [midje.ideas.reporting.string-format :as string-format]
             [midje.ideas.metadata :as metadata]
             [midje.internal-ideas.compendium :as compendium]
             [midje.internal-ideas.project-state :as project-state]
+            [midje.internal-ideas.boundaries :as boundaries]
             [midje.util.form-utils :as form]
             [midje.util.colorize :as color]
             [midje.util.ecosystem :as ecosystem]
@@ -193,10 +192,10 @@
 
 (def-obedient-function :disk-command load-facts and-update-defaults!
   (fn [intention]
-    (config/with-augmented-config {:print-level (:print-level intention)
-                                   :desired-fact? (:filter-function intention)}
-      (levelly/forget-past-results)
-      (let [namespaces (:namespaces-to-use intention)]
+    (let [namespaces (:namespaces-to-use intention)]
+      (boundaries/within-namespace-stream namespaces
+                                          {:print-level (:print-level intention)
+                                           :desired-fact? (:filter-function intention)}
         (forget-certain-namespaces! namespaces)
         (doseq [ns namespaces :when (unloaded? ns)]
           (compendium/remove-namespace-facts-from! ns)
@@ -205,9 +204,7 @@
           ;; That way, some error in the fresh namespace won't appear to
           ;; come from the last-loaded namespace.
           (levelly/report-changed-namespace ns)
-          (require ns :reload))
-        (levelly/report-summary (ctf/run-clojure-test namespaces))
-        (string-format/previous-failure-count))))
+          (require ns :reload)))))
   "Load given namespaces, as in:
      (load-facts 'midje.t-sweet 'midje.t-repl)
 
@@ -319,12 +316,9 @@
   check-one-fact fact/check-one)
 
 (defn- ^{:testable true} check-facts-once-given [fact-functions]
-  (levelly/forget-past-results)
-  (let [results (doall (map check-one-fact fact-functions))]
-    (levelly/report-summary)
-    (if (empty? results)
-      nil
-      (every? true? results))))
+  (boundaries/within-fact-function-stream fact-functions config/no-overrides
+    (doseq [f fact-functions] (check-one-fact f))))
+
 
 (def-obedient-function :memory-command check-facts and-update-defaults!
   (fn [intention]
