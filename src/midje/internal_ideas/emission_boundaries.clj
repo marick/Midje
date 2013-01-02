@@ -47,3 +47,9 @@
 
 (defmacro around-check [& body]
   `(do ~@body))
+
+(defmacro around-formula [& body]
+  `(try ~@body
+        (finally (midje.sweet/fact
+                  :ignored midje.sweet/=> :ignored 
+                  :formula :formula-conclude))))
