@@ -5,10 +5,31 @@
         [midje.test-util]
         midje.util)
   (:require [clojure.zip :as zip]
-            [midje.config :as config]))
+            [midje.config :as config]
+            [midje.internal-ideas.emissions :as emit]))
 (expose-testables midje.semi-sweet)
  
 (unfinished faked-function mocked-function other-function)
+
+
+;;;
+
+(tabular "emit/pass can be called"
+  (fact
+    ?expect-call => anything
+    (provided
+      (emit/pass) => anything))
+  ?expect-call
+  (expect 1 => 1)
+  (expect 2 =not=> 1)
+  (expect 1 => odd?))
+
+
+
+
+
+
+;;; RE-EXAMINE THE USEFULNESS OF THESE TESTS
 
 (defchecker odd-checker
   [actual]

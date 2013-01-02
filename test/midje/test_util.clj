@@ -13,7 +13,8 @@
 (def reported (atom []))
 
 (defn run-without-reporting [f] 
-  (binding [report (fn [report-map#] (swap! reported conj report-map#))]
+  (binding [report (fn [report-map#] (swap! reported conj report-map#))
+            ctf/report (fn [report-map#] (swap! reported conj report-map#))]
     (reset! reported [])
     (f)))
 

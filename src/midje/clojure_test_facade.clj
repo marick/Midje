@@ -63,3 +63,4 @@
      :fail-count (+ (:fail ct-result) (:error ct-result))
      :lines (-> output-catcher .toString str/split-lines)}))
 
+(def ^{:dynamic true} report ct/report)

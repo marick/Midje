@@ -30,6 +30,7 @@
   (:require [midje.internal-ideas.compendium :as compendium]
             [midje.ideas.reporting.levels :as levelly]
             [midje.internal-ideas.fact-context :as fact-context]
+            [midje.internal-ideas.emission-boundaries :as emission-boundary]
             [midje.ideas.metadata :as metadata]
             [midje.config :as config]
             midje.ideas.reporting.report))
@@ -196,34 +197,29 @@
 ;;; Fact execution utilities
 
 (defn check-one [fact-function]
-  (letfn [(check-fact-in-context []
-            (levelly/report-checking-fact fact-function)
-            (fact-context/adds (metadata/fact-description fact-function)
-                               (fact-function)))]
-
-    (let [top-level? (:midje/top-level-fact? (meta fact-function))
-          fact-creation-filter (config/choice :desired-fact?)]
-      (cond (not (fact-creation-filter fact-function))
-            (str "This fact was ignored because of the current configuration. "
-                 "Only facts matching "
-                 (vec (map #(if (fn? %) "<some function>" %) 
-                           (:created-from (meta fact-creation-filter))))
-                 " will be created.")
+  (let [top-level? (:midje/top-level-fact? (meta fact-function))
+        fact-creation-filter (config/choice :desired-fact?)]
+    (cond (not (fact-creation-filter fact-function))
+          (str "This fact was ignored because of the current configuration. "
+               "Only facts matching "
+               (vec (map #(if (fn? %) "<some function>" %) 
+                         (:created-from (meta fact-creation-filter))))
+               " will be created.")
             
-            (not top-level?)
-            (check-fact-in-context)
+          (not top-level?)
+          (emission-boundary/around-fact-function fact-function
+            (fact-function))
 
-            :else-top-level-fact-to-check
-            (do
-              ;; The fact is recorded on entry so that if a fact is
-              ;; rechecked inside the midje.t-repl tests, the rechecked
-              ;; fact stays the last-fact-checked (because it overwrites
-              ;; the fact that's testing it).
-              (compendium/record-fact-check! fact-function)
-              (#'midje.ideas.reporting.report/fact-begins)
-              (levelly/report-changed-namespace (metadata/fact-namespace fact-function))
-              (check-fact-in-context)
-              (#'midje.ideas.reporting.report/fact-checks-out?))))))
+          :else-top-level-fact-to-check
+          (emission-boundary/around-top-level-fact-function fact-function {}
+            ;; The fact is recorded on entry so that if a fact is
+            ;; rechecked inside the midje.t-repl tests, the rechecked
+            ;; fact stays the last-fact-checked (because it overwrites
+            ;; the fact that's testing it).
+            (compendium/record-fact-check! fact-function)
+            (emission-boundary/around-fact-function fact-function
+              (fact-function))))))
+                                                              
 
 
 ;; It's kind of annoying that the entire expansion is created, evaluated, 

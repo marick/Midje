@@ -10,7 +10,9 @@
         midje.util.laziness
         [midje.util.namespace :only [immigrate]]
         [midje.util.ecosystem :only [line-separator]]
-        [utilize.seq :only [find-first]]))
+        [utilize.seq :only [find-first]])
+  (:require [midje.internal-ideas.emission-boundaries :as emission-boundary]
+            [midje.internal-ideas.emissions :as emit]))
 (immigrate 'midje.checkers)
 
 
@@ -43,7 +45,8 @@
 
   (check-result-positive [report-fn actual call]
     (cond  (extended-= actual (:expected-result call))
-           (report-fn {:type :pass})
+           (emit/pass)
+
 
            (fn? (:expected-result call))
            (report-fn (merge (fail :mock-expected-result-functional-failure
@@ -61,13 +64,13 @@
   
   (check-result-negated [report-fn actual call]
     (cond (not (extended-= actual (:expected-result call)))
-      (report-fn {:type :pass})
+          (emit/pass)
 
-      (fn? (:expected-result call))
-      (report-fn (fail :mock-actual-inappropriately-matches-checker actual call))
+          (fn? (:expected-result call))
+          (report-fn (fail :mock-actual-inappropriately-matches-checker actual call))
 
-      :else
-      (report-fn (fail :mock-expected-result-inappropriately-matched actual call))))]
+          :else
+          (report-fn (fail :mock-expected-result-inappropriately-matched actual call))))]
 
 
   (defmulti ^{:private true} check-result (fn [_actual_ call]
@@ -103,11 +106,12 @@
   http://github.com/marick/Midje."
   [unprocessed-check local-fakes]
   (with-installed-fakes (concat (reverse (filter :data-fake (background-fakes))) local-fakes)
-    (let [code-under-test-result (try
-                                   (eagerly
-                                     ((:function-under-test unprocessed-check)))
-                                  (catch Throwable ex
-                                    (captured-throwable ex)))]
-      (report-incorrect-call-counts local-fakes)
-      (check-result code-under-test-result unprocessed-check)
-      :irrelevant-return-value)))
+    (emission-boundary/around-check 
+      (let [code-under-test-result (try  
+                                     (eagerly
+                                      ((:function-under-test unprocessed-check)))
+                                     (catch Throwable ex
+                                       (captured-throwable ex)))]
+        (report-incorrect-call-counts local-fakes)
+        (check-result code-under-test-result unprocessed-check)
+        :irrelevant-return-value))))

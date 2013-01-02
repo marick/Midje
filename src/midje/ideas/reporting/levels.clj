@@ -57,8 +57,3 @@
     (println (color/note (str "= Namespace " namespace)))
     (swap! last-namespace-shown (constantly namespace))))
 
-(defn forget-past-results []
-    (ctf/zero-counters)
-    (reset! last-namespace-shown nil))
-
-
