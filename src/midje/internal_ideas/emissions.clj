@@ -18,7 +18,16 @@
   (ctf/zero-counters)
   (reset! levelly/last-namespace-shown nil))
 
-(defn pass []
-  (swap! counters (merge-with + {:midje-passes 1}))
-  (ctf/report {:type :pass}))
+
+
+(def ^{:dynamic true} emission-map
+  {:pass (fn []
+           (swap! counters (merge-with + {:midje-passes 1}))
+           (ctf/report {:type :pass}))})
+           
+
+(defmacro make [symbol]
+  `(defn ~symbol [& args#]
+     (apply (~(keyword symbol) emission-map) args#)))
   
+(make pass)
