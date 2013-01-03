@@ -335,14 +335,17 @@
   (def should-be-true-because-of-lower-levels
     (fact "an outer level fact is true if lower level facts are"
       (fact (+ 1 3) => 4)
-      (fact (- 1 3) => -2)))
+      (fact (- 1 3) => -2)
+      "some randome return value"))
 
   (def should-be-false-because-of-lower-level
     (fact "an outer level fact is false if any lower level facts are"
       (fact
-        (fact (inc 1) => 1))
-      (fact (inc 1) => 2)))
-  ))
+        (fact (inc 1) => 1)
+        "some random return value")
+      (fact (inc 1) => 2)
+      "some randome return value")
+  )))
 
 (fact
   should-be-true-because-of-fact-success => true
@@ -350,7 +353,19 @@
   should-be-true-despite-previous-failue => true
   should-be-true-because-of-lower-levels => true
   should-be-false-because-of-lower-level => false)
-  
+
+
+(def inners [])
+
+
+(without-externally-visible-changes
+ (fact "inner fact functions also return true or false"
+   (alter-var-root #'inners conj (fact 1 => 1 "ignored value"))
+   (alter-var-root #'inners conj (fact 2 => 1 "ignored value"))))
+
+(fact
+  inners => [true false])
+
                          
 
                          ;;;; 

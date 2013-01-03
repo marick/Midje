@@ -21,6 +21,7 @@
 
 (defn zero-counters []
   (set-counters ct/*initial-report-counters*))
+(zero-counters)
 
 (defn counters []  @ct/*report-counters*)
 

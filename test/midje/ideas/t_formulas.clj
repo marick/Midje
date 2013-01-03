@@ -2,8 +2,8 @@
   (:use midje.test-util
         midje.sweet
         midje.util.ecosystem
-        [midje.ideas.formulas :only [*num-trials* with-num-trials]] ))
-
+        [midje.ideas.formulas :only [*num-trials* with-num-trials]] )
+  (:require [midje.config :as config]))
 
 ;;;; Formulas
 
@@ -32,10 +32,11 @@
 
 
 ;; Failed formulas report once per formula regardless how many trials were run
+
 (after-silently
-  (formula "some description" [a "y"] a => :foo))
-(fact @reported => (one-of (contains {:type :mock-expected-result-failure
-                                      :description ["some description"]})))
+ (formula "some description" [a "y"] a => :foo)
+ (fact @reported => (one-of (contains {:type :mock-expected-result-failure
+                                       :description ["some description"]}))))
 
 
 ;; Passing formulas run the generator many times, and evaluate 
@@ -85,9 +86,8 @@
                                                (if (integer? x) 
                                                  [0 1 2 3 4 5]
                                                  ["a" "b" "c" "d" "e"]))]
-    (after-silently
-      (formula [x 100 a "abc"]
-        [x a] => #(neg? (first %))))
+    (run-silently (formula [x 100 a "abc"]
+                           [x a] => #(neg? (first %))))
     (fact @reported => (one-of (contains {:type :mock-expected-result-functional-failure
                                           :actual [0 "a"]} ))))) ;; note that it shrank both 100 and "abc"
 

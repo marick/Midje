@@ -9,7 +9,8 @@
         [clojure.string :only [join]]
         [clojure.walk :only [prewalk]])
   (:require [midje.internal-ideas.emission-boundaries :as emission-boundary]
-            [midje.internal-ideas.emissions :as emit]))
+            [midje.internal-ideas.emissions :as emit]
+            [midje.clojure-test-facade :as ctf]))
 
 ;; Formulas work by running up to *num-trials* trials per formula. If there is a failure,
 ;; it will then shrink the values that caused that particular failure.
@@ -28,8 +29,8 @@
 (defn shrink [& _args] [])
 
 (defn- formula-fact [docstring body]
-  `(midje.sweet/fact ~docstring   
-     ~@body :formula :formula-in-progress))
+  `(ctf/ignoring-counter-changes (midje.sweet/fact ~docstring   
+     ~@body :formula :formula-in-progress)))
 
 (defmacro shrink-failure-case [docstring binding-leftsides failed-binding-rightsides body]
   `(loop [shrunk-binding-rightsides# (map midje.ideas.formulas/shrink ~failed-binding-rightsides)]
@@ -84,8 +85,10 @@
        (loop [num-trials-left# (or (:num-trials ~opts-map) midje.ideas.formulas/*num-trials*)]
          (when (pos? num-trials-left#)
            (let [binding-rightsides# ~(vec (take-nth 2 (rest bindings)))
-                 ~(vec (take-nth 2 bindings)) binding-rightsides#]
-             (if ~fact
+                 ~(vec (take-nth 2 bindings)) binding-rightsides#
+                 fact-result# (ctf/ignoring-counter-changes ~fact)]
+
+             (if fact-result#
                (recur (dec num-trials-left#))
                (shrink-failure-case ~docstring? 
                                     ~(vec (take-nth 2 bindings)) 

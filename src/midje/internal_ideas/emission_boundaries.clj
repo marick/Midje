@@ -33,18 +33,23 @@
      (test-results-to-ternary (ctf/counters))))
 
 
+;; TODO: Note that both of the fact around functions
+;; need to check failure counts. Perhaps instead of
+;; around-top-level being wrapped around around-fact,
+;; it should be the other way around?
 (defmacro around-fact-function [ff-sym & body]
-  `(do 
+  `(let [starting-failures# (emit/midje-failures)]
      (levelly/report-checking-fact ~ff-sym)
      (fact-context/adds (metadata/fact-description ~ff-sym)
-                        ~@body)))
+                        ~@body)
+     (= starting-failures# (emit/midje-failures))))
+
 
 (defmacro around-top-level-fact-function [ff-sym & body]
-  `(do
-     (#'midje.ideas.reporting.report/fact-begins)
+  `(let [starting-failures# (emit/midje-failures)]
      (levelly/report-changed-namespace (metadata/fact-namespace ~ff-sym))
      ~@body
-     (#'midje.ideas.reporting.report/fact-checks-out?)))
+     (= starting-failures# (emit/midje-failures))))
 
 (defmacro around-check [& body]
   `(do ~@body))

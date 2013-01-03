@@ -12,7 +12,8 @@
         [midje.util.ecosystem :only [line-separator]]
         [utilize.seq :only [find-first]])
   (:require [midje.internal-ideas.emission-boundaries :as emission-boundary]
-            [midje.internal-ideas.emissions :as emit]))
+            [midje.internal-ideas.emissions :as emit]
+            [midje.clojure-test-facade :as ctf]))
 (immigrate 'midje.checkers)
 
 
@@ -23,7 +24,7 @@
 
 (defn ^{:private true} report-formula [report-map]
   (when-not (= :pass (:type report-map))
-    (note-failure-in-fact))
+    (ctf/note-fail))
   (swap! formula-reports conj report-map))
 
 (defn ^{:private true} report-formula-conclusion [_]

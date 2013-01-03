@@ -43,7 +43,6 @@
                                                                    (= {:pass 0, :test 0, :error 0, :fail 1} 
                                                                        @t/*report-counters*)))
       (provided 
-        (note-failure-in-fact) => nil
         (junit/failure-el "FAILURE" 1 2) => nil
         )
       )))

@@ -10,6 +10,12 @@
   (ctf/zero-counters)
   (reset! levelly/last-namespace-shown nil))
 
+;; TODO: For the time being, this includes clojure.test failures
+;; Once Midje emissions are completely separated from clojure.test
+;; reporting, that can go away.
+(defn midje-failures []
+  (+ (state/output-counters:midje-failures) (:fail (ctf/counters))))
+
 (alter-var-root #'state/emission-functions 
                 (constantly {:pass (fn []
                                      (state/output-counters:inc:midje-passes!)
@@ -19,5 +25,4 @@
   `(defn ~symbol [& args#]
      (apply (~(keyword symbol) state/emission-functions) args#)))
        
-  
 (make pass)
