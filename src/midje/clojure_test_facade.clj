@@ -24,6 +24,13 @@
 
 (defn counters []  @ct/*report-counters*)
 
+(defn note-pass []
+  (set-counters (merge-with + (counters) {:pass 1})))
+
+(defn note-fail []
+  (set-counters (merge-with + (counters) {:fail 1})))
+
+
 (defmacro ignoring-counter-changes [& forms]
   `(let [stashed-counters# (counters)]
     (try 

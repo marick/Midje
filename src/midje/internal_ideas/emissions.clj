@@ -2,36 +2,22 @@
   midje.internal-ideas.emissions
   (:require [midje.ideas.reporting.report :as report]
             [midje.clojure-test-facade :as ctf]
-            [midje.ideas.reporting.levels :as levelly]))
-
-(def ^{:dynamic true} counters (atom {}))
-
-(def fresh-counters {:midje-passes 0
-                    :midje-failures 0
-                    :clojure-test-passes 0
-                    :clojure-test-failures 0})
-
-
-(defn reset-counters! []
-  (reset! counters fresh-counters))
-
+            [midje.ideas.reporting.levels :as levelly]
+            [midje.internal-ideas.state :as state]))
 
 (defn forget-complete-past []
-  (reset-counters!)
+  (state/reset-output-counters!)
   (ctf/zero-counters)
   (reset! levelly/last-namespace-shown nil))
 
-
-
-(def ^{:dynamic true} emission-functions
-  {:pass (fn []
-           (swap! counters (merge-with + {:midje-passes 1}))
-           (ctf/report {:type :pass}))})
-           
+(alter-var-root #'state/emission-functions 
+                (constantly {:pass (fn []
+                                     (state/output-counters:inc:midje-passes!)
+                                     (ctf/report {:type :pass}))}))
 
 (defmacro make [symbol]
   `(defn ~symbol [& args#]
-     (apply (~(keyword symbol) emission-functions) args#)))
+     (apply (~(keyword symbol) state/emission-functions) args#)))
        
   
 (make pass)

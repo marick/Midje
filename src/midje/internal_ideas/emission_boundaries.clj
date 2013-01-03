@@ -2,7 +2,8 @@
   midje.internal-ideas.emission-boundaries
   (:require [midje.ideas.reporting.levels :as levelly]
             [midje.ideas.reporting.string-format :as string-format]
-            [midje.internal-ideas.emissions :as emit]))
+            [midje.internal-ideas.emissions :as emit]
+            [midje.internal-ideas.state :as state]))
 
 (defn test-results-to-ternary [counters]
   (cond (every? zero? ((juxt :fail :pass) counters))
@@ -50,7 +51,8 @@
 
 
 (defmacro around-isolated-emission-context [new-emission-functions & body]
-  `(binding [emit/counters (atom emit/fresh-counters)
-             emit/emission-functions ~new-emission-functions]
+  `(binding [state/output-counters (atom state/fresh-output-counters)
+             state/emission-functions ~new-emission-functions]
+     (state/reset-output-counters!)
      ~@body))
   
