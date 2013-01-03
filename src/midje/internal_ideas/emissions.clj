@@ -4,13 +4,16 @@
             [midje.clojure-test-facade :as ctf]
             [midje.ideas.reporting.levels :as levelly]))
 
-(def counters (atom {}))
+(def ^{:dynamic true} counters (atom {}))
 
-(defn reset-counters! []
-  (reset! counters {:midje-passes 0
+(def fresh-counters {:midje-passes 0
                     :midje-failures 0
                     :clojure-test-passes 0
-                    :clojure-test-failures 0}))
+                    :clojure-test-failures 0})
+
+
+(defn reset-counters! []
+  (reset! counters fresh-counters))
 
 
 (defn forget-complete-past []
@@ -20,7 +23,7 @@
 
 
 
-(def ^{:dynamic true} emission-map
+(def ^{:dynamic true} emission-functions
   {:pass (fn []
            (swap! counters (merge-with + {:midje-passes 1}))
            (ctf/report {:type :pass}))})
@@ -28,6 +31,7 @@
 
 (defmacro make [symbol]
   `(defn ~symbol [& args#]
-     (apply (~(keyword symbol) emission-map) args#)))
+     (apply (~(keyword symbol) emission-functions) args#)))
+       
   
 (make pass)

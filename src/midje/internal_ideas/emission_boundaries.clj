@@ -48,8 +48,9 @@
 (defmacro around-check [& body]
   `(do ~@body))
 
-(defmacro around-formula [& body]
-  `(try ~@body
-        (finally (midje.sweet/fact
-                  :ignored midje.sweet/=> :ignored 
-                  :formula :formula-conclude))))
+
+(defmacro around-isolated-emission-context [new-emission-functions & body]
+  `(binding [emit/counters (atom emit/fresh-counters)
+             emit/emission-functions ~new-emission-functions]
+     ~@body))
+  

@@ -8,7 +8,8 @@
         [clojure.algo.monads :only [domonad]]
         [clojure.string :only [join]]
         [clojure.walk :only [prewalk]])
-  (:require [midje.internal-ideas.emission-boundaries :as emission-boundary]))
+  (:require [midje.internal-ideas.emission-boundaries :as emission-boundary]
+            [midje.internal-ideas.emissions :as emit]))
 
 ;; Formulas work by running up to *num-trials* trials per formula. If there is a failure,
 ;; it will then shrink the values that caused that particular failure.
@@ -42,6 +43,19 @@
         [opts-map [bindings & body]] (pop-opts-map more-args)]
     [docstring? opts-map bindings body]))
 
+(def formula-emission-functions
+  {:pass (fn [])})
+
+(defmacro around-formula [& body]
+  `(emission-boundary/around-isolated-emission-context ~formula-emission-functions
+     (try
+       ~@body
+     (finally
+      (if-let [failure# (last @midje.unprocessed/formula-reports)]
+        (clojure.test/report failure#)
+        (emit/pass))
+      (reset! midje.unprocessed/formula-reports [])))))
+
 (defmacro formula 
   "ALPHA/EXPERIMENTAL (subject to change) - Generative-style fact macro. 
   
@@ -66,7 +80,7 @@
   (domonad validate-m [[docstring? opts-map bindings body] (validate &form)
                        fact (formula-fact docstring? body)]
 
-    `(emission-boundary/around-formula 
+    `(around-formula
        (loop [num-trials-left# (or (:num-trials ~opts-map) midje.ideas.formulas/*num-trials*)]
          (when (pos? num-trials-left#)
            (let [binding-rightsides# ~(vec (take-nth 2 (rest bindings)))
