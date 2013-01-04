@@ -55,11 +55,9 @@
 
 
   (defn- check-result [actual call]
-    (cond (= (:desired-check call) :check-match)
-          (check-result-positive actual call)
-          
-          :else
-          (check-result-negated actual call)))
+    (if (= (:desired-check call) :check-match)
+      (check-result-positive actual call)
+      (check-result-negated actual call)))
 
 )
 (defn expect*
