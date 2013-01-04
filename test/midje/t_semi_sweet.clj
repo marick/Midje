@@ -14,20 +14,16 @@
 
 ;;;
 
-(tabular "emit/pass can be called"
-  (fact
-    ?expect-call => anything
-    (provided
-      (emit/pass) => anything))
-  ?expect-call
-  (expect 1 => 1)
-  (expect 2 =not=> 1)
-  (expect 1 => odd?))
-
-
-
-
-
+(fact "expect calls emission functions"
+  (tabular "emit/pass"
+    (fact
+      ?expect-call => anything
+      (provided
+        (emit/pass) => anything))
+    ?expect-call
+    (expect 1 => 1)
+    (expect 2 =not=> 1)
+    (expect 1 => odd?)))
 
 ;;; RE-EXAMINE THE USEFULNESS OF THESE TESTS
 

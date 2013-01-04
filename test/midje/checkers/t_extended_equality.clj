@@ -53,3 +53,10 @@
   (extended-= (assoc (AB. 1 2) :c 3) {:a 1, :b 2, :c 3}) => truthy
   )
   
+(fact "for functions, you can get information about the failure"
+  (first (evaluate-checking-function odd? 3)) => true
+  (evaluate-checking-function odd? 4) => [false {}]
+  (let [extra ((just 1) [2])]
+    (evaluate-checking-function (just 1) [2]) => [false extra])
+  (let [error (Error.)]
+    (evaluate-checking-function (fn [actual] (throw error)) anything) => [false {:thrown error}]))

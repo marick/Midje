@@ -19,10 +19,14 @@
 (alter-var-root #'state/emission-functions 
                 (constantly {:pass (fn []
                                      (state/output-counters:inc:midje-passes!)
-                                     (ctf/note-pass))}))
+                                     (ctf/note-pass))
+                             :fail (fn [report-map]
+                                     (state/output-counters:inc:midje-failures!)
+                                     (clojure.test/report report-map))}))
 
 (defmacro make [symbol]
   `(defn ~symbol [& args#]
      (apply (~(keyword symbol) state/emission-functions) args#)))
        
 (make pass)
+(make fail)
