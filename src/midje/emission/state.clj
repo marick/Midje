@@ -33,3 +33,9 @@
   :midje-passes :midje-failures :clojure-test-passes :clojure-test-failures)
 
 (def ^{:dynamic true} emission-functions nil)
+
+
+(defn install-emission-map [map]
+  (alter-var-root #'emission-functions (constantly map)))
+
+  

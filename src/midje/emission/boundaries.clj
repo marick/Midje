@@ -20,14 +20,14 @@
 ;; macro.
 (defmacro around-namespace-stream [ns-sym config-settings & body]
   `(config/with-augmented-config ~config-settings
-     (emit/forget-complete-past)
+     (emit/forget-everything)
      ~@body
      (levelly/report-summary (ctf/run-tests ~ns-sym))
      (string-format/previous-failure-count)))
 
 (defmacro around-fact-function-stream [ffs-sym config-settings & body]
   `(config/with-augmented-config ~config-settings
-     (emit/forget-complete-past)
+     (emit/forget-everything)
      ~@body
      (levelly/report-summary)
      (test-results-to-ternary (ctf/counters))))

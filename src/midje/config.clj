@@ -36,6 +36,7 @@
             :visible-future true
             :partial-prerequisites false
             :check-after-creation true
+            :emitter 'midje.emission.plugins.default
 
             ;; The following aren't changed by users.
             ;; Should they be in the fact-context?

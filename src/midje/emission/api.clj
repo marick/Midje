@@ -5,28 +5,40 @@
             [midje.ideas.reporting.levels :as levelly]
             [midje.emission.state :as state]))
 
-(defn forget-complete-past []
+(defn load-plugin [location]
+  (if (symbol? location)
+    (require location :reload)
+    (load-file location)))
+
+(defn- bounce
+  ([keyword args]
+     (let [function (keyword state/emission-functions)]
+       (if function
+         (apply function args)
+         (throw (Error. (str "Your emission plugin does not define " keyword))))))
+  ([keyword]
+     (bounce keyword [])))
+
+(defmacro just-bounce [symbol]
+  `(defn ~symbol [& args#]
+     (bounce ~(keyword symbol) args#)))
+
+(defn pass []
+  (state/output-counters:inc:midje-passes!)
+  (ctf/note-pass);; TODO: TEMPORARY
+  (bounce :pass))
+
+(defn fail [report-map]
+  (state/output-counters:inc:midje-failures!)
+  (bounce :fail [report-map]))
+  
+(defn forget-everything []
   (state/reset-output-counters!)
-  (ctf/zero-counters)
-  (reset! levelly/last-namespace-shown nil))
+  (ctf/zero-counters)  ;; TODO This is temporary until clojure.test is vanquished.
+  (bounce :forget-everything))
 
 ;; TODO: For the time being, this includes clojure.test failures
 ;; Once Midje emissions are completely separated from clojure.test
 ;; reporting, that can go away.
 (defn midje-failures []
   (+ (state/output-counters:midje-failures) (:fail (ctf/counters))))
-
-(alter-var-root #'state/emission-functions 
-                (constantly {:pass (fn []
-                                     (state/output-counters:inc:midje-passes!)
-                                     (ctf/note-pass))
-                             :fail (fn [report-map]
-                                     (state/output-counters:inc:midje-failures!)
-                                     (clojure.test/report report-map))}))
-
-(defmacro make [symbol]
-  `(defn ~symbol [& args#]
-     (apply (~(keyword symbol) state/emission-functions) args#)))
-       
-(make pass)
-(make fail)
