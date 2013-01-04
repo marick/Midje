@@ -3,7 +3,7 @@
   (:use [midje.util.form-utils :only [invert separate-by]]
         [swiss-arrows.core :only [-<>]]
         [bultitude.core :only [namespaces-in-dir namespaces-on-classpath]])
-  (:require [midje.internal-ideas.emission-boundaries :as emission-boundary]
+  (:require [midje.emission.boundaries :as emission-boundary]
             [midje.util.ecosystem :as ecosystem]
             [midje.util.colorize :as color]
             [midje.config :as config]

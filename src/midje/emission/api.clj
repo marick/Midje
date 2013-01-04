@@ -1,9 +1,9 @@
 (ns ^{:doc "Emissions change global state: the output and the pass/fail record."}
-  midje.internal-ideas.emissions
+  midje.emission.api
   (:require [midje.ideas.reporting.report :as report]
             [midje.clojure-test-facade :as ctf]
             [midje.ideas.reporting.levels :as levelly]
-            [midje.internal-ideas.state :as state]))
+            [midje.emission.state :as state]))
 
 (defn forget-complete-past []
   (state/reset-output-counters!)

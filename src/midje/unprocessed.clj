@@ -8,8 +8,8 @@
         midje.util.laziness
         [midje.util.form-utils :only [extended-fn?]]
         [midje.util.namespace :only [immigrate]])
-  (:require [midje.internal-ideas.emission-boundaries :as emission-boundary]
-            [midje.internal-ideas.emissions :as emit]))
+  (:require [midje.emission.boundaries :as emission-boundary]
+            [midje.emission.api :as emit]))
 (immigrate 'midje.checkers)
 
 (letfn [(result-discovered-by-a-function? [call] (extended-fn? (:expected-result call)))

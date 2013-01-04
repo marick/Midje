@@ -8,9 +8,8 @@
         [clojure.algo.monads :only [domonad]]
         [clojure.string :only [join]]
         [clojure.walk :only [prewalk]])
-  (:require [midje.internal-ideas.emission-boundaries :as emission-boundary]
-            [midje.internal-ideas.emissions :as emit]
-            midje.unprocessed ; temp
+  (:require [midje.emission.boundaries :as emission-boundary]
+            [midje.emission.api :as emit]
             [midje.clojure-test-facade :as ctf]))
 
 ;; Formulas work by running up to *num-trials* trials per formula. If there is a failure,

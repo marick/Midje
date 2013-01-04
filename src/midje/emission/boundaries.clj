@@ -1,9 +1,9 @@
 (ns ^{:doc "Execution boundaries that have to do with checking of faces"}
-  midje.internal-ideas.emission-boundaries
+  midje.emission.boundaries
   (:require [midje.ideas.reporting.levels :as levelly]
             [midje.ideas.reporting.string-format :as string-format]
-            [midje.internal-ideas.emissions :as emit]
-            [midje.internal-ideas.state :as state]))
+            [midje.emission.api :as emit]
+            [midje.emission.state :as state]))
 
 (defn test-results-to-ternary [counters]
   (cond (every? zero? ((juxt :fail :pass) counters))

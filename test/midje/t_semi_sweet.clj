@@ -6,7 +6,7 @@
         midje.util)
   (:require [clojure.zip :as zip]
             [midje.config :as config]
-            [midje.internal-ideas.emissions :as emit]))
+            [midje.emission.api :as emit]))
 (expose-testables midje.semi-sweet)
  
 (unfinished faked-function mocked-function other-function)

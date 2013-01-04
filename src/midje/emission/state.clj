@@ -3,7 +3,7 @@
  non-configuration state of the program. That is: the workings
  that are normally invisible to any user, with the exception
  of tests and people debugging."}
-  midje.internal-ideas.state)
+  midje.emission.state)
 
 (def top-level-fact-output-lines [])
 (def fact-output-lines [])

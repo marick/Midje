@@ -30,7 +30,7 @@
   (:require [midje.internal-ideas.compendium :as compendium]
             [midje.ideas.reporting.levels :as levelly]
             [midje.internal-ideas.fact-context :as fact-context]
-            [midje.internal-ideas.emission-boundaries :as emission-boundary]
+            [midje.emission.boundaries :as emission-boundary]
             [midje.ideas.metadata :as metadata]
             [midje.config :as config]
             midje.ideas.reporting.report))

@@ -12,7 +12,7 @@
             [midje.ideas.metadata :as metadata]
             [midje.internal-ideas.compendium :as compendium]
             [midje.internal-ideas.project-state :as project-state]
-            [midje.internal-ideas.emission-boundaries :as emission-boundary]
+            [midje.emission.boundaries :as emission-boundary]
             [midje.util.form-utils :as form]
             [midje.util.colorize :as color]
             [midje.util.ecosystem :as ecosystem]
