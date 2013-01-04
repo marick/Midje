@@ -66,16 +66,18 @@
         (with-out-str (report-checking-fact unnamed))
         => #"Checking fact at \(file:3\)"))))
 
-(fact "report-summary"
-  (config/with-augmented-config {:print-level :print-no-summary}
-    (with-out-str (report-summary)) => "")
-  
-  (config/with-augmented-config
-    {:print-level (inc (names-to-levels :print-no-summary))}
-    (with-out-str (report-summary)) => #"All claims.*have been confirmed"
-    (provided
-      (counters) => {:fail 0 :pass 1})))
-  
+
+(without-changing-cumulative-totals
+ (fact "report-summary"
+   (config/with-augmented-config {:print-level :print-no-summary}
+     (with-out-str (report-summary)) => "")
+   
+   (config/with-augmented-config
+     {:print-level (inc (names-to-levels :print-no-summary))}
+     (with-out-str (report-summary)) => #"All claims.*have been confirmed"
+     (provided
+       (counters) => {:fail 0 :pass 1}))))
+
 (fact "report on a namespace"
   (fact "Not normally printed"
     (with-out-str (report-changed-namespace 'ignored)) => ""

@@ -126,33 +126,24 @@
 
 (facts "about expect"
   (fact "success"
-    (after-silently 
-     (expect (+ 1 3) => 4)
-     @reported => (one-of pass)))
+    (expect (+ 1 3) => 4))
 
   (fact "There is a =not=> arrow."
     (expect (+ 1 3) =not=> 5))
 
-  (fact "actual doesn't match expected"
-    (after-silently 
-     (expect (+ 1 3) => nil)
-     @reported => (just (contains {:type :mock-expected-result-failure
-                                   :actual 4
-                                   :expected nil}))))
+  (silent-fact "actual doesn't match expected"
+    (expect (+ 1 3) => nil))
+  (note-that fact-fails)
 
   (fact "not-called in the first position"
-    (after-silently 
-     (expect (function-under-test) => 33
-             (not-called no-caller)
-             (fake (mocked-function) => 33))
-     @reported => (one-of pass)))
+    (expect (function-under-test) => 33
+            (not-called no-caller)
+            (fake (mocked-function) => 33)))
 
   (fact "not-called in last position"
-    (after-silently 
-     (expect (function-under-test) => 33
-             (fake (mocked-function) => 33)
-             (not-called no-caller))
-     @reported => (one-of pass)))
+    (expect (function-under-test) => 33
+            (fake (mocked-function) => 33)
+            (not-called no-caller)))
 
   (fact "mocked calls go fine, but function under test produces the wrong result"
     (after-silently
@@ -174,12 +165,9 @@
       @reported => (just wrong-call-count bad-result)))
 
   (fact "call not from inside function"
-    (after-silently 
-      (expect (+ (mocked-function 12) (other-function 12)) => 12
-              (fake (mocked-function 12) => 11)
-              (fake (other-function 12) => 1))
-      @reported => (just pass)))
-
+    (expect (+ (mocked-function 12) (other-function 12)) => 12
+            (fake (mocked-function 12) => 11)
+            (fake (other-function 12) => 1)))
 
   (fact "failure because one variant of multiply-mocked function is not called"
     (after-silently 
@@ -189,7 +177,7 @@
              (fake (mocked-function 33) => 3))
      @reported => (just (contains {:type :mock-incorrect-call-count
                                    :failures (contains (contains {:expected-call "(mocked-function 33)"})) })
-                        pass))) ; Right result, but wrong reason.
+                        ))) ; Right result, but wrong reason.
 
   (fact "failure because one variant of multiply-mocked function is not called"
     (after-silently
@@ -199,7 +187,7 @@
         (fake (mocked-function 33) => 3))
       @reported => (just (contains {:type :mock-incorrect-call-count
                                     :failures (contains (contains {:expected-call "(mocked-function 33)"})) })
-                     pass))) ; Right result, but wrong reason.
+                     ))) ; Right result, but wrong reason.
 
 
   (fact "multiple calls to a mocked function are perfectly fine"
@@ -208,10 +196,8 @@
 
 
 (facts "about overriding values in an expect"
-  (after-silently
-   (expect (function-under-test 1) => 33 :expected-result "not 33"
-           (fake (mocked-function 1) => "not 33"))
-   @reported => (just pass))
+  (expect (function-under-test 1) => 33 :expected-result "not 33"
+          (fake (mocked-function 1) => "not 33"))
 
   (let [expected "not 33"]
     (expect (function-under-test 1) => 33 :expected-result expected

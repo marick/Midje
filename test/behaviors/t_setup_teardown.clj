@@ -5,92 +5,74 @@
 )
 
 (def test-atom (atom 33))
-(after-silently 
- (fact
-   (against-background (before :checks (swap! test-atom (constantly 0))))
-   (swap! test-atom inc) => 1
-   (swap! test-atom dec) => -1)
- (fact (only-passes? 2) => truthy))
+(fact
+ (against-background (before :checks (swap! test-atom (constantly 0))))
+ (swap! test-atom inc) => 1
+ (swap! test-atom dec) => -1)
     
 (def test-atom (atom 0))
 (against-background [ (after :checks (swap! test-atom (constantly 0))) ]
-  (after-silently 
-   (fact
-     (swap! test-atom inc) => 1
-     (swap! test-atom dec) => -1)
-   (fact (only-passes? 2) => truthy)))
+  (fact
+    (swap! test-atom inc) => 1
+    (swap! test-atom dec) => -1))
     
 (def before-atom (atom 10))
 (def after-atom (atom 33))
-(after-silently 
- (fact
-   (against-background (before :checks (swap! before-atom (constantly 0))
-                               :after    (swap! after-atom (constantly 10))))
-   ;; [10 33]
-   [(swap! before-atom inc) (swap! after-atom inc)] => [1 34]
-   ;; [1 10]
-   [(swap! before-atom inc) (swap! after-atom inc)] => [1 11]
-   ;; [1 10]
+(fact
+  (against-background (before :checks (swap! before-atom (constantly 0))
+                              :after    (swap! after-atom (constantly 10))))
+  ;; [10 33]
+  [(swap! before-atom inc) (swap! after-atom inc)] => [1 34]
+  ;; [1 10]
+  [(swap! before-atom inc) (swap! after-atom inc)] => [1 11]
+  ;; [1 10]
   
-   (let [untouched [@before-atom @after-atom]]
-     untouched => [1 10]))
- (fact (only-passes? 3) => truthy))
+  (let [untouched [@before-atom @after-atom]]
+    untouched => [1 10]))
 
 (unfinished f)
 
 (against-background [ (around :checks (let [x 1] ?form)) ]
-  (after-silently 
-   (fact "arbitrary forms can be wrapped around a check"
-     (+ x 2) => 3)
-   (fact (only-passes? 1) => truthy)))
+  (fact "arbitrary forms can be wrapped around a check"
+    (+ x 2) => 3))
 
-(after-silently 
- (fact "`around` lexical bindings are available to background prerequisites"
-   (against-background (around :facts (let [x 1] ?form))
-                       (f x) => 2 )
-   (+ (f x) 2) => 4)
- (fact (only-passes? 1) => truthy))
+(fact "`around` lexical bindings are available to background prerequisites"
+  (against-background (around :facts (let [x 1] ?form))
+                              (f x) => 2 )
+  (+ (f x) 2) => 4)
 
-(after-silently 
- (fact "order is unimportant"
-   (against-background (f x) => 2
-                       (around :facts (let [x 1] ?form)))
-   (+ (f x) 2) => 4)
- (fact (only-passes? 1) => truthy))
+(fact "order is unimportant"
+  (against-background (f x) => 2
+                      (around :facts (let [x 1] ?form)))
+  (+ (f x) 2) => 4)
 
-(after-silently 
- (fact "... and also per-check prerequisites"
-   (against-background (around :facts (let [x 1] ?form)))
-   (+ (f x) 2) => 4 (provided (f x) => 2 ))
- (fact (only-passes? 1) => truthy))
+(fact "... and also per-check prerequisites"
+  (against-background (around :facts (let [x 1] ?form)))
+  (+ (f x) 2) => 4 (provided (f x) => 2 ))
 
                                         ; ========
 
 
 (fact (= @test-atom 18) => falsey)
 (against-background [ (before :facts (swap! test-atom (constantly 18))) ]
-  (after-silently 
-   (fact
-     (swap! test-atom inc) => 19
-     (swap! test-atom dec) => 18)
-   (fact (only-passes? 2) => truthy)))
+  (fact
+    (swap! test-atom inc) => 19
+    (swap! test-atom dec) => 18))
 
 (def per-fact-atom (atom 0))
 (def per-check-atom (atom 0))
 (against-background [ (before :facts (swap! per-fact-atom (constantly 18)))
                       (before :checks (swap! per-check-atom (constantly 3))) ]
-  (after-silently 
+  (fact
+    @per-fact-atom => 18
+    @per-check-atom => 3
+    (+ (swap! per-fact-atom inc) (swap! per-check-atom inc)) => 23
+    (+ (swap! per-fact-atom inc) (swap! per-check-atom inc)) => 24
+    @per-fact-atom => 20
+    @per-check-atom => 3)
    (fact
      @per-fact-atom => 18
-     @per-check-atom => 3
-     (+ (swap! per-fact-atom inc) (swap! per-check-atom inc)) => 23
-     (+ (swap! per-fact-atom inc) (swap! per-check-atom inc)) => 24
-     @per-fact-atom => 20
-     @per-check-atom => 3)
-   (fact
-     (only-passes? 6) => truthy
-     @per-fact-atom => 18
-     @per-check-atom => 3)))
+     @per-check-atom => 3))
 
 (fact "around facts work within the fact body"
   (against-background (before :facts (swap! per-fact-atom (constantly 18)))

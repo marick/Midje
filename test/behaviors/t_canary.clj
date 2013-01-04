@@ -38,14 +38,6 @@
    (provided
      (all-procedures) => [...procedure...] ))
 
-(unfinished f)
-(against-background [ (f 1) => 2 ]
-  (after-silently 
-   (fact "prerequisites can be used within checks"
-     (against-background (around :checks (let [x 1] ?form)))
-     (+ (f x) 2) => 4)
-   (fact (only-passes? 1) => truthy)))
-
 (defn day-of-month-stream [xyz] :blah)
 
 (defn new-date [x y z] :blah)

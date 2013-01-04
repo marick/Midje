@@ -21,14 +21,11 @@
 (defn function-under-test [sequence]
   (if (utility-function sequence) 1 2))
 
-
-(run-silently 
- (fact
-   (function-under-test [:a :b]) => 2
-   (provided
-     (utility-function even-length) => false)))
-
-(fact @reported => has-bad-result)
+(silent-fact
+  (function-under-test [:a :b]) => 2
+  (provided
+    (utility-function even-length) => false))
+(note-that fact-fails)
 
 ;; The provided statement does NOT fake out the value of a call to
 ;; `utility-function` that gives it an even-length sequence. Instead,
@@ -43,14 +40,10 @@
 (defchecker even-length [actual-result]
   (even? (count actual-result)))
 
-(run-silently 
- (fact
-   (function-under-test [:a :b]) => 2
-   (provided
-     (utility-function even-length) => false))
-)
-(fact @reported => passes)
-
+(fact
+ (function-under-test [:a :b]) => 2
+ (provided
+   (utility-function even-length) => false))
  
                 ;;; Checkers that do take arguments
 
@@ -66,12 +59,12 @@
 ;; generated function as a checker, so that it can be used in
 ;; prerequisite argument lists.
 
-(run-silently
- (fact
-   [1 2 3] => (only-these 1 2 3)
-   [1 2 3] => (only-these 1))
-)
-(fact @reported => (just [pass checker-fails]))
+(silent-fact
+  [1 2 3] => (only-these 1 2 3)
+  [1 2 3] => (only-these 1))
+(note-that (fails 1 time))
+
+
 
 
                 ;;; Chatty checkers
@@ -101,11 +94,10 @@
          (string? (:bar actual-map))
          (= (count (:bar actual-map)) expected-count))))
 
-(run-silently 
- (fact
-   (function-under-test) => (foobared 30000))
-)
-(fact @reported => (just [checker-fails]))
+(silent-fact
+  (function-under-test) => (foobared 30000))
+(note-that fact-fails)
+
 
 ;; This fails with this message (as of April 2012):
 ;;   
@@ -136,11 +128,9 @@
 ;;          (string? (:bar actual-map)) => true
 ;;          (= (count (:bar actual-map)) expected-count) => false
 
-(run-silently 
- (fact
-   (function-under-test) => (foobared 30000))
-)
-(fact @reported => (just [checker-fails]))
+(silent-fact
+  (function-under-test) => (foobared 30000))
+(note-that fact-fails)
 
 ;; If you want a simpler checker that doesn't take arguments, just use
 ;; `chatty-checker` with `def`:
@@ -150,10 +140,9 @@
        (or (= actual 1)
            (= actual 2))))
 
-(run-silently
- (fact
+(silent-fact
    3 => one-or-two)
- )
+(note-that fact-fails)
 
 ;;    FAIL at (t_defining_checkers.clj:155)
 ;;    Actual result did not agree with the checking function.
@@ -163,4 +152,3 @@
 ;;           (= actual 1) => false
 ;;           (= actual 2) => false
 
-(fact @reported => (just [checker-fails]))

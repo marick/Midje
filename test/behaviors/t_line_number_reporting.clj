@@ -45,7 +45,7 @@
  (fact
    @reported => (just [ (contains {:type :mock-incorrect-call-count
 				                           :failures (contains (contains {:position ["t_line_number_reporting.clj" (+ position-2 4)]})) })
-			                  pass])))
+                        ])))
 
   (after-silently 
    (fact (g 1) => 1
@@ -57,7 +57,7 @@
    (fact
      @reported => (just [ (contains {:type :mock-incorrect-call-count
                                      :failures (contains (contains {:position ["t_line_number_reporting.clj" (+ position-2 16)]})) })
-			  pass])))
+			  ])))
 
 (unfinished favorite-animal)
 (defn favorite-animal-name [] (name (favorite-animal)))
@@ -67,12 +67,12 @@
 (defn favorite-animal-one-call [] (name (favorite-animal 1)))
 
 (deftest unfolding-fakes-examples ;; Use a deftest to check that line numbers work inside.
-  (after-silently
-    (fact
-      (favorite-animal-name) => "betsy"
-      (provided
-        (name (favorite-animal)) => "betsy"))
-   (fact @reported => (just pass)))
+
+  (fact
+    (favorite-animal-name) => "betsy"
+    (provided
+      (name (favorite-animal)) => "betsy"))
+
 
   (def line-number 77)
   (after-silently
@@ -134,7 +134,7 @@
 				                                                       :expected-call "(name ...favorite-animal-value-2...)"})
                                                      (contains {:position ["t_line_number_reporting.clj" (+ line-number 5)]
                                                                 :expected-call "(favorite-animal 2)"})  ])})
-                         pass]))))
+                         ]))))
 
 
   (def line-number-separate 140)
@@ -192,7 +192,7 @@
    ;; Here, the line numbering goes astray.
    (+ 1 2) => odd?
    1 => even?)
- (fact @reported => (just [pass
+ (fact @reported => (just [
                            (contains {:position ["t_line_number_reporting.clj"
                                                  (+ line-number-pathological 23)]})])))
 
@@ -210,7 +210,7 @@
                                                 (+ facts-position 3)]})
                           (contains {:position ["t_line_number_reporting.clj"
                                                 (+ facts-position 4)]})
-                          pass
+                          
                           (contains {:position ["t_line_number_reporting.clj"
                                                 (+ facts-position 8)]}))))
 

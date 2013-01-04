@@ -56,19 +56,12 @@
    affect the Midje fact counters but instead returns a map
    that can be used to produce a separate report."
   [namespaces]
+  (println "=================== Need to check if failing clojure.test and embedded fact output appear in the right section of the summary.")
   (with-isolated-counters
     (binding [ct/*test-out* (java.io.StringWriter.)]
       (let [ct-result (apply ct/run-tests namespaces)]
         {:test-count (:test ct-result)
          :fail-count (+ (:fail ct-result) (:error ct-result))
          :lines (-> ct/*test-out* .toString str/split-lines)}))))
-
-(defn run-clojure-test [namespaces]
-  (let [output-catcher (java.io.StringWriter.)
-        ct-result (binding [clojure.test/*test-out* output-catcher]
-                             (apply clojure.test/run-tests namespaces))]
-    {:test-count (:test ct-result)
-     :fail-count (+ (:fail ct-result) (:error ct-result))
-     :lines (-> output-catcher .toString str/split-lines)}))
 
 (def ^{:dynamic true} report ct/report)

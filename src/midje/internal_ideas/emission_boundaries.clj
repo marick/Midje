@@ -22,7 +22,7 @@
   `(config/with-augmented-config ~config-settings
      (emit/forget-complete-past)
      ~@body
-     (levelly/report-summary (ctf/run-clojure-test ~ns-sym))
+     (levelly/report-summary (ctf/run-tests ~ns-sym))
      (string-format/previous-failure-count)))
 
 (defmacro around-fact-function-stream [ffs-sym config-settings & body]

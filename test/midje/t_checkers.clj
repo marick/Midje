@@ -70,12 +70,12 @@
 (defn outer [n] (inner n))
 
 (tabular
-(after-silently 
-  (fact
-    (outer ?actual) => "expected"
-    (provided 
-      (inner ?expected) => "expected"))
-  (fact @reported ?arrow (one-of pass)))
+  (fact 
+    (silent-fact
+     (outer ?actual) => "expected"
+     (provided 
+       (inner ?expected) => "expected"))
+    (fact-passes) ?arrow truthy)
 
 ?expected                      ?actual ?arrow
 odd?                           3       =not=>   ;; different

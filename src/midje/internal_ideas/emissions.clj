@@ -19,7 +19,7 @@
 (alter-var-root #'state/emission-functions 
                 (constantly {:pass (fn []
                                      (state/output-counters:inc:midje-passes!)
-                                     (ctf/report {:type :pass}))}))
+                                     (ctf/note-pass))}))
 
 (defmacro make [symbol]
   `(defn ~symbol [& args#]

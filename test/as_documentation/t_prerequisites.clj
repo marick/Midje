@@ -69,39 +69,30 @@
 ; You can also give a range of allowed values. Here's how you'd ask
 ; for a function to be called one or two times:
 
-(after-silently
- (fact
-   (top-function 5) => 55
-   (provided
-     (lower-function 5) => 50 :times [1 2]
-     (lower-function 6) =>  5))
- (fact
-   @reported => (just pass)))
+(fact
+  (top-function 5) => 55
+  (provided
+    (lower-function 5) => 50 :times [1 2]
+    (lower-function 6) =>  5))
  
 ;; You can also use a lazy sequence:
 
-(after-silently
- (fact
-   (top-function 5) => 55
-   (provided
-     (lower-function 5) => 50 :times (range 3 33)
-     (lower-function 6) =>  5))
- (fact
-   @reported => (just wrong-call-count
-                      pass))) ;; It does give the right answer, for the wrong reason.
+(silent-fact
+ (top-function 5) => 55
+ (provided
+   (lower-function 5) => 50 :times (range 3 33)
+   (lower-function 6) =>  5))
+(note-that fact-fails)
 
 
 ;; Here is the idiom for "this call is optional" (zero or more times)
 
-(after-silently
- (fact
-   (top-function 5) => 55
-   (provided
-     (lower-function 0) => 88 :times (range)
-     (lower-function 5) => 50 
-     (lower-function 6) =>  5))
- (fact
-   @reported => (just pass)))
+(fact
+  (top-function 5) => 55
+  (provided
+    (lower-function 0) => 88 :times (range)
+    (lower-function 5) => 50 
+    (lower-function 6) =>  5))
 
 
 ;;;                     Default prerequisites
@@ -116,24 +107,19 @@
 (defn using-function [n]
   (+ (I-am-I-cried n) (I-am-I-cried (inc n))))
 
-(after-silently
- (fact
-   (using-function 4) => (+ 80 4)
-   (provided
-     (I-am-I-cried 5) => 80))
- (fact
-   @reported => (contains no-matching-prerequisite bad-result)))
+
+(silent-fact
+  (using-function 4) => (+ 80 4)
+  (provided
+    (I-am-I-cried 5) => 80))
+(note-that fact-fails)
 
 ;; However, it's also possible to ask that unmatched calls default to
 ;; the real values. The config/with-augmented-config simulates the
 ;; loading of a .midje.clj file.
 
 (config/with-augmented-config {:partial-prerequisites true}
-  (after-silently
-   (fact
-     (using-function 4) => (+ 80 4)
-     (provided
-       (I-am-I-cried 5) => 80))
-   (fact
-     @reported => (just pass))))
-
+  (fact
+    (using-function 4) => (+ 80 4)
+    (provided
+      (I-am-I-cried 5) => 80)))

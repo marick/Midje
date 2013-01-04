@@ -12,6 +12,7 @@
 
 (def reported (atom []))
 
+;; Scheduled for demolition
 (defn run-without-reporting [f] 
   (binding [report (fn [report-map#] (swap! reported conj report-map#))
             ctf/report (fn [report-map#] (swap! reported conj report-map#))]
@@ -20,6 +21,65 @@
 
 (defmacro run-silently [& run-forms]
   `(run-without-reporting (fn [] ~@run-forms)))
+
+
+
+
+;; Some sets of tests generate failures. The following code prevents
+;; them from being counted as failures when the final summary is
+;; printed. The disadvantage is that legitimate failures won't appear
+;; in the final summary. They will, however, produce failure output,
+;; so that's an acceptable compromise.
+
+(defmacro without-changing-cumulative-totals [& forms]
+  `(ctf/ignoring-counter-changes ~@forms))
+
+(defmacro without-externally-visible-changes [& body]
+  `(config/with-augmented-config {:print-level :print-nothing}
+     (without-changing-cumulative-totals ~@body)))
+
+;; This notes when a test incorrectly stepped on the running
+;; count that you see from `lein midje`.
+(defmacro confirming-cumulative-totals-not-stepped-on [& body]
+  `(let [stashed-counters# (ctf/counters)]
+     ~@body
+     (midje.sweet/fact "Checking whether cumulative totals were stepped on"
+       (>= (:pass (ctf/counters)) (:pass stashed-counters#)) midje.sweet/=> true
+       (>= (:fail (ctf/counters)) (:fail stashed-counters#)) midje.sweet/=> true)))
+
+
+(defmacro silent-fact [& args]
+  `(run-silently  ;; Scheduled to be deleted once reporting rewritten.
+    (without-externally-visible-changes
+     (midje.sweet/fact ~@args))))
+
+(defn fact-passes []
+  (empty? @reported))
+
+(def fact-fails (complement fact-passes))
+
+(defn failure-count []
+  (count @reported))
+
+(defmacro note-that [& claims]
+  (let [clauses (reduce (fn [so-far claim]
+                          (cond (symbol? claim)
+                                (conj so-far `(~claim) '=> true)
+
+                                (= (first claim) 'fails)
+                                (conj so-far '(failure-count) '=> (second claim))))
+                        []
+                        claims)]
+
+    (with-meta `(midje.sweet/fact ~@clauses) (meta &form))))
+
+
+
+
+
+
+
+
 
 (defmacro after-silently [example-form & check-forms]
    `(do
@@ -124,28 +184,6 @@
          ~@body))))
 
 
-
-;; Some sets of tests generate failures. The following code prevents
-;; them from being counted as failures when the final summary is
-;; printed. The disadvantage is that legitimate failures won't appear
-;; in the final summary. They will, however, produce failure output,
-;; so that's an acceptable compromise.
-
-(defmacro without-changing-cumulative-totals [& forms]
-  `(ctf/ignoring-counter-changes ~@forms))
-
-(defmacro without-externally-visible-changes [& body]
-  `(config/with-augmented-config {:print-level :print-nothing}
-     (without-changing-cumulative-totals ~@body)))
-
-;; This notes when a test incorrectly stepped on the running
-;; count that you see from `lein midje`.
-(defmacro confirming-cumulative-totals-not-stepped-on [& body]
-  `(let [stashed-counters# (ctf/counters)]
-     ~@body
-     (midje.sweet/fact "Checking whether cumulative totals were stepped on"
-       (>= (:pass (ctf/counters)) (:pass stashed-counters#)) midje.sweet/=> true
-       (>= (:fail (ctf/counters)) (:fail stashed-counters#)) midje.sweet/=> true)))
 
 
 

@@ -22,11 +22,9 @@
  (fact (+ 1 1) => 3)
  (fact @reported => (one-of bad-result)))
 
-(after-silently ; succeeding
- (facts
-   (+ 10 10) => 20
-   (+ 20 20) => 40)
- (fact @reported => (two-of pass)))
+(facts
+  (+ 10 10) => 20
+  (+ 20 20) => 40)
 
 (after-silently ; unnamed future fact
  (future-fact 1 => 2)
@@ -48,7 +46,7 @@
  (fact @reported => (just bad-result
                           (contains {:type :future-fact
                                      :description [nil "on `(+ 1 \"1\")`"]})
-                          pass)))
+                          )))
 
 (after-silently ; combination, including a future fact
  (facts
@@ -58,7 +56,7 @@
  (fact @reported => (just bad-result
                           (contains {:type :future-fact
                                      :description [nil "on `(+ 1 \"1\")`"]})
-                          pass)))
+                          )))
 
 
 
@@ -91,29 +89,23 @@
   (+ (g n) (g m)))
   
 ;; Some examples of prerequisites
-(after-silently
- (fact (f 1) => 33
-   (provided (g 1) => 33))
- (fact @reported => (one-of pass)))
+(fact (f 1) => 33
+  (provided (g 1) => 33))
 
-(after-silently
- (facts 
-   (f 1) => 313
-   (provided
-     (g 1) => 313)
+(facts 
+  (f 1) => 313
+  (provided
+    (g 1) => 313)
     
-   (f 22) => 500
-   (provided 
-     (g 22) => 500))
- (fact @reported => (two-of pass)))
+  (f 22) => 500
+  (provided 
+    (g 22) => 500))
 
-(after-silently 
- (facts 
-   (call2 1 2) => 30
-   (provided 
-     (g 1) => 10
-     (g 2) => 20))
- (fact @reported => (one-of pass)))
+(facts 
+  (call2 1 2) => 30
+  (provided 
+    (g 1) => 10
+    (g 2) => 20))
 
 ;; facts can see their environment
 (let [outer-value 2]
@@ -160,17 +152,13 @@
  (fact (+ 1 1) midje.sweet/=> 3)
  (fact @reported => (one-of bad-result)))
 
-(after-silently
- (fact (+ 1 2) =not=> 599)
- (fact @reported => (one-of pass)))
+(fact (+ 1 2) =not=> 599)
 
 (after-silently
  (fact (+ 1 2) =not=> 3)
  (fact @reported => (one-of inappropriate-equality)))
 
-(after-silently
- (fact (+ 1 2) =not=> even?)
- (fact @reported => (one-of pass)))
+(fact (+ 1 2) =not=> even?)
 
 (after-silently
  (fact (+ 1 2) =not=> odd?)
@@ -202,14 +190,12 @@
 (defn ander [n]
   (and (check-f n) (check-g n) (check-h n)))
 
-(after-silently
- (against-background [(check-f 1) => true, (check-g 1) => true, (check-h 1) => true]
-   (facts
-     (ander 1) => truthy
-     (ander 1) => falsey (provided (check-f 1) => false)
-     (ander 1) => falsey (provided (check-g 1) => false)
-     (ander 1) => falsey (provided (check-h 1) => false)))
- (fact @reported => (four-of pass)))
+(against-background [(check-f 1) => true, (check-g 1) => true, (check-h 1) => true]
+   (silent-fact
+    (ander 1) => truthy
+    (ander 1) => falsey (provided (check-f 1) => false)
+    (ander 1) => falsey (provided (check-g 1) => false)
+    (ander 1) => falsey (provided (check-h 1) => false)))
 
 
 (unfinished h g i j)
