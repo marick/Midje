@@ -1,7 +1,6 @@
 (ns ^{:doc "The default for Midje output"}
   midje.emission.plugins.default
-  (:require 
-            [midje.ideas.reporting.levels :as levelly]
+  (:require [midje.ideas.reporting.levels :as levelly]
             [midje.emission.state :as state]
             [midje.emission.plugins.silence :as silence]))
 
