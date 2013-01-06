@@ -78,11 +78,11 @@
   [& kvs]
   (merge-permanently! (apply hash-map kvs)))
 
-(when (ecosystem/has-home-config-file?)
-  (load-file ecosystem/home-config-file-name))
-(when (ecosystem/has-project-config-file?)
-  (load-file ecosystem/project-config-file-name))
-
-
 ;; Convenience
 (def no-overrides {})
+
+
+;; This must be done here so that the code being loaded executes in
+;; this namespace.
+(dorun (map load-file (ecosystem/config-files)))
+

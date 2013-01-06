@@ -9,10 +9,7 @@
         [midje.util.form-utils :only [extended-fn?]]
         [midje.util.namespace :only [immigrate]])
   (:require [midje.emission.boundaries :as emission-boundary]
-            [midje.emission.api :as emit]
-            [midje.config :as config]))
-
-(emit/load-plugin (config/choice :emitter))
+            [midje.emission.api :as emit]))
 
 (immigrate 'midje.checkers)
 

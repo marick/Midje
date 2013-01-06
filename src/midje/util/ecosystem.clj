@@ -56,4 +56,7 @@
 (defn has-project-config-file? []
   (file-exists? project-config-file-name))
 
-
+(defn config-files []
+  (keep identity
+        [(if (has-home-config-file?)    home-config-file-name)
+         (if (has-project-config-file?) project-config-file-name)]))
