@@ -3,7 +3,8 @@
  non-configuration state of the program. That is: the workings
  that are normally invisible to any user, with the exception
  of tests and people debugging."}
-  midje.emission.state)
+  midje.emission.state
+  (:require [midje.util.ecosystem :as ecosystem]))
 
 (def top-level-fact-output-lines [])
 (def fact-output-lines [])
@@ -21,7 +22,7 @@
           reset-name (symbol (str "reset-" name "!"))]
       `(do
          (def ~name (atom 0))
-         (.setDynamic (var ~name))
+         (ecosystem/when-1-3+ (.setDynamic (var ~name)))
          (def ~fresh-name ~(zipmap keys (repeat 0)))
          (defn ~reset-name [] (reset! ~name ~fresh-name))
          (~reset-name)
@@ -32,8 +33,7 @@
 (make-counter-atom output-counters
   :midje-passes :midje-failures :clojure-test-passes :clojure-test-failures)
 
-(def ^{:dynamic true} emission-functions nil)
-
+(defonce ^{:dynamic true} emission-functions nil)
 
 (defn install-emission-map [map]
   (alter-var-root #'emission-functions (constantly map)))
