@@ -12,7 +12,7 @@
                    [org.clojure/tools.namespace "0.2.2"]
                    [gui-diff "0.3.9"]])
 
-(defproject midje "1.5-alpha5"
+(defproject midje "1.5-alpha6"
   :description "A TDD library for Clojure that supports top-down ('mockish') TDD, encourages readable tests, provides a smooth migration path from clojure.test, balances abstraction and concreteness, and strives for graciousness."
   :url "https://github.com/marick/Midje"
   :dependencies ~(cons '[org.clojure/clojure "1.4.0"]
