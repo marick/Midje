@@ -30,7 +30,7 @@
      *allow-default-prerequisites* false)
 
 
-(def ^{:dynamic true}
+(defonce ^{:dynamic true}
   *config* {:print-level :print-normally
             :visible-deprecation true
             :visible-future true
@@ -81,8 +81,5 @@
 ;; Convenience
 (def no-overrides {})
 
-
-;; This must be done here so that the code being loaded executes in
-;; this namespace.
-(dorun (map load-file ecosystem/config-files))
-
+(defn load-config-files []
+  (dorun (map load-file ecosystem/config-files)))
