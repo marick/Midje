@@ -1,4 +1,4 @@
-(ns ^{:doc "EXPERIMENTAL, thus subject to change. Midje's special blend of generative-style testing."}
+(ns ^{:doc "Midje's special blend of generative-style testing."}
   midje.ideas.formulas
   (:use [midje.util.form-utils :only [first-named? named? pop-docstring pop-opts-map]]
         [midje.error-handling.validation-errors :only [simple-validation-error-report-form validate-m validate]]
@@ -13,9 +13,7 @@
             [midje.emission.plugins.silence :as emission-silence]
             [midje.clojure-test-facade :as ctf]))
 
-;; Formulas work by running up to *num-trials* trials per formula. If there is a failure,
-;; it will then shrink the values that caused that particular failure.
-
+;; Formulas work by running up to *num-trials* trials per formula.
 (def ^{:doc "The number of trials generated per formula."
        :dynamic true} 
   *num-trials* 100)   
@@ -24,21 +22,13 @@
   (fn [new-val]
     (if (pos? new-val) 
       true
-      (throw (RuntimeException. (str "*num-trials* must be an integer 1 or greater. You tried to set it to: " new-val))))))
+      (throw (Exception. (str "*num-trials* must be an integer 1 or greater. You tried to set it to: " new-val))))))
 
-
-(defn shrink [& _args] [])
 
 (defn- formula-fact [docstring body]
-  `(ctf/ignoring-counter-changes (midje.sweet/fact ~docstring   
-     ~@body :formula :formula-in-progress)))
-
-(defmacro shrink-failure-case [docstring binding-leftsides failed-binding-rightsides body]
-  `(loop [shrunk-binding-rightsides# (map midje.ideas.formulas/shrink ~failed-binding-rightsides)]
-     (when (and (not-any? empty? shrunk-binding-rightsides#)
-                (let [~binding-leftsides (map first shrunk-binding-rightsides#)]
-                  ~(formula-fact docstring body)))
-         (recur (map rest shrunk-binding-rightsides#)))))
+  `(ctf/ignoring-counter-changes
+    (midje.sweet/fact ~docstring   
+                      ~@body :formula :formula-in-progress)))
 
 (defn- deconstruct-formula-args [args]
   (let [[docstring? more-args] (pop-docstring args)
@@ -53,36 +43,34 @@
 
 (def formula-emission-functions
   (merge emission-silence/emission-map
-         { :fail (fn [report-map]
-                   (when-not (= :pass (:type report-map))
-                     ;; TODO: This is temporary until Midje proper no longer
-                     ;; depends on clojure.test's counters.
-                     (ctf/note-fail))
-                   (swap! formula-reports conj report-map))}))
+         {:fail (fn [report-map]
+                  (when-not (= :pass (:type report-map))
+                    ;; TODO: This is temporary until Midje proper no longer
+                    ;; depends on clojure.test's counters.
+                    (ctf/note-fail))
+                  (swap! formula-reports conj report-map))}))
 
 (defmacro around-formula [& body]
   `(try
      (emission-boundary/around-isolated-emission-context ~formula-emission-functions
-       ~@body)
-   (finally
-     (if-let [failure# (last @formula-reports)]
-       (emit/fail failure#)
-       (emit/pass))
-     (reset! formula-reports []))))
+                                                         ~@body)
+     (finally
+      (if-let [failure# (last @formula-reports)]
+        (emit/fail failure#)
+        (emit/pass))
+      (reset! formula-reports []))))
 
 
 
 
 (defmacro formula 
-  "ALPHA/EXPERIMENTAL (subject to change) - Generative-style fact macro. 
+  "Generative-style fact macro. 
   
   Ex. (formula \"any two strings concatenated begins with the first\" 
         [a (gen/string) b (gen/string)] 
         (str a b) => (has-prefix a))
         
   Currently, we recommend you use generators from test.generative.generators. 
-  (However we are in the works to create a library of generators with shrinkers, so 
-   don't get too attached to test.generative)
    
   opts-map keys:
   
@@ -106,10 +94,7 @@
 
              (if fact-result#
                (recur (dec num-trials-left#))
-               (shrink-failure-case ~docstring? 
-                                    ~(vec (take-nth 2 bindings)) 
-                                    binding-rightsides# 
-                                    ~body))))))))
+               fact-result#)))))))
 
 (defmacro with-num-trials [num-trials & formulas]
   `(binding [midje.ideas.formulas/*num-trials* ~num-trials]
