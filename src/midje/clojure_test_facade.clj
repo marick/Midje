@@ -56,7 +56,6 @@
    affect the Midje fact counters but instead returns a map
    that can be used to produce a separate report."
   [namespaces]
-  (println "=================== Need to check if failing clojure.test and embedded fact output appear in the right section of the summary.")
   (with-isolated-counters
     (binding [ct/*test-out* (java.io.StringWriter.)]
       (let [ct-result (apply ct/run-tests namespaces)]
