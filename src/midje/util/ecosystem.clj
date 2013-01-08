@@ -56,7 +56,10 @@
 (defn has-project-config-file? []
   (file-exists? project-config-file-name))
 
-(defn config-files []
+(def config-files
   (keep identity
         [(if (has-home-config-file?)    home-config-file-name)
          (if (has-project-config-file?) project-config-file-name)]))
+
+(defn set-config-files! [files]
+  (alter-var-root #'config-files (constantly files)))

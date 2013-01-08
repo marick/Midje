@@ -1,12 +1,9 @@
-(ns midje.Bootstrap
-  (require [midje.emission.api :as emit]
-           [midje.util.ecosystem :as ecosystem]))
+(ns midje.Bootstrap)
 
 (defonce bootstrapped false)
 
 (defn bootstrap []
   (when-not bootstrapped
-    (require 'midje.util.ecosystem)
     (require 'midje.config)
     
     (require 'midje.emission.api)

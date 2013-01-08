@@ -84,5 +84,5 @@
 
 ;; This must be done here so that the code being loaded executes in
 ;; this namespace.
-(dorun (map load-file (ecosystem/config-files)))
+(dorun (map load-file ecosystem/config-files))
 
