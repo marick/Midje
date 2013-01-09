@@ -2,7 +2,7 @@
   midje.emission.plugins.silence
   (:require [midje.emission.state :as state]))
 
-(defn- ignore [& args])
+(defn ignore [& args])
 
 (def emission-map {:pass ignore
                    :fail ignore
