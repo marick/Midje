@@ -22,7 +22,7 @@
   (fn [new-val]
     (if (pos? new-val) 
       true
-      (throw (Exception. (str "*num-trials* must be an integer 1 or greater. You tried to set it to: " new-val))))))
+      (throw (Error. (str "*num-trials* must be an integer 1 or greater. You tried to set it to: " new-val))))))
 
 
 (defn- formula-fact [docstring body]
