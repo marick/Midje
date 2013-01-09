@@ -33,7 +33,9 @@
 ;; so that's an acceptable compromise.
 
 (defmacro without-changing-cumulative-totals [& forms]
-  `(ctf/ignoring-counter-changes ~@forms))
+  `(ctf/ignoring-counter-changes
+    (state/with-isolated-output-counters
+      ~@forms)))
 
 (defmacro without-externally-visible-changes [& body]
   `(config/with-augmented-config {:print-level :print-nothing}

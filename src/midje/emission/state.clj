@@ -57,10 +57,16 @@
 
 (defonce installation-ok? true)
 
+(defn install-emission-map-wildly [map]
+  (alter-var-root #'emission-functions (constantly map)))
+
 (defn install-emission-map [map]
-  (when installation-ok?
-    (alter-var-root #'emission-functions (constantly map))))
+  (when installation-ok? (install-emission-map-wildly map)))
 
 (defn no-more-plugin-installation []
   (alter-var-root #'installation-ok? (constantly false)))
 
+(defmacro with-emission-map [map & body]
+  `(binding [emission-functions ~map]
+     ~@body))
+  

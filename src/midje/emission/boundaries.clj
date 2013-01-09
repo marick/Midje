@@ -6,14 +6,16 @@
             [midje.emission.state :as state]))
 
 (defn test-results-to-ternary [counters]
-  (cond (every? zero? ((juxt :fail :pass) counters))
-        nil
+  (let [failures (state/output-counters:midje-failures)
+        passes (state/output-counters:midje-passes)]
+    (cond (every? zero? [failures passes])
+          nil
 
-        (zero? (:fail counters))
-        true
+          (zero? failures)
+          true
         
-        :else
-        false))
+          :else
+          false)))
 
 ;; TODO: Once we reconcile the different ways results are checked and
 ;; returned by these two macros, extract commonality into a helper

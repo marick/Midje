@@ -5,6 +5,7 @@
   (:require [midje.config :as config]
             [midje.clojure-test-facade :as ctf]
             [midje.ideas.reporting.levels :as levelly]
+            [midje.emission.state :as state]
             [midje.ideas.reporting.level-defs :as deflevels]
             [midje.internal-ideas.compendium :as compendium]
             [midje.internal-ideas.project-state :as project-state]
@@ -344,8 +345,8 @@
   (fact "Both facts were checked"
     :check-only-at-load-time
     (check-facts 'midje.t-repl :print-nothing)
-    (:pass (ctf/counters)) => 1
-    (:fail (ctf/counters)) => 1)
+    (state/output-counters:midje-passes) => 1
+    (state/output-counters:midje-failures) => 1)
   )
 
 ;;;; ==== PART 3: Rechecking the last-fact checked.
