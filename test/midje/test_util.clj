@@ -7,7 +7,8 @@
         [clojure.set :only [subset?]]
         [midje.util.form-utils :only [macro-for]])
   (:require [midje.clojure-test-facade :as ctf]
-            [midje.config :as config]))
+            [midje.config :as config]
+            [midje.emission.state :as state]))
 
 
 (def reported (atom []))
@@ -48,31 +49,36 @@
        (>= (:fail (ctf/counters)) (:fail stashed-counters#)) midje.sweet/=> true)))
 
 
+(def silent-fact-failures (atom :unset))
+
+(defn output-counters []
+  @state/output-counters)
+
 (defmacro silent-fact [& args]
-  `(run-silently  ;; Scheduled to be deleted once reporting rewritten.
-    (without-externally-visible-changes
-     (midje.sweet/fact ~@args))))
+  `(do
+     (let [result# (run-silently  ;; Scheduled to be deleted once reporting rewritten.
+                    (without-externally-visible-changes
+                     (state/reset-output-counters!)
+                     (midje.sweet/fact ~@args)
+                     (reset! silent-fact-failures (state/output-counters:midje-failures))))]
+       result#)))
+     
 
-(defn fact-passes []
-  (empty? @reported))
-
-(def fact-fails (complement fact-passes))
-
-(defn failure-count []
-  (count @reported))
+(defn fact-fails []
+  (pos? @silent-fact-failures))
+(def fact-passes (complement fact-fails))
 
 (defmacro note-that [& claims]
   (let [clauses (reduce (fn [so-far claim]
                           (cond (symbol? claim)
                                 (conj so-far `(~claim) '=> true)
-
+                                
                                 (= (first claim) 'fails)
-                                (conj so-far '(failure-count) '=> (second claim))))
+                                (conj so-far '@silent-fact-failures '=> (second claim))))
                         []
                         claims)]
-
     (with-meta `(midje.sweet/fact ~@clauses) (meta &form))))
-
+  
 
 
 
