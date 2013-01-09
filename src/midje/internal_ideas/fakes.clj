@@ -2,7 +2,6 @@
   midje.internal-ideas.fakes
   (:use [utilize.seq :only (separate find-first)]
         [midje.util.object-utils :only [object-name]]
-        [clojure.test :only [report]]
         [midje.checkers :only [exactly]]
         [midje.checkers.defining :only [checker? checker-makers]]
         [midje.internal-ideas.expect :only [expect? up-to-full-expect-form]]
@@ -26,7 +25,8 @@
         [midje.ideas.arrow-symbols]
         [clojure.tools.macro :only [macrolet]])
   (:require [clojure.zip :as zip]
-            [midje.config :as config])
+            [midje.config :as config]
+            [midje.emission.api :as emit])
   (:import midje.ideas.metaconstants.Metaconstant))
 
 
@@ -211,10 +211,10 @@
         map?          (do
                         (swap! (:call-count-atom action) inc)
                         ((:result-supplier action )))
-        :else (clojure.test/report {:type :mock-argument-match-failure
-                                    :var function-var
-                                    :actual actual-args
-                                    :position (:position (first fakes))})))))
+        :else (emit/fail {:type :mock-argument-match-failure
+                          :var function-var
+                          :actual actual-args
+                          :position (:position (first fakes))})))))
 
 
 ;; Binding map related
@@ -265,8 +265,8 @@
                                :expected-call   (:call-text-for-failures fake)
                                :position        (:position fake)
                                :expected        (:call-text-for-failures fake)}))]
-    (report {:type :mock-incorrect-call-count
-             :failures failures} )))
+    (emit/fail {:type :mock-incorrect-call-count
+                :failures failures} )))
 
 
 
