@@ -152,3 +152,20 @@
    (throw-exception "throws Error") => truthy)
  (fact
    @reported => (three-of checker-fails)))
+
+;; Strange issue with validations that throw Exception does not happen
+;; with error. Here's the expected behavior:
+
+
+(def ^{:dynamic true} *with-error-validator*)
+(set-validator! #'*with-error-validator* (fn [v] (if (pos? v) true (throw (Error. "gorp")))))
+(fact (binding [*with-error-validator* -1]) => (throws Error))
+(fact (binding [*with-error-validator* -1]) => (throws "gorp"))
+
+
+(def ^{:dynamic true} *with-exception-validator*)
+(set-validator! #'*with-exception-validator* (fn [v] (if (pos? v) true (throw (Exception. "gorp")))))
+(fact (binding [*with-exception-validator* -1]) => (throws Exception))
+(fact (binding [*with-exception-validator* -1]) =not=> (throws "gorp"))   ;; !
+
+
