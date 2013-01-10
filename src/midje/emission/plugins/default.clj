@@ -34,12 +34,43 @@
                                           (metadata/fact-line fact-function)])))))))
 
 
+(defn make-map [& keys]
+  (zipmap keys
+          (map #(ns-resolve *ns* (symbol (name %))) keys)))
+
 
 (def emission-map (merge silence/emission-map
-                         {:fail fail
-                          :starting-to-check-fact starting-to-check-fact
-                          :possible-new-namespace possible-new-namespace
-                          :forget-everything forget-everything
-                          }))
+                         (make-map ;; `:pass` takes no arguments. In this case,
+                                   ;; it's defined in the silence plugin.
+                                   ;; Note that the count of passes and fails
+                                   ;; is maintained in `state`, so you needn't
+                                   ;; do it yourself.
+                                   ;; :pass
 
+                                   ;; `:fail` takes a map of information. See
+                                   ;; `default-fails` for the different sorts
+                                   ;; of maps and how they're handled.
+                                   ;; Note that the count of passes and fails
+                                   ;; is maintained in `state`, so you needn't
+                                   ;; do it yourself.
+                                   :fail
+
+                                   ;; `:starting-to-check-fact` takes a fact-function
+                                   ;; as an argument. Use its metadata to construct
+                                   ;; output. See the function above for an example.
+                                   :starting-to-check-fact
+
+                                   ;; `possible-new-namespace` is called whenever a
+                                   ;; namespace might change, most notably whenever
+                                   ;; a new fact is being checked.
+                                   :possible-new-namespace
+
+                                   ;; `:forget-everything` is called when a new
+                                   ;; "stream" of facts is to be evaluated. The most
+                                   ;; typical case is when `load-facts` is called,
+                                   ;; either directly or via `lein midje`. Note that
+                                   ;; the running count of passes and fails is zeroed
+                                   ;; before this call.
+                                   :forget-everything)))
+  
 (state/install-emission-map emission-map)

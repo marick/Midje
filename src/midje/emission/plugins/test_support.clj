@@ -10,12 +10,12 @@
   (fn [& args]
     (swap! recorder #(conj % (cons cmd args)))))
 
-(defn recording-map [& keys]
+(defn make-map [& keys]
   (zipmap keys
           (map record keys)))
 
-(def emission-map (recording-map :pass
-                                 :fail
-                                 :starting-to-check-fact
-                                 :possible-new-namespace
-                                 :forget-everything))
+(def emission-map (make-map :pass
+                            :fail
+                            :starting-to-check-fact
+                            :possible-new-namespace
+                            :forget-everything))
