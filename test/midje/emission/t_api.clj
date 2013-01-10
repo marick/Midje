@@ -2,6 +2,7 @@
   (:use midje.sweet
         midje.test-util)
   (:require [midje.emission.api :as emit]
+            [midje.emission.levels :as levels]
             [midje.emission.state :as state]
             [midje.emission.plugins.test-support :as plugin]
             [midje.config :as config]))
@@ -19,34 +20,31 @@
 
 
 
-  (fact emit/pass
-    (without-changing-cumulative-totals     
-     (state/reset-output-counters!)
 
-     (state/with-emission-map plugin/emission-map
-       (config/with-augmented-config {:print-level :print-nothing} (emit/pass)) => anything
-       (provided
-         (plugin/pass) => irrelevant :times 0)
+(defmacro innocuously [& body]
+  `(without-changing-cumulative-totals     
+    (state/with-emission-map plugin/emission-map
+      (state/reset-output-counters!)
+      (plugin/reset-recorder!)
+      ~@body
+      @state/output-counters)))
+
+(fact emit/pass
+  (innocuously
+   (config/at-print-level :print-nothing (emit/pass))
+   (config/at-print-level (levels/level-above :print-nothing) (emit/pass)))
+  => (contains {:midje-passes 2})
+  (plugin/recorded) => [[:pass]])
+
+(fact emit/fail
+  (innocuously
+   (config/at-print-level :print-nothing (emit/fail ..ignored-failure-map..))
+   (config/at-print-level (levels/level-above :print-nothing) (emit/fail ..failure-map..)))
+  => (contains {:midje-failures 2})
+  (plugin/recorded) => [[:fail ..failure-map..]])
      
-       (config/with-augmented-config {:print-level :print-no-summary} (emit/pass)) => anything
-       (provided
-         (plugin/pass) => irrelevant))
-     
-     (state/output-counters:midje-passes) => 4)) ;; This will soon become 2. It double-counts passes in api.clj
-
-  (fact emit/fail
-    (without-changing-cumulative-totals     
-     (state/reset-output-counters!)
-
-     (state/with-emission-map plugin/emission-map
-       (config/with-augmented-config {:print-level :print-nothing} (emit/fail ..failure-map..)) => anything
-       (provided
-         (plugin/fail ..failure-map..) => irrelevant :times 0)
-     
-       (config/with-augmented-config {:print-level :print-no-summary} (emit/fail ..failure-map..)) => anything
-       (provided
-         (plugin/fail ..failure-map..) => irrelevant))
-     
-     (state/output-counters:midje-failures) => 2))
-
-
+(fact emit/starting-to-check-fact
+  (innocuously
+    (config/at-print-level (levels/level-below :print-facts) (emit/starting-to-check-fact ..ignored-fact-function..))
+    (config/at-print-level :print-facts (emit/starting-to-check-fact ..fact-function..)))
+  (plugin/recorded) => [[:starting-to-check-fact ..fact-function..]])

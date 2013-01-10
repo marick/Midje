@@ -41,7 +41,7 @@
 ;; it should be the other way around?
 (defmacro around-fact-function [ff-sym & body]
   `(let [starting-failures# (emit/midje-failures)]
-     (levelly/report-checking-fact ~ff-sym)
+     (emit/starting-to-check-fact ~ff-sym)
      (fact-context/adds (metadata/fact-description ~ff-sym)
                         ~@body)
      (= starting-failures# (emit/midje-failures))))

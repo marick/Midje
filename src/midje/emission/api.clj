@@ -30,13 +30,11 @@
     (load-file location)))
 
 (defn- bounce-to-plugin
-  ([keyword args]
-     (let [function (keyword state/emission-functions)]
-       (if function
-         (apply function args)
-         (throw (Error. (str "Your emission plugin does not define " keyword))))))
-  ([keyword]
-     (bounce-to-plugin keyword [])))
+  [keyword & args]
+  (let [function (keyword state/emission-functions)]
+    (if function
+      (apply function args)
+      (throw (Error. (str "Your emission plugin does not define " keyword))))))
 
 ;;; The API proper
 
@@ -47,10 +45,12 @@
 
 (defn fail [report-map]
   (state/output-counters:inc:midje-failures!)
-  (when (config-above? :print-nothing) (bounce-to-plugin :fail [report-map])))
+  (when (config-above? :print-nothing) (bounce-to-plugin :fail report-map)))
   
 (defn forget-everything []
   (state/reset-output-counters!)
   (ctf/zero-counters)  ;; TODO This is temporary until clojure.test is vanquished.
   (bounce-to-plugin :forget-everything))
 
+(defn starting-to-check-fact [fact-function]
+  (when (config-at-or-above? :print-facts) (bounce-to-plugin :starting-to-check-fact fact-function)))

@@ -264,13 +264,6 @@
       (:pass (ctf/counters)) => 1
       check-result => true)))
 
- ;; Obeying print levels
- (let [text
-       (config/with-augmented-config {:print-level :print-facts}
-         (with-out-str (check-one-fact the-fact)))]
-   (fact :check-only-at-load-time
-     text => #"the-name"))
-
  ;; Obeying metadata filters
  (let [string-result ; will only be visible for facts defined at the repl.
        (config/with-augmented-config {:desired-fact? (with-meta (constantly false)

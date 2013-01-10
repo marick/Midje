@@ -29,23 +29,6 @@
   (separate-print-levels [:print-nothing :print-facts])
   => (throws Error #"extra.*print.*level"))
 
-(fact "report fact being checked"
-  (let [name+desc-fact (with-meta (fn[])
-                         {:midje/name "named" :midje/description "desc"})
-        desc-fact (with-meta (fn[]) {:midje/description "desc"})
-        unnamed (with-meta (fn[]) {:midje/file "file" :midje/line 3})]
-    (fact "prints nothing unless at :print-facts level"
-      (config/with-augmented-config
-        {:print-level (dec (names-to-levels :print-facts))}
-        (with-out-str (report-checking-fact name+desc-fact)) => ""))
-
-    (fact "prints names in preference to descriptions"
-      (config/with-augmented-config {:print-level :print-facts}
-        (with-out-str (report-checking-fact name+desc-fact)) => #"Checking named"
-        (with-out-str (report-checking-fact desc-fact)) => #"Checking desc"
-        (with-out-str (report-checking-fact unnamed))
-        => #"Checking fact at \(file:3\)"))))
-
 
 (without-changing-cumulative-totals
  (fact "report-summary"

@@ -1,13 +1,18 @@
 (ns ^{:doc "An emission map whose functions can be mocked."}
-  midje.emission.plugins.test-support
-  (:require [midje.emission.plugins.silence :as silence]))
+  midje.emission.plugins.test-support)
 
-(def pass silence/ignore)
-(def fail silence/ignore)
-(def forget-everything silence/ignore)
+(def recorder (atom :uninitialized))
+(defn recorded [] @recorder)
+(defn reset-recorder! []
+  (reset! recorder []))
 
-(def emission-map {:pass #'pass
-                   :fail #'fail
-                   :forget-everything #'forget-everything
+(defn record [cmd]
+  (fn [& args]
+    (swap! recorder #(conj % (cons cmd args)))))
+
+(def emission-map {:pass (record :pass)
+                   :fail (record :fail)
+                   :starting-to-check-fact (record :starting-to-check-fact)
+                   :forget-everything (record :forget-everything)
                    })
 

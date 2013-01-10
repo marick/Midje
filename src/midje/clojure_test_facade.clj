@@ -51,6 +51,8 @@
      (finally
       (alter-var-root #'ct/*report-counters* (constantly original-value#))))))
 
+
+
 (defn run-tests
   "Run clojure.test tests in the given namespaces. It does not 
    affect the Midje fact counters but instead returns a map
@@ -62,5 +64,10 @@
         {:test-count (:test ct-result)
          :fail-count (+ (:fail ct-result) (:error ct-result))
          :lines (-> ct/*test-out* .toString str/split-lines)}))))
+
+
+(defn output [& texts]
+  (ct/with-test-out
+    (dorun (map println texts))))
 
 (def ^{:dynamic true} report ct/report)

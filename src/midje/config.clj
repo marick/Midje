@@ -61,6 +61,10 @@
      (binding [*config* (merge *config* true-map#)]
        ~@body)))
 
+(defmacro at-print-level [level & body]
+  `(with-augmented-config {:print-level ~level}
+    ~@body))
+
 (defn choice
   "Returns the configuration value of `key`"
   [key] (*config* key))

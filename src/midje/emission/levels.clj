@@ -20,3 +20,5 @@
     (names-to-levels level-or-name)
     level-or-name))
 
+(def level-below (comp dec normalize))
+(def level-above (comp inc normalize))

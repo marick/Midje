@@ -12,7 +12,7 @@
 
 ;;; Formatting Single Fact
 
-(defn midje-position-string [[filename line-num]]
+(defn midje-position-string [[filename line-num]]   ;;;; DEFUNCT
   (format "(%s:%s)" filename line-num))
 
 (defn- pr-sorted [x]

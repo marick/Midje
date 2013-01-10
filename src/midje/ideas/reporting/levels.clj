@@ -1,7 +1,7 @@
 (ns ^{:doc "Reporting that is influenced by print levels"}
   midje.ideas.reporting.levels
   (:use [midje.ideas.reporting.string-format :only [report-strings-summary
-                                                    midje-position-string]]
+                                                    ]]
         [midje.error-handling.exceptions :only [user-error]]
         midje.ideas.reporting.level-defs
         clojure.pprint)
@@ -30,16 +30,6 @@
 
 (def at-or-above? (level-checker >=))
 (def above?(level-checker >))
-
-(defn report-checking-fact [fact-function]
-  (when (at-or-above? :print-facts)
-    (println (color/note
-              (str "Checking "
-                   (or (metadata/fact-name fact-function)
-                       (metadata/fact-description fact-function)
-                       (str "fact at " (midje-position-string
-                                        [(metadata/fact-file fact-function)
-                                         (metadata/fact-line fact-function)]))))))))
 
 (defn report-summary
   ([]

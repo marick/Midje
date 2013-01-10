@@ -310,3 +310,6 @@ metadata (as provided by def) merged into the metadata of the original."
   reference)
   
 
+(defn midje-position-string [[filename line-num]]
+  (format "(%s:%s)" filename line-num))
+

@@ -82,6 +82,11 @@
     (with-meta `(midje.sweet/fact ~@clauses) (meta &form))))
   
 
+(defmacro captured-output [& body]
+  `(binding [clojure.test/*test-out* (java.io.StringWriter.)]
+     (clojure.test/with-test-out ~@body)
+     (.toString clojure.test/*test-out*)))
+
 
 
 
