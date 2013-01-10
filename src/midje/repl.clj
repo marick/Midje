@@ -13,6 +13,7 @@
             [midje.internal-ideas.compendium :as compendium]
             [midje.internal-ideas.project-state :as project-state]
             [midje.emission.boundaries :as emission-boundary]
+            [midje.emission.api :as emit]
             [midje.util.form-utils :as form]
             [midje.util.colorize :as color]
             [midje.util.ecosystem :as ecosystem]
@@ -203,7 +204,7 @@
           ;; it reports the changed namespace before the first fact loads.
           ;; That way, some error in the fresh namespace won't appear to
           ;; come from the last-loaded namespace.
-          (levelly/report-changed-namespace ns)
+          (emit/possible-new-namespace ns)
           (require ns :reload)))))
   "Load given namespaces, as in:
      (load-facts 'midje.t-sweet 'midje.t-repl)

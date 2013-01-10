@@ -49,7 +49,7 @@
 
 (defmacro around-top-level-fact-function [ff-sym & body]
   `(let [starting-failures# (emit/midje-failures)]
-     (levelly/report-changed-namespace (metadata/fact-namespace ~ff-sym))
+     (emit/possible-new-namespace (metadata/fact-namespace ~ff-sym))
      ~@body
      (= starting-failures# (emit/midje-failures))))
 

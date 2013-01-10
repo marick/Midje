@@ -54,3 +54,6 @@
 
 (defn starting-to-check-fact [fact-function]
   (when (config-at-or-above? :print-facts) (bounce-to-plugin :starting-to-check-fact fact-function)))
+
+(defn possible-new-namespace [ns]
+  (when (config-at-or-above? :print-namespaces) (bounce-to-plugin :possible-new-namespace ns)))

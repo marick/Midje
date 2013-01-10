@@ -39,11 +39,3 @@
      (when (above? :print-no-summary)
        (report-strings-summary (ctf/counters) clojure-test-results))))
 
-(def last-namespace-shown (atom nil))
-
-(defn report-changed-namespace [namespace]
-  (when (and (at-or-above? :print-namespaces)
-             (not= namespace @last-namespace-shown))
-    (println (color/note (str "= Namespace " namespace)))
-    (swap! last-namespace-shown (constantly namespace))))
-

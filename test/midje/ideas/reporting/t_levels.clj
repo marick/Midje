@@ -41,27 +41,4 @@
      (provided
        (counters) => {:fail 0 :pass 1}))))
 
-(fact "report on a namespace"
-  (fact "Not normally printed"
-    (with-out-str (report-changed-namespace 'ignored)) => ""
-    (config/with-augmented-config
-      {:print-level (dec (names-to-levels :print-namespaces))}
-      (with-out-str (report-changed-namespace 'ignored)) => ""))
-
-  (fact "reports only when namespace changes"
-    (config/with-augmented-config {:print-level :print-namespaces}
-      (reset! last-namespace-shown "nothing")
-      (with-out-str (report-changed-namespace "nothing")) => ""
-      (with-out-str (report-changed-namespace "something")) => #"something")))
-
-(fact "no reporting at all"
-  :check-only-at-load-time
-  (config/with-augmented-config
-    {:print-level (names-to-levels :print-nothing)}
-    (with-out-str
-      (report/render '{:type :mock-expected-result-failure,
-                       :description [], :position ["t_levels.clj" 96],
-                       :actual 1, :expected 2}))
-    => ""))
-
 ) ; restore print levels to user default

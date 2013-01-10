@@ -7,6 +7,7 @@
 (def emission-map {:pass ignore
                    :fail ignore
                    :starting-to-check-fact ignore
+                   :possible-new-namespace ignore
                    :forget-everything ignore
                    })
 

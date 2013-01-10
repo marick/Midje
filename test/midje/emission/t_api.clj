@@ -48,3 +48,10 @@
     (config/at-print-level (levels/level-below :print-facts) (emit/starting-to-check-fact ..ignored-fact-function..))
     (config/at-print-level :print-facts (emit/starting-to-check-fact ..fact-function..)))
   (plugin/recorded) => [[:starting-to-check-fact ..fact-function..]])
+
+
+(fact emit/possible-new-namespace
+  (innocuously
+    (config/at-print-level (levels/level-below :print-namespaces) (emit/possible-new-namespace ..ignored..))
+    (config/at-print-level :print-namespaces (emit/possible-new-namespace ..emitted..)))
+  (plugin/recorded) => [[:possible-new-namespace ..emitted..]])
