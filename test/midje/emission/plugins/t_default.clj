@@ -1,9 +1,19 @@
 (ns midje.emission.plugins.t-default
-  (:use midje.emission.plugins.default
-        [midje sweet util test-util])
+  (:use [midje sweet util test-util])
   (:require [midje.config :as config]
+            [midje.emission.plugins.default :as plugin]
+            [midje.emission.api :as emit]
+            [midje.emission.state :as state]
             [midje.clojure-test-facade :as ctf]))
 
+
+(defmacro innocuously [& body]
+  `(state/with-emission-map plugin/emission-map
+     (captured-output
+      ~@body)))
+
+(fact "passes produce no output"
+  (innocuously (emit/pass)) => "")
 
 (fact "report fact being entered"
   (let [name+desc-fact (with-meta (fn[])
@@ -13,7 +23,7 @@
 
     
     (fact "prints names in preference to descriptions"
-      (captured-output (starting-to-check-fact name+desc-fact)) => #"Checking named"
-      (captured-output (starting-to-check-fact desc-fact)) => #"Checking desc"
-      (captured-output (starting-to-check-fact unnamed)) => #"Checking fact at \(file:3\)")))
+      (innocuously (plugin/starting-to-check-fact name+desc-fact)) => #"Checking named"
+      (innocuously (plugin/starting-to-check-fact desc-fact)) => #"Checking desc"
+      (innocuously (plugin/starting-to-check-fact unnamed)) => #"Checking fact at \(file:3\)")))
 
