@@ -84,7 +84,7 @@
  (two-numbers) => 7
  (provided
    (number) =streams=> '[3 4 5 6 7 8] :times 1))
-(note-that fact-fails, (prerequisite-called :times 2))
+(note-that fact-fails, (the-prerequisite-was-incorrectly-called 2 :times))
 
 ;; (fact
 ;;   @reported => has-wrong-call-count)

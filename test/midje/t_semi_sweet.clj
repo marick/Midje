@@ -149,12 +149,12 @@
   (silent-fact "mock call supposed to be made, but wasn't (zero call count)"
      (expect (no-caller) => "irrelevant"
              (fake (mocked-function) => 33)))
-  (note-that fact-fails, (prerequisite-called :times 0))
+  (note-that fact-fails, (the-prerequisite-was-never-called))
   
   (silent-fact "mock call was not supposed to be made, but was (non-zero call count)"
       (expect (function-under-test 33) => "irrelevant"
               (not-called mocked-function)))
-  (note-that fact-fails, (prerequisite-called :times 1))
+  (note-that fact-fails, (the-prerequisite-was-incorrectly-called 1 :time))
 
   (fact "call not from inside function"
     (expect (+ (mocked-function 12) (other-function 12)) => 12
@@ -166,8 +166,8 @@
              (fake (mocked-function 12) => 1)
              (fake (mocked-function 22) => 2)
              (fake (mocked-function 33) => 3)))
-  (note-that fact-fails, (prerequisite-called :times 0)
-             (prerequisite-expected-call "(mocked-function 33)"))
+  (note-that fact-fails,
+             (prerequisite-was-never-called #"mocked-function 33"))
 
   (fact "multiple calls to a mocked function are perfectly fine"
     (expect (+ (mocked-function 12) (mocked-function 12)) => 2

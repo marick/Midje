@@ -1,248 +1,173 @@
 (ns behaviors.t-line-number-reporting
-  (:use [midje.sweet])
-  (:use [clojure.test])
-  (:use [midje.test-util]))
-
+  (:use midje.sweet
+        clojure.test
+        midje.test-util)
+  (:require [midje.config :as config]))
 
 (defn f [n] n)
-
-(def position-1 9)
-
-(after-silently 
- (fact (+ 1 1) => 3)
- (fact
-   @reported => (just
-		 (contains
-		  {:type :mock-expected-result-failure
-		   :position ["t_line_number_reporting.clj" (+ position-1 3)]}))))
-
-(after-silently 
- (fact (+ 1 1) => 3)  ; same line as fact
- (fact
-   @reported => (just
-		 (contains
-		  {:type :mock-expected-result-failure
-		   :position ["t_line_number_reporting.clj" (+ position-1 11)]}))))
-
-(after-silently 
- (fact "odd positioning"
-   
-   (+ 1 1) =>   
-
-   3)
- (fact
-   @reported => (just
-		 (contains
-		  {:type :mock-expected-result-failure
-		   :position ["t_line_number_reporting.clj" (+ position-1 21)]}))))
-
 (defn g [n] n)
-(def position-2 40)
+  
 
-(after-silently 
- (fact (g 1) => 1
-   (provided (f 2) => 2))
- (fact
-   @reported => (just [ (contains {:type :mock-incorrect-call-count
-				                           :failures (contains (contains {:position ["t_line_number_reporting.clj" (+ position-2 4)]})) })
-                        ])))
 
-  (after-silently 
-   (fact (g 1) => 1
 
-     ;; quite the gap here.
 
-         (provided
-            (f 2) => 2))
-   (fact
-     @reported => (just [ (contains {:type :mock-incorrect-call-count
-                                     :failures (contains (contains {:position ["t_line_number_reporting.clj" (+ position-2 16)]})) })
-			  ])))
+                   ;;; Simple cases
+
+(def simple-start 16)
+
+(silent-fact (+ 1 1) => 3) 
+(note-that (failure-was-at-line (+ simple-start 2)))
+
+(silent-fact "odd positioning"
+   
+    (+ 1 1) =>   ; here
+
+    3)
+(note-that (failure-was-at-line (+ simple-start 7)))
+
+(silent-fact (g 1) => 1
+  (provided (f 2) => 2))   ; here
+(note-that (failure-was-at-line (+ simple-start 13)))
+
+(silent-fact (g 1) => 1
+  
+  ;; quite the gap.
+
+  (provided
+    (f 2) => 2))    ;; here
+(note-that (failure-was-at-line (+ simple-start 21)))
+
+
+               ;;; Inside a deftest
 
 (unfinished favorite-animal)
 (defn favorite-animal-name [] (name (favorite-animal)))
-(defn favorite-animal-empty [] )
+(defn return-nil [] )
 (defn favorite-animal-only-animal [] (favorite-animal))
 (defn favorite-animal-only-name [] (name "fred"))
 (defn favorite-animal-one-call [] (name (favorite-animal 1)))
 
-(deftest unfolding-fakes-examples ;; Use a deftest to check that line numbers work inside.
+(def deftest-start 50)
 
+(deftest unfolding-fakes-examples ;; Use a deftest to check that line numbers work inside.
   (fact
     (favorite-animal-name) => "betsy"
     (provided
       (name (favorite-animal)) => "betsy"))
 
+  (silent-fact
+    (return-nil) => "betsy"   ;; wrong result
+    (provided
+      (name (favorite-animal)) => "betsy"))  ;; two prerequisites unfolded here, but never called.
 
-  (def line-number 77)
-  (after-silently
-   (fact
-     (favorite-animal-empty) => "betsy"
-     (provided
-       (name (favorite-animal)) => "betsy"))
-   (fact
-     @reported => (just [ (contains {:type :mock-incorrect-call-count
-				                             :failures (just [(contains {:position ["t_line_number_reporting.clj" (+ line-number 5)]
-				                                                        :expected-call "(name ...favorite-animal-value-1...)" })   
-                                                      (contains {:expected-call "(favorite-animal)"
-                                                                :position ["t_line_number_reporting.clj" (+ line-number 5)]})]
-                                                )})
-                          (contains {:type :mock-expected-result-failure
-				                             :position ["t_line_number_reporting.clj" (+ line-number 3)]})])))
+  (note-that (prerequisite-was-never-called #"name")
+             (prerequisite-was-never-called #"favorite-animal")
+             (fact-expected "betsy")
+             (failures-were-at-lines  (+ deftest-start 11) (+ deftest-start 11) (+ deftest-start 9)))
 
-  (def line-number 93)
-  (after-silently
-   (fact
-     (favorite-animal-only-animal) => "betsy"
-     (provided
-       (name (favorite-animal)) => "betsy"))
-   (fact
-     @reported => (just [ (contains {:type :mock-incorrect-call-count
-				                              :failures (contains (contains {:position ["t_line_number_reporting.clj" (+ line-number 5)]})) })
-			                     (contains {:type :mock-expected-result-failure
-			                    	          :position ["t_line_number_reporting.clj" (+ line-number 3)]})])))
+  
+  (silent-fact
+   (favorite-animal-only-animal) => "betsy"  ;; here
+   (provided
+     (name (favorite-animal)) => "betsy"))   ;; here (name not called)
 
-  (def line-number 105)
-  (after-silently
-   (fact
-     (favorite-animal-only-name) => "betsy"
-     (provided
-       (name (favorite-animal)) => "betsy"))
-   (fact
-     @reported => (just [
-              (contains {:type :mock-argument-match-failure
-                         :position  ["t_line_number_reporting.clj" (+ line-number 5)]})
-			  (contains {:type :mock-incorrect-call-count
-                   :failures (just [(contains {:position ["t_line_number_reporting.clj" (+ line-number 5)]
-				                                       :expected-call "(name ...favorite-animal-value-1...)"})
-                                    (contains {:position ["t_line_number_reporting.clj" (+ line-number 5)]
-                                               :expected-call "(favorite-animal)"})]  )})
-			  (contains {:type :mock-expected-result-failure
-				     :position ["t_line_number_reporting.clj" (+ line-number 3)]})])))
+  (note-that (prerequisite-was-never-called #"name")
+             (fact-expected "betsy")
+             (failures-were-at-lines (+ deftest-start 22) (+ deftest-start 20)))
+
+  (silent-fact
+    (favorite-animal-only-name) => "betsy"   ;; This calls for the name of frank.
+    (provided
+      (name (favorite-animal)) => "betsy"))
+
+  (note-that some-prerequisite-was-called-with-unexpected-arguments
+             (prerequisite-was-never-called #"name")  ;; never correctly called, I guess I should say.
+             (prerequisite-was-never-called #"favorite-animal")
+             (fact-expected "betsy")
+             (failures-were-at-lines (+ deftest-start 31) (+ deftest-start 31) (+ deftest-start 31) (+ deftest-start 29)))
 
 
-  (def line-number 125)
-  (after-silently
-   (fact
-     (favorite-animal-one-call) => "betsy"
-     (provided
-       (name (favorite-animal 1)) => "betsy"
-       (name (favorite-animal 2)) => "jake")) ;; a folded prerequisite can have two errors.
-   (fact
-     @reported => (just [(contains {:type :mock-incorrect-call-count
-                                    :failures (just [(contains {:position ["t_line_number_reporting.clj" (+ line-number 5)]
-				                                                       :expected-call "(name ...favorite-animal-value-2...)"})
-                                                     (contains {:position ["t_line_number_reporting.clj" (+ line-number 5)]
-                                                                :expected-call "(favorite-animal 2)"})  ])})
-                         ]))))
+  (silent-fact
+    (favorite-animal-one-call) => "betsy"
+    (provided
+      (name (favorite-animal 1)) => "betsy"
+      (name (favorite-animal 2)) => "jake")) ;; a folded prerequisite can have two errors.
+  (note-that (failures-were-at-lines (+ deftest-start 44) (+ deftest-start 44)))
+  
+  )
 
 
-  (def line-number-separate 140)
-(unfinished outermost middlemost innermost)
-(in-separate-namespace
-(background (outermost) => 2)
-(against-background [ (middlemost) => 33]
-   (after-silently
-    (fact
-      (against-background (innermost) => 8)
-      (+ (middlemost)
-	 (outermost)
-	 (innermost)) => 44
-	 (+ 1 (middlemost)) => 2)
-    (fact
-      @reported => (just [ (contains { :position ["t_line_number_reporting.clj" (+ line-number-separate 8)]})
-			   (contains { :position ["t_line_number_reporting.clj" (+ line-number-separate 11)]}) ])))))
+
+         ;;; Future facts
+
+(config/with-augmented-config {:visible-future true}
+  (capturing-output
+   (future-fact "text")
+   (fact @test-output => #"t_line_number_reporting.*105")))
+
+(config/with-augmented-config {:visible-future true}
+  (capturing-output
+   (pending-fact "text")
+   (fact @test-output => #"t_line_number_reporting.*110")))
+
+(config/with-augmented-config {:visible-future true}
+  (capturing-output
+   (fact "text"
+     
+     (+ 1 "1") =future=> "2")
+   (fact @test-output => #"t_line_number_reporting.*117")))
 
 
-;; future facts
-(after-silently
- (future-fact "text")
- (fact @reported => (just (contains {:position '("t_line_number_reporting.clj" 159)
-			                               :description ["text"] }))))
-
-(after-silently
- (pending-fact (+ 1 1) => 2)
- (fact @reported => (just (contains {:position '("t_line_number_reporting.clj" 164)
-		                               	:description [nil] }))))
 
 
-;; Improved error handling for pathological cases
+        ;;; Improved error handling for pathological cases
 
-(def line-number-pathological 171)
-;; statements without lists guess 1+ most recent"
-(after-silently
- (fact 
+(def patho-start 125)
+
+(silent-fact "statements without lists guess 1+ most recent"
    1 => even?)
- (fact @reported => (just (contains {:position
-                                     ["t_line_number_reporting.clj"
-                                      (+ line-number-pathological 4)]}))))
+(note-that (failure-was-at-line (+ patho-start 3)))
 
-;; That can cause mistakes
-(after-silently
- (fact
+(silent-fact "that can cause mistakes"
+                   ;; will appear to come from here
+   1 => even?)
+(note-that (failure-was-at-line (+ patho-start 7)))
+
+(silent-fact "Facts that have detectable line numbers update the best-guess."
    
-   1 => even?)
- (fact @reported => (just (contains {:position
-                                     ["t_line_number_reporting.clj"
-                                      (+ line-number-pathological 12)]}))))
+   (+ 1 2) => odd?  ;; best guess is now here
+   1 => even?)      ;; so this is correctly reported
+(note-that (failure-was-at-line (+ patho-start 14))) 
 
-;; Facts that have detectable line numbers update the best-guess.
-(after-silently
- (fact
-   ;; Here, the line numbering goes astray.
-   (+ 1 2) => odd?
-   1 => even?)
- (fact @reported => (just [
-                           (contains {:position ["t_line_number_reporting.clj"
-                                                 (+ line-number-pathological 23)]})])))
+(silent-fact "each emission, even if wrong, is taken as best guess for future"
+   1 => even?  ;; This is correctly guessed.
 
 
-(def facts-position 200)
-(after-silently
- (facts "... also use fallback line number"
-   1 => even?  
+   5 => even?  ;; This is not. Instead, 1 + the previous is reported.
+   7 => even?  ;; So this is again guessed wrong: 2 + the first guess
+   (+ 1 2) => odd?  ;; This will reset the counter
+   3 => even?) ;; So this is a better guess
+(let [start-of-fact (+ patho-start 17)]
+  (note-that (failures-were-at-lines (+ 1 start-of-fact)
+                                     (+ 2 start-of-fact)
+                                     (+ 3 start-of-fact)
+                                     (+ 7 start-of-fact))))
 
 
-   5 => even?
-   (+ 1 2) => odd?
-   3 => even?)
- (fact @reported => (just (contains {:position ["t_line_number_reporting.clj"
-                                                (+ facts-position 3)]})
-                          (contains {:position ["t_line_number_reporting.clj"
-                                                (+ facts-position 4)]})
-                          
-                          (contains {:position ["t_line_number_reporting.clj"
-                                                (+ facts-position 8)]}))))
+;;; Line number reporting for variant expect arrows
+
+(def variant-line 159)
+(silent-fact
+ (+ 1 1) =deny=> 2
+ (+ 1 1) =not=> 2)
+(note-that (failures-were-at-lines (+ variant-line 2) (+ variant-line 3)))
 
 
-;; Line number reporting for variant expect arrows
-
-(def variant-position 220)
-(after-silently 
- (fact
-   (+ 1 1) =deny=> 2
-   (+ 1 1) =not=> 2
-   (+ 1 "1") =future=> "2")
- (fact @reported => (just (contains {:position ["t_line_number_reporting.clj"
-                                                (+ variant-position 3)]})
-                          (contains {:position ["t_line_number_reporting.clj"
-                                                (+ variant-position 4)]})
-                          (contains {:position ["t_line_number_reporting.clj"
-                                                (+ variant-position 5)]}))))
+(tabular "The line number is the line number of the fact, not the substitutions."
+  (silent-fact (inc ?n) => ?n)
 
 
-(def tabular-position 234)
-(after-silently
- (tabular
-  (fact (inc ?n) => ?n)
+  
   ?n  ?comment
-  1   "1"
-  2   "2")
- (fact "The line number is the line number of the fact, not the substitutions."
-   @reported => (just (contains {:position ["t_line_number_reporting.clj"
-                                            (+ tabular-position 3)]
-                                 :binding-note "[?n 1\n                           ?comment \"1\"]"})
-                      (contains {:position ["t_line_number_reporting.clj"
-                                            (+ tabular-position 3)]
-                                 :binding-note "[?n 2\n                           ?comment \"2\"]"}))))
-
+  1   "1")
+(note-that (failure-was-at-line 167))

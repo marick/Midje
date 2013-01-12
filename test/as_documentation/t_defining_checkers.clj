@@ -26,7 +26,7 @@
   (provided
     (is-given-sequence-cause-for-happiness? sequence-of-even-length?) => true))
 
-(note-that fact-fails, some-prerequisite-was-not-matched)
+(note-that fact-fails, some-prerequisite-was-called-with-unexpected-arguments)
 
 ;; What you might expect is that the prerequisite will return `true`
 ;; for any sequence of even length. That would be consistent with

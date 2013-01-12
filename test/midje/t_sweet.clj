@@ -233,19 +233,19 @@
  (called 1) => 1
  (provided
    (called 1) => 1 :times 2))
-(note-that fact-fails, (prerequisite-called :times 1))
+(note-that fact-fails, (the-prerequisite-was-incorrectly-called 1 :time))
   
 (silent-fact ":times can be a range"
  (called 1) => 1
  (provided
    (called 1) => 1 :times (range 2 8)))
-(note-that fact-fails, (prerequisite-called :times 1))
+(note-that fact-fails, (the-prerequisite-was-incorrectly-called 1 :time))
  
 (silent-fact "times can be a function"
  (do (called 1) (called 1) (called 1)) => 1
  (provided
    (called 1) => 1 :times even?))
-(note-that fact-fails, (prerequisite-called :times 3))
+(note-that fact-fails, (the-prerequisite-was-incorrectly-called 3 :times))
   
 (fact "by default, can be called zero or more times"
   (do (called 1) (called 1)) => 1
@@ -256,7 +256,7 @@
  (called 45) => 3
  (provided
    (called irrelevant) => 1 :times 0))
-(note-that fact-fails, (prerequisite-called :times 1))
+(note-that fact-fails, (the-prerequisite-was-incorrectly-called 1 :time))
 
                                 ;;; Facts have return values
 

@@ -25,30 +25,47 @@
   (reset! silent-fact:last-raw-failure (last (state/raw-fact-failures))))
 
 
-(defn silent-body [macro-symbol args]
-  `(emit/producing-only-raw-fact-failures
-    (let [result# (~macro-symbol ~@args)]
-      (record-failures)
-      result#)))
+(defn silent-body [symbol-to-substitute form]
+  (let [silenced (with-meta `(~symbol-to-substitute ~@(rest form)) (meta form))]
+    `(emit/producing-only-raw-fact-failures
+      (let [result# ~silenced]
+        (record-failures)
+        result#))))
 
-(defmacro silent-fact [& args]
-  (silent-body 'midje.sweet/fact args))
-(defmacro silent-formula [& args]
-  (silent-body 'midje.sweet/formula args))
-(defmacro silent-against-background [& args]
-  (silent-body 'midje.sweet/against-background args))
-(defmacro silent-background [& args]
-  (silent-body 'midje.sweet/background args))
-(defmacro silent-tabular [& args]
-  (silent-body 'midje.sweet/background args))
-(defmacro silent-expect [& args]
-  (silent-body 'midje.semi-sweet/expect args))
-(defmacro silent-fake [& args]
-  (silent-body 'midje.semi-sweet/fake args))
-(defmacro silent-data-fake [& args]
-  (silent-body 'midje.semi-sweet/data-fake args))
+(defmacro silent-fact [& _]
+  (silent-body 'midje.sweet/fact &form))
+(defmacro silent-tabular [& _]
+  (silent-body 'midje.sweet/tabular &form))
+(defmacro silent-formula [& _]
+  (silent-body 'midje.sweet/formula &form))
+(defmacro silent-against-background [& _]
+  (silent-body 'midje.sweet/against-background &form))
+(defmacro silent-background [& _]
+  (silent-body 'midje.sweet/background &form))
+(defmacro silent-expect [& _]
+  (silent-body 'midje.semi-sweet/expect &form))
+(defmacro silent-fake [& _]
+  (silent-body 'midje.semi-sweet/fake &form))
+(defmacro silent-data-fake [& _]
+  (silent-body 'midje.semi-sweet/data-fake &form))
 
 ;;; Checkers, mainly for failures
+
+;; First, utils
+
+(defn multi-reason-failure? [failure-map]
+  (= :mock-incorrect-call-count (:type failure-map)))
+
+(defn all-reasons [failure-maps]
+  (mapcat (fn [one-failure]
+            (if (multi-reason-failure? one-failure)
+              (:failures one-failure)
+              [one-failure]))
+          failure-maps))
+
+(def line-number-from-failure-reason (comp second :position))
+
+;; Checkers
 
 (defn fact-fails-because-of-negation [failure-map]
   (some #{(:type failure-map)} [:mock-actual-inappropriately-matches-checker
@@ -74,6 +91,14 @@
   (fn [actual-failure]
     (= things (:description actual-failure))))
 
+;; Applies only to the first failure (which may have multiple prerequisite failures in it)
+(defn failure-was-at-line [expected-line]
+  (fn [actual-failure]
+    (if (multi-reason-failure? actual-failure)
+      (some #{expected-line}
+            (map line-number-from-failure-reason (all-reasons [actual-failure])))
+      (= (line-number-from-failure-reason actual-failure) expected-line))))
+
 ;; Chatty checkers.
 
 (defn intermediate-result-left-match [left failure]
@@ -91,23 +116,52 @@
 
 ;; Prerequisites
 
-(defn ^{:all-failures true} some-prerequisite-was-not-matched [failure-maps]
+(def only-incorrect-call-counts (partial filter #(= (:type %) :mock-incorrect-call-count)))
+(def only-incorrect-call-count-reasons (comp all-reasons only-incorrect-call-counts))
+  
+
+(defn ^{:all-failures true} some-prerequisite-was-called-with-unexpected-arguments [failure-maps]
   (some #{:mock-argument-match-failure} (map :type failure-maps)))
 
-(defn ^{:all-failures true} prerequisite-called [_times_ n]
-  (fn [failure-maps]
-    (some #(= n (:actual-count %)) (mapcat :failures failure-maps))))
 
-(defn ^{:all-failures true} prerequisite-expected-call [call]
+(defn ^{:all-failures true} prerequisite-was-called-the-wrong-number-of-times [expected-call n & notes]
   (fn [failure-maps]
-    (some #{call} (map :expected-call  (mapcat :failures failure-maps)))))
+    (let [reasons (only-incorrect-call-count-reasons failure-maps)
+          selected-list (filter #(extended-= (:expected-call %) expected-call) reasons)]
+      (= n (:actual-count (first selected-list))))))
 
+(defn ^{:all-failures true} prerequisite-was-never-called [expected-call]
+  (prerequisite-was-called-the-wrong-number-of-times expected-call 0))
+
+                                 
+;; The following two are to be used when there's only one prerequisite
+
+(defn ^{:all-failures true} the-prerequisite-was-incorrectly-called [n & _times_]
+  (fn [failure-maps]
+    (some #(= n (:actual-count %)) (only-incorrect-call-count-reasons failure-maps))))
+
+(defn ^{:all-failures true} the-prerequisite-was-never-called []
+  (the-prerequisite-was-incorrectly-called 0 :times))
+
+(defn ^{:all-failures true} failures-were-at-lines [& lines]
+  (fn [failure-maps]
+    ;; (prn 'fwal)
+    ;; (prn lines)
+    ;; (prn (all-reasons failure-maps))
+    ;; (prn (map line-number-from-failure-reason (all-reasons failure-maps)))
+    (= lines 
+       (map line-number-from-failure-reason (all-reasons failure-maps)))))
 
 ;; Misc
 
 (defn parser-exploded [failure-map]
   (= (:type failure-map) :validation-error))
 
+
+
+
+
+;;;; Dispatchers
 
 
 (defmacro note-that [& claims]
@@ -151,6 +205,10 @@
      (binding [silent-fact:last-raw-failure (atom failure#)]
        ~note-command)))
 
+(defmacro for-failure [n note-command]
+  ;; Note: 1-based, because used ordinally (in linguistic terms)
+  `(binding [silent-fact:last-raw-failure (atom (nth @silent-fact:raw-failures ~(dec n)))]
+     ~note-command))
 
 
 ;;; Capturing output 
@@ -263,11 +321,6 @@
         true))
 
 (defn raw-report [] (println @reported) true)
-
-(defmacro in-separate-namespace [& forms]
-  `(let [old-ns# *ns*]
-    (try (in-ns (gensym)) ~@forms
-    (finally (in-ns (ns-name old-ns#))))))
 
 ;; Kinds of result maps
 (def bad-result (contains {:type :mock-expected-result-failure}))
