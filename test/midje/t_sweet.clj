@@ -7,8 +7,9 @@
             [midje.repl :as repl]
             [midje.config :as config]
             [midje.util.ecosystem :as ecosystem]
+            [midje.emission.api :as emit]
+            [midje.emission.state :as state]
             [midje.ideas.metadata :as metadata]))
-
 
 (fact "all of Midje's public, API-facing vars have docstrings"
   (map str (remove (comp :doc meta) (vals (ns-publics 'midje.sweet)))) => []
@@ -17,47 +18,32 @@
   (map str (remove (comp :doc meta) (vals (ns-publics 'midje.util)))) => []
   (map str (remove (comp :doc meta) (vals (ns-publics 'midje.repl)))) => [])
 
-
-(after-silently ; failing
- (fact (+ 1 1) => 3)
- (fact @reported => (one-of bad-result)))
+(silent-fact (+ 1 1) => 3)
+(note-that fact-fails, (fact-expected 3), (fact-actual 2))
 
 (facts
   (+ 10 10) => 20
   (+ 20 20) => 40)
 
-(after-silently ; unnamed future fact
- (future-fact 1 => 2)
- (fact @reported => (just future-fact-note)))
+
+(capturing-output
+ (config/with-augmented-config {:visible-future true}
+   (future-fact 1 => 2))
+ (fact @test-output => #"WORK TO DO\S* at \(t_sweet"))
               
-(after-silently ; named future fact
- (future-fact :some-metadata "fact name" 1 => 2)
- (fact
-   @reported => (just future-fact-note)
-   (first @reported) => (contains {:description ["fact name"]})))
+(capturing-output 
+ (config/with-augmented-config {:visible-future true}
+   (future-fact :some-metadata "fact name" 1 => 2))
+ (fact @test-output => #"WORK TO DO\S* \"fact name\" at \(t_sweet"))
+
               
 
 
-(after-silently ; combination, including a future fact
- (facts
+(silent-fact
    (+ 1 1) => 3
-   (+ 1 "1") =future=> "2"
-   (+ 1 1) => 2)
- (fact @reported => (just bad-result
-                          (contains {:type :future-fact
-                                     :description [nil "on `(+ 1 \"1\")`"]})
-                          )))
-
-(after-silently ; combination, including a future fact
- (facts
-   (+ 1 1) => 3
-   (+ 1 "1") =future=> "2"
-   (+ 1 1) => 2)
- (fact @reported => (just bad-result
-                          (contains {:type :future-fact
-                                     :description [nil "on `(+ 1 \"1\")`"]})
-                          )))
-
+   (+ 11 "1") =future=> "12"  ;; does not fail
+   (+ 111 1) => 112)
+(note-that (fails 1 time), (fact-actual 2), (fact-expected 3))
 
 
 (defn number [] )
@@ -65,19 +51,12 @@
   (+ (number) (number)))
 
 
-(letfn [(throws-arrow-exception? [captured-throwable]
-          (= "Right side of =throws=> should extend Throwable." (.getMessage (.throwable captured-throwable))))]
-
-  (after-silently ;; =throws=> gives sensible error when called without a Throwable
-    (fact
-      (two-numbers) => nil
-      (provided
-        (number) =throws=> [1]))
+(silent-fact
+ (two-numbers) => nil
+ (provided
+   (number) =throws=> [1]))
+(note-that fact-fails, (fact-captured-throwable-with-message #"Right side of =throws=> should extend Throwable"))
   
-    (fact @reported => (just (contains {:type :mock-expected-result-failure
-                                        :actual throws-arrow-exception? } )))))
-
-
 (facts "this is a doc string"
   (+ 10 10) => 20
   "this is another one"
@@ -144,46 +123,42 @@
 
   
 ;; It doesn't matter which namespace the => is in
-(after-silently 
- (fact (+ 1 1) midje.semi-sweet/=> 3)
- (fact @reported => (one-of bad-result)))
+(silent-fact (+ 1 1) midje.semi-sweet/=> 3)
+(note-that fact-fails, (fact-actual 2), (fact-expected 3))
 
-(after-silently 
- (fact (+ 1 1) midje.sweet/=> 3)
- (fact @reported => (one-of bad-result)))
+(silent-fact (+ 1 1) midje.sweet/=> 3)
+(note-that fact-fails, (fact-actual 2), (fact-expected 3))
 
 (fact (+ 1 2) =not=> 599)
 
-(after-silently
- (fact (+ 1 2) =not=> 3)
- (fact @reported => (one-of inappropriate-equality)))
+(silent-fact (+ 1 2) =not=> 3)
+(note-that fact-fails-because-of-negation, (fact-actual 3), (fact-expected 3))
 
 (fact (+ 1 2) =not=> even?)
 
-(after-silently
- (fact (+ 1 2) =not=> odd?)
- (fact @reported => (one-of inappropriate-checker)))
+(silent-fact (+ 1 2) =not=> odd?)
+(note-that fact-fails-because-of-negation, (fact-actual 3), (fact-expected 'odd?))
 
 ;; fact and future-fact descriptions nest themselves when reported
 
-(after-silently
-  (facts "A"
-    (fact "B"
+(silent-fact "A"
+  (fact "B"
       (+ 1 2) => 1))
-  (fact @reported => (one-of (contains {:description ["A" "B"]} ))))
+(note-that fact-fails, (fact-described-as "A" "B"))
 
-(after-silently
-  (facts "level 1"
-    (fact "level 2"
-      (fact "level 3"
-        (throw (Exception. "BOOM")) => anything)))
-  (fact @reported => (one-of (contains {:description ["level 1" "level 2" "level 3"]} )))) 
+(silent-fact "level 1"
+  (fact "level 2"
+    (fact "level 3"
+      (throw (Exception. "BOOM")) => anything)))
+(note-that fact-fails, (fact-described-as "level 1" "level 2" "level 3"))
 
-(after-silently
-  (facts "about mathematics"
-    (future-fact "do in future"
-      nil => 1))
-  (fact @reported => (one-of (contains {:description ["about mathematics" "do in future"]} ))))
+
+(config/with-augmented-config {:visible-future true}
+  (capturing-output
+   (fact "about mathematics"
+     (future-fact "do in future"
+                  nil => 1))
+   (fact @test-output => #"WORK TO DO.*about mathematics.*do in future")))
 
 ;; Background prerequisites
 (unfinished check-f check-g check-h)
@@ -251,51 +226,37 @@
     (scope-to-fact) => "inner"))
 
 
-
+;;; When prerequisites are called the wrong number of times.
 (unfinished called)
 
-(after-silently 
- (fact
-   (called 1) => 1
-   (provided
-     (called 1) => 1 :times 2))
- (fact @reported => (contains (contains {:type :mock-incorrect-call-count
-                                         :failures (contains (contains {:actual-count 1}))}))))
+(silent-fact
+ (called 1) => 1
+ (provided
+   (called 1) => 1 :times 2))
+(note-that fact-fails, (prerequisite-called :times 1))
   
-(after-silently
- (fact
-   (called 1) => 1
-   (provided
-     (called 1) => 1 :times (range 2 8)))
- (fact @reported => (contains (contains {:type :mock-incorrect-call-count
-                                         :failures (contains (contains {:actual-count 1}))}))))
+(silent-fact ":times can be a range"
+ (called 1) => 1
+ (provided
+   (called 1) => 1 :times (range 2 8)))
+(note-that fact-fails, (prerequisite-called :times 1))
  
-
-(after-silently
- (fact
-   (do (called 1) (called 1) (called 1)) => 1
-   (provided
-     (called 1) => 1 :times even?))
- (fact @reported => (contains (contains {:type :mock-incorrect-call-count
-                                         :failures (contains (contains {:actual-count 3}))}))))
+(silent-fact "times can be a function"
+ (do (called 1) (called 1) (called 1)) => 1
+ (provided
+   (called 1) => 1 :times even?))
+(note-that fact-fails, (prerequisite-called :times 3))
   
-(fact
+(fact "by default, can be called zero or more times"
   (do (called 1) (called 1)) => 1
   (provided
     (called 1) => 1))
 
-
-
-
-;; Possibly the most common case
-(after-silently
- (fact
-   (called 45) => 3
-   (provided
-     (called irrelevant) => 1 :times 0))
- (fact @reported => (contains (contains {:type :mock-incorrect-call-count
-                                         :failures (contains (contains {:actual-count 1}))}))))
-
+(silent-fact "how to say something is never called"
+ (called 45) => 3
+ (provided
+   (called irrelevant) => 1 :times 0))
+(note-that fact-fails, (prerequisite-called :times 1))
 
                                 ;;; Facts have return values
 
@@ -437,10 +398,9 @@
    (#'midje.internal-ideas.t-fakes/var-inc
     (#'midje.internal-ideas.t-fakes/var-inc 2)) => 201))
 
-(after-silently
- (future-fact "exceptions do not blow up"
-   "foo" => odd?)
- (future-fact @reported => (just bad-result)))
+ (fact "exceptions do not blow up"
+   (odd? "foo") => (throws Exception)
+   "foo" =not=> odd?)
    
 ;;; fact groups
 
@@ -464,11 +424,14 @@
   (fact no-integration {:integration false}
     (swap! not-integration-run-count inc)))
 
+
+
 (ecosystem/when-1-3+
- (ctf/ignoring-counter-changes
+ (emit/silently
   ;; Don't step on the running count up to this point.
   (repl/check-facts *ns* :print-no-summary :integration))
- 
+
+
  (fact
    :check-only-at-load-time
    @integration-run-count => 2

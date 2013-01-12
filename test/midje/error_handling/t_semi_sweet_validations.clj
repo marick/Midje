@@ -1,4 +1,4 @@
-(ns midje.error-handling.t_semi_sweet_validations
+(ns midje.error-handling.t-semi-sweet-validations
   (:use [midje.sweet]
         [midje.error-handling validation-errors semi-sweet-validations]
         [midje.internal-ideas.file-position :only [form-position]]
@@ -37,27 +37,24 @@
 
 ;;; Full-bore tests.
 
-(after-silently
- (expect (+ 1 2) =>)
- (expect @reported => (validation-error-with-notes
-                        (contains "(expect (+ 1 2) =>")
-                        (contains "(expect <actual> => <expected>"))))
+(silent-expect (+ 1 2) =>)
+(note-that parser-exploded,
+           (fact-failed-with-note #"expect \(\+ 1 2\) =>")
+           (fact-failed-with-note #"expect <actual> => <expected>"))
 
-(after-silently
- (fake a => 3)
- (expect @reported => (validation-error-with-notes
-                        #"must look like a function call"
-                        #"`a` doesn't")))
+(silent-fake a => 3)
+(note-that parser-exploded,
+           (fact-failed-with-note #"must look like a function call")
+           (fact-failed-with-note #"`a` doesn't"))
 
-(after-silently
- (expect (throw "should not be evaluated") => 3 (fake a => 3))
- (expect @reported => (validation-error-with-notes
-                        #"must look like a function call"
-                        #"`a` doesn't")))
+(silent-expect (throw "should not be evaluated") => 3 (fake a => 3))
+(note-that parser-exploded,
+           (fact-failed-with-note #"must look like a function call")
+           (fact-failed-with-note #"`a` doesn't"))
 
-(after-silently
- (data-fake (f 1) =contains=> {:a 1})
- (expect @reported => (validation-error-with-notes #"no metaconstant")))
+(silent-data-fake (f 1) =contains=> {:a 1})
+(note-that parser-exploded,
+           (fact-failed-with-note #"no metaconstant"))
 
 (future-fact "handle case where =contains=> is left out"
   (+ 1 1) => 2

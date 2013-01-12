@@ -115,12 +115,9 @@
   (provided
     (pzero? (Peano. ...zero...)) => true))
 
-(after-silently 
- (fact 
-   (padd (Peano. ...a...) (psuccessor (Peano. ...b...)))
-   => (psuccessor (padd (Peano. ...a...) (Peano. ...b...)))
-   (provided
-     (pzero? anything) => true))
- (fact @reported => (one-of bad-result)))
-
+(silent-fact 
+ (padd (Peano. ...a...) (psuccessor (Peano. ...b...))) => (psuccessor (padd (Peano. ...a...) (Peano. ...b...)))
+ (provided
+   (pzero? anything) => true))
+(note-that fact-fails, (fact-expected :unfinished))
 

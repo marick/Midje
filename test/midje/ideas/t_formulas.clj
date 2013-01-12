@@ -33,11 +33,8 @@
 
 ;; Failed formulas report once per formula regardless how many trials were run
 
-(after-silently
- (formula "some description" [a "y"] a => :foo)
- (fact @reported => (one-of (contains {:type :mock-expected-result-failure
-                                       :description ["some description"]}))))
-
+(silent-formula "some description" [a "y"] a => :foo)
+(note-that (fails 1 time))
 
 ;; Passing formulas run the generator many times, and evaluate 
 ;; their body many times - number of trials is rebindable
@@ -74,12 +71,10 @@
 (defn-call-countable z-maker [] "z")
 (defn-call-countable my-identity [x] (identity x))
 
-(after-silently 
-  (formula [z (z-maker)]
-    (my-identity z) => "clearly not 'z'"))
+(silent-formula [z (z-maker)]
+  (my-identity z) => "clearly not 'z'")
 (fact "calls generator once" @z-maker-count => 1)
 (fact "evalautes body once" @my-identity-count => 1)
-
 
 ;;;; Other
 
@@ -95,59 +90,64 @@
 
 (unfinished h)
 
-(each-causes-validation-error #"There is no expection in your formula form"
-  (formula [a 1])
-  (formula [a 1] 1)
-  (formula "a doc string" [a 1] (contains 3))
+(let [error-regexp #"There is no expection in your formula form"]
+  (silent-formula [a 1])
+  (silent-formula [a 1] 1)
+  (silent-formula "a doc string" [a 1] (contains 3))
 
-  (formula "ignores arrows in provideds" [a 1] 
+  (silent-formula "ignores arrows in provideds" [a 1] 
     (contains 3)
     (provided (h anything) => 5))
 
-  (formula "ignores arrows in against-background" [a 1] 
+  (silent-formula "ignores arrows in against-background" [a 1] 
     (contains 3)
     (against-background (h anything) => 5))
 
-  (formula "ignores arrows in against-background - even when it comes first" 
+  (silent-formula "ignores arrows in against-background - even when it comes first" 
     [a 1]
     (against-background (h anything) => 5)
     (contains 3))
 
-  (formula "ignores arrows in background" [a 1] 
+  (silent-formula "ignores arrows in background" [a 1] 
     (contains 3)
     (background (h anything) => 5))
 
-  (formula "ignores arrows in background - even when it comes first" 
+  (silent-formula "ignores arrows in background - even when it comes first" 
     [a 1]
     (background (h anything) => 5)
-    (contains 3)))
+    (contains 3))
+  (for-each-failure (note-that parser-exploded, (fact-failed-with-note error-regexp)))
+  )
 
-(each-causes-validation-error #"Formula requires bindings to be an even numbered vector of 2 or more"
-  (formula "a doc string" :not-vector 1 => 1)
-  (formula "a doc string" [a 1 1] 1 => 1)
-  (formula "a doc string" [] 1 => 1)
-  (formula "a doc string" {:num-trials 50} 1 => 1))
+(let [error-regexp  #"Formula requires bindings to be an even numbered vector of 2 or more"]
+  (silent-formula "a doc string" :not-vector 1 => 1)
+  (silent-formula "a doc string" [a 1 1] 1 => 1)
+  (silent-formula "a doc string" [] 1 => 1)
+  (silent-formula "a doc string" {:num-trials 50} 1 => 1)
+  (for-each-failure (note-that parser-exploded, (fact-failed-with-note error-regexp))))
+  
 
-(causes-validation-error #"There are too many expections in your formula form"
-  (formula "a doc string" [a 1] a => 1 a => 1))
+(silent-formula "a doc string" [a 1] a => 1 a => 1)
+(note-that parser-exploded, (fact-failed-with-note #"There are too many expections in your formula form"))
 
-(causes-validation-error #"Invalid keys \(:foo, :bar\) in formula's options map. Valid keys are: :num-trials"
-  (formula {:foo 5 :bar 6 :num-trials 5} [a 1] a => 1))
+(silent-formula {:foo 5 :bar 6 :num-trials 5} [a 1] a => 1)
+(note-that parser-exploded, (fact-failed-with-note #"Invalid keys \(:foo, :bar\) in formula's options map. Valid keys are: :num-trials"))
 
-(each-causes-validation-error #":num-trials must be an integer 1 or greater"
-  (formula {:num-trials 0 } [a 1] a => 1)
-  (formula {:num-trials -1} [a 1] a => 1)
-  (formula {:num-trials -2} [a 1] a => 1)
-  (formula {:num-trials -3} [a 1] a => 1)
-  (formula {:num-trials -4} [a 1] a => 1))
+(let [error-regexp #":num-trials must be an integer 1 or greater"]
+  (silent-formula {:num-trials 0 } [a 1] a => 1)
+  (silent-formula {:num-trials -1} [a 1] a => 1)
+  (silent-formula {:num-trials -2} [a 1] a => 1)
+  (silent-formula {:num-trials -3} [a 1] a => 1)
+  (silent-formula {:num-trials -4} [a 1] a => 1)
+  (for-each-failure (note-that parser-exploded, (fact-failed-with-note error-regexp))))
 
 (defn z [x] )
-(causes-validation-error #"background cannot be used inside of formula"
-  (formula [a 1]
-    (background (h 1) => 5)
-    (z a) => 10))
+(silent-formula [a 1]
+   (background (h 1) => 5)
+   (z a) => 10)
+(note-that parser-exploded, (fact-failed-with-note #"background cannot be used inside of formula"))
 
-;; Things that should be valid
+;; ;; Things that should be valid
 
 (defn k [x] (* 2 (h x)))
 (formula "against-backgrounds at the front of the body are fine" [a 1]
@@ -162,7 +162,7 @@
 (formula {:num-trials 10000} [a 1] a => 1)
 
 
-;; *num-trials* binding validation
+;; ;; *num-trials* binding validation
 
 (formula
   "binding too small a value - gives nice error msg"
@@ -175,3 +175,6 @@
   [n (gen-int #(>= % 1))]
   (binding [*num-trials* n] nil) 
      =not=> (throws Exception))
+
+
+

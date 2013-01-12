@@ -8,7 +8,6 @@
         midje.test-util
         clojure.pprint))
 
-
 (facts "about chatty-checking utility functions"
 
   (chatty-untease 'g-101 '()) => [[] []]
@@ -126,22 +125,19 @@
    (chatty-checker [actual-datastate]
                    ( (just (contains rows)) (rows-in actual-datastate))))
 
-(after-silently 
- (fact (let [all (fn [name] [{:region 1, :name name}])]
-         (all "PRK") => (has-rows [ {:region 1, :name "GDR"} ])))
- (fact @reported => (just (contains {:type :mock-expected-result-functional-failure
-                                     :actual [{:region 1, :name "PRK"}]
-                                     :intermediate-results '([(rows-in actual-datastate)
-                                                              [{:region 1, :name "PRK"}]])}))))
+(silent-fact
+  (let [all (fn [name] [{:region 1, :name name}])]
+    (all "PRK") => (has-rows [ {:region 1, :name "GDR"} ])))
+(note-that fact-fails, (fact-actual [{:region 1, :name "PRK"}]),
+           (fact-gave-intermediate-result (rows-in actual-datastate) => [{:region 1, :name "PRK"}]))
+
 
 
 ;; Old bug. During midjcoexpansion/macroexpansion, the interior of a chatty checker
 ;; can turn into a lazy seq, which should be treated as if it were a list. This checks that. 
-(after-silently 
- (fact
-   (let [a-chatty-checker (fn [expected]
-                            (chatty-checker [actual] (= expected (+ 1 actual))))]
-     3 => (a-chatty-checker 33)))
- (fact @reported => (just (contains {:type :mock-expected-result-functional-failure
-                                     :actual 3
-                                     :intermediate-results '([(+ 1 actual) 4])}))))
+(silent-fact
+ (let [a-chatty-checker (fn [expected]
+                          (chatty-checker [actual] (= expected (+ 1 actual))))]
+   3 => (a-chatty-checker 33)))
+(note-that fact-fails, (fact-actual 3),
+           (fact-gave-intermediate-result (+ 1 actual) => 4))

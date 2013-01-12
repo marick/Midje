@@ -2,9 +2,10 @@
             flow macros, validation error creation, etc."}
   midje.error-handling.validation-errors
   (:use [clojure.algo.monads :only [defmonad domonad]]
-        [clojure.test :only [report]]
         [midje.internal-ideas.file-position :only [form-position]]
-        [midje.util.form-utils :only [named?]]))
+        [midje.util.form-utils :only [named?]])
+  (:require [midje.emission.api :as emit]))
+
                            
 
 ;; Making validation errors
@@ -16,9 +17,9 @@
   (:midje/validation-error (meta form)))
 
 (defn validation-error-report-form [form & notes]
-  (as-validation-error `(report {:type :validation-error
-                                 :notes '~notes
-                                 :position '~(form-position form)})))
+  (as-validation-error `(emit/fail {:type :validation-error
+                                    :notes '~notes
+                                    :position '~(form-position form)})))
 
 (defn simple-validation-error-report-form [form & notes]
   (apply validation-error-report-form form (conj (vec notes) (pr-str form))))

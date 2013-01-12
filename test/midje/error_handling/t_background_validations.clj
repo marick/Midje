@@ -1,4 +1,4 @@
-(ns midje.error-handling.t_background_validations
+(ns midje.error-handling.t-background-validations
   (:require [clojure.zip :as zip])
   (:use [midje sweet test-util]
         [midje.internal-ideas.wrapping :only [for-wrapping-target?]]
@@ -80,58 +80,54 @@
 
 
 ;;;; Validation end-to-end facts
+(fact "background forms require particular keys"
+  (let [error-regexp
+        #"second element \(:invalid-wrapping-target\) should be one of: :facts, :contents, or :checks"]
+    (silent-against-background [(before :invalid-wrapping-target (do "something"))] "body")
+    (silent-against-background [(before :invalid-wrapping-target (do "something"))] "body")
+    (silent-against-background (before :invalid-wrapping-target (do "something")) "body")
+    (silent-background (before :invalid-wrapping-target (do "something")))
+    
+    (for-each-failure (note-that parser-exploded, (fact-failed-with-note error-regexp)))))
 
-(each-causes-validation-error #"second element \(:invalid-wrapping-target\) should be one of: :facts, :contents, or :checks"
-  (against-background [(before :invalid-wrapping-target (do "something"))] 
-    "body")
-
-  (against-background (before :invalid-wrapping-target (do "something"))
-    "body")
-
-  (background (before :invalid-wrapping-target (do "something"))))
 
 (defn f [])
-(each-causes-validation-error #"Badly formatted against-background fakes"
-
-  ;; check for vectors w/ no state-descriptions or background fakes
-  (against-background [:not-a-state-description-or-fake]
-    (fact nil => nil))
-
+;; Badly formatted prerequisites (outside of facts)
+(let [error-regexp #"Badly formatted background prerequisites"]
+  
+  (silent-against-background [:not-a-state-description-or-fake] (fact nil => nil))
   ;; check for vectors w/ one thing that isn't a state-description or background fake
-  (against-background [(before :contents (do "something")) (f) => 5 :other-odd-stuff]
-    (fact nil => nil)))
-
-(each-causes-validation-error #"Badly formatted background fakes"
-
+  (silent-against-background [(before :contents (do "something")) (f) => 5 :other-odd-stuff] (fact nil => nil))
+  
   ;; invalid when anything doesn't look like a state-description or background fake
-  (background (before :contents (do "something"))
-    (:not-a-state-description-or-fake))
-
+  (silent-background (before :contents (do "something"))
+     (:not-a-state-description-or-fake))
+  
   ;; invalid when one thing isn't a state-description or background fake
-  (background :invalid-stuff-here))
+  (silent-background :invalid-stuff-here)
+  
+  (for-each-failure (note-that parser-exploded, (fact-failed-with-note error-regexp))))
 
+
+;; invalid because  missing background fakes or state descriptions (outside of facts)
+(let [error-regexp #"You put nothing in the background"]
+  (silent-against-background [] (fact nil => nil))
+  (silent-background)
+  
+  (for-each-failure (note-that parser-exploded, (fact-failed-with-note error-regexp))))
+
+
+(silent-fact "Background statements within facts participate in validation"
+  (silent-against-background (:not-a-state-description-or-fake) (fact nil => nil))
+  (note-that parser-exploded))
+
+;; A different error message for `against-background` vs. `background`, which
+;; seems gratuitous.
+(silent-background :invalid-stuff-here)
+(note-that (fact-failed-with-note #"Badly formatted background prerequisite"))
+(silent-against-background :invalid-stuff-here (fact nil => nil))
+(note-that (fact-failed-with-note #"Malformed against-background"))
 
 ;; invalid if missing background fakes or state descriptions 
-(each-causes-validation-error #"You didn't enter any background fakes or wrappers"
-  (against-background []
-    (fact nil => nil))
-
-  (background))
-
-;; invalid when list w/ no state-descriptions or background fakes
-(after-silently
-  (against-background (:not-a-state-description-or-fake)
-    (fact nil => nil))
-
-  (fact 
-    @reported =future=> (one-of (contains {:type :validation-error}))))
-
-; check for one thing that isn't a state-description or background fake
-(causes-validation-error #"at least one background fake or background wrapper"
-  (against-background :invalid-stuff-here
-    (fact nil => nil)))
-
-;; invalid if missing background fakes or state descriptions 
-(causes-validation-error #"need a minimum of three elements to an against-background form"
-  (against-background
-    (fact nil => nil)))
+(silent-against-background (fact nil => nil))
+(note-that (fact-failed-with-note #"You need a minimum of three elements"))

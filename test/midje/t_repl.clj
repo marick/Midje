@@ -4,7 +4,6 @@
         [midje.test-util])
   (:require [midje.config :as config]
             [midje.clojure-test-facade :as ctf]
-            [midje.ideas.reporting.levels :as levelly]
             [midje.emission.state :as state]
             [midje.ideas.reporting.level-defs :as deflevels]
             [midje.internal-ideas.compendium :as compendium]
@@ -40,6 +39,8 @@
 
 
 ;;;; === PART 1: Loading facts from files
+
+
 
 (confirming-cumulative-totals-not-stepped-on
  (without-changing-cumulative-totals
@@ -110,7 +111,7 @@
                     :given-namespace-args [midje.t-repl-helper]}))
     
   )
- )
+  )
 
 ;;;; ==== PART 2: Working with loaded facts
 
@@ -277,16 +278,14 @@
 
 
         ;;; Checking multiple facts
-
  (without-externally-visible-changes (fact "error fact" 1 => 2))
 
  (without-changing-cumulative-totals
-
   (fact "you can give print-level arguments."
     :check-only-at-load-time
     (config/with-augmented-config {:print-level :print-nothing}
       ;; Despite above config.
-      (with-out-str (check-facts 'midje.t-repl :print-namespaces)) => #"Namespace midje.t-repl")
+      (captured-output (check-facts 'midje.t-repl :print-namespaces)) => #"Namespace midje.t-repl")
 
     (fact "return values still hold, though"
       (check-facts 'midje.t-repl "the-name" :print-nothing) => true
@@ -361,11 +360,11 @@
     (fact "It also prints a summary"
       :check-only-at-load-time
       (config/with-augmented-config {:print-level :print-normally}
-        (with-out-str (recheck-fact)) => #"All claims \(1\) have been confirmed"))
+        (captured-output (recheck-fact)) => #"All claims \(1\) have been confirmed"))
 
     (fact "It can take a print-level argument"
       :check-only-at-load-time
-      (with-out-str (recheck-fact :print-namespaces)) => #"midje.t-repl")
+      (captured-output (recheck-fact :print-namespaces)) => #"midje.t-repl")
     )
 
   (fact "You can ask for the fact without running it"
@@ -544,7 +543,7 @@
       (scheduling/stop :autotest) => anything))
 
   (fact "can resume"
-    (with-out-str (autotest :resume)) => anything
+    (captured-output (autotest :resume)) => anything
     (provided
       (project-state/load-everything) => anything :times 0 ;; NOT called
       (scheduling/schedule :autotest
@@ -723,3 +722,4 @@
 )      ; confirming-cumulative-totals-not-stepped-on
 
 )
+

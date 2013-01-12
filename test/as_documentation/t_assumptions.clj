@@ -3,6 +3,8 @@
         midje.test-util))
 
 
+;;; THESE ARE SKETCHES TOWARD A POSSIBLE FUTURE FEATURE.
+
 ;; (comment
 
 

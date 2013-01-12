@@ -37,14 +37,15 @@
     (fn [actual]
       ( (just (set-of-sets expected)) (set-of-sets actual)))))
 
-(after-silently 
-(fact 
-   [ [1] [2 3] ] => (as-sets [ [1] ]))
+
+(silent-fact
+ [ [1] [2 3] ] => (as-sets [ [1] ]))
+
 (future-fact "Failures from chatty-checkers-within-functions propagate chatty information"
-   (first @reported) => (contains {:type :mock-expected-result-functional-failure
-                                   :actual [ [1] [2 3]]
-                                   :expected '(as-sets [[1]])
-                                   :notes  ["Expected one element. There were two."]})))
+   @silent-fact:last-raw-failure => (contains {:type :mock-expected-result-functional-failure
+                                              :actual [ [1] [2 3]]
+                                              :expected '(as-sets [[1]])
+                                              :notes  ["Expected one element. There were two."]}))
 
 
 ;; The behavior of checkers is different in prerequisites
@@ -75,7 +76,7 @@
      (outer ?actual) => "expected"
      (provided 
        (inner ?expected) => "expected"))
-    (fact-passes) ?arrow truthy)
+    @silent-fact:failure-count ?arrow zero?)
 
 ?expected                      ?actual ?arrow
 odd?                           3       =not=>   ;; different

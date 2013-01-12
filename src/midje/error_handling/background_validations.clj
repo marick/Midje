@@ -68,11 +68,11 @@
             (pred-cond state-descriptions+fakes   
               empty?
               (simple-validation-error-report-form form
-                "You didn't enter any background fakes or wrappers:")
+                "You put nothing in the background:")
             
               (comp not possible-state-descriptions+fakes?)
               (simple-validation-error-report-form form
-                "Badly formatted against-background fakes:")
+                "Badly formatted background prerequisites:")
         
               :else
               (rest form)))
@@ -91,10 +91,10 @@
     (when-valid (filter state-description? state-descriptions+fakes) 
       (pred-cond state-descriptions+fakes 
         empty?
-        (simple-validation-error-report-form form "You didn't enter any background fakes or wrappers:")
+        (simple-validation-error-report-form form "You put nothing in the background:")
     
         (comp not possible-state-descriptions+fakes?)
-        (simple-validation-error-report-form form "Badly formatted background fakes:")
+        (simple-validation-error-report-form form "Badly formatted background prerequisites:")
         
         :else
         state-descriptions+fakes))))

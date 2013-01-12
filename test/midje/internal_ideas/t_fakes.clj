@@ -153,16 +153,15 @@ odd?                   3               falsey)
            (.getMessage (.throwable (:actual important-error))))))
   
   (defn all-even? [xs] (every? even? xs))
-  
-  (after-silently 
-   (fact "get a user error from nested call to faked `every?`"
+
+  (silent-fact "get a user error from nested call to faked `every?`"
      (all-even? ..xs..) => truthy
      (provided (every? even? ..xs..) => true))
-   (fact
-     (let [text (message-about-mocking-midje-functions @reported)]
+  (fact
+     (let [text (message-about-mocking-midje-functions @silent-fact:raw-failures)]
        text => #"seem to have created a prerequisite"
        text => #"clojure\.core/every\?"
-       text => #"interferes with.*Midje")))
+       text => #"interferes with.*Midje"))
 
   ;; deref is a known special case that has to be detected differently
   ;; than the one above.
@@ -185,12 +184,11 @@ odd?                   3               falsey)
 
   (defn doubler [n] (+ n n))
 
-  (after-silently
-   (fact
-     (doubler 3) => 0
-     (provided
-       (+ 3 3) => 0))
-   (fact @reported => (validation-error-with-notes #"inlined")))
+  (silent-fact
+   (doubler 3) => 0
+   (provided
+     (+ 3 3) => 0))
+  (fact @silent-fact:raw-failures => (validation-error-with-notes #"inlined"))
 
 
 ;; How it works
@@ -299,16 +297,16 @@ odd?                   3               falsey)
            (.getMessage (.throwable (:actual important-error))))))
   
   (defn all-even? [xs] (every? even? xs))
-  
-  (after-silently 
-   (fact "get a user error from nested call to faked `every?`"
+
+
+  (silent-fact "get a user error from nested call to faked `every?`"
      (all-even? ..xs..) => truthy
      (provided (every? even? ..xs..) => true))
-   (fact
-     (let [text (message-about-mocking-midje-functions @reported)]
-       text => #"seem to have created a prerequisite"
-       text => #"clojure\.core/every\?"
-       text => #"interferes with.*Midje")))
+  (fact
+    (let [text (message-about-mocking-midje-functions @silent-fact:raw-failures)]
+      text => #"seem to have created a prerequisite"
+      text => #"clojure\.core/every\?"
+      text => #"interferes with.*Midje"))
 
   ;; deref is a known special case that has to be detected differently
   ;; than the one above.
@@ -331,12 +329,11 @@ odd?                   3               falsey)
 
   (defn doubler [n] (+ n n))
 
-  (after-silently
-   (fact
-     (doubler 3) => 0
-     (provided
-       (+ 3 3) => 0))
-   (fact @reported => (validation-error-with-notes #"inlined")))
+  (silent-fact
+   (doubler 3) => 0
+   (provided
+     (+ 3 3) => 0))
+  (fact @silent-fact:raw-failures => (validation-error-with-notes #"inlined"))
 
 
 ;; How it works

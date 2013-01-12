@@ -8,8 +8,182 @@
         [midje.util.form-utils :only [macro-for]])
   (:require [midje.clojure-test-facade :as ctf]
             [midje.config :as config]
+            [clojure.string :as str]
+            [midje.emission.api :as emit]
             [midje.emission.state :as state]))
 
+;;; The "silent" versions of fact and formula, which produce no user-visible results
+;;; but do stash failures for later examination.
+
+(def silent-fact:failure-count (atom :unset))
+(def silent-fact:raw-failures (atom :unset))
+(def ^{:dynamic true} silent-fact:last-raw-failure (atom :unset))
+
+(defn record-failures []
+  (reset! silent-fact:failure-count (state/output-counters:midje-failures))
+  (reset! silent-fact:raw-failures (state/raw-fact-failures))
+  (reset! silent-fact:last-raw-failure (last (state/raw-fact-failures))))
+
+
+(defn silent-body [macro-symbol args]
+  `(emit/producing-only-raw-fact-failures
+    (let [result# (~macro-symbol ~@args)]
+      (record-failures)
+      result#)))
+
+(defmacro silent-fact [& args]
+  (silent-body 'midje.sweet/fact args))
+(defmacro silent-formula [& args]
+  (silent-body 'midje.sweet/formula args))
+(defmacro silent-against-background [& args]
+  (silent-body 'midje.sweet/against-background args))
+(defmacro silent-background [& args]
+  (silent-body 'midje.sweet/background args))
+(defmacro silent-tabular [& args]
+  (silent-body 'midje.sweet/background args))
+(defmacro silent-expect [& args]
+  (silent-body 'midje.semi-sweet/expect args))
+(defmacro silent-fake [& args]
+  (silent-body 'midje.semi-sweet/fake args))
+(defmacro silent-data-fake [& args]
+  (silent-body 'midje.semi-sweet/data-fake args))
+
+;;; Checkers, mainly for failures
+
+(defn fact-fails-because-of-negation [failure-map]
+  (some #{(:type failure-map)} [:mock-actual-inappropriately-matches-checker
+                                :mock-expected-result-inappropriately-matched]))
+
+(defn fact-failed-with-note [regex]
+  (fn [actual-failure]
+    (extended-= (str/join (:notes actual-failure)) regex)))
+
+(defn fact-expected [thing]
+  (fn [actual-failure]
+    (extended-= (:expected actual-failure) thing)))
+
+(defn fact-actual [thing]
+  (fn [actual-failure]
+    (extended-= (:actual actual-failure) thing)))
+
+(defn fact-captured-throwable-with-message [rhs]
+  (fn [actual-failure]
+    (extended-= (captured-message (:actual actual-failure)) rhs)))
+
+(defn fact-described-as [& things]
+  (fn [actual-failure]
+    (= things (:description actual-failure))))
+
+;; Chatty checkers.
+
+(defn intermediate-result-left-match [left failure]
+  (first (filter #(= (first %) left) (:intermediate-results failure))))
+
+(defmacro fact-gave-intermediate-result [left _arrow_ value & ignore]
+  `(fn [actual-failure#]
+     (if-let [match# (intermediate-result-left-match '~left actual-failure#)]
+       (= (second match#) ~value))))
+      
+(defmacro fact-omitted-intermediate-result [left]
+  `(fn [actual-failure#]
+     (not (intermediate-result-left-match '~left actual-failure#))))
+  
+
+;; Prerequisites
+
+(defn ^{:all-failures true} some-prerequisite-was-not-matched [failure-maps]
+  (some #{:mock-argument-match-failure} (map :type failure-maps)))
+
+(defn ^{:all-failures true} prerequisite-called [_times_ n]
+  (fn [failure-maps]
+    (some #(= n (:actual-count %)) (mapcat :failures failure-maps))))
+
+(defn ^{:all-failures true} prerequisite-expected-call [call]
+  (fn [failure-maps]
+    (some #{call} (map :expected-call  (mapcat :failures failure-maps)))))
+
+
+;; Misc
+
+(defn parser-exploded [failure-map]
+  (= (:type failure-map) :validation-error))
+
+
+
+(defmacro note-that [& claims]
+  (letfn [(reducer [so-far claim]
+            (letfn [(claim-needs-all-failures? [claim]
+                      (:all-failures (meta (ns-resolve *ns* claim))))
+                    (tack-on [stuff]
+                      (concat so-far stuff))
+                    (tack-on-claim [all-failures?]
+                      (tack-on `(~(if all-failures? '@silent-fact:raw-failures '@silent-fact:last-raw-failure)
+                                 midje.sweet/=> ~claim)))]
+              (cond (symbol? claim)
+                    (cond (or (= claim 'fact-fails)
+                              (= claim 'fact-failed))
+                          (tack-on '(@silent-fact:failure-count => pos?))
+                                      
+                          (or (= claim 'fact-passes)
+                              (= claim 'fact-passed))
+                          (tack-on '(@silent-fact:failure-count => zero?))
+
+                          :else
+                          (tack-on-claim (claim-needs-all-failures? claim)))
+
+                    (sequential? claim)
+                    (let [claim-symbol (first claim)]
+                      (cond (or (= claim-symbol 'fails)
+                                (= claim-symbol 'failed))
+                            (tack-on `(@silent-fact:failure-count midje.sweet/=> ~(second claim)))
+
+                            :else
+                            (tack-on-claim (claim-needs-all-failures? claim-symbol))))
+
+                    :else
+                    (throw (Error. (str "What kind of claim is " (pr-str claim)))))))]
+
+    (let [clauses (reduce reducer [] claims)]
+      (with-meta `(midje.sweet/fact ~@clauses) (meta &form)))))
+
+(defmacro for-each-failure [note-command]
+  `(doseq [failure# @silent-fact:raw-failures]
+     (binding [silent-fact:last-raw-failure (atom failure#)]
+       ~note-command)))
+
+
+
+;;; Capturing output 
+
+(def test-output (atom nil))
+
+(defmacro capturing-output [fact1 fact2]
+  `(do
+     (reset! test-output
+             (with-out-str (state/with-isolated-output-counters ~fact1)))
+     ~fact2))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+;;; OLD STUFF. Some worth salvaging.
+
+(defmacro captured-output [& body]
+  `(binding [clojure.test/*test-out* (java.io.StringWriter.)]
+     (clojure.test/with-test-out ~@body)
+     (.toString clojure.test/*test-out*)))
 
 (def reported (atom []))
 
@@ -37,6 +211,7 @@
     (state/with-isolated-output-counters
       ~@forms)))
 
+
 (defmacro without-externally-visible-changes [& body]
   `(config/with-augmented-config {:print-level :print-nothing}
      (without-changing-cumulative-totals ~@body)))
@@ -51,41 +226,6 @@
        (>= (:fail (ctf/counters)) (:fail stashed-counters#)) midje.sweet/=> true)))
 
 
-(def silent-fact-failures (atom :unset))
-
-(defn output-counters []
-  @state/output-counters)
-
-(defmacro silent-fact [& args]
-  `(do
-     (let [result# (run-silently  ;; Scheduled to be deleted once reporting rewritten.
-                    (without-externally-visible-changes
-                     (state/reset-output-counters!)
-                     (midje.sweet/fact ~@args)
-                     (reset! silent-fact-failures (state/output-counters:midje-failures))))]
-       result#)))
-     
-
-(defn fact-fails []
-  (pos? @silent-fact-failures))
-(def fact-passes (complement fact-fails))
-
-(defmacro note-that [& claims]
-  (let [clauses (reduce (fn [so-far claim]
-                          (cond (symbol? claim)
-                                (conj so-far `(~claim) '=> true)
-                                
-                                (= (first claim) 'fails)
-                                (conj so-far '@silent-fact-failures '=> (second claim))))
-                        []
-                        claims)]
-    (with-meta `(midje.sweet/fact ~@clauses) (meta &form))))
-  
-
-(defmacro captured-output [& body]
-  `(binding [clojure.test/*test-out* (java.io.StringWriter.)]
-     (clojure.test/with-test-out ~@body)
-     (.toString clojure.test/*test-out*)))
 
 
 
@@ -94,10 +234,17 @@
 
 
 
-(defmacro after-silently [example-form & check-forms]
-   `(do
-     (run-without-reporting (fn [] ~example-form))
-     ~@check-forms))
+
+
+
+
+
+
+
+;; (defmacro after-silently [example-form & check-forms]
+;;    `(do
+;;      (run-without-reporting (fn [] ~example-form))
+;;      ~@check-forms))
 
 (defn only-passes? [expected-count]
   (cond (not (= (count @reported) expected-count))
@@ -168,11 +315,9 @@
 (defmacro causes-validation-error 
   "check if the body, when executed, creates a syntax validation error"
   [error-msg & body]
-  `(after-silently
-    ~@body  
-    (midje.sweet/fact 
-      @reported midje.sweet/=> (one-of (contains {:type :validation-error 
-                                                  :notes (contains ~error-msg)})))))
+  (let [metadata (meta &form)]
+    `(do (with-meta (silent-fact ~@body) '~metadata)
+         (note-that parser-exploded (fact-failed-with-note ~error-msg)))))
 
 (defmacro each-causes-validation-error 
   "check if each row of the body, when executed, creates a syntax validation error"
@@ -199,11 +344,3 @@
 
 
 
-
-(def test-output (atom nil))
-
-(defmacro capturing-output [fact1 fact2]
-  `(do
-     (reset! test-output
-             (with-out-str (without-changing-cumulative-totals ~fact1)))
-     ~fact2))

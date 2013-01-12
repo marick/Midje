@@ -3,6 +3,7 @@
         [midje.checkers.defining :only [checker?]]
         midje.test-util))
 
+
 (facts "about truthy"
   #'truthy => checker?
   truthy => checker?
@@ -91,12 +92,10 @@
   (throw-exception "hi") => (throws Error "hi")
   (throw-exception "hi") => (throws Error #"h."))
 
-(after-silently 
- (fact 
-   (throw-exception "throws Error") => (throws NullPointerException)
-   (throw-exception "throws Error") => (throws Error "bye"))
- (fact 
-   @reported => (two-of checker-fails)))
+(silent-fact 
+ (throw-exception "throws Error") => (throws NullPointerException)
+ (throw-exception "throws Error") => (throws Error "bye"))
+(note-that (fails 2 times))
 
 (fact "throws accepts many varieties of arglists"
   (throw-exception "msg") => (throws Error)
@@ -138,20 +137,19 @@
 (fact "`throws` matches any exception that is an instance of expected"
   (throw (NullPointerException.)) => (throws Exception))
 
-(after-silently
- (fact "`throws` fails when not given an exception"
+(silent-fact "`throws` fails when not given an exception"
    1 => (throws Exception))
- (fact
-   @reported => (just checker-fails)))
+(note-that fact-fails)
 
-;; Unexpected exceptions
-(after-silently
- (facts
-   (throw-exception "throws Error") => anything
-   (throw-exception "throws Error") => falsey
-   (throw-exception "throws Error") => truthy)
- (fact
-   @reported => (three-of checker-fails)))
+(fact "Checkers turn unexpected exceptions into `false`"
+  (silent-fact (throw-exception "throws Error") => anything)
+  (note-that fact-fails, (fact-captured-throwable-with-message #"throws Error"))
+  
+  (silent-fact (throw-exception "throws Error") => falsey)
+  (note-that fact-fails, (fact-captured-throwable-with-message #"throws Error"))
+  
+  (silent-fact (throw-exception "throws Error") => truthy)
+  (note-that fact-fails, (fact-captured-throwable-with-message #"throws Error")))
 
 ;; Strange issue with validations that throw Exception does not happen
 ;; with error. Here's the expected behavior:

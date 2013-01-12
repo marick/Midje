@@ -1,18 +1,11 @@
 (ns midje.error-handling.t-exceptional-errors
   (:use [midje sweet test-util]))
 
-(after-silently 
+(capturing-output
  (fact "description" (cons) =>)
- (fact @reported => (just (contains {:type :exceptional-user-error
-                                     :description ["description"]
-                                     :macro-form '(fact "description" (cons) =>)}))))
+ (fact @test-output => #"Midje caught an exception when translating this form"))
 
-;; report ONLY top level fact's description when there's a error in nested facts
-
-(after-silently
-  (fact "fine"
-    (fact "description" (cons) =>))
- (fact @reported => (just (contains {:type :exceptional-user-error
-                                     :description ["fine"]
-                                     :macro-form '(fact "fine"
-                                                    (fact "description" (cons) =>))}))))
+(capturing-output ;; Reports on top-level fact
+ (fact "fine"
+   (fact "description" (cons) =>))
+ (fact @test-output => #"(?s)Midje caught an exception when translating this form.*fact.*fine"))

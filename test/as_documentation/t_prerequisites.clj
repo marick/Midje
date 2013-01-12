@@ -82,7 +82,9 @@
  (provided
    (lower-function 5) => 50 :times (range 3 33)
    (lower-function 6) =>  5))
-(note-that fact-fails)
+
+(note-that fact-fails
+           (prerequisite-called :times 1))
 
 
 ;; Here is the idiom for "this call is optional" (zero or more times)
@@ -112,7 +114,7 @@
   (using-function 4) => (+ 80 4)
   (provided
     (I-am-I-cried 5) => 80))
-(note-that fact-fails)
+(note-that fact-fails, some-prerequisite-was-not-matched)
 
 ;; However, it's also possible to ask that unmatched calls default to
 ;; the real values. The config/with-augmented-config simulates the

@@ -129,7 +129,7 @@
 
   (silent-fact "actual doesn't match expected"
     (expect (+ 1 3) => nil))
-  (note-that fact-fails)
+  (note-that fact-fails, (fact-expected nil), (fact-actual 4))
 
   (fact "not-called in the first position"
     (expect (function-under-test) => 33
@@ -141,50 +141,33 @@
             (fake (mocked-function) => 33)
             (not-called no-caller)))
 
-  (fact "mocked calls go fine, but function under test produces the wrong result"
-    (after-silently
+  (silent-fact "mocked calls go fine, but function under test produces the wrong result"
      (expect (function-under-test 33) => 12
-             (fake (mocked-function 33) => (not 12) ))
-     @reported => (just (contains {:actual false
-                                   :expected 12}))))
+             (fake (mocked-function 33) => (not 12) )))
+  (note-that fact-fails, (fact-actual false), (fact-expected 12))
 
-  (fact "mock call supposed to be made, but wasn't (zero call count)"
-    (after-silently
+  (silent-fact "mock call supposed to be made, but wasn't (zero call count)"
      (expect (no-caller) => "irrelevant"
-             (fake (mocked-function) => 33))
-     @reported => (just wrong-call-count bad-result)))
-
-  (fact "mock call was not supposed to be made, but was (non-zero call count)"
-    (after-silently
+             (fake (mocked-function) => 33)))
+  (note-that fact-fails, (prerequisite-called :times 0))
+  
+  (silent-fact "mock call was not supposed to be made, but was (non-zero call count)"
       (expect (function-under-test 33) => "irrelevant"
-              (not-called mocked-function))
-      @reported => (just wrong-call-count bad-result)))
+              (not-called mocked-function)))
+  (note-that fact-fails, (prerequisite-called :times 1))
 
   (fact "call not from inside function"
     (expect (+ (mocked-function 12) (other-function 12)) => 12
             (fake (mocked-function 12) => 11)
             (fake (other-function 12) => 1)))
 
-  (fact "failure because one variant of multiply-mocked function is not called"
-    (after-silently 
+  (silent-fact "failure because one variant of multiply-mocked function is not called"
      (expect (+ (mocked-function 12) (mocked-function 22)) => 3
              (fake (mocked-function 12) => 1)
              (fake (mocked-function 22) => 2)
-             (fake (mocked-function 33) => 3))
-     @reported => (just (contains {:type :mock-incorrect-call-count
-                                   :failures (contains (contains {:expected-call "(mocked-function 33)"})) })
-                        ))) ; Right result, but wrong reason.
-
-  (fact "failure because one variant of multiply-mocked function is not called"
-    (after-silently
-      (expect (+ (mocked-function 12) (mocked-function 22)) => 3
-        (fake (mocked-function 12) => 1)
-        (fake (mocked-function 22) => 2)
-        (fake (mocked-function 33) => 3))
-      @reported => (just (contains {:type :mock-incorrect-call-count
-                                    :failures (contains (contains {:expected-call "(mocked-function 33)"})) })
-                     ))) ; Right result, but wrong reason.
-
+             (fake (mocked-function 33) => 3)))
+  (note-that fact-fails, (prerequisite-called :times 0)
+             (prerequisite-expected-call "(mocked-function 33)"))
 
   (fact "multiple calls to a mocked function are perfectly fine"
     (expect (+ (mocked-function 12) (mocked-function 12)) => 2
@@ -235,21 +218,19 @@
   (chatty-checker [actual] (> (inc actual) expected)))
 
 (facts "expect can also use chatty checkers"
-  (fact "chatty failures provide extra information"
-    (after-silently
-     (expect (+ 1 1) => (actual-plus-one-is-greater-than 33))
-     @reported => (just (contains {:type :mock-expected-result-functional-failure
-                                   :actual 2
-                                   :intermediate-results [ [ '(inc actual) 3 ] ]
-                                   :expected '(actual-plus-one-is-greater-than 33)}))))
+  (silent-fact "chatty failures provide extra information"
+    (expect (+ 1 1) => (actual-plus-one-is-greater-than 33)))
+  (note-that fact-fails, (fact-actual 2), (fact-expected '(actual-plus-one-is-greater-than 33)))
+  ;; For some reason the parser gets fooled into sticking an expect inside the intermediate result.
+  ;; Hence the =test=>
+  (note-that (fact-gave-intermediate-result (inc actual) =test=> 3))
 
-  (fact "chatty checkers can be used anonymously, like functions"
-    (after-silently 
-     (expect (+ 1 1) => (chatty-checker [actual] (> (inc actual) 33)))
-     @reported => (just (contains {:type :mock-expected-result-functional-failure
-                                   :actual 2
-                                   :intermediate-results [ [ '(inc actual) 3 ] ]
-                                   :expected '(chatty-checker [actual] (> (inc actual) 33))})))))
+  (silent-fact "chatty checkers can be used anonymously, like functions"
+    (expect (+ 1 1) => (chatty-checker [actual] (> (inc actual) 33))))
+  (note-that fact-fails, (fact-actual 2), (fact-expected '(chatty-checker [actual] (> (inc actual) 33))))
+  (note-that (fact-gave-intermediate-result (inc actual) =test=> 3)))
+
+;;
 
 (declare chatty-prerequisite)
 (defn chatty-fut [x] (chatty-prerequisite x))
@@ -296,29 +277,24 @@
 (binding [midje.semi-sweet/*include-midje-checks* false]
   (load "semi_sweet_compile_out"))
 
-
-(facts "about =future=>"
-  (after-silently 
-   (expect (+ 1 "3") =future=> 3)
-   @reported => (one-of (contains {:type :future-fact
-                                   :description ["about =future=>" "on `(+ 1 \"3\")`"] }))))
-
+(capturing-output
+ (config/with-augmented-config {:visible-future true}
+   (expect (cons :fred) =future=> 3))
+ (fact @test-output => #"WORK TO DO.*on.*cons :fred"))
 
 
 (defmacro some-macro [arg] `(+ 100 200 ~arg))
-
 
 
 (facts "about =expands-to=>"
   :check-only-at-load-time
   (fact "calls macro to expand and compares to (unquoted) list"
     (some-macro 8) =expands-to=> (clojure.core/+ 100 200 8))
+  
   (fact "fails if expansion does not match expected list"
-    (after-silently 
-     (fact (some-macro 1) =expands-to=> (clojure.core/- 100 200 1))
-     @reported => (one-of (contains {:type :mock-expected-result-failure
-                                     :actual `(clojure.core/+ 100 200 1)
-                                     :expected `(clojure.core/- 100 200 1)})))))
+    (silent-fact (some-macro 1) =expands-to=> (clojure.core/- 100 200 1))
+    (note-that fact-failed, (fact-actual `(clojure.core/+ 100 200 1))
+               (fact-expected `(clojure.core/- 100 200 1)))))
  
 (fact "add form info to unprocessed check so tool creators can introspect them"
   (unprocessed-check (+ 1 1) ..arrow.. 2 []) => (contains {:call-form '(+ 1 1) 

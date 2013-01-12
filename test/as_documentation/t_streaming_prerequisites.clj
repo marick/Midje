@@ -51,18 +51,13 @@
 ;; We want to be gracious about errors, so it should be that asking
 ;; for the n+1th value when there are only N fails helpfully:
 
-(def useful-message #"Your =stream=> ran out of values")
+(def out-of-values #"Your =stream=> ran out of values")
 
-(run-silently 
- (fact
-   (two-numbers) => 2
-   (provided
-     (number) =streams=> [1])))
-
-(fact
-  @reported => has-bad-result
-  @reported => (has-thrown-message useful-message))
-
+(silent-fact
+ (two-numbers) => 2
+ (provided
+   (number) =streams=> [1]))
+(note-that fact-fails, (fact-captured-throwable-with-message out-of-values))
 
 ;; You can stream strings as seqs of characters
 (unfinished a-char)
@@ -72,8 +67,6 @@
 (fact
   (two-chars) => [\1 \2]
   (provided (a-char) =streams=> "12"))
-
-
 
 
 ;;; Things that go without saying (though not without testing)
@@ -87,25 +80,21 @@
     (number) =streams=> '[3 4 5 6 7 8] :times 2))
 
 ;; The :times case can also fail
-(run-silently
- (fact
-   (two-numbers) => 7
-   (provided
-     (number) =streams=> '[3 4 5 6 7 8] :times 1)))
+(silent-fact
+ (two-numbers) => 7
+ (provided
+   (number) =streams=> '[3 4 5 6 7 8] :times 1))
+(note-that fact-fails, (prerequisite-called :times 2))
 
-(fact
-  @reported => has-wrong-call-count)
+;; (fact
+;;   @reported => has-wrong-call-count)
 
 
 ;; Lazy sequences that run out of values generate the
 ;; same error message as non-lazy sequentials.
 
-(run-silently 
- (fact
-   (two-numbers) => 2
-   (provided
-     (number) =streams=> (range 1 2))))
-
-(fact
-  @reported => has-bad-result
-  @reported => (has-thrown-message useful-message))
+(silent-fact
+ (two-numbers) => 2
+ (provided
+   (number) =streams=> (range 1 2)))
+(note-that fact-fails, (fact-captured-throwable-with-message out-of-values))
