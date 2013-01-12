@@ -133,40 +133,15 @@
 
 ;;; Formatting Summary of Facts
 
-(defn print-clojure-test-result-lines [result]
-  (when (pos? (:fail-count result))
-    (println (color/note ">>> Output from clojure.test tests:"))
-    (dorun (map (comp println color/colorize-deftest-output)
-                (drop-last 2 (:lines result))))))
+(defn print-clojure-test-result-lines [result])
 
-(defn print-clojure-test-summary-lines [result]
-  (println (color/note ">>> clojure.test summary:"))
-  (println (first (take-last 2 (:lines result))))
-  (println ( (if (pos? (:fail-count result)) color/fail color/pass)
-             (last (:lines result)))))
+(defn print-clojure-test-summary-lines [result])
 
-(defn- print-something-actually-happened-summary-results [result]
-  (let [midje-failure-message (condp = (:fail result)
-                                0 (color/pass (format "All claims (%d) have been confirmed." (:pass result)))
-                                1 (str (color/fail "FAILURE:")
-                                       (format " %d claim was not confirmed." (:fail result)))
-                                (str (color/fail "FAILURE:")
-                                     (format " %d claims were not confirmed." (:fail result))))
-        potential-consolation (condp = (:pass result)
-                                0 ""
-                                1 "(But 1 was.)"
-                                (format "(But %d were.)" (:pass result)))
+(defn- print-something-actually-happened-summary-results [result])
 
-        midje-consolation (if (pos? (:fail result)) potential-consolation "")]
-    (println midje-failure-message midje-consolation)))
+(defn print-nothing-was-tried-summary-results [])
 
-(defn print-nothing-was-tried-summary-results []
-  (println (color/note "No facts were checked. Is that what you wanted?")))
-
-(defn print-midje-summary-line [result]
-  (if (pos? (+ (:fail result) (:pass result)))
-    (print-something-actually-happened-summary-results result)
-    (print-nothing-was-tried-summary-results)))
+(defn print-midje-summary-line [result])
 
 (def ^{:private true} previous-failure-count-atom (atom 0))
 

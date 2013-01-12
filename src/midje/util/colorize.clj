@@ -26,7 +26,3 @@
     (def pass identity)
     (def note identity)))
 
-(defn colorize-deftest-output [s]
-  (-> s 
-      (str/replace #"^FAIL" (fail "FAIL"))
-      (str/replace #"^ERROR" (fail "ERROR"))))
