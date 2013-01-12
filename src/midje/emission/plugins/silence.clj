@@ -11,6 +11,8 @@
                             :fail
                             :starting-to-check-fact
                             :possible-new-namespace
+                            :fact-stream-summary
+                            :future-fact
                             :forget-everything))
 
 (state/install-emission-map emission-map)

@@ -30,15 +30,4 @@
   => (throws Error #"extra.*print.*level"))
 
 
-(without-changing-cumulative-totals
- (fact "report-summary"
-   (config/with-augmented-config {:print-level :print-no-summary}
-     (with-out-str (report-summary)) => "")
-   
-   (config/with-augmented-config
-     {:print-level (inc (names-to-levels :print-no-summary))}
-     (with-out-str (report-summary)) => #"All claims.*have been confirmed"
-     (provided
-       (counters) => {:fail 0 :pass 1}))))
-
 ) ; restore print levels to user default

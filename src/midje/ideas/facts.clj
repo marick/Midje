@@ -28,9 +28,9 @@
         [swiss-arrows.core :only [-<>]])
   (:require [clojure.zip :as zip])
   (:require [midje.internal-ideas.compendium :as compendium]
-            [midje.ideas.reporting.levels :as levelly]
             [midje.internal-ideas.fact-context :as fact-context]
             [midje.emission.boundaries :as emission-boundary]
+            [midje.emission.api :as emit]
             [midje.ideas.metadata :as metadata]
             [midje.config :as config]
             midje.ideas.reporting.report))
@@ -54,10 +54,10 @@
 (defn future-fact* [form]
   (let [lineno (reader-line-number form)
         [metadata _] (metadata/separate-metadata form)]
-    `(clojure.test/report {:type :future-fact
-                           :description (fact-context/nested-descriptions
-                                         ~(:midje/description metadata))
-                           :position (midje.internal-ideas.file-position/line-number-known ~lineno)})))
+    `(emit/future-fact {:type :future-fact
+                        :description (fact-context/nested-descriptions
+                                      ~(:midje/description metadata))
+                        :position (midje.internal-ideas.file-position/line-number-known ~lineno)})))
 
                                 ;;; Fact processing
 

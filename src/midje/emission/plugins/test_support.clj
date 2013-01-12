@@ -18,4 +18,6 @@
                             :fail
                             :starting-to-check-fact
                             :possible-new-namespace
+                            :fact-stream-summary
+                            :future-fact
                             :forget-everything))

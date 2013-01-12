@@ -1,7 +1,6 @@
 (ns ^{:doc "Execution boundaries that have to do with checking of faces"}
   midje.emission.boundaries
-  (:require [midje.ideas.reporting.levels :as levelly]
-            [midje.ideas.reporting.string-format :as string-format]
+  (:require [midje.ideas.reporting.string-format :as string-format]
             [midje.emission.api :as emit]
             [midje.emission.state :as state]))
 
@@ -24,14 +23,14 @@
   `(config/with-augmented-config ~config-settings
      (emit/forget-everything)
      ~@body
-     (levelly/report-summary (ctf/run-tests ~ns-sym))
+     (emit/fact-stream-summary (ctf/run-tests ~ns-sym))
      (string-format/previous-failure-count)))
 
 (defmacro around-fact-function-stream [ffs-sym config-settings & body]
   `(config/with-augmented-config ~config-settings
      (emit/forget-everything)
      ~@body
-     (levelly/report-summary)
+     (emit/fact-stream-summary)
      (test-results-to-ternary (ctf/counters))))
 
 
@@ -57,9 +56,4 @@
   `(do ~@body))
 
 
-(defmacro around-isolated-emission-context [new-emission-functions & body]
-  `(binding [state/output-counters (atom state/fresh-output-counters)
-             state/emission-functions ~new-emission-functions]
-     (state/reset-output-counters!)
-     ~@body))
   

@@ -27,7 +27,7 @@
       (state/reset-output-counters!)
       (plugin/reset-recorder!)
       ~@body
-      @state/output-counters)))
+      (state/output-counters))))
 
 (fact emit/pass
   (innocuously
@@ -35,6 +35,15 @@
    (config/at-print-level (levels/level-above :print-nothing) (emit/pass)))
   => (contains {:midje-passes 2})
   (plugin/recorded) => [[:pass]])
+
+(fact emit/future-fact
+  (config/with-augmented-config {:visible-future :true}
+    (innocuously
+     (config/at-print-level :print-nothing (emit/future-fact ..ignored-map..))
+     (config/with-augmented-config {:visible-future false,:print-level :print-facts}
+       (emit/future-fact ..also-ignored-map..))
+     (config/at-print-level (levels/level-above :print-nothing) (emit/future-fact ..kept..))))
+  (plugin/recorded) => [[:future-fact ..kept..]])
 
 (fact emit/fail
   (innocuously
@@ -55,3 +64,29 @@
     (config/at-print-level (levels/level-below :print-namespaces) (emit/possible-new-namespace ..ignored..))
     (config/at-print-level :print-namespaces (emit/possible-new-namespace ..emitted..)))
   (plugin/recorded) => [[:possible-new-namespace ..emitted..]])
+
+(fact emit/fact-stream-summary
+  (let [output-counters {:midje-passes 2
+                         :midje-failures 3}
+        clojure-test-results {:test 6
+                              :pass 1
+                              :fail 2
+                              :error 3
+                              :lines ["line"]}]
+    ;; No output
+    (innocuously (config/at-print-level :print-no-summary
+        (emit/fact-stream-summary)))
+    (plugin/recorded) => []
+
+    ;; Has fact-stream summary
+    (innocuously (config/at-print-level (levels/level-above :print-no-summary)
+       (state/set-output-counters! output-counters)
+       (emit/fact-stream-summary clojure-test-results)))
+    (plugin/recorded) => [[:fact-stream-summary output-counters clojure-test-results]]
+
+
+    ;; No clojure.test run, so fact results.
+    (innocuously (config/at-print-level (levels/level-above :print-no-summary)
+      (state/set-output-counters! output-counters)
+      (emit/fact-stream-summary)))
+    (plugin/recorded) => [[:fact-stream-summary output-counters {:test 0}]]))

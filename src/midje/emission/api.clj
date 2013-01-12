@@ -1,14 +1,17 @@
 (ns ^{:doc "Emissions change global state: the output and the pass/fail record."}
   midje.emission.api
+  (:use [midje.util.thread-safe-var-nesting :only [with-altered-roots]])
   (:require [midje.ideas.reporting.report :as report]
             [midje.clojure-test-facade :as ctf]
             [midje.config :as config]
             [midje.emission.levels :as levels]
-            [midje.emission.state :as state]))
+            [midje.emission.state :as state]
+            [midje.emission.plugins.silence :as silence]))
 
 ;; TODO: For the time being, this includes clojure.test failures
 ;; Once Midje emissions are completely separated from clojure.test
 ;; reporting, that can go away.
+;;;; DELETE THIS
 (defn midje-failures []
   (+ (state/output-counters:midje-failures) (:fail (ctf/counters))))
 
@@ -43,9 +46,15 @@
   (ctf/note-pass);; TODO: TEMPORARY
   (when (config-above? :print-nothing) (bounce-to-plugin :pass)))
 
-(defn fail [report-map]
+(defn fail [failure-map]
+  (state/add-raw-fact-failure! failure-map)
   (state/output-counters:inc:midje-failures!)
-  (when (config-above? :print-nothing) (bounce-to-plugin :fail report-map)))
+  (when (config-above? :print-nothing) (bounce-to-plugin :fail failure-map)))
+
+(defn future-fact [fact-map]
+  (when (and (config-above? :print-nothing)
+             (config/choice :visible-future))
+    (bounce-to-plugin :future-fact fact-map)))
   
 (defn forget-everything []
   (state/reset-output-counters!)
@@ -53,7 +62,27 @@
   (bounce-to-plugin :forget-everything))
 
 (defn starting-to-check-fact [fact-function]
-  (when (config-at-or-above? :print-facts) (bounce-to-plugin :starting-to-check-fact fact-function)))
+  (state/forget-raw-fact-failures!)
+  (when (config-at-or-above? :print-facts)
+    (bounce-to-plugin :starting-to-check-fact fact-function)))
 
 (defn possible-new-namespace [ns]
-  (when (config-at-or-above? :print-namespaces) (bounce-to-plugin :possible-new-namespace ns)))
+  (when (config-at-or-above? :print-namespaces)
+    (bounce-to-plugin :possible-new-namespace ns)))
+
+(defn fact-stream-summary
+  ([clojure-test-results]
+     (when (config-above? :print-no-summary)
+       (bounce-to-plugin :fact-stream-summary (state/output-counters) clojure-test-results)))
+  ([]
+     (fact-stream-summary {:test 0})))
+                                 
+;;; 
+
+(defmacro producing-only-raw-fact-failures [& body]
+  `(config/at-print-level :print-nothing
+      (state/with-isolated-output-counters
+        ~@body)))
+
+(defmacro silently [& body]
+  `(producing-only-raw-fact-failures ~@body))

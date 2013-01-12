@@ -31,11 +31,3 @@
 (def at-or-above? (level-checker >=))
 (def above?(level-checker >))
 
-(defn report-summary
-  ([]
-     (when (above? :print-no-summary)
-       (report-strings-summary (ctf/counters))))
-  ([clojure-test-results]
-     (when (above? :print-no-summary)
-       (report-strings-summary (ctf/counters) clojure-test-results))))
-

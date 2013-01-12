@@ -60,11 +60,8 @@
   [namespaces]
   (with-isolated-counters
     (binding [ct/*test-out* (java.io.StringWriter.)]
-      (let [ct-result (apply ct/run-tests namespaces)]
-        {:test-count (:test ct-result)
-         :fail-count (+ (:fail ct-result) (:error ct-result))
-         :lines (-> ct/*test-out* .toString str/split-lines)}))))
-
+      (assoc (apply ct/run-tests namespaces)
+             :lines (-> ct/*test-out* .toString str/split-lines)))))
 
 (defn output [& texts]
   (ct/with-test-out
