@@ -11,8 +11,7 @@
   (:require [midje.emission.boundaries :as emission-boundary]
             [midje.emission.api :as emit]
             [midje.emission.state :as state]
-            [midje.emission.plugins.silence :as emission-silence]
-            [midje.clojure-test-facade :as ctf]))
+            [midje.emission.plugins.silence :as emission-silence]))
 
 ;; Formulas work by running up to *num-trials* trials per formula.
 (def ^{:doc "The number of trials generated per formula."
@@ -27,9 +26,7 @@
 
 
 (defn- formula-fact [docstring body]
-  `(ctf/ignoring-counter-changes
-    (midje.sweet/fact ~docstring   
-                      ~@body :formula :formula-in-progress)))
+  `(midje.sweet/fact ~docstring ~@body))
 
 (defn- deconstruct-formula-args [args]
   (let [[docstring? more-args] (pop-docstring args)
