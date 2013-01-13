@@ -63,7 +63,6 @@
     => (contains #"Output from clojure.test"
                  #"line 1"
                  #"line 2"
-                 ""
                  #"summary line"
                  #"Midje summary"
                  #"All claims \(2\) have been confirmed.")

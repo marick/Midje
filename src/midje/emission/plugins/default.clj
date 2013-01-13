@@ -70,7 +70,6 @@
                         (map #(-> % (str/replace #"^FAIL" (color/fail "FAIL"))
                                   (str/replace #"^ERROR" (color/fail "ERROR")))
                              result-lines)
-                        [""]
                         [((if grievousness? color/fail color/pass) summary-line)]
                         [(color/note ">>> Midje summary:")]))))]
 
