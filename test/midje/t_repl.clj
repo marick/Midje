@@ -5,7 +5,6 @@
   (:require [midje.config :as config]
             [midje.clojure-test-facade :as ctf]
             [midje.emission.state :as state]
-            [midje.ideas.reporting.level-defs :as deflevels]
             [midje.internal-ideas.compendium :as compendium]
             [midje.internal-ideas.project-state :as project-state]
             [midje.util.ecosystem :as ecosystem]

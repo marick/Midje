@@ -4,7 +4,7 @@
         clojure.test.junit
         [midje.ideas.reporting.string-format :only [report-strings-format-config]]
         [midje.ideas.reporting.junit-xml-format :only [junit-xml-format-config]])
-  (:require [midje.ideas.reporting.levels :as levelly]))
+  (:require [midje.config :as config]))
 
 
 ;;; Configuration
@@ -36,7 +36,7 @@
 
 
 (defn render [m]
-  (when (levelly/above? :print-nothing)
+  (when (config/above? :print-nothing)
     (->> m 
          ((:single-fact-fn *report-format-config*)) 
          flatten 

@@ -8,7 +8,7 @@
             [midje.config :as config]
             [midje.clojure-test-facade :as ctf]
             [midje.ideas.facts :as fact]
-            [midje.ideas.reporting.levels :as levelly]
+            [midje.parsing.arglists :as parsing]
             [midje.ideas.metadata :as metadata]
             [midje.internal-ideas.compendium :as compendium]
             [midje.internal-ideas.project-state :as project-state]
@@ -106,7 +106,7 @@
 
 (defn- ^{:testable true} defaulting-args [original-args command-type]
   (let [[given-level-seq print-level-to-use args]
-          (levelly/separate-print-levels original-args)
+          (parsing/separate-print-levels original-args (config/choice :print-level))
         [filters filter-function namespaces]
         (metadata/separate-filters args all-keyword-is-not-a-filter)]
 

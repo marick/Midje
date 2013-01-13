@@ -1,7 +1,7 @@
 (ns ^{:doc "Customizable configuration"}
   midje.config
   (:use [midje.error-handling.exceptions :only [user-error]])
-  (:require midje.ideas.reporting.level-defs
+  (:require [midje.emission.levels :as levels]
             [clojure.set :as set]
             [midje.util.ecosystem :as ecosystem]))
   
@@ -44,7 +44,7 @@
 
 (defmulti validate-key! first)
 (defmethod validate-key! :print-level [[_ value]]
-  (midje.ideas.reporting.level-defs/validate-level! value))
+  (levels/validate-level! value))
 (defmethod validate-key! :default [_])
 
 (defn validate! [changes]
@@ -63,7 +63,7 @@
 
 (defmacro at-print-level [level & body]
   `(with-augmented-config {:print-level ~level}
-    ~@body))
+     ~@body))
 
 (defn choice
   "Returns the configuration value of `key`"
@@ -81,6 +81,16 @@
    Does not affect any temporary (dynamic) configurations."
   [& kvs]
   (merge-permanently! (apply hash-map kvs)))
+
+;; Levels
+
+(defn- level-checker [operation]
+  (fn [level-name]
+    (operation (levels/normalize (choice :print-level))
+               (levels/normalize level-name))))
+
+(def at-or-above? (level-checker >=))
+(def above?(level-checker >))
 
 ;; Convenience
 (def no-overrides {})

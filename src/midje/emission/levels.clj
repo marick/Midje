@@ -1,4 +1,4 @@
-(ns ^{:doc "Reporting that is influenced by print levels"}
+(ns ^{:doc "print levels"}
   midje.emission.levels
   (:use [midje.error-handling.exceptions :only [user-error]]
         clojure.pprint))
@@ -22,3 +22,4 @@
 
 (def level-below (comp dec normalize))
 (def level-above (comp inc normalize))
+
