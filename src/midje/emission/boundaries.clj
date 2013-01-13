@@ -39,18 +39,18 @@
 ;; around-top-level being wrapped around around-fact,
 ;; it should be the other way around?
 (defmacro around-fact-function [ff-sym & body]
-  `(let [starting-failures# (emit/midje-failures)]
+  `(let [starting-failures# (state/output-counters:midje-failures)]
      (emit/starting-to-check-fact ~ff-sym)
      (fact-context/adds (metadata/fact-description ~ff-sym)
                         ~@body)
-     (= starting-failures# (emit/midje-failures))))
+     (= starting-failures# (state/output-counters:midje-failures))))
 
 
 (defmacro around-top-level-fact-function [ff-sym & body]
-  `(let [starting-failures# (emit/midje-failures)]
+  `(let [starting-failures# (state/output-counters:midje-failures)]
      (emit/possible-new-namespace (metadata/fact-namespace ~ff-sym))
      ~@body
-     (= starting-failures# (emit/midje-failures))))
+     (= starting-failures# (state/output-counters:midje-failures))))
 
 (defmacro around-check [& body]
   `(do ~@body))

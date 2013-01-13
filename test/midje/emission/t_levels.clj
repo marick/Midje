@@ -1,7 +1,6 @@
 (ns midje.emission.t-levels
   (:use midje.emission.levels
-        [midje sweet util test-util]
-        [midje.clojure-test-facade :only [counters]])
+        [midje sweet util test-util])
   (:require [midje.config :as config]))
 
 (config/with-augmented-config {:print-level :print-normally}

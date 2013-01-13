@@ -3,7 +3,6 @@
         [clojure.pprint]
         [midje.test-util])
   (:require [midje.config :as config]
-            [midje.clojure-test-facade :as ctf]
             [midje.emission.state :as state]
             [midje.internal-ideas.compendium :as compendium]
             [midje.internal-ideas.project-state :as project-state]
@@ -258,10 +257,9 @@
          ;;; Checking one fact
 
  (without-changing-cumulative-totals
-  (ctf/zero-counters)
   (let [check-result (check-one-fact the-fact)]
     (fact :check-only-at-load-time
-      (:pass (ctf/counters)) => 1
+      (:midje-passes (state/output-counters)) => 1
       check-result => true)))
 
  ;; Obeying metadata filters
@@ -295,30 +293,30 @@
   (fact "check-facts resets the counter"
     :check-only-at-load-time
     (check-facts 'midje.t-repl "the-name" :print-nothing)
-    (:pass (ctf/counters)) => 1
+    (:midje-passes (state/output-counters)) => 1
     ;; no change below because of auto-zeroing
     (check-facts 'midje.t-repl "the-name" :print-nothing)
-    (:pass (ctf/counters)) => 1)
+    (:midje-passes (state/output-counters)) => 1)
 
   (fact "check-facts takes the usual arguments"
     :check-only-at-load-time
     ;; Most of the work is done by fetch-facts, but let's try a few
     (config/with-augmented-config {:print-level :print-nothing}
       (check-facts 'midje.config)
-      (:pass (ctf/counters)) => 0
-      (:fail (ctf/counters)) => 0
+      (:midje-passes (state/output-counters)) => 0
+      (:midje-failures (state/output-counters)) => 0
 
       (check-facts *ns*)
-      (:pass (ctf/counters)) => 1
-      (:fail (ctf/counters)) => 1
+      (:midje-passes (state/output-counters)) => 1
+      (:midje-failures (state/output-counters)) => 1
 
       (check-facts 'midje.t-repl "error fact")
-      (:pass (ctf/counters)) => 0
-      (:fail (ctf/counters)) => 1
+      (:midje-passes (state/output-counters)) => 0
+      (:midje-failures (state/output-counters)) => 1
 
       (check-facts :all :tinkerbell)
-      (:pass (ctf/counters)) => 0
-      (:fail (ctf/counters)) => 0))
+      (:midje-passes (state/output-counters)) => 0
+      (:midje-failures (state/output-counters)) => 0))
 
   (fact "check-facts affects the next check-facts/fetch-facts"
     (check-facts 'midje.t-repl "the-name" :print-nothing) => true
@@ -354,8 +352,8 @@
       (recheck-fact)
       (recheck-fact)
       (recheck-fact)
-      (:pass (ctf/counters)) => 1
-      (:fail (ctf/counters)) => 0)
+      (:midje-passes (state/output-counters)) => 1
+      (:midje-failures (state/output-counters)) => 0)
     
     (fact "It also prints a summary"
       :check-only-at-load-time

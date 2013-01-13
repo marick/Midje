@@ -6,7 +6,7 @@
         midje.error-handling.exceptions
         [clojure.set :only [subset?]]
         [midje.util.form-utils :only [macro-for]])
-  (:require [midje.clojure-test-facade :as ctf]
+  (:require 
             [midje.config :as config]
             [clojure.string :as str]
             [midje.emission.api :as emit]

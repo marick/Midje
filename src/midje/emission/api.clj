@@ -8,13 +8,6 @@
             [midje.emission.state :as state]
             [midje.emission.plugins.silence :as silence]))
 
-;; TODO: For the time being, this includes clojure.test failures
-;; Once Midje emissions are completely separated from clojure.test
-;; reporting, that can go away.
-;;;; DELETE THIS
-(defn midje-failures []
-  (+ (state/output-counters:midje-failures) (:fail (ctf/counters))))
-
 ;;; Level handling
 
 (defn level-checker [operation]
@@ -43,7 +36,6 @@
 
 (defn pass []
   (state/output-counters:inc:midje-passes!)
-  (ctf/note-pass);; TODO: TEMPORARY
   (when (config-above? :print-nothing) (bounce-to-plugin :pass)))
 
 (defn fail [failure-map]
@@ -58,7 +50,6 @@
   
 (defn forget-everything []
   (state/reset-output-counters!)
-  (ctf/zero-counters)  ;; TODO This is temporary until clojure.test is vanquished.
   (bounce-to-plugin :forget-everything))
 
 (defn starting-to-check-fact [fact-function]
