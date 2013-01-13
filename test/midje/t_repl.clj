@@ -277,7 +277,9 @@
 
 
         ;;; Checking multiple facts
- (without-externally-visible-changes (fact "error fact" 1 => 2))
+
+;; Create (silently, without affecting totals) a fact to be rechecked later. 
+(silent-fact "error fact" 1 => 2)
 
  (without-changing-cumulative-totals
   (fact "you can give print-level arguments."
@@ -325,15 +327,14 @@
 
   ;; Old bug. A failure prevented further facts from being checked.
   (forget-facts :all)
-  (without-externally-visible-changes
-   (fact "1" (+ 1 2) => 3333)
-   (fact "2" (+ 1 2) => 3))
+  (silent-fact "1" (+ 1 2) => 3333)  ; establish the failing fact
+  (fact "2" (+ 1 2) => 3)            ; follow it with another
 
-  (fact "confirm the ordering of facts"
+  (fact "confirm the ordering of the two facts"
     :check-only-at-load-time
     (map fact-name (fetch-facts 'midje.t-repl)) => ["1" "2"])
   
-  (fact "Both facts were checked"
+  (fact "Even though the first fact failed, both facts were checked"
     :check-only-at-load-time
     (check-facts 'midje.t-repl :print-nothing)
     (state/output-counters:midje-passes) => 1

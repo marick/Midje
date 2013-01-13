@@ -86,10 +86,6 @@
    (number) =streams=> '[3 4 5 6 7 8] :times 1))
 (note-that fact-fails, (the-prerequisite-was-incorrectly-called 2 :times))
 
-;; (fact
-;;   @reported => has-wrong-call-count)
-
-
 ;; Lazy sequences that run out of values generate the
 ;; same error message as non-lazy sequentials.
 

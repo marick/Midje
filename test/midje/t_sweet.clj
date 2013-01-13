@@ -304,14 +304,10 @@
 
 (def inners [])
 
-
-(without-externally-visible-changes
- (fact "inner fact functions also return true or false"
-   (alter-var-root #'inners conj (fact 1 => 1 "ignored value"))
-   (alter-var-root #'inners conj (fact 2 => 1 "ignored value"))))
-
-(fact
-  inners => [true false])
+(fact "inner fact functions also return true or false"
+  (alter-var-root #'inners conj (fact 1 => 1 "ignored value"))
+  (alter-var-root #'inners conj (silent-fact 2 => 1 "ignored value")))
+(fact inners => [true false])
 
                          
 

@@ -211,7 +211,29 @@
      ~note-command))
 
 
-;;; Capturing output 
+;; Some sets of tests generate failures. The following code prevents
+;; them from being counted as failures when the final summary is
+;; printed. The disadvantage is that legitimate failures won't appear
+;; in the final summary. They will, however, produce failure output,
+;; so that's an acceptable compromise.
+
+(defmacro without-changing-cumulative-totals [& forms]
+  `(state/with-isolated-output-counters
+      ~@forms))
+
+;; This notes when a test incorrectly stepped on the running
+;; count that you see from `lein midje`.
+(defmacro confirming-cumulative-totals-not-stepped-on [& body]
+  `(let [stashed-counters# (state/output-counters)]
+     ~@body
+     (midje.sweet/fact "Checking whether cumulative totals were stepped on"
+       (>= (:midje-passes (state/output-counters))   (:midje-passes stashed-counters#)) midje.sweet/=> true
+       (>= (:midje-failures (state/output-counters)) (:midje-failures stashed-counters#)) midje.sweet/=> true)))
+
+
+;;; Capturing output
+
+;; Very lame that we have two ways of capturing output. Fix this someday.
 
 (def test-output (atom nil))
 
@@ -221,141 +243,14 @@
              (with-out-str (state/with-isolated-output-counters ~fact1)))
      ~fact2))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-;;; OLD STUFF. Some worth salvaging.
-
 (defmacro captured-output [& body]
   `(binding [clojure.test/*test-out* (java.io.StringWriter.)]
      (clojure.test/with-test-out ~@body)
      (.toString clojure.test/*test-out*)))
 
-(def reported (atom []))
 
-;; Scheduled for demolition
-(defn run-without-reporting [f] 
-  (binding [report (fn [report-map#] (swap! reported conj report-map#))
-            ctf/report (fn [report-map#] (swap! reported conj report-map#))]
-    (reset! reported [])
-    (f)))
+;;; OLD STUFF. Keep checking which of these are worth salvaging.
 
-(defmacro run-silently [& run-forms]
-  `(run-without-reporting (fn [] ~@run-forms)))
-
-
-
-
-;; Some sets of tests generate failures. The following code prevents
-;; them from being counted as failures when the final summary is
-;; printed. The disadvantage is that legitimate failures won't appear
-;; in the final summary. They will, however, produce failure output,
-;; so that's an acceptable compromise.
-
-(defmacro without-changing-cumulative-totals [& forms]
-  `(ctf/ignoring-counter-changes
-    (state/with-isolated-output-counters
-      ~@forms)))
-
-
-(defmacro without-externally-visible-changes [& body]
-  `(config/with-augmented-config {:print-level :print-nothing}
-     (without-changing-cumulative-totals ~@body)))
-
-;; This notes when a test incorrectly stepped on the running
-;; count that you see from `lein midje`.
-(defmacro confirming-cumulative-totals-not-stepped-on [& body]
-  `(let [stashed-counters# (ctf/counters)]
-     ~@body
-     (midje.sweet/fact "Checking whether cumulative totals were stepped on"
-       (>= (:pass (ctf/counters)) (:pass stashed-counters#)) midje.sweet/=> true
-       (>= (:fail (ctf/counters)) (:fail stashed-counters#)) midje.sweet/=> true)))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-;; (defmacro after-silently [example-form & check-forms]
-;;    `(do
-;;      (run-without-reporting (fn [] ~example-form))
-;;      ~@check-forms))
-
-(defn only-passes? [expected-count]
-  (cond (not (= (count @reported) expected-count))
-        (do 
-          (println "Count" (count @reported) "when" expected-count "expected")
-          (println @reported)
-          false)
-
-        (not (= (count (filter #(= (:type %) :pass) @reported)) expected-count))
-        (do
-          (println "Not everything passed.")
-          (println "Actual" @reported)
-          false)
-
-        :else
-        true))
-
-(defn raw-report [] (println @reported) true)
-
-;; Kinds of result maps
-(def bad-result (contains {:type :mock-expected-result-failure}))
-(def inappropriate-equality (contains {:type :mock-expected-result-inappropriately-matched}))
-(def inappropriate-checker (contains {:type :mock-actual-inappropriately-matches-checker}))
-(def pass (contains {:type :pass}))
-(def checker-fails (contains {:type :mock-expected-result-functional-failure}))
-(def wrong-call-count (contains {:type :mock-incorrect-call-count}))
-(def a-validation-error (contains {:type :validation-error}))
-(def no-matching-prerequisite (contains {:type :mock-argument-match-failure}))
-(def future-fact-note (contains {:type :future-fact}))
-
-
-;; Applied to lists of result maps
-(letfn [(make-collection-checker [unit-checker]
-          (checker [reporteds]
-            (some (comp not extended-false?) (map unit-checker reporteds))))]
-  (defchecker has-bad-result [reporteds]
-    (make-collection-checker bad-result))
-  (defchecker has-wrong-call-count [reporteds]
-    (make-collection-checker wrong-call-count))
-
-  (defn passes [reporteds]
-    (every? pass reporteds))
-)
-
-
-(defchecker has-thrown-message [expected]
-  (checker [reporteds]
-    (some (fn [one-report]
-            (and (:actual one-report)
-                 (captured-throwable? (:actual one-report))
-                 (extended-= (.getMessage (throwable (:actual one-report)))
-                             expected)))
-          reporteds)))
 
 
 (defn at-line [line-no form] 
@@ -364,19 +259,6 @@
 (defmacro validation-error-with-notes [& notes]
   `(just (contains {:notes (just ~@notes)
                     :type :validation-error})))
-
-(defmacro causes-validation-error 
-  "check if the body, when executed, creates a syntax validation error"
-  [error-msg & body]
-  (let [metadata (meta &form)]
-    `(do (with-meta (silent-fact ~@body) '~metadata)
-         (note-that parser-exploded (fact-failed-with-note ~error-msg)))))
-
-(defmacro each-causes-validation-error 
-  "check if each row of the body, when executed, creates a syntax validation error"
-  [error-msg & body]
-  (macro-for [row body]
-    `(causes-validation-error ~error-msg ~row)))
 
 (defmacro with-identity-renderer [& forms]
   `(binding [midje.ideas.reporting.report/*renderer* identity] ~@forms))
