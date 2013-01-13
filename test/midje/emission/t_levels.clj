@@ -3,8 +3,6 @@
         [midje sweet util test-util])
   (:require [midje.config :as config]))
 
-(config/with-augmented-config {:print-level :print-normally}
-
 (facts "about levels"
   (-> -2 levels-to-names names-to-levels) => -2
   (-> -1 levels-to-names names-to-levels) => -1
@@ -25,6 +23,3 @@
   (normalize :print-nothing) => (names-to-levels :print-nothing)
   (normalize :a-mistake) => (throws ":a-mistake is not a valid :print-level.")
   (normalize 800) => (throws "800 is not a valid :print-level."))
-
-
-) ; restore print levels to user default

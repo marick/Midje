@@ -28,7 +28,7 @@
                         (partial merge-with +) {~key 1})))
             (make-one-getter [key]
               `(defn ~(symbol (str name key)) []
-                 (~key (deref ~atom-name))))
+                 (~key (~name))))
             (make-one-setter [key]
               `(defn ~(symbol (str name ":set" key "!")) [value#]
                  (~set-name (assoc (~name) ~key value#))))
@@ -59,8 +59,6 @@
 (def raw-fact-failures #(deref raw-fact-failures-atom))
 (def forget-raw-fact-failures! #(reset! raw-fact-failures-atom []))
 (def add-raw-fact-failure! (partial swap! raw-fact-failures-atom conj))
-
-
 
 (defonce ^{:dynamic true} emission-functions nil)
 

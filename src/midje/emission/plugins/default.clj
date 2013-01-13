@@ -6,10 +6,12 @@
             [midje.ideas.metadata :as metadata]
             [midje.emission.plugins.util :as util]
             [midje.emission.plugins.silence :as silence]
+            [midje.clojure-test-facade :as ctf]
             [clojure.string :as str]))
 
 (defn fail [report-map]
-  (clojure.test/report report-map))
+  (ctf/ignoring-counter-changes
+    (clojure.test/report report-map)))
 
 
 (def last-namespace-shown (atom nil))

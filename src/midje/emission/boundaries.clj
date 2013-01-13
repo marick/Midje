@@ -1,10 +1,10 @@
 (ns ^{:doc "Execution boundaries that have to do with checking of faces"}
   midje.emission.boundaries
-  (:require [midje.ideas.reporting.string-format :as string-format]
+  (:require [midje.clojure-test-facade :as ctf]
             [midje.emission.api :as emit]
             [midje.emission.state :as state]))
 
-(defn test-results-to-ternary [counters]
+(defn midje-results-to-ternary [] ; note: used when clojure.test results are irrelevant
   (let [failures (state/output-counters:midje-failures)
         passes (state/output-counters:midje-passes)]
     (cond (every? zero? [failures passes])
@@ -16,6 +16,10 @@
           :else
           false)))
 
+(defn all-test-failures-to-self-documenting-map [ct-counters]
+  {:failures (+ (state/output-counters:midje-failures) (:fail ct-counters))})
+  
+
 ;; TODO: Once we reconcile the different ways results are checked and
 ;; returned by these two macros, extract commonality into a helper
 ;; macro.
@@ -23,15 +27,16 @@
   `(config/with-augmented-config ~config-settings
      (emit/forget-everything)
      ~@body
-     (emit/fact-stream-summary (ctf/run-tests ~ns-sym))
-     (string-format/previous-failure-count)))
+     (let [ct-counters# (ctf/run-tests ~ns-sym)]
+       (emit/fact-stream-summary ct-counters#)
+       (all-test-failures-to-self-documenting-map ct-counters#))))
 
 (defmacro around-fact-function-stream [ffs-sym config-settings & body]
   `(config/with-augmented-config ~config-settings
      (emit/forget-everything)
      ~@body
      (emit/fact-stream-summary)
-     (test-results-to-ternary (ctf/counters))))
+     (midje-results-to-ternary)))
 
 
 ;; TODO: Note that both of the fact around functions
