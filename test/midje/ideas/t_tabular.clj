@@ -94,35 +94,35 @@
 
 
 ;; Table Validation
-(capturing-output
+(capturing-failure-output
  (tabular
    (fact 
      (tabular-forms '?forms) => '?expected
      ?forms                       ?expect
      [ fact table ]               [fact table]))
- (fact @test-output => #"There's no table"))
+ (fact @fact-output => #"There's no table"))
 
-(capturing-output
+(capturing-failure-output
  (tabular (fact nil => nil))
- (fact @test-output => #"There's no table"))
+ (fact @fact-output => #"There's no table"))
 
-(capturing-output
+(capturing-failure-output
  (tabular "doc string present" (fact nil => nil))
- (fact @test-output => #"There's no table"))
+ (fact @fact-output => #"There's no table"))
 
-(capturing-output
+(capturing-failure-output
   (tabular
     (fact ?a => ?b)
     ?a   ?b)
-(fact @test-output => #"It looks like the table has headings, but no values"))
+(fact @fact-output => #"It looks like the table has headings, but no values"))
  
 
-(capturing-output 
+(capturing-failure-output 
  (tabular
    (fact
      (+ a b) => result)
    2    4   999     )
- (fact @test-output => #"It looks like the table has no headings"))
+ (fact @fact-output => #"It looks like the table has no headings"))
 
 ;; Other tests via midje.sweet API
 
@@ -184,12 +184,12 @@
  (+ a 1)       1      1)
 
 (config/with-augmented-config {:visible-future true}
-  (capturing-output
+  (capturing-fact-output
    (tabular
      (future-fact (inc ?int) => ?int)
      ?int
      1)
-   (fact @test-output => #"WORK TO DO")))
+   (fact @fact-output => #"WORK TO DO")))
 
 ;; Util: table-binding-maps
  

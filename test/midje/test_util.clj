@@ -233,20 +233,27 @@
 
 ;;; Capturing output
 
-;; Very lame that we have two ways of capturing output. Fix this someday.
-
-(def test-output (atom nil))
-
-(defmacro capturing-output [fact1 fact2]
-  `(do
-     (reset! test-output
-             (with-out-str (state/with-isolated-output-counters ~fact1)))
-     ~fact2))
+;; TODO: Going forward, captured-output shouldn't be used in tests.
 
 (defmacro captured-output [& body]
   `(binding [clojure.test/*test-out* (java.io.StringWriter.)]
      (clojure.test/with-test-out ~@body)
      (.toString clojure.test/*test-out*)))
+
+(def fact-output (atom nil))
+
+(defmacro capturing-fact-output [fact1 fact2]
+  `(do
+     (reset! fact-output
+             (captured-output ~fact1))
+     ~fact2))
+
+(defmacro capturing-failure-output [fact1 fact2]
+  `(do
+     (reset! fact-output
+             (captured-output (state/with-isolated-output-counters ~fact1)))
+     ~fact2))
+
 
 
 ;;; OLD STUFF. Keep checking which of these are worth salvaging.

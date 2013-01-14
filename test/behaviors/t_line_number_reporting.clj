@@ -101,21 +101,21 @@
          ;;; Future facts
 
 (config/with-augmented-config {:visible-future true}
-  (capturing-output
+  (capturing-fact-output
    (future-fact "text")
-   (fact @test-output => #"t_line_number_reporting.*105")))
+   (fact @fact-output => #"t_line_number_reporting.*105")))
 
 (config/with-augmented-config {:visible-future true}
-  (capturing-output
+  (capturing-fact-output
    (pending-fact "text")
-   (fact @test-output => #"t_line_number_reporting.*110")))
+   (fact @fact-output => #"t_line_number_reporting.*110")))
 
 (config/with-augmented-config {:visible-future true}
-  (capturing-output
+  (capturing-fact-output
    (fact "text"
      
      (+ 1 "1") =future=> "2")
-   (fact @test-output => #"t_line_number_reporting.*117")))
+   (fact @fact-output => #"t_line_number_reporting.*117")))
 
 
 

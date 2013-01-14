@@ -26,15 +26,15 @@
   (+ 20 20) => 40)
 
 
-(capturing-output
+(capturing-fact-output
  (config/with-augmented-config {:visible-future true}
    (future-fact 1 => 2))
- (fact @test-output => #"WORK TO DO\S* at \(t_sweet"))
+ (fact @fact-output => #"WORK TO DO\S* at \(t_sweet"))
               
-(capturing-output 
+(capturing-fact-output 
  (config/with-augmented-config {:visible-future true}
    (future-fact :some-metadata "fact name" 1 => 2))
- (fact @test-output => #"WORK TO DO\S* \"fact name\" at \(t_sweet"))
+ (fact @fact-output => #"WORK TO DO\S* \"fact name\" at \(t_sweet"))
 
               
 
@@ -154,11 +154,11 @@
 
 
 (config/with-augmented-config {:visible-future true}
-  (capturing-output
+  (capturing-fact-output
    (fact "about mathematics"
      (future-fact "do in future"
                   nil => 1))
-   (fact @test-output => #"WORK TO DO.*about mathematics.*do in future")))
+   (fact @fact-output => #"WORK TO DO.*about mathematics.*do in future")))
 
 ;; Background prerequisites
 (unfinished check-f check-g check-h)

@@ -20,7 +20,7 @@
 
 ;; If you leave off a prerequisite, you get a helpful failure:
 
-(capturing-output
+(capturing-failure-output
  (fact
    (top-function 5) => 55
    (provided
@@ -28,13 +28,13 @@
      (lower-function 6) =>  5))
  ;; So...
  (fact 
-   @test-output => #"You never said lower-function would be needed with these arguments:"
-   @test-output => #"\(5\)"))
+   @fact-output => #"You never said lower-function would be needed with these arguments:"
+   @fact-output => #"\(5\)"))
 
    
 ;; You also get a helpful failure for an unused prerequisite:       
 
-(capturing-output
+(capturing-failure-output
  (fact
    (top-function 5) => 5555
    (provided
@@ -44,19 +44,19 @@
      (lower-function 6) =>    5))
  ;; So...
  (fact
-   @test-output => #"These calls were not made the right number of times:"
-   @test-output => #"\(lower-function 3\) \[expected at least once, actually never called\]"
-   @test-output => #"\(lower-function 4\) \[expected at least once, actually never called\]"
+   @fact-output => #"These calls were not made the right number of times:"
+   @fact-output => #"\(lower-function 3\) \[expected at least once, actually never called\]"
+   @fact-output => #"\(lower-function 4\) \[expected at least once, actually never called\]"
    ;; You also get a message about the failure:
-   @test-output => #"Expected: 5555"
-   @test-output => #"Actual: 55"))
+   @fact-output => #"Expected: 5555"
+   @fact-output => #"Actual: 55"))
 
 
 ;; By default, prerequisites can be called one or more times. The
 ;; :times modifier lets you change that. Here's how you can insist
 ;; a prerequisite be called twice:
 
-(capturing-output
+(capturing-failure-output
  (fact
    (top-function 5) => 55
    (provided
@@ -64,7 +64,7 @@
      (lower-function 6) =>  5))
  ;; So...
  (fact
-   @test-output => #"\(lower-function 5\) \[expected :times 2, actually called one time\]"))
+   @fact-output => #"\(lower-function 5\) \[expected :times 2, actually called one time\]"))
 
 ; You can also give a range of allowed values. Here's how you'd ask
 ; for a function to be called one or two times:
