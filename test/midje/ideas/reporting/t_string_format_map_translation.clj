@@ -122,17 +122,6 @@
 
 
 
-(fact "equality when inequality expected"
-  (let [failure-map {:type :mock-expected-result-inappropriately-matched
-                     :description ["some description"]
-                     :position ["foo.clj" 3]
-                     :actual "s"
-                     :expected "s"}
-        raw-report (with-identity-renderer (clojure.test/report failure-map))]
-    (nth raw-report 0) => #"FAIL.*some description.* at .*foo.clj:3"
-    (nth raw-report 1) => #"Expected: Anything BUT \"s\""
-    (nth raw-report 2) => #"Actual: \"s\""))
-
 (facts "about reporting specific user errors"
   (let [failure-map {:type :validation-error
                      :description ["some description"]

@@ -11,6 +11,15 @@
    (str "    Expected: " (:expected-form-to-print m))
    (str "      Actual: " (attractively-stringified-form (:actual m)))))
 
+(defmethod messy-lines :mock-expected-result-inappropriately-matched [m]
+  (list
+   (failure-notice m)
+   (str "    Expected: Anything BUT " (:expected-form-to-print m))
+   (str "      Actual: " (attractively-stringified-form (:actual m)))))
+
+
+
+
 (defmethod messy-lines :default [failure-map]
   (midje.ideas.reporting.string-format/report-strings failure-map))
 

@@ -46,12 +46,6 @@
           (map (partial str "        ") lines))]
 
   (defmulti report-strings :type)
-  (defmethod report-strings :mock-expected-result-inappropriately-matched [m]
-    (list
-      (fail-at m)
-      (str "    Expected: Anything BUT " (pr-sorted (:expected m)))
-      (str "      Actual: " (attractively-stringified-form (:actual m)))))
-
   (defmethod report-strings :mock-expected-result-functional-failure [m]
     (list
       (fail-at m)
