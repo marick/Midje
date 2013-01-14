@@ -17,6 +17,27 @@
    (str "    Expected: Anything BUT " (:expected-form-to-print m))
    (str "      Actual: " (attractively-stringified-form (:actual m)))))
 
+(defmethod messy-lines :mock-expected-result-functional-failure [m]
+    (list
+      (failure-notice m)
+      "Actual result did not agree with the checking function."
+      (str "        Actual result: " (attractively-stringified-form (:actual m)))
+      (str "    Checking function: " (:expected-form-to-print m))
+      (if (:intermediate-results m)
+        (cons "    During checking, these intermediate values were seen:"
+          (for [[form value] (:intermediate-results m)]
+            (format "       %s => %s" (pr-str form) (attractively-stringified-form value)))))
+      (if (:notes m)
+        (cons "    The checker said this about the reason:"
+          (indented (:notes m))))))
+
+(defmethod messy-lines :mock-actual-inappropriately-matches-checker [m]
+    (list
+      (failure-notice m)
+      "Actual result was NOT supposed to agree with the checking function."
+      (str "        Actual result: " (attractively-stringified-form (:actual m)))
+      (str "    Checking function: " (:expected-form-to-print m))))
+
 
 
 

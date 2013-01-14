@@ -46,27 +46,6 @@
           (map (partial str "        ") lines))]
 
   (defmulti report-strings :type)
-  (defmethod report-strings :mock-expected-result-functional-failure [m]
-    (list
-      (fail-at m)
-      "Actual result did not agree with the checking function."
-      (str "        Actual result: " (attractively-stringified-form (:actual m)))
-      (str "    Checking function: " (pr-str (:expected m)))
-      (if (:intermediate-results m)
-        (cons "    During checking, these intermediate values were seen:"
-          (for [[form value] (:intermediate-results m)]
-            (format "       %s => %s" (pr-str form) (pr-sorted value)))))
-      (if (:notes m)
-        (cons "    The checker said this about the reason:"
-          (indented (:notes m))))))
-
-  (defmethod report-strings :mock-actual-inappropriately-matches-checker [m]
-    (list
-      (fail-at m)
-      "Actual result was NOT supposed to agree with the checking function."
-      (str "        Actual result: " (attractively-stringified-form (:actual m)))
-      (str "    Checking function: " (pr-str (:expected m)))))
-
   (defmethod report-strings :future-fact [m]
     (when (config/choice :visible-future)
       (list

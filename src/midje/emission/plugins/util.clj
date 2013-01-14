@@ -23,6 +23,10 @@
 (defn emit-lines [lines]
   (doseq [line lines] (emit-one-line line)))
 
+(defn indented [lines]
+  (map (partial str "        ") lines))
+
+
 (defn linearize-lines
   "Takes a nested structure that contains nils and strings.
    Converts it into a simple sequence of strings."
