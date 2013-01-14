@@ -46,13 +46,6 @@
           (map (partial str "        ") lines))]
 
   (defmulti report-strings :type)
-  (defmethod report-strings :future-fact [m]
-    (when (config/choice :visible-future)
-      (list
-       (str "\n" (color/note "WORK TO DO") " "
-            (when-let [doc (format-nested-descriptions (:description m))] (str (pr-str doc) " "))
-            "at " (midje-position-string (:position m))))))
-
   (defmethod report-strings :mock-argument-match-failure [m]
     (list
       (fail-at m)

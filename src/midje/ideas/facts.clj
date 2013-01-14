@@ -54,10 +54,8 @@
 (defn future-fact* [form]
   (let [lineno (reader-line-number form)
         [metadata _] (metadata/separate-metadata form)]
-    `(emit/future-fact {:type :future-fact
-                        :description (fact-context/nested-descriptions
-                                      ~(:midje/description metadata))
-                        :position (midje.internal-ideas.file-position/line-number-known ~lineno)})))
+    `(emit/future-fact (fact-context/nested-descriptions ~(:midje/description metadata))
+                       (midje.internal-ideas.file-position/line-number-known ~lineno))))
 
                                 ;;; Fact processing
 

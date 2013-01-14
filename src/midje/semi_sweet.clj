@@ -4,8 +4,7 @@
 (ns ^{:doc "Macros that provide less syntactic sugaring than those 
             from midje.sweet. midje.sweet is built on top of it."}
   midje.semi-sweet
-  (:use clojure.test
-        midje.internal-ideas.fakes
+  (:use midje.internal-ideas.fakes
         midje.internal-ideas.file-position
         [midje.util debugging form-utils namespace]
         [midje.util.deprecation :only [deprecate]]
@@ -19,7 +18,8 @@
         [clojure.algo.monads :only [domonad]]
         clojure.pprint
         [clojure.string :only [join]])
-  (:require [midje.internal-ideas.fact-context :as fact-context]))
+  (:require [midje.internal-ideas.fact-context :as fact-context]
+            [midje.emission.api :as emit]))
 
 (immigrate 'midje.unprocessed)
 (immigrate 'midje.ideas.arrow-symbols)
@@ -78,10 +78,8 @@
 (defmethod expect-expansion =future=>
   [call-form arrow expected-result _fakes_ overrides]
   `(let [check# (unprocessed-check ~call-form ~arrow ~expected-result ~overrides)]
-     (clojure.test/report {:type :future-fact
-                           :description (fact-context/nested-descriptions
-                                         ~(str "on `" call-form "`"))
-                           :position (:position check#)})))
+     (emit/future-fact (fact-context/nested-descriptions ~(str "on `" call-form "`"))
+                       (:position check#))))
 
 ;;; Interface: unfinished
 

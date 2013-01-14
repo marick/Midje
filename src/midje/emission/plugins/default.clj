@@ -76,9 +76,12 @@
     (apply util/emit-one-line (concat (clojure-test-prompted-lines)
                                       (midje-summary-lines (:midje-passes midje-counters) (:midje-failures midje-counters))))))
 
-(defn future-fact [report-map]
-  (clojure.test/report report-map))
-  
+(defn future-fact [description-list position]
+  (util/emit-one-line "")
+  (util/emit-one-line (str (color/note "WORK TO DO") " "
+                           (when-let [doc (util/format-nested-descriptions description-list)]
+                             (str (pr-str doc) " "))                           
+                           "at " (util/filename-lineno position))))
 
 (defn make-map [& keys]
   (zipmap keys

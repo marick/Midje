@@ -39,11 +39,11 @@
 (fact emit/future-fact
   (config/with-augmented-config {:visible-future :true}
     (innocuously
-     (config/at-print-level :print-nothing (emit/future-fact ..ignored-map..))
+     (config/at-print-level :print-nothing (emit/future-fact ..ignored.. ..ignored..))
      (config/with-augmented-config {:visible-future false,:print-level :print-facts}
-       (emit/future-fact ..also-ignored-map..))
-     (config/at-print-level (levels/level-above :print-nothing) (emit/future-fact ..kept..))))
-  (plugin/recorded) => [[:future-fact ..kept..]])
+       (emit/future-fact ..also-ignored.. ..also-ignored..))
+     (config/at-print-level (levels/level-above :print-nothing) (emit/future-fact ..description.. ..position..))))
+  (plugin/recorded) => [[:future-fact ..description.. ..position..]])
 
 (fact emit/fail
   (innocuously

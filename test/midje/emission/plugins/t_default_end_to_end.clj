@@ -1,7 +1,7 @@
 (ns midje.emission.plugins.t-default-end-to-end
   (:use midje.ideas.reporting.report
         [midje sweet test-util])
-  (:require [midje.ideas.reporting.string-format :as kludge]))
+  (:require [midje.config :as config]))
 
 (capturing-failure-output
  (fact (+ 1 1) => 3)
@@ -32,6 +32,24 @@
    @fact-output => #"NOT supposed to agree.*checking function"
    @fact-output => #"Actual result:\s+2"
    @fact-output => #"Checking function:\s+even\?"))
+
+(capturing-fact-output
+ (config/with-augmented-config {:visible-future true}
+   (future-fact 1 => 2))
+ (fact @fact-output => #"(?s)WORK TO DO\S* at \(t_default_end_to_end"))
+              
+(capturing-fact-output 
+ (config/with-augmented-config {:visible-future true}
+   (future-fact :some-metadata "fact name" 1 => 2))
+ (fact @fact-output => #"(?s)WORK TO DO\S* \"fact name\" at \(t_default_end_to_end"))
+
+(capturing-fact-output 
+ (config/with-augmented-config {:visible-future true}
+   (fact "outer" 
+     (fact "inner" (cons (first 3)) =future=> 2)))
+ (fact @fact-output => #"(?s)WORK TO DO\S* \"outer - inner - on `\(cons \(first 3\)\)`\" at \(t_default_end_to_end"))
+
+
 
 (println "finish these")
 

@@ -43,10 +43,10 @@
   (state/output-counters:inc:midje-failures!)
   (when (config-above? :print-nothing) (bounce-to-plugin :fail failure-map)))
 
-(defn future-fact [fact-map]
+(defn future-fact [description position]
   (when (and (config-above? :print-nothing)
              (config/choice :visible-future))
-    (bounce-to-plugin :future-fact fact-map)))
+    (bounce-to-plugin :future-fact description position)))
   
 (defn forget-everything []
   (state/reset-output-counters!)

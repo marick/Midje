@@ -26,16 +26,6 @@
   (+ 20 20) => 40)
 
 
-(capturing-fact-output
- (config/with-augmented-config {:visible-future true}
-   (future-fact 1 => 2))
- (fact @fact-output => #"WORK TO DO\S* at \(t_sweet"))
-              
-(capturing-fact-output 
- (config/with-augmented-config {:visible-future true}
-   (future-fact :some-metadata "fact name" 1 => 2))
- (fact @fact-output => #"WORK TO DO\S* \"fact name\" at \(t_sweet"))
-
               
 
 
