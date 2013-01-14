@@ -15,6 +15,7 @@
         [midje.util.namespace :only [semi-sweet-keyword?]]
         [midje.util.ecosystem :only [line-separator]]
         midje.production-mode
+        [gui-diff.internal :only [nested-sort] :rename {nested-sort sorted-if-appropriate}]
         [clojure.algo.monads :only [domonad]]
         clojure.pprint
         [clojure.string :only [join]])
@@ -38,6 +39,7 @@
     =expands-to=> :check-match
     =not=> :check-negated-match
     =deny=> :check-negated-match
+    =test=> :just-midje-testing-here
     nil))
 
 (defmacro unprocessed-check
@@ -50,7 +52,8 @@
      :function-under-test (fn [] ~call-form)
      :expected-result ~expected-result
      :desired-check ~(check-for-arrow arrow)
-     :expected-result-text-for-failures '~expected-result
+     :expected-form-to-print (sorted-if-appropriate '~expected-result)
+     :expected-result-text-for-failures '~expected-result    ;;; TODO: Soon to be defunct
      :position (user-file-position)
      
      ;; for Midje tool creators:

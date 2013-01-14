@@ -6,12 +6,12 @@
             [midje.ideas.metadata :as metadata]
             [midje.emission.plugins.util :as util]
             [midje.emission.plugins.silence :as silence]
+            [midje.emission.plugins.default-failure-lines :as lines]
             [midje.clojure-test-facade :as ctf]
             [clojure.string :as str]))
 
-(defn fail [report-map]
-  (ctf/ignoring-counter-changes
-    (clojure.test/report report-map)))
+(defn fail [failure-map]
+   (util/emit-lines (lines/summarize failure-map)))
 
 
 (def last-namespace-shown (atom nil))
@@ -21,20 +21,20 @@
 
 (defn possible-new-namespace [namespace-symbol]
   (when (not= namespace-symbol @last-namespace-shown)
-    (util/output (color/note (str "= Namespace " namespace-symbol)))
+    (util/emit-one-line (color/note (str "= Namespace " namespace-symbol)))
     (set-last-namespace-shown! namespace-symbol)))
 
 (defn forget-everything []
   (set-last-namespace-shown! nil))
 
 (defn starting-to-check-fact [fact-function]
-  (util/output (color/note
-               (str "Checking "
-                    (or (metadata/fact-name fact-function)
-                        (metadata/fact-description fact-function)
-                        (str "fact at " (midje-position-string
-                                         [(metadata/fact-file fact-function)
-                                          (metadata/fact-line fact-function)])))))))
+  (util/emit-one-line (color/note
+                       (str "Checking "
+                            (or (metadata/fact-name fact-function)
+                                (metadata/fact-description fact-function)
+                                (str "fact at " (midje-position-string
+                                                 [(metadata/fact-file fact-function)
+                                                  (metadata/fact-line fact-function)])))))))
 
 
 (defn fact-stream-summary [midje-counters clojure-test-map]
@@ -73,8 +73,8 @@
                         [((if grievousness? color/fail color/pass) summary-line)]
                         [(color/note ">>> Midje summary:")]))))]
 
-    (apply util/output (concat (clojure-test-prompted-lines)
-                               (midje-summary-lines (:midje-passes midje-counters) (:midje-failures midje-counters))))))
+    (apply util/emit-one-line (concat (clojure-test-prompted-lines)
+                                      (midje-summary-lines (:midje-passes midje-counters) (:midje-failures midje-counters))))))
 
 (defn future-fact [report-map]
   (clojure.test/report report-map))

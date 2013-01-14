@@ -277,10 +277,10 @@
 (binding [midje.semi-sweet/*include-midje-checks* false]
   (load "semi_sweet_compile_out"))
 
-(capturing-output
+(capturing-fact-output
  (config/with-augmented-config {:visible-future true}
    (expect (cons :fred) =future=> 3))
- (fact @test-output => #"WORK TO DO.*on.*cons :fred"))
+ (fact @fact-output => #"WORK TO DO.*on.*cons :fred"))
 
 
 (defmacro some-macro [arg] `(+ 100 200 ~arg))
@@ -296,7 +296,28 @@
     (note-that fact-failed, (fact-actual `(clojure.core/+ 100 200 1))
                (fact-expected `(clojure.core/- 100 200 1)))))
  
-(fact "add form info to unprocessed check so tool creators can introspect them"
-  (unprocessed-check (+ 1 1) ..arrow.. 2 []) => (contains {:call-form '(+ 1 1) 
-                                                           :arrow ..arrow.. 
-                                                           :expected-result 2}))
+(fact "unprocessed-check creates a map"
+  (fact "base case"
+    (let [result (unprocessed-check (+ 1 10) => (+ 9 990) [])]
+      ((:function-under-test result)) => 11
+      (:desired-check :check-match)
+      (:expected-result result) => 999
+      (:expected-form-to-print result) => '(+ 9 990)))
+
+  (fact "the expected result will be sorted if appropriate"
+    (pr-str (:expected-form-to-print (unprocessed-check (+ 1 1) =test=> #{:z :q :a :b :m :f :p} [])))
+    => "#{:a :b :f :m :p :q :z}")
+
+  (fact "with additional info for midje tool creators"
+    (unprocessed-check (+ 1 1) =test=> 2 []) => (contains {:call-form '(+ 1 1) 
+                                                             :arrow '=test=>
+                                                             :expected-result 2}))
+  
+  (fact "containing fact descriptions"
+    (unprocessed-check 1 =test=> 1 []) => (contains {:description ["unprocessed-check creates a map"
+                                                                   "containing fact descriptions"]}))
+
+  (fact "and additional information as given"
+    (unprocessed-check 1 =test=> 1 [:other :stuff]) => (contains {:other :stuff})))
+
+
