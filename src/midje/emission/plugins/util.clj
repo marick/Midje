@@ -1,12 +1,12 @@
 (ns ^{:doc "General purpose plugin utilities"}
   midje.emission.plugins.util
   (:use [midje.util.form-utils :only [pred-cond]]
-        [gui-diff.internal :only [nested-sort] :rename {nested-sort sorted-if-appropriate}]
         [clojure.repl :only [demunge]])
   (:require [midje.clojure-test-facade :as ctf]
             [midje.util.colorize :as color]
             [midje.error-handling.exceptions :as exception]
             [midje.util.object-utils :as object]
+            gui-diff.internal
             [clojure.string :as str]))
 
 
@@ -26,6 +26,7 @@
 (defn indented [lines]
   (map (partial str "        ") lines))
 
+(def sorted-if-appropriate gui-diff.internal/nested-sort)
 
 (defn linearize-lines
   "Takes a nested structure that contains nils and strings.
@@ -40,16 +41,16 @@
         [_ match] (re-matches #"#<([^/]+/[^ ]+).*" (demunge printed))]
   match))
 
-(defn attractively-stringified-form
+(defn attractively-stringified-value
   "Does some standard prettification of forms:
         : a function named `foo`
         : a nicely printed stack trace
         : maps and sets sorted by key."
-  [form]
-  (pred-cond form
-    fn?                           (function-name form)
-    exception/captured-throwable? (exception/friendly-stacktrace form)
-    :else                         (pr-str (sorted-if-appropriate form))))
+  [value]
+  (pred-cond value
+    fn?                           (function-name value)
+    exception/captured-throwable? (exception/friendly-stacktrace value)
+    :else                         (pr-str (sorted-if-appropriate value))))
 
 
 (defn format-nested-descriptions

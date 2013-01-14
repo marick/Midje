@@ -90,36 +90,8 @@
       (indented (:stacktrace m)))))
 
 
-;;; Formatting Summary of Facts
-
-(defn print-clojure-test-result-lines [result])
-
-(defn print-clojure-test-summary-lines [result])
-
-(defn- print-something-actually-happened-summary-results [result])
-
-(defn print-nothing-was-tried-summary-results [])
-
-(defn print-midje-summary-line [result])
-
-(def ^{:private true} previous-failure-count-atom (atom 0))
-
-(defn previous-failure-count []
-  @previous-failure-count-atom)
-
 (defn report-strings-summary
-  ([midje-result clojure-test-result]
-     (when (pos? (:test-count clojure-test-result))
-       (print-clojure-test-result-lines clojure-test-result) 
-       (print-clojure-test-summary-lines clojure-test-result)
-       (println (color/note ">>> Midje summary:")))
-     (reset! previous-failure-count-atom (+ (:fail midje-result)
-                                           (or (:fail-count clojure-test-result) 0)))
-     (print-midje-summary-line midje-result))
-  ([midje-result]
-     (report-strings-summary midje-result {:test-count 0})))
-    
-
+  ([midje-result clojure-test-result]))
 
 ;; Config to expose to reporting namespace, which it will use to show 
 ;; reported failures to the user

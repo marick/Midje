@@ -15,7 +15,7 @@
       (summarize {:type :mock-expected-result-failure :expected-form-to-print 'expected :actual ..actual..})
       => (just "notice" #"\s+Expected: expected", #"\s+Actual: AAA")
       (provided
-        (util/attractively-stringified-form ..actual..) => 'AAA))
+        (util/attractively-stringified-value ..actual..) => 'AAA))
 
     
     (fact "or an unexpected match" 
@@ -26,7 +26,7 @@
       (summarize {:type :mock-expected-result-inappropriately-matched :expected-form-to-print 'expected :actual ..actual..})
       => (just "notice" #"\s+Expected: Anything BUT expected", #"\s+Actual: AAA")
       (provided
-        (util/attractively-stringified-form ..actual..) => 'AAA)))
+        (util/attractively-stringified-value ..actual..) => 'AAA)))
 
 
   (fact "checkers"

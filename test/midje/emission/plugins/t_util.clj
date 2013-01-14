@@ -7,11 +7,11 @@
 
 
 (fact "Different forms can be attractively printed"
-  (attractively-stringified-form even?) => "core/even?"
-  (attractively-stringified-form midje.emission.plugins.util/emit-lines) => "util/emit-lines"
-  (attractively-stringified-form (fn [n] 1)) => #"fn--"
-  (attractively-stringified-form {:b 2 :a 1}) => "{:a 1, :b 2}"
-  (attractively-stringified-form #{9 6 2 7 1 3}) => "#{1 2 3 6 7 9}")
+  (attractively-stringified-value even?) => "core/even?"
+  (attractively-stringified-value midje.emission.plugins.util/emit-lines) => "util/emit-lines"
+  (attractively-stringified-value (fn [n] 1)) => #"fn--"
+  (attractively-stringified-value {:b 2 :a 1}) => "{:a 1, :b 2}"
+  (attractively-stringified-value #{9 6 2 7 1 3}) => "#{1 2 3 6 7 9}")
 
 
 (tabular "descriptions harvested from nested facts can be formatted as '-' separated"
