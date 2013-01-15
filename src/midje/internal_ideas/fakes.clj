@@ -82,7 +82,7 @@
    the dynamic checking code that must also not be replaced. These are
    the ones that are known."
   [some-var]
-  (#{#'deref} some-var))
+  (#{#'deref #'assoc} some-var))
 
 (defn #^:private
   raise-disallowed-prerequisite-error [function-name]
