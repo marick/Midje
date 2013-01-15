@@ -7,7 +7,7 @@
 (against-background [(util/failure-notice anything) => "notice"]
 
   (fact "the simplest kind of failure"
-    (fact "is a mismatch" 
+    (fact "is a mismatch"
       (summarize {:type :mock-expected-result-failure :expected-result-form 1, :actual 2})
       => (just "notice" #"\s+Expected: 1", #"\s+Actual: 2")
 
@@ -16,7 +16,6 @@
       => (just "notice" #"\s+Expected: expected", #"\s+Actual: AAA")
       (provided
         (util/attractively-stringified-value ..actual..) => 'AAA))
-
     
     (fact "or an unexpected match" 
       (summarize {:type :mock-expected-result-inappropriately-matched :expected-result-form 2, :actual 2})
@@ -26,8 +25,16 @@
       (summarize {:type :mock-expected-result-inappropriately-matched :expected-result-form 'expected :actual ..actual..})
       => (just "notice" #"\s+Expected: Anything BUT expected", #"\s+Actual: AAA")
       (provided
-        (util/attractively-stringified-value ..actual..) => 'AAA)))
+        (util/attractively-stringified-value ..actual..) => 'AAA))
 
+    (fact "can sort the expected result if appropriate"
+      (summarize {:type :mock-expected-result-failure, :actual 2
+                  :expected-result-form '["not" "with" "sequence"]})
+      => (contains #"\[\"not\" \"with\" \"sequence\"\]")
+
+      (summarize {:type :mock-expected-result-failure :actual 2
+                  :expected-result-form '#{:but :sorted :with :a :set}})
+      => (contains #"#\{:a :but :set :sorted :with\}")))
 
   (fact "checkers"
     (summarize {:type :mock-expected-result-functional-failure :actual 2, :expected-result-form 'odd?})

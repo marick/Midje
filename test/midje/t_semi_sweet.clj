@@ -304,10 +304,6 @@
       (:expected-result result) => 999
       (:expected-result-form result) => '(+ 9 990)))
 
-  (fact "the expected result will be sorted if appropriate"
-    (:expected-result-form (unprocessed-check (+ 1 1) =test=> #{:z :q :a :b :m :f :p} []))
-    => #{:a :b :f :m :p :q :z})
-
   (fact "with additional info for midje tool creators"
     (unprocessed-check (+ 1 1) =test=> 2 []) => (contains {:call-form '(+ 1 1) 
                                                              :arrow '=test=>

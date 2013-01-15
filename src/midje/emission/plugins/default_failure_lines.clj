@@ -45,5 +45,7 @@
   (midje.ideas.reporting.string-format/report-strings failure-map))
 
 (defn summarize [failure-map]
-  (linearize-lines (messy-lines failure-map)))
+  (let [improved-map (merge failure-map
+                           {:expected-result-form (sorted-if-appropriate (:expected-result-form failure-map))})]
+    (linearize-lines (messy-lines improved-map))))
 
