@@ -39,10 +39,18 @@
      (midje-results-to-ternary)))
 
 
-;; TODO: Note that both of the fact around functions
-;; need to check failure counts. Perhaps instead of
-;; around-top-level being wrapped around around-fact,
-;; it should be the other way around?
+;; TODO: Note that both of the fact around functions need to check
+;; failure counts. It would perhaps make sense to have the
+;; `around-fact-function` wrap `around-top-level-fact-function`, but I
+;; think it would surprise and annoy plugin-writers.
+
+(defmacro around-top-level-fact-function [ff-sym & body]
+  `(let [starting-failures# (state/output-counters:midje-failures)]
+     (emit/possible-new-namespace (metadata/fact-namespace ~ff-sym))
+     (emit/starting-to-check-top-level-fact ~ff-sym)
+     ~@body
+     (= starting-failures# (state/output-counters:midje-failures))))
+
 (defmacro around-fact-function [ff-sym & body]
   `(let [starting-failures# (state/output-counters:midje-failures)]
      (emit/starting-to-check-fact ~ff-sym)
@@ -50,12 +58,6 @@
                         ~@body)
      (= starting-failures# (state/output-counters:midje-failures))))
 
-
-(defmacro around-top-level-fact-function [ff-sym & body]
-  `(let [starting-failures# (state/output-counters:midje-failures)]
-     (emit/possible-new-namespace (metadata/fact-namespace ~ff-sym))
-     ~@body
-     (= starting-failures# (state/output-counters:midje-failures))))
 
 (defmacro around-check [& body]
   `(do ~@body))

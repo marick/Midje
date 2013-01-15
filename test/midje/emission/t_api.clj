@@ -59,6 +59,13 @@
   (plugin/recorded) => [[:starting-to-check-fact ..fact-function..]])
 
 
+(fact emit/starting-to-check-top-level-fact
+  (innocuously
+    (config/at-print-level (levels/level-below :print-facts) (emit/starting-to-check-top-level-fact ..ignored-fact-function..))
+    (config/at-print-level :print-facts (emit/starting-to-check-top-level-fact ..fact-function..)))
+  (plugin/recorded) => [[:starting-to-check-top-level-fact ..fact-function..]])
+
+
 (fact emit/possible-new-namespace
   (innocuously
     (config/at-print-level (levels/level-below :print-namespaces) (emit/possible-new-namespace ..ignored..))

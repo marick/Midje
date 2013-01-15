@@ -10,6 +10,9 @@
 (fact "passes produce no output"
   (innocuously :pass) => "")
 
+(fact "starting top-level-fact produces no output"
+  (innocuously :starting-to-check-top-level-fact ..ignored..) => "")
+
 (fact "report fact being entered"
   (let [name+desc-fact (with-meta (fn[])
                          {:midje/name "named" :midje/description "desc"})

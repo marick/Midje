@@ -9,6 +9,7 @@
 
 (def emission-map (make-map :pass
                             :fail
+                            :starting-to-check-top-level-fact
                             :starting-to-check-fact
                             :possible-new-namespace
                             :fact-stream-summary

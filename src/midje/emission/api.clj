@@ -51,8 +51,12 @@
   (state/reset-output-counters!)
   (bounce-to-plugin :forget-everything))
 
-(defn starting-to-check-fact [fact-function]
+(defn starting-to-check-top-level-fact [fact-function]
   (state/forget-raw-fact-failures!)
+  (when (config-at-or-above? :print-facts)
+    (bounce-to-plugin :starting-to-check-top-level-fact fact-function)))
+
+(defn starting-to-check-fact [fact-function]
   (when (config-at-or-above? :print-facts)
     (bounce-to-plugin :starting-to-check-fact fact-function)))
 
