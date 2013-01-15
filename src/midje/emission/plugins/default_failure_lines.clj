@@ -1,6 +1,7 @@
 (ns ^{:doc "How the default emitter reports on failures"}
   midje.emission.plugins.default-failure-lines
   (:use midje.emission.plugins.util)
+  (:use [clojure.pprint :only [cl-format pprint]])
   (:require [midje.clojure-test-facade :as ctf]))
 
 (defmulti messy-lines :type)
@@ -38,6 +39,22 @@
       (str "        Actual result: " (attractively-stringified-value (:actual m)))
       (str "    Checking function: " (:expected-result-form m))))
 
+
+(defmethod messy-lines :mock-incorrect-call-count [m]
+  (letfn [(format-one-failure [fail]
+            (let [exp (:expected-count fail)
+                  act (:actual-count fail)
+                  msg (cond
+                       (and (nil? exp) (zero? act))
+                       "[expected at least once, actually never called]"
+                  
+                       :else 
+                       (cl-format nil "[expected :times ~A, actually called ~R time~:P]" exp act))]
+              (str "    " (:expected-result-form fail) " " msg)))]
+    (concat
+     (list (failure-notice (first (:failures m)))
+           "These calls were not made the right number of times:")
+     (map format-one-failure (:failures m)))))
 
 (defmethod messy-lines :mock-argument-match-failure [m]
   (list

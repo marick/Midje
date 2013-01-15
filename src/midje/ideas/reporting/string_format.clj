@@ -47,26 +47,6 @@
 
   (defmulti report-strings :type)
 
-  (defmethod report-strings :mock-incorrect-call-count [m]
-    (letfn [
-      (format-one-failure [fail]
-        (let [exp (:expected-count fail)
-              act (:actual-count fail)
-              msg (cond
-                    (and (nil? exp) (zero? act))
-                    "[expected at least once, actually never called]"
-                  
-                    (nil? exp)
-                    (cl-format nil "[expected at least once, actually called ~R time~:P]" act)
-                  
-                    :else 
-                    (cl-format nil "[expected :times ~A, actually called ~R time~:P]" exp act))]
-          (str "    " (:expected-result-form fail) " " msg)))]
-
-      (concat
-        (list (fail-at (first (:failures m)))
-          "These calls were not made the right number of times:")
-        (map format-one-failure (:failures m)))))
 
   (defmethod report-strings :validation-error [m]
     (list

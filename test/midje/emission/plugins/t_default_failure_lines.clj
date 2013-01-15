@@ -95,8 +95,23 @@
         (summarize {:type :mock-argument-match-failure
                     :actual (list #'cons [1 2 3] "foo")
                     :var #'odd?})
-        => (contains 
-                 #"\(#'clojure.core/cons \[1 2 3\] \"foo\"\)"))))
-             
+        => (contains #"\(#'clojure.core/cons \[1 2 3\] \"foo\"\)")))
+    (fact "incorrect call count"
+      (fact "the never-called case"
+        (summarize {:type :mock-incorrect-call-count
+                    :failures [{:actual-count 0
+                                :expected-count nil
+                                :expected-result-form "(f a)"}] })
+        => (just "notice"
+                 #"These calls were not made the right number of times"
+                 #"\(f a\).*expected at least once"))
+      (fact "the case with a specific number of expected calls"
+        (summarize {:type :mock-incorrect-call-count
+                    :failures [{:actual-count 3
+                                :expected-count [1 2]
+                                :expected-result-form "(f a)" }] })
+        =>  (just "notice"
+                  #"These calls were not made the right number of times"
+                  #"\(f a\).*expected :times \[1 2\].*actually called three times"))))
 
 )  ;; Against-background
