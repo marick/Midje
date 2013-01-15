@@ -1,6 +1,5 @@
 (ns midje.emission.plugins.t-default-end-to-end
-  (:use midje.ideas.reporting.report
-        [midje sweet test-util])
+  (:use [midje sweet test-util])
   (:require [midje.config :as config]))
 
 (capturing-failure-output

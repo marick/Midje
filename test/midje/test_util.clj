@@ -267,9 +267,6 @@
   `(just (contains {:notes (just ~@notes)
                     :type :validation-error})))
 
-(defmacro with-identity-renderer [& forms]
-  `(binding [midje.ideas.reporting.report/*renderer* identity] ~@forms))
-
 (defmacro defn-call-countable
   "Note: For testing Midje code that couldn't use provided.
   

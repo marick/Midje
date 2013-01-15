@@ -32,8 +32,7 @@
             [midje.emission.boundaries :as emission-boundary]
             [midje.emission.api :as emit]
             [midje.ideas.metadata :as metadata]
-            [midje.config :as config]
-            midje.ideas.reporting.report))
+            [midje.config :as config]))
 
 (defn fact? [form]
   (or (first-named? form "fact")

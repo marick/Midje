@@ -4,6 +4,17 @@
   (:require [clojure.test :as ct]
             [clojure.string :as str]))
 
+
+
+;; This turns off "Testing ...." lines, which I hate, especially
+;; when there's no failure output. The type check is because
+;; `lein test` overrides clojure.test/report with a non-multimethod.
+(when (= clojure.lang.MultiFn (type clojure.test/report))
+  (defmethod clojure.test/report :begin-test-ns [m]))
+
+
+
+
 ;; Note: `clojure.test/report` will probably be the last thing to
 ;; come. When that happens, note that you must define `report` like this:
 ;;   (defn report [map] (ct/report map))

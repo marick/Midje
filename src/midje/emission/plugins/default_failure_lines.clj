@@ -79,9 +79,6 @@
    (indented (:stacktrace m))))
 
 
-(defmethod messy-lines :default [failure-map]
-  (midje.ideas.reporting.string-format/report-strings failure-map))
-
 (defn summarize [failure-map]
   (let [improved-map (merge failure-map
                            {:expected-result-form (sorted-if-appropriate (:expected-result-form failure-map))})]
