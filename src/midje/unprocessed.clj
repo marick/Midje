@@ -16,12 +16,9 @@
 (letfn [(result-discovered-by-a-function? [check-map] (extended-fn? (:expected-result check-map)))
 
         (minimal-failure-map [type actual check-map]
-          {:type type
-           :description (:description check-map)
-           :binding-note (:binding-note check-map)
-           :position (:position check-map)
-           :actual actual
-           :expected-result-form (:expected-result-form check-map)}) ;; TODO: delete this
+          (merge check-map
+                 {:type type
+                  :actual actual}))
 
         (check-result-positive [actual check-map]
           (cond  (extended-= actual (:expected-result check-map))
