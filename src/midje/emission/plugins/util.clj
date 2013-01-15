@@ -41,6 +41,21 @@
         [_ match] (re-matches #"#<([^/]+/[^ ]+).*" (demunge printed))]
   match))
 
+(defn prerequisite-var-description
+  "Takes a var naming a prerequisite and returns a string useful for printing"
+  [prerequisite-var]
+  ;; This emphasizes a little that the prerequisite is a var, without having
+  ;; too much spewage. While it's nice to be able to write:
+  ;;    (provided (foo 3) => 4)
+  ;; ... that can cause confusion in those (relatively uncommon) cases where
+  ;; rebinding `#'foo` does not change the value of `foo`. Having been reminded
+  ;; occasionally that she's working with vars might help a perplexed user
+  ;; become unperplexed.
+  (let [name (object/object-name prerequisite-var)]
+    (if name
+      (str "#'" name)
+      (pr-str prerequisite-var))))
+
 (defn attractively-stringified-value
   "Does some standard prettification of forms:
         : a function named `foo`
@@ -51,7 +66,6 @@
     fn?                           (function-name value)
     exception/captured-throwable? (exception/friendly-stacktrace value)
     :else                         (pr-str (sorted-if-appropriate value))))
-
 
 (defn format-nested-descriptions
   "Takes vector like [\"about cars\" nil \"sports cars are fast\"] and returns non-nils joined with -'s

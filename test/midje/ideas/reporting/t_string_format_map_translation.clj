@@ -12,18 +12,6 @@
 ;; added to the total failure count, which should always be zero.
 (without-changing-cumulative-totals
     
-(fact "excess matches"
-  (let [failure-map {:type :mock-argument-match-failure
-                     :description ["some description"]
-                     :actual '(nil)
-                     :position ["foo.clj" 3]
-                     :var odd?}
-        raw-report (with-identity-renderer (clojure.test/report failure-map))]
-    (nth raw-report 0) => #"FAIL.*some description.* at .*foo.clj:3"
-    (nth raw-report 1) => #"never said .*odd.* would be needed"
-    (nth raw-report 1) =future=> #"never said odd\? would be needed"
-    (nth raw-report 2) => #"\(nil\)"))
-
 (fact "mock never called"
   (let [failure-map {:type :mock-incorrect-call-count
                      :failures [{ :description ["some description"]

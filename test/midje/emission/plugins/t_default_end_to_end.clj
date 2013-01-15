@@ -49,44 +49,40 @@
      (fact "inner" (cons (first 3)) =future=> 2)))
  (fact @fact-output => #"(?s)WORK TO DO\S* \"outer - inner - on `\(cons \(first 3\)\)`\" at \(t_default_end_to_end"))
 
+(capturing-failure-output
+ (fact (cons 1 nil) => (contains 2))
+ (fact
+   @fact-output => #"FAIL"
+   @fact-output => #"checking function"
+   @fact-output => #"Actual result:\s+\(1\)"
+   @fact-output => #"Checking function:\s+\(contains 2\)"
+   @fact-output => #"Best match found:\s+\[\]"))
 
+(capturing-failure-output
+ (fact (cons 1 nil) =not=> (just 1))
+ (fact
+   @fact-output => #"FAIL"
+   @fact-output => #"NOT supposed to agree.*checking function"
+   @fact-output => #"Actual result:\s\(1\)"
+   @fact-output => #"Checking function:\s+\(just 1\)"))
 
-(println "finish these")
+(capturing-failure-output
+ (fact 5 => (chatty-checker [a] (and (= a 5) (= a 6))))
+ (fact
+   @fact-output => #"FAIL"
+   @fact-output => #"checking function"
+   @fact-output => #"Actual result:\s+5"
+   @fact-output => #"Checking function:\s+\(chatty-checker \[a\] \(and \(= a 5\) \(= a 6\)\)\)"
+   @fact-output => #"\(= a 5\) => true"
+   @fact-output => #"\(= a 6\) => false"))
 
-;; (let [output (with-out-str
-;;                (fact (cons 1 nil) => (contains 2)))]
-;;   (fact
-;;     @fact-output => #"FAIL"
-;;     @fact-output => #"checking function"
-;;     @fact-output => #"Actual result:\s+\(1\)"
-;;     @fact-output => #"Checking function:\s+\(contains 2\)"
-;;     @fact-output => #"Best match found:\s+\[\]"))
+(capturing-failure-output
+ (fact 5 => (every-checker even? (throws "message")))
+ (fact
+   @fact-output => #"FAIL"
+   @fact-output => #"checking function"
+   @fact-output => #"Actual result:\s+5"
+   @fact-output => #"Checking function:\s+\(every-checker even\? \(throws \"message\"\)\)"
+   @fact-output => #"even\? => false"))
 
-;; (let [output (with-out-str
-;;                (fact (cons 1 nil) =not=> (just 1)))]
-;;   (fact
-;;     @fact-output => #"FAIL"
-;;     @fact-output => #"NOT supposed to agree.*checking function"
-;;     @fact-output => #"Actual result:\s\(1\)"
-;;     @fact-output => #"Checking function:\s+\(just 1\)"))
-
-;; (let [output (with-out-str
-;;                (fact 5 => (chatty-checker [a] (and (= a 5) (= a 6)))))]
-;;   (fact
-;;     @fact-output => #"FAIL"
-;;     @fact-output => #"checking function"
-;;     @fact-output => #"Actual result:\s+5"
-;;     @fact-output => #"Checking function:\s+\(chatty-checker \[a\] \(and \(= a 5\) \(= a 6\)\)\)"
-;;     @fact-output => #"\(= a 5\) => true"
-;;     @fact-output => #"\(= a 6\) => false"))
-
-
-;; (let [output (with-out-str
-;;                (fact 5 => (every-checker even? (throws "message"))))]
-;;   (fact
-;;     @fact-output => #"FAIL"
-;;     @fact-output => #"checking function"
-;;     @fact-output => #"Actual result:\s+5"
-;;     @fact-output => #"Checking function:\s+\(every-checker even\? \(throws \"message\"\)\)"
-;;     @fact-output => #"even\? => false"))
 

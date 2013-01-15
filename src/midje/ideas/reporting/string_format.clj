@@ -46,13 +46,6 @@
           (map (partial str "        ") lines))]
 
   (defmulti report-strings :type)
-  (defmethod report-strings :mock-argument-match-failure [m]
-    (list
-      (fail-at m)
-      (str "You never said "
-        (function-name-or-spewage (:var m))
-        " would be needed with these arguments:")
-      (str "    " (pr-str (:actual m)))))
 
   (defmethod report-strings :mock-incorrect-call-count [m]
     (letfn [

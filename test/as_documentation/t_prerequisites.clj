@@ -20,6 +20,7 @@
 
 ;; If you leave off a prerequisite, you get a helpful failure:
 
+
 (capturing-failure-output
  (fact
    (top-function 5) => 55
@@ -28,7 +29,7 @@
      (lower-function 6) =>  5))
  ;; So...
  (fact 
-   @fact-output => #"You never said lower-function would be needed with these arguments:"
+   @fact-output => #"You never said #'lower-function would be called with these arguments:"
    @fact-output => #"\(5\)"))
 
    

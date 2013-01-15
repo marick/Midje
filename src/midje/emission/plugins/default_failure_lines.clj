@@ -39,7 +39,13 @@
       (str "    Checking function: " (:expected-result-form m))))
 
 
-
+(defmethod messy-lines :mock-argument-match-failure [m]
+  (list
+   (failure-notice m)
+   (str "You never said "
+        (prerequisite-var-description (:var m))
+        " would be called with these arguments:")
+   (str "    " (pr-str (:actual m)))))
 
 (defmethod messy-lines :default [failure-map]
   (midje.ideas.reporting.string-format/report-strings failure-map))

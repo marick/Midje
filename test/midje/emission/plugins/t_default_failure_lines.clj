@@ -80,6 +80,23 @@
                #"\s+Actual result: \{:a 5, :d 7, :f 6, :p 3, :r 4, :z 2\}"
                #"\s+Checking function: \(collection 3\)"))
     )
+
+
+  (fact "prerequisites" 
+    (fact "called with unexpected arguments"
+      (fact "a typical case"
+        (summarize {:type :mock-argument-match-failure
+                    :actual '(nil)
+                    :var #'odd?})
+        => (just "notice"
+                 #"never said .*#'odd.* would be called"
+                 #"\(nil\)"))
+      (fact "somewhat more complicated arguments"
+        (summarize {:type :mock-argument-match-failure
+                    :actual (list #'cons [1 2 3] "foo")
+                    :var #'odd?})
+        => (contains 
+                 #"\(#'clojure.core/cons \[1 2 3\] \"foo\"\)"))))
              
 
 )  ;; Against-background
