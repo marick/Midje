@@ -64,6 +64,13 @@
              (prerequisite-was-never-called #"favorite-animal")
              (fact-expected "betsy")
              (failures-were-at-lines  (+ deftest-start 11) (+ deftest-start 11) (+ deftest-start 9)))
+  ;; Three things tested here. (1) there is a single composite "never-called" failure that 
+  ;; (2) has the position of the first of it's elements. Moreover, (3) the prerequisite failure
+  ;; comes before the bad actual value.
+  (for-failure 1 (note-that (failure-was-at-line (+ deftest-start 11))))
+  (for-failure 2 (note-that (fact-expected "betsy")
+                            (failure-was-at-line (+ deftest-start 9))))
+             
 
   
   (silent-fact
@@ -73,7 +80,7 @@
 
   (note-that (prerequisite-was-never-called #"name")
              (fact-expected "betsy")
-             (failures-were-at-lines (+ deftest-start 22) (+ deftest-start 20)))
+             (failures-were-at-lines (+ deftest-start 29) (+ deftest-start 27)))
 
   (silent-fact
     (favorite-animal-only-name) => "betsy"   ;; This calls for the name of frank.
@@ -84,7 +91,7 @@
              (prerequisite-was-never-called #"name")  ;; never correctly called, I guess I should say.
              (prerequisite-was-never-called #"favorite-animal")
              (fact-expected "betsy")
-             (failures-were-at-lines (+ deftest-start 31) (+ deftest-start 31) (+ deftest-start 31) (+ deftest-start 29)))
+             (failures-were-at-lines (+ deftest-start 38) (+ deftest-start 38) (+ deftest-start 38) (+ deftest-start 36)))
 
 
   (silent-fact
@@ -92,7 +99,7 @@
     (provided
       (name (favorite-animal 1)) => "betsy"
       (name (favorite-animal 2)) => "jake")) ;; a folded prerequisite can have two errors.
-  (note-that (failures-were-at-lines (+ deftest-start 44) (+ deftest-start 44)))
+  (note-that (failures-were-at-lines (+ deftest-start 51) (+ deftest-start 51)))
   
   )
 
@@ -103,26 +110,26 @@
 (config/with-augmented-config {:visible-future true}
   (capturing-fact-output
    (future-fact "text")
-   (fact @fact-output => #"t_line_number_reporting.*105")))
+   (fact @fact-output => #"t_line_number_reporting.*112")))
 
 (config/with-augmented-config {:visible-future true}
   (capturing-fact-output
    (pending-fact "text")
-   (fact @fact-output => #"t_line_number_reporting.*110")))
+   (fact @fact-output => #"t_line_number_reporting.*117")))
 
 (config/with-augmented-config {:visible-future true}
   (capturing-fact-output
    (fact "text"
      
      (+ 1 "1") =future=> "2")
-   (fact @fact-output => #"t_line_number_reporting.*117")))
+   (fact @fact-output => #"t_line_number_reporting.*124")))
 
 
 
 
         ;;; Improved error handling for pathological cases
 
-(def patho-start 125)
+(def patho-start 132)
 
 (silent-fact "statements without lists guess 1+ most recent"
    1 => even?)
@@ -156,7 +163,7 @@
 
 ;;; Line number reporting for variant expect arrows
 
-(def variant-line 159)
+(def variant-line 166)
 (silent-fact
  (+ 1 1) =deny=> 2
  (+ 1 1) =not=> 2)
@@ -170,4 +177,4 @@
   
   ?n  ?comment
   1   "1")
-(note-that (failure-was-at-line 167))
+(note-that (failure-was-at-line 174))

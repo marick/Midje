@@ -54,7 +54,7 @@
 ;; First, utils
 
 (defn multi-reason-failure? [failure-map]
-  (= :prerequisite-was-called-the-wrong-number-of-times (:type failure-map)))
+  (= :some-prerequisites-were-called-the-wrong-number-of-times (:type failure-map)))
 
 (defn all-reasons [failure-maps]
   (mapcat (fn [one-failure]
@@ -94,10 +94,7 @@
 ;; Applies only to the first failure (which may have multiple prerequisite failures in it)
 (defn failure-was-at-line [expected-line]
   (fn [actual-failure]
-    (if (multi-reason-failure? actual-failure)
-      (some #{expected-line}
-            (map line-number-from-failure-reason (all-reasons [actual-failure])))
-      (= (line-number-from-failure-reason actual-failure) expected-line))))
+      (= (line-number-from-failure-reason actual-failure) expected-line)))
 
 ;; Chatty checkers.
 
@@ -116,7 +113,7 @@
 
 ;; Prerequisites
 
-(def only-incorrect-call-counts (partial filter #(= (:type %) :prerequisite-was-called-the-wrong-number-of-times)))
+(def only-incorrect-call-counts (partial filter #(= (:type %) :some-prerequisites-were-called-the-wrong-number-of-times)))
 (def only-incorrect-call-count-reasons (comp all-reasons only-incorrect-call-counts))
   
 
@@ -145,10 +142,6 @@
 
 (defn ^{:all-failures true} failures-were-at-lines [& lines]
   (fn [failure-maps]
-    ;; (prn 'fwal)
-    ;; (prn lines)
-    ;; (prn (all-reasons failure-maps))
-    ;; (prn (map line-number-from-failure-reason (all-reasons failure-maps)))
     (= lines 
        (map line-number-from-failure-reason (all-reasons failure-maps)))))
 

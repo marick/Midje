@@ -265,8 +265,9 @@
                                :expected-call   (:call-text-for-failures fake)
                                :position        (:position fake)
                                :expected-result-form        (:call-text-for-failures fake)}))]
-    (emit/fail {:type :prerequisite-was-called-the-wrong-number-of-times
-                :failures failures} )))
+    (emit/fail {:type :some-prerequisites-were-called-the-wrong-number-of-times
+                :failures failures
+                :position (:position (first failures))} )))
 
 
 

@@ -8,19 +8,16 @@
 
 (defmethod messy-lines :actual-result-did-not-match-expected-value [m]
   (list
-   (failure-notice m)
    (str "    Expected: " (:expected-result-form m))
    (str "      Actual: " (attractively-stringified-value (:actual m)))))
 
 (defmethod messy-lines :actual-result-should-not-have-matched-expected-value [m]
   (list
-   (failure-notice m)
    (str "    Expected: Anything BUT " (:expected-result-form m))
    (str "      Actual: " (attractively-stringified-value (:actual m)))))
 
 (defmethod messy-lines :actual-result-did-not-match-checker [m]
     (list
-      (failure-notice m)
       "Actual result did not agree with the checking function."
       (str "        Actual result: " (attractively-stringified-value (:actual m)))
       (str "    Checking function: " (:expected-result-form m))
@@ -34,13 +31,12 @@
 
 (defmethod messy-lines :actual-result-should-not-have-matched-checker [m]
     (list
-      (failure-notice m)
       "Actual result was NOT supposed to agree with the checking function."
       (str "        Actual result: " (attractively-stringified-value (:actual m)))
       (str "    Checking function: " (:expected-result-form m))))
 
 
-(defmethod messy-lines :prerequisite-was-called-the-wrong-number-of-times [m]
+(defmethod messy-lines :some-prerequisites-were-called-the-wrong-number-of-times [m]
   (letfn [(format-one-failure [fail]
             (let [exp (:expected-count fail)
                   act (:actual-count fail)
@@ -51,14 +47,12 @@
                        :else 
                        (cl-format nil "[expected :times ~A, actually called ~R time~:P]" exp act))]
               (str "    " (:expected-result-form fail) " " msg)))]
-    (concat
-     (list (failure-notice (first (:failures m)))
-           "These calls were not made the right number of times:")
+    (cons
+     "These calls were not made the right number of times:"
      (map format-one-failure (:failures m)))))
 
 (defmethod messy-lines :prerequisite-was-called-with-unexpected-arguments [m]
   (list
-   (failure-notice m)
    (str "You never said "
         (prerequisite-var-description (:var m))
         " would be called with these arguments:")
@@ -66,13 +60,11 @@
 
 (defmethod messy-lines :parse-error [m]
   (list
-   (failure-notice m)
    (str "    Midje could not understand something you wrote: ")
    (indented (:notes m))))
 
 (defmethod messy-lines :exception-during-parsing [m]
   (list
-   (failure-notice m)
    (str "    Midje caught an exception when translating this form:")
    (str "      " (pr-str (:macro-form m)))
    (str "      " "This stack trace *might* help:")
@@ -82,5 +74,6 @@
 (defn summarize [failure-map]
   (let [improved-map (merge failure-map
                            {:expected-result-form (sorted-if-appropriate (:expected-result-form failure-map))})]
-    (linearize-lines (messy-lines improved-map))))
+    (linearize-lines (cons (failure-notice failure-map)
+                           (messy-lines improved-map)))))
 
