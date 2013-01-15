@@ -99,7 +99,7 @@
             (complete-fact-transformation metadata remainder)))
         (catch Exception ex
           `(do
-             (emit/fail {:type :exceptional-user-error
+             (emit/fail {:type :exception-during-parsing
                          :description (fact-context/nested-descriptions ~(:midje/description metadata))
                          :macro-form '~&form
                          :stacktrace '~(user-error-exception-lines ex)

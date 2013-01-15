@@ -42,7 +42,7 @@
  [ [1] [2 3] ] => (as-sets [ [1] ]))
 
 (future-fact "Failures from chatty-checkers-within-functions propagate chatty information"
-   @silent-fact:last-raw-failure => (contains {:type :mock-expected-result-functional-failure
+   @silent-fact:last-raw-failure => (contains {:type :actual-result-did-not-match-checker
                                               :actual [ [1] [2 3]]
                                               :expected-result-form '(as-sets [[1]])
                                               :notes  ["Expected one element. There were two."]}))

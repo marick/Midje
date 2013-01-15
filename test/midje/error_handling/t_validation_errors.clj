@@ -29,7 +29,7 @@
 
 (fact "there is a helper function that produces error-reporting forms"
   (validation-error-report-form '(anything) "note 1" "note 2")
-  => '(midje.emission.api/fail {:type :validation-error
+  => '(midje.emission.api/fail {:type :parse-error
                                 :notes '["note 1" "note 2"]
                                 :position '...form-position... })
   (provided
@@ -39,7 +39,7 @@
 
 (fact "can produce a basic error-reporting form, w/ form always as final note"
   (simple-validation-error-report-form '(anything) "note 1" "note 2")
-  => '(midje.emission.api/fail {:type :validation-error
+  => '(midje.emission.api/fail {:type :parse-error
                                 :notes '["note 1" "note 2" "(anything)"]
                                 :position '...form-position... })
   (provided

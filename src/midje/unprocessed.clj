@@ -26,7 +26,7 @@
                  
                  
                  (result-discovered-by-a-function? check-map)
-                 (emit/fail (merge (minimal-failure-map :mock-expected-result-functional-failure
+                 (emit/fail (merge (minimal-failure-map :actual-result-did-not-match-checker
                                          actual check-map)
                                    ;; TODO: It is very lame that the
                                    ;; result-function has to be called again to
@@ -38,7 +38,7 @@
                                                                        actual))))
                  
                  :else
-                 (emit/fail (assoc (minimal-failure-map :mock-expected-result-failure actual check-map)
+                 (emit/fail (assoc (minimal-failure-map :actual-result-did-not-match-expected-value actual check-map)
                                    :expected-result (:expected-result check-map)))))
         
         (check-result-negated [actual check-map]
@@ -46,10 +46,10 @@
                 (emit/pass)
                 
                 (result-discovered-by-a-function? check-map)
-                (emit/fail (minimal-failure-map :mock-actual-inappropriately-matches-checker actual check-map))
+                (emit/fail (minimal-failure-map :actual-result-should-not-have-matched-checker actual check-map))
                 
                 :else
-                (emit/fail (minimal-failure-map :mock-expected-result-inappropriately-matched actual check-map))))]
+                (emit/fail (minimal-failure-map :actual-result-should-not-have-matched-expected-value actual check-map))))]
 
 
   (defn- check-result [actual check-map]

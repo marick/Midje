@@ -17,7 +17,7 @@
   (:midje/validation-error (meta form)))
 
 (defn validation-error-report-form [form & notes]
-  (as-validation-error `(emit/fail {:type :validation-error
+  (as-validation-error `(emit/fail {:type :parse-error
                                     :notes '~notes
                                     :position '~(form-position form)})))
 

@@ -147,7 +147,7 @@ odd?                   3               falsey)
 
   (defn message-about-mocking-midje-functions [reported]
     (let [important-error
-          (find-first #(= (:type %) :mock-expected-result-functional-failure)
+          (find-first #(= (:type %) :actual-result-did-not-match-checker)
                       reported)]
       (and important-error
            (.getMessage (.throwable (:actual important-error))))))
@@ -291,7 +291,7 @@ odd?                   3               falsey)
 
   (defn message-about-mocking-midje-functions [reported]
     (let [important-error
-          (find-first #(= (:type %) :mock-expected-result-functional-failure)
+          (find-first #(= (:type %) :actual-result-did-not-match-checker)
                       reported)]
       (and important-error
            (.getMessage (.throwable (:actual important-error))))))

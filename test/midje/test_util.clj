@@ -54,7 +54,7 @@
 ;; First, utils
 
 (defn multi-reason-failure? [failure-map]
-  (= :mock-incorrect-call-count (:type failure-map)))
+  (= :prerequisite-was-called-the-wrong-number-of-times (:type failure-map)))
 
 (defn all-reasons [failure-maps]
   (mapcat (fn [one-failure]
@@ -68,8 +68,8 @@
 ;; Checkers
 
 (defn fact-fails-because-of-negation [failure-map]
-  (some #{(:type failure-map)} [:mock-actual-inappropriately-matches-checker
-                                :mock-expected-result-inappropriately-matched]))
+  (some #{(:type failure-map)} [:actual-result-should-not-have-matched-checker
+                                :actual-result-should-not-have-matched-expected-value]))
 
 (defn fact-failed-with-note [regex]
   (fn [actual-failure]
@@ -116,12 +116,12 @@
 
 ;; Prerequisites
 
-(def only-incorrect-call-counts (partial filter #(= (:type %) :mock-incorrect-call-count)))
+(def only-incorrect-call-counts (partial filter #(= (:type %) :prerequisite-was-called-the-wrong-number-of-times)))
 (def only-incorrect-call-count-reasons (comp all-reasons only-incorrect-call-counts))
   
 
 (defn ^{:all-failures true} some-prerequisite-was-called-with-unexpected-arguments [failure-maps]
-  (some #{:mock-argument-match-failure} (map :type failure-maps)))
+  (some #{:prerequisite-was-called-with-unexpected-arguments} (map :type failure-maps)))
 
 
 (defn ^{:all-failures true} prerequisite-was-called-the-wrong-number-of-times [expected-call n & notes]
@@ -155,7 +155,7 @@
 ;; Misc
 
 (defn parser-exploded [failure-map]
-  (= (:type failure-map) :validation-error))
+  (= (:type failure-map) :parse-error))
 
 
 
@@ -265,7 +265,7 @@
 
 (defmacro validation-error-with-notes [& notes]
   `(just (contains {:notes (just ~@notes)
-                    :type :validation-error})))
+                    :type :parse-error})))
 
 (defmacro defn-call-countable
   "Note: For testing Midje code that couldn't use provided.

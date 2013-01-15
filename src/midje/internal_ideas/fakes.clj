@@ -211,7 +211,7 @@
         map?          (do
                         (swap! (:call-count-atom action) inc)
                         ((:result-supplier action )))
-        :else (emit/fail {:type :mock-argument-match-failure
+        :else (emit/fail {:type :prerequisite-was-called-with-unexpected-arguments
                           :var function-var
                           :actual actual-args
                           :position (:position (first fakes))})))))
@@ -265,7 +265,7 @@
                                :expected-call   (:call-text-for-failures fake)
                                :position        (:position fake)
                                :expected-result-form        (:call-text-for-failures fake)}))]
-    (emit/fail {:type :mock-incorrect-call-count
+    (emit/fail {:type :prerequisite-was-called-the-wrong-number-of-times
                 :failures failures} )))
 
 

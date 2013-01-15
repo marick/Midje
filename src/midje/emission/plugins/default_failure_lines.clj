@@ -6,19 +6,19 @@
 
 (defmulti messy-lines :type)
 
-(defmethod messy-lines :mock-expected-result-failure [m]
+(defmethod messy-lines :actual-result-did-not-match-expected-value [m]
   (list
    (failure-notice m)
    (str "    Expected: " (:expected-result-form m))
    (str "      Actual: " (attractively-stringified-value (:actual m)))))
 
-(defmethod messy-lines :mock-expected-result-inappropriately-matched [m]
+(defmethod messy-lines :actual-result-should-not-have-matched-expected-value [m]
   (list
    (failure-notice m)
    (str "    Expected: Anything BUT " (:expected-result-form m))
    (str "      Actual: " (attractively-stringified-value (:actual m)))))
 
-(defmethod messy-lines :mock-expected-result-functional-failure [m]
+(defmethod messy-lines :actual-result-did-not-match-checker [m]
     (list
       (failure-notice m)
       "Actual result did not agree with the checking function."
@@ -32,7 +32,7 @@
         (cons "    The checker said this about the reason:"
           (indented (:notes m))))))
 
-(defmethod messy-lines :mock-actual-inappropriately-matches-checker [m]
+(defmethod messy-lines :actual-result-should-not-have-matched-checker [m]
     (list
       (failure-notice m)
       "Actual result was NOT supposed to agree with the checking function."
@@ -40,7 +40,7 @@
       (str "    Checking function: " (:expected-result-form m))))
 
 
-(defmethod messy-lines :mock-incorrect-call-count [m]
+(defmethod messy-lines :prerequisite-was-called-the-wrong-number-of-times [m]
   (letfn [(format-one-failure [fail]
             (let [exp (:expected-count fail)
                   act (:actual-count fail)
@@ -56,7 +56,7 @@
            "These calls were not made the right number of times:")
      (map format-one-failure (:failures m)))))
 
-(defmethod messy-lines :mock-argument-match-failure [m]
+(defmethod messy-lines :prerequisite-was-called-with-unexpected-arguments [m]
   (list
    (failure-notice m)
    (str "You never said "
@@ -64,13 +64,13 @@
         " would be called with these arguments:")
    (str "    " (pr-str (:actual m)))))
 
-(defmethod messy-lines :validation-error [m]
+(defmethod messy-lines :parse-error [m]
   (list
    (failure-notice m)
    (str "    Midje could not understand something you wrote: ")
    (indented (:notes m))))
 
-(defmethod messy-lines :exceptional-user-error [m]
+(defmethod messy-lines :exception-during-parsing [m]
   (list
    (failure-notice m)
    (str "    Midje caught an exception when translating this form:")
