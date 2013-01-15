@@ -11,4 +11,5 @@ semantic.cache
 *.iml
 .idea/
 .lein-deps-sum
+.lein-repl-history
 target
