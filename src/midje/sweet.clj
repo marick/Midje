@@ -23,10 +23,10 @@
         [midje.ideas.formulas :only [future-formula-variant-names]]
         [clojure.algo.monads :only [domonad]])
   (:require [midje.ideas.background :as background]
+            [midje.emission.api :as emit]
             [midje.ideas.formulas :as formulas]
             [midje.doc :as doc]
             [midje.internal-ideas.fact-context :as fact-context]
-            [clojure.test :as ct]
             [midje.ideas.metadata :as metadata]
             [midje.util.namespace :as namespace]
             midje.checkers))
@@ -99,7 +99,7 @@
             (complete-fact-transformation metadata remainder)))
         (catch Exception ex
           `(do
-             (ct/report {:type :exceptional-user-error
+             (emit/fail {:type :exceptional-user-error
                          :description (fact-context/nested-descriptions ~(:midje/description metadata))
                          :macro-form '~&form
                          :stacktrace '~(user-error-exception-lines ex)

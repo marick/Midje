@@ -70,7 +70,13 @@
    (str "    Midje could not understand something you wrote: ")
    (indented (:notes m))))
 
-
+(defmethod messy-lines :exceptional-user-error [m]
+  (list
+   (failure-notice m)
+   (str "    Midje caught an exception when translating this form:")
+   (str "      " (pr-str (:macro-form m)))
+   (str "      " "This stack trace *might* help:")
+   (indented (:stacktrace m))))
 
 
 (defmethod messy-lines :default [failure-map]

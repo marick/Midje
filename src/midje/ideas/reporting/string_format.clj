@@ -46,15 +46,7 @@
           (map (partial str "        ") lines))]
 
   (defmulti report-strings :type)
-
-
-  (defmethod report-strings :exceptional-user-error [m]
-    (list
-      (fail-at m)
-      (str "    Midje caught an exception when translating this form:")
-      (str "      " (pr-str (:macro-form m)))
-      (str "      " "This stack trace *might* help:")
-      (indented (:stacktrace m)))))
+  )
 
 
 (defn report-strings-summary

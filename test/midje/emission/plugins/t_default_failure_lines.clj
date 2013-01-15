@@ -120,5 +120,17 @@
     => (just "notice"
              #"Midje could not understand something you wrote"
              #"message"))
+
+
+  (facts "about reporting user errors detected because of an exception"
+    (summarize {:type :exceptional-user-error
+                :macro-form '(foo bar)
+                :stacktrace ["one" "two"]})
+    => (just "notice"
+             #"Midje caught an exception"
+             #"\(foo bar\)"
+             #"stack trace"
+             #"one"
+             #"two"))
   
 )  ;; Against-background
