@@ -114,4 +114,11 @@
                   #"These calls were not made the right number of times"
                   #"\(f a\).*expected :times \[1 2\].*actually called three times"))))
 
+  (fact "errors found during parsing"
+    (summarize {:type :validation-error
+                :notes ["message"]})
+    => (just "notice"
+             #"Midje could not understand something you wrote"
+             #"message"))
+  
 )  ;; Against-background

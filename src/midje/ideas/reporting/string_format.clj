@@ -48,12 +48,6 @@
   (defmulti report-strings :type)
 
 
-  (defmethod report-strings :validation-error [m]
-    (list
-      (fail-at m)
-      (str "    Midje could not understand something you wrote: ")
-      (indented (:notes m))))
-
   (defmethod report-strings :exceptional-user-error [m]
     (list
       (fail-at m)

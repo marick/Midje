@@ -64,6 +64,15 @@
         " would be called with these arguments:")
    (str "    " (pr-str (:actual m)))))
 
+(defmethod messy-lines :validation-error [m]
+  (list
+   (failure-notice m)
+   (str "    Midje could not understand something you wrote: ")
+   (indented (:notes m))))
+
+
+
+
 (defmethod messy-lines :default [failure-map]
   (midje.ideas.reporting.string-format/report-strings failure-map))
 

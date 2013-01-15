@@ -58,6 +58,7 @@
 (def raw-fact-failures-atom (atom :uninitialized))
 (def raw-fact-failures #(deref raw-fact-failures-atom))
 (def forget-raw-fact-failures! #(reset! raw-fact-failures-atom []))
+(forget-raw-fact-failures!)
 (def add-raw-fact-failure! (partial swap! raw-fact-failures-atom conj))
 
 (defonce ^{:dynamic true} emission-functions nil)

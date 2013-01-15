@@ -12,17 +12,6 @@
 ;; added to the total failure count, which should always be zero.
 (without-changing-cumulative-totals
     
-
-
-(facts "about reporting specific user errors"
-  (let [failure-map {:type :validation-error
-                     :description ["some description"]
-                     :notes ["message"]
-                     :position ["foo.clj" 3]}
-        raw-report (with-identity-renderer (clojure.test/report failure-map))]
-    (nth raw-report 0) => #"FAIL.*some description.* at .*foo.clj:3"
-    (nth raw-report 2) => #"message"))
-
 (facts "about reporting user errors detected because of an exception"
   (let [failure-map {:type :exceptional-user-error
                      :description ["some description"]
