@@ -13,52 +13,52 @@
 
 (immigrate 'midje.checkers)
 
-(letfn [(result-discovered-by-a-function? [call] (extended-fn? (:expected-result call)))
+(letfn [(result-discovered-by-a-function? [check-map] (extended-fn? (:expected-result check-map)))
 
-        (minimal-failure-map [type actual call]
+        (minimal-failure-map [type actual check-map]
           {:type type
-           :description (:description call)
-           :binding-note (:binding-note call)
-           :position (:position call)
+           :description (:description check-map)
+           :binding-note (:binding-note check-map)
+           :position (:position check-map)
            :actual actual
-           :expected (:expected-result-text-for-failures call)}) ;; TODO: delete this
+           :expected-result-form (:expected-result-form check-map)}) ;; TODO: delete this
 
-        (check-result-positive [actual call]
-          (cond  (extended-= actual (:expected-result call))
+        (check-result-positive [actual check-map]
+          (cond  (extended-= actual (:expected-result check-map))
                  (emit/pass)
                  
                  
-                 (result-discovered-by-a-function? call)
+                 (result-discovered-by-a-function? check-map)
                  (emit/fail (merge (minimal-failure-map :mock-expected-result-functional-failure
-                                         actual call)
+                                         actual check-map)
                                    ;; TODO: It is very lame that the
                                    ;; result-function has to be called again to
                                    ;; retrieve information that extended-=
                                    ;; knows and threw away. But it's surprisingly
                                    ;; difficult to use evaluate-checking-function
                                    ;; at the top of the cond
-                                   (second (evaluate-checking-function (:expected-result call)
+                                   (second (evaluate-checking-function (:expected-result check-map)
                                                                        actual))))
                  
                  :else
-                 (emit/fail (assoc (minimal-failure-map :mock-expected-result-failure actual call)
-                                   :expected (:expected-result call)))))
+                 (emit/fail (assoc (minimal-failure-map :mock-expected-result-failure actual check-map)
+                                   :expected-result (:expected-result check-map)))))
         
-        (check-result-negated [actual call]
-          (cond (not (extended-= actual (:expected-result call)))
+        (check-result-negated [actual check-map]
+          (cond (not (extended-= actual (:expected-result check-map)))
                 (emit/pass)
                 
-                (result-discovered-by-a-function? call)
-                (emit/fail (minimal-failure-map :mock-actual-inappropriately-matches-checker actual call))
+                (result-discovered-by-a-function? check-map)
+                (emit/fail (minimal-failure-map :mock-actual-inappropriately-matches-checker actual check-map))
                 
                 :else
-                (emit/fail (minimal-failure-map :mock-expected-result-inappropriately-matched actual call))))]
+                (emit/fail (minimal-failure-map :mock-expected-result-inappropriately-matched actual check-map))))]
 
 
-  (defn- check-result [actual call]
-    (if (= (:desired-check call) :check-match)
-      (check-result-positive actual call)
-      (check-result-negated actual call)))
+  (defn- check-result [actual check-map]
+    (if (= (:desired-check check-map) :check-match)
+      (check-result-positive actual check-map)
+      (check-result-negated actual check-map)))
 
 )
 (defn expect*

@@ -30,7 +30,7 @@
                                   :actual-count 0
                                   :expected-count nil
                                   :position ["foo.clj" 3]
-                                  :expected "(f a)"}] }
+                                  :expected-result-form "(f a)"}] }
         raw-report (with-identity-renderer (clojure.test/report failure-map))]
     (nth raw-report 0) => #"FAIL.*some description.* at .*foo.clj:3"
     (nth raw-report 1) => #"These calls were not made the right number of times"
@@ -43,7 +43,7 @@
                                   :actual-count 3
                                   :expected-count 1
                                   :position ["foo.clj" 3]
-                                  :expected "(f a)" }] }
+                                  :expected-result-form "(f a)" }] }
         raw-report (with-identity-renderer (clojure.test/report failure-map))]
     (nth raw-report 0) => #"FAIL.*some description.* at .*foo.clj:3"
     (nth raw-report 1) => #"These calls were not made the right number of times"

@@ -285,7 +285,6 @@
 
 (defmacro some-macro [arg] `(+ 100 200 ~arg))
 
-
 (facts "about =expands-to=>"
   :check-only-at-load-time
   (fact "calls macro to expand and compares to (unquoted) list"
@@ -293,8 +292,9 @@
   
   (fact "fails if expansion does not match expected list"
     (silent-fact (some-macro 1) =expands-to=> (clojure.core/- 100 200 1))
-    (note-that fact-failed, (fact-actual `(clojure.core/+ 100 200 1))
-               (fact-expected `(clojure.core/- 100 200 1)))))
+    (note-that fact-failed,
+               (fact-actual `(clojure.core/+ 100 200 1))
+               (fact-expected (quote (clojure.core/- 100 200 1))))))
  
 (fact "unprocessed-check creates a map"
   (fact "base case"
@@ -302,10 +302,10 @@
       ((:function-under-test result)) => 11
       (:desired-check :check-match)
       (:expected-result result) => 999
-      (:expected-result-text-for-failures result) => '(+ 9 990)))
+      (:expected-result-form result) => '(+ 9 990)))
 
   (fact "the expected result will be sorted if appropriate"
-    (:expected-result-text-for-failures (unprocessed-check (+ 1 1) =test=> #{:z :q :a :b :m :f :p} []))
+    (:expected-result-form (unprocessed-check (+ 1 1) =test=> #{:z :q :a :b :m :f :p} []))
     => #{:a :b :f :m :p :q :z})
 
   (fact "with additional info for midje tool creators"

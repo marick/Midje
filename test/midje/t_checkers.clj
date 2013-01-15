@@ -44,7 +44,7 @@
 (future-fact "Failures from chatty-checkers-within-functions propagate chatty information"
    @silent-fact:last-raw-failure => (contains {:type :mock-expected-result-functional-failure
                                               :actual [ [1] [2 3]]
-                                              :expected '(as-sets [[1]])
+                                              :expected-result-form '(as-sets [[1]])
                                               :notes  ["Expected one element. There were two."]}))
 
 

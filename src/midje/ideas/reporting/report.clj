@@ -56,7 +56,7 @@
   (try
     (with-test-out
       (failure-el (:description m)
-                  (:expected m)
+                  (:expected-result-form m)
                   (:actual m)))
     (catch Exception e
       (.printStackTrace e)

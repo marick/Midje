@@ -8,34 +8,34 @@
 
   (fact "the simplest kind of failure"
     (fact "is a mismatch" 
-      (summarize {:type :mock-expected-result-failure :expected 1, :actual 2})
+      (summarize {:type :mock-expected-result-failure :expected-result-form 1, :actual 2})
       => (just "notice" #"\s+Expected: 1", #"\s+Actual: 2")
 
       ;; in general...
-      (summarize {:type :mock-expected-result-failure :expected 'expected :actual ..actual..})
+      (summarize {:type :mock-expected-result-failure :expected-result-form 'expected :actual ..actual..})
       => (just "notice" #"\s+Expected: expected", #"\s+Actual: AAA")
       (provided
         (util/attractively-stringified-value ..actual..) => 'AAA))
 
     
     (fact "or an unexpected match" 
-      (summarize {:type :mock-expected-result-inappropriately-matched :expected 2, :actual 2})
+      (summarize {:type :mock-expected-result-inappropriately-matched :expected-result-form 2, :actual 2})
       => (just "notice" #"\s+Expected: Anything BUT 2", #"\s+Actual: 2")
       
       ;; in general...
-      (summarize {:type :mock-expected-result-inappropriately-matched :expected 'expected :actual ..actual..})
+      (summarize {:type :mock-expected-result-inappropriately-matched :expected-result-form 'expected :actual ..actual..})
       => (just "notice" #"\s+Expected: Anything BUT expected", #"\s+Actual: AAA")
       (provided
         (util/attractively-stringified-value ..actual..) => 'AAA)))
 
 
   (fact "checkers"
-    (summarize {:type :mock-expected-result-functional-failure :actual 2, :expected 'odd?})
+    (summarize {:type :mock-expected-result-functional-failure :actual 2, :expected-result-form 'odd?})
     => (just "notice" "Actual result did not agree with the checking function."
              #"\s+Actual result: 2" #"\s+Checking function: odd")
 
     (fact "can supply intermediate results"
-      (summarize {:type :mock-expected-result-functional-failure :actual 2, :expected 'checker
+      (summarize {:type :mock-expected-result-functional-failure :actual 2, :expected-result-form 'checker
                   :intermediate-results '[[(f 1) "3"] [(f 2) 3]]})
       => (just "notice" "Actual result did not agree with the checking function."
                #"\s+Actual result: 2"
@@ -45,7 +45,7 @@
                (contains "(f 2) => 3")))
 
     (fact "can also supply notes"
-      (summarize {:type :mock-expected-result-functional-failure :actual 2, :expected 'checker
+      (summarize {:type :mock-expected-result-functional-failure :actual 2, :expected-result-form 'checker
                   :notes ["note 1" "note 2"]})
       => (just "notice" "Actual result did not agree with the checking function."
                #"\s+Actual result: 2"
@@ -57,7 +57,7 @@
     (fact "prettify the actual value and intermediate results"
       (summarize {:type :mock-expected-result-functional-failure
                   :actual {:z 2 :p 3 :r 4 :a 5 :f 6 :d 7}
-                  :expected 'checker
+                  :expected-result-form 'checker
                   :intermediate-results '[[(f 2) #{15 3 7 2}]]})
       => (just "notice" "Actual result did not agree with the checking function."
                #"\s+Actual result: \{:a 5, :d 7, :f 6, :p 3, :r 4, :z 2\}"
@@ -68,7 +68,7 @@
     (fact "can also be incorrectly matched"
       (summarize {:type :mock-actual-inappropriately-matches-checker
                   :actual {:z 2 :p 3 :r 4 :a 5 :f 6 :d 7}
-                  :expected '(collection 3)})
+                  :expected-result-form '(collection 3)})
       => (just "notice" "Actual result was NOT supposed to agree with the checking function."
                #"\s+Actual result: \{:a 5, :d 7, :f 6, :p 3, :r 4, :z 2\}"
                #"\s+Checking function: \(collection 3\)"))

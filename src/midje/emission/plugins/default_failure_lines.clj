@@ -8,13 +8,13 @@
 (defmethod messy-lines :mock-expected-result-failure [m]
   (list
    (failure-notice m)
-   (str "    Expected: " (:expected m))
+   (str "    Expected: " (:expected-result-form m))
    (str "      Actual: " (attractively-stringified-value (:actual m)))))
 
 (defmethod messy-lines :mock-expected-result-inappropriately-matched [m]
   (list
    (failure-notice m)
-   (str "    Expected: Anything BUT " (:expected m))
+   (str "    Expected: Anything BUT " (:expected-result-form m))
    (str "      Actual: " (attractively-stringified-value (:actual m)))))
 
 (defmethod messy-lines :mock-expected-result-functional-failure [m]
@@ -22,7 +22,7 @@
       (failure-notice m)
       "Actual result did not agree with the checking function."
       (str "        Actual result: " (attractively-stringified-value (:actual m)))
-      (str "    Checking function: " (:expected m))
+      (str "    Checking function: " (:expected-result-form m))
       (if (:intermediate-results m)
         (cons "    During checking, these intermediate values were seen:"
           (for [[form value] (:intermediate-results m)]
@@ -36,7 +36,7 @@
       (failure-notice m)
       "Actual result was NOT supposed to agree with the checking function."
       (str "        Actual result: " (attractively-stringified-value (:actual m)))
-      (str "    Checking function: " (:expected m))))
+      (str "    Checking function: " (:expected-result-form m))))
 
 
 

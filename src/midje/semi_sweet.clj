@@ -51,7 +51,7 @@
      :function-under-test (fn [] ~call-form)
      :expected-result ~expected-result
      :desired-check ~(check-for-arrow arrow)
-     :expected-result-text-for-failures '~expected-result    ;;; TODO: Soon to be defunct
+     :expected-result-form '~expected-result 
      :position (user-file-position)
      
      ;; for Midje tool creators:
@@ -71,7 +71,9 @@
   [call-form _arrow_ expected-result fakes overrides]
   (let [expanded-macro `(macroexpand-1 '~call-form)
         escaped-expected-result `(quote ~expected-result)]
-    (expect-expansion expanded-macro => escaped-expected-result fakes overrides)))
+    `(let [check# (unprocessed-check ~expanded-macro => ~escaped-expected-result
+                                     ~(concat overrides [:expected-result-form escaped-expected-result]))]
+       (midje.semi-sweet/*expect-checking-fn* check# ~fakes))))
 
 (defmethod expect-expansion =future=>
   [call-form arrow expected-result _fakes_ overrides]

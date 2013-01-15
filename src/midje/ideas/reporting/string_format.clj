@@ -68,7 +68,7 @@
                   
                     :else 
                     (cl-format nil "[expected :times ~A, actually called ~R time~:P]" exp act))]
-          (str "    " (:expected fail) " " msg)))]
+          (str "    " (:expected-result-form fail) " " msg)))]
 
       (concat
         (list (fail-at (first (:failures m)))

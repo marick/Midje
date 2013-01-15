@@ -264,7 +264,7 @@
                                :expected-count  (:times fake)
                                :expected-call   (:call-text-for-failures fake)
                                :position        (:position fake)
-                               :expected        (:call-text-for-failures fake)}))]
+                               :expected-result-form        (:call-text-for-failures fake)}))]
     (emit/fail {:type :mock-incorrect-call-count
                 :failures failures} )))
 

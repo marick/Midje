@@ -77,7 +77,7 @@
 
 (defn fact-expected [thing]
   (fn [actual-failure]
-    (extended-= (:expected actual-failure) thing)))
+    (extended-= (:expected-result-form actual-failure) thing)))
 
 (defn fact-actual [thing]
   (fn [actual-failure]

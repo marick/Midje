@@ -119,5 +119,5 @@
  (padd (Peano. ...a...) (psuccessor (Peano. ...b...))) => (psuccessor (padd (Peano. ...a...) (Peano. ...b...)))
  (provided
    (pzero? anything) => true))
-(note-that fact-fails, (fact-expected :unfinished))
+(note-that fact-fails, (fact-expected '(psuccessor (padd (Peano. ...a...) (Peano. ...b...)))))
 
