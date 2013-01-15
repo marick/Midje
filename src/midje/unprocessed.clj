@@ -21,7 +21,6 @@
            :binding-note (:binding-note call)
            :position (:position call)
            :actual actual
-           :expected-form-to-print (:expected-form-to-print call)
            :expected (:expected-result-text-for-failures call)}) ;; TODO: delete this
 
         (check-result-positive [actual call]
