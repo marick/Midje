@@ -7,9 +7,10 @@
                                           with-fresh-generated-metaconstant-names]]
         midje.ideas.arrow-symbols
         [midje.ideas.arrows :only [pull-all-arrow-seqs-from]]
-        [midje.internal-ideas.expect :only [up-to-full-expect-form
+        [midje.internal-ideas.expect :only [up-to-full-expect-form expect?
                                             tack-on__then__at-rightmost-expect-leaf]])
-  (:require [clojure.zip :as zip]))
+  (:require [clojure.zip :as zip]
+            [midje.util.ecosystem :as ecosystem]))
 
 (defn head-of-form-providing-prerequisites? [loc]
   (matches-symbols-in-semi-sweet-or-sweet-ns? '(provided) loc))
@@ -35,8 +36,37 @@
   (assert (head-of-form-providing-prerequisites? loc))
   (-> loc zip/up zip/remove up-to-full-expect-form))
 
-(defn insert-prerequisites-into-expect-form-as-fakes [loc]
-  (let [fake-calls (expand-prerequisites-into-fake-calls loc)
-        full-expect-form (delete_prerequisite_form__then__at-previous-full-expect-form loc)]
-    (tack-on__then__at-rightmost-expect-leaf fake-calls full-expect-form)))
+(defn- previous-loc [loc]
+  (zip/left (zip/up loc)))
 
+(defn- following-expect? [loc]
+  (expect? (previous-loc loc)))
+
+(defn- previous-form [loc]
+  (zip/node (previous-loc loc)))
+  
+
+(defn insert-prerequisites-into-expect-form-as-fakes [loc]
+  (if (following-expect? loc)
+    (let [fake-calls (expand-prerequisites-into-fake-calls loc)
+          full-expect-form (delete_prerequisite_form__then__at-previous-full-expect-form loc)]
+      (tack-on__then__at-rightmost-expect-leaf fake-calls full-expect-form))
+    (throw (Error. (str ecosystem/line-separator
+                        "The form before the `provided` is not a check:"
+                        ecosystem/line-separator
+                        (pr-str (previous-form loc))
+                        ecosystem/line-separator
+                        "Here are common errors when writing a form like the following:"
+                        ecosystem/line-separator
+                        "   (f ..arg..) => 0"
+                        ecosystem/line-separator
+                        "   (provided"
+                        ecosystem/line-separator
+                        "     ...)"
+                        ecosystem/line-separator
+                        "Misparenthesization: `(f ..arg.. => 0) (provided... `"
+                        ecosystem/line-separator
+                        "Missing =>: `(f ..arg..) (provided...` "
+                        ecosystem/line-separator
+                        ecosystem/line-separator
+                        )))))
