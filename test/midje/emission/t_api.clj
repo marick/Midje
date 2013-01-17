@@ -52,19 +52,29 @@
   => (contains {:midje-failures 2})
   (plugin/recorded) => [[:fail ..failure-map..]])
      
-(fact emit/starting-to-check-fact
-  (innocuously
-    (config/at-print-level (levels/level-below :print-facts) (emit/starting-to-check-fact ..ignored-fact-function..))
-    (config/at-print-level :print-facts (emit/starting-to-check-fact ..fact-function..)))
-  (plugin/recorded) => [[:starting-to-check-fact ..fact-function..]])
-
-
 (fact emit/starting-to-check-top-level-fact
   (innocuously
     (config/at-print-level (levels/level-below :print-facts) (emit/starting-to-check-top-level-fact ..ignored-fact-function..))
     (config/at-print-level :print-facts (emit/starting-to-check-top-level-fact ..fact-function..)))
   (plugin/recorded) => [[:starting-to-check-top-level-fact ..fact-function..]])
 
+(fact emit/finishing-top-level-fact
+  (innocuously
+    (config/at-print-level (levels/level-below :print-facts) (emit/finishing-top-level-fact ..ignored-fact-function..))
+    (config/at-print-level :print-facts (emit/finishing-top-level-fact ..fact-function..)))
+  (plugin/recorded) => [[:finishing-top-level-fact ..fact-function..]])
+
+(fact emit/starting-to-check-fact
+  (innocuously
+    (config/at-print-level (levels/level-below :print-facts) (emit/starting-to-check-fact ..ignored-fact-function..))
+    (config/at-print-level :print-facts (emit/starting-to-check-fact ..fact-function..)))
+  (plugin/recorded) => [[:starting-to-check-fact ..fact-function..]])
+
+(fact emit/finishing-fact
+  (innocuously
+    (config/at-print-level (levels/level-below :print-facts) (emit/finishing-fact ..ignored-fact-function..))
+    (config/at-print-level :print-facts (emit/finishing-fact ..fact-function..)))
+  (plugin/recorded) => [[:finishing-fact ..fact-function..]])
 
 (fact emit/possible-new-namespace
   (innocuously

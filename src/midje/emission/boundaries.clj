@@ -49,6 +49,7 @@
      (emit/possible-new-namespace (metadata/fact-namespace ~ff-sym))
      (emit/starting-to-check-top-level-fact ~ff-sym)
      ~@body
+     (emit/finishing-top-level-fact ~ff-sym)
      (= starting-failures# (state/output-counters:midje-failures))))
 
 (defmacro around-fact-function [ff-sym & body]
@@ -56,6 +57,7 @@
      (emit/starting-to-check-fact ~ff-sym)
      (fact-context/adds (metadata/fact-description ~ff-sym)
                         ~@body)
+     (emit/finishing-fact ~ff-sym)
      (= starting-failures# (state/output-counters:midje-failures))))
 
 

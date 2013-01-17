@@ -1,6 +1,7 @@
 (ns ^{:doc "Emissions change global state: the output and the pass/fail record."}
   midje.emission.api
   (:use [midje.util.thread-safe-var-nesting :only [with-altered-roots]])
+  (:use clojure.pprint)
   (:require [midje.clojure-test-facade :as ctf]
             [midje.config :as config]
             [midje.emission.levels :as levels]
@@ -35,11 +36,13 @@
 
 (defn pass []
   (state/output-counters:inc:midje-passes!)
+  (ctf/note-pass)
   (when (config-above? :print-nothing) (bounce-to-plugin :pass)))
 
 (defn fail [failure-map]
   (state/add-raw-fact-failure! failure-map)
   (state/output-counters:inc:midje-failures!)
+  (ctf/note-fail)
   (when (config-above? :print-nothing) (bounce-to-plugin :fail failure-map)))
 
 (defn future-fact [description position]
@@ -56,9 +59,18 @@
   (when (config-at-or-above? :print-facts)
     (bounce-to-plugin :starting-to-check-top-level-fact fact-function)))
 
+(defn finishing-top-level-fact [fact-function]
+  (ctf/note-test)
+  (when (config-at-or-above? :print-facts)
+    (bounce-to-plugin :finishing-top-level-fact fact-function)))
+
 (defn starting-to-check-fact [fact-function]
   (when (config-at-or-above? :print-facts)
     (bounce-to-plugin :starting-to-check-fact fact-function)))
+
+(defn finishing-fact [fact-function]
+  (when (config-at-or-above? :print-facts)
+    (bounce-to-plugin :finishing-fact fact-function)))
 
 (defn possible-new-namespace [ns]
   (when (config-at-or-above? :print-namespaces)

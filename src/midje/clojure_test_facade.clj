@@ -4,23 +4,11 @@
   (:require [clojure.test :as ct]
             [clojure.string :as str]))
 
-
-
 ;; This turns off "Testing ...." lines, which I hate, especially
 ;; when there's no failure output. The type check is because
 ;; `lein test` overrides clojure.test/report with a non-multimethod.
 (when (= clojure.lang.MultiFn (type clojure.test/report))
   (defmethod clojure.test/report :begin-test-ns [m]))
-
-
-
-
-;; Note: `clojure.test/report` will probably be the last thing to
-;; come. When that happens, note that you must define `report` like this:
-;;   (defn report [map] (ct/report map))
-;; ... rather than
-;;   (def report ct/report)
-;; That's because `report` is a multimethod.
 
 ;; Note that I'm not convinced that using clojure.test counters for
 ;; Midje is really useful any more. The only reason for it that I can
@@ -35,13 +23,9 @@
 (zero-counters)
 
 (defn counters []  @ct/*report-counters*)
-
-(defn note-pass []
-  (set-counters (merge-with + (counters) {:pass 1})))
-
-(defn note-fail []
-  (set-counters (merge-with + (counters) {:fail 1})))
-
+(defn note-pass [] (ct/inc-report-counter :pass))
+(defn note-fail [] (ct/inc-report-counter :fail))
+(defn note-test [] (ct/inc-report-counter :test))
 
 (defmacro ignoring-counter-changes [& forms]
   `(let [stashed-counters# (counters)]
