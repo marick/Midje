@@ -8,12 +8,12 @@
 
 (defmethod messy-lines :actual-result-did-not-match-expected-value [m]
   (list
-   (str "    Expected: " (:expected-result-form m))
+   (str "    Expected: " (attractively-stringified-value (:expected-result m)))
    (str "      Actual: " (attractively-stringified-value (:actual m)))))
 
 (defmethod messy-lines :actual-result-should-not-have-matched-expected-value [m]
   (list
-   (str "    Expected: Anything BUT " (:expected-result-form m))
+   (str "    Expected: Anything BUT " (attractively-stringified-value (:expected-result m)))
    (str "      Actual: " (attractively-stringified-value (:actual m)))))
 
 (defmethod messy-lines :actual-result-did-not-match-checker [m]

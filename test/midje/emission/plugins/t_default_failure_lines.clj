@@ -4,37 +4,48 @@
   (:require [midje.emission.plugins.util :as util]))
 
 
+;;; Note that this will scrozzle the failure notice from the facts below
+;;; if they fail. 
 (against-background [(util/failure-notice anything) => "notice"]
 
   (fact "the simplest kind of failure"
-    (fact "is a mismatch"
-      (summarize {:type :actual-result-did-not-match-expected-value :expected-result-form 1, :actual 2})
+    (fact "is a mismatch, which shows the calculated expected result (not the original form)"
+      (summarize {:type :actual-result-did-not-match-expected-value :expected-result 1, :actual 2})
       => (just "notice" #"\s+Expected: 1", #"\s+Actual: 2")
 
       ;; in general...
-      (summarize {:type :actual-result-did-not-match-expected-value :expected-result-form 'expected :actual ..actual..})
-      => (just "notice" #"\s+Expected: expected", #"\s+Actual: AAA")
+      (summarize {:type :actual-result-did-not-match-expected-value
+                  :expected-result ..expected.. :actual ..actual..})
+      => (just "notice" #"\s+Expected: EEE", #"\s+Actual: AAA")
       (provided
+        (util/attractively-stringified-value ..expected..) => 'EEE
         (util/attractively-stringified-value ..actual..) => 'AAA))
     
     (fact "or an unexpected match" 
-      (summarize {:type :actual-result-should-not-have-matched-expected-value :expected-result-form 2, :actual 2})
+      (summarize {:type :actual-result-should-not-have-matched-expected-value :expected-result 2, :actual 2})
       => (just "notice" #"\s+Expected: Anything BUT 2", #"\s+Actual: 2")
       
       ;; in general...
-      (summarize {:type :actual-result-should-not-have-matched-expected-value :expected-result-form 'expected :actual ..actual..})
-      => (just "notice" #"\s+Expected: Anything BUT expected", #"\s+Actual: AAA")
+      (summarize {:type :actual-result-should-not-have-matched-expected-value :expected-result
+                  ..expected.. :actual ..actual..})
+      => (just "notice" #"\s+Expected: Anything BUT EEE", #"\s+Actual: AAA")
       (provided
+        (util/attractively-stringified-value ..expected..) => 'EEE
         (util/attractively-stringified-value ..actual..) => 'AAA))
 
-    (fact "can sort the expected result if appropriate"
-      (summarize {:type :actual-result-did-not-match-expected-value, :actual 2
-                  :expected-result-form '["not" "with" "sequence"]})
-      => (contains #"\[\"not\" \"with\" \"sequence\"\]")
+    (fact "will sort both actual and expected results when appropriate"
+      (let [sequences-inappropriate '["not" "with" "sequence"]
+            but-sets-are #{:a :but :set :sorted :with}]
+        (summarize {:type :actual-result-should-not-have-matched-expected-value,
+                    :actual sequences-inappropriate :expected-result sequences-inappropriate})
+        => (contains [#"\[\"not\" \"with\" \"sequence\"\]"
+                      #"\[\"not\" \"with\" \"sequence\"\]"] :gaps-ok)
 
-      (summarize {:type :actual-result-did-not-match-expected-value :actual 2
-                  :expected-result-form '#{:but :sorted :with :a :set}})
-      => (contains #"#\{:a :but :set :sorted :with\}")))
+        (summarize {:type :actual-result-did-not-match-expected-value
+                    :actual but-sets-are :expected-result but-sets-are})
+        => (contains [#"#\{:a :but :set :sorted :with\}"
+                      #"#\{:a :but :set :sorted :with\}"]
+                     :gaps-ok))))
 
   (fact "checkers"
     (summarize {:type :actual-result-did-not-match-checker :actual 2, :expected-result-form 'odd?})
