@@ -10,42 +10,10 @@
 (when (= clojure.lang.MultiFn (type clojure.test/report))
   (defmethod clojure.test/report :begin-test-ns [m]))
 
-;; Note that I'm not convinced that using clojure.test counters for
-;; Midje is really useful any more. The only reason for it that I can
-;; think of is so that `lein test` works with Midje. 
-
-(defn set-counters [map]
-  (alter-var-root #'ct/*report-counters*
-                  (constantly (ref map))))
-
-(defn zero-counters []
-  (set-counters ct/*initial-report-counters*))
-(zero-counters)
-
-(defn counters []  @ct/*report-counters*)
+;; The only use for clojure.test counters is so `lein-test` works (haltingly) with Midje.
 (defn note-pass [] (ct/inc-report-counter :pass))
 (defn note-fail [] (ct/inc-report-counter :fail))
 (defn note-test [] (ct/inc-report-counter :test))
-
-(defmacro ignoring-counter-changes [& forms]
-  `(let [stashed-counters# (counters)]
-    (try 
-      ~@forms
-    (finally
-       (set-counters stashed-counters#)))))
-
-(defn reset-counters [counters]
-  (alter-var-root (var ct/*report-counters*)
-                  (constantly counters)))
-
-(defmacro with-isolated-counters [& body]
-  `(let [original-value# ct/*report-counters*]
-     (try
-       (zero-counters)
-       ~@body
-     (finally
-      (alter-var-root #'ct/*report-counters* (constantly original-value#))))))
-
 
 
 (defn run-tests
@@ -53,10 +21,14 @@
    affect the Midje fact counters but instead returns a map
    that can be used to produce a separate report."
   [namespaces]
-  (with-isolated-counters
-    (binding [ct/*test-out* (java.io.StringWriter.)]
-      (assoc (apply ct/run-tests namespaces)
-             :lines (-> ct/*test-out* .toString str/split-lines)))))
+  (binding [ct/*test-out* (java.io.StringWriter.)]
+    (assoc (apply ct/run-tests namespaces)
+           :lines (-> ct/*test-out* .toString str/split-lines))))
+
+(defn forget-failures
+  "This can only be used within the dynamic scope of run-tests."
+  []
+  (dosync (commute ct/*report-counters* assoc :fail 0)))
 
 (defn output [& texts]
   (ct/with-test-out

@@ -4,30 +4,9 @@
         midje.test-util)
   (:require clojure.test))
 
-;; Can run with isolated counters
-
-;; Ensure there's at least three successes queued up.
-(fact 1 => 1)
-(fact 2 => 2)
-(fact 3 => 3)
-(def original (counters))
-
-(with-isolated-counters
-  (fact (counters)) => (contains {:pass 0, :fail 0})
-  (fact (counters)) => (contains {:pass 1, :fail 0}))
-(fact (counters) => original)
-    
-;; Can clear counters
-
-(with-isolated-counters
-  (fact (counters)) => (contains {:pass 0, :fail 0})
-  (zero-counters)
-  (fact (counters)) => (contains {:pass 0, :fail 0}))
-
 ;;; run-tests
 
-(let [result (with-isolated-counters
-               (run-tests ['midje.t-clojure-test-facade]))]
+(let [result (run-tests ['midje.t-clojure-test-facade])]
   (fact
     :check-only-at-load-time
     (:test result) => 0
@@ -39,8 +18,7 @@
 (clojure.test/deftest a-clojure-test-pass
   (clojure.test/is (= 1 1)))
 
-(let [result (with-isolated-counters
-               (run-tests ['midje.t-clojure-test-facade]))]
+(let [result (run-tests ['midje.t-clojure-test-facade])]
   (fact
     (:test result) => 1
     (:fail result) => 0
@@ -51,8 +29,7 @@
 (clojure.test/deftest a-clojure-test-fail
   (clojure.test/is (= 1 2)))
 
-(let [result (with-isolated-counters
-               (run-tests ['midje.t-clojure-test-facade]))]
+(let [result (run-tests ['midje.t-clojure-test-facade])]
   (fact
     (:test result) => 2
     (:fail result) => 1

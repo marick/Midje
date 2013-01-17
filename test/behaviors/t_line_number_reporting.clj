@@ -2,11 +2,11 @@
   (:use midje.sweet
         clojure.test
         midje.test-util)
-  (:require [midje.config :as config]))
+  (:require [midje.config :as config]
+            [midje.clojure-test-facade :as ctf]))
 
 (defn f [n] n)
 (defn g [n] n)
-  
 
 
 
@@ -100,7 +100,7 @@
       (name (favorite-animal 1)) => "betsy"
       (name (favorite-animal 2)) => "jake")) ;; a folded prerequisite can have two errors.
   (note-that (failures-were-at-lines (+ deftest-start 51) (+ deftest-start 51)))
-  
+  (ctf/forget-failures)
   )
 
 
@@ -178,3 +178,4 @@
   ?n  ?comment
   1   "1")
 (note-that (failure-was-at-line 174))
+
