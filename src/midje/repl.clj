@@ -265,8 +265,8 @@
 
    If the call doesn't mention any namespaces, the ones from the
    previous `load-facts`, `check-facts`, or `fetch-facts` are
-   reused. The filters and print-levels are also reused, unless
-   they're overridden with explicit arguments.
+   reused. The filters are also reused, unless they're overridden
+   with explicit arguments.
    "
 )
      
