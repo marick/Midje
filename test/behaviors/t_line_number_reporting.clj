@@ -160,16 +160,22 @@
                                      (+ 3 start-of-fact)
                                      (+ 7 start-of-fact))))
 
+(silent-fact "old bug: a quoted form after an arrow would not put line numbers on following text"
+  (list 1 2) => '(1 2)
+  (+ 1 2) => 4)
+(note-that (failure-was-at-line (+ patho-start 33)))
+
 
 ;;; Line number reporting for variant expect arrows
 
-(def variant-line 166)
+(def variant-line 171)
 (silent-fact
  (+ 1 1) =deny=> 2
  (+ 1 1) =not=> 2)
 (note-that (failures-were-at-lines (+ variant-line 2) (+ variant-line 3)))
 
 
+(def tabular-line 178)
 (tabular "The line number is the line number of the fact, not the substitutions."
   (silent-fact (inc ?n) => ?n)
 
@@ -177,5 +183,5 @@
   
   ?n  ?comment
   1   "1")
-(note-that (failure-was-at-line 174))
+(note-that (failure-was-at-line (+ tabular-line 2)))
 

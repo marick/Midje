@@ -98,8 +98,8 @@
 (defn annotate-embedded-arrows-with-line-numbers [form]
   (translate-zipper form
     quoted?
-    skip-to-rightmost-leaf
-  
-    (fn [loc] (matches-symbols-in-semi-sweet-or-sweet-ns? all-arrows loc))
-    (fn [loc] (at-arrow__add-line-number-to-end__no-movement (arrow-line-number loc) loc))))
+    (comp skip-to-rightmost-leaf zip/down)
+
+    (partial matches-symbols-in-semi-sweet-or-sweet-ns? all-arrows)
+    #(at-arrow__add-line-number-to-end__no-movement (arrow-line-number %) %)))
 
