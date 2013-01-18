@@ -305,6 +305,9 @@
   
   :check-after-creation         ; Should facts be checked as they're loaded?
                                 ; Default true.
+
+  :emitter                      ; Namespace or pathname that contains
+                                  an \"emitter\" of custom output.
   
   :visible-deprecation          ; Whether information about deprecated
                                 ; features or functions is printed.
