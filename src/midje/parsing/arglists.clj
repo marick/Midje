@@ -23,7 +23,9 @@
 (defn build-on-flag-keyword [original suffix]
   (keyword (str (name original) suffix)))
 
-(defn make-segmentingizing-arglist-parser [& flag-descriptions]
+;; TODO: Be responsible, Marick, and break this into pieces.
+;; Also, lein-midje should use this.
+(defn make-option-arglist-parser [& flag-descriptions]
   (fn [arglist]
     (let [all-arg-set (set (flatten flag-descriptions))
           segments (partition-by all-arg-set arglist)

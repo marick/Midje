@@ -397,10 +397,10 @@
   (atom {:interval 500
          :dirs (project-state/directories)}))
 
-(defn set-autotest-options!
+(defn set-autotest-option!
   "Set autotest options without starting autotesting."
-  [map]
-  (swap! autotest-options merge map))
+  [key value]
+  (swap! autotest-options assoc key value))
 
 (defn autotest-interval
   "How often should autotest check for changed files?"
@@ -447,23 +447,28 @@
             (scheduling/schedule :autotest
                                  (project-state/mkfn:react-to-changes (autotest-dirs))
                                  (autotest-interval)))]
-    (let [setargs (set args)]
-      (cond (or (setargs :stop)
-                (setargs :pause))
+
+    ;; Note that stopping and pausing, which seeming different to user, actually do
+    ;; exactly the same thing.
+    (let [option ((parsing/make-option-arglist-parser [:dirs :dir] [:interval :each]
+                                                      [:stop :pause] [:resume])
+                  args)]
+      (cond (:stop? option)
             (scheduling/stop :autotest)
             
-            (setargs :resume)
+            (:resume? option)
             (start-periodic-check)
 
-            (pos? (count args))
-            (do
-              (set-autotest-options! (apply hash-map args))
-              (autotest))
-            
-            :else
+            (empty? args)
             (do
               (project-state/load-everything (autotest-dirs))
-              (start-periodic-check))))
-    true))
+              (start-periodic-check))
+
+            :else
+            (do 
+              (when (:dirs? option) (set-autotest-option! :dirs (:dirs-args option)))
+              (when (:interval? option) (set-autotest-option! :interval (first (:interval-args option))))
+              (autotest)))))
+  true)
 
 )

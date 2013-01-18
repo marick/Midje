@@ -551,9 +551,10 @@
 
   (fact "can be used to set default values"
     (config/with-augmented-config {:partial-prerequisites true}
-      (autotest :dirs [] :interval 5) => anything
+      (autotest :dirs 1 2 :interval 5) => anything
       (provided
-        (set-autotest-options! {:dirs [] :interval 5}) => anything
+        (set-autotest-option! :dirs [1 2]) => anything
+        (set-autotest-option! :interval 5) => anything
         (autotest) => anything)))
 )
   

@@ -30,9 +30,9 @@
 
 
 
-(fact "Segmentizing arglist parser"
+(fact "arglist parser with :options"
   (let [flag-descriptions [[:dirs :dir] [:interval]]
-        parser (apply make-segmentingizing-arglist-parser flag-descriptions)]
+        parser (apply make-option-arglist-parser flag-descriptions)]
      
     (fact "can find true args"
     (parser []) => (contains {:true-args []})
