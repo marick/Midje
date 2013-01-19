@@ -99,11 +99,11 @@
     (innocuously (config/at-print-level (levels/level-above :print-no-summary)
        (state/set-output-counters! output-counters)
        (emit/fact-stream-summary clojure-test-results)))
-    (plugin/recorded) => [[:fact-stream-summary output-counters clojure-test-results]]
+    (plugin/recorded) => [[:finishing-fact-stream output-counters clojure-test-results]]
 
 
     ;; No clojure.test run, so fact results.
     (innocuously (config/at-print-level (levels/level-above :print-no-summary)
       (state/set-output-counters! output-counters)
       (emit/fact-stream-summary)))
-    (plugin/recorded) => [[:fact-stream-summary output-counters {:test 0}]]))
+    (plugin/recorded) => [[:finishing-fact-stream output-counters {:test 0}]]))

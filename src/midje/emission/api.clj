@@ -30,7 +30,7 @@
   (let [function (keyword state/emission-functions)]
     (if function
       (apply function args)
-      (throw (Error. (str "Your emission plugin does not define " keyword))))))
+      (throw (Error. (str "Your emission plugin does not define " keyword state/emission-functions))))))
 
 ;;; The API proper
 
@@ -51,8 +51,11 @@
     (bounce-to-plugin :future-fact description position)))
   
 (defn forget-everything []
-  (state/reset-output-counters!)
-  (bounce-to-plugin :forget-everything))
+  (bounce-to-plugin :starting-fact-stream)
+  ;; This happens after the `forget-everything` so that
+  ;; a plugin can capture old values if it wants to.
+  (state/reset-output-counters!))
+
 
 (defn starting-to-check-top-level-fact [fact-function]
   (state/forget-raw-fact-failures!)
@@ -79,7 +82,7 @@
 (defn fact-stream-summary
   ([clojure-test-results]
      (when (config-above? :print-no-summary)
-       (bounce-to-plugin :fact-stream-summary (state/output-counters) clojure-test-results)))
+       (bounce-to-plugin :finishing-fact-stream (state/output-counters) clojure-test-results)))
   ([]
      (fact-stream-summary {:test 0})))
                                  

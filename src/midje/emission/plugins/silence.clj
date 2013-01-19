@@ -14,8 +14,8 @@
                             :starting-to-check-fact
                             :finishing-fact
                             :possible-new-namespace
-                            :fact-stream-summary
+                            :finishing-fact-stream
                             :future-fact
-                            :forget-everything))
+                            :starting-fact-stream))
 
 (state/install-emission-map emission-map)

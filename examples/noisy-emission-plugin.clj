@@ -7,7 +7,7 @@
 
 (def emission-map {:pass (in 'pass)
                    :fail (in 'fail)
-                   :forget-everything (in 'forget-everything)
+                   :starting-fact-stream (in 'forget-everything)
                    })
 
 (state/install-emission-map emission-map)

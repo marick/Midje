@@ -24,7 +24,7 @@
     (util/emit-one-line (color/note (str "= Namespace " namespace-symbol)))
     (set-last-namespace-shown! namespace-symbol)))
 
-(defn forget-everything []
+(defn starting-fact-stream []
   (set-last-namespace-shown! nil))
 
 (defn starting-to-check-fact [fact-function]
@@ -37,7 +37,7 @@
                                                   (metadata/fact-line fact-function)])))))))
 
 
-(defn fact-stream-summary [midje-counters clojure-test-map]
+(defn finishing-fact-stream [midje-counters clojure-test-map]
   (letfn [(midje-summary-lines [passes fails]
             (letfn [(midje-failure-summary []
                       (if (= 1 fails)
@@ -89,67 +89,11 @@
 
 
 (def emission-map (merge silence/emission-map
-                         (make-map ;; `:pass` takes no arguments. In this case,
-                                   ;; it's defined in the silence plugin.
-                                   ;; Note that the count of passes and fails
-                                   ;; is maintained in `state`, so you needn't
-                                   ;; do it yourself.
-                                   ;; :pass
-
-                                   ;; `:fail` takes a map of information. See
-                                   ;; `default-fails` for the different sorts
-                                   ;; of maps and how they're handled.
-                                   ;; Note that the count of passes and fails
-                                   ;; is maintained in `state`, so you needn't
-                                   ;; do it yourself.
-                                   :fail
-
-                                   ;; `:future-fact` takes a map similar to
-                                   ;; `fail`. The key fields are:
-                                   ;;    :position     (file/line)
-                                   ;;    :description  (text describing the future)
-                                   ;; Note that the discription may be nil.
+                         (make-map :fail
                                    :future-fact
-                                   
-                                   ;; `:starting-to-check-fact` takes a fact-function
-                                   ;; as an argument. Use its metadata to construct
-                                   ;; output. See the function above for an example.
                                    :starting-to-check-fact
-
-                                   ;; `:possible-new-namespace` is called whenever a
-                                   ;; namespace might change, most notably whenever
-                                   ;; a new fact is being checked.
                                    :possible-new-namespace
-
-                                   ;; `:fact-stream-summary is called whenever a
-                                   ;; series (or "stream") of facts has been checked.
-                                   ;; The first argument is a counter with these fields:
-                                   ;;   :midje-passes
-                                   ;;   :midje-failures
-                                   ;; Note: Midje doesn't have a notion of a count of tests
-                                   ;; that were run. You can simulate it via
-                                   ;; `:starting-to-check-fact` or `:starting-to-check-top-level-fact`.
-                                   ;;
-                                   ;; The second argument is a map containing the normal
-                                   ;; clojure.test keys, which are:
-                                   ;;       :test           (count of tests run)
-                                   ;;       :pass
-                                   ;;       :fail           (comparison failure)
-                                   ;;       :error          (exception in test)
-                                   ;; Because Midje buffers up clojure.test output, the second
-                                   ;; argument contains an additional key:
-                                   ;;       :lines          (output lines from test run)
-                                   ;; Note: Midje doesn't always run clojure.test tests. If it 
-                                   ;; didn't, the second argument is a map with a single key, `:test`,
-                                   ;; whose value is 0.
-                                   :fact-stream-summary
-
-                                   ;; `:forget-everything` is called when a new
-                                   ;; "stream" of facts is to be evaluated. The most
-                                   ;; typical case is when `load-facts` is called,
-                                   ;; either directly or via `lein midje`. Note that
-                                   ;; the running count of passes and fails is zeroed
-                                   ;; before this call.
-                                   :forget-everything)))
+                                   :finishing-fact-stream
+                                   :starting-fact-stream)))
   
 (state/install-emission-map emission-map)
