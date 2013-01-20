@@ -13,3 +13,4 @@ semantic.cache
 .lein-deps-sum
 .lein-repl-history
 target
+tmp/
