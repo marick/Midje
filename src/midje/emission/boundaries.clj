@@ -1,6 +1,7 @@
 (ns ^{:doc "Execution boundaries that have to do with checking of faces"}
   midje.emission.boundaries
   (:require [midje.clojure-test-facade :as ctf]
+            [midje.ideas.metadata :as metadata]
             [midje.emission.api :as emit]
             [midje.emission.state :as state]))
 
@@ -31,7 +32,7 @@
        (emit/fact-stream-summary ct-counters#)
        (all-test-failures-to-self-documenting-map ct-counters#))))
 
-(defmacro around-fact-function-stream [ffs-sym config-settings & body]
+(defmacro around-fact-stream [ffs-sym config-settings & body]
   `(config/with-augmented-config ~config-settings
      (emit/forget-everything)
      ~@body
@@ -41,23 +42,23 @@
 
 ;; TODO: Note that both of the fact around functions need to check
 ;; failure counts. It would perhaps make sense to have the
-;; `around-fact-function` wrap `around-top-level-fact-function`, but I
+;; `around-fact` wrap `around-top-level-fact`, but I
 ;; think it would surprise and annoy plugin-writers.
 
-(defmacro around-top-level-fact-function [ff-sym & body]
+(defmacro around-top-level-fact [fact-sym & body]
   `(let [starting-failures# (state/output-counters:midje-failures)]
-     (emit/possible-new-namespace (metadata/fact-namespace ~ff-sym))
-     (emit/starting-to-check-top-level-fact ~ff-sym)
+     (emit/possible-new-namespace (metadata/fact-namespace ~fact-sym))
+     (emit/starting-to-check-top-level-fact ~fact-sym)
      ~@body
-     (emit/finishing-top-level-fact ~ff-sym)
+     (emit/finishing-top-level-fact ~fact-sym)
      (= starting-failures# (state/output-counters:midje-failures))))
 
-(defmacro around-fact-function [ff-sym & body]
+(defmacro around-fact [fact-sym & body]
   `(let [starting-failures# (state/output-counters:midje-failures)]
-     (emit/starting-to-check-fact ~ff-sym)
-     (fact-context/adds (metadata/fact-description ~ff-sym)
+     (emit/starting-to-check-fact ~fact-sym)
+     (fact-context/adds (metadata/fact-description ~fact-sym)
                         ~@body)
-     (emit/finishing-fact ~ff-sym)
+     (emit/finishing-fact ~fact-sym)
      (= starting-failures# (state/output-counters:midje-failures))))
 
 
