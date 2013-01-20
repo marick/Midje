@@ -1,8 +1,7 @@
 (ns ^{:doc "How the default emitter reports on failures"}
   midje.emission.plugins.default-failure-lines
   (:use midje.emission.plugins.util)
-  (:use [clojure.pprint :only [cl-format pprint]])
-  (:require [midje.clojure-test-facade :as ctf]))
+  (:use [clojure.pprint :only [cl-format pprint]]))
 
 (defmulti messy-lines :type)
 
