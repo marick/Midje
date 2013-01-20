@@ -1,1 +1,1 @@
-(change-defaults :emitter "examples/noisy-emission-plugin.clj")
+(change-defaults :print-level :print-facts)
