@@ -251,14 +251,6 @@
 ;; tabular doc-string prints in report
 
 (tabular "table of results"
-  (silent-fact "add stuff"
-      (+ a b) => result)
-    
-      a    b   result
-      2    4   999     )  ;; PURPOSELY FAIL
-(note-that fact-fails, (fact-described-as  "table of results" "add stuff"))
-
-(tabular "table of results"
   (silent-fact (+ a b) => result)
     
       a    b   result

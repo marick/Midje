@@ -29,6 +29,7 @@
             [midje.internal-ideas.fact-context :as fact-context]
             [midje.ideas.metadata :as metadata]
             [midje.util.namespace :as namespace]
+            [midje.parsing.metadata :as parse-metadata]
             midje.checkers))
 
 (immigrate 'midje.unprocessed)
@@ -90,7 +91,7 @@
   [& _] ; we work off &form, not the arguments
   (when (user-desires-checking?)
     (domonad validate-m [_ (validate &form)
-                         [metadata forms] (metadata/separate-metadata &form)]
+                         [metadata forms] (parse-metadata/separate-metadata &form)]
       (try
         (set-fallback-line-number-from &form)
         (let [[background remainder] (background/separate-background-forms forms)]
@@ -166,7 +167,7 @@
   "Supply default metadata to all facts in the body."
   [& forms]
   (let [[metadata body] (metadata/wrappable-metadata forms)]
-    (metadata/with-wrapped-metadata metadata 
+    (parse-metadata/with-wrapped-metadata metadata 
       (midjcoexpand `(do ~@body)))))
 
 

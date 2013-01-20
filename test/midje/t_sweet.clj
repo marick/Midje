@@ -9,6 +9,7 @@
             [midje.util.ecosystem :as ecosystem]
             [midje.emission.api :as emit]
             [midje.emission.state :as state]
+            [midje.internal-ideas.compendium :as compendium]
             [midje.ideas.metadata :as metadata]))
 
 (fact "all of Midje's public, API-facing vars have docstrings"
@@ -392,8 +393,9 @@
 
 (fact-group :integration {:timing 3}
             "strings do not set metadata in fact groups"
-  metadata/metadata-for-fact-group => {:integration true
-                                                   :timing 3})
+  (fact (inc 33) => 34)
+  (let [stashed (compendium/last-fact-checked<>)]
+    (fact (meta stashed) => (contains {:integration true :timing 3}))))
             
 
                                         ;;; fact groups

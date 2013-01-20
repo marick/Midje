@@ -2,9 +2,8 @@
   midje.ideas.metadata
   (:use [midje.ideas.arrows :only [start-of-checking-arrow-sequence?]])
   (:require [midje.util.form-utils :as form])
-  (:require [clojure.string :as str]))
-
-(def ^{:dynamic true} metadata-for-fact-group {})
+  (:require [clojure.string :as str]
+            [midje.parsing.metadata :as parse-metadata]))
 
 ;;; Loaded facts are stored as functions with this metadata:
 
@@ -24,45 +23,8 @@
                         (property (meta fact-function)))))
             fact-properties))
 
-(declare separate-metadata)
 (defn fact-body-source [fact-function]
-  (second (separate-metadata (fact-source fact-function))))
-
-(defn separate-metadata [fact-form]
-  (letfn [(basic-parse [metadata body]
-            (let [head (first body)
-                  add-key (fn [key value] (assoc metadata key value))]
-
-              (cond (string? head)
-                    (recur (add-key :midje/description head) (rest body))
-
-                    (start-of-checking-arrow-sequence? body)
-                    [metadata body]
-
-                    (symbol? head)
-                    (recur (add-key :midje/name (name head)) (rest body))
-
-                    (keyword? head)
-                    (recur (add-key head true) (rest body))
-
-                    (map? head)
-                    (recur (merge metadata head) (rest body))
-                    
-                    :else
-                    [metadata body])))]
-    (let [[metadata body] (basic-parse {:midje/source fact-form
-                                        ;; Storing actual namespaces in these
-                                        ;; maps causes bizarre errors in
-                                        ;; seemingly unrelated code.
-                                        :midje/namespace (ns-name *ns*)
-                                        :midje/file *file*
-                                        :midje/line (:line (meta fact-form))}
-                                       (rest fact-form))
-          metadata (if (and (contains? metadata :midje/description)
-                            (not (contains? metadata :midje/name)))
-                     (assoc metadata :midje/name (:midje/description metadata))
-                     metadata)]
-      [(merge metadata-for-fact-group metadata) body])))
+  (second (parse-metadata/separate-metadata (fact-source fact-function))))
 
 
 (defn wrappable-metadata
@@ -79,25 +41,8 @@
           :else
           [metadata body])))
 
-(defmacro with-wrapped-metadata [metadata & body]
-  `(binding [metadata-for-fact-group (merge metadata-for-fact-group ~metadata)]
-         ~@body))
-
 (defn without-automatic-metadata [metadata]
   (dissoc metadata :midje/source :midje/file :midje/line :midje/namespace))
-
-(defn promote-metadata [outer-form]
-  (let [[outer-metadata [inner-form & rest-of-outer-body]] (separate-metadata outer-form)
-        [inner-metadata inner-body] (separate-metadata inner-form)]
-    (cond (and (empty? (without-automatic-metadata outer-metadata))
-               (not (empty? (without-automatic-metadata inner-metadata))))
-          `(~(first outer-form)
-            ~(merge outer-metadata (without-automatic-metadata inner-metadata))
-            (~(first inner-form) ~@inner-body)
-            ~@rest-of-outer-body)
-
-          :else
-          outer-form)))
 
                                         ;;; Working with metadata
 

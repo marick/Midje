@@ -31,7 +31,7 @@
             [midje.internal-ideas.fact-context :as fact-context]
             [midje.emission.boundaries :as emission-boundary]
             [midje.emission.api :as emit]
-            [midje.ideas.metadata :as metadata]
+            [midje.parsing.metadata :as parse-metadata]
             [midje.data.fact :as fact]
             [midje.config :as config]))
 
@@ -53,7 +53,7 @@
 
 (defn future-fact* [form]
   (let [lineno (reader-line-number form)
-        [metadata _] (metadata/separate-metadata form)]
+        [metadata _] (parse-metadata/separate-metadata form)]
     `(emit/future-fact (fact-context/nested-descriptions ~(:midje/description metadata))
                        (midje.internal-ideas.file-position/line-number-known ~lineno))))
 

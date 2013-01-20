@@ -3,7 +3,6 @@
   (:use [clojure.string :only [join]]
         [clojure.algo.monads :only [domonad]]
         [midje.error-handling.validation-errors :only [simple-validation-error-report-form validate-m validate]]
-        [midje.ideas.metadata :only [separate-metadata promote-metadata]]
         [midje.internal-ideas.file-position :only [form-with-copied-line-numbers]]
         [midje.util.form-utils :only [pop-docstring translate-zipper]]
         [midje.util.deprecation :only [deprecate]]
@@ -13,7 +12,8 @@
         [midje.ideas.facts :only [working-on-nested-facts]]
         [midje.ideas.metaconstants :only [metaconstant-symbol?]]
         [utilize.map :only [ordered-zipmap]])
-(:require [midje.util.unify :as unify]))
+(:require [midje.util.unify :as unify]
+          [midje.parsing.metadata :as metadata]))
 
 (defn- remove-pipes+where [table]
   (when (#{:where 'where} (first table))
@@ -102,7 +102,7 @@
                           ~@expect-forms-with-binding-notes))))
 
 (defmethod validate "tabular" [full-form locals]
-  (let [[metadata [fact-form & table]] (separate-metadata (promote-metadata full-form))
+  (let [[metadata [fact-form & table]] (metadata/separate-two-level-metadata full-form)
         [headings-row values] (headings-rows+values table locals)]
     (cond (empty? table)
           (simple-validation-error-report-form full-form
