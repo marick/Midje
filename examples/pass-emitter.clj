@@ -1,15 +1,15 @@
-(ns ^{:doc "Add a passing emitter"}
+(ns ^{:doc "Adding an emitter that brags about fact results"}
   example.pass-emitter
   (:require [midje.emission.plugins.util :as util]
-            [midje.ideas.metadata :as metadata]
+            [midje.data.fact :as fact]
             [midje.emission.plugins.default :as default]
             [midje.emission.state :as state]))
 
 (defn finishing-top-level-fact [fact]
-  (util/emit-one-line (format "Dude! %s at %d of %s totally passed!"
-                              (metadata/fact-name fact)
-                              (metadata/fact-line fact)
-                              (metadata/fact-file fact)))
+  (util/emit-one-line (format "Dude! `%s` at line %d of %s totally finished!"
+                              (fact/name fact)
+                              (fact/line fact)
+                              (fact/file fact)))
 
   ;; Plugins are not responsible for keeping track of successes and
   ;; failures. That happens independently, and you gain access to the

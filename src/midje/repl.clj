@@ -7,9 +7,9 @@
             [midje.doc :as doc]
             [midje.config :as config]
             [midje.clojure-test-facade :as ctf]
-            [midje.ideas.facts :as fact]
             [midje.parsing.arglists :as parsing]
-            [midje.ideas.metadata :as metadata]
+            [midje.ideas.metadata :as parse-metadata]
+            [midje.data.fact :as fact]
             [midje.internal-ideas.compendium :as compendium]
             [midje.internal-ideas.project-state :as project-state]
             [midje.emission.boundaries :as emission-boundary]
@@ -24,9 +24,7 @@
   (println (color/fail "The Midje repl tools don't work on Clojure 1.2.X")))
 (ecosystem/when-1-3+
 
-(namespace/immigrate-from 'midje.ideas.metadata
-                          (map metadata/metadata-function-name
-                               metadata/fact-properties))
+(fact/make-getters *ns* "fact-") 
 
 (when (doc/appropriate?)
   (namespace/immigrate-from 'midje.doc doc/for-repl)
@@ -108,7 +106,7 @@
   (let [[given-level-seq print-level-to-use args]
           (parsing/separate-print-levels original-args (config/choice :print-level))
         [filters filter-function namespaces]
-        (metadata/separate-filters args all-keyword-is-not-a-filter)]
+        (parse-metadata/separate-filters args all-keyword-is-not-a-filter)]
 
     (if (empty? namespaces)
       (defaulting-args
@@ -240,10 +238,10 @@
 
 ;; An independent function because it's not just used by fetch-facts.
 (defn- fetch-intended-facts [intention]
-  (let [fact-functions (if (:all? intention)
-                         (compendium/all-facts<>)
-                         (mapcat compendium/namespace-facts<> (:namespaces-to-use intention)))]
-    (filter (:filter-function intention) fact-functions)))
+  (let [facts (if (:all? intention)
+                (compendium/all-facts<>)
+                (mapcat compendium/namespace-facts<> (:namespaces-to-use intention)))]
+    (filter (:filter-function intention) facts)))
 
 (def-obedient-function :memory-command fetch-facts and-update-defaults!
   fetch-intended-facts
@@ -316,9 +314,9 @@
     as is returned by `last-fact-checked`."}
   check-one-fact fact/check-one)
 
-(defn- ^{:testable true} check-facts-once-given [fact-functions]
-  (emission-boundary/around-fact-function-stream fact-functions config/no-overrides
-    (doseq [f fact-functions] (check-one-fact f))))
+(defn- ^{:testable true} check-facts-once-given [facts]
+  (emission-boundary/around-fact-stream facts config/no-overrides
+    (doseq [f facts] (check-one-fact f))))
 
 
 (def-obedient-function :memory-command check-facts and-update-defaults!

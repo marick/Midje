@@ -2,12 +2,11 @@
   midje.emission.plugins.default
   (:use [midje.util.form-utils :only [midje-position-string]])
   (:require [midje.util.colorize :as color]
+            [midje.data.fact :as fact]
             [midje.emission.state :as state]
-            [midje.ideas.metadata :as metadata]
             [midje.emission.plugins.util :as util]
             [midje.emission.plugins.silence :as silence]
             [midje.emission.plugins.default-failure-lines :as lines]
-            [midje.clojure-test-facade :as ctf]
             [clojure.string :as str]))
 
 (defn fail [failure-map]
@@ -27,14 +26,14 @@
 (defn starting-fact-stream []
   (set-last-namespace-shown! nil))
 
-(defn starting-to-check-fact [fact-function]
+(defn starting-to-check-fact [fact]
   (util/emit-one-line (color/note
                        (str "Checking "
-                            (or (metadata/fact-name fact-function)
-                                (metadata/fact-description fact-function)
+                            (or (fact/name fact)
+                                (fact/description fact)
                                 (str "fact at " (midje-position-string
-                                                 [(metadata/fact-file fact-function)
-                                                  (metadata/fact-line fact-function)])))))))
+                                                 [(fact/file fact)
+                                                  (fact/line fact)])))))))
 
 
 (defn finishing-fact-stream [midje-counters clojure-test-map]

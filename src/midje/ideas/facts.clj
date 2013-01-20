@@ -32,6 +32,7 @@
             [midje.emission.boundaries :as emission-boundary]
             [midje.emission.api :as emit]
             [midje.ideas.metadata :as metadata]
+            [midje.data.fact :as fact]
             [midje.config :as config]))
 
 (defn fact? [form]
@@ -149,8 +150,6 @@
 
 ;;; Load-time processing
 
-(declare creation-time-check)
-
 (defn wrap-with-creation-time-code [function-form]
   (letfn [;; The rather hackish construction here is to keep
           ;; the expanded fact body out of square brackets because
@@ -161,7 +160,7 @@
               function-form))
           
           (run-after-creation [function-form]
-            `(creation-time-check ~function-form))]
+            `(fact/creation-time-check ~function-form))]
 
     (define-metaconstants function-form)
     (-> function-form
@@ -191,34 +190,6 @@
        (wrap-with-check-time-code metadata)
        wrap-with-creation-time-code)))
 
-;;; Fact execution utilities
-
-(defn check-one [fact-function]
-  (let [top-level? (:midje/top-level-fact? (meta fact-function))
-        fact-creation-filter (config/choice :desired-fact?)]
-    (cond (not (fact-creation-filter fact-function))
-          (str "This fact was ignored because of the current configuration. "
-               "Only facts matching "
-               (vec (map #(if (fn? %) "<some function>" %) 
-                         (:created-from (meta fact-creation-filter))))
-               " will be created.")
-            
-          (not top-level?)
-          (emission-boundary/around-fact-function fact-function
-            (fact-function))
-
-          :else-top-level-fact-to-check
-          (emission-boundary/around-top-level-fact-function fact-function {}
-            ;; The fact is recorded on entry so that if a fact is
-            ;; rechecked inside the midje.t-repl tests, the rechecked
-            ;; fact stays the last-fact-checked (because it overwrites
-            ;; the fact that's testing it).
-            (compendium/record-fact-check! fact-function)
-            (emission-boundary/around-fact-function fact-function
-              (fact-function))))))
-                                                              
-
-
 ;; It's kind of annoying that the entire expansion is created, evaluated, 
 ;; and then thrown away. I think this is unavoidable if you want the
 ;; filter predicate to be applied in the repl.
@@ -226,9 +197,4 @@
   (when ((config/choice :desired-fact?) fact-function)
     (compendium/record-fact-existence! fact-function)
     fact-function))
-
-(defn creation-time-check [fact-function]
-  (when (config/choice :check-after-creation)
-    (check-one fact-function)))
-
 
