@@ -23,10 +23,6 @@
                         (property (meta fact-function)))))
             fact-properties))
 
-(defn fact-body-source [fact-function]
-  (second (parse-metadata/separate-metadata (fact-source fact-function))))
-
-
 (defn wrappable-metadata
   "This does not include metadata specified by strings or symbols."
   [forms]

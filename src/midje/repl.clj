@@ -9,7 +9,8 @@
             [midje.clojure-test-facade :as ctf]
             [midje.parsing.arglists :as parsing]
             [midje.ideas.metadata :as parse-metadata]
-            [midje.data.fact :as fact]
+            [midje.data.fact :as fact-data]
+            [midje.checking.facts :as fact-checking]
             [midje.internal-ideas.compendium :as compendium]
             [midje.internal-ideas.project-state :as project-state]
             [midje.emission.boundaries :as emission-boundary]
@@ -24,7 +25,7 @@
   (println (color/fail "The Midje repl tools don't work on Clojure 1.2.X")))
 (ecosystem/when-1-3+
 
-(fact/make-getters *ns* "fact-") 
+(fact-data/make-getters *ns* "fact-") 
 
 (when (doc/appropriate?)
   (namespace/immigrate-from 'midje.doc doc/for-repl)
@@ -312,7 +313,7 @@
 
 (def ^{:doc "Check a single fact. Takes as its argument a function such
     as is returned by `last-fact-checked`."}
-  check-one-fact fact/check-one)
+  check-one-fact fact-checking/check-one)
 
 (defn- ^{:testable true} check-facts-once-given [facts]
   (emission-boundary/around-fact-stream facts config/no-overrides

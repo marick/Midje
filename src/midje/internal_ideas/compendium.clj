@@ -2,10 +2,9 @@
             about a particular subject'. The Midje compendium contains
             the currently relevant facts."}
   midje.internal-ideas.compendium
-  (:use [midje.ideas.metadata :only [fact-name
-                                     fact-body-source fact-namespace]]
-        [midje.error-handling.exceptions :only [user-error]]
-        [midje.util.form-utils :only [dissoc-keypath]]))
+  (:use [midje.error-handling.exceptions :only [user-error]]
+        [midje.util.form-utils :only [dissoc-keypath]])
+  (:require [midje.data.fact :as fact]))
 
 ;;; Facts are stored in a compendium:
 
@@ -44,7 +43,7 @@
   CompendiumProtocol
   (add-to [this fact-function]
     (let [[namespace name body-source]
-          ( (juxt fact-namespace fact-name fact-body-source)
+          ( (juxt fact/namespace fact/name fact/body-source)
             fact-function)]
       (-> this 
           (assoc-in [:by-namespace namespace]
@@ -62,7 +61,7 @@
                   (into (subvec vector 0 index-to-exclude)
                         (subvec vector (inc index-to-exclude)))))]
       (let [[namespace name body-source]
-            ( (juxt fact-namespace fact-name fact-body-source)
+            ( (juxt fact/namespace fact/name fact/body-source)
               fact-function)
 
             new-namespace-facts
@@ -93,14 +92,14 @@
 
   (previous-version [this fact-function]
     (let [[namespace name body-source]
-            ( (juxt fact-namespace fact-name fact-body-source) fact-function)
+            ( (juxt fact/namespace fact/name fact/body-source) fact-function)
           existing-named-fact (named-fact this namespace name)
           existing-embodied-fact (embodied-fact this namespace body-source)]
       (cond existing-named-fact
             existing-named-fact
 
             (and existing-embodied-fact
-                 (not (fact-name existing-embodied-fact)))
+                 (not (fact/name existing-embodied-fact)))
             existing-embodied-fact
 
             :else

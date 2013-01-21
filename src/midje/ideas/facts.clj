@@ -32,7 +32,7 @@
             [midje.emission.boundaries :as emission-boundary]
             [midje.emission.api :as emit]
             [midje.parsing.metadata :as parse-metadata]
-            [midje.data.fact :as fact]
+            [midje.checking.facts :as fact]
             [midje.config :as config]))
 
 (defn fact? [form]
