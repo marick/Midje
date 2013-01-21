@@ -4,7 +4,9 @@
         [midje.test-util]
         [midje.internal-ideas.compendium])
   (:require [midje.util.ecosystem :as ecosystem]
-            [midje.data.fact :as fact]))
+            [midje.config :as config]
+            [midje.data.fact :as fact]
+            [midje.checking.facts :as fact-checking]))
 
 (if (ecosystem/clojure-1-2-0?)
   (import 'midje.internal-ideas.compendium.Compendium)
@@ -30,7 +32,7 @@
 (def unnamed (a-fact nil '(fact 3 => odd?)))
   
 
-;;; Tests
+;;; The direct functions
 
 (fact "an empty compendium"
   (let [compendium (fresh)]
@@ -176,4 +178,25 @@
                                                           nil
             
     ))
+
+;; The functions that work on global state
+
+(let [current-compendium @global]
+  ;; Certain facts do not allow themselves to be recorded.
+  (fresh!)
+  (fact :check-only-at-load-time (str "foo") => "foo")
+  (fact :check-only-at-load-time 
+    (all-facts<>) => empty?
+    ((last-fact-checked<>)) => "No fact has been checked.")
+
+  ;; The user can also override creation-time recording (but not run-time)
+  (config/with-augmented-config {:desired-fact? (constantly false)}
+    (fact (str "foo" "bar") => "foobar")
+    (fact :check-only-at-load-time
+      (all-facts<>) => empty?
+      (fact-checking/check-one (last-fact-checked<>)) => true))
+
+  (reset! global current-compendium))
+  
+  
 

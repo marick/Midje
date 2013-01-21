@@ -17,9 +17,8 @@
         [midje.internal-ideas.wrapping :only [put-wrappers-into-effect]]
         [midje.internal-ideas.file-position :only [set-fallback-line-number-from]]
         [midje.ideas.tabular :only [tabular*]]
-        [midje.parsing.facts :only [complete-fact-transformation future-fact*
-                                  midjcoexpand 
-                                  future-fact-variant-names]]
+        [midje.parsing.facts :only [complete-fact-transformation
+                                  midjcoexpand]] 
         [midje.ideas.formulas :only [future-formula-variant-names]]
         [clojure.algo.monads :only [domonad]])
   (:require [midje.ideas.background :as background]
@@ -29,6 +28,7 @@
             [midje.internal-ideas.fact-context :as fact-context]
             [midje.util.namespace :as namespace]
             [midje.parsing.metadata :as parse-metadata]
+            [midje.parsing.future-facts :as parse-future-fact]
             midje.checkers))
 
 (immigrate 'midje.unprocessed)
@@ -113,13 +113,7 @@
     (when-valid &form
       (with-meta `(fact ~@forms) (meta &form)))))
 
-(defmacro ^{:private true} generate-future-fact-variants []
-  (macro-for [name future-fact-variant-names]
-    `(defmacro ~(symbol name)
-       "Fact that will not be run. Generates 'WORK TO DO' report output as a reminder."
-       {:arglists '([& forms])}
-       [& forms#]
-       (future-fact* ~'&form))))
+(parse-future-fact/generate-variants)
 
 (defmacro ^{:private true} generate-future-formula-variants []
   (macro-for [name future-formula-variant-names]
@@ -128,10 +122,9 @@
         Formula that will not be run. Generates 'WORK TO DO' report output as a reminder."
        {:arglists '([& forms])}
        [& forms#]
-       (future-fact* ~'&form))))
-
-(generate-future-fact-variants)
+       (parse-future-fact/parse ~'&form))))
 (generate-future-formula-variants)
+
 
 (defmacro tabular 
   "Generate a table of related facts.

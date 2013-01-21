@@ -4,7 +4,8 @@
   midje.internal-ideas.compendium
   (:use [midje.error-handling.exceptions :only [user-error]]
         [midje.util.form-utils :only [dissoc-keypath]])
-  (:require [midje.data.fact :as fact]))
+  (:require [midje.data.fact :as fact]
+            [midje.config :as config]))
 
 ;;; Facts are stored in a compendium:
 
@@ -120,14 +121,18 @@
   true)
 
 (defn record-fact-check! [function]
-  (when-not (:check-only-at-load-time (meta function))
+  (when (fact/allows-itself-to-be-recorded? function)
     (swap! global assoc :last-fact-checked function)))
 
 (defn record-fact-existence! [fact-function]
-  (when-not (:check-only-at-load-time (meta fact-function))
+  (when (and (fact/allows-itself-to-be-recorded? fact-function)
+             (config/user-wants-fact-to-be-recorded? fact-function))
     (if-let [previous (previous-version @global fact-function)]
       (swap! global remove-from previous))
-    (swap! global add-to fact-function)))
+    (swap! global add-to fact-function))
+  ;; Returning the fact-function is a kludge required by the
+  ;; way tabular facts are parsed.
+  fact-function)
 
 (defn remove-namespace-facts-from! [namespace]
   (swap! global remove-namespace-facts-from namespace))

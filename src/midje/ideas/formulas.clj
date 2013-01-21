@@ -4,7 +4,7 @@
         [midje.error-handling.validation-errors :only [simple-validation-error-report-form validate-m validate]]
         [midje.ideas.prerequisites :only [head-of-form-providing-prerequisites?]]
         [midje.ideas.arrows :only [leaf-expect-arrows leaves-contain-arrow?]]
-        [midje.parsing.facts :only [future-prefixes]]
+        [midje.parsing.future-facts :only [future-prefixes]]
         [clojure.algo.monads :only [domonad]]
         [clojure.string :only [join]]
         [clojure.walk :only [prewalk]])

@@ -1,6 +1,7 @@
 (ns ^{:doc "Facts as a data structure"}
   midje.data.fact
   (:refer-clojure :exclude [name namespace]))
+
                   
 ;;; This is a potential target for migrating the non-parsing,
 ;;; non-checking parts of ideas/facts.clj, ideas/metadata.clj. It's
@@ -29,3 +30,4 @@
 (make-getters *ns* "")
 
 
+(def allows-itself-to-be-recorded? (comp not :check-only-at-load-time meta))

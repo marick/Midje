@@ -92,6 +92,11 @@
 (def at-or-above? (level-checker >=))
 (def above?(level-checker >))
 
+;; Fact functions
+
+(defn user-wants-fact-to-be-recorded? [fact]
+  ((choice :desired-fact?) fact))
+
 ;; Convenience
 (def no-overrides {})
 

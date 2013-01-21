@@ -1,6 +1,6 @@
 (ns ^{:doc "Parsing facts."}
   midje.parsing.facts
-  (:use [midje.error-handling.validation-errors :only [simple-validation-error-report-form validate when-valid]]
+  (:use [midje.error-handling.validation-errors :only [validate when-valid]]
         [midje.util.namespace :only [semi-sweet-keyword?]]
         [midje.internal-ideas.fakes :only [unfold-fakes]]
 
@@ -27,35 +27,14 @@
         [midje.util.zip :only [skip-to-rightmost-leaf]]
         [swiss-arrows.core :only [-<>]])
   (:require [clojure.zip :as zip])
-  (:require [midje.internal-ideas.compendium :as compendium]
-            [midje.internal-ideas.fact-context :as fact-context]
-            [midje.emission.boundaries :as emission-boundary]
-            [midje.emission.api :as emit]
-            [midje.parsing.metadata :as parse-metadata]
-            [midje.checking.facts :as fact]
-            [midje.config :as config]))
+  (:require [midje.checking.facts :as fact-checking]
+            [midje.internal-ideas.compendium :as compendium]
+            [midje.parsing.future-facts :as parse-future-fact]
+            [midje.data.fact :as fact-data]))
 
 (defn fact? [form]
   (or (first-named? form "fact")
       (first-named? form "facts")))
-
-(def future-prefixes ["future-" 
-                      "pending-" 
-                      "incipient-" 
-                      "antiterminologicaldisintactitudinarian-"])
-
-(def future-fact-variant-names (for [prefix future-prefixes
-                                     fact-or-facts ["fact" "facts"]]
-                                 (str prefix fact-or-facts)))
-
-(defn future-fact? [form]
-  (some (partial first-named? form) future-fact-variant-names ))
-
-(defn future-fact* [form]
-  (let [lineno (reader-line-number form)
-        [metadata _] (parse-metadata/separate-metadata form)]
-    `(emit/future-fact (fact-context/nested-descriptions ~(:midje/description metadata))
-                       (midje.internal-ideas.file-position/line-number-known ~lineno))))
 
                                 ;;; Fact processing
 
@@ -109,7 +88,7 @@
   (pred-cond form
     already-wrapped?     form
     quoted?              form
-    future-fact?         (macroexpand form)
+    parse-future-fact/future-fact?         (macroexpand form)
     against-background?  (when-valid form
                              (-<> form 
                                   body-of-against-background
@@ -150,17 +129,23 @@
 
 ;;; Load-time processing
 
+;; It's kind of annoying that the entire expansion is created, evaluated, 
+;; and then thrown away. I think this is unavoidable if you want the
+;; filter predicate to be applied in the repl.
 (defn wrap-with-creation-time-code [function-form]
-  (letfn [;; The rather hackish construction here is to keep
-          ;; the expanded fact body out of square brackets because
-          ;; `tabular` expansions use `seq-zip`. 
+  (letfn [;; This form is a little awkward. It would be better to
+          ;; write
+          ;;     (if-let [fact ~function-form]
+          ;;        (compendium/record-fact-existence! ...))
+          ;; However, tabular expansion uses zip/seq-zip, so the
+          ;; vector notation would confuse it.
           (wrap-with-creation-time-fact-recording [function-form]
             (if (working-on-top-level-fact?)
-              `(creation-time-fact-processing ~function-form)
+              `(compendium/record-fact-existence! ~function-form)
               function-form))
           
           (run-after-creation [function-form]
-            `(fact/creation-time-check ~function-form))]
+            `(fact-checking/creation-time-check ~function-form))]
 
     (define-metaconstants function-form)
     (-> function-form
@@ -189,12 +174,4 @@
        (expand-fact-body metadata)
        (wrap-with-check-time-code metadata)
        wrap-with-creation-time-code)))
-
-;; It's kind of annoying that the entire expansion is created, evaluated, 
-;; and then thrown away. I think this is unavoidable if you want the
-;; filter predicate to be applied in the repl.
-(defn creation-time-fact-processing [fact-function]
-  (when ((config/choice :desired-fact?) fact-function)
-    (compendium/record-fact-existence! fact-function)
-    fact-function))
 
