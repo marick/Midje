@@ -11,8 +11,6 @@
   (:require [midje.emission.boundaries :as emission-boundary]
             [midje.emission.api :as emit]))
 
-(immigrate 'midje.checkers)
-
 (letfn [(result-discovered-by-a-function? [check-map] (extended-fn? (:expected-result check-map)))
 
         (minimal-failure-map [type actual check-map]

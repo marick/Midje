@@ -15,6 +15,7 @@
         clojure.pprint
         [clojure.string :only [join]])
   (:require [midje.internal-ideas.fact-context :as fact-context]
+            [midje.data.core-maps :as core-maps]
             [midje.emission.api :as emit]))
 
 (immigrate 'midje.checking.examples)
@@ -22,59 +23,26 @@
 
 ;;; Conversions to unprocessed form
 
-;; I want to use resolve() to compare calls to fake, rather than the string
-;; value of the symbol, but for some reason when the tests run, *ns* is User,
-;; rather than midje.semi_sweet_test. Since 'fake' is used only in the latter,
-;; the tests fail.
-;;
-;; FURTHERMORE, I wanted to use set operations to check for fake and not-called,
-;; but those fail for reasons I don't understand. Bah.
-(defn- ^{:testable true } check-for-arrow [arrow]
-  (condp = (name arrow) 
-    => :check-match
-    =expands-to=> :check-match
-    =not=> :check-negated-match
-    =deny=> :check-negated-match
-    =test=> :just-midje-testing-here
-    nil))
-
-(defmacro unprocessed-check
-  "Creates a map that contains a function-ized version of the form being 
-   tested, an expected result, and the file position to refer to in case of 
-   failure. See 'expect*'."
-  [call-form arrow expected-result overrides]
-  `(merge
-    {:description (fact-context/nested-descriptions)
-     :function-under-test (fn [] ~call-form)
-     :expected-result ~expected-result
-     :desired-check ~(check-for-arrow arrow)
-     :expected-result-form '~expected-result 
-     :position (user-file-position)
-     
-     ;; for Midje tool creators:
-     :call-form '~call-form
-     :arrow '~arrow }
-     (hash-map-duplicates-ok ~@overrides)))
 
 (defmulti ^{:private true} expect-expansion (fn [_call-form_ arrow & _rhs_]
                                               (name arrow)))
 
 (def-many-methods expect-expansion [=> =not=> =deny=>]
   [call-form arrow expected-result fakes overrides]
-  `(let [check# (unprocessed-check ~call-form ~arrow ~expected-result ~overrides)]
+  `(let [check# (core-maps/make-example-map ~call-form ~arrow ~expected-result ~overrides)]
      (midje.semi-sweet/*expect-checking-fn* check# ~fakes)))
 
 (defmethod expect-expansion =expands-to=>
   [call-form _arrow_ expected-result fakes overrides]
   (let [expanded-macro `(macroexpand-1 '~call-form)
         escaped-expected-result `(quote ~expected-result)]
-    `(let [check# (unprocessed-check ~expanded-macro => ~escaped-expected-result
+    `(let [check# (core-maps/make-example-map ~expanded-macro => ~escaped-expected-result
                                      ~(concat overrides [:expected-result-form escaped-expected-result]))]
        (midje.semi-sweet/*expect-checking-fn* check# ~fakes))))
 
 (defmethod expect-expansion =future=>
   [call-form arrow expected-result _fakes_ overrides]
-  `(let [check# (unprocessed-check ~call-form ~arrow ~expected-result ~overrides)]
+  `(let [check# (core-maps/make-example-map ~call-form ~arrow ~expected-result ~overrides)]
      (emit/future-fact (fact-context/nested-descriptions ~(str "on `" call-form "`"))
                        (:position check#))))
 

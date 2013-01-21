@@ -31,15 +31,6 @@
   [actual]
   (odd? actual))
 
-(facts "about arrows"
-  (let [result (map check-for-arrow
-                    '(=> midje.semi-sweet/=> midje.sweet/=>
-                      =not=> midje.semi-sweet/=not=> midje.sweet/=not=>
-                      =expands-to=> midje.semi-sweet/=expands-to=> midje.sweet/=expands-to=>))]
-    (fact result => [:check-match :check-match :check-match
-                     :check-negated-match :check-negated-match :check-negated-match
-                     :check-match :check-match :check-match])))
-
 (fact "separating overrides of an #expect from fakes"
   ;; The lets are because fact isn't smart enough not to add overrides to fake call otherwise.
   (let [actual (separate-by a-fake?  '( (fake (f 1) => 2) :key 'value))]
@@ -296,24 +287,3 @@
                (fact-actual `(clojure.core/+ 100 200 1))
                (fact-expected (quote (clojure.core/- 100 200 1))))))
  
-(fact "unprocessed-check creates a map"
-  (fact "base case"
-    (let [result (unprocessed-check (+ 1 10) => (+ 9 990) [])]
-      ((:function-under-test result)) => 11
-      (:desired-check :check-match)
-      (:expected-result result) => 999
-      (:expected-result-form result) => '(+ 9 990)))
-
-  (fact "with additional info for midje tool creators"
-    (unprocessed-check (+ 1 1) =test=> 2 []) => (contains {:call-form '(+ 1 1) 
-                                                             :arrow '=test=>
-                                                             :expected-result 2}))
-  
-  (fact "containing fact descriptions"
-    (unprocessed-check 1 =test=> 1 []) => (contains {:description ["unprocessed-check creates a map"
-                                                                   "containing fact descriptions"]}))
-
-  (fact "and additional information as given"
-    (unprocessed-check 1 =test=> 1 [:other :stuff]) => (contains {:other :stuff})))
-
-
