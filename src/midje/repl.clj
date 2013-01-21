@@ -8,7 +8,6 @@
             [midje.config :as config]
             [midje.clojure-test-facade :as ctf]
             [midje.parsing.arglists :as parsing]
-            [midje.ideas.metadata :as parse-metadata]
             [midje.data.fact :as fact-data]
             [midje.checking.facts :as fact-checking]
             [midje.internal-ideas.compendium :as compendium]
@@ -107,7 +106,7 @@
   (let [[given-level-seq print-level-to-use args]
           (parsing/separate-print-levels original-args (config/choice :print-level))
         [filters filter-function namespaces]
-        (parse-metadata/separate-filters args all-keyword-is-not-a-filter)]
+        (parsing/separate-filters args all-keyword-is-not-a-filter)]
 
     (if (empty? namespaces)
       (defaulting-args

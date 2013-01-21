@@ -1,7 +1,6 @@
 (ns midje.parsing.t-metadata
   (:use midje.sweet
         midje.test-util
-        [midje.ideas.metadata :exclude [separate-metadata]]
         midje.parsing.metadata))
 
 (def a-body '((f) => 3))

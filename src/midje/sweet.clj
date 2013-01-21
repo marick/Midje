@@ -27,7 +27,6 @@
             [midje.ideas.formulas :as formulas]
             [midje.doc :as doc]
             [midje.internal-ideas.fact-context :as fact-context]
-            [midje.ideas.metadata :as metadata]
             [midje.util.namespace :as namespace]
             [midje.parsing.metadata :as parse-metadata]
             midje.checkers))

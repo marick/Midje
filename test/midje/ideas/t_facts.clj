@@ -2,8 +2,7 @@
   (:use midje.ideas.facts
         midje.sweet midje.test-util)
   (:require [clojure.zip :as zip]
-            [midje.config :as config]
-            [midje.ideas.metadata :as metadata]))
+            [midje.config :as config]))
 
 
 

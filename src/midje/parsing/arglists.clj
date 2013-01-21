@@ -4,7 +4,11 @@
         clojure.pprint)
   (:require [midje.emission.levels :as levels]
             [midje.config :as config]
-            [midje.util.form-utils :as form]))
+            [midje.util.form-utils :as form]
+            [midje.data.fact :as fact]))
+
+
+;;;                                           Print levels (keywords)
 
 (defn separate-print-levels [args default]
   (let [[[print-level & extras] non-levels] (form/separate-by levels/valids args)]
@@ -16,6 +20,46 @@
       [[print-level]  print-level   non-levels]
       [[           ]  default       non-levels])))
 
+
+;;;                                           Metadata filters
+
+
+(def describes-name-matcher? form/stringlike?)
+(defn describes-callable-matcher? [arg]
+  (or (fn? arg) (keyword? arg)))
+
+(defn name-matcher-for [desired]
+  #(form/stringlike-matches? desired (fact/name %)))
+(defn callable-matcher-for [desired]
+  (comp desired meta))
+
+(defn appropriate-matcher-for [desired]
+  ( (if (describes-name-matcher? desired) name-matcher-for callable-matcher-for) 
+    desired))
+
+(defn desired-fact-predicate-from [desireds]
+  (vary-meta
+     (form/any-pred-from (map appropriate-matcher-for desireds))
+     assoc :created-from desireds))
+
+
+(defn separate-filters
+  ([args plain-argument?]
+     (let [[filters remainder]
+           (form/separate-by #(and (not (plain-argument? %))
+                                   ((form/any-pred-from [string? form/regex? fn? keyword?]) %))
+                             args)]
+       [filters
+        (desired-fact-predicate-from filters)
+        remainder]))
+  ([args]
+     (separate-filters args (constantly false))))
+
+
+
+
+
+;;;                                           Keyword options with 0 or more arguments.
 
 (defn is-flag-segment-for? [flag-predicate]
   (comp boolean flag-predicate first))

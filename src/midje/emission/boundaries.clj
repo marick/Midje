@@ -1,7 +1,7 @@
 (ns ^{:doc "Execution boundaries that have to do with checking of faces"}
   midje.emission.boundaries
   (:require [midje.clojure-test-facade :as ctf]
-            [midje.ideas.metadata :as metadata]
+            [midje.data.fact :as fact]
             [midje.emission.api :as emit]
             [midje.emission.state :as state]))
 
@@ -47,7 +47,7 @@
 
 (defmacro around-top-level-fact [fact-sym & body]
   `(let [starting-failures# (state/output-counters:midje-failures)]
-     (emit/possible-new-namespace (metadata/fact-namespace ~fact-sym))
+     (emit/possible-new-namespace (fact/namespace ~fact-sym))
      (emit/starting-to-check-top-level-fact ~fact-sym)
      ~@body
      (emit/finishing-top-level-fact ~fact-sym)
@@ -56,7 +56,7 @@
 (defmacro around-fact [fact-sym & body]
   `(let [starting-failures# (state/output-counters:midje-failures)]
      (emit/starting-to-check-fact ~fact-sym)
-     (fact-context/adds (metadata/fact-description ~fact-sym)
+     (fact-context/adds (fact/description ~fact-sym)
                         ~@body)
      (emit/finishing-fact ~fact-sym)
      (= starting-failures# (state/output-counters:midje-failures))))

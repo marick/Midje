@@ -28,6 +28,70 @@
   (separate-print-levels [:print-nothing :print-facts] ..irrelevant..)
   => (throws Error #"extra.*print.*level"))
 
+(def a-body '((f) => 3))
+
+
+(fact "separating metadata filters out of argument lists"
+  (let [an-argument-list [#"a regex" "a string" 'a-symbol 6 map? :a-keyword]
+
+        filter-args first
+        non-filter-args #(nth % 2)
+        filter-function second
+        a-fact (fn [metadata] (with-meta '[] metadata))]
+
+    (fact "filter arguments can be separated out"
+      (filter-args (separate-filters an-argument-list))
+      => (contains #"a regex" "a string" (exactly map?) :a-keyword))
+
+    (fact "other arguments can be found"
+      (non-filter-args (separate-filters an-argument-list))
+      => ['a-symbol 6])
+
+    (fact "particular arguments can be special-cased as not filters"
+      (filter-args (separate-filters an-argument-list (constantly true))) => empty?)
+
+    (fact "filters are converted into a function"
+      (fact "keywords check for the truthiness of the key in the metadata"
+        (let [prop-filter (filter-function (separate-filters [:property]))]
+          (prop-filter (a-fact {:property 'truthy})) => truthy
+          (prop-filter (a-fact {:property false})) => falsey
+          (prop-filter (a-fact {})) => falsey))
+
+      (fact "regexes check the fact's name property"
+        (let [prop-filter (filter-function (separate-filters [#"regex"]))]
+          (prop-filter (a-fact {:midje/name "something containing regex."})) => truthy
+          (prop-filter (a-fact {:midje/name "not a match"})) => falsey
+          (prop-filter (a-fact {})) => falsey))
+
+      (fact "strings are treated as substrings"
+        (let [prop-filter (filter-function (separate-filters ["str"]))]
+          (prop-filter (a-fact {:midje/name "something str like"})) => truthy
+          (prop-filter (a-fact {:midje/name "not a match"})) => falsey
+          (prop-filter (a-fact {})) => falsey))
+
+      (fact "functions are applied to arguments"
+        (let [prop-filter (filter-function (separate-filters
+                                            [(fn [meta] (= "yes" (:something meta)))]))]
+          (prop-filter (a-fact {:something "yes"})) => truthy
+          (prop-filter (a-fact {:something "no"})) => falsey
+          (prop-filter (a-fact {})) => falsey))
+
+      (fact "default judgment is true"
+        (let [prop-filter (filter-function (separate-filters []))]
+          (prop-filter (a-fact {})) => truthy))
+
+      (fact "multiple arguments are OR'd together"
+         (let [prop-filter (filter-function (separate-filters [#"foo" :valiant]))]
+           (prop-filter (a-fact {:midje/name "ofoop"})) => truthy
+           (prop-filter (a-fact {:valiant true})) => truthy
+           (prop-filter (a-fact {})) => falsey))
+
+      (fact "filter predicates know why they were created"
+        (:created-from (meta (filter-function (separate-filters [:oddity :valiant]))))
+        => [:oddity :valiant])
+
+  )))      
+      
 
 
 (fact "arglist parser with :options"
@@ -71,3 +135,8 @@
                                             :dirs-args [4]
                                             :interval? true
                                             :interval-args [2 3]})))
+
+
+
+
+
