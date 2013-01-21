@@ -22,7 +22,7 @@
               (def note color/cyan-bg))
 
   (do
-    (def fail identity)
-    (def pass identity)
-    (def note identity)))
+    (def fail str)
+    (def pass str)
+    (def note str)))
 
