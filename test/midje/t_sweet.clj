@@ -14,7 +14,6 @@
 (fact "all of Midje's public, API-facing vars have docstrings"
   (map str (remove (comp :doc meta) (vals (ns-publics 'midje.sweet)))) => []
   (map str (remove (comp :doc meta) (vals (ns-publics 'midje.semi-sweet)))) => []
-  (map str (remove (comp :doc meta) (vals (ns-publics 'midje.unprocessed)))) => []
   (map str (remove (comp :doc meta) (vals (ns-publics 'midje.util)))) => []
   (map str (remove (comp :doc meta) (vals (ns-publics 'midje.repl)))) => [])
 

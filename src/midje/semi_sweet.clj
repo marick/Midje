@@ -1,6 +1,3 @@
-;;; This namespace is mainly responsible for converting particular macros
-;;; into the arguments used by midje.unprocessed's `expect*`.
-
 (ns ^{:doc "Macros that provide less syntactic sugaring than those 
             from midje.sweet. midje.sweet is built on top of it."}
   midje.semi-sweet
@@ -20,7 +17,7 @@
   (:require [midje.internal-ideas.fact-context :as fact-context]
             [midje.emission.api :as emit]))
 
-(immigrate 'midje.unprocessed)
+(immigrate 'midje.checking.examples)
 (immigrate 'midje.ideas.arrow-symbols)
 
 ;;; Conversions to unprocessed form
@@ -168,5 +165,5 @@
 (def ^{:dynamic true
        :doc (str "For Midje tool creators. Hooks into Midje's internal compiler results.
   Can be bound to a function with arglists like:" line-separator
-              "  " (:arglists (meta #'midje.unprocessed/expect*)))}
-  *expect-checking-fn* midje.unprocessed/expect*)
+              "  " (:arglists (meta #'midje.checking.examples/expect*)))}
+  *expect-checking-fn* midje.checking.examples/expect*)

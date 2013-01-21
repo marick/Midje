@@ -31,7 +31,7 @@
             [midje.parsing.future-facts :as parse-future-fact]
             midje.checkers))
 
-(immigrate 'midje.unprocessed)
+(immigrate 'midje.checking.examples)
 (immigrate 'midje.semi-sweet)
 
 ;; Following two are required because `intern` doesn't transfer "dynamicity".
