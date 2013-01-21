@@ -9,7 +9,7 @@
         [midje.util.zip :only [skip-to-rightmost-leaf]]
         [midje.internal-ideas.expect :only [expect?]]
         [midje.ideas.arrows :only [above-arrow-sequence__add-key-value__at-arrow]]
-        [midje.ideas.facts :only [working-on-nested-facts]]
+        [midje.parsing.facts :only [working-on-nested-facts]]
         [midje.ideas.metaconstants :only [metaconstant-symbol?]]
         [utilize.map :only [ordered-zipmap]])
 (:require [midje.util.unify :as unify]

@@ -5,7 +5,7 @@
         [midje sweet test-util]
         [ordered.map :only (ordered-map)]
         midje.util)
-  (:require [midje.ideas.facts :as facts]
+  (:require [midje.parsing.facts :as facts]
             [midje.config :as config]))
 
 (expose-testables midje.ideas.tabular)

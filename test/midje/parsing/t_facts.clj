@@ -1,5 +1,5 @@
-(ns midje.ideas.t-facts
-  (:use midje.ideas.facts
+(ns midje.parsing.t-facts
+  (:use midje.parsing.facts
         midje.sweet midje.test-util)
   (:require [clojure.zip :as zip]
             [midje.config :as config]))

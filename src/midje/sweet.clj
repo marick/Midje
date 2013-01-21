@@ -17,7 +17,7 @@
         [midje.internal-ideas.wrapping :only [put-wrappers-into-effect]]
         [midje.internal-ideas.file-position :only [set-fallback-line-number-from]]
         [midje.ideas.tabular :only [tabular*]]
-        [midje.ideas.facts :only [complete-fact-transformation future-fact*
+        [midje.parsing.facts :only [complete-fact-transformation future-fact*
                                   midjcoexpand 
                                   future-fact-variant-names]]
         [midje.ideas.formulas :only [future-formula-variant-names]]
