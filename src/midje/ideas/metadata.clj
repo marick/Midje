@@ -23,22 +23,6 @@
                         (property (meta fact-function)))))
             fact-properties))
 
-(defn wrappable-metadata
-  "This does not include metadata specified by strings or symbols."
-  [forms]
-  (loop [metadata {}
-         [x & xs :as body] forms]
-    (cond (keyword? x)
-          (recur (assoc metadata x true) xs)
-          
-          (map? x)
-          (recur (merge metadata x) xs)
-          
-          :else
-          [metadata body])))
-
-(defn without-automatic-metadata [metadata]
-  (dissoc metadata :midje/source :midje/file :midje/line :midje/namespace))
 
                                         ;;; Working with metadata
 

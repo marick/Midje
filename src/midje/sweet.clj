@@ -166,7 +166,7 @@
 (defmacro fact-group
   "Supply default metadata to all facts in the body."
   [& forms]
-  (let [[metadata body] (metadata/wrappable-metadata forms)]
+  (let [[metadata body] (parse-metadata/separate-multi-fact-metadata forms)]
     (parse-metadata/with-wrapped-metadata metadata 
       (midjcoexpand `(do ~@body)))))
 
