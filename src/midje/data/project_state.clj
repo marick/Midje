@@ -5,7 +5,7 @@
         [bultitude.core :only [namespaces-in-dir namespaces-on-classpath]])
   (:require [midje.emission.boundaries :as emission-boundary]
             [midje.util.ecosystem :as ecosystem]
-            [midje.util.colorize :as color]
+            [midje.emission.colorize :as color]
             [midje.config :as config]
             midje.util.backwards-compatible-utils))
 

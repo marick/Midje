@@ -2,7 +2,7 @@
   midje.error-handling.exceptions
   (:use [clojure.string :only [join]]
         [midje.util.ecosystem :only [line-separator]]
-        [midje.util.colorize :only [colorize-choice]]))
+        [midje.emission.colorize :only [colorize-choice]]))
 
 
 ;;; Creating 

@@ -3,7 +3,7 @@
   (:use [midje.util.form-utils :only [pred-cond]]
         [clojure.repl :only [demunge]])
   (:require [midje.emission.clojure-test-facade :as ctf]
-            [midje.util.colorize :as color]
+            [midje.emission.colorize :as color]
             [midje.error-handling.exceptions :as exception]
             [midje.util.object-utils :as object]
             gui-diff.internal

@@ -1,6 +1,6 @@
 (ns midje.error-handling.t-exceptions
   (:use [midje.error-handling.exceptions]
-        [midje.util.colorize :only [colorize-choice]]
+        [midje.emission.colorize :only [colorize-choice]]
 	      [midje sweet test-util]
         midje.util))
 (expose-testables midje.error-handling.exceptions)

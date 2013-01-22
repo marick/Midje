@@ -1,13 +1,12 @@
-(ns midje.util.t-colorize
-  (:require [midje.util.colorize :as color])
-  (:use midje.util.colorize
-        midje.sweet
-        [midje.util.ecosystem :only [getenv on-windows?]]))
+(ns midje.emission.t-colorize
+  (:use midje.sweet
+        [midje.util.ecosystem :only [getenv on-windows?]])
+  (:require [midje.emission.colorize :as color]))
 
 (tabular
   (fact "wraps string in ascii color when env variable is not explicitly set to FALSE"
     (do
-      (require '[midje.util.colorize :as color] :reload ) ;; enables 'provided' to take
+      (require '[midje.emission.colorize :as color] :reload ) ;; enables 'provided' to take
       (?color-fn "string")) => ?result
     (provided
       (on-windows?) => ?on-windows :times (range)
@@ -27,7 +26,7 @@
   color/note   nil          true            "string")
 
 ;; Reset to user's default colorization.
-(require '[midje.util.colorize] :reload )
+(require '[midje.emission.colorize] :reload )
 
 
 (fact "access environment vars only when namespace is loaded"

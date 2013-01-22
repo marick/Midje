@@ -1,7 +1,7 @@
 (ns ^{:doc "In-repl user documentation"}
   midje.doc
   (:use clojure.pprint)
-  (:require [midje.util.colorize :as color]
+  (:require [midje.emission.colorize :as color]
             [clojure.java.browse :as browse]
             [midje.config :as config]
             [midje.util.ecosystem :as ecosystem]))

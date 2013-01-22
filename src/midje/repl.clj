@@ -12,9 +12,9 @@
             [midje.data.compendium :as compendium]
             [midje.data.project-state :as project-state]
             [midje.emission.boundaries :as emission-boundary]
+            [midje.emission.colorize :as color]
             [midje.emission.api :as emit]
             [midje.util.form-utils :as form]
-            [midje.util.colorize :as color]
             [midje.util.ecosystem :as ecosystem]
             [midje.util.scheduling :as scheduling]
             [midje.util.namespace :as namespace]))
