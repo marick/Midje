@@ -516,7 +516,7 @@ odd?                   3               falsey)
 (fact "data-fakes can be converted to metaconstant-bindings"
   (let [bindings (binding-map [{:data-fake true :var #'name :contained {:a 1}}])
         [_var_ metaconstant] (only bindings)]
-    (.name metaconstant) => 'name
+    (.underlying-symbol metaconstant) => 'name
     (.storage metaconstant) => {:a 1} ))
 
 (declare var-for-merged var-for-irrelevant)

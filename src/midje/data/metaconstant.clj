@@ -10,35 +10,44 @@
   (:require [clojure.zip :as zip]
             [midje.util.ecosystem :as ecosystem]))
 
-(defn- normalized-metaconstant* [dot-or-dash mc-symbol]
-  (let [re (re-pattern (str "^" dot-or-dash "+(.+?)" dot-or-dash "+$"))
-        three-dots-or-dashes (apply str (repeat 3 dot-or-dash))]
-    (-?>> mc-symbol 
-          name 
-          (re-matches re) 
-          second 
-          (format (str three-dots-or-dashes "%s" three-dots-or-dashes)))))
 
-(defn- normalized-metaconstant
-  "Turns '..m. to \"...m...\", '--m- to \"---m---\", or to 
-   nil if mc-symbol isn't a valid metaconstant symbol"
-  [mc-symbol]
-  (->> mc-symbol 
-       ((juxt (partial normalized-metaconstant* "\\.") (partial normalized-metaconstant* "-"))) 
-       (find-first identity)))
+;;; Metaconstants are built from special symbols, called "metaconstant symbol". Such symbols
+;;; begin and end with either a dash or a period.
+
+(def ^{:private true} formats {"..." #"^(\.+)([^.]+)(\.+)$"
+                               "---" #"^(-+)([^-]+)(-+)$"})
+
+(defn- evaluate-comparison-potential [x]
+  (letfn [(variant-and-body [variant]
+            (if-let [[_ _ body _] (re-matches (formats variant) (name x))]
+              [variant body]))]
+    (and (instance? clojure.lang.Named x)
+         (or (variant-and-body "...")
+             (variant-and-body "---")))))
 
 (defn metaconstant-symbol? [x]
-  (and (symbol? x)
-    (-> x normalized-metaconstant boolean)))
+  (boolean (and (symbol? x) (evaluate-comparison-potential x))))
 
-(deftype Metaconstant [name ^clojure.lang.Associative storage]
+(defn- name-for-comparison
+  [x]
+  (if-let [[variant body] (evaluate-comparison-potential x)]
+    (str variant body variant)))
+
+
+;;; Metaconstant proper
+
+(deftype Metaconstant [underlying-symbol ^clojure.lang.Associative storage]
   Object
   (toString [this]
-            (str (.name this)))
+    (str (.underlying-symbol this)))
   (equals [^Metaconstant this that]
-         (if (instance? (class this) that)
-           (= (normalized-metaconstant (.name this)) (normalized-metaconstant (.name ^Metaconstant that)))
-           (= (normalized-metaconstant (.name this)) (normalized-metaconstant that))))
+    (= (name-for-comparison this) (name-for-comparison that)))
+
+  clojure.lang.Named
+  (getNamespace [this]
+    (.getNamespace (.underlying-symbol this)))
+  (getName [this]
+    (name (.underlying-symbol this)))
 
   clojure.lang.ILookup
   (valAt [this key]
@@ -58,9 +67,9 @@
   (entryAt [this key]
            (find storage key))
   (assoc [this key val]
-    ;; (Metaconstant. (.name this) (assoc storage key val))) 
+    ;; (Metaconstant. (.underlying-symbol this) (assoc storage key val))) 
     (throw (user-error 
-            (str "Metaconstants (" (.name this) ") can't have values assoc'd onto them.")
+            (str "Metaconstants (" (.underlying-symbol this) ") can't have values assoc'd onto them.")
             "If you have a compelling need for that, please create an issue:"
             ecosystem/issues-url)))
 
@@ -72,9 +81,9 @@
   (count [this]
          (count storage))
   (cons [this o]
-        ;; (Metaconstant. (.name this) (cons storage o)))
+        ;; (Metaconstant. (.underlying-symbol this) (cons storage o)))
         (throw (user-error
-                (str "Metaconstants (" (.name this) ") can't have values added onto them.")
+                (str "Metaconstants (" (.underlying-symbol this) ") can't have values added onto them.")
                 "If you have a compelling need for that, please create an issue:"
                 ecosystem/issues-url)))
   (empty [this]
@@ -85,15 +94,24 @@
                  (= that unbound-marker))
            (.equals this that)
            (throw (user-error
-                   (str "Metaconstants (" (.name this) ") can't be compared for equality with " (pr-str that) ".")
+                   (str "Metaconstants (" (.underlying-symbol this) ") can't be compared for equality with " (pr-str that) ".")
                    "If you have a compelling case for equality, please create an issue:"
                    ecosystem/issues-url)))))
 
 (defn merge-metaconstants [^Metaconstant mc1 ^Metaconstant mc2]
-  (Metaconstant. (.name mc1) (merge (.storage mc1) (.storage mc2))))
+  (Metaconstant. (.underlying-symbol mc1) (merge (.storage mc1) (.storage mc2))))
 
 (defmethod print-method Metaconstant [^Metaconstant o ^java.io.Writer w]
-  (print-method (.name o) w))
+  (print-method (.underlying-symbol o) w))
+
+
+
+
+
+
+
+
+
 
 
 (defn define-metaconstants [form]

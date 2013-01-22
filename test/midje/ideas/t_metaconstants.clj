@@ -8,30 +8,6 @@
 
 ;;; Notation
 
-(tabular 
- (fact "metaconstants begin and end with dots"
-   '?candidate ?arrow metaconstant-symbol?)
- ?candidate   ?arrow
- ...foo...      => 
- .foo.          => 
- foo            =not=>
- .foo           =not=>
- foo.           =not=>
- "foo"          =not=>
- (..foo..)      =not=>)
-
-
-(tabular "or they begin and end with dashes"
- (fact 
-   '?candidate ?arrow metaconstant-symbol?)
- ?candidate   ?arrow
- ---foo---      => 
- -foo-          => 
- foo            =not=>
- -foo           =not=>
- foo-           =not=>
- "foo"          =not=>
- (--foo--)      =not=>)
 
 ;; This allows them to be used as function arguments.
 
@@ -43,67 +19,8 @@
     (--v-- 1 2 3) => 8))
 
 
-;;; About the datatype
-
-(let [mc (Metaconstant. '...name... {})]
-  (fact "Metaconstants print as their name"
-    (str mc) => "...name..."
-    (pr-str mc) => "...name..."))
-
-
-(fact "Metaconstants are equal if their names are equal. Value is irrelevant."
-  (Metaconstant.    '...name... {:key "value"}) 
-  => (Metaconstant. '...name... {:key "not-value"})
-
-  (Metaconstant.  '...NAME... {:key "value"}) 
-  =not=> (Metaconstant. '...name... {:key "value"})
-  
-  "And they are equal to symbols that have their name"
-  (= (Metaconstant. '...name... {}) '...name...) => truthy
-  (= (Metaconstant. '...name... {}) '...not-name...) => falsey
-  "... which has this implication:"
-  (list 'a (Metaconstant. '...name... {})) => '(a ...name...)
-
-  "And, because Clojure moves Associative elements to the left side:"
-  '(a ...name...) => (list 'a (Metaconstant. '...name... {})))
-
-(fact "Metaconstants are equal no matter how many dots/dashes they have - with exs analagous to the above fact"
-  (Metaconstant. '.name.. {}) => (Metaconstant. '...name... {})
-  (Metaconstant. '.NAME. {:key "value"}) =not=> (Metaconstant. '...name... {:key "value"})
-  (Metaconstant. '.name.. {}) => '...name...
-  (list 'a (Metaconstant. '.name. {})) => '(a ...name...)
-  [.name.] => [(Metaconstant. '...name... {})]
-  (Metaconstant. '-name-- {}) => (Metaconstant. '---name--- {})
-  (Metaconstant. '-name-- {}) =not=> (Metaconstant. '...name... {}))
-
-(fact "Metaconstants implement ILookup"
-  (let [mc (Metaconstant. 'm {:key "value"})]
-    (:key mc) => "value"
-    (:not-key mc "default") => "default"
-    "And let's allow the other type of map lookup"
-    (mc :key) => "value"
-    (mc :not-key "default") => "default"))
-
-(fact "Metaconstants implement Associative lookup"
-  (let [mc (Metaconstant. 'm {:key "value"})]
-    (contains? mc :key) => truthy
-    (contains? mc :not-key) => falsey
-
-    (find mc :key) => [:key "value"]))
-    
-(fact "Associate extends some of Seqable and IPersistentCollection"
-  (let [mc (Metaconstant. 'm {:key "value"})]
-    (count mc) => 1
-    (empty? mc) => falsey
-    (.equiv mc mc) => truthy))
-
-
 
 ;;;;
-
-(fact "metaconstants print funny"
-  (str .mc.) => ".mc."
-  (pr-str .mc.) => ".mc.")
 
 ;;;  Use with prerequisite functions
 
