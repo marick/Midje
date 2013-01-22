@@ -114,15 +114,3 @@
 
 
 
-(def #^:dynamic #^:private *metaconstant-counts*)
-
-(defmacro with-fresh-generated-metaconstant-names [& forms]
-  `(binding [*metaconstant-counts* (atom {})]
-     ~@forms))
-
-(defn metaconstant-for-form [[function-symbol & _ :as inner-form]]
-  (let [swap-fn (fn [current-value function-symbol]
-                  (assoc current-value function-symbol ((fnil inc 0) (current-value function-symbol))))
-        number ((swap! *metaconstant-counts* swap-fn function-symbol)
-                  function-symbol)]
-    (symbol (format "...%s-value-%s..." (name (fnref-symbol function-symbol)) number))))

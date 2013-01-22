@@ -1,7 +1,6 @@
 (ns midje.ideas.t-prerequisites
   (:use midje.ideas.prerequisites
         [midje.internal-ideas.expect :only [expect?]]
-        [midje.data.metaconstant :only [metaconstant-for-form]]
         midje.sweet midje.test-util)
   (:require [clojure.zip :as zip]))
 

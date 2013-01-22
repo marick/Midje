@@ -2,7 +2,6 @@
   (:use [midje sweet test-util]
         [midje.internal-ideas.fakes :except [mockable-funcall? unfolding-step merge-metaconstant-bindings 
                                              unique-vars handle-mocked-call best-call-action ]]
-        [midje.data.metaconstant :only [metaconstant-for-form]]
         [utilize.seq :only (find-first only)]
         [midje.test-util]
         midje.util
@@ -427,6 +426,16 @@ odd?                   3               falsey)
 )
 
 ;; Folded fakes
+
+(fact "metaconstants can be created to stand in for an expression"
+  (with-fresh-generated-metaconstant-names
+    (metaconstant-for-form '(g)) => '...g-value-1...
+    (metaconstant-for-form '(g)) => '...g-value-2...
+    (metaconstant-for-form '(h)) => '...h-value-1...
+
+    "Not fooled by namespaces"
+    (metaconstant-for-form '(metaconstant-for-form))
+    => '...metaconstant-for-form-value-1...))
 
 (defmacro some-macro [& rest] )
 

@@ -48,16 +48,6 @@
     (against-background (f ...three...) => 3)))
 (claim-symbols '(...one... ...two... ...three...))
 
-(fact "metaconstants can be created to stand in for an expression"
-  (with-fresh-generated-metaconstant-names
-    (metaconstant-for-form '(g)) => '...g-value-1...
-    (metaconstant-for-form '(g)) => '...g-value-2...
-    (metaconstant-for-form '(h)) => '...h-value-1...
-
-    "Not fooled by namespaces"
-    (metaconstant-for-form '(metaconstant-for-form))
-    => '...metaconstant-for-form-value-1...))
-
 ;;; Metaconstants-that-contain: as used in code
 
 (fact "all three types of lookup"

@@ -12,8 +12,6 @@
                                       fnref-var-object
                                       fnref-symbol
                                       fnref-dereference-form]]
-        [midje.data.metaconstant :only [merge-metaconstants metaconstant-for-form
-                                          with-fresh-generated-metaconstant-names]]
         [midje.checkers.extended-equality :only [extended-= extended-list-=]]
         [midje.internal-ideas.file-position :only [user-file-position]]
         [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out
@@ -24,7 +22,8 @@
         [midje.util.deprecation :only [deprecate]]
         [midje.ideas.arrow-symbols]
         [clojure.tools.macro :only [macrolet]])
-  (:require [clojure.zip :as zip]
+  (:require [midje.data.metaconstant :as metaconstant]
+            [clojure.zip :as zip]
             [midje.config :as config]
             [midje.emission.api :as emit])
   (:import midje.data.metaconstant.Metaconstant))
@@ -229,8 +228,8 @@
             (map var->faker-fn fn-fake-vars))))
 
 (defn- data-fakes-binding-map [data-fakes]
-  (apply merge-with merge-metaconstants (for [{:keys [var contained]} data-fakes]
-                                          {var (Metaconstant. (object-name var) contained)})))
+  (apply merge-with metaconstant/merge-metaconstants (for [{:keys [var contained]} data-fakes]
+                                                       {var (Metaconstant. (object-name var) contained)})))
 
 (defn binding-map [fakes]
   (let [[data-fakes fn-fakes] (separate :data-fake fakes)]
@@ -280,6 +279,19 @@
 ;; General strategy is to condense fake forms into a funcall=>metaconstant
 ;; mapping. These substitutions are used both to "flatten" a fake form and also
 ;; to generate new fakes.
+
+(def #^:dynamic #^:private *metaconstant-counts*)
+
+(defmacro with-fresh-generated-metaconstant-names [& forms]
+  `(binding [*metaconstant-counts* (atom {})]
+     ~@forms))
+
+(defn metaconstant-for-form [[function-symbol & _ :as inner-form]]
+  (let [swap-fn (fn [current-value function-symbol]
+                  (assoc current-value function-symbol ((fnil inc 0) (current-value function-symbol))))
+        number ((swap! *metaconstant-counts* swap-fn function-symbol)
+                  function-symbol)]
+    (symbol (format "...%s-value-%s..." (name (fnref-symbol function-symbol)) number))))
 
 (defn- ^{:testable true } mockable-funcall? [x]
   (let [constructor? (fn [symbol]
@@ -338,6 +350,8 @@
         [(conj finished flattened-target), 
          (concat generated-fakes (rest pending)), 
          augmented-substitutions]))))
+
+
 
 (letfn [(unfold-expect-form__then__stay_put [loc]
           (loop [[finished pending substitutions] [[] (zip/node loc) {}]]
