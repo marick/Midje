@@ -1,12 +1,12 @@
-(ns midje.t-clojure-test-facade
+(ns midje.emission.t-clojure-test-facade
   (:use midje.sweet
-        midje.clojure-test-facade
+        midje.emission.clojure-test-facade
         midje.test-util)
   (:require clojure.test))
 
 ;;; run-tests
 
-(let [result (run-tests ['midje.t-clojure-test-facade])]
+(let [result (run-tests ['midje.emission.t-clojure-test-facade])]
   (fact
     :check-only-at-load-time
     (:test result) => 0
@@ -18,7 +18,7 @@
 (clojure.test/deftest a-clojure-test-pass
   (clojure.test/is (= 1 1)))
 
-(let [result (run-tests ['midje.t-clojure-test-facade])]
+(let [result (run-tests ['midje.emission.t-clojure-test-facade])]
   (fact
     (:test result) => 1
     (:fail result) => 0
@@ -29,7 +29,7 @@
 (clojure.test/deftest a-clojure-test-fail
   (clojure.test/is (= 1 2)))
 
-(let [result (run-tests ['midje.t-clojure-test-facade])]
+(let [result (run-tests ['midje.emission.t-clojure-test-facade])]
   (fact
     (:test result) => 2
     (:fail result) => 1

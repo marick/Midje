@@ -1,6 +1,6 @@
-(ns ^{:doc "Midje makes use of clojure.test for its reporting. This will
-            (eventually) gather all the dependencies here."}
-  midje.clojure-test-facade
+(ns ^{:doc "Midje makes use of clojure.test for its reporting. This
+            facade shows how."}
+  midje.emission.clojure-test-facade
   (:require [clojure.test :as ct]
             [clojure.string :as str]))
 

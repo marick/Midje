@@ -1,7 +1,7 @@
 (ns ^{:doc "Execution boundaries that have to do with checking of faces"}
   midje.emission.boundaries
-  (:require [midje.clojure-test-facade :as ctf]
-            [midje.data.fact :as fact]
+  (:require [midje.data.fact :as fact]
+            [midje.emission.clojure-test-facade :as ctf]
             [midje.emission.api :as emit]
             [midje.emission.state :as state]))
 

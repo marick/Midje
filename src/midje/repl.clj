@@ -6,7 +6,6 @@
             [clojure.set :as set]
             [midje.doc :as doc]
             [midje.config :as config]
-            [midje.clojure-test-facade :as ctf]
             [midje.parsing.arglists :as parsing]
             [midje.data.fact :as fact-data]
             [midje.checking.facts :as fact-checking]

@@ -1,7 +1,7 @@
 (ns midje.emission.t-boundaries
   (:use midje.emission.boundaries
         [midje sweet util test-util])
-  (:require [midje.clojure-test-facade :as ctf]
+  (:require [midje.emission.clojure-test-facade :as ctf]
             [midje.emission.state :as state]))
 
 

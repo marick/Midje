@@ -3,10 +3,10 @@
         midje.util
         midje.test-util)
   (:require midje.internal-ideas.t-fakes
-            [midje.clojure-test-facade :as ctf]
             [midje.repl :as repl]
             [midje.config :as config]
             [midje.util.ecosystem :as ecosystem]
+            [midje.emission.clojure-test-facade :as ctf]
             [midje.emission.api :as emit]
             [midje.emission.state :as state]
             [midje.data.compendium :as compendium]))

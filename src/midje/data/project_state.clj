@@ -7,7 +7,6 @@
             [midje.util.ecosystem :as ecosystem]
             [midje.util.colorize :as color]
             [midje.config :as config]
-            [midje.clojure-test-facade :as ctf]
             midje.util.backwards-compatible-utils))
 
 (ecosystem/when-1-3+

@@ -2,8 +2,8 @@
   midje.emission.api
   (:use [midje.util.thread-safe-var-nesting :only [with-altered-roots]])
   (:use clojure.pprint)
-  (:require [midje.clojure-test-facade :as ctf]
-            [midje.config :as config]
+  (:require [midje.config :as config]
+            [midje.emission.clojure-test-facade :as ctf]
             [midje.emission.levels :as levels]
             [midje.emission.state :as state]
             [midje.emission.plugins.silence :as silence]))
