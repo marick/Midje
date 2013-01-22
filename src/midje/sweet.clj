@@ -16,7 +16,6 @@
         [midje.util.form-utils :only [macro-for]]
         [midje.internal-ideas.wrapping :only [put-wrappers-into-effect]]
         [midje.internal-ideas.file-position :only [set-fallback-line-number-from]]
-        [midje.ideas.tabular :only [tabular*]]
         [midje.parsing.facts :only [complete-fact-transformation
                                   midjcoexpand]] 
         [midje.ideas.formulas :only [future-formula-variant-names]]
@@ -29,6 +28,7 @@
             [midje.util.namespace :as namespace]
             [midje.parsing.metadata :as parse-metadata]
             [midje.parsing.future-facts :as parse-future-fact]
+            [midje.parsing.tabular :as tabular]
             midje.checkers))
 
 (immigrate 'midje.checking.examples)
@@ -139,7 +139,7 @@
   {:arglists '([doc-string? fact table])}
   [& _]
   (set-fallback-line-number-from &form)
-  (tabular* (keys &env) &form))
+  (tabular/parse (keys &env) &form))
 
 
 (defmacro metaconstants

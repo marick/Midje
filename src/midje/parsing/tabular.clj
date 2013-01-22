@@ -1,5 +1,5 @@
 (ns ^{:doc "A way to create multiple facts with the same template, but different data points."}
-  midje.ideas.tabular
+  midje.parsing.tabular
   (:use [clojure.string :only [join]]
         [clojure.algo.monads :only [domonad]]
         [midje.error-handling.validation-errors :only [simple-validation-error-report-form validate-m validate]]
@@ -84,7 +84,7 @@
                                       checking-fact-form))
       checking-fact-form)))
 
-(defn tabular* [locals form]
+(defn parse [locals form]
   (letfn [(macroexpander-for [fact-form]
             (fn [binding-map]
               (working-on-nested-facts
