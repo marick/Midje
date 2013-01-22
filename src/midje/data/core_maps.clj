@@ -30,8 +30,6 @@
     nil))
 
 (defmacro make-example-map
-  "This the map created from an arrow form representing an example of
-   a containing fact."
   [call-form arrow expected-result overrides]
   `(merge
     {:description (fact-context/nested-descriptions)
@@ -50,6 +48,21 @@
 (def has-function-checker? (comp extended-fn? :expected-result))
 
 
+;;;                                             Redefine Maps
+
+;; A redefine map describes all or part of a future redefinition of a var. Redefine are used
+;; to produce mock/fake style functions that record their invocations and also return canned
+;; values.
+
+;;;;; This should eventually be extracted from fake*
+
+
+;;;                                             Metaconstant Detail Maps
+
+;; An associative description map is a partial description of what a Metaconstant is
+;; defined to contain.
+
+;;;;; This should eventually be extracted from data-fake*
 
 
 ;;;                                             Failure maps
