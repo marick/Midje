@@ -1,11 +1,17 @@
-(ns ^{:doc "The maps everything compiles down to."} 
+(ns ^{:doc "example maps, redefine maps, failure maps"} 
   midje.data.core-maps
   (:use [midje.util.form-utils :only [hash-map-duplicates-ok]])
-  (:use midje.ideas.arrow-symbols)
+  (:use midje.ideas.arrow-symbols
+        [midje.util.form-utils :only [extended-fn?]])
   (:require [midje.internal-ideas.fact-context :as fact-context]
             [midje.internal-ideas.file-position :as position]))
 
-;; TODO: Old comment. What's up with this?
+
+;;;                                             Example maps
+
+
+;; TODO: Old comment. This is a side-effect of having different sweet and semi-sweet
+;; arrow symbols. Once semi-sweet is destroyed, this can be improved.
 
 ;; I want to use resolve() to compare calls to fake, rather than the string
 ;; value of the symbol, but for some reason when the tests run, *ns* is User,
@@ -14,12 +20,12 @@
 ;;
 ;; FURTHERMORE, I wanted to use set operations to check for fake and not-called,
 ;; but those fail for reasons I don't understand. Bah.
-(defn check-for-arrow [arrow]
+(defn expect-match-or-mismatch [arrow]
   (condp = (name arrow) 
-    => :check-match
-    =expands-to=> :check-match
-    =not=> :check-negated-match
-    =deny=> :check-negated-match
+    => :expect-match
+    =expands-to=> :expect-match
+    =not=> :expect-mismatch
+    =deny=> :expect-mismatch
     =test=> :just-midje-testing-here
     nil))
 
@@ -31,11 +37,26 @@
     {:description (fact-context/nested-descriptions)
      :function-under-test (fn [] ~call-form)
      :expected-result ~expected-result
-     :desired-check ~(check-for-arrow arrow)
+     :check-expectation ~(expect-match-or-mismatch arrow)
      :expected-result-form '~expected-result 
      :position (position/user-file-position)
      
      ;; for Midje tool creators:
      :call-form '~call-form
      :arrow '~arrow }
-     (hash-map-duplicates-ok ~@overrides)))
+    
+    (hash-map-duplicates-ok ~@overrides)))
+
+(def has-function-checker? (comp extended-fn? :expected-result))
+
+
+
+
+;;;                                             Failure maps
+
+;; A failure map is typically constructed by adding key/value pairs to existing maps.
+
+(defn minimal-failure-map [type actual existing]
+  (assoc existing :type type :actual actual))
+
+

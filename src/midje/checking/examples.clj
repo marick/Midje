@@ -1,75 +1,65 @@
 (ns ^{:doc "Core Midje functions that process expects and report on their results."} 
   midje.checking.examples
   (:use clojure.test
-        [midje.ideas.background :only [background-fakes]]
         [midje.checkers.extended-equality :only [extended-= evaluate-checking-function]]
         [midje.error-handling.exceptions :only [captured-throwable]]
         midje.internal-ideas.fakes
         midje.util.laziness
-        [midje.util.form-utils :only [extended-fn?]]
         [midje.util.namespace :only [immigrate]])
   (:require [midje.emission.boundaries :as emission-boundary]
-            [midje.emission.api :as emit]))
+            [midje.ideas.background :as background]
+            [midje.emission.api :as emit]
+            [midje.data.core-maps :as core-maps]))
 
 (immigrate 'midje.checkers)
 
-(letfn [(result-discovered-by-a-function? [check-map] (extended-fn? (:expected-result check-map)))
+(defn- check-for-match [actual example-map]
+  (cond  (extended-= actual (:expected-result example-map))
+         (emit/pass)
+         
+         (core-maps/has-function-checker? example-map)
+         (emit/fail (merge (core-maps/minimal-failure-map :actual-result-did-not-match-checker
+                                                          actual example-map)
+                           ;; TODO: It is very lame that the
+                           ;; result-function has to be called again to
+                           ;; retrieve information that extended-=
+                           ;; knows and threw away. But it's surprisingly
+                           ;; difficult to use evaluate-checking-function
+                           ;; at the top of the cond
+                           (second (evaluate-checking-function (:expected-result example-map)
+                                                               actual))))
+         
+         :else
+         (emit/fail (assoc (core-maps/minimal-failure-map :actual-result-did-not-match-expected-value actual example-map)
+                           :expected-result (:expected-result example-map)))))
 
-        (minimal-failure-map [type actual check-map]
-          (merge check-map
-                 {:type type
-                  :actual actual}))
 
-        (check-result-positive [actual check-map]
-          (cond  (extended-= actual (:expected-result check-map))
-                 (emit/pass)
-                 
-                 
-                 (result-discovered-by-a-function? check-map)
-                 (emit/fail (merge (minimal-failure-map :actual-result-did-not-match-checker
-                                         actual check-map)
-                                   ;; TODO: It is very lame that the
-                                   ;; result-function has to be called again to
-                                   ;; retrieve information that extended-=
-                                   ;; knows and threw away. But it's surprisingly
-                                   ;; difficult to use evaluate-checking-function
-                                   ;; at the top of the cond
-                                   (second (evaluate-checking-function (:expected-result check-map)
-                                                                       actual))))
-                 
-                 :else
-                 (emit/fail (assoc (minimal-failure-map :actual-result-did-not-match-expected-value actual check-map)
-                                   :expected-result (:expected-result check-map)))))
+(defn- check-for-mismatch [actual example-map]
+  (cond (not (extended-= actual (:expected-result example-map)))
+        (emit/pass)
         
-        (check-result-negated [actual check-map]
-          (cond (not (extended-= actual (:expected-result check-map)))
-                (emit/pass)
-                
-                (result-discovered-by-a-function? check-map)
-                (emit/fail (minimal-failure-map :actual-result-should-not-have-matched-checker actual check-map))
-                
-                :else
-                (emit/fail (minimal-failure-map :actual-result-should-not-have-matched-expected-value actual check-map))))]
+        (core-maps/has-function-checker? example-map)
+        (emit/fail (core-maps/minimal-failure-map :actual-result-should-not-have-matched-checker actual example-map))
+        
+        :else
+        (emit/fail (core-maps/minimal-failure-map :actual-result-should-not-have-matched-expected-value actual example-map))))
 
 
-  (defn- check-result [actual check-map]
-    (if (= (:desired-check check-map) :check-match)
-      (check-result-positive actual check-map)
-      (check-result-negated actual check-map)))
+(defn- check-result [actual example-map]
+  (if (= (:check-expectation example-map) :expect-match)
+    (check-for-match actual example-map)
+    (check-for-mismatch actual example-map)))
 
-)
-(defn expect*
-  "The core function in unprocessed Midje. Takes a map describing a
-  call and a list of maps, each of which describes a secondary call
-  the first call is supposed to make. See the documentation at
-  http://github.com/marick/Midje."
-  [check-map local-fakes]
-  (with-installed-fakes (concat (reverse (filter :data-fake (background-fakes))) local-fakes)
+(defn check-one
+  "Takes a map describing a single example, plus some function redefine-maps
+   and checks that example, reporting results through the emission interface."
+  [example-map local-fakes]
+  (with-installed-fakes (concat (reverse (filter :data-fake (background/background-fakes))) local-fakes)
     (emission-boundary/around-check 
       (let [actual (try  
-                     (eagerly ((:function-under-test check-map)))
+                     (eagerly ((:function-under-test example-map)))
                     (catch Throwable ex
                       (captured-throwable ex)))]
         (report-incorrect-call-counts local-fakes)
-        (check-result actual check-map)
+        (check-result actual example-map)
         :irrelevant-return-value))))

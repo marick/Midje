@@ -2,7 +2,6 @@
             from midje.sweet. midje.sweet is built on top of it."}
   midje.semi-sweet
   (:use midje.internal-ideas.fakes
-        midje.internal-ideas.file-position
         [midje.util debugging form-utils namespace]
         [midje.util.deprecation :only [deprecate]]
         midje.error-handling.validation-errors
@@ -131,7 +130,10 @@
       (expect-expansion call-form arrow expected-result fakes overrides))))
 
 (def ^{:dynamic true
-       :doc (str "For Midje tool creators. Hooks into Midje's internal compiler results.
-  Can be bound to a function with arglists like:" line-separator
-              "  " (:arglists (meta #'midje.checking.examples/expect*)))}
-  *expect-checking-fn* midje.checking.examples/expect*)
+       :doc (str "For Midje tool creators. Hooks into Midje's internal compiler results."
+                 line-separator
+                 "Can be bound to a function with arglists like:"
+                 line-separator
+                 "  "
+                 (:arglists (meta #'midje.checking.examples/check-one)))}
+  *expect-checking-fn* midje.checking.examples/check-one)
