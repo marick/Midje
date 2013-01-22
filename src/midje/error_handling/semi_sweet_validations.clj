@@ -3,7 +3,7 @@
   (:use [clojure.pprint :only [cl-format]]
         [midje.error-handling.validation-errors :only [validation-error-report-form validate]]
         [midje.util.namespace :only [matches-symbols-in-semi-sweet-or-sweet-ns?]]
-        [midje.ideas.metaconstants :only [metaconstant-symbol?]]
+        [midje.data.metaconstant :only [metaconstant-symbol?]]
         [midje.ideas.arrow-symbols :only [=contains=>]]
         [midje.util.form-utils :only [fnref-var-object]]))
 

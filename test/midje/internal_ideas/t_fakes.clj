@@ -2,13 +2,13 @@
   (:use [midje sweet test-util]
         [midje.internal-ideas.fakes :except [mockable-funcall? unfolding-step merge-metaconstant-bindings 
                                              unique-vars handle-mocked-call best-call-action ]]
-        [midje.ideas.metaconstants :only [metaconstant-for-form]]
+        [midje.data.metaconstant :only [metaconstant-for-form]]
         [utilize.seq :only (find-first only)]
         [midje.test-util]
         midje.util
         clojure.pprint)
   (:require [midje.config :as config])
-  (:import midje.ideas.metaconstants.Metaconstant))
+  (:import midje.data.metaconstant.Metaconstant))
 
 (expose-testables midje.internal-ideas.fakes)
 

@@ -12,7 +12,7 @@
                                       fnref-var-object
                                       fnref-symbol
                                       fnref-dereference-form]]
-        [midje.ideas.metaconstants :only [merge-metaconstants metaconstant-for-form
+        [midje.data.metaconstant :only [merge-metaconstants metaconstant-for-form
                                           with-fresh-generated-metaconstant-names]]
         [midje.checkers.extended-equality :only [extended-= extended-list-=]]
         [midje.internal-ideas.file-position :only [user-file-position]]
@@ -27,7 +27,7 @@
   (:require [clojure.zip :as zip]
             [midje.config :as config]
             [midje.emission.api :as emit])
-  (:import midje.ideas.metaconstants.Metaconstant))
+  (:import midje.data.metaconstant.Metaconstant))
 
 
 ;;; Questions to ask of fakes // accessors

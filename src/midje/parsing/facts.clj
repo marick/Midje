@@ -20,7 +20,7 @@
                                        against-background-contents-wrappers
                                        against-background-facts-and-checks-wrappers
                                        against-background?]]
-        [midje.ideas.metaconstants :only [define-metaconstants]]
+        [midje.data.metaconstant :only [define-metaconstants]]
         [midje.util.form-utils :only [def-many-methods first-named? translate-zipper
                                       preserve-type quoted? pred-cond reader-line-number named?]]
         [midje.util.laziness :only [eagerly]]

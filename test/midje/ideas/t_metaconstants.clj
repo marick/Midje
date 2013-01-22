@@ -1,9 +1,9 @@
 (ns midje.ideas.t-metaconstants
-  (:use midje.ideas.metaconstants
+  (:use midje.data.metaconstant
         [midje sweet test-util]
         clojure.pprint)
   (:require [clojure.zip :as zip])
-  (:import midje.ideas.metaconstants.Metaconstant))
+  (:import midje.data.metaconstant.Metaconstant))
 
 
 ;;; Notation

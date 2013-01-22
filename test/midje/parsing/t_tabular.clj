@@ -1,6 +1,6 @@
 (ns midje.parsing.t-tabular
   (:use [midje.parsing.tabular :except [add-binding-note table-binding-maps]]
-        [midje.ideas.metaconstants :only [metaconstant-symbol?]]
+        [midje.data.metaconstant :only [metaconstant-symbol?]]
         [midje.error-handling.validation-errors]
         [midje sweet test-util]
         [ordered.map :only (ordered-map)]

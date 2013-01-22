@@ -151,7 +151,7 @@
      (metaconstants ..m.. ..m.... .mc.)"
   [& names]
   (let [defs (map (fn [name]
-                    `(def ~name (midje.ideas.metaconstants.Metaconstant. '~name {})))
+                    `(def ~name (midje.data.metaconstant.Metaconstant. '~name {})))
                   names)]
     `(do ~@defs)))
 

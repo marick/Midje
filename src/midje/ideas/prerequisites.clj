@@ -3,7 +3,7 @@
   (:use [midje.util.namespace :only [matches-symbols-in-semi-sweet-or-sweet-ns?]]
         [midje.util.form-utils :only [symbol-named?]]
         [midje.internal-ideas.file-position :only [arrow-line-number-from-form]]
-        [midje.ideas.metaconstants :only [metaconstant-for-form
+        [midje.data.metaconstant :only [metaconstant-for-form
                                           with-fresh-generated-metaconstant-names]]
         midje.ideas.arrow-symbols
         [midje.ideas.arrows :only [pull-all-arrow-seqs-from]]

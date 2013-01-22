@@ -2,7 +2,7 @@
             prerequisites that pertain to a group of facts."} 
   midje.ideas.background
   (:use [midje.ideas.arrows :only [start-of-checking-arrow-sequence? take-arrow-sequence]]
-        [midje.ideas.metaconstants :only [define-metaconstants]]
+        [midje.data.metaconstant :only [define-metaconstants]]
         [midje.ideas.prerequisites :only [metaconstant-prerequisite? prerequisite-to-fake]]
         [midje.internal-ideas.fakes :only [fake? tag-as-background-fake with-installed-fakes]]
         [midje.internal-ideas.wrapping :only [for-wrapping-target? with-wrapping-target]]
