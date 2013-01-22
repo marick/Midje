@@ -1,5 +1,5 @@
 (ns ^{:doc "What we know about the changing project file/namespace tree."}
-  midje.internal-ideas.project-state
+  midje.data.project-state
   (:use [midje.util.form-utils :only [invert separate-by]]
         [swiss-arrows.core :only [-<>]]
         [bultitude.core :only [namespaces-in-dir namespaces-on-classpath]])

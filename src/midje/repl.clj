@@ -11,7 +11,7 @@
             [midje.data.fact :as fact-data]
             [midje.checking.facts :as fact-checking]
             [midje.data.compendium :as compendium]
-            [midje.internal-ideas.project-state :as project-state]
+            [midje.data.project-state :as project-state]
             [midje.emission.boundaries :as emission-boundary]
             [midje.emission.api :as emit]
             [midje.util.form-utils :as form]

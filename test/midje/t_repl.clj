@@ -5,7 +5,7 @@
   (:require [midje.config :as config]
             [midje.emission.state :as state]
             [midje.data.compendium :as compendium]
-            [midje.internal-ideas.project-state :as project-state]
+            [midje.data.project-state :as project-state]
             [midje.util.ecosystem :as ecosystem]
             [midje.util.scheduling :as scheduling]
             midje.util))
