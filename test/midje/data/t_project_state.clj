@@ -70,19 +70,19 @@
 
  (def cleaner) ; standin for the calculated dependency cleaner
  (def failure-record (atom {}))
- (on-require-failure [ns throwable]
+ (defn record-failure [ns throwable]
    (swap! failure-record (constantly {:ns ns, :throwable throwable})))
  
 
  (fact "A namespace list can be loaded, obeying dependents"
-   (require-namespaces! [] cleaner) => anything
+   (require-namespaces! [] record-failure cleaner) => anything
 
-   (require-namespaces! [..ns1.. ..ns2..] cleaner) => anything
+   (require-namespaces! [..ns1.. ..ns2..] record-failure cleaner) => anything
    (provided
      (require ..ns1.. :reload) => nil
      (require ..ns2.. :reload) => nil)
 
-   (require-namespaces! [..ns1.. ..ns2..] cleaner) => anything
+   (require-namespaces! [..ns1.. ..ns2..] record-failure cleaner) => anything
    (provided
      (require ..ns1.. :reload) => nil
      (require ..ns2.. :reload) => nil)
@@ -90,7 +90,7 @@
    
 
    (let [throwable (Error.)]
-     (require-namespaces! [..ns1.. ..ns2.. ..ns3..] cleaner) => anything
+     (require-namespaces! [..ns1.. ..ns2.. ..ns3..] record-failure cleaner) => anything
      (provided
        (require ..ns1.. :reload) =throws=> throwable
        (cleaner ..ns1.. [..ns2.. ..ns3..]) => [..ns3..]

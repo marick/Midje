@@ -56,11 +56,6 @@
  ;; Global state.
 
  (defonce state-tracker (atom (nstrack/tracker)))
- (def respond-to-require-failure (fn [& args]))
-
- (defmacro on-require-failure [args & forms]
-   `(alter-var-root ~#'respond-to-require-failure
-                    (constantly (fn ~args ~@forms))))
 
  (defn file-modification-time [file]
    (.lastModified file))
@@ -72,13 +67,13 @@
             (map file-modification-time relevant-files))))
 
 
- (defn require-namespaces! [namespaces clean-dependents]
+ (defn require-namespaces! [namespaces note-require-failure clean-dependents]
    (letfn [(broken-source-file? [the-ns]
              (try
                (require the-ns :reload)
                false
              (catch Throwable t
-               (respond-to-require-failure the-ns t)
+               (note-require-failure the-ns t)
                true)))
 
            (shorten-ns-list-by-trying-first [[the-ns & remainder]]
@@ -104,32 +99,32 @@
            (recur (concat roots-to-handle-later new-roots)
                   unkilled-descendents))))))
          
- (defn react-to-tracker! [state-tracker]
+ (defn react-to-tracker! [state-tracker options]
    (let [namespaces (load-key state-tracker)]
      (when (not (empty? namespaces))
-       (emission-boundary/around-namespace-stream namespaces config/no-overrides
-         (println (color/note "\n======================================================================"))
-         (println (color/note "Loading " (pr-str namespaces)))
-         (require-namespaces! namespaces
-                              (mkfn:clean-dependents state-tracker))))))
+       ( (:note-namespace-stream options)
+         namespaces
+         #(require-namespaces! namespaces
+                               (:note-require-failure options)
+                               (mkfn:clean-dependents state-tracker))))))
 
  (defn prepare-for-next-scan [state-tracker]
    (assoc state-tracker time-key (latest-modification-time state-tracker)
                         unload-key []
                         load-key []))
 
- (defn mkfn:scan-and-react [dirs scanner]
+ (defn mkfn:scan-and-react [options scanner]
    (fn []
      (swap! state-tracker
-            #(let [new-tracker (apply scanner % dirs)]
-               (react-to-tracker! new-tracker)
+            #(let [new-tracker (apply scanner % (:dirs options))]
+               (react-to-tracker! new-tracker options)
                (prepare-for-next-scan new-tracker)))))
 
 
- (defn mkfn:react-to-changes [dirs]
-   (mkfn:scan-and-react dirs nsdir/scan))
+ (defn mkfn:react-to-changes [options]
+   (mkfn:scan-and-react options nsdir/scan))
 
- (defn load-everything [dirs]
-   ((mkfn:scan-and-react dirs nsdir/scan-all)))
+ (defn load-everything [options]
+   ((mkfn:scan-and-react options nsdir/scan-all)))
 
 )

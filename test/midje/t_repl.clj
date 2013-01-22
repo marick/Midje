@@ -516,16 +516,23 @@
 
 ;;;; ==== PART 5: Autotest
 
+(fact "autotest is driven by options"
+  (set (keys (autotest-options))) => (contains #{:interval :dirs}))
+
+(fact "options can be set"
+  (:interval (autotest-options)) =not=> 832
+  (set-autotest-option! :interval 832)
+  (:interval (autotest-options)) => 832)
 
 (fact "autotest"
-  (against-background (autotest-interval) => ..interval..
-                      (autotest-dirs) => ..dirs..)
+  (against-background (autotest-options) => ..options..
+                      ..options.. =contains=> {:interval ..interval..})
   (fact "schedules reactions to changes"
     (autotest) => anything
     (provided
-      (project-state/load-everything ..dirs..) => anything
+      (project-state/load-everything ..options..) => anything
       (scheduling/schedule :autotest
-                           (project-state/mkfn:react-to-changes ..dirs..)
+                           (project-state/mkfn:react-to-changes ..options..)
                            ..interval..) => anything))
 
   (fact "can stop autotesting"
@@ -545,7 +552,7 @@
     (provided
       (project-state/load-everything) => anything :times 0 ;; NOT called
       (scheduling/schedule :autotest
-                           (project-state/mkfn:react-to-changes ..dirs..)
+                           (project-state/mkfn:react-to-changes ..options..)
                            ..interval..)
       => anything))
 

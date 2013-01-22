@@ -382,31 +382,36 @@
 (defonce ^{:doc "Stores last exception encountered in autotesting"}
   *me nil)
 
-(project-state/on-require-failure [the-ns throwable]
+(defn- note-require-failure [the-ns throwable]
   (println (color/fail "LOAD FAILURE for " (ns-name the-ns)))
   (println (.getMessage throwable))
   (when (config/running-in-repl?)
     (println "The exception has been stored in #'*me, so `(pst *me)` will show the stack trace.")
     (alter-var-root #'*me (constantly throwable))))
 
-(defonce ^{:private true, :testable true}
-  autotest-options
+(defn- note-namespace-stream [namespaces a-sort-of-continuation]
+  (emission-boundary/around-namespace-stream namespaces config/no-overrides
+    (println (color/note "\n======================================================================"))
+    (println (color/note "Loading " (pr-str namespaces)))
+    ;; It's not really a continuation because it's wrapped inside `around-namespace-stream`.
+    (a-sort-of-continuation)))
+
+(defonce ^{:private true}
+  autotest-options-atom
   (atom {:interval 500
-         :dirs (project-state/directories)}))
+         :dirs (project-state/directories)
+         :note-require-failure note-require-failure
+         :note-namespace-stream note-namespace-stream}))
+
+(defn autotest-options
+  "If you want a peek at how autotest is controlled, look here."
+  [] @autotest-options-atom)
+
 
 (defn set-autotest-option!
   "Set autotest options without starting autotesting."
   [key value]
-  (swap! autotest-options assoc key value))
-
-(defn autotest-interval
-  "How often should autotest check for changed files?"
-  [] (:interval @autotest-options))
-(defn autotest-dirs
-  "Which directories should autotest track for changes?"
-  [] (:dirs @autotest-options))
-
-
+  (swap! autotest-options-atom assoc key value))
 
 (defn autotest
   "`autotest` checks frequently for changed files. It reloads those files
@@ -418,7 +423,7 @@
   project.clj file, don't use `autotest`. To change the default, 
   give the `:dirs` argument:
 
-     (autotest :dirs [\"test/midje/util\" \"src/midje/util\"])
+     (autotest :dirs \"test/midje/util\" \"src/midje/util\")
 
   This is useful in large projects. Note that `autotest` doesn't follow
   dependencies outside the given directories. If `test/midje/util/A`
@@ -442,8 +447,8 @@
   [& args]
   (letfn [(start-periodic-check []
             (scheduling/schedule :autotest
-                                 (project-state/mkfn:react-to-changes (autotest-dirs))
-                                 (autotest-interval)))]
+                                 (project-state/mkfn:react-to-changes (autotest-options))
+                                 (:interval (autotest-options))))]
 
     ;; Note that stopping and pausing, which seeming different to user, actually do
     ;; exactly the same thing.
@@ -458,7 +463,7 @@
 
             (empty? args)
             (do
-              (project-state/load-everything (autotest-dirs))
+              (project-state/load-everything (autotest-options))
               (start-periodic-check))
 
             :else
@@ -468,4 +473,4 @@
               (autotest)))))
   true)
 
-)
+)  ;; when-1-3+
