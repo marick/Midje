@@ -114,12 +114,6 @@
 
 
 
-(defn define-metaconstants [form]
-  (let [metaconstants (filter metaconstant-symbol? (tree-seq coll? seq form))]
-    (doseq [metaconstant metaconstants]
-      (intern *ns* metaconstant (Metaconstant. metaconstant {})))
-    metaconstants))
-
 (def #^:dynamic #^:private *metaconstant-counts*)
 
 (defmacro with-fresh-generated-metaconstant-names [& forms]

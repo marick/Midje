@@ -28,6 +28,7 @@
             [midje.util.namespace :as namespace]
             [midje.parsing.metadata :as parse-metadata]
             [midje.parsing.future-facts :as parse-future-fact]
+            [midje.parsing.metaconstants :as parse-metaconstants]
             [midje.parsing.tabular :as tabular]
             midje.checkers))
 
@@ -149,11 +150,8 @@
    compiled tests failed, declare your metaconstants before use.
    Example:
      (metaconstants ..m.. ..m.... .mc.)"
-  [& names]
-  (let [defs (map (fn [name]
-                    `(def ~name (midje.data.metaconstant.Metaconstant. '~name {})))
-                  names)]
-    `(do ~@defs)))
+  [& symbols]
+  `(parse-metaconstants/predefine-metaconstants-from-form '~symbols))
 
 (defmacro fact-group
   "Supply default metadata to all facts in the body."

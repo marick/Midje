@@ -20,7 +20,7 @@
                                        against-background-contents-wrappers
                                        against-background-facts-and-checks-wrappers
                                        against-background?]]
-        [midje.data.metaconstant :only [define-metaconstants]]
+        [midje.parsing.metaconstants :only [predefine-metaconstants-from-form]]
         [midje.util.form-utils :only [def-many-methods first-named? translate-zipper
                                       preserve-type quoted? pred-cond reader-line-number named?]]
         [midje.util.laziness :only [eagerly]]
@@ -147,7 +147,7 @@
           (run-after-creation [function-form]
             `(fact-checking/creation-time-check ~function-form))]
 
-    (define-metaconstants function-form)
+    (predefine-metaconstants-from-form function-form)
     (-> function-form
         wrap-with-creation-time-fact-recording
         run-after-creation)))

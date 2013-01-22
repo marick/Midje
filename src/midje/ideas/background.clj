@@ -2,7 +2,7 @@
             prerequisites that pertain to a group of facts."} 
   midje.ideas.background
   (:use [midje.ideas.arrows :only [start-of-checking-arrow-sequence? take-arrow-sequence]]
-        [midje.data.metaconstant :only [define-metaconstants]]
+        [midje.parsing.metaconstants :only [predefine-metaconstants-from-form]]
         [midje.ideas.prerequisites :only [metaconstant-prerequisite? prerequisite-to-fake]]
         [midje.internal-ideas.fakes :only [fake? tag-as-background-fake with-installed-fakes]]
         [midje.internal-ideas.wrapping :only [for-wrapping-target? with-wrapping-target]]
@@ -107,7 +107,7 @@
   ;; Collecting all the background fakes is here for historical reasons:
   ;; it made it easier to eyeball expanded forms and see what was going on.
   (defn background-wrappers [background-forms]
-    (define-metaconstants background-forms)
+    (predefine-metaconstants-from-form background-forms)
     (let [[fakes state-descriptions] (separate-by fake? (extract-state-descriptions+fakes background-forms))
           state-wrappers (eagerly (map state-wrapper state-descriptions))]
       (if (empty? fakes)

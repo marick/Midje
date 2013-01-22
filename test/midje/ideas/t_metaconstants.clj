@@ -39,12 +39,6 @@
       (find (ns-interns *ns*) metaconstant-symbol) => truthy
       (var-get ((ns-interns *ns*) metaconstant-symbol)) => metaconstant-symbol)))
 
-(define-metaconstants '(fact (f ...form...) => 1
-                         [:in ...vec...]
-                         {:in ...map...}
-                         #{:in ...set...}))
-(claim-symbols '(...form... ...vec... ...map... ...set...))
-
 "Metaconstants can be declared in backgrounds"
 (declare f)
 (background (f ...one...) => 1 )
