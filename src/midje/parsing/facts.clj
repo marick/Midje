@@ -28,7 +28,7 @@
         [swiss-arrows.core :only [-<>]])
   (:require [clojure.zip :as zip])
   (:require [midje.checking.facts :as fact-checking]
-            [midje.internal-ideas.compendium :as compendium]
+            [midje.data.compendium :as compendium]
             [midje.parsing.future-facts :as parse-future-fact]
             [midje.data.fact :as fact-data]))
 

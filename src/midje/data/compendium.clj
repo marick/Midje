@@ -1,7 +1,7 @@
 (ns ^{:doc "A compendium is 'a collection of concise but detailed information
             about a particular subject'. The Midje compendium contains
             the currently relevant facts."}
-  midje.internal-ideas.compendium
+  midje.data.compendium
   (:use [midje.error-handling.exceptions :only [user-error]]
         [midje.util.form-utils :only [dissoc-keypath]])
   (:require [midje.data.fact :as fact]

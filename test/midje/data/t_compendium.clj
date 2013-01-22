@@ -1,16 +1,13 @@
-(ns midje.internal-ideas.t-compendium
+(ns midje.data.t-compendium
   (:use [midje.sweet]
         [clojure.pprint]
         [midje.test-util]
-        [midje.internal-ideas.compendium])
+        [midje.data.compendium])
   (:require [midje.util.ecosystem :as ecosystem]
             [midje.config :as config]
             [midje.data.fact :as fact]
             [midje.checking.facts :as fact-checking]))
-
-(if (ecosystem/clojure-1-2-0?)
-  (import 'midje.internal-ideas.compendium.Compendium)
-  (import 'midje.internal_ideas.compendium.Compendium))
+(import 'midje.data.compendium.Compendium)
 
 ;; Some faux facts to use in tests
 

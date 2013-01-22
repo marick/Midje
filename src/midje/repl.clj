@@ -10,7 +10,7 @@
             [midje.parsing.arglists :as parsing]
             [midje.data.fact :as fact-data]
             [midje.checking.facts :as fact-checking]
-            [midje.internal-ideas.compendium :as compendium]
+            [midje.data.compendium :as compendium]
             [midje.internal-ideas.project-state :as project-state]
             [midje.emission.boundaries :as emission-boundary]
             [midje.emission.api :as emit]

@@ -9,7 +9,7 @@
             [midje.util.ecosystem :as ecosystem]
             [midje.emission.api :as emit]
             [midje.emission.state :as state]
-            [midje.internal-ideas.compendium :as compendium]))
+            [midje.data.compendium :as compendium]))
 
 (fact "all of Midje's public, API-facing vars have docstrings"
   (map str (remove (comp :doc meta) (vals (ns-publics 'midje.sweet)))) => []

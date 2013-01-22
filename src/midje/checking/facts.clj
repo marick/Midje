@@ -3,7 +3,7 @@
   (:require [midje.config :as config]
             [midje.emission.boundaries :as emission-boundary]
             [midje.internal-ideas.fact-context :as fact-context]
-            [midje.internal-ideas.compendium :as compendium]))
+            [midje.data.compendium :as compendium]))
                   
 ;;; Fact execution utilities
 

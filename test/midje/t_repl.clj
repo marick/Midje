@@ -4,7 +4,7 @@
         [midje.test-util])
   (:require [midje.config :as config]
             [midje.emission.state :as state]
-            [midje.internal-ideas.compendium :as compendium]
+            [midje.data.compendium :as compendium]
             [midje.internal-ideas.project-state :as project-state]
             [midje.util.ecosystem :as ecosystem]
             [midje.util.scheduling :as scheduling]
