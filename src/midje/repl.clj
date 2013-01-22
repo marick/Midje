@@ -385,6 +385,7 @@
 (defn- note-require-failure [the-ns throwable]
   (println (color/fail "LOAD FAILURE for " (ns-name the-ns)))
   (println (.getMessage throwable))
+  (emit/fail-silently) ; to make sure last line shows a failure.
   (when (config/running-in-repl?)
     (println "The exception has been stored in #'*me, so `(pst *me)` will show the stack trace.")
     (alter-var-root #'*me (constantly throwable))))

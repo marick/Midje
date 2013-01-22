@@ -39,10 +39,15 @@
   (ctf/note-pass)
   (when (config-above? :print-nothing) (bounce-to-plugin :pass)))
 
-(defn fail [failure-map]
-  (state/add-raw-fact-failure! failure-map)
+(defn fail-silently
+  "Use this to affect the final summary without producing output."
+  []
   (state/output-counters:inc:midje-failures!)
-  (ctf/note-fail)
+  (ctf/note-fail))
+
+(defn fail [failure-map]
+  (fail-silently)
+  (state/add-raw-fact-failure! failure-map)
   (when (config-above? :print-nothing) (bounce-to-plugin :fail failure-map)))
 
 (defn future-fact [description position]
