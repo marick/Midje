@@ -456,7 +456,11 @@
     (let [option ((parsing/make-option-arglist-parser [:dirs :dir] [:interval :each]
                                                       [:stop :pause] [:resume])
                   args)]
-      (cond (:stop? option)
+      
+      (cond (not (empty? (:true-args option)))
+            (println (color/fail "Did you mean to put the arguments after `:dirs`?"))
+            
+            (:stop? option)
             (scheduling/stop :autotest)
             
             (:resume? option)
