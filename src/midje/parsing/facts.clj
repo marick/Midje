@@ -2,7 +2,6 @@
   midje.parsing.facts
   (:use [midje.error-handling.validation-errors :only [validate when-valid]]
         [midje.util.namespace :only [semi-sweet-keyword?]]
-        [midje.internal-ideas.fakes :only [unfold-fakes]]
 
         [midje.parsing.expects :only [expect?
                                             wrap-with-expect__then__at-rightmost-expect-leaf]]
@@ -29,7 +28,8 @@
   (:require [clojure.zip :as zip])
   (:require [midje.checking.facts :as fact-checking]
             [midje.data.compendium :as compendium]
-            [midje.parsing.future-facts :as parse-future-fact]
+            [midje.parsing.future-facts :as parse-future-facts]
+            [midje.parsing.folded-fakes :as parse-folded-fakes]
             [midje.data.fact :as fact-data]))
 
 (defn fact? [form]
@@ -88,7 +88,7 @@
   (pred-cond form
     already-wrapped?     form
     quoted?              form
-    parse-future-fact/future-fact?         (macroexpand form)
+    parse-future-facts/future-fact?         (macroexpand form)
     against-background?  (when-valid form
                              (-<> form 
                                   body-of-against-background
@@ -105,7 +105,7 @@
   (-> forms
       annotate-embedded-arrows-with-line-numbers
       to-semi-sweet
-      unfold-fakes
+      parse-folded-fakes/unfold-fakes
       surround-with-background-fakes
       midjcoexpand
       (multiwrap (forms-to-wrap-around :facts))))

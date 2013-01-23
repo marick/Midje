@@ -4,7 +4,7 @@
   (:use [midje.ideas.arrows :only [start-of-checking-arrow-sequence? take-arrow-sequence]]
         [midje.parsing.metaconstants :only [predefine-metaconstants-from-form]]
         [midje.parsing.prerequisites :only [metaconstant-prerequisite? prerequisite-to-fake]]
-        [midje.internal-ideas.fakes :only [fake? tag-as-background-fake with-installed-fakes]]
+        [midje.internal-ideas.fakes :only [with-installed-fakes]]
         [midje.internal-ideas.wrapping :only [for-wrapping-target? with-wrapping-target]]
         [midje.util.form-utils :only [first-named? map-first pred-cond separate-by
                                       symbol-named? translate-zipper]]
@@ -13,7 +13,8 @@
                                                    with-pushed-namespace-values]]
         [utilize.seq :only [separate]])
   (:require [clojure.zip :as zip] 
-            [midje.util.unify :as unify]))
+            [midje.util.unify :as unify]
+            [midje.parsing.fakes :as fakes]))
 
 (defn against-background? [form]
   (first-named? form "against-background"))
@@ -80,7 +81,7 @@
 
       start-of-checking-arrow-sequence?
       (let [arrow-seq (take-arrow-sequence in-progress)]
-        (recur (conj expanded (-> arrow-seq prerequisite-to-fake tag-as-background-fake))
+        (recur (conj expanded (-> arrow-seq prerequisite-to-fake fakes/tag-as-background-fake))
                (drop (count arrow-seq) in-progress)))
 
       metaconstant-prerequisite?
@@ -108,7 +109,7 @@
   ;; it made it easier to eyeball expanded forms and see what was going on.
   (defn background-wrappers [background-forms]
     (predefine-metaconstants-from-form background-forms)
-    (let [[fakes state-descriptions] (separate-by fake? (extract-state-descriptions+fakes background-forms))
+    (let [[fakes state-descriptions] (separate-by fakes/fake? (extract-state-descriptions+fakes background-forms))
           state-wrappers (eagerly (map state-wrapper state-descriptions))]
       (if (empty? fakes)
         state-wrappers

@@ -15,7 +15,8 @@
         [clojure.string :only [join]])
   (:require [midje.internal-ideas.fact-context :as fact-context]
             [midje.data.core-maps :as core-maps]
-            [midje.emission.api :as emit]))
+            [midje.emission.api :as emit]
+            [midje.parsing.fakes :as parse-fakes]))
 
 (immigrate 'midje.checking.examples)
 (immigrate 'midje.ideas.arrow-symbols)

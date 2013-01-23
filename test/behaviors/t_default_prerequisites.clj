@@ -1,6 +1,5 @@
 (ns behaviors.t-default-prerequisites
-  (:use [midje sweet test-util]
-        [midje.internal-ideas.fakes :only [tag-as-background-fake]]))
+  (:use [midje sweet test-util]))
 
 (defn calls-nothing [])
 (unfinished unused)
