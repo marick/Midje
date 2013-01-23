@@ -4,7 +4,7 @@
         [midje.util.namespace :only [semi-sweet-keyword?]]
         [midje.internal-ideas.fakes :only [unfold-fakes]]
 
-        [midje.internal-ideas.expect :only [expect?
+        [midje.parsing.expects :only [expect?
                                             wrap-with-expect__then__at-rightmost-expect-leaf]]
         [midje.internal-ideas.file-position :only [annotate-embedded-arrows-with-line-numbers]]
         [midje.internal-ideas.wrapping :only [already-wrapped?

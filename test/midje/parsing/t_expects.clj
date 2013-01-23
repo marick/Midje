@@ -1,5 +1,5 @@
-(ns midje.internal-ideas.t-expect
-  (:use [midje.internal-ideas.expect]
+(ns midje.parsing.t-expects
+  (:use [midje.parsing.expects]
         [midje.ideas.arrows :only [start-of-checking-arrow-sequence?]]
 	midje.sweet
 	midje.test-util)

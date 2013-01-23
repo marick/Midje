@@ -1,8 +1,8 @@
 (ns midje.parsing.t-prerequisites
   (:use midje.parsing.prerequisites
-        [midje.internal-ideas.expect :only [expect?]]
         midje.sweet midje.test-util)
-  (:require [clojure.zip :as zip]))
+  (:require [clojure.zip :as zip]
+            [midje.parsing.expects :as parse-expects]))
 
 (fact "can ask whether at the beginning of a form that provides prerequisites"
   (let [values (zip/seq-zip '(provided midje.semi-sweet/provided fluke))]
@@ -37,5 +37,5 @@
          (delete_prerequisite_form__then__at-previous-full-expect-form original-loc)]
         
     original-loc => head-of-form-providing-prerequisites?
-    resulting-loc => expect?
+    resulting-loc => parse-expects/expect?
     (zip/root resulting-loc) => edited))

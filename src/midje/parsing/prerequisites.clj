@@ -5,7 +5,7 @@
         [midje.internal-ideas.file-position :only [arrow-line-number-from-form]]
         midje.ideas.arrow-symbols
         [midje.ideas.arrows :only [pull-all-arrow-seqs-from]]
-        [midje.internal-ideas.expect :only [up-to-full-expect-form expect?
+        [midje.parsing.expects :only [up-to-full-expect-form expect?
                                             tack-on__then__at-rightmost-expect-leaf]])
   (:require [clojure.zip :as zip]
             [midje.util.ecosystem :as ecosystem]))
