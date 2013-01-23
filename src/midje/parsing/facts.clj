@@ -12,7 +12,7 @@
                                               with-additional-wrappers
                                               forms-to-wrap-around]]
         [midje.util.debugging :only [nopret]]
-        [midje.ideas.prerequisites :only [head-of-form-providing-prerequisites?
+        [midje.parsing.prerequisites :only [head-of-form-providing-prerequisites?
                                           insert-prerequisites-into-expect-form-as-fakes]]
         [midje.ideas.arrows :only [start-of-checking-arrow-sequence? leaves-contain-arrow?]]
         [midje.ideas.background :only [surround-with-background-fakes

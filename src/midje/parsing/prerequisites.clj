@@ -1,5 +1,5 @@
 (ns ^{:doc "Functions for turning provideds into semi-sweet fakes"}
-  midje.ideas.prerequisites
+  midje.parsing.prerequisites
   (:use [midje.util.namespace :only [matches-symbols-in-semi-sweet-or-sweet-ns?]]
         [midje.util.form-utils :only [symbol-named?]]
         [midje.internal-ideas.file-position :only [arrow-line-number-from-form]]

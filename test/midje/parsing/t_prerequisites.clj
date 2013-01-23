@@ -1,5 +1,5 @@
-(ns midje.ideas.t-prerequisites
-  (:use midje.ideas.prerequisites
+(ns midje.parsing.t-prerequisites
+  (:use midje.parsing.prerequisites
         [midje.internal-ideas.expect :only [expect?]]
         midje.sweet midje.test-util)
   (:require [clojure.zip :as zip]))
@@ -39,7 +39,3 @@
     original-loc => head-of-form-providing-prerequisites?
     resulting-loc => expect?
     (zip/root resulting-loc) => edited))
-    
-
-
-
