@@ -4,13 +4,13 @@
         [midje.error-handling.validation-errors :only [validation-error-report-form validate]]
         [midje.util.namespace :only [matches-symbols-in-semi-sweet-or-sweet-ns?]]
         [midje.data.metaconstant :only [metaconstant-symbol?]]
-        [midje.ideas.arrow-symbols :only [=contains=>]]
-        [midje.util.form-utils :only [fnref-var-object]]))
+        [midje.ideas.arrow-symbols :only [=contains=>]])
+  (:require [midje.parsing.util.fnref :as fnref]))
 
 (letfn [(compiler-will-inline-fn? [fnref]
-          (contains? (meta (fnref-var-object fnref)) :inline))
+          (contains? (meta (fnref/fnref-var-object fnref)) :inline))
         (exposed-testable? [fnref]
-          (contains? (meta (fnref-var-object fnref)) :testable))]
+          (contains? (meta (fnref/fnref-var-object fnref)) :testable))]
 
   (defmethod validate "fake" [[_fake_ & fake-form :as form]]
     (let [funcall (first fake-form)]
@@ -30,7 +30,7 @@
           form
           "A prerequisite cannot use a symbol exposed via `expose-testables` or `testable-privates`."
           (cl-format nil "Instead, use the var directly: #'~S/~S"
-                     (-> (first funcall) fnref-var-object meta :ns ns-name)
+                     (-> (first funcall) fnref/fnref-var-object meta :ns ns-name)
                      (first funcall)))
 
         :else

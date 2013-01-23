@@ -7,11 +7,7 @@
         [midje.parsing.expects :only [expect? up-to-full-expect-form]]
         [midje.util.form-utils :only [first-named? translate-zipper map-difference
                                       hash-map-duplicates-ok pred-cond
-                                      quoted-list-form? extended-fn?
-                                      fnref-call-form
-                                      fnref-var-object
-                                      fnref-symbol
-                                      fnref-dereference-form]]
+                                      quoted-list-form? extended-fn?]]
         [midje.checkers.extended-equality :only [extended-= extended-list-=]]
         [midje.internal-ideas.file-position :only [user-file-position]]
         [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out
@@ -25,7 +21,8 @@
             [clojure.zip :as zip]
             [midje.config :as config]
             [midje.error-handling.exceptions :as exceptions]
-            [midje.emission.api :as emit])
+            [midje.emission.api :as emit]
+            [midje.parsing.util.fnref :as fnref])
   (:import midje.data.metaconstant.Metaconstant))
 
 
@@ -94,7 +91,7 @@
     "  (provided (all-even? ..xs..) => true)")))
 
 (letfn [(make-fake-map [call-form arrow rhs fnref special-to-fake-type user-override-pairs]
-          (let [common-to-all-fakes `{:var ~(fnref-call-form fnref)
+          (let [common-to-all-fakes `{:var ~(fnref/fnref-call-form fnref)
                                       :call-count-atom (atom 0)
                                       :position (user-file-position)
 
@@ -112,14 +109,14 @@
     ;; evaluated as a function call later on. Right approach would
     ;; seem to be '~args. That causes spurious failures. Debug
     ;; someday.
-    (when (statically-disallowed-prerequisite-function (fnref-var-object fnref))
-      (raise-disallowed-prerequisite-error (fnref-var-object fnref)))
+    (when (statically-disallowed-prerequisite-function (fnref/fnref-var-object fnref))
+      (raise-disallowed-prerequisite-error (fnref/fnref-var-object fnref)))
     (make-fake-map call-form arrow (cons result overrides)
       fnref
       `{:arg-matchers (map midje.internal-ideas.fakes/arg-matcher-maker ~(vec args))
         :call-text-for-failures (str '~call-form)
-        :value-at-time-of-faking (if (bound? ~(fnref-call-form fnref))
-                                   ~(fnref-dereference-form fnref))
+        :value-at-time-of-faking (if (bound? ~(fnref/fnref-call-form fnref))
+                                   ~(fnref/fnref-dereference-form fnref))
         :result-supplier (fn-fake-result-supplier ~arrow ~result)
         :type :fake}
       overrides))

@@ -2,15 +2,13 @@
   midje.parsing.folded-fakes
   (:use
    [midje.util.form-utils :only [translate-zipper map-difference
-                                 pred-cond
-                                 fnref-var-object
-                                 fnref-symbol
-                                 fnref-dereference-form]]
+                                 pred-cond]]
    [midje.checkers.defining :only [checker? checker-makers]]
    )
   (:require
             [clojure.zip :as zip]
             [midje.parsing.expects :as expects]
+            [midje.parsing.util.fnref :as fnref]
             )
   )
 
@@ -31,7 +29,7 @@
                   (assoc current-value function-symbol ((fnil inc 0) (current-value function-symbol))))
         number ((swap! *metaconstant-counts* swap-fn function-symbol)
                   function-symbol)]
-    (symbol (format "...%s-value-%s..." (name (fnref-symbol function-symbol)) number))))
+    (symbol (format "...%s-value-%s..." (name (fnref/fnref-symbol function-symbol)) number))))
 
 (defn- ^{:testable true } mockable-funcall? [x]
   (let [constructor? (fn [symbol]
@@ -40,8 +38,8 @@
         mockable-function? (fn [fnref]
                              (not (or (some #{fnref} special-forms)
                                       (some #{fnref} checker-makers)
-                                      (constructor? (fnref-symbol fnref))
-                                      (checker? (fnref-var-object fnref)))))]
+                                      (constructor? (fnref/fnref-symbol fnref))
+                                      (checker? (fnref/fnref-var-object fnref)))))]
     (and (list? x)
       (mockable-function? (first x)))))
 

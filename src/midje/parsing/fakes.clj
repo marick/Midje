@@ -7,11 +7,7 @@
         [midje.parsing.expects :only [expect? up-to-full-expect-form]]
         [midje.util.form-utils :only [first-named? translate-zipper map-difference
                                       hash-map-duplicates-ok pred-cond
-                                      quoted-list-form? extended-fn?
-                                      fnref-call-form
-                                      fnref-var-object
-                                      fnref-symbol
-                                      fnref-dereference-form]]
+                                      quoted-list-form? extended-fn?]]
         [midje.checkers.extended-equality :only [extended-= extended-list-=]]
         [midje.internal-ideas.file-position :only [user-file-position]]
         [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out
