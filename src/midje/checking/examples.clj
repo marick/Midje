@@ -7,7 +7,7 @@
         midje.util.laziness
         [midje.util.namespace :only [immigrate]])
   (:require [midje.emission.boundaries :as emission-boundary]
-            [midje.ideas.background :as background]
+            [midje.parsing.background :as background]
             [midje.emission.api :as emit]
             [midje.data.core-maps :as core-maps]))
 

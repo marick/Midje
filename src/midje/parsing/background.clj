@@ -1,6 +1,6 @@
 (ns ^{:doc "Code to be run before, after or around facts. Also, 
             prerequisites that pertain to a group of facts."} 
-  midje.ideas.background
+  midje.parsing.background
   (:use [midje.ideas.arrows :only [start-of-checking-arrow-sequence? take-arrow-sequence]]
         [midje.parsing.metaconstants :only [predefine-metaconstants-from-form]]
         [midje.parsing.prerequisites :only [metaconstant-prerequisite? prerequisite-to-fake]]
@@ -94,7 +94,7 @@
 
 (defn- ^{:testable true } state-wrapper [[_before-after-or-around_ wrapping-target & _ :as state-description]]
   (with-wrapping-target
-    (macroexpand-1 (map-first #(symbol "midje.ideas.background" (name %)) state-description))
+    (macroexpand-1 (map-first #(symbol "midje.parsing.background" (name %)) state-description))
     wrapping-target))
 
 (letfn [(background-fake-wrappers [fakes]

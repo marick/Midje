@@ -15,7 +15,7 @@
         [midje.parsing.prerequisites :only [head-of-form-providing-prerequisites?
                                           insert-prerequisites-into-expect-form-as-fakes]]
         [midje.ideas.arrows :only [start-of-checking-arrow-sequence? leaves-contain-arrow?]]
-        [midje.ideas.background :only [surround-with-background-fakes
+        [midje.parsing.background :only [surround-with-background-fakes
                                        body-of-against-background
                                        against-background-contents-wrappers
                                        against-background-facts-and-checks-wrappers

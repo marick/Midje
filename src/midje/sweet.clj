@@ -8,7 +8,6 @@
   midje.sweet
   (:require midje.config) ; This should load first.
   (:use clojure.pprint
-        [midje.util.namespace :only [immigrate intern+keep-meta]]
         midje.production-mode
         midje.error-handling.exceptions
         midje.error-handling.validation-errors
@@ -19,20 +18,20 @@
         [midje.parsing.facts :only [complete-fact-transformation
                                   midjcoexpand]] 
         [clojure.algo.monads :only [domonad]])
-  (:require [midje.ideas.background :as background]
-            [midje.emission.api :as emit]
-            [midje.doc :as doc]
-            [midje.internal-ideas.fact-context :as fact-context]
-            [midje.util.namespace :as namespace]
+  (:require [midje.parsing.background :as background]
             [midje.parsing.metadata :as parse-metadata]
             [midje.parsing.future-facts :as parse-future-fact]
             [midje.parsing.metaconstants :as parse-metaconstants]
             [midje.parsing.tabular :as tabular]
             [midje.parsing.formulas :as parse-formulas]
+            [midje.emission.api :as emit]
+            [midje.doc :as doc]
+            [midje.internal-ideas.fact-context :as fact-context]
+            [midje.util.namespace :as namespace]
             midje.checkers))
 
-(immigrate 'midje.checking.examples)
-(immigrate 'midje.semi-sweet)
+(namespace/immigrate 'midje.checking.examples)
+(namespace/immigrate 'midje.semi-sweet)
 
 ;; Following two are required because `intern` doesn't transfer "dynamicity".
 (def ^{:doc "True by default.  If set to false, Midje checks are not
@@ -40,10 +39,10 @@
        :dynamic true}
   *include-midje-checks* *include-midje-checks*)
 
-(intern+keep-meta *ns* 'before  #'background/before)
-(intern+keep-meta *ns* 'after   #'background/after)
-(intern+keep-meta *ns* 'around  #'background/around)
-(intern+keep-meta *ns* 'formula #'parse-formulas/formula)
+(namespace/intern+keep-meta *ns* 'before  #'background/before)
+(namespace/intern+keep-meta *ns* 'after   #'background/after)
+(namespace/intern+keep-meta *ns* 'around  #'background/around)
+(namespace/intern+keep-meta *ns* 'formula #'parse-formulas/formula)
 
 (when (doc/appropriate?)
   (namespace/immigrate-from 'midje.doc doc/for-sweet)

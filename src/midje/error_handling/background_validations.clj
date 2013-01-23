@@ -4,7 +4,7 @@
         [midje.error-handling.validation-errors :only [simple-validation-error-report-form 
                                                        validation-error-report-form validate when-valid]]
         [midje.ideas.arrows :only [start-of-checking-arrow-sequence? take-arrow-sequence]]
-        [midje.ideas.background :only [seq-headed-by-setup-teardown-form?]]
+        [midje.parsing.background :only [seq-headed-by-setup-teardown-form?]]
         [midje.parsing.prerequisites :only [metaconstant-prerequisite?]]
         [midje.util.form-utils :only [def-many-methods named? pred-cond]]
         [midje.util.backwards-compatible-utils :only [some-fn-m]]))
