@@ -1,14 +1,8 @@
 (ns ^{:doc "A notation that avoids confusion between what’s essential 
             about data and what’s accidental. A stand in for constant data."}
   midje.data.metaconstant
-  (:use [midje.util.form-utils :only [translate-zipper fnref-symbol]]
-        [midje.util.zip :only [skip-down-then-rightmost-leaf]]
-        [midje.util.thread-safe-var-nesting :only [unbound-marker]]
-        [midje.error-handling.exceptions :only [user-error]]
-        [utilize.seq :only (find-first)]
-        [clojure.core.incubator :only [-?>>]])
-  (:require [clojure.zip :as zip]
-            [midje.util.ecosystem :as ecosystem]))
+  (:use [midje.util.thread-safe-var-nesting :only [unbound-marker]])
+  (:require [midje.util.ecosystem :as ecosystem]))
 
 
 ;;; Metaconstants are built from special symbols, called "metaconstant symbol". Such symbols
