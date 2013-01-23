@@ -1,35 +1,41 @@
 (ns ^{:doc "example maps, redefine maps, failure maps"} 
-  midje.data.core-maps
+  midje.parsing.map-templates
   (:use [midje.util.form-utils :only [hash-map-duplicates-ok]])
   (:use midje.ideas.arrow-symbols
+        midje.ideas.arrows
         [midje.util.form-utils :only [extended-fn?]])
   (:require [midje.internal-ideas.fact-context :as fact-context]
             [midje.internal-ideas.file-position :as position]))
 
 
+;;; Midje is driven off various kinds of maps. These are created via
+;;; macroexpansion into "template maps" that associate keywords
+;;; together with not-yet-evaluated forms that produce values.  Some
+;;; of the forms are self-evaluating literals. For example, arrows
+;;; might be transformed into keywords so that the map contains this:
+;;;
+;;;       :check-expectation :expect-match
+;;;
+;;; But more common are form like:
+;;;
+;;;       :var (var foo)
+;;;       :description (fact-context/nested-descriptions)
+;;;
+;;; When the result of the macroexpansion is evaluated, the final maps are created.
+;;; All this rigamarole is required so that the final maps have access to the lexical
+;;; environment.
+;;;
+;;; The template maps are listed here so that there's something like a
+;;; single point of reference for all the different "shapes" of
+;;; maps. However, there is one way this reference is not definitive: 
+;;; The parsing code that converts forms into template maps may add on keys
+;;; that are useful for debugging or for tools that want to know where the
+;;; final maps came from. To know what keys those are, see the relevant code. 
+
 ;;;                                             Example maps
 
 
-;; TODO: Old comment. This is a side-effect of having different sweet and semi-sweet
-;; arrow symbols. Once semi-sweet is destroyed, this can be improved.
-
-;; I want to use resolve() to compare calls to fake, rather than the string
-;; value of the symbol, but for some reason when the tests run, *ns* is User,
-;; rather than midje.semi_sweet_test. Since 'fake' is used only in the latter,
-;; the tests fail.
-;;
-;; FURTHERMORE, I wanted to use set operations to check for fake and not-called,
-;; but those fail for reasons I don't understand. Bah.
-(defn expect-match-or-mismatch [arrow]
-  (condp = (name arrow) 
-    => :expect-match
-    =expands-to=> :expect-match
-    =not=> :expect-mismatch
-    =deny=> :expect-mismatch
-    =test=> :just-midje-testing-here
-    nil))
-
-(defmacro make-example-map
+(defmacro example
   [call-form arrow expected-result overrides]
   `(merge
     {:description (fact-context/nested-descriptions)
@@ -44,8 +50,6 @@
      :arrow '~arrow }
     
     (hash-map-duplicates-ok ~@overrides)))
-
-(def has-function-checker? (comp extended-fn? :expected-result))
 
 
 ;;;                                             Redefine Maps
@@ -63,13 +67,4 @@
 ;; defined to contain.
 
 ;;;;; This should eventually be extracted from data-fake*
-
-
-;;;                                             Failure maps
-
-;; A failure map is typically constructed by adding key/value pairs to existing maps.
-
-(defn minimal-failure-map [type actual existing]
-  (assoc existing :type type :actual actual))
-
 

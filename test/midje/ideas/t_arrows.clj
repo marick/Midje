@@ -55,3 +55,16 @@
   (let [result (pull-all-arrow-seqs-from '(  (f 1) => 2 :key value   (g 1) => 3))]
     result =>                         '( [(f 1) => 2 :key value] [(g 1) => 3])))
 
+(fact "some arrows expect matches, some mismatches"
+  (let [result (map expect-match-or-mismatch
+                    '(=> midje.data.core-maps/=> midje.sweet/=>
+                      =not=> midje.data.core-maps/=not=> midje.sweet/=not=>
+                      =expands-to=> midje.semi-sweet/=expands-to=> midje.sweet/=expands-to=>))]
+    (fact result => [:expect-match :expect-match :expect-match
+                     :expect-mismatch :expect-mismatch :expect-mismatch
+                     :expect-match :expect-match :expect-match])))
+
+
+
+
+

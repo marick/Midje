@@ -20,6 +20,26 @@
 
 ;; Recognizing
 
+
+;; TODO: Old comment. This is a side-effect of having different sweet and semi-sweet
+;; arrow symbols. Once semi-sweet is destroyed, this can be improved.
+
+;; I want to use resolve() to compare calls to fake, rather than the string
+;; value of the symbol, but for some reason when the tests run, *ns* is User,
+;; rather than midje.semi_sweet_test. Since 'fake' is used only in the latter,
+;; the tests fail.
+;;
+;; FURTHERMORE, I wanted to use set operations to check for fake and not-called,
+;; but those fail for reasons I don't understand. Bah.
+(defn expect-match-or-mismatch [arrow]
+  (condp = (name arrow) 
+    => :expect-match
+    =expands-to=> :expect-match
+    =not=> :expect-mismatch
+    =deny=> :expect-mismatch
+    =test=> :just-midje-testing-here
+    nil))
+
 (defmulti start-of-checking-arrow-sequence? tree-variant)
 
 (defmethod start-of-checking-arrow-sequence? :zipper [loc]

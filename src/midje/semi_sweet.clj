@@ -14,7 +14,7 @@
         clojure.pprint
         [clojure.string :only [join]])
   (:require [midje.internal-ideas.fact-context :as fact-context]
-            [midje.data.core-maps :as core-maps]
+            [midje.parsing.map-templates :as map-templates]
             [midje.emission.api :as emit]
             [midje.parsing.fakes :as parse-fakes]))
 
@@ -29,20 +29,20 @@
 
 (def-many-methods expect-expansion [=> =not=> =deny=>]
   [call-form arrow expected-result fakes overrides]
-  `(let [check# (core-maps/make-example-map ~call-form ~arrow ~expected-result ~overrides)]
+  `(let [check# (map-templates/example ~call-form ~arrow ~expected-result ~overrides)]
      (midje.semi-sweet/*expect-checking-fn* check# ~fakes)))
 
 (defmethod expect-expansion =expands-to=>
   [call-form _arrow_ expected-result fakes overrides]
   (let [expanded-macro `(macroexpand-1 '~call-form)
         escaped-expected-result `(quote ~expected-result)]
-    `(let [check# (core-maps/make-example-map ~expanded-macro => ~escaped-expected-result
+    `(let [check# (map-templates/example ~expanded-macro => ~escaped-expected-result
                                      ~(concat overrides [:expected-result-form escaped-expected-result]))]
        (midje.semi-sweet/*expect-checking-fn* check# ~fakes))))
 
 (defmethod expect-expansion =future=>
   [call-form arrow expected-result _fakes_ overrides]
-  `(let [check# (core-maps/make-example-map ~call-form ~arrow ~expected-result ~overrides)]
+  `(let [check# (map-templates/example ~call-form ~arrow ~expected-result ~overrides)]
      (emit/future-fact (fact-context/nested-descriptions ~(str "on `" call-form "`"))
                        (:position check#))))
 
