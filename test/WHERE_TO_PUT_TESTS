@@ -1,0 +1,40 @@
+Midje has three test directories with three different
+purposes.
+
+WARNING: As with all categories
+http://www.exampler.com/testing-com/writings/pnsqc-2005-communication.pdf
+these have fuzzy boundaries. Moreover, the categories have
+evolved, so there are a number of tests in the wrong
+category. But maintainers should try to make things
+less-wrong.
+
+as_documentation
+    The wiki user documentation is intended to be a good
+    guide for users. The `as-documentation` tests should
+    serve as a useful supplement. That means that these
+    tests should (1) have extra-good explanations and
+    variable names, and (2) be restricted to information an
+    expert user would want to know. Details and things that
+    "should just work in the obvious way" should go
+    elsewhere. 
+
+behaviors
+    These tests are written using the midje.sweet
+    namespace. That is, they don't reach "under the
+    hood". They, however, explore behaviors that are
+    visible to the user, but not one she wants to learn
+    about. For example, the details of line number
+    calculation aren't relevant to the user: it should just
+    work. So a test about line numbers doesn't belong
+    in `as-documentation`. Since it's important and directly
+    user-visible behavior, it doesn't belong in `midje`. So
+    it goes here.
+
+midje
+    Test namespaces here correspond one-to-one to source
+    namespaces. The tests here are about internal
+    mechanism. It's best if user-visible behavior is tested
+    in one of the above two categories.
+
+    Someday I may rename this namespace `internals`.
+
