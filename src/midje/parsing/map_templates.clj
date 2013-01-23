@@ -5,6 +5,7 @@
         midje.ideas.arrows
         [midje.util.form-utils :only [extended-fn?]])
   (:require [midje.internal-ideas.fact-context :as fact-context]
+            [midje.parsing.util.fnref :as fnref]
             [midje.internal-ideas.file-position :as position]))
 
 
@@ -30,7 +31,10 @@
 ;;; maps. However, there is one way this reference is not definitive: 
 ;;; The parsing code that converts forms into template maps may add on keys
 ;;; that are useful for debugging or for tools that want to know where the
-;;; final maps came from. To know what keys those are, see the relevant code. 
+;;; final maps came from. To know what keys those are, see the relevant code.
+
+;;; I don't know if gathering all this in one place is really worth the trouble, but
+;;; we'll see.
 
 ;;;                                             Example maps
 
@@ -52,13 +56,26 @@
     (hash-map-duplicates-ok ~@overrides)))
 
 
-;;;                                             Redefine Maps
+;;;                                             Fake Maps
 
-;; A redefine map describes all or part of a future redefinition of a var. Redefine are used
-;; to produce mock/fake style functions that record their invocations and also return canned
-;; values.
+;; A fake map describes all or part of a temporary rebinding of a var with a function that
+;; captures invocations and also returns canned values.
 
-;;;;; This should eventually be extracted from fake*
+(defmacro fake [call-form fnref args arrow result]
+  ;; The (vec args) keeps something like (...o...) from being
+  ;; evaluated as a function call later on. Right approach would
+  ;; seem to be '~args. That causes spurious failures. Debug
+  ;; someday.
+  `{:type :fake
+    :var ~(fnref/fnref-call-form fnref)
+    :value-at-time-of-faking (if (bound? ~(fnref/fnref-call-form fnref))
+                               ~(fnref/fnref-dereference-form fnref))
+    :arg-matchers (map midje.internal-ideas.fakes/arg-matcher-maker ~(vec args))
+    :result-supplier (midje.internal-ideas.fakes/fn-fake-result-supplier ~arrow ~result)
+
+    :position (position/user-file-position)
+    :call-count-atom (atom 0)
+    :call-text-for-failures (str '~call-form)})
 
 
 ;;;                                             Metaconstant Detail Maps

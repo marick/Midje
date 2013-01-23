@@ -22,7 +22,8 @@
             [midje.config :as config]
             [midje.error-handling.exceptions :as exceptions]
             [midje.emission.api :as emit]
-            [midje.parsing.util.fnref :as fnref])
+            [midje.parsing.util.fnref :as fnref]
+            [midje.parsing.map-templates :as map-templates])
   (:import midje.data.metaconstant.Metaconstant))
 
 
@@ -111,15 +112,13 @@
     ;; someday.
     (when (statically-disallowed-prerequisite-function (fnref/fnref-var-object fnref))
       (raise-disallowed-prerequisite-error (fnref/fnref-var-object fnref)))
-    (make-fake-map call-form arrow (cons result overrides)
-      fnref
-      `{:arg-matchers (map midje.internal-ideas.fakes/arg-matcher-maker ~(vec args))
-        :call-text-for-failures (str '~call-form)
-        :value-at-time-of-faking (if (bound? ~(fnref/fnref-call-form fnref))
-                                   ~(fnref/fnref-dereference-form fnref))
-        :result-supplier (fn-fake-result-supplier ~arrow ~result)
-        :type :fake}
-      overrides))
+    (let [source-details `{:call-form '~call-form
+                           :arrow '~arrow
+                           :rhs '~(cons result overrides)}]
+      `(merge
+        (map-templates/fake ~call-form ~fnref ~args ~arrow ~result)
+        ~source-details
+        ~(apply hash-map-duplicates-ok overrides))))
   
   (defn data-fake* [[metaconstant arrow contained & overrides]]
     (make-fake-map metaconstant arrow (cons contained overrides)
