@@ -27,3 +27,37 @@
 (fact names => ["..a.." "--b--"])
 
 
+;;; Some random other stuff.
+
+(defn concer [source] (str (:a source) (:b source) (:c source)))
+(fact "metaconstant parsing obeys lexical scoping"
+  (let [c 'c]
+    (concer ...source...) => "abc"
+    (provided
+      ...source... =contains=> '{:a a, :b b}
+      ...source... =contains=> {:c c})))
+  
+
+(unfinished m)
+(defn caller [head tail]
+  (m head tail))
+
+(fact "metaconstants work even when quoted"
+  (caller 'sym ...tail...) => '(sym ...tail...)
+  (provided (m 'sym ...tail...) => '(sym ...tail...)))
+
+(defn claim-symbols [symbols]
+  (fact 
+    (doseq [metaconstant-symbol symbols]
+      (find (ns-interns *ns*) metaconstant-symbol) => truthy
+      (var-get ((ns-interns *ns*) metaconstant-symbol)) => metaconstant-symbol)))
+
+"Metaconstants can be declared in backgrounds"
+(declare f)
+(background (f ...one...) => 1 )
+(against-background [ (f ...two...) => 2 ]
+  (fact 
+    (+ (f ...one...) (f ...two...) (f ...three...))  => 6
+    (against-background (f ...three...) => 3)))
+(claim-symbols '(...one... ...two... ...three...))
+

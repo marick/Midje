@@ -99,3 +99,70 @@
   (pr-str .mc.) => ".mc.")
 
 
+;;;  The following are essentially the same tests, except with the in-fact metaconstant notation.
+
+;;; Metaconstants-that-contain: as used in code
+
+(fact "all three types of lookup"
+  (against-background --mc-- =contains=> {:a 5})
+  (:a --mc--) => 5
+  (get --mc-- :a) => 5
+  (--mc-- :a) => 5)
+
+(fact "Equality can be used to compare two metaconstants for identity"
+  (let [aliased-as-function-argument ..m..]
+    (= aliased-as-function-argument ..m....) => truthy)
+  "Contents are not used in a comparison check."
+  (= ..m.. ..n..) => falsey
+  (provided
+    ..m.. =contains=> {:a 4}
+    ..n.. =contains=> {:a 4}))
+
+(fact "It is an error to compare a metaconstant to a map or record."
+  (= ..m.. {:a 4}) => (throws Error))
+
+(fact "It is appropriate to compare a metaconstant to its name."
+  (= '..m.. ..m..) => truthy
+  (= ..m.. '..m..) => truthy
+  (= '..m.. ..nnn..) => falsey
+  (= ..nnn.. '..m..) => falsey
+
+  "even if the number of .'s is not exactly the same"
+  (= '..m.. ...m...) => truthy
+  (= ..m.. '...m...) => truthy
+  (= 'm ..m..) => falsey
+  (= ..m.. 'm) => falsey)
+
+(fact "Metaconstant equality blows up when given anything else."
+  (= ..m.. "foo") => (throws Error)
+  (= ..m.. :foo) => (throws Error)
+  (= ..m.. 1111) => (throws Error)
+  (= "foo" ..m..) => (throws Error)
+  (= :foo ..m..) => (throws Error)
+  (= 11111 ..m..) => (throws Error))
+
+
+(fact "a good many operations are not allowed"
+  (against-background ..m.. =contains=> {'a even?}
+                      ..n.. =contains=> {:b 4})
+  (assoc ..m.. 'b odd?) => (throws Error)
+  (merge ..m.. ..n..) => (throws Error)
+  (merge {:a 1} ..n..) => {:a 1, :b 4}
+  (merge ..m.. {:a 1}) => (throws Error)
+  (cons [:a 1] ..m..) => [ [:a 1] ['a even?] ]  ; Can't prevent.
+  (conj ..m.. {:a 3}) => (throws Error))
+
+(fact "keys, values, and contains work on metaconstants"
+  (against-background ..m.. =contains=> {:a 3, :b 4})
+  (keys ..m..) => [:a :b]
+  (vals ..m..) => [3 4]
+  (contains? ..m.. :a) => truthy
+  (contains? ..m.. :c) => falsey)
+
+(fact "Map, reduce"
+  (against-background ..m.. =contains=> {:a 1, :b 2, :c 3})
+  (map (fn [[_ value]] value) ..m..) => (just #{1 2 3})
+  (reduce (fn [so-far [_ value]] (+ so-far value))
+          0
+          ..m..) => 6)
+
