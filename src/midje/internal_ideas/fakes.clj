@@ -17,7 +17,6 @@
         [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out
                                                    with-pushed-namespace-values
                                                    with-altered-roots]]
-        [midje.error-handling.exceptions :only [user-error]]
         [midje.internal-ideas.wrapping :only [with-wrapping-target]]
         [midje.util.deprecation :only [deprecate]]
         [midje.ideas.arrow-symbols]
@@ -25,6 +24,7 @@
   (:require [midje.data.metaconstant :as metaconstant]
             [clojure.zip :as zip]
             [midje.config :as config]
+            [midje.error-handling.exceptions :as exceptions]
             [midje.emission.api :as emit])
   (:import midje.data.metaconstant.Metaconstant))
 
@@ -58,7 +58,7 @@
   (let [the-stream (atom result-stream)]
     (fn []
       (when (empty? @the-stream)
-        (throw (user-error "Your =stream=> ran out of values.")))
+        (throw (exceptions/user-error "Your =stream=> ran out of values.")))
       (let [current-result (first @the-stream)]
         (swap! the-stream rest)
         current-result))))
@@ -66,11 +66,11 @@
 (defmethod fn-fake-result-supplier =throws=> [_arrow_ throwable]
   (fn []
     (when-not (instance? Throwable throwable) 
-      (throw (user-error "Right side of =throws=> should extend Throwable.")))
+      (throw (exceptions/user-error "Right side of =throws=> should extend Throwable.")))
     (throw throwable)))
 
 (defmethod fn-fake-result-supplier :default [arrow result-stream]
-  (throw (user-error "It's likely you misparenthesized your metaconstant prerequisite,"
+  (throw (exceptions/user-error "It's likely you misparenthesized your metaconstant prerequisite,"
                      "or that you forgot to use an arrow in your provided form.")))
 
 
@@ -86,7 +86,7 @@
 (defn #^:private
   raise-disallowed-prerequisite-error [function-name]
   (throw
-   (user-error
+   (exceptions/user-error
     "You seem to have created a prerequisite for"
     (str (pr-str function-name) " that interferes with that function's use in Midje's")
     (str "own code. To fix, define a function of your own that uses "

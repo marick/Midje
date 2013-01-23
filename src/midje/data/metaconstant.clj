@@ -2,7 +2,8 @@
             about data and what’s accidental. A stand in for constant data."}
   midje.data.metaconstant
   (:use [midje.util.thread-safe-var-nesting :only [unbound-marker]])
-  (:require [midje.util.ecosystem :as ecosystem]))
+  (:require [midje.util.ecosystem :as ecosystem]
+            [midje.error-handling.exceptions :as exceptions]))
 
 
 ;;; Metaconstants are built from special symbols, called "metaconstant symbol". Such symbols
@@ -62,7 +63,7 @@
            (find storage key))
   (assoc [this key val]
     ;; (Metaconstant. (.underlying-symbol this) (assoc storage key val))) 
-    (throw (user-error 
+    (throw (exceptions/user-error 
             (str "Metaconstants (" (.underlying-symbol this) ") can't have values assoc'd onto them.")
             "If you have a compelling need for that, please create an issue:"
             ecosystem/issues-url)))
@@ -76,7 +77,7 @@
          (count storage))
   (cons [this o]
         ;; (Metaconstant. (.underlying-symbol this) (cons storage o)))
-        (throw (user-error
+        (throw (exceptions/user-error
                 (str "Metaconstants (" (.underlying-symbol this) ") can't have values added onto them.")
                 "If you have a compelling need for that, please create an issue:"
                 ecosystem/issues-url)))
@@ -87,7 +88,7 @@
                  (= (type that) Metaconstant)
                  (= that unbound-marker))
            (.equals this that)
-           (throw (user-error
+           (throw (exceptions/user-error
                    (str "Metaconstants (" (.underlying-symbol this) ") can't be compared for equality with " (pr-str that) ".")
                    "If you have a compelling case for equality, please create an issue:"
                    ecosystem/issues-url)))))
