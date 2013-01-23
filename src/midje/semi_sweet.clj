@@ -92,7 +92,7 @@
    Example: (let [a 5] (fake (f a) => a))"
   {:arglists '([call-form arrow result & overrides])}
   [& forms]
-  (when-valid &form (fake* forms)))
+  (when-valid &form (parse-fakes/fake* forms)))
 
 (defmacro data-fake
   "Creates a fake map that's used to associate key/value pairs with a metaconstant"

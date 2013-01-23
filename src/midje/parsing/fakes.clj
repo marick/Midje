@@ -20,7 +20,9 @@
   (:require [midje.data.metaconstant :as metaconstant]
             [clojure.zip :as zip]
             [midje.config :as config]
+            [midje.parsing.util.fnref :as fnref]
             [midje.error-handling.exceptions :as exceptions]
+            [midje.parsing.map-templates :as map-templates]
             [midje.emission.api :as emit])
   (:import midje.data.metaconstant.Metaconstant))
 
@@ -32,3 +34,44 @@
   `(~@fake :background :background :times (~'range 0)))
 
 
+
+(defn #^:private
+  statically-disallowed-prerequisite-function
+  "To prevent people from mocking functions that Midje itself uses,
+   we mostly rely on dynamic checking. But there are functions within
+   the dynamic checking code that must also not be replaced. These are
+   the ones that are known."
+  [some-var]
+  (#{#'deref #'assoc} some-var))
+
+(defn raise-disallowed-prerequisite-error [function-name]
+  (throw
+   (exceptions/user-error
+    "You seem to have created a prerequisite for"
+    (str (pr-str function-name) " that interferes with that function's use in Midje's")
+    (str "own code. To fix, define a function of your own that uses "
+         (or (:name (meta function-name)) function-name) ", then")
+    "describe that function in a provided clause. For example, instead of this:"
+    "  (provided (every? even? ..xs..) => true)"
+    "do this:"
+    "  (def all-even? (partial every? even?))"
+    "  ;; ..."
+    "  (provided (all-even? ..xs..) => true)")))
+
+
+
+  (defn fake* [ [[fnref & args :as call-form] arrow result & overrides] ]
+    ;; The (vec args) keeps something like (...o...) from being
+    ;; evaluated as a function call later on. Right approach would
+    ;; seem to be '~args. That causes spurious failures. Debug
+    ;; someday.
+    (when (statically-disallowed-prerequisite-function (fnref/fnref-var-object fnref))
+      (raise-disallowed-prerequisite-error (fnref/fnref-var-object fnref)))
+    (let [source-details `{:call-form '~call-form
+                           :arrow '~arrow
+                           :rhs '~(cons result overrides)}]
+      `(merge
+        (map-templates/fake ~call-form ~fnref ~args ~arrow ~result)
+        ~source-details
+        ~(apply hash-map-duplicates-ok overrides))))
+  
