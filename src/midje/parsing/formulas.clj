@@ -1,5 +1,5 @@
 (ns ^{:doc "Midje's special blend of generative-style testing."}
-  midje.ideas.formulas
+  midje.parsing.formulas
   (:use [midje.util.form-utils :only [first-named? named? pop-docstring pop-opts-map]]
         [midje.error-handling.validation-errors :only [simple-validation-error-report-form validate-m validate]]
         [midje.ideas.prerequisites :only [head-of-form-providing-prerequisites?]]
@@ -7,6 +7,7 @@
         [midje.parsing.future-facts :only [future-prefixes]]
         [clojure.algo.monads :only [domonad]]
         [clojure.string :only [join]]
+        [midje.util.form-utils :only [macro-for]]
         [clojure.walk :only [prewalk]])
   (:require [midje.emission.boundaries :as emission-boundary]
             [midje.emission.api :as emit]
@@ -57,7 +58,7 @@
                    This is higher precedence than *num-trials*
                    Must be set to a number 1 or greater.
   
-  The midje.ideas.formulas/*num-trials* dynamic var determines
+  The *num-trials* dynamic var determines
   how many facts are generated per formula."
   {:arglists '([docstring? opts-map? bindings & body])}
   [& _args]
@@ -65,7 +66,7 @@
                        fact (formula-fact docstring? body)]
 
     `(around-formula
-       (loop [num-trials-left# (or (:num-trials ~opts-map) midje.ideas.formulas/*num-trials*)]
+       (loop [num-trials-left# (or (:num-trials ~opts-map) midje.parsing.formulas/*num-trials*)]
          (when (pos? num-trials-left#)
            (let [binding-rightsides# ~(vec (take-nth 2 (rest bindings)))
                  ~(vec (take-nth 2 bindings)) binding-rightsides#
@@ -76,10 +77,20 @@
                success?#)))))))
 
 (defmacro with-num-trials [num-trials & formulas]
-  `(binding [midje.ideas.formulas/*num-trials* ~num-trials]
+  `(binding [midje.parsing.formulas/*num-trials* ~num-trials]
      ~@formulas))
 
 (def future-formula-variant-names (map #(str % "formula") future-prefixes))
+
+
+(defmacro generate-future-formula-variants []
+  (macro-for [name future-formula-variant-names]
+    `(defmacro ~(symbol name)
+       "ALPHA/EXPERIMENTAL (subject to change)
+        Formula that will not be run. Generates 'WORK TO DO' report output as a reminder."
+       {:arglists '([& forms])}
+       [& forms#]
+       (parse-future-fact/parse ~'&form))))
 
 (defn- check-part-of [form]
   (prewalk (fn [form] 

@@ -1,8 +1,8 @@
-(ns midje.ideas.t-formulas
+(ns behaviors.t-formulas
   (:use midje.test-util
         midje.sweet
         midje.util.ecosystem
-        [midje.ideas.formulas :only [*num-trials* with-num-trials]] )
+        [midje.parsing.formulas :only [*num-trials* with-num-trials]] )
   (:require [midje.config :as config]))
 
 ;;;; Formulas

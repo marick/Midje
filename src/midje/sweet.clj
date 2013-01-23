@@ -18,11 +18,9 @@
         [midje.internal-ideas.file-position :only [set-fallback-line-number-from]]
         [midje.parsing.facts :only [complete-fact-transformation
                                   midjcoexpand]] 
-        [midje.ideas.formulas :only [future-formula-variant-names]]
         [clojure.algo.monads :only [domonad]])
   (:require [midje.ideas.background :as background]
             [midje.emission.api :as emit]
-            [midje.ideas.formulas :as formulas]
             [midje.doc :as doc]
             [midje.internal-ideas.fact-context :as fact-context]
             [midje.util.namespace :as namespace]
@@ -30,6 +28,7 @@
             [midje.parsing.future-facts :as parse-future-fact]
             [midje.parsing.metaconstants :as parse-metaconstants]
             [midje.parsing.tabular :as tabular]
+            [midje.parsing.formulas :as parse-formulas]
             midje.checkers))
 
 (immigrate 'midje.checking.examples)
@@ -44,7 +43,7 @@
 (intern+keep-meta *ns* 'before  #'background/before)
 (intern+keep-meta *ns* 'after   #'background/after)
 (intern+keep-meta *ns* 'around  #'background/around)
-(intern+keep-meta *ns* 'formula #'formulas/formula)
+(intern+keep-meta *ns* 'formula #'parse-formulas/formula)
 
 (when (doc/appropriate?)
   (namespace/immigrate-from 'midje.doc doc/for-sweet)
@@ -115,17 +114,7 @@
       (with-meta `(fact ~@forms) (meta &form)))))
 
 (parse-future-fact/generate-variants)
-
-(defmacro ^{:private true} generate-future-formula-variants []
-  (macro-for [name future-formula-variant-names]
-    `(defmacro ~(symbol name)
-       "ALPHA/EXPERIMENTAL (subject to change)
-        Formula that will not be run. Generates 'WORK TO DO' report output as a reminder."
-       {:arglists '([& forms])}
-       [& forms#]
-       (parse-future-fact/parse ~'&form))))
-(generate-future-formula-variants)
-
+(parse-formulas/generate-future-formula-variants)
 
 (defmacro tabular 
   "Generate a table of related facts.
