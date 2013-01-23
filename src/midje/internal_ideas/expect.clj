@@ -4,7 +4,7 @@
   (:use [midje.util.treelike :only [tree-variant]]
         [midje.util.namespace :only [matches-symbols-in-semi-sweet-or-sweet-ns?]]
         [midje.util.form-utils :only [first-named?]]
-        [midje.util.zip :only [skip-to-rightmost-leaf n-times remove-moving-right]]
+        [midje.parsing.util.zip :only [skip-to-rightmost-leaf n-times remove-moving-right]]
         [midje.ideas.arrows :only [start-of-checking-arrow-sequence? arrow-sequence-overrides]]
         [midje.internal-ideas.file-position :only [arrow-line-number]])
   (:require [clojure.zip :as zip]))

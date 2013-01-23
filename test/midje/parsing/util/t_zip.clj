@@ -1,5 +1,5 @@
-(ns midje.util.t-zip
-  (:use [midje.util.zip]
+(ns midje.parsing.util.t-zip
+  (:use [midje.parsing.util.zip]
 	midje.sweet
 	midje.test-util)
   (:require [clojure.zip :as zip])

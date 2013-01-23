@@ -6,7 +6,7 @@
         [midje.internal-ideas.file-position :only [form-with-copied-line-numbers]]
         [midje.util.form-utils :only [pop-docstring translate-zipper]]
         [midje.util.deprecation :only [deprecate]]
-        [midje.util.zip :only [skip-to-rightmost-leaf]]
+        [midje.parsing.util.zip :only [skip-to-rightmost-leaf]]
         [midje.internal-ideas.expect :only [expect?]]
         [midje.ideas.arrows :only [above-arrow-sequence__add-key-value__at-arrow]]
         [midje.parsing.facts :only [working-on-nested-facts]]

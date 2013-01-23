@@ -24,7 +24,7 @@
         [midje.util.form-utils :only [def-many-methods first-named? translate-zipper
                                       preserve-type quoted? pred-cond reader-line-number named?]]
         [midje.util.laziness :only [eagerly]]
-        [midje.util.zip :only [skip-to-rightmost-leaf]]
+        [midje.parsing.util.zip :only [skip-to-rightmost-leaf]]
         [swiss-arrows.core :only [-<>]])
   (:require [clojure.zip :as zip])
   (:require [midje.checking.facts :as fact-checking]
