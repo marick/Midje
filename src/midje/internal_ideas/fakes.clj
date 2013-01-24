@@ -51,15 +51,6 @@
               special-to-fake-type
               (apply hash-map-duplicates-ok user-override-pairs)))) ]
 
-  (defn data-fake* [[metaconstant arrow contained & overrides]]
-    (make-fake-map metaconstant arrow (cons contained overrides)
-      metaconstant
-      `{:contained ~contained
-        :call-count-atom (atom 1) ;; CLUDKJE!
-        :type :fake
-        :data-fake true}
-      overrides))
-  
   (defn not-called* [var-sym & overrides]
     (make-fake-map nil nil nil ;; deprecated, so no support for fields for tool creators 
       var-sym

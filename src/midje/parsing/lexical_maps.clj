@@ -54,8 +54,14 @@
 
 ;;;                                             Metaconstant Detail Maps
 
-;; An associative description map is a partial description of what a Metaconstant is
-;; defined to contain.
+;; A data fake is the implementation of `..metaconstant.. =contains=> {..}`.
 
-;;;;; This should eventually be extracted from data-fake*
-
+(defmacro data-fake [metaconstant arrow contained]
+  `{:type :fake
+    :data-fake true
+    :var ~(fnref/fnref-call-form metaconstant)
+    :contained ~contained
+    
+    :position (position/user-file-position)
+    :call-count-atom (atom 1) ;; kludje
+    })

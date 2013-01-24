@@ -16,7 +16,9 @@
   (:require [midje.internal-ideas.fact-context :as fact-context]
             [midje.parsing.lexical-maps :as lexical-maps]
             [midje.emission.api :as emit]
-            [midje.parsing.2-to-lexical-maps.fakes :as parse-fakes]))
+            [midje.parsing.2-to-lexical-maps.fakes :as parse-fakes]
+            [midje.parsing.2-to-lexical-maps.data-fakes :as parse-data-fakes]))
+  
 
 (immigrate 'midje.checking.examples)
 (immigrate 'midje.ideas.arrow-symbols)
@@ -98,7 +100,7 @@
   "Creates a fake map that's used to associate key/value pairs with a metaconstant"
   {:arglists '([metaconstant arrow contained & overrides])}
   [& forms]
-  (when-valid &form (data-fake* forms)))
+  (when-valid &form (parse-data-fakes/to-lexical-map-form forms)))
 
 (defmacro not-called
   "Creates an fake map that a function will not be called.
