@@ -22,7 +22,7 @@
             [midje.config :as config]
             [midje.parsing.util.fnref :as fnref]
             [midje.error-handling.exceptions :as exceptions]
-            [midje.parsing.map-templates :as map-templates]
+            [midje.parsing.lexical-maps :as lexical-maps]
             [midje.emission.api :as emit])
   (:import midje.data.metaconstant.Metaconstant))
 
@@ -60,7 +60,7 @@
 
 
 
-  (defn fake* [ [[fnref & args :as call-form] arrow result & overrides] ]
+  (defn to-lexical-map-form [ [[fnref & args :as call-form] arrow result & overrides] ]
     ;; The (vec args) keeps something like (...o...) from being
     ;; evaluated as a function call later on. Right approach would
     ;; seem to be '~args. That causes spurious failures. Debug
@@ -71,7 +71,7 @@
                            :arrow '~arrow
                            :rhs '~(cons result overrides)}]
       `(merge
-        (map-templates/fake ~call-form ~fnref ~args ~arrow ~result)
+        (lexical-maps/fake ~call-form ~fnref ~args ~arrow ~result)
         ~source-details
         ~(apply hash-map-duplicates-ok overrides))))
   

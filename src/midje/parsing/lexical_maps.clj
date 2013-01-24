@@ -1,5 +1,5 @@
 (ns ^{:doc "example maps, redefine maps, failure maps"} 
-  midje.parsing.map-templates
+  midje.parsing.lexical-maps
   (:use [midje.util.form-utils :only [hash-map-duplicates-ok]])
   (:use midje.ideas.arrow-symbols
         midje.ideas.arrows
@@ -9,29 +9,32 @@
             [midje.internal-ideas.file-position :as position]))
 
 
-;;; Midje is driven off various kinds of maps. These are created via
-;;; macroexpansion into "template maps" that associate keywords
-;;; together with not-yet-evaluated forms that produce values.  Some
-;;; of the forms are self-evaluating literals. For example, arrows
-;;; might be transformed into keywords so that the map contains this:
-;;;
-;;;       :check-expectation :expect-match
-;;;
-;;; But more common are form like:
+;;; Midje is driven off various kinds of maps. Those maps contain
+;;; values that must capture the lexical context. For example, the
+;;; right-hand-side of an arrow may be a symbol that's bound with a
+;;; `let`. To capture the lexical context [*], we expand forms into
+;;; "lexical maps". They are maps whose creators are expected to be
+;;; macros. As a result, they are allowed to look like this:
 ;;;
 ;;;       :var (var foo)
 ;;;       :description (fact-context/nested-descriptions)
+;;;       :checking-function (create-checker-from a)
 ;;;
-;;; When the result of the macroexpansion is evaluated, the final maps are created.
-;;; All this rigamarole is required so that the final maps have access to the lexical
-;;; environment.
+;;; The right-hand sides are evaluated in the lexical environment
+;;; of the original Midje facts. Therefore, for example, in the case
+;;; of:
 ;;;
-;;; The template maps are listed here so that there's something like a
+;;;     (let [a 1] (fact 1 => a))
+;;;
+;;; ... `create-checker-from` receives the value 1.
+;;;
+;;; The lexical maps are listed here so that there's something like a
 ;;; single point of reference for all the different "shapes" of
 ;;; maps. However, there is one way this reference is not definitive: 
 ;;; The parsing code that converts forms into template maps may add on keys
 ;;; that are useful for debugging or for tools that want to know where the
 ;;; final maps came from. To know what keys those are, see the relevant code.
+;;; (The expectation is that such maps do not depend on the lexical environment.)
 
 ;;; I don't know if gathering all this in one place is really worth the trouble, but
 ;;; we'll see.

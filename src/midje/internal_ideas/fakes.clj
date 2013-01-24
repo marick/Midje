@@ -24,7 +24,7 @@
             [midje.emission.api :as emit]
             [midje.parsing.util.fnref :as fnref]
             [midje.parsing.fakes :as parse-fakes]
-            [midje.parsing.map-templates :as map-templates])
+            [midje.parsing.lexical-maps :as lexical-maps])
   (:import midje.data.metaconstant.Metaconstant))
 
 

@@ -14,7 +14,7 @@
         clojure.pprint
         [clojure.string :only [join]])
   (:require [midje.internal-ideas.fact-context :as fact-context]
-            [midje.parsing.map-templates :as map-templates]
+            [midje.parsing.lexical-maps :as lexical-maps]
             [midje.emission.api :as emit]
             [midje.parsing.fakes :as parse-fakes]))
 
@@ -29,20 +29,20 @@
 
 (def-many-methods expect-expansion [=> =not=> =deny=>]
   [call-form arrow expected-result fakes overrides]
-  `(let [check# (map-templates/example ~call-form ~arrow ~expected-result ~overrides)]
+  `(let [check# (lexical-maps/example ~call-form ~arrow ~expected-result ~overrides)]
      (midje.semi-sweet/*expect-checking-fn* check# ~fakes)))
 
 (defmethod expect-expansion =expands-to=>
   [call-form _arrow_ expected-result fakes overrides]
   (let [expanded-macro `(macroexpand-1 '~call-form)
         escaped-expected-result `(quote ~expected-result)]
-    `(let [check# (map-templates/example ~expanded-macro => ~escaped-expected-result
+    `(let [check# (lexical-maps/example ~expanded-macro => ~escaped-expected-result
                                      ~(concat overrides [:expected-result-form escaped-expected-result]))]
        (midje.semi-sweet/*expect-checking-fn* check# ~fakes))))
 
 (defmethod expect-expansion =future=>
   [call-form arrow expected-result _fakes_ overrides]
-  `(let [check# (map-templates/example ~call-form ~arrow ~expected-result ~overrides)]
+  `(let [check# (lexical-maps/example ~call-form ~arrow ~expected-result ~overrides)]
      (emit/future-fact (fact-context/nested-descriptions ~(str "on `" call-form "`"))
                        (:position check#))))
 
@@ -92,7 +92,7 @@
    Example: (let [a 5] (fake (f a) => a))"
   {:arglists '([call-form arrow result & overrides])}
   [& forms]
-  (when-valid &form (parse-fakes/fake* forms)))
+  (when-valid &form (parse-fakes/to-lexical-map-form forms)))
 
 (defmacro data-fake
   "Creates a fake map that's used to associate key/value pairs with a metaconstant"
