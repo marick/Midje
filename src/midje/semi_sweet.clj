@@ -1,7 +1,7 @@
 (ns ^{:doc "Macros that provide less syntactic sugaring than those 
             from midje.sweet. midje.sweet is built on top of it."}
   midje.semi-sweet
-  (:use midje.internal-ideas.fakes
+  (:use midje.data.prerequisite-state
         [midje.util debugging form-utils namespace]
         [midje.util.deprecation :only [deprecate]]
         midje.error-handling.validation-errors
@@ -9,6 +9,7 @@
         [midje.error-handling.exceptions :only [user-error]]
         [midje.util.namespace :only [semi-sweet-keyword?]]
         [midje.util.ecosystem :only [line-separator]]
+        [midje.internal-ideas.file-position :only [user-file-position]]
         midje.production-mode
         [clojure.algo.monads :only [domonad]]
         clojure.pprint
@@ -17,6 +18,7 @@
             [midje.parsing.lexical-maps :as lexical-maps]
             [midje.emission.api :as emit]
             midje.checking.examples
+            [midje.parsing.util.fnref :as fnref]
             [midje.parsing.2-to-lexical-maps.fakes :as parse-fakes]
             [midje.parsing.2-to-lexical-maps.data-fakes :as parse-data-fakes]))
   
@@ -101,6 +103,30 @@
   {:arglists '([metaconstant arrow contained & overrides])}
   [& forms]
   (when-valid &form (parse-data-fakes/to-lexical-map-form forms)))
+
+
+
+(letfn [(make-fake-map [call-form arrow rhs fnref special-to-fake-type user-override-pairs]
+          (let [common-to-all-fakes `{:var ~(fnref/fnref-call-form fnref)
+                                      :call-count-atom (atom 0)
+                                      :position (user-file-position)
+
+                                      ;; for Midje tool creators:
+                                      :call-form '~call-form
+                                      :arrow '~arrow 
+                                      :rhs '~rhs}]
+            (merge
+              common-to-all-fakes
+              special-to-fake-type
+              (apply hash-map-duplicates-ok user-override-pairs)))) ]
+
+  (defn- not-called* [var-sym & overrides]
+    (make-fake-map nil nil nil ;; deprecated, so no support for fields for tool creators 
+      var-sym
+      `{:call-text-for-failures (str '~var-sym " was called.")
+        :result-supplier (constantly nil)
+        :type :not-called}
+      overrides)))
 
 (defmacro not-called
   "Creates an fake map that a function will not be called.

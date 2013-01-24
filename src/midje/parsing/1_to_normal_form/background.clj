@@ -4,7 +4,7 @@
   (:use [midje.ideas.arrows :only [start-of-checking-arrow-sequence? take-arrow-sequence]]
         [midje.parsing.1-to-normal-form.metaconstants :only [predefine-metaconstants-from-form]]
         [midje.parsing.1-to-normal-form.prerequisites :only [metaconstant-prerequisite? prerequisite-to-fake]]
-        [midje.internal-ideas.fakes :only [with-installed-fakes]]
+        [midje.data.prerequisite-state :only [with-installed-fakes]]
         [midje.internal-ideas.wrapping :only [for-wrapping-target? with-wrapping-target]]
         [midje.util.form-utils :only [first-named? map-first pred-cond separate-by
                                       symbol-named? translate-zipper]]

@@ -8,7 +8,7 @@
   (:require [midje.config :as config])
   (:import midje.data.metaconstant.Metaconstant))
 
-(expose-testables midje.internal-ideas.fakes)
+(expose-testables midje.data.prerequisite-state)
 
 (tabular
   (facts "the arg matcher maker handles functions specially"

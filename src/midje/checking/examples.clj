@@ -3,7 +3,7 @@
   (:use clojure.test
         [midje.checkers.extended-equality :only [extended-= evaluate-checking-function]]
         [midje.error-handling.exceptions :only [captured-throwable]]
-        midje.internal-ideas.fakes
+        midje.data.prerequisite-state
         midje.util.form-utils
         midje.util.laziness
         [midje.util.namespace :only [immigrate]])

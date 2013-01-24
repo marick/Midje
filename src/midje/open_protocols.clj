@@ -6,7 +6,7 @@
   continuing on with its own implementation."}
   midje.open-protocols
   (:use [midje.production-mode :only [user-desires-checking?]]
-        [midje.internal-ideas.fakes :only [implements-a-fake?]]))
+        [midje.data.prerequisite-state :only [implements-a-fake?]]))
 
 (defn- ^{:testable true } implementation?
   "Is this thing a protocol or a function definition?"

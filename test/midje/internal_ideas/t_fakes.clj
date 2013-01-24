@@ -1,6 +1,6 @@
 (ns midje.internal-ideas.t-fakes
   (:use [midje sweet test-util]
-        [midje.internal-ideas.fakes :except [mockable-funcall? unfolding-step merge-metaconstant-bindings 
+        [midje.data.prerequisite-state :except [mockable-funcall? unfolding-step merge-metaconstant-bindings 
                                              unique-vars handle-mocked-call best-call-action ]]
         [utilize.seq :only (find-first only)]
         [midje.test-util]
@@ -9,7 +9,7 @@
   (:require [midje.config :as config])
   (:import midje.data.metaconstant.Metaconstant))
 
-(expose-testables midje.internal-ideas.fakes)
+(expose-testables midje.data.prerequisite-state)
 
 
 (declare f g)
