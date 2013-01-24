@@ -2,7 +2,7 @@
   midje.parsing.lexical-maps
   (:use [midje.util.form-utils :only [hash-map-duplicates-ok]])
   (:use midje.parsing.arrow-symbols
-        midje.ideas.arrows)
+        midje.parsing.util.arrows)
   (:require [midje.internal-ideas.fact-context :as fact-context]
             [midje.parsing.util.fnref :as fnref]
             [midje.internal-ideas.file-position :as position])

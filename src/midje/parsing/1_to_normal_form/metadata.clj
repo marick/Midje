@@ -2,7 +2,7 @@
   midje.parsing.1-to-normal-form.metadata
   (:use [midje.error-handling.exceptions :only [user-error]]
         clojure.pprint)
-  (:require [midje.ideas.arrows :as arrows]))
+  (:require [midje.parsing.util.arrows :as arrows]))
 
 
 (def ^{:dynamic true} metadata-for-fact-group {})

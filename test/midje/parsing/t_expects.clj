@@ -1,6 +1,6 @@
 (ns midje.parsing.t-expects
   (:use [midje.parsing.1-to-normal-form.expects]
-        [midje.ideas.arrows :only [start-of-checking-arrow-sequence?]]
+        [midje.parsing.util.arrows :only [start-of-checking-arrow-sequence?]]
 	midje.sweet
 	midje.test-util)
   (:require [clojure.zip :as zip])

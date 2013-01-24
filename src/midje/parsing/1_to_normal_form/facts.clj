@@ -13,7 +13,7 @@
         [midje.util.debugging :only [nopret]]
         [midje.parsing.1-to-normal-form.prerequisites :only [head-of-form-providing-prerequisites?
                                           insert-prerequisites-into-expect-form-as-fakes]]
-        [midje.ideas.arrows :only [start-of-checking-arrow-sequence? leaves-contain-arrow?]]
+        [midje.parsing.util.arrows :only [start-of-checking-arrow-sequence? leaves-contain-arrow?]]
         [midje.parsing.1-to-normal-form.background :only [surround-with-background-fakes
                                        body-of-against-background
                                        against-background-contents-wrappers

@@ -1,7 +1,7 @@
 (ns midje.internal-ideas.t-file-position
   (:use [midje.internal-ideas.file-position]
         [midje sweet test-util]
-        [midje.ideas.arrows :only [start-of-checking-arrow-sequence?]])
+        [midje.parsing.util.arrows :only [start-of-checking-arrow-sequence?]])
   (:require [clojure.zip :as zip]))
 
 (defn this-file [line-number] 

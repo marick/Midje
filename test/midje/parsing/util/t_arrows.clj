@@ -1,5 +1,5 @@
-(ns midje.ideas.t-arrows
-  (:use midje.ideas.arrows)
+(ns midje.parsing.util.t-arrows
+  (:use midje.parsing.util.arrows)
   (:use [midje sweet test-util])
   (:require [clojure.zip :as zip]))
 

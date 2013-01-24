@@ -8,7 +8,7 @@
         [midje.util.deprecation :only [deprecate]]
         [midje.parsing.util.zip :only [skip-to-rightmost-leaf]]
         [midje.parsing.1-to-normal-form.expects :only [expect?]]
-        [midje.ideas.arrows :only [above-arrow-sequence__add-key-value__at-arrow]]
+        [midje.parsing.util.arrows :only [above-arrow-sequence__add-key-value__at-arrow]]
         [midje.parsing.1-to-normal-form.facts :only [working-on-nested-facts]]
         [midje.data.metaconstant :only [metaconstant-symbol?]]
         [utilize.map :only [ordered-zipmap]])

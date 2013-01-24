@@ -1,7 +1,7 @@
 (ns ^{:doc "Code to be run before, after or around facts. Also, 
             prerequisites that pertain to a group of facts."} 
   midje.parsing.1-to-normal-form.background
-  (:use [midje.ideas.arrows :only [start-of-checking-arrow-sequence? take-arrow-sequence]]
+  (:use [midje.parsing.util.arrows :only [start-of-checking-arrow-sequence? take-arrow-sequence]]
         [midje.parsing.1-to-normal-form.metaconstants :only [predefine-metaconstants-from-form]]
         [midje.parsing.1-to-normal-form.prerequisites :only [metaconstant-prerequisite? prerequisite-to-fake]]
         [midje.data.prerequisite-state :only [with-installed-fakes]]

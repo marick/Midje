@@ -3,7 +3,7 @@
   (:use [clojure.pprint :only [cl-format]]
         [midje.error-handling.validation-errors :only [simple-validation-error-report-form 
                                                        validation-error-report-form validate when-valid]]
-        [midje.ideas.arrows :only [start-of-checking-arrow-sequence? take-arrow-sequence]]
+        [midje.parsing.util.arrows :only [start-of-checking-arrow-sequence? take-arrow-sequence]]
         [midje.parsing.1-to-normal-form.background :only [seq-headed-by-setup-teardown-form?]]
         [midje.parsing.1-to-normal-form.prerequisites :only [metaconstant-prerequisite?]]
         [midje.util.form-utils :only [def-many-methods named? pred-cond]]
