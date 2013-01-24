@@ -3,19 +3,20 @@ checking. For reference, the maps are gathered together in
 `lexical_maps.clj` in this directory. Partly for historical
 reasons, parsing is a 3 step process, each step represented
 by one of the `1_*`, `2_*`, and `3_*` directories. (The
-`0_*` directory will be explained later.
+`0_*` directory will be explained later.)
 
 ## Step 1: Converting from unclojurian to more clojurian syntax.
 
 Midje is notable (and, in some circles, notably disliked)
 for having a syntax that's not nicely nested in the normal
 Lispy way. For example, individual examples are not enclosed by
-parens:
+parens, and they don't start with a function name or similar
+token.
 
 ```clojure
       (fact
          (+ 1 1) => 2      ; The arrow is significant for parsing.
-         (+ 2 2) => 4)
+         (+ 2 2) => 4)     
 ```
 
 Files in `1_to_normal_form` convert from Midje syntax to a
@@ -69,8 +70,8 @@ value of `a`. (Note: the core midje code was written before
 &env has a published API that we could use.) Therefore,
 expect expands out into what I'm calling a "lexical map" - a
 form that needs to be evaluated in the lexical context
-before it is filled with the right values. Here's an example
-of part of an example's lexical map:
+before it is filled with the right values. Here's 
+part of an example's lexical map:
 
 ```clojure
     {:function-under-test (fn [] (* a 1))
