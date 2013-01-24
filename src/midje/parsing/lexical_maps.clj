@@ -46,6 +46,7 @@
                                ~(fnref/fnref-dereference-form fnref))
     :arg-matchers (map from-fake-maps/mkfn:arg-matcher ~(vec args))
     :result-supplier (from-fake-maps/mkfn:result-supplier ~arrow ~result)
+    :times :default  ; Default allows for a more attractive error in the most common case.
 
     :position (position/user-file-position)
     :call-count-atom (atom 0)

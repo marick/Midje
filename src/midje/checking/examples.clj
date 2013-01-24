@@ -60,7 +60,7 @@
 (defmulti call-count-incorrect? :type)
 
 (defmethod call-count-incorrect? :fake [fake]
-  (let [method (or (:times fake) :default )
+  (let [method (:times fake)
         count @(:call-count-atom fake)]
     (pred-cond method 
       #(= % :default) (zero? count)

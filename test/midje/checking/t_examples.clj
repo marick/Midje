@@ -9,9 +9,9 @@
            (call-count-incorrect? fake-fake) => ?expected))
 
          ?type          ?actual-count   ?specified-count        ?expected
-         :fake          0               nil                     TRUTHY
-         :fake          1               nil                     falsey
-         :fake          200             nil                     falsey
+         :fake          0               :default                TRUTHY
+         :fake          1               :default                falsey
+         :fake          200             :default                falsey
 
          :fake          2              (range 0 2)              TRUTHY
          :fake          1              (range 0 2)              falsey

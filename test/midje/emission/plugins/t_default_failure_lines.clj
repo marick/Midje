@@ -111,7 +111,7 @@
       (fact "the never-called case"
         (summarize {:type :some-prerequisites-were-called-the-wrong-number-of-times
                     :failures [{:actual-count 0
-                                :expected-count nil
+                                :expected-count :default
                                 :expected-result-form "(f a)"}] })
         => (just "notice"
                  #"These calls were not made the right number of times"

@@ -40,7 +40,7 @@
             (let [exp (:expected-count fail)
                   act (:actual-count fail)
                   msg (cond
-                       (and (nil? exp) (zero? act))
+                       (and (= :default exp) (zero? act))
                        "[expected at least once, actually never called]"
                   
                        :else 
