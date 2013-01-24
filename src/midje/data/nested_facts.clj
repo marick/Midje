@@ -1,7 +1,7 @@
 (ns ^{:doc "During checking of a fact, this contains pointers to the facts that contain it,
             in outer-to-inner order. The fact itself is the `last` of the sequence."}
   midje.data.nested-facts
-  (:use [clojure.string :only [join]]))
+  (:require [midje.data.fact :as fact]))
 
 ;;; Note: this should probably be a lexically-scoped property of the
 ;;; fact, created at parse time. However, it was created before facts
@@ -13,10 +13,12 @@
 (def ^{:dynamic true} *fact-context* [])
 
 (defn descriptions
-  ([] *fact-context*)
-  ([addition] (conj *fact-context* addition)))
+  ([]
+     (vec (map fact/description *fact-context*)))
+  ([suffix]
+     (conj (descriptions) suffix)))
 
-(defmacro adds [description & body]
-  `(binding [*fact-context* (conj *fact-context* ~description)]
+(defmacro in-new-fact [fact & body]
+  `(binding [*fact-context* (conj *fact-context* ~fact)]
      ~@body))
 

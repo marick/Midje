@@ -21,10 +21,8 @@
      :expected-result-form '~expected-result 
      :position (position/user-file-position)
 
-     ;; Adding this `description` field gestures in the
-     ;; direction of a lexically-scoped fact context.
-     ;; At failure time, the data isn't plucked out of the
-     ;; dynamic runtime. Maybe it should be.
+     ;; Adding this field insulates people writing emission plugins
+     ;; from the mechanism for keeping track of nested facts.
      :description (nested-facts/descriptions)
 
      ;; for Midje tool creators:

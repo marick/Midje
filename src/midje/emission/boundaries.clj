@@ -57,8 +57,7 @@
 (defmacro around-fact [fact-sym & body]
   `(let [starting-failures# (state/output-counters:midje-failures)]
      (emit/starting-to-check-fact ~fact-sym)
-     (nested-facts/adds (fact/description ~fact-sym)
-                        ~@body)
+     (nested-facts/in-new-fact ~fact-sym ~@body)
      (emit/finishing-fact ~fact-sym)
      (= starting-failures# (state/output-counters:midje-failures))))
 
