@@ -6,38 +6,9 @@
         [midje.util.form-utils :only [extended-fn?]])
   (:require [midje.internal-ideas.fact-context :as fact-context]
             [midje.parsing.util.fnref :as fnref]
-            [midje.internal-ideas.file-position :as position]))
+            [midje.internal-ideas.file-position :as position])
+  (:require [midje.parsing.3-from-lexical-maps.from-fake-maps :as from-fake-maps]))
 
-
-;;; Midje is driven off various kinds of maps. Those maps contain
-;;; values that must capture the lexical context. For example, the
-;;; right-hand-side of an arrow may be a symbol that's bound with a
-;;; `let`. To capture the lexical context [*], we expand forms into
-;;; "lexical maps". They are maps whose creators are expected to be
-;;; macros. As a result, they are allowed to look like this:
-;;;
-;;;       :var (var foo)
-;;;       :description (fact-context/nested-descriptions)
-;;;       :checking-function (create-checker-from a)
-;;;
-;;; The right-hand sides are evaluated in the lexical environment
-;;; of the original Midje facts. Therefore, for example, in the case
-;;; of:
-;;;
-;;;     (let [a 1] (fact 1 => a))
-;;;
-;;; ... `create-checker-from` receives the value 1.
-;;;
-;;; The lexical maps are listed here so that there's something like a
-;;; single point of reference for all the different "shapes" of
-;;; maps. However, there is one way this reference is not definitive: 
-;;; The parsing code that converts forms into template maps may add on keys
-;;; that are useful for debugging or for tools that want to know where the
-;;; final maps came from. To know what keys those are, see the relevant code.
-;;; (The expectation is that such maps do not depend on the lexical environment.)
-
-;;; I don't know if gathering all this in one place is really worth the trouble, but
-;;; we'll see.
 
 ;;;                                             Example maps
 
@@ -73,8 +44,8 @@
     :var ~(fnref/fnref-call-form fnref)
     :value-at-time-of-faking (if (bound? ~(fnref/fnref-call-form fnref))
                                ~(fnref/fnref-dereference-form fnref))
-    :arg-matchers (map midje.internal-ideas.fakes/arg-matcher-maker ~(vec args))
-    :result-supplier (midje.internal-ideas.fakes/fn-fake-result-supplier ~arrow ~result)
+    :arg-matchers (map from-fake-maps/mkfn:arg-matcher ~(vec args))
+    :result-supplier (from-fake-maps/mkfn:result-supplier ~arrow ~result)
 
     :position (position/user-file-position)
     :call-count-atom (atom 0)

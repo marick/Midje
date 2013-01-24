@@ -11,31 +11,6 @@
 
 (expose-testables midje.internal-ideas.fakes)
 
-(tabular
-  (facts "the arg matcher maker handles functions specially"
-   ((arg-matcher-maker ?expected) ?actual) => ?result)
-?expected              ?actual         ?result
-1                      1               TRUTHY
-1                      odd?            falsey
-
-anything               3               TRUTHY
-anything               odd?            TRUTHY
-(roughly 3)            3               TRUTHY
-(roughly 3)            0               falsey
-(contains 1)           [3 1]           TRUTHY
-(contains 1)           [3 3]           falsey
-(contains odd?)        [3]             TRUTHY
-(contains odd?)        [2 odd?]        falsey
-
-(exactly odd?)         odd?            TRUTHY
-(exactly odd?)         3               falsey
-
-(as-checker odd?)      odd?            falsey
-(as-checker odd?)      3               TRUTHY
-
-odd?                   odd?            TRUTHY
-odd?                   3               falsey)
-
 
 (declare f g)
 
@@ -102,18 +77,6 @@ odd?                   3               falsey)
   (provided
     (called-because-mock-checking-requires-it) => 33))
   
-(facts "about result suppliers used"
-  "returns identity for =>"
-  (let [arrow "=>"]
-    ((fn-fake-result-supplier arrow [1 2 3])) => [1 2 3])
-             
-  "returns stream for =streams=>"
-  (let [supplier (fn-fake-result-supplier "=streams=>" [1 2 3])]
-    (supplier) => 1
-    (supplier) => 2
-    (supplier) => 3))
-
-
 ;;; Handling of default values for fakes
 
 (binding [midje.config/*allow-default-prerequisites* true]

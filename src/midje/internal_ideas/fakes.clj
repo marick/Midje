@@ -35,37 +35,6 @@
 
 ;;; Creating fake maps
 
-(defn arg-matcher-maker
-  "Based on an expected value, generates a function that returns 
-  true if the actual value matches it."
-  [expected]
-  (if (and (extended-fn? expected)
-           (not (checker? expected)))
-    (fn [actual] (extended-= actual (exactly expected)))
-    (fn [actual] (extended-= actual expected))))
-
-(defmulti fn-fake-result-supplier (fn [arrow & _] arrow))
-
-(defmethod fn-fake-result-supplier => [_arrow_ result] (constantly result))
-
-(defmethod fn-fake-result-supplier =streams=> [_arrow_ result-stream]
-  (let [the-stream (atom result-stream)]
-    (fn []
-      (when (empty? @the-stream)
-        (throw (exceptions/user-error "Your =stream=> ran out of values.")))
-      (let [current-result (first @the-stream)]
-        (swap! the-stream rest)
-        current-result))))
-
-(defmethod fn-fake-result-supplier =throws=> [_arrow_ throwable]
-  (fn []
-    (when-not (instance? Throwable throwable) 
-      (throw (exceptions/user-error "Right side of =throws=> should extend Throwable.")))
-    (throw throwable)))
-
-(defmethod fn-fake-result-supplier :default [arrow result-stream]
-  (throw (exceptions/user-error "It's likely you misparenthesized your metaconstant prerequisite,"
-                     "or that you forgot to use an arrow in your provided form.")))
 
 
 (letfn [(make-fake-map [call-form arrow rhs fnref special-to-fake-type user-override-pairs]
