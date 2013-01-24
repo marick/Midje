@@ -151,31 +151,3 @@
 
 ;;; Checking
 
-(defmulti call-count-incorrect? :type)
-
-(defmethod call-count-incorrect? :fake [fake]
-  (let [method (or (:times fake) :default )
-        count @(:call-count-atom fake)]
-    (pred-cond method 
-      #(= % :default) (zero? count)
-      number?         (not= method count)
-      coll?           (not-any? (partial = count) method)
-      fn?             (not (method count)))))
-
-(defmethod call-count-incorrect? :not-called [fake]
-  (not (zero? @(:call-count-atom fake))))
-
-(defn report-incorrect-call-counts [fakes]
-  (when-let [failures (seq (for [fake fakes
-                                 :when (call-count-incorrect? fake)]
-                              {:actual-count    @(:call-count-atom fake)
-                               :expected-count  (:times fake)
-                               :expected-call   (:call-text-for-failures fake)
-                               :position        (:position fake)
-                               :expected-result-form        (:call-text-for-failures fake)}))]
-    (emit/fail {:type :some-prerequisites-were-called-the-wrong-number-of-times
-                :failures failures
-                :position (:position (first failures))} )))
-
-
-
