@@ -1,4 +1,4 @@
-(ns midje.internal-ideas.t-fakes
+(ns midje.data.t-prerequisite-state
   (:use [midje sweet test-util]
         [midje.data.prerequisite-state :except [mockable-funcall? unfolding-step merge-metaconstant-bindings 
                                              unique-vars handle-mocked-call best-call-action ]]
@@ -373,8 +373,8 @@
         second-half {:data-fake true :var #'var-for-merged     :contained {:replaced 222, :extra 3}}
         irrelevant  {:data-fake true :var #'var-for-irrelevant :contained {:retained :FOO :extra :BAR}}
         result (binding-map [first-half second-half irrelevant])]
-    (.storage (result #'midje.internal-ideas.t-fakes/var-for-merged))     => {:retained 1, :replaced 222, :extra 3}
-    (.storage (result #'midje.internal-ideas.t-fakes/var-for-irrelevant)) => {:retained :FOO, :extra :BAR}))
+    (.storage (result #'midje.data.t-prerequisite-state/var-for-merged))     => {:retained 1, :replaced 222, :extra 3}
+    (.storage (result #'midje.data.t-prerequisite-state/var-for-irrelevant)) => {:retained :FOO, :extra :BAR}))
 
 (unfinished faked-fn)
 (facts "fake and datafake maps include form info, so tool creators can introspect them"

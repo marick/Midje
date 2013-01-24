@@ -2,14 +2,16 @@
   (:use midje.sweet
         midje.util
         midje.test-util)
-  (:require midje.internal-ideas.t-fakes
-            [midje.repl :as repl]
+  (:require [midje.repl :as repl]
             [midje.config :as config]
             [midje.util.ecosystem :as ecosystem]
             [midje.emission.clojure-test-facade :as ctf]
             [midje.emission.api :as emit]
             [midje.emission.state :as state]
-            [midje.data.compendium :as compendium]))
+            [midje.data.compendium :as compendium])
+  ;; Following is for testing the use of vars to fake private functions
+  ;; in another namespace.
+  (:require midje.data.t-prerequisite-state)
 
 (fact "all of Midje's public, API-facing vars have docstrings"
   (map str (remove (comp :doc meta) (vals (ns-publics 'midje.sweet)))) => []
