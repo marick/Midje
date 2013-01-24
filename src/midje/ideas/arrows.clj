@@ -1,6 +1,6 @@
 (ns ^{:doc "Arrows either indicate a form of expected result, or a stubbed prerequisite value."}
   midje.ideas.arrows
-  (:use midje.ideas.arrow-symbols
+  (:use midje.parsing.arrow-symbols
         [clojure.set :only [union]]
         [midje.util form-utils treelike namespace])
   (:require [clojure.zip :as zip]))

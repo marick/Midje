@@ -5,7 +5,7 @@
         [midje.util.form-utils :only [extended-fn?]]
         [midje.checkers.extended-equality :only [extended-=]]
         [midje.internal-ideas.file-position :only [user-file-position]]
-        [midje.ideas.arrow-symbols])
+        [midje.parsing.arrow-symbols])
   (:require [midje.error-handling.exceptions :as exceptions]))
 
 (defn mkfn:arg-matcher

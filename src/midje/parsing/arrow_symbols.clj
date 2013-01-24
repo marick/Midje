@@ -1,5 +1,5 @@
 (ns ^{:doc "Lexicon of all Midje arrows, both expect arrows and prerequisite arrows."}
-  midje.ideas.arrow-symbols)
+  midje.parsing.arrow-symbols)
 
 (def ^{:doc "As a checking arrow: the left side should result in the right side.
   As a prerequisite arrow: the fake should return the thing on the right."} 

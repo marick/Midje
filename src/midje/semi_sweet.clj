@@ -23,7 +23,7 @@
             [midje.parsing.2-to-lexical-maps.data-fakes :as parse-data-fakes]))
   
 
-(immigrate 'midje.ideas.arrow-symbols)
+(immigrate 'midje.parsing.arrow-symbols)
 
 ;;; Conversions to unprocessed form
 

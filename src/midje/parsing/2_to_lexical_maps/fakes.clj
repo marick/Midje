@@ -15,7 +15,7 @@
                                                    with-altered-roots]]
         [midje.internal-ideas.wrapping :only [with-wrapping-target]]
         [midje.util.deprecation :only [deprecate]]
-        [midje.ideas.arrow-symbols]
+        [midje.parsing.arrow-symbols]
         [clojure.tools.macro :only [macrolet]])
   (:require [midje.data.metaconstant :as metaconstant]
             [clojure.zip :as zip]

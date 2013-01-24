@@ -1,7 +1,7 @@
 (ns ^{:doc "example maps, redefine maps, failure maps"} 
   midje.parsing.lexical-maps
   (:use [midje.util.form-utils :only [hash-map-duplicates-ok]])
-  (:use midje.ideas.arrow-symbols
+  (:use midje.parsing.arrow-symbols
         midje.ideas.arrows)
   (:require [midje.internal-ideas.fact-context :as fact-context]
             [midje.parsing.util.fnref :as fnref]
