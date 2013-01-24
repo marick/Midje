@@ -6,7 +6,7 @@
         [midje.util.form-utils :only [first-named?]]
         [midje.parsing.util.zip :only [skip-to-rightmost-leaf n-times remove-moving-right]]
         [midje.parsing.util.arrows :only [start-of-checking-arrow-sequence? arrow-sequence-overrides]]
-        [midje.internal-ideas.file-position :only [arrow-line-number]])
+        [midje.parsing.util.file-position :only [arrow-line-number]])
   (:require [clojure.zip :as zip]))
   
 

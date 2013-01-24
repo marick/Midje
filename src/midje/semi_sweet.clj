@@ -9,7 +9,7 @@
         [midje.error-handling.exceptions :only [user-error]]
         [midje.util.namespace :only [semi-sweet-keyword?]]
         [midje.util.ecosystem :only [line-separator]]
-        [midje.internal-ideas.file-position :only [user-file-position]]
+        [midje.parsing.util.file-position :only [user-file-position]]
         midje.production-mode
         [clojure.algo.monads :only [domonad]]
         clojure.pprint

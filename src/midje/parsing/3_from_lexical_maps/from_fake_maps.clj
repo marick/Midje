@@ -4,7 +4,7 @@
         [midje.checking.checkers.defining :only [checker?]]
         [midje.util.form-utils :only [extended-fn?]]
         [midje.checking.extended-equality :only [extended-=]]
-        [midje.internal-ideas.file-position :only [user-file-position]]
+        [midje.parsing.util.file-position :only [user-file-position]]
         [midje.parsing.arrow-symbols])
   (:require [midje.error-handling.exceptions :as exceptions]))
 

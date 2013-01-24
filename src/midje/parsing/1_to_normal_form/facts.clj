@@ -5,7 +5,7 @@
 
         [midje.parsing.1-to-normal-form.expects :only [expect?
                                             wrap-with-expect__then__at-rightmost-expect-leaf]]
-        [midje.internal-ideas.file-position :only [annotate-embedded-arrows-with-line-numbers]]
+        [midje.parsing.util.file-position :only [annotate-embedded-arrows-with-line-numbers]]
         [midje.parsing.util.wrapping :only [already-wrapped?
                                               multiwrap
                                               with-additional-wrappers

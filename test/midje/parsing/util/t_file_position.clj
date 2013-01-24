@@ -1,5 +1,5 @@
-(ns midje.internal-ideas.t-file-position
-  (:use [midje.internal-ideas.file-position]
+(ns midje.parsing.util.t-file-position
+  (:use [midje.parsing.util.file-position]
         [midje sweet test-util]
         [midje.parsing.util.arrows :only [start-of-checking-arrow-sequence?]])
   (:require [clojure.zip :as zip]))
@@ -110,7 +110,7 @@
 
 (facts "about compile-time discovery of positions and line numbers from a form"
   (form-position (with-meta '(form) {:line 332}))
-  => ["midje/internal_ideas/t_file_position.clj" 332])
+  => ["midje/parsing/util/t_file_position.clj" 332])
                    
 
 
@@ -180,7 +180,7 @@
 
 (fact "one can add a line number to an arrow sequence"
   (let [original '( (f n) => 2  )
-        expected '( (f n) => 2 :position (midje.internal-ideas.file-position/line-number-known 10))
+        expected '( (f n) => 2 :position (midje.parsing.util.file-position/line-number-known 10))
         z            (zip/seq-zip original)
         original-loc (-> z zip/down zip/right)
         new-loc      (at-arrow__add-line-number-to-end__no-movement
@@ -195,8 +195,8 @@
                     ~(with-meta '(f 2) {:line 35}) => a)
         actual (annotate-embedded-arrows-with-line-numbers original)
         expected '(clojure.core/let [a 1]
-                                    midje.internal-ideas.t-file-position/a midje.sweet/=> 2 :position (midje.internal-ideas.file-position/line-number-known 34)
-                                    (f 2) midje.sweet/=> midje.internal-ideas.t-file-position/a :position (midje.internal-ideas.file-position/line-number-known 35))]
+                                    midje.parsing.util.t-file-position/a midje.sweet/=> 2 :position (midje.parsing.util.file-position/line-number-known 34)
+                                    (f 2) midje.sweet/=> midje.parsing.util.t-file-position/a :position (midje.parsing.util.file-position/line-number-known 35))]
     actual => expected))
 
 (fact "various arrow forms have line numbers"
@@ -208,7 +208,7 @@
         actual (annotate-embedded-arrows-with-line-numbers original)]
     (doseq [expansion actual]
       (take-last 2 expansion)
-      => '(:position (midje.internal-ideas.file-position/line-number-known 33)))))
+      => '(:position (midje.parsing.util.file-position/line-number-known 33)))))
 
 (fact "Issue #117 - arrows inside quoted forms will not have :position info added"
   '(fact foo => bar) => '(fact foo => bar))

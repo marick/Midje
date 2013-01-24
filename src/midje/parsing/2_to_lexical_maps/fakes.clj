@@ -9,7 +9,7 @@
                                       hash-map-duplicates-ok pred-cond
                                       quoted-list-form? extended-fn?]]
         [midje.checking.extended-equality :only [extended-= extended-list-=]]
-        [midje.internal-ideas.file-position :only [user-file-position]]
+        [midje.parsing.util.file-position :only [user-file-position]]
         [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out
                                                    with-pushed-namespace-values
                                                    with-altered-roots]]

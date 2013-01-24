@@ -14,7 +14,7 @@
         midje.util.debugging
         [midje.util.form-utils :only [macro-for]]
         [midje.parsing.util.wrapping :only [put-wrappers-into-effect]]
-        [midje.internal-ideas.file-position :only [set-fallback-line-number-from]]
+        [midje.parsing.util.file-position :only [set-fallback-line-number-from]]
         [midje.parsing.1-to-normal-form.facts :only [complete-fact-transformation
                                   midjcoexpand]] 
         [clojure.algo.monads :only [domonad]])
@@ -102,7 +102,7 @@
                          :description (nested-facts/descriptions ~(:midje/description metadata))
                          :macro-form '~&form
                          :stacktrace '~(user-error-exception-lines ex)
-                         :position (midje.internal-ideas.file-position/line-number-known ~(:line (meta &form)))})
+                         :position (midje.parsing.util.file-position/line-number-known ~(:line (meta &form)))})
              false))))))
 
 (defmacro facts 

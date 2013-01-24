@@ -2,7 +2,7 @@
   midje.parsing.1-to-normal-form.prerequisites
   (:use [midje.util.namespace :only [matches-symbols-in-semi-sweet-or-sweet-ns?]]
         [midje.util.form-utils :only [symbol-named?]]
-        [midje.internal-ideas.file-position :only [arrow-line-number-from-form]]
+        [midje.parsing.util.file-position :only [arrow-line-number-from-form]]
         midje.parsing.arrow-symbols
         [midje.parsing.util.arrows :only [pull-all-arrow-seqs-from]]
         [midje.parsing.1-to-normal-form.expects :only [up-to-full-expect-form expect?

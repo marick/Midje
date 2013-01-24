@@ -1,6 +1,6 @@
 (ns ^{:doc "Utilities to deprecate features."}
   midje.util.deprecation
-  (:use [midje.internal-ideas.file-position :only [compile-time-fallback-position]]
+  (:use [midje.parsing.util.file-position :only [compile-time-fallback-position]]
         [midje.util.form-utils :only [midje-position-string]])
   (:require [midje.config :as config]))
 

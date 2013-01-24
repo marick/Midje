@@ -1,7 +1,7 @@
 (ns midje.error-handling.t-validation-errors
   (:use [midje sweet test-util]
         [midje.error-handling.validation-errors]
-        [midje.internal-ideas.file-position :only [form-position]]
+        [midje.parsing.util.file-position :only [form-position]]
         [clojure.algo.monads]
         midje.util))
 

@@ -3,7 +3,7 @@
   (:use [clojure.string :only [join]]
         [clojure.algo.monads :only [domonad]]
         [midje.error-handling.validation-errors :only [simple-validation-error-report-form validate-m validate]]
-        [midje.internal-ideas.file-position :only [form-with-copied-line-numbers]]
+        [midje.parsing.util.file-position :only [form-with-copied-line-numbers]]
         [midje.util.form-utils :only [pop-docstring translate-zipper]]
         [midje.util.deprecation :only [deprecate]]
         [midje.parsing.util.zip :only [skip-to-rightmost-leaf]]

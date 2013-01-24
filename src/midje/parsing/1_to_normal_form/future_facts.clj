@@ -1,7 +1,7 @@
 (ns ^{:doc "Parsing future-facts."}
   midje.parsing.1-to-normal-form.future-facts
   (:use [midje.util.form-utils :only [macro-for first-named? reader-line-number]])
-  (:require [midje.internal-ideas.file-position :as position]
+  (:require [midje.parsing.util.file-position :as position]
             [midje.data.nested-facts :as nested-facts]
             [midje.parsing.1-to-normal-form.metadata :as parse-metadata]
             [midje.emission.api :as emit]))

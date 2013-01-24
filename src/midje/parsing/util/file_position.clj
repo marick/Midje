@@ -1,5 +1,5 @@
 (ns ^{:doc "Functions to help in finding the lines you care about."}
-  midje.internal-ideas.file-position
+  midje.parsing.util.file-position
   (:use [clojure.string :only [split]]
         [midje.parsing.util.zip :only [skip-to-rightmost-leaf]]
         [midje.util.form-utils :only [quoted? translate-zipper]]

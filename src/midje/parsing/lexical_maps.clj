@@ -5,7 +5,7 @@
         midje.parsing.util.arrows)
   (:require [midje.data.nested-facts :as nested-facts]
             [midje.parsing.util.fnref :as fnref]
-            [midje.internal-ideas.file-position :as position])
+            [midje.parsing.util.file-position :as position])
   (:require [midje.parsing.3-from-lexical-maps.from-fake-maps :as from-fake-maps]))
 
 

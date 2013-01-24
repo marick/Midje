@@ -2,7 +2,7 @@
             flow macros, validation error creation, etc."}
   midje.error-handling.validation-errors
   (:use [clojure.algo.monads :only [defmonad domonad]]
-        [midje.internal-ideas.file-position :only [form-position]]
+        [midje.parsing.util.file-position :only [form-position]]
         [midje.util.form-utils :only [named?]])
   (:require [midje.emission.api :as emit]))
 
