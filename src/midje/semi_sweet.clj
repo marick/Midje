@@ -16,11 +16,11 @@
   (:require [midje.internal-ideas.fact-context :as fact-context]
             [midje.parsing.lexical-maps :as lexical-maps]
             [midje.emission.api :as emit]
+            midje.checking.examples
             [midje.parsing.2-to-lexical-maps.fakes :as parse-fakes]
             [midje.parsing.2-to-lexical-maps.data-fakes :as parse-data-fakes]))
   
 
-(immigrate 'midje.checking.examples)
 (immigrate 'midje.ideas.arrow-symbols)
 
 ;;; Conversions to unprocessed form

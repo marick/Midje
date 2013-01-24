@@ -11,8 +11,6 @@
             [midje.parsing.1-to-normal-form.background :as background]
             [midje.emission.api :as emit]))
 
-(immigrate 'midje.checkers)
-
 (defn- minimal-failure-map
   "Failure maps are created by adding on to parser-created maps"
   [type actual existing]

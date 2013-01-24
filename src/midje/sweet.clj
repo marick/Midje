@@ -30,7 +30,7 @@
             [midje.util.namespace :as namespace]
             midje.checkers))
 
-(namespace/immigrate 'midje.checking.examples)
+(namespace/immigrate 'midje.checkers)
 (namespace/immigrate 'midje.semi-sweet)
 
 ;; Following two are required because `intern` doesn't transfer "dynamicity".
