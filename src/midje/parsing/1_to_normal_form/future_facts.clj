@@ -2,7 +2,7 @@
   midje.parsing.1-to-normal-form.future-facts
   (:use [midje.util.form-utils :only [macro-for first-named? reader-line-number]])
   (:require [midje.internal-ideas.file-position :as position]
-            [midje.internal-ideas.fact-context :as fact-context]
+            [midje.data.nested-facts :as nested-facts]
             [midje.parsing.1-to-normal-form.metadata :as parse-metadata]
             [midje.emission.api :as emit]))
 
@@ -29,7 +29,7 @@
 (defn parse [form]
   (let [lineno (reader-line-number form)
         [metadata _] (parse-metadata/separate-metadata form)]
-    `(emit/future-fact (fact-context/nested-descriptions ~(:midje/description metadata))
+    `(emit/future-fact (nested-facts/descriptions ~(:midje/description metadata))
                        (position/line-number-known ~lineno))))
 
 

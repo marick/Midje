@@ -39,7 +39,6 @@
             :emitter 'midje.emission.plugins.default
 
             ;; The following aren't changed by users.
-            ;; Should they be in the fact-context?
             :desired-fact? (constantly true)})
 
 (defmulti validate-key! first)

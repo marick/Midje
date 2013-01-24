@@ -26,7 +26,7 @@
             [midje.parsing.0-to-fact-form.formulas :as parse-formulas]
             [midje.emission.api :as emit]
             [midje.doc :as doc]
-            [midje.internal-ideas.fact-context :as fact-context]
+            [midje.data.nested-facts :as nested-facts]
             [midje.util.namespace :as namespace]
             midje.checkers))
 
@@ -99,7 +99,7 @@
         (catch Exception ex
           `(do
              (emit/fail {:type :exception-during-parsing
-                         :description (fact-context/nested-descriptions ~(:midje/description metadata))
+                         :description (nested-facts/descriptions ~(:midje/description metadata))
                          :macro-form '~&form
                          :stacktrace '~(user-error-exception-lines ex)
                          :position (midje.internal-ideas.file-position/line-number-known ~(:line (meta &form)))})

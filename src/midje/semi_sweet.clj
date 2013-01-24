@@ -14,7 +14,7 @@
         [clojure.algo.monads :only [domonad]]
         clojure.pprint
         [clojure.string :only [join]])
-  (:require [midje.internal-ideas.fact-context :as fact-context]
+  (:require [midje.data.nested-facts :as nested-facts]
             [midje.parsing.lexical-maps :as lexical-maps]
             [midje.emission.api :as emit]
             midje.checking.examples
@@ -47,7 +47,7 @@
 (defmethod expect-expansion =future=>
   [call-form arrow expected-result _fakes_ overrides]
   `(let [check# (lexical-maps/example ~call-form ~arrow ~expected-result ~overrides)]
-     (emit/future-fact (fact-context/nested-descriptions ~(str "on `" call-form "`"))
+     (emit/future-fact (nested-facts/descriptions ~(str "on `" call-form "`"))
                        (:position check#))))
 
 ;;; Interface: unfinished

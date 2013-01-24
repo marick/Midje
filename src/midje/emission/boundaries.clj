@@ -3,6 +3,7 @@
   (:require [midje.data.fact :as fact]
             [midje.emission.clojure-test-facade :as ctf]
             [midje.emission.api :as emit]
+            [midje.data.nested-facts :as nested-facts]
             [midje.emission.state :as state]))
 
 (defn midje-results-to-ternary [] ; note: used when clojure.test results are irrelevant
@@ -56,7 +57,7 @@
 (defmacro around-fact [fact-sym & body]
   `(let [starting-failures# (state/output-counters:midje-failures)]
      (emit/starting-to-check-fact ~fact-sym)
-     (fact-context/adds (fact/description ~fact-sym)
+     (nested-facts/adds (fact/description ~fact-sym)
                         ~@body)
      (emit/finishing-fact ~fact-sym)
      (= starting-failures# (state/output-counters:midje-failures))))

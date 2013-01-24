@@ -3,7 +3,7 @@
   (:use [midje.util.form-utils :only [hash-map-duplicates-ok]])
   (:use midje.parsing.arrow-symbols
         midje.parsing.util.arrows)
-  (:require [midje.internal-ideas.fact-context :as fact-context]
+  (:require [midje.data.nested-facts :as nested-facts]
             [midje.parsing.util.fnref :as fnref]
             [midje.internal-ideas.file-position :as position])
   (:require [midje.parsing.3-from-lexical-maps.from-fake-maps :as from-fake-maps]))
@@ -15,13 +15,18 @@
 (defmacro example
   [call-form arrow expected-result overrides]
   `(merge
-    {:description (fact-context/nested-descriptions)
-     :function-under-test (fn [] ~call-form)
+    {:function-under-test (fn [] ~call-form)
      :expected-result ~expected-result
      :check-expectation ~(expect-match-or-mismatch arrow)
      :expected-result-form '~expected-result 
      :position (position/user-file-position)
-     
+
+     ;; Adding this `description` field gestures in the
+     ;; direction of a lexically-scoped fact context.
+     ;; At failure time, the data isn't plucked out of the
+     ;; dynamic runtime. Maybe it should be.
+     :description (nested-facts/descriptions)
+
      ;; for Midje tool creators:
      :call-form '~call-form
      :arrow '~arrow }
