@@ -1,5 +1,5 @@
 (ns ^{:doc "Various ways to define checkers."}
-  midje.checkers.defining
+  midje.checking.checkers.defining
   (:use [midje.util.form-utils :only [pop-docstring pop-opts-map]]))
 
 (defn as-checker

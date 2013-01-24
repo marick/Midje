@@ -1,10 +1,10 @@
-(ns midje.checkers.t-collection
+(ns midje.checking.checkers.t-collection
   (:use [midje sweet test-util]
-        [midje.checkers.defining :only [checker?]]
-        [midje.checkers.extended-falsehood :only [data-laden-falsehood-to-map
+        [midje.checking.checkers.defining :only [checker?]]
+        [midje.checking.extended-falsehood :only [data-laden-falsehood-to-map
                                                   data-laden-falsehood?]]
         midje.util))
-(expose-testables midje.checkers.collection)
+(expose-testables midje.checking.checkers.collection)
 
 (defrecord AB [a b])
 (defrecord AB-different-class [a b])

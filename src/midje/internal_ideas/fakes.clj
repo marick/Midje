@@ -2,18 +2,29 @@
   midje.data.prerequisite-state
   (:use [utilize.seq :only (separate find-first)]
         [midje.util.object-utils :only [object-name]]
-        midje.util.form-utils
-        [midje.checking.extended-equality :only [extended-= extended-list-=]]
+        [midje.checkers :only [exactly]]
+        [midje.checkers.defining :only [checker? checker-makers]]
+        [midje.parsing.1-to-normal-form.expects :only [expect? up-to-full-expect-form]]
+        [midje.util.form-utils :only [first-named? translate-zipper map-difference
+                                      hash-map-duplicates-ok pred-cond
+                                      quoted-list-form? extended-fn?]]
+        [midje.checkers.extended-equality :only [extended-= extended-list-=]]
+        [midje.internal-ideas.file-position :only [user-file-position]]
         [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out
                                                    with-pushed-namespace-values
                                                    with-altered-roots]]
+        [midje.internal-ideas.wrapping :only [with-wrapping-target]]
         [midje.util.deprecation :only [deprecate]]
-        [midje.parsing.arrow-symbols]
+        [midje.ideas.arrow-symbols]
         [clojure.tools.macro :only [macrolet]])
   (:require [midje.data.metaconstant :as metaconstant]
+            [clojure.zip :as zip]
             [midje.config :as config]
+            [midje.error-handling.exceptions :as exceptions]
             [midje.emission.api :as emit]
-            [midje.parsing.2-to-lexical-maps.fakes :as parse-fakes])
+            [midje.parsing.util.fnref :as fnref]
+            [midje.parsing.2-to-lexical-maps.fakes :as parse-fakes]
+            [midje.parsing.lexical-maps :as lexical-maps])
   (:import midje.data.metaconstant.Metaconstant))
 
 
@@ -25,6 +36,28 @@
 ;;; Creating fake maps
 
 
+
+(letfn [(make-fake-map [call-form arrow rhs fnref special-to-fake-type user-override-pairs]
+          (let [common-to-all-fakes `{:var ~(fnref/fnref-call-form fnref)
+                                      :call-count-atom (atom 0)
+                                      :position (user-file-position)
+
+                                      ;; for Midje tool creators:
+                                      :call-form '~call-form
+                                      :arrow '~arrow 
+                                      :rhs '~rhs}]
+            (merge
+              common-to-all-fakes
+              special-to-fake-type
+              (apply hash-map-duplicates-ok user-override-pairs)))) ]
+
+  (defn not-called* [var-sym & overrides]
+    (make-fake-map nil nil nil ;; deprecated, so no support for fields for tool creators 
+      var-sym
+      `{:call-text-for-failures (str '~var-sym " was called.")
+        :result-supplier (constantly nil)
+        :type :not-called}
+      overrides)))
 
 ;;; Handling mocked calls
   
@@ -114,5 +147,6 @@
 
 (defmacro with-installed-fakes [fakes & forms]
   `(with-altered-roots (binding-map ~fakes) ~@forms))
+
 
 

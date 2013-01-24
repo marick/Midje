@@ -1,11 +1,11 @@
 ;; Note: checkers need to be exported in ../checkers.clj
 
 (ns ^{:doc "Prepackaged functions that perform common checks."}
-  midje.checkers.simple
-  (:use [midje.checkers.defining :only [as-checker checker defchecker]]
-      	[midje.checkers.extended-falsehood :only [extended-false?]]
-      	[midje.checkers.extended-equality :only [extended-=]]
-      	[midje.checkers.util :only [named-as-call]]
+  midje.checking.checkers.simple
+  (:use [midje.checking.checkers.defining :only [as-checker checker defchecker]]
+      	[midje.checking.extended-falsehood :only [extended-false?]]
+      	[midje.checking.extended-equality :only [extended-=]]
+      	[midje.checking.checkers.util :only [named-as-call]]
       	[midje.error-handling.exceptions :only [captured-throwable?]]
         [midje.util.ecosystem :only [clojure-1-3? +M -M *M]]
         [midje.util.form-utils :only [defalias def-many-methods pred-cond regex?]]

@@ -1,10 +1,10 @@
-(ns midje.checkers.t-chatty
+(ns midje.checking.checkers.t-chatty
   (:use midje.sweet
-        [midje.checkers.defining :only [checker?]]
-        [midje.checkers.chatty :only [chatty-worth-reporting-on?
+        [midje.checking.checkers.defining :only [checker?]]
+        [midje.checking.checkers.chatty :only [chatty-worth-reporting-on?
                                       chatty-untease
                                       chatty-checker?]]
-        [midje.checkers.extended-falsehood :only [data-laden-falsehood?]]
+        [midje.checking.extended-falsehood :only [data-laden-falsehood?]]
         midje.test-util
         clojure.pprint))
 

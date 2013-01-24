@@ -1,6 +1,6 @@
-(ns midje.checkers.t-extended-falsehood
+(ns midje.checking.t-extended-falsehood
   (:use midje.sweet
-        [midje.checkers.extended-falsehood]
+        [midje.checking.extended-falsehood]
         midje.test-util
         clojure.pprint))
 

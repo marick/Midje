@@ -1,6 +1,6 @@
-(ns midje.checkers.collection-util
+(ns midje.checking.checkers.collection-util
   (:use [midje.util.form-utils :only [extended-fn? regex?]]
-        [midje.checkers.extended-falsehood :only [as-data-laden-falsehood]]))
+        [midje.checking.extended-falsehood :only [as-data-laden-falsehood]]))
 
 (defn same-lengths? [actual expected]
   (= (count actual) (count expected)))

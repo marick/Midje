@@ -1,6 +1,6 @@
-(ns midje.checkers.t-defining
+(ns midje.checking.checkers.t-defining
   (:use midje.sweet
-        [midje.checkers.defining :only [checker?]]
+        [midje.checking.checkers.defining :only [checker?]]
         midje.test-util))
 
 (defchecker magic-number "magic number docstring" {:meta-data :foo} [actual] (= 587 actual))
@@ -65,7 +65,7 @@
 
 
 (fact "checkers can be recognized"
-  #'midje.checkers.simple/truthy => checker?
+  #'midje.checking.checkers.simple/truthy => checker?
   (checker? #'clojure.core/odd?) => falsey
 
   "sloop" => (fn [actual] (= "sloop" actual)) ; an inline checker

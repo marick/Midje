@@ -1,8 +1,8 @@
 (ns midje.test-util
   (:use [clojure.test]
         midje.checkers
-        [midje.checkers.extended-equality :only [extended-=]]
-        [midje.checkers.extended-falsehood :only [extended-false?]]
+        [midje.checking.extended-equality :only [extended-=]]
+        [midje.checking.extended-falsehood :only [extended-false?]]
         midje.error-handling.exceptions
         [clojure.set :only [subset?]]
         [midje.util.form-utils :only [macro-for]])

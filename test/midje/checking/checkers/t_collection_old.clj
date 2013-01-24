@@ -1,6 +1,6 @@
-(ns midje.checkers.t-collection-old
+(ns midje.checking.checkers.t-collection-old
   (:use [midje sweet test-util]
-        [midje.checkers.extended-falsehood :only [data-laden-falsehood-to-map
+        [midje.checking.extended-falsehood :only [data-laden-falsehood-to-map
                                                   data-laden-falsehood?]]))
 
 ;; These are still potentially useful tests from a misguided code organization.

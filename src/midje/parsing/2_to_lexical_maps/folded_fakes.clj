@@ -3,7 +3,7 @@
   (:use
    [midje.util.form-utils :only [translate-zipper map-difference
                                  pred-cond]]
-   [midje.checkers.defining :only [checker? checker-makers]]
+   [midje.checking.checkers.defining :only [checker? checker-makers]]
    )
   (:require
             [clojure.zip :as zip]

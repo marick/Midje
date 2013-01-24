@@ -1,10 +1,10 @@
 (ns ^{:doc "Checkers that explain more about a failure."}
-  midje.checkers.chatty
-  (:use [midje.checkers.util :only [named-as-call]]
-        [midje.checkers.extended-falsehood :only [data-laden-falsehood?
+  midje.checking.checkers.chatty
+  (:use [midje.checking.checkers.util :only [named-as-call]]
+        [midje.checking.extended-falsehood :only [data-laden-falsehood?
                                                   as-data-laden-falsehood
                                                   extended-false?]]
-        [midje.checkers.defining :only [as-checker]]
+        [midje.checking.checkers.defining :only [as-checker]]
         [midje.util.form-utils :only [pairs quoted? single-destructuring-arg->form+name]]))
 
 ;; Note: checkers need to be exported in ../checkers.clj

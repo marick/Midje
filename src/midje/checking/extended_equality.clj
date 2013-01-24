@@ -1,6 +1,6 @@
 (ns ^{:doc "`=` extended for regular expressions, functions, etc."}
-  midje.checkers.extended-equality
-  (:use [midje.checkers.extended-falsehood :only [as-data-laden-falsehood data-laden-falsehood?]]
+  midje.checking.extended-equality
+  (:use [midje.checking.extended-falsehood :only [as-data-laden-falsehood data-laden-falsehood?]]
         [midje.util.form-utils :only [classic-map? extended-fn? pairs record? regex?]]))
 
 

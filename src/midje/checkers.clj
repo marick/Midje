@@ -12,16 +12,16 @@
                   (intern *ns* sym (var-root var))
                   (intern *ns* sym)))))) ]
 
-  (republish 'midje.checkers.defining
+  (republish 'midje.checking.checkers.defining
              '[defchecker checker as-checker])
-  (republish 'midje.checkers.chatty
+  (republish 'midje.checking.checkers.chatty
              '[chatty-checker])
-  (republish 'midje.checkers.simple
+  (republish 'midje.checking.checkers.simple
              '[truthy falsey TRUTHY FALSEY anything irrelevant exactly throws roughly])
-  (republish 'midje.checkers.combining
+  (republish 'midje.checking.checkers.combining
              '[every-checker some-checker])
-  (republish 'midje.checkers.collection
+  (republish 'midje.checking.checkers.collection
              '[has has-suffix has-prefix just contains n-of
               one-of two-of three-of four-of five-of six-of seven-of eight-of nine-of ten-of])
-  (republish 'midje.checkers.deprecated
+  (republish 'midje.checking.checkers.deprecated
              '[map-containing only-maps-containing maps-containing in-any-order]))

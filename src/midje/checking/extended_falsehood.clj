@@ -1,5 +1,5 @@
 (ns ^{:doc "Some failing checks carry additional information."}
-  midje.checkers.extended-falsehood)
+  midje.checking.extended-falsehood)
 
 (defn as-data-laden-falsehood [value]
   (vary-meta value assoc :midje/data-laden-falsehood true))

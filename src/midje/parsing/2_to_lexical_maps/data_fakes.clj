@@ -3,12 +3,12 @@
   (:use [utilize.seq :only (separate find-first)]
         [midje.util.object-utils :only [object-name]]
         [midje.checkers :only [exactly]]
-        [midje.checkers.defining :only [checker? checker-makers]]
+        [midje.checking.checkers.defining :only [checker? checker-makers]]
         [midje.parsing.1-to-normal-form.expects :only [expect? up-to-full-expect-form]]
         [midje.util.form-utils :only [first-named? translate-zipper map-difference
                                       hash-map-duplicates-ok pred-cond
                                       quoted-list-form? extended-fn?]]
-        [midje.checkers.extended-equality :only [extended-= extended-list-=]]
+        [midje.checking.extended-equality :only [extended-= extended-list-=]]
         [midje.internal-ideas.file-position :only [user-file-position]]
         [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out
                                                    with-pushed-namespace-values

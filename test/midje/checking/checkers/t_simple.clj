@@ -1,6 +1,6 @@
-(ns midje.checkers.t-simple
+(ns midje.checking.checkers.t-simple
   (:use midje.sweet
-        [midje.checkers.defining :only [checker?]]
+        [midje.checking.checkers.defining :only [checker?]]
         midje.test-util))
 
 

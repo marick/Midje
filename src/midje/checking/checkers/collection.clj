@@ -1,15 +1,14 @@
 ;; Note: checkers need to be exported in ../checkers.clj
 
 (ns ^{:doc "Checkers for collections and strings."}
-  midje.checkers.collection
+  midje.checking.checkers.collection
   (:use [clojure.set :only [union]]
         [clojure.pprint :only [cl-format]]
         [midje.util.backwards-compatible-utils :only [every-pred-m]] 
         [midje.util.form-utils :only [regex? record? classic-map? pred-cond macro-for]]
-      	[midje.checkers collection-util util extended-equality
-                        extended-falsehood chatty
-                        defining collection-comparison]
-        [midje.checkers.extended-falsehood :only [extended-true?]]
+      	[midje.checking.checkers collection-util util chatty defining collection-comparison]
+        midje.checking.extended-equality
+        [midje.checking.extended-falsehood :only [extended-true?]]
         [midje.error-handling.exceptions :only [user-error]]))
 
 

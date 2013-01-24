@@ -1,6 +1,6 @@
-(ns midje.checkers.t-extended-equality
+(ns midje.checking.t-extended-equality
   (:use midje.sweet
-        midje.checkers.extended-equality
+        midje.checking.extended-equality
         midje.test-util))
 
 (facts "about extended equality"

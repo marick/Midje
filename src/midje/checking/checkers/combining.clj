@@ -1,10 +1,10 @@
 (ns ^{:doc "Checkers that combine other checkers."}
-  midje.checkers.combining
-  (:use [midje.checkers.defining]
-        [midje.checkers.chatty]
+  midje.checking.checkers.combining
+  (:use [midje.checking.checkers.defining]
+        [midje.checking.checkers.chatty]
         [midje.util.backwards-compatible-utils :only [every-pred-m some-fn-m]]
 
-        [midje.checkers.extended-falsehood]))
+        [midje.checking.extended-falsehood]))
 
 (defn report-failure [actual checker-form result]
   (as-data-laden-falsehood {:actual actual

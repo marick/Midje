@@ -1,11 +1,12 @@
 ;; Note: checkers need to be exported in ../checkers.clj
 
 (ns ^{:doc "Code to use to compare collections."}
-  midje.checkers.collection-comparison
+  midje.checking.checkers.collection-comparison
   (:use [clojure.math.combinatorics :only [permutations]]
         [midje.util.form-utils :only [tack-on-to rotations sort-map]]
         [midje.util.object-utils :only [function-name named-function?]]
-        [midje.checkers collection-util util extended-equality chatty defining]
+        [midje.checking.checkers collection-util util chatty defining]
+        midje.checking.extended-equality
         [clojure.string :only [join]]))
 
 ;; There is an annoying only-semi-similarity between maps and sequences.

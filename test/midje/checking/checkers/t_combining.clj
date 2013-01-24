@@ -1,8 +1,8 @@
-(ns midje.checkers.t-combining
+(ns midje.checking.checkers.t-combining
   (:use midje.sweet
         clojure.pprint
-        [midje.checkers.defining :only [checker?]]
-        midje.checkers.extended-falsehood
+        [midje.checking.checkers.defining :only [checker?]]
+        midje.checking.extended-falsehood
         midje.test-util))
 
 (fact "about 'every' combinations"

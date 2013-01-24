@@ -1,9 +1,9 @@
 (ns ^{:doc "The semi-sweet representation of provided forms."}
   midje.parsing.3-from-lexical-maps.from-fake-maps
   (:use [midje.checkers :only [exactly]]
-        [midje.checkers.defining :only [checker?]]
+        [midje.checking.checkers.defining :only [checker?]]
         [midje.util.form-utils :only [extended-fn?]]
-        [midje.checkers.extended-equality :only [extended-=]]
+        [midje.checking.extended-equality :only [extended-=]]
         [midje.internal-ideas.file-position :only [user-file-position]]
         [midje.parsing.arrow-symbols])
   (:require [midje.error-handling.exceptions :as exceptions]))
