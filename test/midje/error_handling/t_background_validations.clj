@@ -1,7 +1,7 @@
 (ns midje.error-handling.t-background-validations
   (:require [clojure.zip :as zip])
   (:use [midje sweet test-util]
-        [midje.internal-ideas.wrapping :only [for-wrapping-target?]]
+        [midje.parsing.util.wrapping :only [for-wrapping-target?]]
         [midje.util unify]
         [midje.error-handling validation-errors]
         [midje.error-handling.background-validations]))

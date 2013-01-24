@@ -13,7 +13,7 @@
         [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out
                                                    with-pushed-namespace-values
                                                    with-altered-roots]]
-        [midje.internal-ideas.wrapping :only [with-wrapping-target]]
+        [midje.parsing.util.wrapping :only [with-wrapping-target]]
         [midje.util.deprecation :only [deprecate]]
         [midje.parsing.arrow-symbols]
         [clojure.tools.macro :only [macrolet]])

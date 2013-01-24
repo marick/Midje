@@ -13,7 +13,7 @@
         midje.error-handling.validation-errors
         midje.util.debugging
         [midje.util.form-utils :only [macro-for]]
-        [midje.internal-ideas.wrapping :only [put-wrappers-into-effect]]
+        [midje.parsing.util.wrapping :only [put-wrappers-into-effect]]
         [midje.internal-ideas.file-position :only [set-fallback-line-number-from]]
         [midje.parsing.1-to-normal-form.facts :only [complete-fact-transformation
                                   midjcoexpand]] 

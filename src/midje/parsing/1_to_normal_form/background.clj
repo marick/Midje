@@ -5,7 +5,7 @@
         [midje.parsing.1-to-normal-form.metaconstants :only [predefine-metaconstants-from-form]]
         [midje.parsing.1-to-normal-form.prerequisites :only [metaconstant-prerequisite? prerequisite-to-fake]]
         [midje.data.prerequisite-state :only [with-installed-fakes]]
-        [midje.internal-ideas.wrapping :only [for-wrapping-target? with-wrapping-target]]
+        [midje.parsing.util.wrapping :only [for-wrapping-target? with-wrapping-target]]
         [midje.util.form-utils :only [first-named? map-first pred-cond separate-by
                                       symbol-named? translate-zipper]]
         [midje.util.laziness :only [eagerly]]

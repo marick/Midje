@@ -1,7 +1,7 @@
 (ns midje.parsing.t-background
   (:require [clojure.zip :as zip])
   (:use [midje sweet test-util]
-        [midje.internal-ideas.wrapping :only [for-wrapping-target?]]
+        [midje.parsing.util.wrapping :only [for-wrapping-target?]]
         [midje.util unify]
         [midje.error-handling validation-errors]
         [midje.parsing.1-to-normal-form.background :only [separate-background-forms setup-teardown-bindings
