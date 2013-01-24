@@ -1,9 +1,9 @@
 (ns ^{:doc "Parsing future-facts."}
-  midje.parsing.future-facts
+  midje.parsing.1-to-normal-form.future-facts
   (:use [midje.util.form-utils :only [macro-for first-named? reader-line-number]])
   (:require [midje.internal-ideas.file-position :as position]
             [midje.internal-ideas.fact-context :as fact-context]
-            [midje.parsing.metadata :as parse-metadata]
+            [midje.parsing.1-to-normal-form.metadata :as parse-metadata]
             [midje.emission.api :as emit]))
 
 (def future-prefixes ["future-" 

@@ -1,9 +1,9 @@
 (ns ^{:doc "Parsing facts."}
-  midje.parsing.facts
+  midje.parsing.1-to-normal-form.facts
   (:use [midje.error-handling.validation-errors :only [validate when-valid]]
         [midje.util.namespace :only [semi-sweet-keyword?]]
 
-        [midje.parsing.expects :only [expect?
+        [midje.parsing.1-to-normal-form.expects :only [expect?
                                             wrap-with-expect__then__at-rightmost-expect-leaf]]
         [midje.internal-ideas.file-position :only [annotate-embedded-arrows-with-line-numbers]]
         [midje.internal-ideas.wrapping :only [already-wrapped?
@@ -11,15 +11,15 @@
                                               with-additional-wrappers
                                               forms-to-wrap-around]]
         [midje.util.debugging :only [nopret]]
-        [midje.parsing.prerequisites :only [head-of-form-providing-prerequisites?
+        [midje.parsing.1-to-normal-form.prerequisites :only [head-of-form-providing-prerequisites?
                                           insert-prerequisites-into-expect-form-as-fakes]]
         [midje.ideas.arrows :only [start-of-checking-arrow-sequence? leaves-contain-arrow?]]
-        [midje.parsing.background :only [surround-with-background-fakes
+        [midje.parsing.1-to-normal-form.background :only [surround-with-background-fakes
                                        body-of-against-background
                                        against-background-contents-wrappers
                                        against-background-facts-and-checks-wrappers
                                        against-background?]]
-        [midje.parsing.metaconstants :only [predefine-metaconstants-from-form]]
+        [midje.parsing.1-to-normal-form.metaconstants :only [predefine-metaconstants-from-form]]
         [midje.util.form-utils :only [def-many-methods first-named? translate-zipper
                                       preserve-type quoted? pred-cond reader-line-number named?]]
         [midje.util.laziness :only [eagerly]]
@@ -28,8 +28,8 @@
   (:require [clojure.zip :as zip])
   (:require [midje.checking.facts :as fact-checking]
             [midje.data.compendium :as compendium]
-            [midje.parsing.future-facts :as parse-future-facts]
-            [midje.parsing.folded-fakes :as parse-folded-fakes]
+            [midje.parsing.1-to-normal-form.future-facts :as parse-future-facts]
+            [midje.parsing.2-to-lexical-maps.folded-fakes :as parse-folded-fakes]
             [midje.data.fact :as fact-data]))
 
 (defn fact? [form]

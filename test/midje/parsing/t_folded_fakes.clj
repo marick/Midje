@@ -1,11 +1,11 @@
 (ns midje.parsing.t-folded-fakes
   (:use [midje sweet test-util]
-        midje.parsing.folded-fakes
+        midje.parsing.2-to-lexical-maps.folded-fakes
         midje.util
         clojure.pprint)
   (:require [midje.util :as util]))
 
-(util/expose-testables midje.parsing.folded-fakes)
+(util/expose-testables midje.parsing.2-to-lexical-maps.folded-fakes)
 
 ;; Folded fakes
 

@@ -1,7 +1,7 @@
 (ns midje.parsing.t-arglists
   (:use midje.sweet
         midje.test-util
-        midje.parsing.arglists)
+        midje.parsing.other.arglists)
   (:require [midje.emission.levels :as print-levels]))
 
 (facts "separating levels out of argument lists"

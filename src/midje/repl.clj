@@ -6,7 +6,7 @@
             [clojure.set :as set]
             [midje.doc :as doc]
             [midje.config :as config]
-            [midje.parsing.arglists :as parsing]
+            [midje.parsing.other.arglists :as parsing]
             [midje.data.fact :as fact-data]
             [midje.checking.facts :as fact-checking]
             [midje.data.compendium :as compendium]

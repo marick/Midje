@@ -1,5 +1,5 @@
 (ns ^{:doc "Parsing function argument lists"}
-  midje.parsing.arglists
+  midje.parsing.other.arglists
   (:use [midje.error-handling.exceptions :only [user-error]]
         clojure.pprint)
   (:require [midje.emission.levels :as levels]

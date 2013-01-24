@@ -1,5 +1,5 @@
 (ns ^{:doc "A way to create multiple facts with the same template, but different data points."}
-  midje.parsing.tabular
+  midje.parsing.0-to-fact-form.tabular
   (:use [clojure.string :only [join]]
         [clojure.algo.monads :only [domonad]]
         [midje.error-handling.validation-errors :only [simple-validation-error-report-form validate-m validate]]
@@ -7,13 +7,13 @@
         [midje.util.form-utils :only [pop-docstring translate-zipper]]
         [midje.util.deprecation :only [deprecate]]
         [midje.parsing.util.zip :only [skip-to-rightmost-leaf]]
-        [midje.parsing.expects :only [expect?]]
+        [midje.parsing.1-to-normal-form.expects :only [expect?]]
         [midje.ideas.arrows :only [above-arrow-sequence__add-key-value__at-arrow]]
-        [midje.parsing.facts :only [working-on-nested-facts]]
+        [midje.parsing.1-to-normal-form.facts :only [working-on-nested-facts]]
         [midje.data.metaconstant :only [metaconstant-symbol?]]
         [utilize.map :only [ordered-zipmap]])
 (:require [midje.util.unify :as unify]
-          [midje.parsing.metadata :as metadata]))
+          [midje.parsing.1-to-normal-form.metadata :as metadata]))
 
 (defn- remove-pipes+where [table]
   (when (#{:where 'where} (first table))

@@ -4,7 +4,7 @@
         [midje.util.object-utils :only [object-name]]
         [midje.checkers :only [exactly]]
         [midje.checkers.defining :only [checker? checker-makers]]
-        [midje.parsing.expects :only [expect? up-to-full-expect-form]]
+        [midje.parsing.1-to-normal-form.expects :only [expect? up-to-full-expect-form]]
         [midje.util.form-utils :only [first-named? translate-zipper map-difference
                                       hash-map-duplicates-ok pred-cond
                                       quoted-list-form? extended-fn?]]
@@ -23,7 +23,7 @@
             [midje.error-handling.exceptions :as exceptions]
             [midje.emission.api :as emit]
             [midje.parsing.util.fnref :as fnref]
-            [midje.parsing.fakes :as parse-fakes]
+            [midje.parsing.2-to-lexical-maps.fakes :as parse-fakes]
             [midje.parsing.lexical-maps :as lexical-maps])
   (:import midje.data.metaconstant.Metaconstant))
 

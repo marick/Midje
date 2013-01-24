@@ -1,14 +1,14 @@
 (ns midje.parsing.t-tabular
-  (:use [midje.parsing.tabular :except [add-binding-note table-binding-maps]]
+  (:use [midje.parsing.0-to-fact-form.tabular :except [add-binding-note table-binding-maps]]
         [midje.data.metaconstant :only [metaconstant-symbol?]]
         [midje.error-handling.validation-errors]
         [midje sweet test-util]
         [ordered.map :only (ordered-map)]
         midje.util)
-  (:require [midje.parsing.facts :as facts]
+  (:require [midje.parsing.1-to-normal-form.facts :as facts]
             [midje.config :as config]))
 
-(expose-testables midje.parsing.tabular)
+(expose-testables midje.parsing.0-to-fact-form.tabular)
 
 ;; Core midje.sweet API
 

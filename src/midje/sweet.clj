@@ -15,15 +15,15 @@
         [midje.util.form-utils :only [macro-for]]
         [midje.internal-ideas.wrapping :only [put-wrappers-into-effect]]
         [midje.internal-ideas.file-position :only [set-fallback-line-number-from]]
-        [midje.parsing.facts :only [complete-fact-transformation
+        [midje.parsing.1-to-normal-form.facts :only [complete-fact-transformation
                                   midjcoexpand]] 
         [clojure.algo.monads :only [domonad]])
-  (:require [midje.parsing.background :as background]
-            [midje.parsing.metadata :as parse-metadata]
-            [midje.parsing.future-facts :as parse-future-fact]
-            [midje.parsing.metaconstants :as parse-metaconstants]
-            [midje.parsing.tabular :as tabular]
-            [midje.parsing.formulas :as parse-formulas]
+  (:require [midje.parsing.1-to-normal-form.background :as background]
+            [midje.parsing.1-to-normal-form.metadata :as parse-metadata]
+            [midje.parsing.1-to-normal-form.future-facts :as parse-future-fact]
+            [midje.parsing.1-to-normal-form.metaconstants :as parse-metaconstants]
+            [midje.parsing.0-to-fact-form.tabular :as tabular]
+            [midje.parsing.0-to-fact-form.formulas :as parse-formulas]
             [midje.emission.api :as emit]
             [midje.doc :as doc]
             [midje.internal-ideas.fact-context :as fact-context]

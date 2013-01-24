@@ -1,10 +1,10 @@
 (ns ^{:doc "Midje's special blend of generative-style testing."}
-  midje.parsing.formulas
+  midje.parsing.0-to-fact-form.formulas
   (:use [midje.util.form-utils :only [first-named? named? pop-docstring pop-opts-map]]
         [midje.error-handling.validation-errors :only [simple-validation-error-report-form validate-m validate]]
-        [midje.parsing.prerequisites :only [head-of-form-providing-prerequisites?]]
+        [midje.parsing.1-to-normal-form.prerequisites :only [head-of-form-providing-prerequisites?]]
         [midje.ideas.arrows :only [leaf-expect-arrows leaves-contain-arrow?]]
-        [midje.parsing.future-facts :only [future-prefixes]]
+        [midje.parsing.1-to-normal-form.future-facts :only [future-prefixes]]
         [clojure.algo.monads :only [domonad]]
         [clojure.string :only [join]]
         [midje.util.form-utils :only [macro-for]]
@@ -66,7 +66,7 @@
                        fact (formula-fact docstring? body)]
 
     `(around-formula
-       (loop [num-trials-left# (or (:num-trials ~opts-map) midje.parsing.formulas/*num-trials*)]
+       (loop [num-trials-left# (or (:num-trials ~opts-map) midje.parsing.0-to-fact-form.formulas/*num-trials*)]
          (when (pos? num-trials-left#)
            (let [binding-rightsides# ~(vec (take-nth 2 (rest bindings)))
                  ~(vec (take-nth 2 bindings)) binding-rightsides#
@@ -77,7 +77,7 @@
                success?#)))))))
 
 (defmacro with-num-trials [num-trials & formulas]
-  `(binding [midje.parsing.formulas/*num-trials* ~num-trials]
+  `(binding [midje.parsing.0-to-fact-form.formulas/*num-trials* ~num-trials]
      ~@formulas))
 
 (def future-formula-variant-names (map #(str % "formula") future-prefixes))

@@ -1,8 +1,8 @@
 (ns midje.parsing.t-prerequisites
-  (:use midje.parsing.prerequisites
+  (:use midje.parsing.1-to-normal-form.prerequisites
         midje.sweet midje.test-util)
   (:require [clojure.zip :as zip]
-            [midje.parsing.expects :as parse-expects]))
+            [midje.parsing.1-to-normal-form.expects :as parse-expects]))
 
 (fact "can ask whether at the beginning of a form that provides prerequisites"
   (let [values (zip/seq-zip '(provided midje.semi-sweet/provided fluke))]

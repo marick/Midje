@@ -2,7 +2,7 @@
   (:use midje.test-util
         midje.sweet
         midje.util.ecosystem
-        [midje.parsing.formulas :only [*num-trials* with-num-trials]] )
+        [midje.parsing.0-to-fact-form.formulas :only [*num-trials* with-num-trials]] )
   (:require [midje.config :as config]))
 
 ;;;; Formulas

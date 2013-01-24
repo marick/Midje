@@ -1,7 +1,7 @@
 (ns midje.parsing.t-metadata
   (:use midje.sweet
         midje.test-util
-        midje.parsing.metadata))
+        midje.parsing.1-to-normal-form.metadata))
 
 (def a-body '((f) => 3))
 
