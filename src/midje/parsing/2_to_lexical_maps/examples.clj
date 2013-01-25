@@ -8,9 +8,10 @@
         [midje.util.form-utils :only [first-named? translate-zipper map-difference
                                       hash-map-duplicates-ok pred-cond
                                       quoted-list-form? extended-fn?
-                                      def-many-methods]]
+                                      def-many-methods separate-by]]
         [midje.checking.extended-equality :only [extended-= extended-list-=]]
         [midje.parsing.util.file-position :only [user-file-position]]
+        [midje.util.namespace :only [semi-sweet-keyword?]]
         [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out
                                                    with-pushed-namespace-values
                                                    with-altered-roots]]
@@ -53,3 +54,12 @@
      (emit/future-fact (nested-facts/descriptions ~(str "on `" call-form "`"))
                        (:position check#))))
 
+(defn- ^{:testable true } a-fake? [x]
+  (and (seq? x)
+       (semi-sweet-keyword? (first x))))
+
+(defn to-lexical-map-form [full-form]
+  (domonad validate-m [[call-form arrow expected-result & fakes+overrides] (validate full-form)
+                       [fakes overrides] (separate-by a-fake? fakes+overrides)
+                       _ (validate fakes)]
+           (expect-expansion call-form arrow expected-result fakes overrides)))

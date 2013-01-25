@@ -112,6 +112,17 @@
 (binding [midje.semi-sweet/*include-midje-checks* false]
   (load "sweet_compile_out"))
 
+
+;; For the time being, we still support semi-sweet macros.
+;; The files to be loaded will blow up unless we're in production-mode.
+(binding [clojure.test/*load-tests* false]
+  (load "semi_sweet_compile_out"))
+  
+(binding [midje.semi-sweet/*include-midje-checks* false]
+  (load "semi_sweet_compile_out"))
+
+
+
   
 ;; It doesn't matter which namespace the => is in
 (silent-fact (+ 1 1) midje.semi-sweet/=> 3)

@@ -81,10 +81,6 @@
   [& _]
   (parse-data-fakes/to-lexical-map-form &form))
 
-(defn- ^{:testable true } a-fake? [x]
-  (and (seq? x)
-       (semi-sweet-keyword? (first x))))
-
 (defmacro expect 
   "Run the call form, check that all the mocks defined in the fakes 
    (probably with 'fake') have been satisfied, and check that the actual
@@ -96,10 +92,7 @@
   {:arglists '([call-form arrow expected-result & fakes+overrides])}
   [& _]
   (when (user-desires-checking?)
-    (domonad validate-m [[call-form arrow expected-result & fakes+overrides] (validate &form)
-                         [fakes overrides] (separate-by a-fake? fakes+overrides)
-                         _ (validate fakes)]
-      (parse-examples/expect-expansion call-form arrow expected-result fakes overrides))))
+    (parse-examples/to-lexical-map-form &form)))
 
 
 (defmacro not-called

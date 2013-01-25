@@ -1,13 +1,14 @@
-(ns midje.t-semi-sweet
+(ns midje.parsing.2-to-lexical-maps.t-examples
   (:use [clojure.test]  ;; This is used to check production mode with deftest.
         [midje.sweet]
+        [midje.parsing.2-to-lexical-maps.examples]
         [midje.util form-utils]
         [midje.test-util]
         midje.util)
   (:require [clojure.zip :as zip]
             [midje.config :as config]
             [midje.emission.api :as emit]))
-(expose-testables midje.semi-sweet)
+(expose-testables midje.parsing.2-to-lexical-maps.examples)
  
 (unfinished faked-function mocked-function other-function)
 
@@ -67,7 +68,7 @@
         fake-streamed (fake (faked-function 0) =streams=> ['r1 'r2])]
 
     (fact "The basic parts"
-      (:var fake-0) => #'midje.t-semi-sweet/faked-function
+      (:var fake-0) => #'midje.parsing.2-to-lexical-maps.t-examples/faked-function
       (:call-text-for-failures fake-1) => "(faked-function some-variable)"
       (deref (:call-count-atom fake-0)) => 0)
 
@@ -101,7 +102,7 @@
 (facts "about not-called"
   (let [fake-0 (not-called faked-function)]
 
-    (:var fake-0) => #'midje.t-semi-sweet/faked-function
+    (:var fake-0) => #'midje.parsing.2-to-lexical-maps.t-examples/faked-function
     (:call-text-for-failures fake-0) => "faked-function was called."
     @(:call-count-atom fake-0) => 0
     (:arg-matchers fake-0) => nil?
@@ -260,13 +261,6 @@
   (expect (lazy-seq-not-at-top-level) => '((32))
           (fake (testfun 1) => 32)))
 
-
-;; The files to be loaded will blow up unless we're in production-mode.
-(binding [clojure.test/*load-tests* false]
-  (load "semi_sweet_compile_out"))
-  
-(binding [midje.semi-sweet/*include-midje-checks* false]
-  (load "semi_sweet_compile_out"))
 
 (capturing-fact-output
  (config/with-augmented-config {:visible-future true}
