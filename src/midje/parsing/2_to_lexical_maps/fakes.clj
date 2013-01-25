@@ -15,7 +15,10 @@
                                                    with-altered-roots]]
         [midje.parsing.util.wrapping :only [with-wrapping-target]]
         [midje.util.deprecation :only [deprecate]]
+        [clojure.algo.monads :only [defmonad domonad]]
         [midje.parsing.arrow-symbols]
+        midje.error-handling.validation-errors
+        midje.error-handling.semi-sweet-validations
         [clojure.tools.macro :only [macrolet]])
   (:require [midje.data.metaconstant :as metaconstant]
             [clojure.zip :as zip]
@@ -60,18 +63,16 @@
 
 
 
-  (defn to-lexical-map-form [ [[fnref & args :as call-form] arrow result & overrides] ]
-    ;; The (vec args) keeps something like (...o...) from being
-    ;; evaluated as a function call later on. Right approach would
-    ;; seem to be '~args. That causes spurious failures. Debug
-    ;; someday.
-    (when (statically-disallowed-prerequisite-function (fnref/fnref-var-object fnref))
-      (raise-disallowed-prerequisite-error (fnref/fnref-var-object fnref)))
-    (let [source-details `{:call-form '~call-form
-                           :arrow '~arrow
-                           :rhs '~(cons result overrides)}]
-      `(merge
-        (lexical-maps/fake ~call-form ~fnref ~args ~arrow ~result)
-        ~source-details
-        ~(apply hash-map-duplicates-ok overrides))))
-  
+(defn to-lexical-map-form [a-list]
+  (when-valid a-list
+    (let [[_ [fnref & args :as call-form] arrow result & overrides] a-list]
+      (when (statically-disallowed-prerequisite-function (fnref/fnref-var-object fnref))
+        (raise-disallowed-prerequisite-error (fnref/fnref-var-object fnref)))
+      (let [source-details `{:call-form '~call-form
+                             :arrow '~arrow
+                             :rhs '~(cons result overrides)}]
+        `(merge
+          (lexical-maps/fake ~call-form ~fnref ~args ~arrow ~result)
+          ~source-details
+          ~(apply hash-map-duplicates-ok overrides))))))
+    

@@ -1,6 +1,7 @@
 (ns ^{:doc "example maps, redefine maps, failure maps"} 
   midje.parsing.lexical-maps
-  (:use [midje.util.form-utils :only [hash-map-duplicates-ok]])
+  (:use [midje.util.form-utils :only [hash-map-duplicates-ok]]
+        clojure.pprint)
   (:use midje.parsing.arrow-symbols
         midje.parsing.util.arrows)
   (:require [midje.data.nested-facts :as nested-facts]
@@ -9,28 +10,54 @@
   (:require [midje.parsing.3-from-lexical-maps.from-fake-maps :as from-fake-maps]))
 
 
+;;; Because this code is a bit tricky, what with the lexical
+;;; environment, each function follows a stylized form. If you want to see how the macro
+;;; expands, uncomment the `pprint` of the results, and do something like this in the
+;;; repl:
+;;; 
+;;; user=> (let [a 1]
+;;;          (fact (cons a [2]) => (just a 2)))
+;;;
+;;; ... to see this:
+;;;
+
+(comment
+  (clojure.core/merge
+   {:position (midje.parsing.util.file-position/user-file-position),
+    :expected-result-form '(just a 2),
+    :expected-result (just a 2),
+    :check-expectation :expect-match,
+    :function-under-test (clojure.core/fn [] (cons a [2])),
+    :description (midje.data.nested-facts/descriptions)}
+   {:arrow '=>, :call-form '(cons a [2])}
+   (midje.util.form-utils/hash-map-duplicates-ok
+    :position
+    (midje.parsing.util.file-position/line-number-known 2)))
+)
+
 ;;;                                             Example maps
 
 
 (defmacro example
   [call-form arrow expected-result overrides]
-  `(merge
-    {:function-under-test (fn [] ~call-form)
-     :expected-result ~expected-result
-     :check-expectation ~(expect-match-or-mismatch arrow)
-     :expected-result-form '~expected-result 
-     :position (position/user-file-position)
-
-     ;; Adding this field insulates people writing emission plugins
-     ;; from the mechanism for keeping track of nested facts.
-     :description (nested-facts/descriptions)
-
-     ;; for Midje tool creators:
-     :call-form '~call-form
-     :arrow '~arrow }
-    
-    (hash-map-duplicates-ok ~@overrides)))
-
+  (let [source-details `{:call-form '~call-form
+                         :arrow '~arrow }
+        override-map `(hash-map-duplicates-ok ~@overrides)
+        result `(merge
+                 {:function-under-test (fn [] ~call-form)
+                  :expected-result ~expected-result
+                  :check-expectation ~(expect-match-or-mismatch arrow)
+                  :expected-result-form '~expected-result 
+                  :position (position/user-file-position)
+                  
+                  ;; Adding this field insulates people writing emission plugins
+                  ;; from the mechanism for keeping track of nested facts.
+                  :description (nested-facts/descriptions)}
+      
+                 ~source-details
+                 ~override-map)]
+    ;; (pprint result)                     
+    result))
 
 ;;;                                             Fake Maps
 
