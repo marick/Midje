@@ -11,7 +11,7 @@
             [midje.data.compendium :as compendium])
   ;; Following is for testing the use of vars to fake private functions
   ;; in another namespace.
-  (:require midje.data.t-prerequisite-state)
+  (:require midje.data.t-prerequisite-state))
 
 (fact "all of Midje's public, API-facing vars have docstrings"
   (map str (remove (comp :doc meta) (vals (ns-publics 'midje.sweet)))) => []
@@ -337,9 +337,9 @@
   (var-inc-local (var-inc-local 2)))
 
 (fact "can fake private remote-namespace functions using vars"
-  (#'midje.internal-ideas.t-fakes/var-inc-user 2) => 400
+  (#'midje.data.t-prerequisite-state/var-inc-user 2) => 400
   (provided
-    (#'midje.internal-ideas.t-fakes/var-inc 2) => 200))
+    (#'midje.data.t-prerequisite-state/var-inc 2) => 200))
 
 (fact "and can fake local functions using vars"
   (#'var-inc-user-local 2) => 400
@@ -348,9 +348,9 @@
 
 (fact "default prerequisites work with vars"
   (config/with-augmented-config {:partial-prerequisites true}
-    (#'midje.internal-ideas.t-fakes/var-twice) => 201
+    (#'midje.data.t-prerequisite-state/var-twice) => 201
     (provided
-      (#'midje.internal-ideas.t-fakes/var-inc 2) => 200)))
+      (#'midje.data.t-prerequisite-state/var-inc 2) => 200)))
 
 ;;; Unfolded prerequisites
 
@@ -360,30 +360,30 @@
    (var-inc-local (var-inc-local 2))  => 201))
 
 (defn here-and-there []
-  (var-inc-local (#'midje.internal-ideas.t-fakes/var-inc 2)))
+  (var-inc-local (#'midje.data.t-prerequisite-state/var-inc 2)))
   
 (fact "vars also work with unfolded prerequisites"
   (here-and-there) => 201
   (provided
-   (var-inc-local (#'midje.internal-ideas.t-fakes/var-inc 2)) => 201))
+   (var-inc-local (#'midje.data.t-prerequisite-state/var-inc 2)) => 201))
 
 (defn there-and-here []
-  (#'midje.internal-ideas.t-fakes/var-inc (var-inc-local 2)))
+  (#'midje.data.t-prerequisite-state/var-inc (var-inc-local 2)))
   
 (fact "vars also work with unfolded prerequisites"
   (there-and-here) => 201
   (provided
-   (#'midje.internal-ideas.t-fakes/var-inc (var-inc-local 2)) => 201))
+   (#'midje.data.t-prerequisite-state/var-inc (var-inc-local 2)) => 201))
 
 (defn over-there-over-there-spread-the-word-to-beware []
-  (#'midje.internal-ideas.t-fakes/var-inc
-   (#'midje.internal-ideas.t-fakes/var-inc 2)))
+  (#'midje.data.t-prerequisite-state/var-inc
+   (#'midje.data.t-prerequisite-state/var-inc 2)))
   
 (fact "vars also work with unfolded prerequisites"
   (over-there-over-there-spread-the-word-to-beware) => 201
   (provided
-   (#'midje.internal-ideas.t-fakes/var-inc
-    (#'midje.internal-ideas.t-fakes/var-inc 2)) => 201))
+   (#'midje.data.t-prerequisite-state/var-inc
+    (#'midje.data.t-prerequisite-state/var-inc 2)) => 201))
 
  (fact "exceptions do not blow up"
    (odd? "foo") => (throws Exception)
