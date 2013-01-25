@@ -47,7 +47,7 @@
                  {:function-under-test (fn [] ~call-form)
                   :expected-result ~expected-result
                   :check-expectation ~(expect-match-or-mismatch arrow)
-                  :expected-result-form '~expected-result 
+                  :expected-result-form '~expected-result ;; This is also part of the source details.
                   :position (position/user-file-position)
                   
                   ;; Adding this field insulates people writing emission plugins

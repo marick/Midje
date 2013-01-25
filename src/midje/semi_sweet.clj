@@ -34,7 +34,7 @@
 (def-many-methods expect-expansion [=> =not=> =deny=>]
   [call-form arrow expected-result fakes overrides]
   `(let [check# (lexical-maps/example ~call-form ~arrow ~expected-result ~overrides)]
-     (midje.semi-sweet/*expect-checking-fn* check# ~fakes)))
+     (midje.checking.examples/check-one check# ~fakes)))
 
 (defmethod expect-expansion =expands-to=>
   [call-form _arrow_ expected-result fakes overrides]
@@ -42,7 +42,7 @@
         escaped-expected-result `(quote ~expected-result)]
     `(let [check# (lexical-maps/example ~expanded-macro => ~escaped-expected-result
                                      ~(concat overrides [:expected-result-form escaped-expected-result]))]
-       (midje.semi-sweet/*expect-checking-fn* check# ~fakes))))
+       (midje.checking.examples/check-one check# ~fakes))))
 
 (defmethod expect-expansion =future=>
   [call-form arrow expected-result _fakes_ overrides]
@@ -105,7 +105,7 @@
   (parse-data-fakes/to-lexical-map-form &form))
 
 
-
+;;; Because not-called is deprecated, leaving this code lying around.
 (letfn [(make-fake-map [call-form arrow rhs fnref special-to-fake-type user-override-pairs]
           (let [common-to-all-fakes `{:var ~(fnref/fnref-call-form fnref)
                                       :call-count-atom (atom 0)
@@ -157,12 +157,3 @@
                          [fakes overrides] (separate-by a-fake? fakes+overrides)
                          _ (validate fakes)]
       (expect-expansion call-form arrow expected-result fakes overrides))))
-
-(def ^{:dynamic true
-       :doc (str "For Midje tool creators. Hooks into Midje's internal compiler results."
-                 line-separator
-                 "Can be bound to a function with arglists like:"
-                 line-separator
-                 "  "
-                 (:arglists (meta #'midje.checking.examples/check-one)))}
-  *expect-checking-fn* midje.checking.examples/check-one)

@@ -7,7 +7,8 @@
         midje.util.form-utils
         midje.util.laziness
         [midje.util.namespace :only [immigrate]])
-  (:require [midje.emission.boundaries :as emission-boundary]
+  (:require [midje.config :as config]
+            [midje.emission.boundaries :as emission-boundary]
             [midje.parsing.1-to-normal-form.background :as background]
             [midje.emission.api :as emit]))
 
@@ -91,6 +92,7 @@
   "Takes a map describing a single example, plus some function redefine-maps
    and checks that example, reporting results through the emission interface."
   [example-map local-fakes]
+  ((config/choice :check-recorder) example-map local-fakes)
   (with-installed-fakes (concat (reverse (filter :data-fake (background/background-fakes))) local-fakes)
     (emission-boundary/around-check 
       (let [actual (try  

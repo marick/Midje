@@ -37,6 +37,7 @@
             :partial-prerequisites false
             :check-after-creation true
             :emitter 'midje.emission.plugins.default
+            :check-recorder (fn [example-map prerequisite-maps])
 
             ;; The following aren't changed by users.
             :desired-fact? (constantly true)})
