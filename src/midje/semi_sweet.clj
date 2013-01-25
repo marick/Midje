@@ -19,36 +19,13 @@
             [midje.emission.api :as emit]
             midje.checking.examples
             [midje.parsing.util.fnref :as fnref]
+            [midje.parsing.2-to-lexical-maps.examples :as parse-examples]
             [midje.parsing.2-to-lexical-maps.fakes :as parse-fakes]
             [midje.parsing.2-to-lexical-maps.data-fakes :as parse-data-fakes]))
   
 
 (immigrate 'midje.parsing.arrow-symbols)
 
-;;; Conversions to unprocessed form
-
-
-(defmulti ^{:private true} expect-expansion (fn [_call-form_ arrow & _rhs_]
-                                              (name arrow)))
-
-(def-many-methods expect-expansion [=> =not=> =deny=>]
-  [call-form arrow expected-result fakes overrides]
-  `(let [check# (lexical-maps/example ~call-form ~arrow ~expected-result ~overrides)]
-     (midje.checking.examples/check-one check# ~fakes)))
-
-(defmethod expect-expansion =expands-to=>
-  [call-form _arrow_ expected-result fakes overrides]
-  (let [expanded-macro `(macroexpand-1 '~call-form)
-        escaped-expected-result `(quote ~expected-result)]
-    `(let [check# (lexical-maps/example ~expanded-macro => ~escaped-expected-result
-                                     ~(concat overrides [:expected-result-form escaped-expected-result]))]
-       (midje.checking.examples/check-one check# ~fakes))))
-
-(defmethod expect-expansion =future=>
-  [call-form arrow expected-result _fakes_ overrides]
-  `(let [check# (lexical-maps/example ~call-form ~arrow ~expected-result ~overrides)]
-     (emit/future-fact (nested-facts/descriptions ~(str "on `" call-form "`"))
-                       (:position check#))))
 
 ;;; Interface: unfinished
 
@@ -122,7 +99,7 @@
     (domonad validate-m [[call-form arrow expected-result & fakes+overrides] (validate &form)
                          [fakes overrides] (separate-by a-fake? fakes+overrides)
                          _ (validate fakes)]
-      (expect-expansion call-form arrow expected-result fakes overrides))))
+      (parse-examples/expect-expansion call-form arrow expected-result fakes overrides))))
 
 
 (defmacro not-called
