@@ -104,40 +104,6 @@
   [& _]
   (parse-data-fakes/to-lexical-map-form &form))
 
-
-;;; Because not-called is deprecated, leaving this code lying around.
-(letfn [(make-fake-map [call-form arrow rhs fnref special-to-fake-type user-override-pairs]
-          (let [common-to-all-fakes `{:var ~(fnref/fnref-call-form fnref)
-                                      :call-count-atom (atom 0)
-                                      :position (user-file-position)
-
-                                      ;; for Midje tool creators:
-                                      :call-form '~call-form
-                                      :arrow '~arrow 
-                                      :rhs '~rhs}]
-            (merge
-              common-to-all-fakes
-              special-to-fake-type
-              (apply hash-map-duplicates-ok user-override-pairs)))) ]
-
-  (defn- not-called* [var-sym & overrides]
-    (make-fake-map nil nil nil ;; deprecated, so no support for fields for tool creators 
-      var-sym
-      `{:call-text-for-failures (str '~var-sym " was called.")
-        :result-supplier (constantly nil)
-        :type :not-called}
-      overrides)))
-
-(defmacro not-called
-  "Creates an fake map that a function will not be called.
-   Example: (not-called f))
-   DEPRECATED: Prefer `:times 0` annotation to `fake`, ex. (provided (f) => 4 :times 0))"
-  {:deprecated "1.3-alpha2"
-   :arglists '([var-sym & overrides])}
-  [forms]
-  (deprecate "`not-called` will be removed in 1.6. Use `(provided (f) => 4 :times 0)` instead.")
-  (not-called* forms))
-
 (defn- ^{:testable true } a-fake? [x]
   (and (seq? x)
        (semi-sweet-keyword? (first x))))
@@ -157,3 +123,36 @@
                          [fakes overrides] (separate-by a-fake? fakes+overrides)
                          _ (validate fakes)]
       (expect-expansion call-form arrow expected-result fakes overrides))))
+
+
+(defmacro not-called
+  "Creates an fake map that a function will not be called.
+   Example: (not-called f))
+   DEPRECATED: Prefer `:times 0` annotation to `fake`, ex. (provided (f) => 4 :times 0))"
+  {:deprecated "1.3-alpha2"
+   :arglists '([var-sym & overrides])}
+  [forms]
+  (letfn [(make-fake-map [call-form arrow rhs fnref special-to-fake-type user-override-pairs]
+            (let [common-to-all-fakes `{:var ~(fnref/fnref-call-form fnref)
+                                        :call-count-atom (atom 0)
+                                        :position (user-file-position)
+                                        
+                                        ;; for Midje tool creators:
+                                        :call-form '~call-form
+                                        :arrow '~arrow 
+                                        :rhs '~rhs}]
+              (merge
+               common-to-all-fakes
+               special-to-fake-type
+               (apply hash-map-duplicates-ok user-override-pairs))))
+          
+          (not-called* [var-sym & overrides]
+            (make-fake-map nil nil nil ;; deprecated, so no support for fields for tool creators 
+                           var-sym
+                           `{:call-text-for-failures (str '~var-sym " was called.")
+                             :result-supplier (constantly nil)
+                             :type :not-called}
+                           overrides))]
+    (deprecate "`not-called` will be removed in 1.6. Use `(provided (f) => 4 :times 0)` instead.")
+    (not-called* forms)))
+
