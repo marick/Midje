@@ -101,8 +101,8 @@
 (defmacro data-fake
   "Creates a fake map that's used to associate key/value pairs with a metaconstant"
   {:arglists '([metaconstant arrow contained & overrides])}
-  [& forms]
-  (when-valid &form (parse-data-fakes/to-lexical-map-form forms)))
+  [& _]
+  (parse-data-fakes/to-lexical-map-form &form))
 
 
 

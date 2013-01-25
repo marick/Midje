@@ -70,7 +70,8 @@
                          :rhs '~(cons result overrides)}
         override-map `(hash-map-duplicates-ok ~@overrides)
         result `(merge
-                 {:type :fake
+                 {
+                  :type :fake
                   :var ~(fnref/fnref-call-form fnref)
                   :value-at-time-of-faking (if (bound? ~(fnref/fnref-call-form fnref))
                                              ~(fnref/fnref-dereference-form fnref))
@@ -80,7 +81,8 @@
                   
                   :position (position/user-file-position)
                   :call-count-atom (atom 0)
-                  :call-text-for-failures (str '~call-form)}
+                  :call-text-for-failures (str '~call-form)
+                 }
                  ~source-details
                  ~override-map)]
     ;; pprint result
@@ -90,12 +92,23 @@
 
 ;; A data fake is the implementation of `..metaconstant.. =contains=> {..}`.
 
-(defmacro data-fake [metaconstant arrow contained]
-  `{:type :fake
-    :data-fake true
-    :var ~(fnref/fnref-call-form metaconstant)
-    :contained ~contained
-    
-    :position (position/user-file-position)
-    :call-count-atom (atom 1) ;; kludje
-    })
+(defn data-fake [metaconstant arrow contained overrides]
+  (let [source-details `{:call-form '~metaconstant
+                         :arrow '~arrow
+                         :rhs '~(cons contained overrides)}
+        override-map `(hash-map-duplicates-ok ~@overrides)
+        result `(merge
+                 {
+                  :type :fake
+                  :data-fake true
+                  :var ~(fnref/fnref-call-form metaconstant)
+                  :contained ~contained
+                  
+                  :position (position/user-file-position)
+                  :call-count-atom (atom 1) ;; kludje
+                 }
+                 ~source-details
+                 ~override-map)]
+    ;; pprint result
+    result))
+

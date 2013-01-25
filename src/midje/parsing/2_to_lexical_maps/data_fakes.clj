@@ -15,6 +15,8 @@
                                                    with-altered-roots]]
         [midje.parsing.util.wrapping :only [with-wrapping-target]]
         [midje.util.deprecation :only [deprecate]]
+        midje.error-handling.validation-errors
+        midje.error-handling.semi-sweet-validations
         [midje.parsing.arrow-symbols]
         [clojure.tools.macro :only [macrolet]])
   (:require [midje.data.metaconstant :as metaconstant]
@@ -27,12 +29,8 @@
   (:import midje.data.metaconstant.Metaconstant))
 
 
-(defn to-lexical-map-form [[metaconstant arrow contained & overrides]]
-  (let [source-details `{:call-form '~metaconstant
-                         :arrow '~arrow
-                         :rhs '~(cons contained overrides)}]
-    `(merge
-      (lexical-maps/data-fake ~metaconstant ~arrow ~contained)
-      ~source-details
-      ~(apply hash-map-duplicates-ok overrides))))
+(defn to-lexical-map-form [a-list]
+  (when-valid a-list
+    (let [[_ metaconstant arrow contained & overrides] a-list]
+      (lexical-maps/data-fake metaconstant arrow contained overrides))))
 
