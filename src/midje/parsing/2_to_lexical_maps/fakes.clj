@@ -68,11 +68,5 @@
     (let [[_ [fnref & args :as call-form] arrow result & overrides] a-list]
       (when (statically-disallowed-prerequisite-function (fnref/fnref-var-object fnref))
         (raise-disallowed-prerequisite-error (fnref/fnref-var-object fnref)))
-      (let [source-details `{:call-form '~call-form
-                             :arrow '~arrow
-                             :rhs '~(cons result overrides)}]
-        `(merge
-          (lexical-maps/fake ~call-form ~fnref ~args ~arrow ~result)
-          ~source-details
-          ~(apply hash-map-duplicates-ok overrides))))))
+      (lexical-maps/fake call-form fnref args arrow result overrides))))
     

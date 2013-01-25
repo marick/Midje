@@ -21,7 +21,7 @@
 ;;; ... to see this:
 ;;;
 
-(comment
+(comment ; --------------------------------------------------------
   (clojure.core/merge
    {:position (midje.parsing.util.file-position/user-file-position),
     :expected-result-form '(just a 2),
@@ -33,7 +33,7 @@
    (midje.util.form-utils/hash-map-duplicates-ok
     :position
     (midje.parsing.util.file-position/line-number-known 2)))
-)
+) ; ---------------------------------------------------------------
 
 ;;;                                             Example maps
 
@@ -64,23 +64,27 @@
 ;; A fake map describes all or part of a temporary rebinding of a var with a function that
 ;; captures invocations and also returns canned values.
 
-(defmacro fake [call-form fnref args arrow result]
-  ;; The (vec args) keeps something like (...o...) from being
-  ;; evaluated as a function call later on. Right approach would
-  ;; seem to be '~args. That causes spurious failures. Debug
-  ;; someday.
-  `{:type :fake
-    :var ~(fnref/fnref-call-form fnref)
-    :value-at-time-of-faking (if (bound? ~(fnref/fnref-call-form fnref))
-                               ~(fnref/fnref-dereference-form fnref))
-    :arg-matchers (map from-fake-maps/mkfn:arg-matcher ~(vec args))
-    :result-supplier (from-fake-maps/mkfn:result-supplier ~arrow ~result)
-    :times :default  ; Default allows for a more attractive error in the most common case.
-
-    :position (position/user-file-position)
-    :call-count-atom (atom 0)
-    :call-text-for-failures (str '~call-form)})
-
+(defn fake [call-form fnref args arrow result overrides]
+  (let [source-details `{:call-form '~call-form
+                         :arrow '~arrow
+                         :rhs '~(cons result overrides)}
+        override-map `(hash-map-duplicates-ok ~@overrides)
+        result `(merge
+                 {:type :fake
+                  :var ~(fnref/fnref-call-form fnref)
+                  :value-at-time-of-faking (if (bound? ~(fnref/fnref-call-form fnref))
+                                             ~(fnref/fnref-dereference-form fnref))
+                  :arg-matchers (map from-fake-maps/mkfn:arg-matcher ~(vec args))
+                  :result-supplier (from-fake-maps/mkfn:result-supplier ~arrow ~result)
+                  :times :default  ; Default allows for a more attractive error in the most common case.
+                  
+                  :position (position/user-file-position)
+                  :call-count-atom (atom 0)
+                  :call-text-for-failures (str '~call-form)}
+                 ~source-details
+                 ~override-map)]
+    ;; pprint result
+    result))
 
 ;;;                                             Metaconstant Detail Maps
 
