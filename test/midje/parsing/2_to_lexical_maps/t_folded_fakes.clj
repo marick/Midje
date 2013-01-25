@@ -1,4 +1,4 @@
-(ns midje.parsing.t-folded-fakes
+(ns midje.parsing.2-to-lexical-maps.t-folded-fakes
   (:use [midje sweet test-util]
         midje.parsing.2-to-lexical-maps.folded-fakes
         midje.util

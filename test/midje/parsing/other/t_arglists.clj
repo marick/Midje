@@ -1,4 +1,4 @@
-(ns midje.parsing.t-arglists
+(ns midje.parsing.other.t-arglists
   (:use midje.sweet
         midje.test-util
         midje.parsing.other.arglists)

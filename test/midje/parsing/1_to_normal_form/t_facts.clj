@@ -1,4 +1,4 @@
-(ns midje.parsing.t-facts
+(ns midje.parsing.1-to-normal-form.t-facts
   (:use midje.parsing.1-to-normal-form.facts
         midje.sweet midje.test-util)
   (:require [clojure.zip :as zip]

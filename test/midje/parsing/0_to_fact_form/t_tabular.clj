@@ -1,4 +1,4 @@
-(ns midje.parsing.t-tabular
+(ns midje.parsing.0-to-fact-form.t-tabular
   (:use [midje.parsing.0-to-fact-form.tabular :except [add-binding-note table-binding-maps]]
         [midje.data.metaconstant :only [metaconstant-symbol?]]
         [midje.error-handling.validation-errors]
