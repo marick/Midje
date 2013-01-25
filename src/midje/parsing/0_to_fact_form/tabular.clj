@@ -7,13 +7,13 @@
         [midje.util.form-utils :only [pop-docstring translate-zipper]]
         [midje.util.deprecation :only [deprecate]]
         [midje.parsing.util.zip :only [skip-to-rightmost-leaf]]
-        [midje.parsing.1-to-normal-form.expects :only [expect?]]
+        [midje.parsing.1-to-explicit-form.expects :only [expect?]]
         [midje.parsing.util.arrows :only [above-arrow-sequence__add-key-value__at-arrow]]
-        [midje.parsing.1-to-normal-form.facts :only [working-on-nested-facts]]
+        [midje.parsing.1-to-explicit-form.facts :only [working-on-nested-facts]]
         [midje.data.metaconstant :only [metaconstant-symbol?]]
         [utilize.map :only [ordered-zipmap]])
 (:require [midje.util.unify :as unify]
-          [midje.parsing.1-to-normal-form.metadata :as metadata]))
+          [midje.parsing.1-to-explicit-form.metadata :as metadata]))
 
 (defn- remove-pipes+where [table]
   (when (#{:where 'where} (first table))

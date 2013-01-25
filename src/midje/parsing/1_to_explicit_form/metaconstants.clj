@@ -1,5 +1,5 @@
 (ns ^{:doc "Transforming code in a way that produces metaconstants"}
-  midje.parsing.1-to-normal-form.metaconstants
+  midje.parsing.1-to-explicit-form.metaconstants
   (:require [midje.data.metaconstant :as data])
   (:import midje.data.metaconstant.Metaconstant))
 

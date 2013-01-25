@@ -1,13 +1,13 @@
-(ns midje.parsing.1-to-normal-form.t-background
+(ns midje.parsing.1-to-explicit-form.t-background
   (:require [clojure.zip :as zip])
   (:use [midje sweet test-util]
         [midje.parsing.util.wrapping :only [for-wrapping-target?]]
         [midje.util unify]
         [midje.error-handling validation-errors]
-        [midje.parsing.1-to-normal-form.background :only [separate-background-forms setup-teardown-bindings
+        [midje.parsing.1-to-explicit-form.background :only [separate-background-forms setup-teardown-bindings
                                  seq-headed-by-setup-teardown-form? background-wrappers]]
         midje.util))
-(expose-testables midje.parsing.1-to-normal-form.background)
+(expose-testables midje.parsing.1-to-explicit-form.background)
 
 (unfinished unused used)
 (defn calls-nothing [] )
@@ -113,7 +113,7 @@
 ;; a fact because it gets substituted. So we let the caller use "danger" instead.
 (letfn [(form-matching? [expected]
           (fn [actual] (= actual
-                         (substitute expected {'?danger 'midje.parsing.1-to-normal-form.t-background/?form}))))]
+                         (substitute expected {'?danger 'midje.parsing.1-to-explicit-form.t-background/?form}))))]
 
   (fact "canonicalized setup/teardown wrappers can be put into final form"
     (let [final (state-wrapper '(before :checks (do-something)))]

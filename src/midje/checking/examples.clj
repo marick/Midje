@@ -9,7 +9,7 @@
         [midje.util.namespace :only [immigrate]])
   (:require [midje.config :as config]
             [midje.emission.boundaries :as emission-boundary]
-            [midje.parsing.1-to-normal-form.background :as background]
+            [midje.parsing.1-to-explicit-form.background :as background]
             [midje.emission.api :as emit]))
 
 (defn- minimal-failure-map

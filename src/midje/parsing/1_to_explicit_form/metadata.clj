@@ -1,5 +1,5 @@
 (ns ^{:doc "Parsing metadata as found in facts, around-facts, and tables"}
-  midje.parsing.1-to-normal-form.metadata
+  midje.parsing.1-to-explicit-form.metadata
   (:use [midje.error-handling.exceptions :only [user-error]]
         clojure.pprint)
   (:require [midje.parsing.util.arrows :as arrows]))

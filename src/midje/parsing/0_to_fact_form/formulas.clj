@@ -2,9 +2,9 @@
   midje.parsing.0-to-fact-form.formulas
   (:use [midje.util.form-utils :only [first-named? named? pop-docstring pop-opts-map]]
         [midje.error-handling.validation-errors :only [simple-validation-error-report-form validate-m validate]]
-        [midje.parsing.1-to-normal-form.prerequisites :only [head-of-form-providing-prerequisites?]]
+        [midje.parsing.1-to-explicit-form.prerequisites :only [head-of-form-providing-prerequisites?]]
         [midje.parsing.util.arrows :only [leaf-expect-arrows leaves-contain-arrow?]]
-        [midje.parsing.1-to-normal-form.future-facts :only [future-prefixes]]
+        [midje.parsing.1-to-explicit-form.future-facts :only [future-prefixes]]
         [clojure.algo.monads :only [domonad]]
         [clojure.string :only [join]]
         [midje.util.form-utils :only [macro-for]]

@@ -7,7 +7,7 @@
    )
   (:require
             [clojure.zip :as zip]
-            [midje.parsing.1-to-normal-form.expects :as expects]
+            [midje.parsing.1-to-explicit-form.expects :as expects]
             [midje.parsing.util.fnref :as fnref]
             )
   )

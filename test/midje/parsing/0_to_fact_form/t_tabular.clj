@@ -5,7 +5,7 @@
         [midje sweet test-util]
         [ordered.map :only (ordered-map)]
         midje.util)
-  (:require [midje.parsing.1-to-normal-form.facts :as facts]
+  (:require [midje.parsing.1-to-explicit-form.facts :as facts]
             [midje.config :as config]))
 
 (expose-testables midje.parsing.0-to-fact-form.tabular)

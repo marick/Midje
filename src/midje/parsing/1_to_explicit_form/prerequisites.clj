@@ -1,11 +1,11 @@
 (ns ^{:doc "Functions for turning provideds into semi-sweet fakes"}
-  midje.parsing.1-to-normal-form.prerequisites
+  midje.parsing.1-to-explicit-form.prerequisites
   (:use [midje.util.namespace :only [matches-symbols-in-semi-sweet-or-sweet-ns?]]
         [midje.util.form-utils :only [symbol-named?]]
         [midje.parsing.util.file-position :only [arrow-line-number-from-form]]
         midje.parsing.arrow-symbols
         [midje.parsing.util.arrows :only [pull-all-arrow-seqs-from]]
-        [midje.parsing.1-to-normal-form.expects :only [up-to-full-expect-form expect?
+        [midje.parsing.1-to-explicit-form.expects :only [up-to-full-expect-form expect?
                                             tack-on__then__at-rightmost-expect-leaf]])
   (:require [clojure.zip :as zip]
             [midje.util.ecosystem :as ecosystem]))

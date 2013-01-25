@@ -119,7 +119,7 @@
 
 ;;; Note that facts must be returned in alphetical order by namespace,
 ;;; then by creation order within namespace.
- (add-fact :midje/namespace 'midje.parsing.1-to-normal-form.facts :midje/name "f - second - midje.parsing.1-to-normal-form.facts")
+ (add-fact :midje/namespace 'midje.parsing.1-to-explicit-form.facts :midje/name "f - second - midje.parsing.1-to-explicit-form.facts")
  (add-fact :midje/namespace 'midje.t-repl :midje/name      "m - fourth - midje.t-repl")
  (add-fact :midje/namespace 'midje.repl :midje/name        "p - third - midje.repl" )
  (add-fact :midje/namespace 'midje.t-repl :midje/name      "a - fifth - midje.t-repl")
@@ -132,8 +132,8 @@
      (names (fetch-facts)) => expected
      (names (fetch-facts)) => expected)
 
-   (let [expected ["f - second - midje.parsing.1-to-normal-form.facts"]]
-     (names (fetch-facts 'midje.parsing.1-to-normal-form.facts)) => expected
+   (let [expected ["f - second - midje.parsing.1-to-explicit-form.facts"]]
+     (names (fetch-facts 'midje.parsing.1-to-explicit-form.facts)) => expected
      (names (fetch-facts)) => expected)
 
    ;; if explicit namespace order is given, it's obeyed
@@ -141,20 +141,20 @@
      (names (fetch-facts 'midje.t-repl 'midje.config)) => expected
      (names (fetch-facts)) => expected)
 
-   (let [expected ["z - first - integration" "f - second - midje.parsing.1-to-normal-form.facts" "p - third - midje.repl" "m - fourth - midje.t-repl" "a - fifth - midje.t-repl"]]
+   (let [expected ["z - first - integration" "f - second - midje.parsing.1-to-explicit-form.facts" "p - third - midje.repl" "m - fourth - midje.t-repl" "a - fifth - midje.t-repl"]]
      (names (fetch-facts :all)) => expected
      (names (fetch-facts)) => expected)
 
-   (let [expected ["z - first - integration" "f - second - midje.parsing.1-to-normal-form.facts"]]
+   (let [expected ["z - first - integration" "f - second - midje.parsing.1-to-explicit-form.facts"]]
      (names (fetch-facts :all "n")) => expected
      (names (fetch-facts)) => expected)
    
-   (names (fetch-facts 'midje.parsing.1-to-normal-form.facts #"q")) => []
+   (names (fetch-facts 'midje.parsing.1-to-explicit-form.facts #"q")) => []
    (names (fetch-facts :all :integration)) => ["z - first - integration"]
    (names (fetch-facts *ns* :integration)) => []
    (names (fetch-facts :all #(= (:midje/name %) "p - third - midje.repl"))) => ["p - third - midje.repl"]
-   (names (fetch-facts "midje.parsing.1-to-normal-form.facts" "p - third - midje.repl" :all))
-   => ["f - second - midje.parsing.1-to-normal-form.facts" "p - third - midje.repl"]
+   (names (fetch-facts "midje.parsing.1-to-explicit-form.facts" "p - third - midje.repl" :all))
+   => ["f - second - midje.parsing.1-to-explicit-form.facts" "p - third - midje.repl"]
    )
 
    
@@ -224,7 +224,7 @@
     :check-only-at-load-time
     (fact "it can get its default from load-facts"
       (forget-facts :all)
-      (add-fact :midje/namespace 'midje.parsing.1-to-normal-form.facts :midje/name "not forgotten")
+      (add-fact :midje/namespace 'midje.parsing.1-to-explicit-form.facts :midje/name "not forgotten")
       (load-facts 'midje.t-repl-helper :print-nothing)
       (forget-facts)
       (map fact-name (compendium/all-facts<>)) => ["not forgotten"])
@@ -240,8 +240,8 @@
     (fact "forget-facts does not affect check-facts"
       (forget-facts :all)
       (load-facts 'midje.t-repl-helper :non-featherian :print-nothing)
-      (add-fact :midje/namespace 'midje.parsing.1-to-normal-form.facts)
-      (forget-facts 'midje.parsing.1-to-normal-form.facts)
+      (add-fact :midje/namespace 'midje.parsing.1-to-explicit-form.facts)
+      (forget-facts 'midje.parsing.1-to-explicit-form.facts)
       (map fact-name (fetch-facts)) => ["a non-featherian test"]))
   )
   

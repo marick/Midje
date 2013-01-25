@@ -1,7 +1,7 @@
-(ns midje.parsing.1-to-normal-form.t-metadata
+(ns midje.parsing.1-to-explicit-form.t-metadata
   (:use midje.sweet
         midje.test-util
-        midje.parsing.1-to-normal-form.metadata))
+        midje.parsing.1-to-explicit-form.metadata))
 
 (def a-body '((f) => 3))
 
@@ -10,8 +10,8 @@
     (let [[meta _] (separate-metadata `(fact "doc" ~@a-body))]
       (:midje/source meta) => `(fact "doc" ~@a-body)
       (:midje/body-source meta) => a-body
-      (:midje/file meta) => "midje/parsing/1_to_normal_form/t_metadata.clj"
-      (:midje/namespace meta) => 'midje.parsing.1-to-normal-form.t-metadata
+      (:midje/file meta) => "midje/parsing/1_to_explicit_form/t_metadata.clj"
+      (:midje/namespace meta) => 'midje.parsing.1-to-explicit-form.t-metadata
       (contains? meta :midje/line) => truthy))
 
   

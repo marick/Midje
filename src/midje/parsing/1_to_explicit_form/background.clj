@@ -1,9 +1,9 @@
 (ns ^{:doc "Code to be run before, after or around facts. Also, 
             prerequisites that pertain to a group of facts."} 
-  midje.parsing.1-to-normal-form.background
+  midje.parsing.1-to-explicit-form.background
   (:use [midje.parsing.util.arrows :only [start-of-checking-arrow-sequence? take-arrow-sequence]]
-        [midje.parsing.1-to-normal-form.metaconstants :only [predefine-metaconstants-from-form]]
-        [midje.parsing.1-to-normal-form.prerequisites :only [metaconstant-prerequisite? prerequisite-to-fake]]
+        [midje.parsing.1-to-explicit-form.metaconstants :only [predefine-metaconstants-from-form]]
+        [midje.parsing.1-to-explicit-form.prerequisites :only [metaconstant-prerequisite? prerequisite-to-fake]]
         [midje.data.prerequisite-state :only [with-installed-fakes]]
         [midje.parsing.util.wrapping :only [for-wrapping-target? with-wrapping-target]]
         [midje.util.form-utils :only [first-named? map-first pred-cond separate-by
@@ -95,7 +95,7 @@
 
 (defn- ^{:testable true } state-wrapper [[_before-after-or-around_ wrapping-target & _ :as state-description]]
   (with-wrapping-target
-    (macroexpand-1 (map-first #(symbol "midje.parsing.1-to-normal-form.background" (name %)) state-description))
+    (macroexpand-1 (map-first #(symbol "midje.parsing.1-to-explicit-form.background" (name %)) state-description))
     wrapping-target))
 
 (letfn [(background-fake-wrappers [fakes]

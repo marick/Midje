@@ -1,51 +1,53 @@
-Midje parsing generates different kinds of maps that drive
-checking. For reference, the maps are gathered together in
+The core of midje is one function and a few different kinds
+of maps. The parsing code is organized around the maps, and
+the function comes along for the ride.
+
+For reference, the maps are gathered together in
 `lexical_maps.clj` in this directory. Partly for historical
 reasons, parsing is a 3 step process, each step represented
 by one of the `1_*`, `2_*`, and `3_*` directories. (The
 `0_*` directory will be explained later.)
 
-## Step 1: Converting from unclojurian to more clojurian syntax.
+## Step 1: Converting from implicit to explicit form
 
-Midje is notable (and, in some circles, notably disliked)
-for having a syntax that's not nicely nested in the normal
-Lispy way. For example, individual examples are not enclosed by
-parens, and they don't start with a function name or similar
-token.
+Midje facts are built around the ideas of examples and
+prerequisites. In normal Lispy style, you'd expect those
+ideas to be reified into the names of functions or macros,
+and you'd expect to see code forms like this:
 
 ```clojure
-      (fact
-         (+ 1 1) => 2      ; The arrow is significant for parsing.
-         (+ 2 2) => 4)     
+    (example ... )
+    (prerequisite ...)
 ```
 
-Files in `1_to_normal_form` convert from Midje syntax to a
-more Lispy syntax. Specifically, examples are converted into
-a form like this:
+Midje instead uses an implicit syntax. When you see a form
+like this:
 
 ```clojure
-    (expect (+ 1 1) => 2)
+      (facts "about my-fun"
+        (myfun 3) => 4
+        (myfun -1) => 4
+        (provided
+           (helper 1) => 2
+           (helper 2) => 2))
 ```
 
-While still a macro, `expect` looks more like Lisp.
-(The arrow is not just decoration, since different forms of
-arrows affect what kind of check is done.)
+... you know there are two examples, the second of which
+identifies two calls to a single prerequisite
+(`helper`). But the words don't appear. You infer that from
+a non-Lispy syntax.
 
-Prerequisites are inserted as additional clauses within the arrow
-form. So this example:
-
-```clojure
-    (fact
-      (f 1) => 2
-      (provided
-         (g 1) => 3))
-```
-
-... becomes this:
+This step in parsing converts those implicit forms into
+explicit ones. (For historical reasons, the names don't match
+current Midje terminology.) Here are the explicit forms from
+the above fact:
 
 ```clojure
-    (expect (f 1) => 2
-                (fake (g 1) => 3))
+   ...
+   (expect (myfun 3) => 4)
+   (expect (myfun -1 => 4 (fake (helper 1) => 2)
+                          (fake (helper 2) => 2)))
+   ...
 ```
 
 ## Step 2: Converting into lexical maps

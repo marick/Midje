@@ -1,5 +1,5 @@
-(ns midje.parsing.1-to-normal-form.t-metaconstants
-  (:use midje.parsing.1-to-normal-form.metaconstants
+(ns midje.parsing.1-to-explicit-form.t-metaconstants
+  (:use midje.parsing.1-to-explicit-form.metaconstants
         [midje sweet test-util]
         clojure.pprint)
   (:import midje.data.metaconstant.Metaconstant))

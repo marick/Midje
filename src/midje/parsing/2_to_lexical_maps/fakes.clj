@@ -4,7 +4,7 @@
         [midje.util.object-utils :only [object-name]]
         [midje.checkers :only [exactly]]
         [midje.checking.checkers.defining :only [checker? checker-makers]]
-        [midje.parsing.1-to-normal-form.expects :only [expect? up-to-full-expect-form]]
+        [midje.parsing.1-to-explicit-form.expects :only [expect? up-to-full-expect-form]]
         [midje.util.form-utils :only [first-named? translate-zipper map-difference
                                       hash-map-duplicates-ok pred-cond
                                       quoted-list-form? extended-fn?]]
