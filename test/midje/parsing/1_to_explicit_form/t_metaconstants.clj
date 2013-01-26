@@ -1,7 +1,6 @@
 (ns midje.parsing.1-to-explicit-form.t-metaconstants
   (:use midje.parsing.1-to-explicit-form.metaconstants
-        [midje sweet test-util]
-        clojure.pprint)
+        [midje sweet test-util])
   (:import midje.data.metaconstant.Metaconstant))
 
 ;;; Two different ways of creating metaconstants from user forms

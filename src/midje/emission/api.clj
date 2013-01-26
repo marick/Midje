@@ -1,7 +1,7 @@
 (ns ^{:doc "Emissions change global state: the output and the pass/fail record."}
   midje.emission.api
-  (:use [midje.util.thread-safe-var-nesting :only [with-altered-roots]])
-  (:use clojure.pprint)
+  (:use midje.clojure.core
+        [midje.util.thread-safe-var-nesting :only [with-altered-roots]])
   (:require [midje.config :as config]
             [midje.emission.clojure-test-facade :as ctf]
             [midje.emission.levels :as levels]

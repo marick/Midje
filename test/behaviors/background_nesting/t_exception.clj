@@ -1,7 +1,6 @@
 (ns behaviors.background-nesting.t-exception
   (:use clojure.test)
   (:use [midje.sweet])
-  (:use clojure.pprint)
 )
 
 ;; This is a separate file because we're making namespace-wide changes

@@ -1,6 +1,5 @@
 (ns midje.t-repl-helper
   (:use midje.sweet
-        [clojure.pprint]
         [midje.test-util]))
 
 (fact "a simple test"

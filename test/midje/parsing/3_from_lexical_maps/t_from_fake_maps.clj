@@ -3,8 +3,7 @@
         [midje.parsing.3-from-lexical-maps.from-fake-maps]
         [utilize.seq :only (find-first only)]
         [midje.test-util]
-        midje.util
-        clojure.pprint)
+        midje.util)
   (:require [midje.config :as config])
   (:import midje.data.metaconstant.Metaconstant))
 

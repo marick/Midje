@@ -5,8 +5,7 @@
                                       chatty-untease
                                       chatty-checker?]]
         [midje.checking.extended-falsehood :only [data-laden-falsehood?]]
-        midje.test-util
-        clojure.pprint))
+        midje.test-util))
 
 (facts "about chatty-checking utility functions"
 

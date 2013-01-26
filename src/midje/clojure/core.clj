@@ -1,7 +1,11 @@
 (ns ^{:doc "Functions I wouldn't mind to see in clojure.core"}
-  midje.clojure.core)
+  midje.clojure.core
+  (:require clojure.pprint))
 
-;;; Types and pseudo types
+;; Note: some of this code is taken from https://github.com/flatland/useful/blob/develop/src/flatland/useful/ns.clj
+;; Those functions should be immigrated once the new useful namespace is pushed to clojars.
+
+;;; Types and pseudo types
 
 (defn regex? [x]
   (= (class x) java.util.regex.Pattern))
@@ -26,7 +30,7 @@
   (instance? clojure.lang.Named x))
 
 
-;;; Annoyances
+;;; Annoyances
 
 (defn strictly [loose-predicate]
   (comp boolean loose-predicate))
@@ -36,14 +40,12 @@
 (def not-empty? (strictly seq))
 
 
-;;; Vars
+;;; Vars
 
 (defn var-root [var]
   (alter-var-root var identity))
 
-
-
-(defn var-name
+(defn var-name ;; from `useful`
   "Get the namespace-qualified name of a var."
   [v]
   (apply symbol (map str ((juxt (comp ns-name :ns)
@@ -51,9 +53,9 @@
                           (meta v)))))
 
 
-;;; Namespaces
+;;; Namespaces
 
-(defn alias-var
+(defn alias-var  ;; from `useful`
   "Create a var with the supplied name in the current namespace, having the same
 metadata and root-binding as the supplied var."
   [name ^clojure.lang.Var var]
@@ -64,7 +66,7 @@ metadata and root-binding as the supplied var."
          (when (.hasRoot var) [@var])))
 
 
-(defmacro defalias
+(defmacro defalias  ;; from `useful`
   "Defines an alias for a var: a new var with the same root binding (if
 any) and similar metadata. The metadata of the alias is its initial
 metadata (as provided by def) merged into the metadata of the original."
@@ -94,7 +96,7 @@ metadata (as provided by def) merged into the metadata of the original."
     (doseq [sym symbols]
       (move-var (ns-resolve ns sym) sym))))
 
-;;; Maps
+;;; Maps
 
 (defn hash-map-duplicates-ok
   "Like hash-map, except duplicate keys are OK. Last one takes precedence." 
@@ -122,7 +124,7 @@ metadata (as provided by def) merged into the metadata of the original."
     (assoc-in map path-to-end-key without-key)))
 
 
-;;; Sequences
+;;; Sequences
 
 (defn separate-by
   "Like clojure.core/separate, but not lazy, returns nil for empty list."
@@ -140,3 +142,8 @@ metadata (as provided by def) merged into the metadata of the original."
   "Like map, but applies f to only the first element of the seq"
   [f x]
   (cons (f (first x)) (rest x)))
+
+
+;;; Printing
+
+(immigrate-from 'clojure.pprint '[pprint cl-format])

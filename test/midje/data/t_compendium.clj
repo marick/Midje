@@ -1,6 +1,5 @@
 (ns midje.data.t-compendium
   (:use [midje.sweet]
-        [clojure.pprint]
         [midje.test-util]
         [midje.data.compendium])
   (:require [midje.util.ecosystem :as ecosystem]

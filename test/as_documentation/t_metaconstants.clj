@@ -1,6 +1,5 @@
 (ns as-documentation.t-metaconstants
-  (:use [midje sweet test-util]
-        clojure.pprint))
+  (:use [midje sweet test-util]))
 
 ;;;                             THE BASICS
 

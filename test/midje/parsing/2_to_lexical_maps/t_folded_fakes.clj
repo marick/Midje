@@ -1,8 +1,7 @@
 (ns midje.parsing.2-to-lexical-maps.t-folded-fakes
   (:use [midje sweet test-util]
         midje.parsing.2-to-lexical-maps.folded-fakes
-        midje.util
-        clojure.pprint)
+        midje.util)
   (:require [midje.util :as util]))
 
 (util/expose-testables midje.parsing.2-to-lexical-maps.folded-fakes)

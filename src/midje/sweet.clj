@@ -8,7 +8,6 @@
   midje.sweet
   (:require midje.config) ; This should load first.
   (:use midje.clojure.core
-        clojure.pprint
         midje.production-mode
         midje.error-handling.exceptions
         midje.error-handling.validation-errors

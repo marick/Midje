@@ -13,7 +13,6 @@
         [midje.parsing.util.file-position :only [user-file-position]]
         midje.production-mode
         [clojure.algo.monads :only [domonad]]
-        clojure.pprint
         [clojure.string :only [join]])
   (:require [midje.data.nested-facts :as nested-facts]
             [midje.parsing.lexical-maps :as lexical-maps]

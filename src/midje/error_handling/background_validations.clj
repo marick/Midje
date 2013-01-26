@@ -1,7 +1,6 @@
 (ns ^{:doc "Validation methods confirming the proper syntax of (against-)background macros."}
   midje.error-handling.background-validations
   (:use midje.clojure.core
-        [clojure.pprint :only [cl-format]]
         [midje.error-handling.validation-errors :only [simple-validation-error-report-form 
                                                        validation-error-report-form validate when-valid]]
         [midje.parsing.util.arrows :only [start-of-checking-arrow-sequence? take-arrow-sequence]]

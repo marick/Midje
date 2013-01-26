@@ -1,8 +1,7 @@
 (ns midje.checking.t-extended-falsehood
   (:use midje.sweet
         [midje.checking.extended-falsehood]
-        midje.test-util
-        clojure.pprint))
+        midje.test-util))
 
 (facts "about an extended notion of falsehood"
   (extended-false? false) => truthy

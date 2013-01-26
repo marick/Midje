@@ -4,7 +4,6 @@
   midje.checking.checkers.collection
   (:use midje.clojure.core
         [clojure.set :only [union]]
-        [clojure.pprint :only [cl-format]]
         [midje.util.backwards-compatible-utils :only [every-pred-m]] 
         [midje.util.form-utils :only [pred-cond macro-for]]
       	[midje.checking.checkers collection-util util chatty defining collection-comparison]

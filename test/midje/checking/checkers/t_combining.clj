@@ -1,6 +1,5 @@
 (ns midje.checking.checkers.t-combining
   (:use midje.sweet
-        clojure.pprint
         [midje.checking.checkers.defining :only [checker?]]
         midje.checking.extended-falsehood
         midje.test-util))

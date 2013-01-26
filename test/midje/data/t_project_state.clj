@@ -1,6 +1,5 @@
 (ns midje.data.t-project-state
   (:use [midje.sweet]
-        [clojure.pprint]
         [midje.test-util]
         [midje.data.project-state])
   (:require [midje.util.ecosystem :as ecosystem]))

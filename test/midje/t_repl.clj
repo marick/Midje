@@ -1,6 +1,5 @@
 (ns midje.t-repl
   (:use midje.repl
-        [clojure.pprint]
         [midje.test-util])
   (:require [midje.config :as config]
             [midje.emission.state :as state]

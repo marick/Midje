@@ -1,8 +1,7 @@
 (ns ^{:doc "Functions useful when using Midje in the repl or from the command line.
             See `midje-repl-help` for details."}
   midje.repl
-  (:use midje.clojure.core
-        clojure.pprint)
+  (:use midje.clojure.core)
   (:require midje.sweet
             [clojure.set :as set]
             [midje.doc :as doc]

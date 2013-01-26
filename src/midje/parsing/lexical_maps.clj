@@ -1,8 +1,7 @@
 (ns ^{:doc "example maps, redefine maps, failure maps"} 
   midje.parsing.lexical-maps
   (:use midje.clojure.core
-        clojure.pprint)
-  (:use midje.parsing.arrow-symbols
+        midje.parsing.arrow-symbols
         midje.parsing.util.arrows)
   (:require [midje.data.nested-facts :as nested-facts]
             [midje.parsing.util.fnref :as fnref]

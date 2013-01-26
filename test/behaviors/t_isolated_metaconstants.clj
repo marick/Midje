@@ -1,5 +1,4 @@
 (ns behaviors.t-isolated-metaconstants
-  (:use [clojure.pprint])
   (:use [midje sweet]))
 
 
