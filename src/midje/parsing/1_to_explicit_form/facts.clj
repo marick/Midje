@@ -1,8 +1,8 @@
 (ns ^{:doc "Parsing facts."}
   midje.parsing.1-to-explicit-form.facts
   (:use midje.clojure.core
+        midje.parsing.util.core
         [midje.error-handling.validation-errors :only [validate when-valid]]
-        [midje.util.namespace :only [semi-sweet-keyword?]]
 
         [midje.parsing.1-to-explicit-form.expects :only [expect?
                                             wrap-with-expect__then__at-rightmost-expect-leaf]]

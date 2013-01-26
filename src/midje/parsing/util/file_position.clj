@@ -1,9 +1,9 @@
 (ns ^{:doc "Functions to help in finding the lines you care about."}
   midje.parsing.util.file-position
-  (:use [clojure.string :only [split]]
+  (:use midje.parsing.util.core
+        [clojure.string :only [split]]
         [midje.parsing.util.zip :only [skip-to-rightmost-leaf]]
         [midje.util.form-utils :only [quoted? translate-zipper]]
-        [midje.util.namespace :only [matches-symbols-in-semi-sweet-or-sweet-ns?]]
         [midje.parsing.util.arrows :only [all-arrows at-arrow__add-key-value-to-end__no-movement]])
   (:require [clojure.zip :as zip]))
 

@@ -1,5 +1,5 @@
-(ns midje.util.t-namespace
-  (:use midje.util.namespace
+(ns midje.parsing.util.t-core
+  (:use midje.parsing.util.core
         midje.sweet
         midje.test-util)
   (:require [clojure.zip :as zip]))

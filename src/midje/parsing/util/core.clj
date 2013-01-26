@@ -1,7 +1,14 @@
-(ns midje.util.namespace
+(ns ^{:doc "Utility functions dealing with checking or tranforming forms or zippers."}
+  midje.parsing.util.core
   (:use midje.clojure.core
-        midje.parsing.util.form-utils)
+        [utilize.seq :only (first-truthy-fn)])
   (:require [clojure.zip :as zip]))
+
+
+(defn tree-variant [treelike]
+  (letfn [(is-zipper? [treelike]
+            (:zip/make-node (meta treelike)))]
+    (if (is-zipper? treelike) :zipper :form)))
 
 
 (defmulti matches-symbols-in-semi-sweet-or-sweet-ns? (fn [_symbols_ treelike] (tree-variant treelike)))

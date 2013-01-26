@@ -1,6 +1,7 @@
 (ns ^{:doc "generate a map for a particular example"}
   midje.parsing.2-to-lexical-maps.examples
   (:use midje.clojure.core
+        midje.parsing.util.core
         [midje.util.object-utils :only [object-name]]
         [midje.checkers :only [exactly]]
         [midje.checking.checkers.defining :only [checker? checker-makers]]
@@ -11,7 +12,6 @@
                                       def-many-methods ]]
         [midje.checking.extended-equality :only [extended-= extended-list-=]]
         [midje.parsing.util.file-position :only [user-file-position]]
-        [midje.util.namespace :only [semi-sweet-keyword?]]
         [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out
                                                    with-altered-roots]]
         [midje.parsing.util.wrapping :only [with-wrapping-target]]

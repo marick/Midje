@@ -1,6 +1,6 @@
 (ns ^{:doc "Functions for turning provideds into semi-sweet fakes"}
   midje.parsing.1-to-explicit-form.prerequisites
-  (:use [midje.util.namespace :only [matches-symbols-in-semi-sweet-or-sweet-ns?]]
+  (:use midje.parsing.util.core
         [midje.util.form-utils :only [symbol-named?]]
         [midje.parsing.util.file-position :only [arrow-line-number-from-form]]
         midje.parsing.arrow-symbols

@@ -1,9 +1,9 @@
 (ns ^{:doc "Arrows either indicate a form of expected result, or a prerequisite value."}
   midje.parsing.util.arrows
   (:use midje.clojure.core
+        midje.parsing.util.core
         midje.parsing.arrow-symbols
-        midje.parsing.util.form-utils
-        [midje.util form-utils namespace])
+        [midje.util form-utils])
   (:require [clojure.zip :as zip]))
 
 ;; Arrow groupings

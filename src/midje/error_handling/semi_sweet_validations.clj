@@ -1,8 +1,8 @@
 (ns ^{:doc "Validation methods confirming the proper syntax of semi-sweet macros."}
   midje.error-handling.semi-sweet-validations
   (:use midje.clojure.core
+        midje.parsing.util.core
         [midje.error-handling.validation-errors :only [validation-error-report-form validate]]
-        [midje.util.namespace :only [matches-symbols-in-semi-sweet-or-sweet-ns?]]
         [midje.data.metaconstant :only [metaconstant-symbol?]]
         [midje.parsing.arrow-symbols :only [=contains=>]])
   (:require [midje.parsing.util.fnref :as fnref]))
