@@ -5,7 +5,6 @@
         midje.util.form-utils
         [midje.checking.extended-equality :only [extended-= extended-list-=]]
         [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out
-                                                   with-pushed-namespace-values
                                                    with-altered-roots]]
         [midje.util.deprecation :only [deprecate]]
         [midje.parsing.arrow-symbols]
@@ -113,6 +112,7 @@
            (data-fakes-binding-map data-fakes))))
 
 (defmacro with-installed-fakes [fakes & forms]
-  `(with-altered-roots (binding-map ~fakes) ~@forms))
+  `(with-altered-roots (binding-map ~fakes)
+     ~@forms))
 
 

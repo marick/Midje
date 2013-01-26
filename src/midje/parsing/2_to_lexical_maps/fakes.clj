@@ -11,7 +11,6 @@
         [midje.checking.extended-equality :only [extended-= extended-list-=]]
         [midje.parsing.util.file-position :only [user-file-position]]
         [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out
-                                                   with-pushed-namespace-values
                                                    with-altered-roots]]
         [midje.parsing.util.wrapping :only [with-wrapping-target]]
         [midje.util.deprecation :only [deprecate]]
