@@ -7,7 +7,8 @@
             graciousness."}
   midje.sweet
   (:require midje.config) ; This should load first.
-  (:use clojure.pprint
+  (:use midje.clojure.core
+        clojure.pprint
         midje.production-mode
         midje.error-handling.exceptions
         midje.error-handling.validation-errors
@@ -27,11 +28,10 @@
             [midje.emission.api :as emit]
             [midje.doc :as doc]
             [midje.data.nested-facts :as nested-facts]
-            [midje.util.namespace :as namespace]
             midje.checkers))
 
-(namespace/immigrate 'midje.checkers)
-(namespace/immigrate 'midje.semi-sweet)
+(immigrate 'midje.checkers)
+(immigrate 'midje.semi-sweet)
 
 ;; Following two are required because `intern` doesn't transfer "dynamicity".
 (def ^{:doc "True by default.  If set to false, Midje checks are not
@@ -39,13 +39,19 @@
        :dynamic true}
   *include-midje-checks* *include-midje-checks*)
 
-(namespace/intern+keep-meta *ns* 'before  #'background/before)
-(namespace/intern+keep-meta *ns* 'after   #'background/after)
-(namespace/intern+keep-meta *ns* 'around  #'background/around)
-(namespace/intern+keep-meta *ns* 'formula #'parse-formulas/formula)
+;; TODO: How is this different from defalias?
+(defn- intern+keep-meta [ns sym v]
+  (intern ns sym v)
+  (let [newguy (get (ns-interns ns) sym)]
+    (alter-meta! newguy merge (meta v))))
+
+(intern+keep-meta *ns* 'before  #'background/before)
+(intern+keep-meta *ns* 'after   #'background/after)
+(intern+keep-meta *ns* 'around  #'background/around)
+(intern+keep-meta *ns* 'formula #'parse-formulas/formula)
 
 (when (doc/appropriate?)
-  (namespace/immigrate-from 'midje.doc doc/for-sweet)
+  (immigrate-from 'midje.doc doc/for-sweet)
   (doc/midje-notice))
 
 (defmacro background 

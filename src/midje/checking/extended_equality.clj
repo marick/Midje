@@ -1,7 +1,8 @@
 (ns ^{:doc "`=` extended for regular expressions, functions, etc."}
   midje.checking.extended-equality
-  (:use [midje.checking.extended-falsehood :only [as-data-laden-falsehood data-laden-falsehood?]]
-        [midje.util.form-utils :only [classic-map? extended-fn? pairs record? regex?]]))
+  (:use midje.clojure.core
+        [midje.checking.extended-falsehood :only [as-data-laden-falsehood data-laden-falsehood?]]
+        [midje.util.form-utils :only [pairs]]))
 
 
 (defn evaluate-checking-function

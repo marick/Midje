@@ -1,8 +1,9 @@
 (ns ^{:doc "Macros that provide less syntactic sugaring than those 
             from midje.sweet. midje.sweet is built on top of it."}
   midje.semi-sweet
-  (:use midje.data.prerequisite-state
-        [midje.util debugging form-utils namespace]
+  (:use midje.clojure.core
+        midje.data.prerequisite-state
+        [midje.util debugging form-utils]
         [midje.util.deprecation :only [deprecate]]
         midje.error-handling.validation-errors
         midje.error-handling.semi-sweet-validations

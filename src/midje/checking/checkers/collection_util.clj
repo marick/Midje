@@ -1,5 +1,5 @@
 (ns midje.checking.checkers.collection-util
-  (:use [midje.util.form-utils :only [extended-fn? regex?]]
+  (:use midje.clojure.core
         [midje.checking.extended-falsehood :only [as-data-laden-falsehood]]))
 
 (defn same-lengths? [actual expected]

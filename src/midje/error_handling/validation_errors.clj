@@ -1,9 +1,9 @@
 (ns ^{:doc "Code for identifying invalid Midje syntax. Includes control 
             flow macros, validation error creation, etc."}
   midje.error-handling.validation-errors
-  (:use [clojure.algo.monads :only [defmonad domonad]]
-        [midje.parsing.util.file-position :only [form-position]]
-        [midje.util.form-utils :only [named?]])
+  (:use midje.clojure.core
+        [clojure.algo.monads :only [defmonad domonad]]
+        [midje.parsing.util.file-position :only [form-position]])
   (:require [midje.emission.api :as emit]))
 
                            

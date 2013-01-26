@@ -1,5 +1,5 @@
 (ns midje.checking.checkers.util
-  (:use [midje.util.form-utils :only [classic-map?]]
+  (:use midje.clojure.core
         [midje.util.object-utils :only [name-object]]))
 
 (defn named-as-call

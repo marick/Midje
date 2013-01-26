@@ -2,10 +2,11 @@
 
 (ns ^{:doc "Checkers for collections and strings."}
   midje.checking.checkers.collection
-  (:use [clojure.set :only [union]]
+  (:use midje.clojure.core
+        [clojure.set :only [union]]
         [clojure.pprint :only [cl-format]]
         [midje.util.backwards-compatible-utils :only [every-pred-m]] 
-        [midje.util.form-utils :only [regex? record? classic-map? pred-cond macro-for]]
+        [midje.util.form-utils :only [pred-cond macro-for]]
       	[midje.checking.checkers collection-util util chatty defining collection-comparison]
         midje.checking.extended-equality
         [midje.checking.extended-falsehood :only [extended-true?]]

@@ -1,14 +1,15 @@
 (ns ^{:doc "generate a map for a particular example"}
   midje.parsing.2-to-lexical-maps.examples
-  (:use [utilize.seq :only (separate find-first)]
+  (:use midje.clojure.core
+        [utilize.seq :only (separate find-first)]
         [midje.util.object-utils :only [object-name]]
         [midje.checkers :only [exactly]]
         [midje.checking.checkers.defining :only [checker? checker-makers]]
         [midje.parsing.1-to-explicit-form.expects :only [expect? up-to-full-expect-form]]
         [midje.util.form-utils :only [first-named? translate-zipper map-difference
-                                      hash-map-duplicates-ok pred-cond
-                                      quoted-list-form? extended-fn?
-                                      def-many-methods separate-by]]
+                                      pred-cond
+                                      quoted-list-form?
+                                      def-many-methods ]]
         [midje.checking.extended-equality :only [extended-= extended-list-=]]
         [midje.parsing.util.file-position :only [user-file-position]]
         [midje.util.namespace :only [semi-sweet-keyword?]]

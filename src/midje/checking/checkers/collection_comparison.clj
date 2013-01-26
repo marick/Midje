@@ -2,8 +2,9 @@
 
 (ns ^{:doc "Code to use to compare collections."}
   midje.checking.checkers.collection-comparison
-  (:use [clojure.math.combinatorics :only [permutations]]
-        [midje.util.form-utils :only [tack-on-to rotations sort-map]]
+  (:use midje.clojure.core
+        [clojure.math.combinatorics :only [permutations]]
+        [midje.util.form-utils :only [tack-on-to sort-map]]
         [midje.util.object-utils :only [function-name named-function?]]
         [midje.checking.checkers collection-util util chatty defining]
         midje.checking.extended-equality

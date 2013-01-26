@@ -1,11 +1,6 @@
 (ns ^{:doc "Code used to swap out vars for faking prerequisites."}
   midje.util.thread-safe-var-nesting)
 
-;; This peculiar construction works in both Clojure 1.2 and 1.3
-
-(defn var-root [var]
-  (alter-var-root var identity))
-
 ;; Variables that are expected to already be bound
 
 (defn push-safely [the-var some-sequence]

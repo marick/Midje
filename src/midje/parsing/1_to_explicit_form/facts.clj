@@ -1,6 +1,7 @@
 (ns ^{:doc "Parsing facts."}
   midje.parsing.1-to-explicit-form.facts
-  (:use [midje.error-handling.validation-errors :only [validate when-valid]]
+  (:use midje.clojure.core
+        [midje.error-handling.validation-errors :only [validate when-valid]]
         [midje.util.namespace :only [semi-sweet-keyword?]]
 
         [midje.parsing.1-to-explicit-form.expects :only [expect?
@@ -21,7 +22,7 @@
                                        against-background?]]
         [midje.parsing.1-to-explicit-form.metaconstants :only [predefine-metaconstants-from-form]]
         [midje.util.form-utils :only [def-many-methods first-named? translate-zipper
-                                      preserve-type quoted? pred-cond reader-line-number named?]]
+                                      preserve-type quoted? pred-cond reader-line-number]]
         [midje.util.laziness :only [eagerly]]
         [midje.parsing.util.zip :only [skip-to-rightmost-leaf]]
         [swiss-arrows.core :only [-<>]])

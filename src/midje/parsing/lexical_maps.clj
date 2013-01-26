@@ -1,6 +1,6 @@
 (ns ^{:doc "example maps, redefine maps, failure maps"} 
   midje.parsing.lexical-maps
-  (:use [midje.util.form-utils :only [hash-map-duplicates-ok]]
+  (:use midje.clojure.core
         clojure.pprint)
   (:use midje.parsing.arrow-symbols
         midje.parsing.util.arrows)

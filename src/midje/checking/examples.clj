@@ -1,12 +1,11 @@
 (ns ^{:doc "Core Midje functions that process expects and report on their results."} 
   midje.checking.examples
-  (:use clojure.test
+  (:use midje.clojure.core
         [midje.checking.extended-equality :only [extended-= evaluate-checking-function]]
         [midje.error-handling.exceptions :only [captured-throwable]]
         midje.data.prerequisite-state
         midje.util.form-utils
-        midje.util.laziness
-        [midje.util.namespace :only [immigrate]])
+        midje.util.laziness)
   (:require [midje.config :as config]
             [midje.emission.boundaries :as emission-boundary]
             [midje.parsing.1-to-explicit-form.background :as background]

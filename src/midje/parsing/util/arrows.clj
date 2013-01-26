@@ -1,6 +1,7 @@
 (ns ^{:doc "Arrows either indicate a form of expected result, or a prerequisite value."}
   midje.parsing.util.arrows
-  (:use midje.parsing.arrow-symbols
+  (:use midje.clojure.core
+        midje.parsing.arrow-symbols
         [clojure.set :only [union]]
         [midje.util form-utils treelike namespace])
   (:require [clojure.zip :as zip]))

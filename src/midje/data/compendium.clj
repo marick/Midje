@@ -2,8 +2,8 @@
             about a particular subject'. The Midje compendium contains
             the currently relevant facts."}
   midje.data.compendium
-  (:use [midje.error-handling.exceptions :only [user-error]]
-        [midje.util.form-utils :only [dissoc-keypath]])
+  (:use midje.clojure.core
+        [midje.error-handling.exceptions :only [user-error]])
   (:require [midje.data.fact :as fact]
             [midje.config :as config]))
 

@@ -1,6 +1,7 @@
 (ns ^{:doc "The semi-sweet representation of provided forms."}
   midje.data.prerequisite-state
-  (:use [utilize.seq :only (separate find-first)]
+  (:use midje.clojure.core
+        [utilize.seq :only (separate find-first)]
         [midje.util.object-utils :only [object-name]]
         midje.util.form-utils
         [midje.checking.extended-equality :only [extended-= extended-list-=]]

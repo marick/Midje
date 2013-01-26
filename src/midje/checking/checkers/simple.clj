@@ -2,13 +2,14 @@
 
 (ns ^{:doc "Prepackaged functions that perform common checks."}
   midje.checking.checkers.simple
-  (:use [midje.checking.checkers.defining :only [as-checker checker defchecker]]
+  (:use midje.clojure.core
+        [midje.checking.checkers.defining :only [as-checker checker defchecker]]
       	[midje.checking.extended-falsehood :only [extended-false?]]
       	[midje.checking.extended-equality :only [extended-=]]
       	[midje.checking.checkers.util :only [named-as-call]]
       	[midje.error-handling.exceptions :only [captured-throwable?]]
         [midje.util.ecosystem :only [clojure-1-3? +M -M *M]]
-        [midje.util.form-utils :only [defalias def-many-methods pred-cond regex?]]
+        [midje.util.form-utils :only [def-many-methods pred-cond]]
         [midje.util.backwards-compatible-utils :only [every-pred-m some-fn-m]]
         [clojure.algo.monads :only [domonad set-m]])
   (:import [midje.error_handling.exceptions ICapturedThrowable]))

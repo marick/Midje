@@ -1,7 +1,8 @@
 (ns ^{:doc "Functions useful when using Midje in the repl or from the command line.
             See `midje-repl-help` for details."}
   midje.repl
-  (:use clojure.pprint)
+  (:use midje.clojure.core
+        clojure.pprint)
   (:require midje.sweet
             [clojure.set :as set]
             [midje.doc :as doc]
@@ -16,8 +17,7 @@
             [midje.emission.api :as emit]
             [midje.util.form-utils :as form]
             [midje.util.ecosystem :as ecosystem]
-            [midje.util.scheduling :as scheduling]
-            [midje.util.namespace :as namespace]))
+            [midje.util.scheduling :as scheduling]))
 
 (when (and (config/running-in-repl?) (ecosystem/clojure-1-2-X?))
   (println (color/fail "The Midje repl tools don't work on Clojure 1.2.X")))
@@ -26,11 +26,11 @@
 (fact-data/make-getters *ns* "fact-") 
 
 (when (doc/appropriate?)
-  (namespace/immigrate-from 'midje.doc doc/for-repl)
+  (immigrate-from 'midje.doc doc/for-repl)
   (doc/repl-notice))
 
 (when-not (ns-resolve 'user '=>) ; when not already `use`d.
-  (namespace/immigrate 'midje.sweet))
+  (immigrate 'midje.sweet))
 
 
 
