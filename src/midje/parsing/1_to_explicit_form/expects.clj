@@ -1,7 +1,7 @@
 (ns ^{:doc "Mostly functions for identifying semi-sweet expects, and for converting 
             midje.sweet arrow forms into semi-sweet expcet forms."}
   midje.parsing.1-to-explicit-form.expects
-  (:use [midje.util.treelike :only [tree-variant]]
+  (:use midje.parsing.util.form-utils
         [midje.util.namespace :only [matches-symbols-in-semi-sweet-or-sweet-ns?]]
         [midje.util.form-utils :only [first-named?]]
         [midje.parsing.util.zip :only [skip-to-rightmost-leaf n-times remove-moving-right]]

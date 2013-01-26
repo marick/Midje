@@ -1,6 +1,6 @@
 (ns midje.util.namespace
   (:use midje.clojure.core
-        midje.util.treelike)
+        midje.parsing.util.form-utils)
   (:require [clojure.zip :as zip]))
 
 

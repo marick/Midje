@@ -1,7 +1,7 @@
 (ns ^{:doc "Utility functions dealing with checking or tranforming forms."}
   midje.util.form-utils
   (:use midje.clojure.core
-   [midje.util.treelike :only [tree-variant]]
+   [midje.parsing.util.form-utils]
    [utilize.seq :only (first-truthy-fn)])
   (:require [clojure.zip :as zip]))
 
