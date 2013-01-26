@@ -13,7 +13,6 @@
         [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out
                                                    with-altered-roots]]
         [midje.parsing.util.wrapping :only [with-wrapping-target]]
-        [midje.util.deprecation :only [deprecate]]
         [clojure.algo.monads :only [defmonad domonad]]
         [midje.parsing.arrow-symbols]
         midje.error-handling.validation-errors

@@ -1,5 +1,5 @@
-(ns behaviors.t-deprecation
-  (:use midje.util.deprecation)
+(ns midje.emission.t-deprecation
+  (:use midje.emission.deprecation)
   (:use [midje sweet test-util])
   (:require [midje.config :as config]
             [midje.util.ecosystem :as ecosystem]))

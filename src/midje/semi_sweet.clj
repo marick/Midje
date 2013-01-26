@@ -4,7 +4,7 @@
   (:use midje.clojure.core
         midje.data.prerequisite-state
         [midje.util debugging form-utils]
-        [midje.util.deprecation :only [deprecate]]
+        [midje.emission.deprecation :only [deprecate]]
         midje.error-handling.validation-errors
         midje.error-handling.semi-sweet-validations
         [midje.error-handling.exceptions :only [user-error]]

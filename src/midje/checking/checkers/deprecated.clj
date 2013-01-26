@@ -1,7 +1,7 @@
 (ns ^{:doc "Deprecated checkers."}
   midje.checking.checkers.deprecated
   (:use [midje.checking.checkers.defining :only [defchecker]]
-        [midje.util.deprecation :only [deprecate]]
+        [midje.emission.deprecation :only [deprecate]]
       	[midje.checking.checkers.collection :only [just contains]]))
 
 ;; Note: checkers need to be exported in ../checkers.clj

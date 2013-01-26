@@ -5,7 +5,7 @@
         [midje.error-handling.validation-errors :only [simple-validation-error-report-form validate-m validate]]
         [midje.parsing.util.file-position :only [form-with-copied-line-numbers]]
         [midje.util.form-utils :only [pop-docstring translate-zipper]]
-        [midje.util.deprecation :only [deprecate]]
+        [midje.emission.deprecation :only [deprecate]]
         [midje.parsing.util.zip :only [skip-to-rightmost-leaf]]
         [midje.parsing.1-to-explicit-form.expects :only [expect?]]
         [midje.parsing.util.arrows :only [above-arrow-sequence__add-key-value__at-arrow]]

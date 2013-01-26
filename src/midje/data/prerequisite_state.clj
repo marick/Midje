@@ -6,7 +6,7 @@
         [midje.checking.extended-equality :only [extended-= extended-list-=]]
         [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out
                                                    with-altered-roots]]
-        [midje.util.deprecation :only [deprecate]]
+        [midje.emission.deprecation :only [deprecate]]
         [midje.parsing.arrow-symbols]
         [clojure.tools.macro :only [macrolet]])
   (:require [midje.data.metaconstant :as metaconstant]
