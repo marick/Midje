@@ -10,8 +10,5 @@
 (defn function-name [funobj]
   (object-name funobj))
 
-(defn function-name-or-spewage [funobj]
-  (or (:name (meta funobj)) (pr-str funobj)))
-
 (defn name-object [object name]
   (vary-meta object assoc :name name))

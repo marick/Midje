@@ -3,7 +3,6 @@
   (:use midje.clojure.core
         [midje.util.form-utils :only [first-named? pop-docstring pop-opts-map]]
         [midje.error-handling.validation-errors :only [simple-validation-error-report-form validate-m validate]]
-        [midje.parsing.1-to-explicit-form.prerequisites :only [head-of-form-providing-prerequisites?]]
         [midje.parsing.util.arrows :only [leaf-expect-arrows leaves-contain-arrow?]]
         [midje.parsing.1-to-explicit-form.future-facts :only [future-prefixes]]
         [clojure.algo.monads :only [domonad]]

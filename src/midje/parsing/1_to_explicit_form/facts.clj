@@ -11,10 +11,9 @@
                                               multiwrap
                                               with-additional-wrappers
                                               forms-to-wrap-around]]
-        [midje.util.debugging :only [nopret]]
         [midje.parsing.1-to-explicit-form.prerequisites :only [head-of-form-providing-prerequisites?
                                           insert-prerequisites-into-expect-form-as-fakes]]
-        [midje.parsing.util.arrows :only [start-of-checking-arrow-sequence? leaves-contain-arrow?]]
+        [midje.parsing.util.arrows :only [start-of-checking-arrow-sequence?]]
         [midje.parsing.1-to-explicit-form.background :only [surround-with-background-fakes
                                        body-of-against-background
                                        against-background-contents-wrappers
