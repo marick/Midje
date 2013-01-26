@@ -127,11 +127,8 @@ metadata (as provided by def) merged into the metadata of the original."
 
 ;;; Sequences
 
-(defn separate-by
-  "Like clojure.core/separate, but not lazy, returns nil for empty list."
-  [predicate forms]
-  (let [group (group-by (strictly predicate) forms)]
-    [ (group true) (group false) ]))
+
+;;; Also pull in set operations
 
 (defn rotations
   "Returns a lazy seq of all rotations of a seq"

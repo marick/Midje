@@ -6,10 +6,10 @@
 
 (facts "separating levels out of argument lists"
   (separate-print-levels [] :print-normally)
-  => [ [] :print-normally nil ]
+  => [ [] :print-normally [] ]
 
   (separate-print-levels [:print-nothing] ..irrelevant..)
-  => [[:print-nothing] :print-nothing nil]
+  => [[:print-nothing] :print-nothing []]
 
   (separate-print-levels [:all :print-nothing] ..irrelevant..)
   => [[:print-nothing] :print-nothing [:all]]

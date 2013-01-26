@@ -72,11 +72,6 @@
 ;;; Sequences
 
 
-(fact "divide seq into two seqs: items that pass a predicate and a items the fail"
-  (separate-by odd? [1 2 3]) => [ [1 3] [2] ]
-  "works for predicates that don't return true or false"
-  (separate-by #(if (odd? %) nil %) [1 2 3]) => [[2] [1 3]])
-
 (fact 
   (map-first str [1 2 3]) => ["1" 2 3])
 

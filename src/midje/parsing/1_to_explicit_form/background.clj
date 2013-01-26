@@ -98,10 +98,10 @@
     (macroexpand-1 (map-first #(symbol "midje.parsing.1-to-explicit-form.background" (name %)) state-description))
     wrapping-target))
 
-(letfn [(background-fake-wrappers [fakes]
+(letfn [(background-fake-wrappers [fake-maker-forms]
           (let [around-facts-and-checks `(with-pushed-namespace-values
                                            :midje/background-fakes
-                                           ~fakes ~(unify/?form))]
+                                           [~@fake-maker-forms] ~(unify/?form))]
             (list 
              (with-wrapping-target around-facts-and-checks :facts))))]
 
@@ -109,7 +109,7 @@
   ;; it made it easier to eyeball expanded forms and see what was going on.
   (defn background-wrappers [background-forms]
     (predefine-metaconstants-from-form background-forms)
-    (let [[fakes state-descriptions] (separate-by fakes/fake? (extract-state-descriptions+fakes background-forms))
+    (let [[fakes state-descriptions] (separate fakes/fake? (extract-state-descriptions+fakes background-forms))
           state-wrappers (eagerly (map state-wrapper state-descriptions))]
       (if (empty? fakes)
         state-wrappers

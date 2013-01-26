@@ -59,6 +59,6 @@
 
 (defn to-lexical-map-form [full-form]
   (domonad validate-m [[call-form arrow expected-result & fakes+overrides] (validate full-form)
-                       [fakes overrides] (separate-by a-fake? fakes+overrides)
+                       [fakes overrides] (separate a-fake? fakes+overrides)
                        _ (validate fakes)]
-           (expect-expansion call-form arrow expected-result fakes overrides)))
+           (expect-expansion call-form arrow expected-result (vec fakes) overrides)))

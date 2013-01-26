@@ -95,7 +95,7 @@
        (if (nil? root-to-handle)
          surviving-namespaces
          (let [actual-dependent-set (set (get-in state-tracker [deps-key :dependents root-to-handle]))
-               [new-roots unkilled-descendents] (separate-by actual-dependent-set surviving-namespaces)]
+               [new-roots unkilled-descendents] (separate actual-dependent-set surviving-namespaces)]
            (recur (concat roots-to-handle-later new-roots)
                   unkilled-descendents))))))
          

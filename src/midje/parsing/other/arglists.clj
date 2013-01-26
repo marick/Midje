@@ -11,7 +11,7 @@
 ;;;                                           Print levels (keywords)
 
 (defn separate-print-levels [args default]
-  (let [[[print-level & extras] non-levels] (separate-by levels/valids args)]
+  (let [[[print-level & extras] non-levels] (separate levels/valids args)]
     (when (seq extras)
       (throw (user-error "You have extra print level names or numbers.")))
     (dorun (map levels/validate-level! (filter number? args)))
@@ -46,9 +46,9 @@
 (defn separate-filters
   ([args plain-argument?]
      (let [[filters remainder]
-           (separate-by #(and (not (plain-argument? %))
-                              ((form/any-pred-from [string? regex? fn? keyword?]) %))
-                        args)]
+           (separate #(and (not (plain-argument? %))
+                           ((form/any-pred-from [string? regex? fn? keyword?]) %))
+                     args)]
        [filters
         (desired-fact-predicate-from filters)
         remainder]))
