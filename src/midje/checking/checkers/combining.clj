@@ -2,8 +2,6 @@
   midje.checking.checkers.combining
   (:use [midje.checking.checkers.defining]
         [midje.checking.checkers.chatty]
-        [midje.util.backwards-compatible-utils :only [every-pred-m some-fn-m]]
-
         [midje.checking.extended-falsehood]))
 
 (defn report-failure [actual checker-form result]

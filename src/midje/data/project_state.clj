@@ -6,8 +6,7 @@
   (:require [midje.emission.boundaries :as emission-boundary]
             [midje.util.ecosystem :as ecosystem]
             [midje.emission.colorize :as color]
-            [midje.config :as config]
-            midje.util.backwards-compatible-utils))
+            [midje.config :as config]))
 
 (ecosystem/when-1-3+
 

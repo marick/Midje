@@ -10,7 +10,6 @@
       	[midje.error-handling.exceptions :only [captured-throwable?]]
         [midje.util.ecosystem :only [clojure-1-3? +M -M *M]]
         [midje.util.form-utils :only [def-many-methods pred-cond]]
-        [midje.util.backwards-compatible-utils :only [every-pred-m some-fn-m]]
         [clojure.algo.monads :only [domonad set-m]])
   (:import [midje.error_handling.exceptions ICapturedThrowable]))
 

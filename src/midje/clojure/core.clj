@@ -2,7 +2,8 @@
   midje.clojure.core
   (:require clojure.pprint
             clojure.set
-            utilize.seq))
+            utilize.seq
+            midje.clojure.backwards-compatibility))
 
 ;; Note: some of this code is taken from https://github.com/flatland/useful/blob/develop/src/flatland/useful/ns.clj
 ;; Those functions should be immigrated once the new useful namespace is pushed to clojars.
@@ -150,3 +151,7 @@ metadata (as provided by def) merged into the metadata of the original."
 ;;; Printing
 
 (immigrate-from 'clojure.pprint '[pprint cl-format])
+
+;;; Compatibility
+
+(immigrate 'midje.clojure.backwards-compatibility)

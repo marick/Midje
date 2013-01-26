@@ -2,8 +2,7 @@
   midje.util.form-utils
   (:use midje.clojure.core
    [midje.util.treelike :only [tree-variant]]
-        [midje.util.backwards-compatible-utils :only [every-pred-m]]
-        [utilize.seq :only (first-truthy-fn)])
+   [utilize.seq :only (first-truthy-fn)])
   (:require [clojure.zip :as zip]))
 
 

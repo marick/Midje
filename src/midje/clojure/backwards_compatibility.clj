@@ -1,8 +1,18 @@
 (ns ^{:doc "Functions grabbed from newer versions of Clojure, 
             so we can maintain backwards compatibility."}
-  midje.util.backwards-compatible-utils)
+  midje.clojure.backwards-compatibility)
 
-(defn every-pred-m
+(letfn [(missing? [sym] (not (ns-resolve 'clojure.core sym)))]
+
+  (defmacro defn-once [sym & rest]
+    (when (missing? sym)
+      `(defn ~sym ~@rest)))
+
+  (defmacro defn-once-in-core [sym & rest]
+    (when (missing? sym)
+      `(intern 'clojure.core '~sym (fn ~@rest)))))
+
+(defn-once every-pred-m
   "Takes a set of predicates and returns a function f that returns true if all of its
   composing predicates return a logical true value against all of its arguments, else it returns
   false. Note that f is short-circuiting in that it will stop execution on the first
@@ -42,7 +52,7 @@
          ([x y z & args] (boolean (and (epn x y z)
                                        (every? #(every? % args) ps))))))))
 
-(defn some-fn-m
+(defn-once some-fn-m
   "Takes a set of predicates and returns a function f that returns the first logical true value
   returned by one of its composing predicates against any of its arguments, else it returns
   logical false. Note that f is short-circuiting in that it will stop execution on the first
@@ -83,9 +93,8 @@
                              (some #(some % args) ps)))))))
 
 
-(when-not (ns-resolve 'clojure.core 'ex-info)
-  (intern 'clojure.core 'ex-info
-          (fn ([msg map]
-                 (RuntimeException. msg))
-            ([msg map cause]
-               (RuntimeException. msg cause)))))
+(defn-once-in-core ex-info
+  ([msg map]
+     (RuntimeException. msg))
+  ([msg map cause]
+     (RuntimeException. msg cause)))
