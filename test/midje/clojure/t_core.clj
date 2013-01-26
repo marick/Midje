@@ -1,5 +1,5 @@
 (ns midje.clojure.t-core
-  (:use midje.clojure.core)
+  ;; (:use midje.clojure.core) - note that test-util immigrates midje.clojure.core
   (:use midje.sweet
         midje.test-util))
 

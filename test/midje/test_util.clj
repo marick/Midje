@@ -6,11 +6,13 @@
         midje.error-handling.exceptions
         [clojure.set :only [subset?]]
         [midje.util.form-utils :only [macro-for]])
-  (:require 
+  (:require midje.clojure.core
             [midje.config :as config]
             [clojure.string :as str]
             [midje.emission.api :as emit]
             [midje.emission.state :as state]))
+
+(midje.clojure.core/immigrate 'midje.clojure.core)
 
 ;;; The "silent" versions of fact and formula, which produce no user-visible results
 ;;; but do stash failures for later examination.

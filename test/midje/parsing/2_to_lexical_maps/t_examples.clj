@@ -1,6 +1,5 @@
 (ns midje.parsing.2-to-lexical-maps.t-examples
   (:use [clojure.test]  ;; This is used to check production mode with deftest.
-        midje.clojure.core
         [midje.sweet]
         [midje.parsing.2-to-lexical-maps.examples]
         [midje.util form-utils]
