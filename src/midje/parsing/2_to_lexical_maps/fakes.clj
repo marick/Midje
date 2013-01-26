@@ -1,11 +1,12 @@
 (ns ^{:doc "An intermediate stage in the compilation of prerequisites."}
   midje.parsing.2-to-lexical-maps.fakes
   (:use midje.clojure.core
+        midje.parsing.util.zip
         [midje.util.object-utils :only [object-name]]
         [midje.checkers :only [exactly]]
         [midje.checking.checkers.defining :only [checker? checker-makers]]
         [midje.parsing.1-to-explicit-form.expects :only [expect? up-to-full-expect-form]]
-        [midje.util.form-utils :only [first-named? translate-zipper map-difference
+        [midje.util.form-utils :only [first-named? map-difference
                                       pred-cond
                                       quoted-list-form?]]
         [midje.checking.extended-equality :only [extended-= extended-list-=]]

@@ -1,7 +1,6 @@
 (ns ^{:doc "Utility functions dealing with checking or tranforming forms or zippers."}
   midje.parsing.util.core
-  (:use midje.clojure.core
-        [utilize.seq :only (first-truthy-fn)])
+  (:use midje.clojure.core)
   (:require [clojure.zip :as zip]))
 
 

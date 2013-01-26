@@ -1,7 +1,20 @@
 (ns ^{:doc "Zipper util functions."}
   midje.parsing.util.zip
+  (:use [utilize.seq :only [first-truthy-fn]])
   (:require [clojure.zip :as zip]))
-  
+
+
+(defn translate-zipper
+  "Traverses the zipper - for the first predicate that evaluates to truthy for matching a
+  node, calls the corresponding translate function on that node. Then, continues traversing."
+  [form & preds+translate-fns]
+  (loop [loc (zip/seq-zip form)]
+    (if (zip/end? loc)
+      (zip/root loc)
+      (if-let [truthy-fn (first-truthy-fn (take-nth 2 preds+translate-fns) loc)]
+        (recur (zip/next ((get (apply hash-map preds+translate-fns) truthy-fn) loc)))
+        (recur (zip/next loc))))))
+
 (defn skip-to-rightmost-leaf
   "When positioned at leftmost position of branch, move to the end form.
    In a tree, that's the rightmost leaf."

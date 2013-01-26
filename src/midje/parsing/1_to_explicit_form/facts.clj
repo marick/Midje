@@ -2,6 +2,8 @@
   midje.parsing.1-to-explicit-form.facts
   (:use midje.clojure.core
         midje.parsing.util.core
+        midje.parsing.util.zip
+        
         [midje.error-handling.validation-errors :only [validate when-valid]]
 
         [midje.parsing.1-to-explicit-form.expects :only [expect?
@@ -20,7 +22,7 @@
                                        against-background-facts-and-checks-wrappers
                                        against-background?]]
         [midje.parsing.1-to-explicit-form.metaconstants :only [predefine-metaconstants-from-form]]
-        [midje.util.form-utils :only [def-many-methods first-named? translate-zipper
+        [midje.util.form-utils :only [def-many-methods first-named?
                                       preserve-type quoted? pred-cond reader-line-number]]
         [midje.util.laziness :only [eagerly]]
         [midje.parsing.util.zip :only [skip-to-rightmost-leaf]]

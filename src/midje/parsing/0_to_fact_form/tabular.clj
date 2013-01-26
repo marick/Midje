@@ -1,10 +1,10 @@
 (ns ^{:doc "A way to create multiple facts with the same template, but different data points."}
   midje.parsing.0-to-fact-form.tabular
-  (:use [clojure.string :only [join]]
+  (:use [midje.parsing.util.zip]
+        [clojure.string :only [join]]
         [clojure.algo.monads :only [domonad]]
         [midje.error-handling.validation-errors :only [simple-validation-error-report-form validate-m validate]]
         [midje.parsing.util.file-position :only [form-with-copied-line-numbers]]
-        [midje.util.form-utils :only [translate-zipper]]
         [midje.emission.deprecation :only [deprecate]]
         [midje.parsing.util.zip :only [skip-to-rightmost-leaf]]
         [midje.parsing.1-to-explicit-form.expects :only [expect?]]

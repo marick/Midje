@@ -2,11 +2,12 @@
   midje.parsing.2-to-lexical-maps.examples
   (:use midje.clojure.core
         midje.parsing.util.core
+        midje.parsing.util.zip
         [midje.util.object-utils :only [object-name]]
         [midje.checkers :only [exactly]]
         [midje.checking.checkers.defining :only [checker? checker-makers]]
         [midje.parsing.1-to-explicit-form.expects :only [expect? up-to-full-expect-form]]
-        [midje.util.form-utils :only [first-named? translate-zipper map-difference
+        [midje.util.form-utils :only [first-named? map-difference
                                       pred-cond
                                       quoted-list-form?
                                       def-many-methods ]]

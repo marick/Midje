@@ -1,8 +1,7 @@
 (ns ^{:doc "Utility functions dealing with checking or tranforming forms."}
   midje.util.form-utils
   (:use midje.clojure.core
-        midje.parsing.util.core
-        [utilize.seq :only (first-truthy-fn)])
+        midje.parsing.util.core)
   (:require [clojure.zip :as zip]))
 
 
@@ -109,17 +108,6 @@
 
 (defn map-difference [bigger smaller]
   (select-keys bigger (difference (set (keys bigger)) (set (keys smaller)))))
-
-(defn translate-zipper
-  "Traverses the zipper - for the first predicate that evaluates to truthy for matching a
-  node, calls the corresponding translate function on that node. Then, continues traversing."
-  [form & preds+translate-fns]
-  (loop [loc (zip/seq-zip form)]
-    (if (zip/end? loc)
-      (zip/root loc)
-      (if-let [truthy-fn (first-truthy-fn (take-nth 2 preds+translate-fns) loc)]
-        (recur (zip/next ((get (apply hash-map preds+translate-fns) truthy-fn) loc)))
-        (recur (zip/next loc))))))
 
 (defmacro pred-cond 
   "Checks each predicate against the item, returning the corresponding 
