@@ -1,7 +1,6 @@
 (ns ^{:doc "generate a map for a particular example"}
   midje.parsing.2-to-lexical-maps.examples
   (:use midje.clojure.core
-        [utilize.seq :only (separate find-first)]
         [midje.util.object-utils :only [object-name]]
         [midje.checkers :only [exactly]]
         [midje.checking.checkers.defining :only [checker? checker-makers]]

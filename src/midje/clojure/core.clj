@@ -1,6 +1,7 @@
 (ns ^{:doc "Functions I wouldn't mind to see in clojure.core"}
   midje.clojure.core
-  (:require clojure.pprint))
+  (:require clojure.pprint
+            utilize.seq))
 
 ;; Note: some of this code is taken from https://github.com/flatland/useful/blob/develop/src/flatland/useful/ns.clj
 ;; Those functions should be immigrated once the new useful namespace is pushed to clojars.
@@ -142,6 +143,8 @@ metadata (as provided by def) merged into the metadata of the original."
   "Like map, but applies f to only the first element of the seq"
   [f x]
   (cons (f (first x)) (rest x)))
+
+(immigrate-from 'utilize.seq '[separate find-first only])
 
 
 ;;; Printing

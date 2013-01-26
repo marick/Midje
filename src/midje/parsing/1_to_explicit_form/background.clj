@@ -11,8 +11,7 @@
                                       symbol-named? translate-zipper]]
         [midje.util.laziness :only [eagerly]]
         [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
-                                                   with-pushed-namespace-values]]
-        [utilize.seq :only [separate]])
+                                                   with-pushed-namespace-values]])
   (:require [clojure.zip :as zip] 
             [midje.util.unify :as unify]
             [midje.parsing.2-to-lexical-maps.fakes :as fakes]))

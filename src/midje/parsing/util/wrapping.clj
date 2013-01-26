@@ -1,8 +1,8 @@
 (ns ^{:doc "midje.background uses these to wrap extra code around 
             :contents, :facts, or :expects"}
   midje.parsing.util.wrapping
-  (:use [midje.util.form-utils :only [first-named?]]
-        [utilize.seq :only [separate]]
+  (:use midje.clojure.core
+        [midje.util.form-utils :only [first-named?]]
         [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
                                                    set-namespace-value
                                                    with-pushed-namespace-values]])

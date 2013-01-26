@@ -2,7 +2,6 @@
   (:use [midje sweet test-util]
         [midje.data.prerequisite-state :except [mockable-funcall? unfolding-step merge-metaconstant-bindings 
                                              unique-vars handle-mocked-call best-call-action ]]
-        [utilize.seq :only (find-first only)]
         [midje.test-util]
         midje.util)
   (:require [midje.config :as config])

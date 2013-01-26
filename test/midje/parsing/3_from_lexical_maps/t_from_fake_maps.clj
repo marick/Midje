@@ -1,7 +1,6 @@
 (ns midje.parsing.3-from-lexical-maps.t-from-fake-maps
   (:use [midje sweet test-util]
         [midje.parsing.3-from-lexical-maps.from-fake-maps]
-        [utilize.seq :only (find-first only)]
         [midje.test-util]
         midje.util)
   (:require [midje.config :as config])
