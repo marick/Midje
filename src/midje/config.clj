@@ -1,8 +1,8 @@
 (ns ^{:doc "Customizable configuration"}
   midje.config
-  (:use [midje.error-handling.exceptions :only [user-error]])
+  (:use midje.clojure.core
+        [midje.error-handling.exceptions :only [user-error]])
   (:require [midje.emission.levels :as levels]
-            [clojure.set :as set]
             [midje.util.ecosystem :as ecosystem]))
   
 ;;; I consider whether we're running in the repl part of the config. This matters because
@@ -48,7 +48,7 @@
 (defmethod validate-key! :default [_])
 
 (defn validate! [changes]
-  (let [extras (set/difference (set (keys changes))
+  (let [extras (difference (set (keys changes))
                                (set (keys *config*)))]
     (when (not (empty? extras))
       (throw (user-error (str "These are not configuration keys: " (vec extras))))))

@@ -3,7 +3,6 @@
   midje.repl
   (:use midje.clojure.core)
   (:require midje.sweet
-            [clojure.set :as set]
             [midje.doc :as doc]
             [midje.config :as config]
             [midje.parsing.other.arglists :as parsing]
@@ -181,7 +180,7 @@
 ;; on test namespaces preceding source namespaces.)
 
 (defn- forget-certain-namespaces! [namespaces]
-  (dosync (alter @#'clojure.core/*loaded-libs* set/difference (set namespaces))))
+  (dosync (alter @#'clojure.core/*loaded-libs* difference (set namespaces))))
 
 (defn- unloaded? [ns]
   (not (contains? @@#'clojure.core/*loaded-libs* ns)))

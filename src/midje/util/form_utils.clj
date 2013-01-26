@@ -3,7 +3,6 @@
   (:use midje.clojure.core
    [midje.util.treelike :only [tree-variant]]
         [midje.util.backwards-compatible-utils :only [every-pred-m]]
-        [clojure.set :only [difference]]
         [utilize.seq :only (first-truthy-fn)])
   (:require [clojure.zip :as zip]))
 

@@ -3,7 +3,6 @@
 (ns ^{:doc "Checkers for collections and strings."}
   midje.checking.checkers.collection
   (:use midje.clojure.core
-        [clojure.set :only [union]]
         [midje.util.backwards-compatible-utils :only [every-pred-m]] 
         [midje.util.form-utils :only [pred-cond macro-for]]
       	[midje.checking.checkers collection-util util chatty defining collection-comparison]

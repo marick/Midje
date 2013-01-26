@@ -1,6 +1,7 @@
 (ns ^{:doc "Functions I wouldn't mind to see in clojure.core"}
   midje.clojure.core
   (:require clojure.pprint
+            clojure.set
             utilize.seq))
 
 ;; Note: some of this code is taken from https://github.com/flatland/useful/blob/develop/src/flatland/useful/ns.clj
@@ -128,8 +129,6 @@ metadata (as provided by def) merged into the metadata of the original."
 ;;; Sequences
 
 
-;;; Also pull in set operations
-
 (defn rotations
   "Returns a lazy seq of all rotations of a seq"
   [coll]
@@ -142,6 +141,10 @@ metadata (as provided by def) merged into the metadata of the original."
   (cons (f (first x)) (rest x)))
 
 (immigrate-from 'utilize.seq '[separate find-first only])
+
+;;; Sets
+
+(immigrate-from 'clojure.set '[union difference subset? intersection])
 
 
 ;;; Printing

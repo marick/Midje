@@ -235,7 +235,6 @@
     (expect (myfun 1) => :list-called
             (fake (list 1) => :list-called))))
 
-(use 'clojure.set)
 (defn set-handler [set1 set2]
   (if (empty? (intersection set1 set2))
     set1

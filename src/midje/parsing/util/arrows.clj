@@ -2,7 +2,6 @@
   midje.parsing.util.arrows
   (:use midje.clojure.core
         midje.parsing.arrow-symbols
-        [clojure.set :only [union]]
         [midje.util form-utils treelike namespace])
   (:require [clojure.zip :as zip]))
 

@@ -4,7 +4,6 @@
         [midje.checking.extended-equality :only [extended-=]]
         [midje.checking.extended-falsehood :only [extended-false?]]
         midje.error-handling.exceptions
-        [clojure.set :only [subset?]]
         [midje.util.form-utils :only [macro-for]])
   (:require midje.clojure.core
             [midje.config :as config]
