@@ -1,6 +1,6 @@
 Available via [clojars](http://clojars.org/search?q=midje)   
 Current stable version: [midje "1.4.0"]        
-Development version: [midje "1.5-alpha8"]  - see [ the change log](https://github.com/marick/Midje/wiki/What%27s-new-in-midje-1.5)
+Development version: [midje "1.5-alpha9"]  - see [ the change log](https://github.com/marick/Midje/wiki/What%27s-new-in-midje-1.5)
 
 
 [User guide](https://github.com/marick/Midje/wiki)    
