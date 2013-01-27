@@ -2,12 +2,12 @@
   midje.emission.plugins.util
   (:use midje.clojure.core
         [clojure.repl :only [demunge]])
-  (:require [midje.emission.clojure-test-facade :as ctf]
+  (:require [clojure.string :as str]
+            [midje.util.pile :as pile]
+            [midje.emission.clojure-test-facade :as ctf]
             [midje.emission.colorize :as color]
             [midje.error-handling.exceptions :as exception]
-            [midje.util.object-utils :as object]
-            gui-diff.internal
-            [clojure.string :as str]))
+            gui-diff.internal))
 
 
 ;; The theory here was that using clojure.test output would allow text
@@ -51,7 +51,7 @@
   ;; rebinding `#'foo` does not change the value of `foo`. Having been reminded
   ;; occasionally that she's working with vars might help a perplexed user
   ;; become unperplexed.
-  (let [name (object/object-name prerequisite-var)]
+  (let [name (pile/object-name prerequisite-var)]
     (if name
       (str "#'" name)
       (pr-str prerequisite-var))))

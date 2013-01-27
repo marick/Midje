@@ -3,27 +3,16 @@
   (:use midje.clojure.core
         midje.parsing.util.core
         midje.parsing.util.zip
-        [midje.util.object-utils :only [object-name]]
-        [midje.checkers :only [exactly]]
-        [midje.checking.checkers.defining :only [checker? checker-makers]]
-        [midje.parsing.1-to-explicit-form.expects :only [expect? up-to-full-expect-form]]
-        [midje.checking.extended-equality :only [extended-= extended-list-=]]
-        [midje.parsing.util.file-position :only [user-file-position]]
-        [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out
-                                                   with-altered-roots]]
-        [midje.parsing.util.wrapping :only [with-wrapping-target]]
-        [clojure.algo.monads :only [defmonad domonad]]
+        [clojure.algo.monads :only [domonad]]
         [midje.parsing.arrow-symbols]
         midje.error-handling.validation-errors
-        midje.error-handling.semi-sweet-validations
-        [clojure.tools.macro :only [macrolet]])
-  (:require [midje.util.pile :as pile]
+        midje.error-handling.semi-sweet-validations)
+  (:require [clojure.zip :as zip]
+            [midje.config :as config]
+            [midje.util.pile :as pile]
+            [midje.error-handling.exceptions :as exceptions]
             [midje.data.metaconstant :as metaconstant]
             [midje.data.nested-facts :as nested-facts]
-            [clojure.zip :as zip]
-            [midje.config :as config]
-            [midje.parsing.util.fnref :as fnref]
-            [midje.error-handling.exceptions :as exceptions]
             [midje.parsing.lexical-maps :as lexical-maps]
             [midje.emission.api :as emit])
   (:import midje.data.metaconstant.Metaconstant))

@@ -4,7 +4,6 @@
   midje.checking.checkers.collection-comparison
   (:use midje.clojure.core
         [clojure.math.combinatorics :only [permutations]]
-        [midje.util.object-utils :only [function-name named-function?]]
         [midje.checking.checkers collection-util util chatty defining]
         midje.checking.extended-equality)
   (:require [clojure.string :as str]
@@ -54,8 +53,8 @@
       comparison
       expected
       (fn [item]
-        (if (named-function? item)
-          (function-name item)
+        (if (pile/named-function? item)
+          (pile/function-name item)
           (pr-str item)))
       " (in that order)"))
   
@@ -64,8 +63,8 @@
       comparison
       (vals expected)
       (fn [[k v]]
-        (if (named-function? v)
-          (str (pr-str k) " " (function-name v))
+        (if (pile/named-function? v)
+          (str (pr-str k) " " (pile/function-name v))
           (str (pr-str k) " " (pr-str v))))
       "")))
 

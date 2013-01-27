@@ -1,15 +1,15 @@
 (ns ^{:doc "The semi-sweet representation of provided forms."}
   midje.data.prerequisite-state
   (:use midje.clojure.core
-        [midje.util.object-utils :only [object-name]]
         [midje.checking.extended-equality :only [extended-= extended-list-=]]
         [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out
                                                    with-altered-roots]]
         [midje.emission.deprecation :only [deprecate]]
-        [midje.parsing.arrow-symbols]
-        [clojure.tools.macro :only [macrolet]])
-  (:require [midje.data.metaconstant :as metaconstant]
+        [midje.parsing.arrow-symbols])
+  (:require [clojure.tools.macro :as macro]
             [midje.config :as config]
+            [midje.util.pile :as pile]
+            [midje.data.metaconstant :as metaconstant]
             [midje.emission.api :as emit]
             [midje.parsing.2-to-lexical-maps.fakes :as parse-fakes])
   (:import midje.data.metaconstant.Metaconstant))
@@ -72,7 +72,7 @@
       (default-function fake-with-usable-default))))
 
 (defn- ^{:testable true } handle-mocked-call [function-var actual-args fakes]
-  (macrolet [(counting-nested-calls [& forms]
+  (macro/macrolet [(counting-nested-calls [& forms]
                `(try
                   (swap! *call-action-count* inc)
                   ~@forms
@@ -103,7 +103,7 @@
 
 (defn- data-fakes-binding-map [data-fakes]
   (apply merge-with metaconstant/merge-metaconstants (for [{:keys [var contained]} data-fakes]
-                                                       {var (Metaconstant. (object-name var) contained)})))
+                                                       {var (Metaconstant. (pile/object-name var) contained)})))
 
 (defn binding-map [fakes]
   (let [[data-fakes fn-fakes] (separate :data-fake fakes)]

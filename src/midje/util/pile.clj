@@ -3,6 +3,21 @@
   midje.util.pile
   (:use midje.clojure.core))
 
+;;; Named things
+
+(defn named-function? [x]
+  (:name (meta x)))
+
+(defn object-name [obj]
+  (:name (meta obj)))
+
+(defn function-name [funobj]
+  (object-name funobj))
+
+(defn name-object [object name]
+  (vary-meta object assoc :name name))
+
+
 ;;; Maps
 
 (defn tack-on-to
