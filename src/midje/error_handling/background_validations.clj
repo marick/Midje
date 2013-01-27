@@ -6,7 +6,7 @@
         [midje.parsing.util.arrows :only [start-of-checking-arrow-sequence? take-arrow-sequence]]
         [midje.parsing.1-to-explicit-form.background :only [seq-headed-by-setup-teardown-form?]]
         [midje.parsing.1-to-explicit-form.prerequisites :only [metaconstant-prerequisite?]]
-        [midje.util.form-utils :only [def-many-methods pred-cond]]))
+        [midje.util.form-utils :only [def-many-methods]]))
 
 (def #^:private possible-wrapping-targets   #{:facts, :contents, :checks })
 (def #^:private possible-state-descriptions #{"before" "after" "around"})

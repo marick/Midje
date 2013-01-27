@@ -7,8 +7,7 @@
         [midje.checkers :only [exactly]]
         [midje.checking.checkers.defining :only [checker? checker-makers]]
         [midje.parsing.1-to-explicit-form.expects :only [expect? up-to-full-expect-form]]
-        [midje.util.form-utils :only [map-difference
-                                      pred-cond]]
+        [midje.util.form-utils :only [map-difference]]
         [midje.checking.extended-equality :only [extended-= extended-list-=]]
         [midje.parsing.util.file-position :only [user-file-position]]
         [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out

@@ -1,6 +1,6 @@
 (ns ^{:doc "General purpose plugin utilities"}
   midje.emission.plugins.util
-  (:use [midje.util.form-utils :only [pred-cond]]
+  (:use midje.clojure.core
         [clojure.repl :only [demunge]])
   (:require [midje.emission.clojure-test-facade :as ctf]
             [midje.emission.colorize :as color]

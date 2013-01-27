@@ -1,8 +1,7 @@
 (ns ^{:doc "Unfolding prerequisites like `(f (g 1)) => 3`"}
   midje.parsing.2-to-lexical-maps.folded-fakes
   (:use midje.parsing.util.zip
-        [midje.util.form-utils :only [map-difference
-                                      pred-cond]]
+        [midje.util.form-utils :only [map-difference]]
         [midje.checking.checkers.defining :only [checker? checker-makers]])
   (:require [clojure.zip :as zip]
             [midje.parsing.1-to-explicit-form.expects :as expects]

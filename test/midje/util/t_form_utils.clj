@@ -13,22 +13,6 @@
 (fact "apply each function to each corresponding arg" 
   (apply-pairwise [inc dec] [1 1] [2 2]) => [[2 0] [3 1]])
 
-(fact "checks each pred against the result of the first expression, returning if it finds a match" 
-
-  (pred-cond "abcde" 
-    #(.contains % "xyz") "contains 'xyz'" 
-    string? "string"
-    :else "neither") => "string"
-
-  (pred-cond 1 
-    even? "even" 
-    string? "string"
-    :else "neither") => "neither"
-  
-  "Don't need an :else"
-  (pred-cond 1 
-    even? "even") => nil)
-
 
 (fact "sort a map"
   (sort-map {:z 26 :b 2 :a 1}) => {:a 1 :b 2 :z 26})

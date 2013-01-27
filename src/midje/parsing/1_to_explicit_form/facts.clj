@@ -22,8 +22,7 @@
                                        against-background-facts-and-checks-wrappers
                                        against-background?]]
         [midje.parsing.1-to-explicit-form.metaconstants :only [predefine-metaconstants-from-form]]
-        [midje.util.form-utils :only [def-many-methods
-                                      pred-cond]]
+        [midje.util.form-utils :only [def-many-methods]]
         [midje.util.laziness :only [eagerly]]
         [midje.parsing.util.zip :only [skip-to-rightmost-leaf]]
         [swiss-arrows.core :only [-<>]])

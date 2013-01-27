@@ -1,7 +1,6 @@
 (ns ^{:doc "To evaluate a fact it needs to be eagerly evaluated."}
   midje.util.laziness
-  (:use [midje.clojure.core])
-  (:use [midje.util.form-utils :only [pred-cond]]))
+  (:use [midje.clojure.core]))
 
 (defn eagerly
   "Descend form, converting all lazy seqs into lists.

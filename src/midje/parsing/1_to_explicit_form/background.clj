@@ -9,7 +9,6 @@
         [midje.parsing.1-to-explicit-form.prerequisites :only [metaconstant-prerequisite? prerequisite-to-fake]]
         [midje.data.prerequisite-state :only [with-installed-fakes]]
         [midje.parsing.util.wrapping :only [for-wrapping-target? with-wrapping-target]]
-        [midje.util.form-utils :only [pred-cond]]
         [midje.util.laziness :only [eagerly]]
         [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
                                                    with-pushed-namespace-values]])

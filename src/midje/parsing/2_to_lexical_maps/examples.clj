@@ -8,7 +8,6 @@
         [midje.checking.checkers.defining :only [checker? checker-makers]]
         [midje.parsing.1-to-explicit-form.expects :only [expect? up-to-full-expect-form]]
         [midje.util.form-utils :only [map-difference
-                                      pred-cond
                                       def-many-methods ]]
         [midje.checking.extended-equality :only [extended-= extended-list-=]]
         [midje.parsing.util.file-position :only [user-file-position]]
