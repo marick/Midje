@@ -1,7 +1,7 @@
 (ns midje.checking.checkers.t-combining
   (:use midje.sweet
+        midje.checking.core
         [midje.checking.checkers.defining :only [checker?]]
-        midje.checking.extended-falsehood
         midje.test-util))
 
 (fact "about 'every' combinations"

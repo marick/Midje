@@ -3,9 +3,8 @@
 (ns ^{:doc "Checkers for collections and strings."}
   midje.checking.checkers.collection
   (:use midje.clojure.core
+        midje.checking.core
       	[midje.checking.checkers collection-util util chatty defining collection-comparison]
-        midje.checking.extended-equality
-        [midje.checking.extended-falsehood :only [extended-true?]]
         [midje.error-handling.exceptions :only [user-error]])
   (:require [midje.util.pile :as pile]))
 

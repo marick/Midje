@@ -1,7 +1,7 @@
 (ns ^{:doc "Core Midje functions that process expects and report on their results."} 
   midje.checking.examples
   (:use midje.clojure.core
-        [midje.checking.extended-equality :only [extended-= evaluate-checking-function]]
+        midje.checking.core
         [midje.error-handling.exceptions :only [captured-throwable]]
         midje.data.prerequisite-state
         midje.util.laziness)

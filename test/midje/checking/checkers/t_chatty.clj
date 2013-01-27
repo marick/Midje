@@ -1,11 +1,11 @@
 (ns midje.checking.checkers.t-chatty
   (:use midje.sweet
         midje.util
+        midje.checking.core
         [midje.checking.checkers.defining :only [checker?]]
         [midje.checking.checkers.chatty :only [chatty-worth-reporting-on?
                                       chatty-untease
                                       chatty-checker?]]
-        [midje.checking.extended-falsehood :only [data-laden-falsehood?]]
         midje.test-util))
 (expose-testables midje.checking.checkers.chatty)
 
@@ -98,7 +98,7 @@
              (= b 2))))
 
 (fact "chatty checkers can use a destructuring argument"
-  ;; Note: Can't use extended-equality because it swallows chatty-failures
+  ;; Note: Can't use extended-= because it swallows chatty-failures
   (= (vec-structured-checker [1 2 3 4]) true) => truthy )
 
 (tabular "chatty checkers can use a map destructuring argument"

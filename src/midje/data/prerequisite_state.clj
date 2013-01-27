@@ -1,9 +1,8 @@
 (ns ^{:doc "The semi-sweet representation of provided forms."}
   midje.data.prerequisite-state
   (:use midje.clojure.core
-        [midje.checking.extended-equality :only [extended-= extended-list-=]]
-        [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out
-                                                   with-altered-roots]]
+        midje.checking.core
+        [midje.util.thread-safe-var-nesting :only [with-altered-roots]]
         [midje.emission.deprecation :only [deprecate]]
         [midje.parsing.arrow-symbols])
   (:require [clojure.tools.macro :as macro]

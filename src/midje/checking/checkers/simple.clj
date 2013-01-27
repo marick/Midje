@@ -3,9 +3,8 @@
 (ns ^{:doc "Prepackaged functions that perform common checks."}
   midje.checking.checkers.simple
   (:use midje.clojure.core
+        midje.checking.core
         [midje.checking.checkers.defining :only [as-checker checker defchecker]]
-      	[midje.checking.extended-falsehood :only [extended-false?]]
-      	[midje.checking.extended-equality :only [extended-=]]
       	[midje.checking.checkers.util :only [named-as-call]]
       	[midje.error-handling.exceptions :only [captured-throwable?]]
         [midje.util.ecosystem :only [clojure-1-3? +M -M *M]]

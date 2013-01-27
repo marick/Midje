@@ -1,8 +1,7 @@
 (ns midje.test-util
   (:use [clojure.test]
         midje.checkers
-        [midje.checking.extended-equality :only [extended-=]]
-        [midje.checking.extended-falsehood :only [extended-false?]]
+        midje.checking.core
         midje.error-handling.exceptions)
   (:require midje.clojure.core
             [midje.config :as config]

@@ -3,9 +3,9 @@
 (ns ^{:doc "Code to use to compare collections."}
   midje.checking.checkers.collection-comparison
   (:use midje.clojure.core
+        midje.checking.core
         [clojure.math.combinatorics :only [permutations]]
-        [midje.checking.checkers collection-util util chatty defining]
-        midje.checking.extended-equality)
+        [midje.checking.checkers collection-util util chatty defining])
   (:require [clojure.string :as str]
             [midje.util.pile :as pile]))
 

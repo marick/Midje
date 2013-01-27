@@ -1,10 +1,8 @@
 (ns ^{:doc "Checkers that explain more about a failure."}
   midje.checking.checkers.chatty
   (:use midje.clojure.core
+        midje.checking.core
         [midje.checking.checkers.util :only [named-as-call]]
-        [midje.checking.extended-falsehood :only [data-laden-falsehood?
-                                                  as-data-laden-falsehood
-                                                  extended-false?]]
         [midje.checking.checkers.defining :only [as-checker]]
         [midje.parsing.util.core :only [quoted?]]))
 

@@ -1,8 +1,32 @@
-(ns ^{:doc "`=` extended for regular expressions, functions, etc."}
-  midje.checking.extended-equality
-  (:use midje.clojure.core
-        [midje.checking.extended-falsehood :only [as-data-laden-falsehood data-laden-falsehood?]]))
+(ns ^{:doc "Core ideas underlying all checking"}
+  midje.checking.core
+  (:use midje.clojure.core))
 
+;;; There is a notion of "extended falsehood", in which a false value may be a
+;;; map containing information about what went wrong.
+
+(defn as-data-laden-falsehood [value]
+  (vary-meta value assoc :midje/data-laden-falsehood true))
+
+(defn data-laden-falsehood? [value]
+  (:midje/data-laden-falsehood (meta value)))
+
+(defn data-laden-falsehood-to-map [value]
+  (with-meta value {}))
+
+(defn extended-false? [value]
+  (or (not value)
+      (data-laden-falsehood? value)))
+
+(defn extended-true? [value]
+  (not (extended-false? value)))
+
+(defn user-friendly-falsehood [value]
+  (if (data-laden-falsehood? value)
+    false
+    value))
+
+;;; There is a notion of "extended equality" that powers the right-hand-side of Midje examples.
 
 (defn evaluate-checking-function
   "Returns a sequence. The first value is either truthy or falsey.

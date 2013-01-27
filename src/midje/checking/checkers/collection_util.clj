@@ -1,6 +1,6 @@
 (ns midje.checking.checkers.collection-util
   (:use midje.clojure.core
-        [midje.checking.extended-falsehood :only [as-data-laden-falsehood]]))
+        midje.checking.core))
 
 (defn same-lengths? [actual expected]
   (= (count actual) (count expected)))
