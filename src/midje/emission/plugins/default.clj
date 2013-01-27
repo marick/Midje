@@ -1,6 +1,6 @@
 (ns ^{:doc "The default for Midje output"}
   midje.emission.plugins.default
-  (:use [midje.util.form-utils :only [midje-position-string]])
+  (:use midje.emission.util)
   (:require [midje.emission.colorize :as color]
             [midje.data.fact :as fact]
             [midje.emission.state :as state]

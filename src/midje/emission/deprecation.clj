@@ -1,7 +1,7 @@
 (ns ^{:doc "Utilities to deprecate features."}
   midje.emission.deprecation
-  (:use [midje.parsing.util.file-position :only [compile-time-fallback-position]]
-        [midje.util.form-utils :only [midje-position-string]])
+  (:use midje.emission.util
+        [midje.parsing.util.file-position :only [compile-time-fallback-position]])
   (:require [midje.config :as config]))
 
 (def any-deprecations? (atom :uninitialized))

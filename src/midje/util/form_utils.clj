@@ -76,11 +76,6 @@
 
 
 
-;;;;
-
-
-(defn midje-position-string [[filename line-num]]
-  (format "(%s:%s)" filename line-num))
 
 
 ;;; These functions assume old-style Midje metadata (nothing but doc strings).
