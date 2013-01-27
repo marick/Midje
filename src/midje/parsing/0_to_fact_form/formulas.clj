@@ -1,18 +1,22 @@
 (ns ^{:doc "Midje's special blend of generative-style testing."}
   midje.parsing.0-to-fact-form.formulas
   (:use midje.clojure.core
-        [midje.util.form-utils :only [first-named? pop-docstring pop-opts-map]]
+        midje.parsing.util.core
         [midje.error-handling.validation-errors :only [simple-validation-error-report-form validate-m validate]]
         [midje.parsing.util.arrows :only [leaf-expect-arrows leaves-contain-arrow?]]
         [midje.parsing.1-to-explicit-form.future-facts :only [future-prefixes]]
         [clojure.algo.monads :only [domonad]]
         [clojure.string :only [join]]
-        [midje.util.form-utils :only [macro-for]]
+        [midje.util.form-utils]
         [clojure.walk :only [prewalk]])
   (:require [midje.emission.boundaries :as emission-boundary]
             [midje.emission.api :as emit]
             [midje.emission.state :as state]
             [midje.emission.plugins.silence :as emission-silence]))
+
+
+
+
 
 ;; Formulas work by running up to *num-trials* trials per formula.
 (def ^{:doc "The number of trials generated per formula."

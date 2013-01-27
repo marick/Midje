@@ -129,7 +129,6 @@ metadata (as provided by def) merged into the metadata of the original."
 
 ;;; Sequences
 
-
 (defn rotations
   "Returns a lazy seq of all rotations of a seq"
   [coll]
@@ -140,6 +139,12 @@ metadata (as provided by def) merged into the metadata of the original."
   "Like map, but applies f to only the first element of the seq"
   [f x]
   (cons (f (first x)) (rest x)))
+
+(defn vertical-slices
+  "Given N sequences, return one sequence whose first element
+   is a sequence of all the first elements, etc."
+  [& sequences]
+  (apply (partial map (fn [& args] args)) sequences))
 
 (immigrate-from 'utilize.seq '[separate find-first only])
 

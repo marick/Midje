@@ -1,7 +1,6 @@
 (ns ^{:doc "Functions for turning provideds into semi-sweet fakes"}
   midje.parsing.1-to-explicit-form.prerequisites
   (:use midje.parsing.util.core
-        [midje.util.form-utils :only [symbol-named?]]
         [midje.parsing.util.file-position :only [arrow-line-number-from-form]]
         midje.parsing.arrow-symbols
         [midje.parsing.util.arrows :only [pull-all-arrow-seqs-from]]

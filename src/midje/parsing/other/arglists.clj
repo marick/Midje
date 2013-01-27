@@ -1,6 +1,7 @@
 (ns ^{:doc "Parsing function argument lists"}
   midje.parsing.other.arglists
   (:use midje.clojure.core
+        midje.parsing.util.core
         [midje.error-handling.exceptions :only [user-error]])
   (:require [midje.emission.levels :as levels]
             [midje.config :as config]
@@ -29,7 +30,7 @@
   (or (fn? arg) (keyword? arg)))
 
 (defn name-matcher-for [desired]
-  #(form/stringlike-matches? desired (fact/name %)))
+  #(stringlike-matches? desired (fact/name %)))
 (defn callable-matcher-for [desired]
   (comp desired meta))
 

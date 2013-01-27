@@ -4,7 +4,6 @@
         midje.parsing.util.zip
         [clojure.string :only [split]]
         [midje.parsing.util.zip :only [skip-to-rightmost-leaf]]
-        [midje.util.form-utils :only [quoted?]]
         [midje.parsing.util.arrows :only [all-arrows at-arrow__add-key-value-to-end__no-movement]])
   (:require [clojure.zip :as zip]))
 

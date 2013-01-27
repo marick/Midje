@@ -2,7 +2,7 @@
             :contents, :facts, or :expects"}
   midje.parsing.util.wrapping
   (:use midje.clojure.core
-        [midje.util.form-utils :only [first-named?]]
+        midje.parsing.util.core
         [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
                                                    set-namespace-value
                                                    with-pushed-namespace-values]])

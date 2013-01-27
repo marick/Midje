@@ -2,7 +2,6 @@
             midje.sweet arrow forms into semi-sweet expcet forms."}
   midje.parsing.1-to-explicit-form.expects
   (:use midje.parsing.util.core
-        [midje.util.form-utils :only [first-named?]]
         [midje.parsing.util.zip :only [skip-to-rightmost-leaf n-times remove-moving-right]]
         [midje.parsing.util.arrows :only [start-of-checking-arrow-sequence? arrow-sequence-overrides]]
         [midje.parsing.util.file-position :only [arrow-line-number]])

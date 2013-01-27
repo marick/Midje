@@ -1,8 +1,7 @@
 (ns ^{:doc "`=` extended for regular expressions, functions, etc."}
   midje.checking.extended-equality
   (:use midje.clojure.core
-        [midje.checking.extended-falsehood :only [as-data-laden-falsehood data-laden-falsehood?]]
-        [midje.util.form-utils :only [pairs]]))
+        [midje.checking.extended-falsehood :only [as-data-laden-falsehood data-laden-falsehood?]]))
 
 
 (defn evaluate-checking-function
@@ -35,4 +34,4 @@
 (defn extended-list-=
   "Element-by-element comparison, using extended-= for the right-hand-side values."
   [actual-args checkers]
-  (every? (partial apply extended-=) (pairs actual-args checkers)))
+  (every? (partial apply extended-=) (vertical-slices actual-args checkers)))

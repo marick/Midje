@@ -8,48 +8,6 @@
 ;;;; Import pprint and cl-format
 
 
-(defn stringlike-matches? [stringlike given]
-  (cond (not (string? given))
-        false
-
-        (string? stringlike)
-        (.contains given stringlike)
-
-        :else
-        (boolean (re-find stringlike given))))
-
-(defn symbol-named?
-  "Is the thing a symbol with the name given by the string?"
-  [x string]
-  (and (symbol? x)
-       (= (name x) string)))
-
-(defn first-named?
-  "Is the form's first element a symbol whose name is the desired string?"
-  [form desired]
-  (and (sequential? form)
-       (symbol-named? (first form) desired)))
-
-(defmulti quoted? tree-variant)
-(defmethod quoted? :zipper [loc]
-  (quoted? (zip/node loc)))
-(defmethod quoted? :form [form]
-  (first-named? form "quote"))
-
-(def dequote #(if (quoted? %) (second %) %))
-
-
-(defn reader-list-form?
-  "True if the form is a parenthesized list of the sort the reader can return."
-  [form]
-  (or (list? form) (= (type form) clojure.lang.Cons)))
-
-(defn quoted-list-form?
-  "True if the form is a quoted list such as the reader might return"
-  [form]
-  (and (reader-list-form? form)
-       (quoted? form)))
-
 ;;; Some higher-order predicate helpers
 
 (defn any-pred-from
@@ -68,29 +26,6 @@
   
 
 ;;; Etc.
-
-(defn preserve-type
-  "If the original form was a vector, make the transformed form a vector too."
-  [original-form transformed-form]
-  (if (vector? original-form)
-    (vec transformed-form)
-    transformed-form))
-
-(defn reader-line-number 
-  "Find what line number the reader put on the given form or on
-   one of its elements. If no line numbers, a warning string."
-  [form]
-  (or (:line (meta form))
-      (some (comp :line meta) form)
-      "0 (no line info)"))
-
-(defn vector-without-element-at-index [index v]
-  (vec (concat (subvec v 0 index) (subvec v (inc index)))))
-
-(defn pairs
-  "Return [ (first first-seq) (first second-seq)] ..."
-  [first-seq second-seq]
-  (partition 2 (interleave first-seq second-seq)))
 
 (defn tack-on-to
   "Conj new values onto appropriate keys of a map" 
@@ -120,17 +55,6 @@
                  ~result
                  (pred-cond ~item ~@preds+results))))
 
-(defn single-destructuring-arg->form+name [arg-form]
-  (let [as-symbol          (gensym 'symbol-for-destructured-arg)
-        snd-to-last-is-as? #(= :as (second (reverse %)))
-        has-key-as?        #(contains? % :as)]
-    (pred-cond arg-form
-      (every-pred-m vector? snd-to-last-is-as?) [arg-form (last arg-form)]
-      vector?                                   [(-> arg-form (conj :as) (conj as-symbol)) as-symbol]
-      (every-pred-m map? has-key-as?)           [arg-form (:as arg-form)]
-      map?                                      [(assoc arg-form :as as-symbol) as-symbol]
-      :else                                     [arg-form arg-form] )))
-
 (defmacro macro-for 
   "Macroexpands the body once for each of the elements in the 
    right-side argument of the bindings, which should be a seq"
@@ -154,6 +78,14 @@
 
 ;;;;
 
+
+(defn midje-position-string [[filename line-num]]
+  (format "(%s:%s)" filename line-num))
+
+
+;;; These functions assume old-style Midje metadata (nothing but doc strings).
+;;; Formulas have not been updated to use the metadata style. If they
+;;; work out, they should be.
 (defn pop-if
   "Extracts optional arg (that we assume is present if the pred is true) from head of args"
   [pred args]
@@ -170,7 +102,4 @@
   (partial pop-if map?))
 
 
-
-(defn midje-position-string [[filename line-num]]
-  (format "(%s:%s)" filename line-num))
 

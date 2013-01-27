@@ -2,14 +2,14 @@
             prerequisites that pertain to a group of facts."} 
   midje.parsing.1-to-explicit-form.background
   (:use midje.clojure.core
+        midje.parsing.util.core
         midje.parsing.util.zip
         [midje.parsing.util.arrows :only [start-of-checking-arrow-sequence? take-arrow-sequence]]
         [midje.parsing.1-to-explicit-form.metaconstants :only [predefine-metaconstants-from-form]]
         [midje.parsing.1-to-explicit-form.prerequisites :only [metaconstant-prerequisite? prerequisite-to-fake]]
         [midje.data.prerequisite-state :only [with-installed-fakes]]
         [midje.parsing.util.wrapping :only [for-wrapping-target? with-wrapping-target]]
-        [midje.util.form-utils :only [first-named? pred-cond 
-                                      symbol-named?]]
+        [midje.util.form-utils :only [pred-cond]]
         [midje.util.laziness :only [eagerly]]
         [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
                                                    with-pushed-namespace-values]])

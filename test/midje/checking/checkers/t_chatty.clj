@@ -1,11 +1,13 @@
 (ns midje.checking.checkers.t-chatty
   (:use midje.sweet
+        midje.util
         [midje.checking.checkers.defining :only [checker?]]
         [midje.checking.checkers.chatty :only [chatty-worth-reporting-on?
                                       chatty-untease
                                       chatty-checker?]]
         [midje.checking.extended-falsehood :only [data-laden-falsehood?]]
         midje.test-util))
+(expose-testables midje.checking.checkers.chatty)
 
 (facts "about chatty-checking utility functions"
 
@@ -24,6 +26,24 @@
     '(f)   truthy
     ''(f)  falsey
     '[f]   falsey )
+
+
+(tabular
+  (fact "A single argument can be converted into a structured-form and a arg-value-name"
+    (against-background (gensym 'symbol-for-destructured-arg) => 'unique-3)
+    (let [[form name] (single-destructuring-arg->form+name ?original)]
+      form => ?form
+      name => ?name))
+  ?original              ?form                       ?name
+  'a                     'a                          'a
+  '[a b]                 '[a b :as unique-3]         'unique-3
+  '[a b & c :as all]     '[a b & c :as all]          'all
+  '{:keys [a b]}         '{:keys [a b] :as unique-3} 'unique-3
+  '{:keys [a b] :as all} '{:keys [a b] :as all}      'all
+  ;; pathological cases
+  '[a]                   '[a :as unique-3]           'unique-3
+  '[a :as b]             '[a :as b]                  'b)
+
 
 
   
