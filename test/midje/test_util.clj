@@ -3,8 +3,7 @@
         midje.checkers
         [midje.checking.extended-equality :only [extended-=]]
         [midje.checking.extended-falsehood :only [extended-false?]]
-        midje.error-handling.exceptions
-        [midje.util.form-utils :only [macro-for]])
+        midje.error-handling.exceptions)
   (:require midje.clojure.core
             [midje.config :as config]
             [clojure.string :as str]

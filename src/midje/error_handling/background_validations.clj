@@ -5,13 +5,13 @@
                                                        validation-error-report-form validate when-valid]]
         [midje.parsing.util.arrows :only [start-of-checking-arrow-sequence? take-arrow-sequence]]
         [midje.parsing.1-to-explicit-form.background :only [seq-headed-by-setup-teardown-form?]]
-        [midje.parsing.1-to-explicit-form.prerequisites :only [metaconstant-prerequisite?]]
-        [midje.util.form-utils :only [def-many-methods]]))
+        [midje.parsing.1-to-explicit-form.prerequisites :only [metaconstant-prerequisite?]])
+  (:require [midje.util.pile :as pile]))
 
 (def #^:private possible-wrapping-targets   #{:facts, :contents, :checks })
 (def #^:private possible-state-descriptions #{"before" "after" "around"})
 
-(def-many-methods validate ["before" "after" "around"] [[state-description wrapping-target expression :as form]]
+(pile/def-many-methods validate ["before" "after" "around"] [[state-description wrapping-target expression :as form]]
   (cond
     (and (#{"after" "around"} (name state-description)) (not= 3 (count form)))
     (validation-error-report-form form

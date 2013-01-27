@@ -9,7 +9,6 @@
       	[midje.checking.checkers.util :only [named-as-call]]
       	[midje.error-handling.exceptions :only [captured-throwable?]]
         [midje.util.ecosystem :only [clojure-1-3? +M -M *M]]
-        [midje.util.form-utils :only [def-many-methods]]
         [clojure.algo.monads :only [domonad set-m]])
   (:import [midje.error_handling.exceptions ICapturedThrowable]))
 

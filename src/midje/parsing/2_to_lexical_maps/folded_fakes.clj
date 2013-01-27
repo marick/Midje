@@ -1,9 +1,9 @@
 (ns ^{:doc "Unfolding prerequisites like `(f (g 1)) => 3`"}
   midje.parsing.2-to-lexical-maps.folded-fakes
   (:use midje.parsing.util.zip
-        [midje.util.form-utils :only [map-difference]]
         [midje.checking.checkers.defining :only [checker? checker-makers]])
   (:require [clojure.zip :as zip]
+            [midje.util.pile :as pile]
             [midje.parsing.1-to-explicit-form.expects :as expects]
             [midje.parsing.util.fnref :as fnref]))
 
@@ -79,7 +79,7 @@
       (let [overrides (drop 4 target)
             augmented-substitutions (augment-substitutions substitutions target)
             flattened-target (flatten-fake target augmented-substitutions)
-            generated-fakes (generate-fakes (map-difference augmented-substitutions substitutions) overrides)]
+            generated-fakes (generate-fakes (pile/map-difference augmented-substitutions substitutions) overrides)]
         [(conj finished flattened-target), 
          (concat generated-fakes (rest pending)), 
          augmented-substitutions]))))

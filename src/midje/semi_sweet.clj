@@ -3,7 +3,7 @@
   midje.semi-sweet
   (:use midje.clojure.core
         midje.data.prerequisite-state
-        [midje.util debugging form-utils]
+        [midje.util debugging]
         [midje.emission.deprecation :only [deprecate]]
         midje.error-handling.validation-errors
         midje.error-handling.semi-sweet-validations
@@ -13,7 +13,8 @@
         midje.production-mode
         [clojure.algo.monads :only [domonad]]
         [clojure.string :only [join]])
-  (:require [midje.data.nested-facts :as nested-facts]
+  (:require [midje.util.pile :as pile]
+            [midje.data.nested-facts :as nested-facts]
             [midje.parsing.lexical-maps :as lexical-maps]
             [midje.emission.api :as emit]
             midje.checking.examples
@@ -29,7 +30,7 @@
 ;;; Interface: unfinished
 
 (letfn [(unfinished* [names]
-          (macro-for [name names]
+          (pile/macro-for [name names]
             `(do
                (defn ~name [& args#]
                  (let [pprint# (partial cl-format nil "~S")]

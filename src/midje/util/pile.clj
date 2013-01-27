@@ -1,11 +1,9 @@
 (ns ^{:doc "Functions that are somewhat general purpose, but seem too obscure to be in midje.clojure.core.
-           A placeholder for wiser decisions someday."}
-  midje.util.form-utils
-  (:use midje.clojure.core
-        midje.parsing.util.core)
-  (:require [clojure.zip :as zip]))
+           A cue to wiser placement decisions someday."}
+  midje.util.pile
+  (:use midje.clojure.core))
 
-;;; Maps
+;;; Maps
 
 (defn tack-on-to
   "Conj new values onto appropriate keys of a map" 
@@ -18,7 +16,7 @@
 (defn sort-map [m]
   (into (sorted-map) m))
 
-;;; Sequences
+;;; Sequences
 
 (defn apply-pairwise
   "(apply-pairwise [inc dec] [1 1] [2 2]) => [ [2 0] [3 1] ]
@@ -28,8 +26,6 @@
   		(fn [f arg] (f arg)) 
   		functions) 
   	arglists))
-
-
 
 (defn pop-if
   "Extracts optional arg (that we assume is present if the pred is true) from head of args"
@@ -48,9 +44,7 @@
 
 
 
-
-
-;;; Higher-order predicate helpers
+;;; Higher-order predicate helpers
 
 (defn any-pred-from
   "Returns a function that returns strictly true iff any
@@ -67,7 +61,7 @@
               :else           (recur remainder))))))
 
 
-;;; Definition helpers
+;;; Definition helpers
 
 (defmacro macro-for 
   "Macroexpands the body once for each of the elements in the 
@@ -84,6 +78,4 @@
   (macro-for [dval dispatch-vals]
     `(defmethod ~name ~dval ~args
        ~@body)))
-
-
 

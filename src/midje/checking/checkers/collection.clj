@@ -3,11 +3,11 @@
 (ns ^{:doc "Checkers for collections and strings."}
   midje.checking.checkers.collection
   (:use midje.clojure.core
-        [midje.util.form-utils :only [macro-for]]
       	[midje.checking.checkers collection-util util chatty defining collection-comparison]
         midje.checking.extended-equality
         [midje.checking.extended-falsehood :only [extended-true?]]
-        [midje.error-handling.exceptions :only [user-error]]))
+        [midje.error-handling.exceptions :only [user-error]])
+  (:require [midje.util.pile :as pile]))
 
 
 (def #^:private looseness-modifiers #{:in-any-order :gaps-ok})
@@ -241,8 +241,8 @@ just is also useful if you don't care about order:
          (every? #(extended-= % expected) actual))))
 
 (defmacro #^:private generate-n-of-checkers []
-  (macro-for [[num num-word] [[1 "one"] [2 "two"] [3 "three"] [4 "four"] [5 "five"]
-                              [6 "six"] [7 "seven"] [8 "eight"] [9 "nine"] [10 "ten"]]]
+  (pile/macro-for [[num num-word] [[1 "one"] [2 "two"] [3 "three"] [4 "four"] [5 "five"]
+                                   [6 "six"] [7 "seven"] [8 "eight"] [9 "nine"] [10 "ten"]]]
     (let [name (symbol (str num-word "-of"))                                                                 
           docstring (cl-format nil "Checks whether a sequence contains precisely ~R result~:[s, and \n  that they each match~;, and \n  that it matches~] the checker.
   

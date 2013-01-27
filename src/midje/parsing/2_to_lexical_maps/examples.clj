@@ -7,8 +7,6 @@
         [midje.checkers :only [exactly]]
         [midje.checking.checkers.defining :only [checker? checker-makers]]
         [midje.parsing.1-to-explicit-form.expects :only [expect? up-to-full-expect-form]]
-        [midje.util.form-utils :only [map-difference
-                                      def-many-methods ]]
         [midje.checking.extended-equality :only [extended-= extended-list-=]]
         [midje.parsing.util.file-position :only [user-file-position]]
         [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out
@@ -19,7 +17,8 @@
         midje.error-handling.validation-errors
         midje.error-handling.semi-sweet-validations
         [clojure.tools.macro :only [macrolet]])
-  (:require [midje.data.metaconstant :as metaconstant]
+  (:require [midje.util.pile :as pile]
+            [midje.data.metaconstant :as metaconstant]
             [midje.data.nested-facts :as nested-facts]
             [clojure.zip :as zip]
             [midje.config :as config]
@@ -32,7 +31,7 @@
 (defmulti expect-expansion (fn [_call-form_ arrow & _rhs_]
                              (name arrow)))
 
-(def-many-methods expect-expansion [=> =not=> =deny=>]
+(pile/def-many-methods expect-expansion [=> =not=> =deny=>]
   [call-form arrow expected-result fakes overrides]
   `(let [check# (lexical-maps/example ~call-form ~arrow ~expected-result ~overrides)]
      (midje.checking.examples/check-one check# ~fakes)))

@@ -5,7 +5,7 @@
         [midje.error-handling.exceptions :only [user-error]])
   (:require [midje.emission.levels :as levels]
             [midje.config :as config]
-            [midje.util.form-utils :as form]
+            [midje.util.pile :as pile]
             [midje.data.fact :as fact]))
 
 
@@ -40,7 +40,7 @@
 
 (defn desired-fact-predicate-from [desireds]
   (vary-meta
-     (form/any-pred-from (map appropriate-matcher-for desireds))
+     (pile/any-pred-from (map appropriate-matcher-for desireds))
      assoc :created-from desireds))
 
 
@@ -48,7 +48,7 @@
   ([args plain-argument?]
      (let [[filters remainder]
            (separate #(and (not (plain-argument? %))
-                           ((form/any-pred-from [string? regex? fn? keyword?]) %))
+                           ((pile/any-pred-from [string? regex? fn? keyword?]) %))
                      args)]
        [filters
         (desired-fact-predicate-from filters)

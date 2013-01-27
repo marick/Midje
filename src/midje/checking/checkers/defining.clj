@@ -1,6 +1,6 @@
 (ns ^{:doc "Various ways to define checkers."}
   midje.checking.checkers.defining
-  (:use [midje.util.form-utils :only [pop-docstring pop-opts-map]]))
+  (:require [midje.util.pile :as pile]))
 
 (defn as-checker
   "Label a function as a checker. This is only required if
@@ -59,8 +59,8 @@
     "
     {:arglists '([name docstring? attr-map? bindings+bodies])}
     [name & args]
-    (let [[docstring more-args] (pop-docstring args)
-          [attr-map bindings+bodies] (pop-opts-map more-args)]
+    (let [[docstring more-args] (pile/pop-docstring args)
+          [attr-map bindings+bodies] (pile/pop-opts-map more-args)]
       (working-with-arglists+bodies name docstring attr-map bindings+bodies))))
 
 (defmacro checker

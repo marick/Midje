@@ -1,12 +1,11 @@
 (ns midje.parsing.2-to-lexical-maps.t-examples
-  (:use [clojure.test]  ;; This is used to check production mode with deftest.
-        [midje.sweet]
-        [midje.parsing.2-to-lexical-maps.examples]
-        [midje.util form-utils]
-        [midje.test-util]
+  (:use clojure.test  ;; This is used to check production mode with deftest.
+        midje.sweet
+        midje.parsing.2-to-lexical-maps.examples
+        midje.test-util
         midje.util)
-  (:require [clojure.zip :as zip]
-            [midje.config :as config]
+  (:require [midje.config :as config]
+            [midje.util.pile :as pile]
             [midje.emission.api :as emit]))
 (expose-testables midje.parsing.2-to-lexical-maps.examples)
  
@@ -77,10 +76,10 @@
 
     (fact "Note that lexical scoping is obeyed"
       (count (:arg-matchers fake-1)) => 1
-      (apply-pairwise (:arg-matchers fake-1) [5] [nil]) => [[true] [false]]
+      (pile/apply-pairwise (:arg-matchers fake-1) [5] [nil]) => [[true] [false]]
       (count (:arg-matchers fake-2)) => 2
-      (apply-pairwise (:arg-matchers fake-2) [5 5] [1 1]) => [  [false true]
-                                                                [true false] ])
+      (pile/apply-pairwise (:arg-matchers fake-2) [5 5] [1 1]) => [  [false true]
+                                                                     [true false] ])
 
     (fact "Result supplied"
       ((:result-supplier fake-0)) => 2

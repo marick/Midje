@@ -7,9 +7,9 @@
         [midje.parsing.1-to-explicit-form.future-facts :only [future-prefixes]]
         [clojure.algo.monads :only [domonad]]
         [clojure.string :only [join]]
-        [midje.util.form-utils]
         [clojure.walk :only [prewalk]])
-  (:require [midje.emission.boundaries :as emission-boundary]
+  (:require [midje.util.pile :as pile]
+            [midje.emission.boundaries :as emission-boundary]
             [midje.emission.api :as emit]
             [midje.emission.state :as state]
             [midje.emission.plugins.silence :as emission-silence]))
@@ -34,8 +34,8 @@
   `(midje.sweet/fact ~docstring ~@body))
 
 (defn- deconstruct-formula-args [args]
-  (let [[docstring? more-args] (pop-docstring args)
-        [opts-map [bindings & body]] (pop-opts-map more-args)]
+  (let [[docstring? more-args] (pile/pop-docstring args)
+        [opts-map [bindings & body]] (pile/pop-opts-map more-args)]
     [docstring? opts-map bindings body]))
 
 
@@ -88,7 +88,7 @@
 
 
 (defmacro generate-future-formula-variants []
-  (macro-for [name future-formula-variant-names]
+  (pile/macro-for [name future-formula-variant-names]
     `(defmacro ~(symbol name)
        "ALPHA/EXPERIMENTAL (subject to change)
         Formula that will not be run. Generates 'WORK TO DO' report output as a reminder."

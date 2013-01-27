@@ -29,7 +29,7 @@
     :function-under-test (clojure.core/fn [] (cons a [2])),
     :description (midje.data.nested-facts/descriptions)}
    {:arrow '=>, :call-form '(cons a [2])}
-   (midje.util.form-utils/hash-map-duplicates-ok
+   (midje.clojure.core/hash-map-duplicates-ok
     :position
     (midje.parsing.util.file-position/line-number-known 2)))
 ) ; ---------------------------------------------------------------

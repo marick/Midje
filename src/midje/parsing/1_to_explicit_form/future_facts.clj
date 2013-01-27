@@ -1,8 +1,8 @@
 (ns ^{:doc "Parsing future-facts."}
   midje.parsing.1-to-explicit-form.future-facts
   (:use midje.parsing.util.core)
-  (:use [midje.util.form-utils :only [macro-for]])
-  (:require [midje.parsing.util.file-position :as position]
+  (:require [midje.util.pile :as pile]
+            [midje.parsing.util.file-position :as position]
             [midje.data.nested-facts :as nested-facts]
             [midje.parsing.1-to-explicit-form.metadata :as parse-metadata]
             [midje.emission.api :as emit]))
@@ -17,7 +17,7 @@
                                  (str prefix fact-or-facts)))
 
 (defmacro generate-variants []
-  (macro-for [name future-fact-variant-names]
+  (pile/macro-for [name future-fact-variant-names]
     `(defmacro ~(symbol name)
        "Fact that will not be run. Generates 'WORK TO DO' report output as a reminder."
        {:arglists '([& forms])}

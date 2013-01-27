@@ -22,12 +22,12 @@
                                        against-background-facts-and-checks-wrappers
                                        against-background?]]
         [midje.parsing.1-to-explicit-form.metaconstants :only [predefine-metaconstants-from-form]]
-        [midje.util.form-utils :only [def-many-methods]]
         [midje.util.laziness :only [eagerly]]
         [midje.parsing.util.zip :only [skip-to-rightmost-leaf]]
         [swiss-arrows.core :only [-<>]])
   (:require [clojure.zip :as zip])
-  (:require [midje.checking.facts :as fact-checking]
+  (:require [midje.util.pile :as pile]
+            [midje.checking.facts :as fact-checking]
             [midje.data.compendium :as compendium]
             [midje.parsing.1-to-explicit-form.future-facts :as parse-future-facts]
             [midje.parsing.2-to-lexical-maps.folded-fakes :as parse-folded-fakes]
@@ -155,7 +155,7 @@
 
 ;;; There could be validation here, but none has proven useful.
 
-(def-many-methods validate ["fact" "facts"] [[fact-or-facts & args :as form]]
+(pile/def-many-methods validate ["fact" "facts"] [[fact-or-facts & args :as form]]
   ;; Removed the check for no arrow because (1) it gives me too many false
   ;; positives and (2) doesn't fit with new handling of tabulate. Replace
   ;; someday with a version that correctly detects forms like this:

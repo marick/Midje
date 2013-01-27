@@ -2,7 +2,6 @@
   midje.data.prerequisite-state
   (:use midje.clojure.core
         [midje.util.object-utils :only [object-name]]
-        midje.util.form-utils
         [midje.checking.extended-equality :only [extended-= extended-list-=]]
         [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out
                                                    with-altered-roots]]

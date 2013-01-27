@@ -2,8 +2,7 @@
   midje.parsing.util.arrows
   (:use midje.clojure.core
         midje.parsing.util.core
-        midje.parsing.arrow-symbols
-        [midje.util form-utils])
+        midje.parsing.arrow-symbols)
   (:require [clojure.zip :as zip]))
 
 ;; Arrow groupings

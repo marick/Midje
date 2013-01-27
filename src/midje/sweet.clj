@@ -12,7 +12,6 @@
         midje.error-handling.exceptions
         midje.error-handling.validation-errors
         midje.util.debugging
-        [midje.util.form-utils :only [macro-for]]
         [midje.parsing.util.wrapping :only [put-wrappers-into-effect]]
         [midje.parsing.util.file-position :only [set-fallback-line-number-from]]
         [midje.parsing.1-to-explicit-form.facts :only [complete-fact-transformation

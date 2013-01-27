@@ -13,7 +13,6 @@
             [midje.emission.boundaries :as emission-boundary]
             [midje.emission.colorize :as color]
             [midje.emission.api :as emit]
-            [midje.util.form-utils :as form]
             [midje.util.ecosystem :as ecosystem]
             [midje.util.scheduling :as scheduling]))
 

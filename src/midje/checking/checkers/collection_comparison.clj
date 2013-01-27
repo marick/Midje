@@ -4,11 +4,11 @@
   midje.checking.checkers.collection-comparison
   (:use midje.clojure.core
         [clojure.math.combinatorics :only [permutations]]
-        [midje.util.form-utils :only [tack-on-to sort-map]]
         [midje.util.object-utils :only [function-name named-function?]]
         [midje.checking.checkers collection-util util chatty defining]
-        midje.checking.extended-equality
-        [clojure.string :only [join]]))
+        midje.checking.extended-equality)
+  (:require [clojure.string :as str]
+            [midje.util.pile :as pile]))
 
 ;; There is an annoying only-semi-similarity between maps and sequences.
 ;; These are the generic functions.
@@ -21,10 +21,10 @@
   (fn [midje-classification _elements_] midje-classification))
 
 (defmethod collection-string ::map [_midje-classification_ elements]
-  (str "{" (join ", " (sort elements)) "}"))
+  (str "{" (str/join ", " (sort elements)) "}"))
 
 (defmethod collection-string ::not-map [_midje-classification_ elements]
-  (str "[" (join " " elements) "]"))
+  (str "[" (str/join " " elements) "]"))
 ;;-
 
 (defmulti best-actual-match
@@ -35,7 +35,7 @@
   (str "Best match found: " (pr-str (:actual-found comparison))))
 
 (defmethod best-actual-match ::map [_midje-classification_ comparison]
-  (str "Best match found: " (pr-str (sort-map (:actual-found comparison)))))
+  (str "Best match found: " (pr-str (pile/sort-map (:actual-found comparison)))))
 
 (defmulti best-expected-match
   "Describe the best list of expected values found in the comparison."
@@ -109,7 +109,7 @@
                   (concat (:expected-skipped-over candidate) (rest walking-expected))
                   best-so-far
                   (merge
-                    (tack-on-to candidate
+                    (pile/tack-on-to candidate
                       :actual-found (first walking-actual)
                       :expected-found (first walking-expected))
                     {:expected-skipped-over []}))
@@ -119,7 +119,7 @@
                 (recur walking-actual
                   (rest walking-expected)
                   best-so-far
-                  (tack-on-to candidate
+                  (pile/tack-on-to candidate
                     :expected-skipped-over (first walking-expected)))
 
                 (not (empty? (rest walking-actual)))
@@ -210,7 +210,7 @@
             (rest walking-actual)
             (rest walking-expected)
             best-so-far
-            (tack-on-to candidate
+            (pile/tack-on-to candidate
               :actual-found (first walking-actual)
               :expected-found (first walking-expected)))
   
