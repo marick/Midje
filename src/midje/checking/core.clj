@@ -5,13 +5,17 @@
 ;;; There is a notion of "extended falsehood", in which a false value may be a
 ;;; map containing information about what went wrong.
 
-(defn as-data-laden-falsehood [value]
-  (vary-meta value assoc :midje/data-laden-falsehood true))
-
 (defn data-laden-falsehood? [value]
   (:midje/data-laden-falsehood (meta value)))
 
-(defn data-laden-falsehood-to-map [value]
+(defn as-data-laden-falsehood [value]
+  (vary-meta value assoc :midje/data-laden-falsehood true))
+
+(defn data-laden-falsehood-to-map
+  "Used for testing Midje itself, this prevents a Midje
+   example of the expected creation of a data-laden falsehood
+   from being interpreted as a failure."
+  [value]
   (with-meta value {}))
 
 (defn extended-false? [value]
@@ -22,6 +26,8 @@
   (not (extended-false? value)))
 
 (defn user-friendly-falsehood [value]
+  "'downcast' a possible data-laden falsehood into
+   `false` if necessary."
   (if (data-laden-falsehood? value)
     false
     value))
