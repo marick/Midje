@@ -13,27 +13,17 @@
  (require '[clojure.tools.namespace.repl :as nsrepl]
           '[clojure.tools.namespace.dir :as nsdir]
           '[clojure.tools.namespace.track :as nstrack]
-          '[clojure.tools.namespace.reload :as nsreload]
-          '[leiningen.core.project :as project])
+          '[clojure.tools.namespace.reload :as nsreload])
 
 
 ;;; Querying the project tree
 
- (defn directories []
-   (try
-     (let [project (project/read)]
-       ;; Note that order is important here; see below.
-       (concat (:test-paths project) (:source-paths project)))
-     (catch java.io.FileNotFoundException e
-       ["test"])))
-
  (defn namespaces []
-   (mapcat namespaces-in-dir (directories)))
+   (mapcat namespaces-in-dir (ecosystem/leiningen-paths)))
 
- ;; For some purposes, it matters that the :tests files
- ;; come before the :sources files. That happens to always be
- ;; true, but the names below emphasize it.
- (def directories-test-first directories)
+ ;; For some purposes, it matters that the :test-paths files come
+ ;; before the :source-paths files. That happens to always be true,
+ ;; but the name below emphasizes it.
  (def namespaces-test-first namespaces)
 
  (defn unglob-partial-namespaces [namespaces]

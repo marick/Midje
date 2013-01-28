@@ -397,7 +397,7 @@
 (defonce ^{:private true}
   autotest-options-atom
   (atom {:interval 500
-         :dirs (project-state/directories)
+         :dirs (ecosystem/leiningen-paths)
          :note-require-failure note-require-failure
          :note-namespace-stream note-namespace-stream}))
 

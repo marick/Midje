@@ -9,18 +9,6 @@
 
 (ecosystem/when-1-3+
 
-  (fact "can find paths to load from project.clj"
-    (fact "if it exists"
-      (directories) => ["/test1" "/src1"]
-      (provided (leiningen.core.project/read) => {:test-paths ["/test1"]
-                                                  :source-paths ["/src1"]}))
-    
-    (fact "and provides a default if it does not"
-      (directories) => ["test"]
-      (provided (leiningen.core.project/read)
-                =throws=> (new java.io.FileNotFoundException))))
-  
-  
   (fact "unglob-partial-namespaces returns namespace symbols"
     (fact "from symbols or strings"
       (unglob-partial-namespaces ["explicit-namespace1"]) => ['explicit-namespace1]

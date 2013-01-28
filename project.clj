@@ -1,4 +1,4 @@
-(defproject midje "1.5-alpha9"
+(defproject midje "1.5-SNAPSHOT"
   :description "A TDD library for Clojure that supports top-down ('mockish') TDD, encourages readable tests, provides a smooth migration path from clojure.test, balances abstraction and concreteness, and strives for graciousness."
   :url "https://github.com/marick/Midje"
   :dependencies [[org.clojure/clojure "1.4.0"]
@@ -18,12 +18,16 @@
   :profiles {:dev {:dependencies [[slamhound "1.2.0"]
                                   [jonase/kibit "0.0.3"]
                                   [jonase/eastwood "0.0.2"]]
-                   :plugins [[lein-midje "3.0-alpha4"]]}
+                   :plugins [[lein-midje "3.0-SNAPSHOT"]]}
              :1.2.0 {:dependencies [[org.clojure/clojure "1.2.0"]]}
              :1.2.1 {:dependencies [[org.clojure/clojure "1.2.1"]]}
              :1.3 {:dependencies [[org.clojure/clojure "1.3.0"]]}
              :1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
-             :1.5 {:dependencies [[org.clojure/clojure "1.5.0-RC1"]]}}
+             :1.5 {:dependencies [[org.clojure/clojure "1.5.0-RC1"]]}
+             ;; The following profile can be used to check that `lein with-profile`
+             ;; profiles are obeyed. Note that profile `:test-paths` *add on* to the
+             ;; defaults.
+             :test-test-paths {:test-paths ["test-test-paths"]}}
   :resource-paths ["test-resources"]
   :license {:name "The MIT License (MIT)"
             :url "http://opensource.org/licenses/mit-license.php"
