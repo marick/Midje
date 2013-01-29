@@ -120,6 +120,14 @@
   (reset! global (fresh))
   true)
 
+(defmacro with-isolated-compendium [& body]
+  `(let [current-compendium# @global]
+     (try
+       (fresh!)
+       ~@body
+     (finally
+      (reset! global current-compendium#)))))
+
 (defn record-fact-check! [function]
   (when (fact/allows-itself-to-be-recorded? function)
     (swap! global assoc :last-fact-checked function)))

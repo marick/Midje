@@ -177,9 +177,8 @@
 
 ;; The functions that work on global state
 
-(let [current-compendium @global]
+(with-isolated-compendium
   ;; Certain facts do not allow themselves to be recorded.
-  (fresh!)
   (fact :check-only-at-load-time (str "foo") => "foo")
   (fact :check-only-at-load-time 
     (all-facts<>) => empty?
@@ -190,9 +189,7 @@
     (fact (str "foo" "bar") => "foobar")
     (fact :check-only-at-load-time
       (all-facts<>) => empty?
-      (fact-checking/check-one (last-fact-checked<>)) => true))
-
-  (reset! global current-compendium))
+      (fact-checking/check-one (last-fact-checked<>)) => true)))
   
   
 
