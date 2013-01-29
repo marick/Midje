@@ -98,7 +98,9 @@
         (set-fallback-line-number-from &form)
         (let [[background remainder] (background/separate-background-forms forms)]
           (if (seq background)
-            `(against-background ~background (midje.sweet/fact ~@remainder))        	
+            (let [new-fact (with-meta `(midje.sweet/fact ~@(parse-metadata/unparse-metadata metadata) ~@remainder)
+                                      (meta &form))]
+              `(against-background ~background ~new-fact))
             (complete-fact-transformation metadata remainder)))
         (catch Exception ex
           `(do

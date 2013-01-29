@@ -47,6 +47,28 @@
                      metadata)]
       [(merge metadata-for-fact-group metadata {:midje/body-source body}) body])))
 
+(defn unparse-metadata [metadata]
+  (let [name (:midje/name metadata)
+        description (:midje/description metadata)
+        namelike (cond (and name (not description))
+                       [(symbol name)]
+                       
+                       (and description (not name))
+                       (throw (Error. "This case is impossible"))
+                       
+                       (and (not description) (not name))
+                       []
+                       
+                       (= description name)
+                       [description]
+                       
+                       :else 
+                       [(symbol name) description])
+        maplike (apply dissoc metadata (filter #(re-find #"^:midje/" (str %)) (keys metadata)))]
+    (if (empty? maplike)
+      namelike
+      (cons maplike namelike))))
+
 (defn separate-two-level-metadata [top-form]
   (let [[top-level-meta top-level-body] (separate-metadata top-form)
         lower-level-form (first top-level-body)

@@ -14,7 +14,6 @@
       (:midje/namespace meta) => 'midje.parsing.1-to-explicit-form.t-metadata
       (contains? meta :midje/line) => truthy))
 
-  
   (fact "ignores the head of the form"
     (let [[meta _] (separate-metadata `(FOO "doc" ~@a-body))]
       (:midje/source meta) => `(FOO "doc" ~@a-body)
@@ -24,28 +23,49 @@
     (fact "can be separated"
       (let [[meta body] (separate-metadata `(fact "doc" ~@a-body))]
         (:midje/description meta) => "doc"
-        body => a-body))
+        body => a-body
+
+        (fact "and can be unparsed"
+          (unparse-metadata meta) => (just "doc"))))
+    
     (fact "need not be present"
       (let [[meta body] (separate-metadata `(fact ~@a-body))]
         (:midje/description meta) => nil
-        body => a-body))
+        body => a-body
+
+        (fact "and can be unparsed"
+          (unparse-metadata meta) => empty?)))
+      
     (fact "can provide the name"
       (let [[meta body] (separate-metadata `(fact "doc" ~@a-body))]
         (:midje/name meta) => "doc"
-        body => a-body)))
+        body => a-body
+
+        (fact "and can be unparsed"
+          (unparse-metadata meta) => (just "doc")))))
   
   (facts "symbols"
     (fact "become the fact name"
       (let [[meta body] (separate-metadata `(fact cons ~@a-body))]
         (:midje/name meta) => "cons"
-        body => a-body))
+        body => a-body
+
+        (fact "and, when seen alone, parses back into a symbol"
+          (unparse-metadata meta) => (just 'cons))))
+
     (fact "take precedence over strings"
       (let [[meta body] (separate-metadata `(fact "foo" cons ~@a-body))]
         (:midje/name meta) => "cons"
-        body => a-body)
+        body => a-body
+
+        (fact "and, when seen with a doc string, parses back into both originals"
+          (unparse-metadata meta) => (just ['cons "foo"] :in-any-order)))
+        
       (let [[meta body] (separate-metadata `(fact cons "foo" ~@a-body))]
         (:midje/name meta) => "cons"
-        body => a-body))
+        body => a-body
+        (unparse-metadata meta) => (just ['cons "foo"] :in-any-order)))
+    
     (fact "don't count as names when they are the head of an expect form"
       (let [[meta body] (separate-metadata `(fact foo => 3))]
         (:midje/name meta) => nil
@@ -55,13 +75,19 @@
     (let [[meta body] (separate-metadata `(fact :a :b  ~@a-body))]
       (:a meta) => true
       (:b meta) => true
-      body => a-body))
+      body => a-body
+
+      (fact "and unparse into an explicit map"
+        (unparse-metadata meta) => [{:a true, :b true}])))
 
   (fact "metadata can be an explicit map"
     (let [[meta body] (separate-metadata `(fact name {:a 1}  ~@a-body))]
       (:midje/name meta) => "name"
       (:a meta) => 1
-      body => a-body)))
+      body => a-body
+
+      (fact "and unparse into an explicit map"
+        (unparse-metadata meta) => (just [{:a 1} 'name] :in-any-order)))))
 
 (facts "about separate-two-level-metadata"
   (let [;; The core structure is this:
