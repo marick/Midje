@@ -18,7 +18,7 @@
     (let [[meta _] (separate-metadata `(FOO "doc" ~@a-body))]
       (:midje/source meta) => `(FOO "doc" ~@a-body)
       (:midje/name meta) => "doc"))
-  
+
   (fact "doc strings"
     (fact "can be separated"
       (let [[meta body] (separate-metadata `(fact "doc" ~@a-body))]
@@ -87,7 +87,38 @@
       body => a-body
 
       (fact "and unparse into an explicit map"
-        (unparse-metadata meta) => (just [{:a 1} 'name] :in-any-order)))))
+        (unparse-metadata meta) => (just [{:a 1} 'name] :in-any-order))))
+
+
+  (fact "is not confused by the presence of an arrow form"
+    (let [[meta form] (separate-metadata `(fact 112 => 211))]
+      form => `(112 => 211))
+    
+    (let [[meta form] (separate-metadata `(fact cons => cons))]
+      (:midje/name meta) => nil
+      form => `(cons => cons))
+    
+    (let [[meta form] (separate-metadata `(fact :a => :b))]
+      (:a meta) => nil
+      form => `(:a => :b))
+    
+    (let [[meta form] (separate-metadata `(fact {:a 1} => :b))]
+      (:a meta) => nil
+      form => `({:a 1} => :b))
+    
+    (let [[meta form] (separate-metadata `(fact "foo" => 1))]
+      (:midje/description meta) => nil
+      form => `("foo" => 1))
+    
+    (let [[meta form] (separate-metadata `(fact "name" "foo" => 1))]
+      (:midje/name meta) => "name"
+      (:midje/description meta) => "name"
+      form => `("foo" => 1))
+    
+    (let [[meta form] (separate-metadata `(fact foo "bar" => 1))]
+      (:midje/name meta) => "foo"
+      form => `("bar" => 1))))
+
 
 (facts "about separate-two-level-metadata"
   (let [;; The core structure is this:

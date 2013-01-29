@@ -16,11 +16,12 @@
             (let [head (first body)
                   add-key (fn [key value] (assoc metadata key value))]
 
-              (cond (string? head)
+              (cond (arrows/start-of-checking-arrow-sequence? body)
+                    [metadata body] 
+
+                    (string? head)
                     (recur (add-key :midje/description head) (rest body))
 
-                    (arrows/start-of-checking-arrow-sequence? body)
-                    [metadata body] 
 
                     (symbol? head)
                     (recur (add-key :midje/name (name head)) (rest body))
