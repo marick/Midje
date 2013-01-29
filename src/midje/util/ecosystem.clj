@@ -1,6 +1,7 @@
 (ns ^{:doc "Environmental factors."}
   midje.util.ecosystem
   (:require [clojure.string :as str]
+            midje.clojure.backwards-compatibility
             [leiningen.core.project :as project]))
 
 (def issues-url "https://github.com/marick/Midje/issues")
@@ -20,6 +21,14 @@
 
 (defmacro when-1-3+ [& body] 
   (when-not (= 2 (:minor *clojure-version*))
+    `(do ~@body)))
+
+(defmacro when-1-3- [& body] 
+  (when (< (:minor *clojure-version*) 4)
+    `(do ~@body)))
+
+(defmacro when-1-4+ [& body] 
+  (when (>= (:minor *clojure-version*) 4)
     `(do ~@body)))
 
 (defmacro unless-1-2-0
