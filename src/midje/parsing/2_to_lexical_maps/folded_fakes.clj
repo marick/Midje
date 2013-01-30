@@ -53,6 +53,7 @@
   (defn folded-fake? [form]
     (and (sequential? form)
          (= 'midje.semi-sweet/fake (first form))
+         (sequential? (second form))
          (some mockable-funcall? (fake-form-funcall-arglist form)))))
 
 (defn generate-fakes [substitutions overrides]
