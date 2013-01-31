@@ -23,7 +23,7 @@
              :1.2.1 {:dependencies [[org.clojure/clojure "1.2.1"]]}
              :1.3 {:dependencies [[org.clojure/clojure "1.3.0"]]}
              :1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
-             :1.5 {:dependencies [[org.clojure/clojure "1.5.0-RC1"]]}
+             :1.5 {:dependencies [[org.clojure/clojure "1.5.0-RC4"]]}
              ;; The following profile can be used to check that `lein with-profile`
              ;; profiles are obeyed. Note that profile `:test-paths` *add on* to the
              ;; defaults.
