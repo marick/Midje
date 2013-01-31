@@ -110,7 +110,7 @@
 
 (facts "about compile-time discovery of positions and line numbers from a form"
   (form-position (with-meta '(form) {:line 332}))
-  => ["midje/parsing/util/t_file_position.clj" 332])
+  => ["t_file_position.clj" 332])
                    
 
 

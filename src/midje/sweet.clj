@@ -21,6 +21,7 @@
             [midje.parsing.1-to-explicit-form.metadata :as parse-metadata]
             [midje.parsing.1-to-explicit-form.future-facts :as parse-future-fact]
             [midje.parsing.1-to-explicit-form.metaconstants :as parse-metaconstants]
+            [midje.parsing.util.error-handling :as error]
             [midje.parsing.0-to-fact-form.tabular :as tabular]
             [midje.parsing.0-to-fact-form.formulas :as parse-formulas]
             [midje.emission.api :as emit]
@@ -92,24 +93,17 @@
   metaconstants, checkers, arrows and specifying call counts"
   [& _] ; we work off &form, not the arguments
   (when (user-desires-checking?)
-    (domonad validate-m [_ (validate &form)
-                         [metadata forms] (parse-metadata/separate-metadata &form)]
-      (try
-        (set-fallback-line-number-from &form)
-        (let [[background remainder] (background/separate-background-forms forms)]
-          (if (seq background)
-            (let [new-fact (with-meta `(midje.sweet/fact ~@(parse-metadata/unparse-metadata metadata) ~@remainder)
-                                      (meta &form))]
-              `(against-background ~background ~new-fact))
-            (complete-fact-transformation metadata remainder)))
-        (catch Exception ex
-          `(do
-             (emit/fail {:type :exception-during-parsing
-                         :description (nested-facts/descriptions ~(:midje/description metadata))
-                         :macro-form '~&form
-                         :stacktrace '~(user-error-exception-lines ex)
-                         :position (midje.parsing.util.file-position/line-number-known ~(:line (meta &form)))})
-             false))))))
+    (error/rescue-parse-failure &form
+      (domonad validate-m [_ (validate &form)
+                           [metadata forms] (parse-metadata/separate-metadata &form)]
+        (do 
+          (set-fallback-line-number-from &form)
+          (let [[background remainder] (background/separate-background-forms forms)]
+            (if (seq background)
+              (let [new-fact (with-meta `(midje.sweet/fact ~@(parse-metadata/unparse-metadata metadata) ~@remainder)
+                               (meta &form))]
+                `(against-background ~background ~new-fact))
+              (complete-fact-transformation metadata remainder))))))))
 
 (defmacro facts 
   "Alias for fact."

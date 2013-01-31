@@ -66,7 +66,7 @@
   (list
    (str "    Midje caught an exception when translating this form:")
    (str "      " (pr-str (:macro-form m)))
-   (str "      " "This stack trace *might* help:")
+   (str "      " "A stack trace probably won't help, but here's one anyway:")
    (indented (:stacktrace m))))
 
 

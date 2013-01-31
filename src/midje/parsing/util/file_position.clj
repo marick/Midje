@@ -2,10 +2,10 @@
   midje.parsing.util.file-position
   (:use midje.parsing.util.core
         midje.parsing.util.zip
-        [clojure.string :only [split]]
         [midje.parsing.util.zip :only [skip-to-rightmost-leaf]]
         [midje.parsing.util.arrows :only [all-arrows at-arrow__add-key-value-to-end__no-movement]])
-  (:require [clojure.zip :as zip]))
+  (:require [clojure.zip :as zip]
+            [clojure.string :as str]))
 
 ;; COMPILE-TIME POSITIONS.
 ;; For annotating forms with information retrieved at runtime.
@@ -35,12 +35,12 @@
 
 
 
-(defn- basename [string] ;; Grr.
-  (last (split string #"/")))
+(defn- basename [string]
+  (last (str/split string #"/")))
 
 ;; TODO: Should this strip off the pathname on the front?
-(defn form-position [form]   
-  (list *file* (:line (meta form))))
+(defn form-position [form]
+  (list (basename *file*) (:line (meta form))))
 
 (defn compile-time-fallback-position []
   (list (basename *file*) @fallback-line-number))
