@@ -30,6 +30,7 @@
             [midje.checking.facts :as fact-checking]
             [midje.data.compendium :as compendium]
             [midje.parsing.1-to-explicit-form.future-facts :as parse-future-facts]
+            [midje.parsing.1-to-explicit-form.metadata :as parse-metadata]
             [midje.parsing.2-to-lexical-maps.folded-fakes :as parse-folded-fakes]
             [midje.data.fact :as fact-data]))
 
@@ -176,3 +177,13 @@
        (wrap-with-check-time-code metadata)
        wrap-with-creation-time-code)))
 
+
+(defn unparse-edited-fact
+  "Uses a body and (parsed) metadata to make up a new `fact`.
+   The resulting for has `:line` metadata."
+  [metadata forms]
+  (vary-meta `(midje.sweet/fact ~@(parse-metadata/unparse-metadata metadata) ~@forms)
+             assoc :line (:midje/line metadata)))
+
+  
+  

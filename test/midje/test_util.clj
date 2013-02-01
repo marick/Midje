@@ -7,6 +7,7 @@
             [midje.config :as config]
             [clojure.string :as str]
             [midje.emission.api :as emit]
+            [midje.parsing.util.error-handling :as error]
             [midje.emission.state :as state]))
 
 (midje.clojure.core/immigrate 'midje.clojure.core)
@@ -25,11 +26,19 @@
 
 
 (defn silent-body [symbol-to-substitute form]
-  (let [silenced (with-meta `(~symbol-to-substitute ~@(rest form)) (meta form))]
-    `(emit/producing-only-raw-fact-failures
-      (let [result# ~silenced]
-        (record-failures)
-        result#))))
+  (letfn [(parsing-step [form]
+            (emit/producing-only-raw-fact-failures
+             (let [parsed-form (error/parse-and-catch-failure form #(macroexpand form))]
+               (when (false? parsed-form) (record-failures))
+               parsed-form)))]
+
+    (let [silenced (with-meta `(~symbol-to-substitute ~@(rest form)) (meta form))
+          parsed-result (parsing-step silenced)]
+      (when parsed-result
+        `(emit/producing-only-raw-fact-failures
+          (let [result# ~parsed-result]
+            (record-failures)
+            result#))))))
 
 (defmacro silent-fact [& _]
   (silent-body 'midje.sweet/fact &form))

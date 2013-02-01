@@ -10,6 +10,13 @@
 
 (expose-testables midje.parsing.0-to-fact-form.tabular)
 
+
+;; Check that errors are reported with the correct line numbers.
+(silent-tabular
+ (fact
+     (cons 1 ?a) => 3))
+(note-that fact-fails (failure-was-at-line 15))
+
 ;; Core midje.sweet API
 
 (tabular
@@ -93,36 +100,33 @@
 
 
 
+
+
 ;; Table Validation
-(capturing-failure-output
- (tabular
-   (fact 
-     (tabular-forms '?forms) => '?expected
-     ?forms                       ?expect
-     [ fact table ]               [fact table]))
- (fact @fact-output => #"There's no table"))
 
-(capturing-failure-output
- (tabular (fact nil => nil))
- (fact @fact-output => #"There's no table"))
+(silent-tabular
+ (fact 
+   (tabular-forms '?forms) => '?expected
+   ?forms                       ?expect
+   [ fact table ]               [fact table]))
+(note-that (fact-failed-with-note #"There's no table"))
 
-(capturing-failure-output
- (tabular "doc string present" (fact nil => nil))
- (fact @fact-output => #"There's no table"))
+(silent-tabular (fact nil => nil))
+(note-that (fact-failed-with-note #"There's no table"))
 
-(capturing-failure-output
-  (tabular
-    (fact ?a => ?b)
-    ?a   ?b)
-(fact @fact-output => #"It looks like the table has headings, but no values"))
+(silent-tabular "doc string present" (fact nil => nil))
+(note-that (fact-failed-with-note #"There's no table"))
+
+(silent-tabular
+ (fact ?a => ?b)
+   ?a   ?b)
+(note-that (fact-failed-with-note #"It looks like the table has headings, but no values"))
  
-
-(capturing-failure-output 
- (tabular
-   (fact
-     (+ a b) => result)
-   2    4   999     )
- (fact @fact-output => #"It looks like the table has no headings"))
+(silent-tabular
+ (fact
+   (+ a b) => result)
+ 2    4   999     )
+(note-that (fact-failed-with-note #"It looks like the table has no headings"))
 
 ;; Other tests via midje.sweet API
 

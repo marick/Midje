@@ -15,7 +15,7 @@
         [midje.parsing.util.wrapping :only [put-wrappers-into-effect]]
         [midje.parsing.util.file-position :only [set-fallback-line-number-from]]
         [midje.parsing.1-to-explicit-form.facts :only [complete-fact-transformation
-                                  midjcoexpand]] 
+                                  midjcoexpand unparse-edited-fact]] 
         [clojure.algo.monads :only [domonad]])
   (:require [midje.parsing.1-to-explicit-form.background :as background]
             [midje.parsing.1-to-explicit-form.metadata :as parse-metadata]
@@ -93,16 +93,15 @@
   metaconstants, checkers, arrows and specifying call counts"
   [& _] ; we work off &form, not the arguments
   (when (user-desires-checking?)
-    (error/rescue-parse-failure &form
-      (domonad validate-m [_ (validate &form)
-                           [metadata forms] (parse-metadata/separate-metadata &form)]
+    (error/parse-and-catch-failure &form
+      #(domonad validate-m [_ (validate &form)
+                            [metadata forms] (parse-metadata/separate-metadata &form)]
         (do 
           (set-fallback-line-number-from &form)
           (let [[background remainder] (background/separate-background-forms forms)]
             (if (seq background)
-              (let [new-fact (with-meta `(midje.sweet/fact ~@(parse-metadata/unparse-metadata metadata) ~@remainder)
-                               (meta &form))]
-                `(against-background ~background ~new-fact))
+              `(against-background ~background
+                 ~(unparse-edited-fact metadata remainder))
               (complete-fact-transformation metadata remainder))))))))
 
 (defmacro facts 

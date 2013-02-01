@@ -3,17 +3,17 @@
   (:use [midje.parsing.util.zip]
         [clojure.string :only [join]]
         [clojure.algo.monads :only [domonad]]
-        [midje.error-handling.validation-errors :only [simple-validation-error-report-form validate-m validate]]
         [midje.parsing.util.file-position :only [form-with-copied-line-numbers]]
         [midje.emission.deprecation :only [deprecate]]
         [midje.parsing.util.zip :only [skip-to-rightmost-leaf]]
         [midje.parsing.1-to-explicit-form.expects :only [expect?]]
         [midje.parsing.util.arrows :only [above-arrow-sequence__add-key-value__at-arrow]]
-        [midje.parsing.1-to-explicit-form.facts :only [working-on-nested-facts]]
+        [midje.parsing.1-to-explicit-form.facts :only [working-on-nested-facts unparse-edited-fact]]
         [midje.data.metaconstant :only [metaconstant-symbol?]]
         [utilize.map :only [ordered-zipmap]])
 (:require [midje.util.unify :as unify]
-          [midje.parsing.1-to-explicit-form.metadata :as metadata]))
+          [midje.parsing.1-to-explicit-form.metadata :as metadata]
+          [midje.parsing.util.error-handling :as error]))
 
 (defn- remove-pipes+where [table]
   (when (#{:where 'where} (first table))
@@ -84,6 +84,25 @@
                                       checking-fact-form))
       checking-fact-form)))
 
+(defn valid-pieces [full-form locals]
+  (let [[metadata [fact-form & table]] (metadata/separate-two-level-metadata full-form)
+        [headings-row values] (headings-rows+values table locals)]
+    (cond (empty? table)
+          (error/report-error full-form
+           "There's no table. (Misparenthesized form?)")
+      
+          (empty? values)
+          (error/report-error full-form
+            "It looks like the table has headings, but no values:")
+      
+          (empty? headings-row)
+          (error/report-error full-form
+            "It looks like the table has no headings, or perhaps you"
+            "tried to use a non-literal string for the doc-string?:")
+      
+          :else 
+          [metadata fact-form headings-row values])))
+
 (defn parse [locals form]
   (letfn [(macroexpander-for [fact-form]
             (fn [binding-map]
@@ -92,30 +111,11 @@
                    ((partial unify/substitute fact-form))
                    ((partial form-with-copied-line-numbers fact-form))
                   macroexpand))))]
-    (domonad validate-m [[metadata fact-form headings-row values] (validate form locals)
-                         ordered-binding-maps (table-binding-maps headings-row values)
-                         expect-forms (map (macroexpander-for fact-form) ordered-binding-maps)
-                         expect-forms-with-binding-notes (map add-binding-note
-                                                              expect-forms
-                                                              ordered-binding-maps)]
-       `(midje.sweet/fact ~metadata
-                          ~@expect-forms-with-binding-notes))))
-
-(defmethod validate "tabular" [full-form locals]
-  (let [[metadata [fact-form & table]] (metadata/separate-two-level-metadata full-form)
-        [headings-row values] (headings-rows+values table locals)]
-    (cond (empty? table)
-          (simple-validation-error-report-form full-form
-            "There's no table. (Misparenthesized form?)")
-      
-          (empty? values)
-          (simple-validation-error-report-form full-form
-            "It looks like the table has headings, but no values:")
-      
-          (empty? headings-row)
-          (simple-validation-error-report-form full-form
-            "It looks like the table has no headings, or perhaps you"
-            "tried to use a non-literal string for the doc-string?:")
-      
-          :else 
-          [metadata fact-form headings-row values])))
+    (error/parse-and-catch-failure form
+      #(let [[metadata fact-form headings-row values] (valid-pieces form locals)
+             ordered-binding-maps (table-binding-maps headings-row values)
+             nested-facts (map (macroexpander-for fact-form) ordered-binding-maps)
+             nested-facts-with-binding-notes (map add-binding-note
+                                                  nested-facts
+                                                  ordered-binding-maps)]
+         (macroexpand (unparse-edited-fact metadata nested-facts-with-binding-notes))))))
