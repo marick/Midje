@@ -14,6 +14,8 @@
             [midje.data.metaconstant :as metaconstant]
             [midje.data.nested-facts :as nested-facts]
             [midje.parsing.lexical-maps :as lexical-maps]
+            [midje.parsing.2-to-lexical-maps.fakes :as parse-fakes]
+            [midje.parsing.2-to-lexical-maps.data-fakes :as parse-data-fakes]
             [midje.emission.api :as emit])
   (:import midje.data.metaconstant.Metaconstant))
 
@@ -30,8 +32,16 @@
 (defn expansion [call-form arrow expected-result fakes overrides]
   (pred-cond arrow
     normal-arrows?
-    (let [check (lexical-maps/example call-form arrow expected-result overrides)]
-      `(midje.checking.examples/check-one ~check ~(vec fakes)))
+    (let [check (lexical-maps/example call-form arrow expected-result overrides)
+          expanded-fakes (map (fn [fake]
+                                 ;; TODO: Maybe this wants to be a multimethod,
+                                 ;; but I'm not sure whether the resemblance between
+                                 ;; data-fakes and regular fakes isn't too coincidental. 
+                                 (if (first-named? fake "fake")
+                                   (parse-fakes/to-lexical-map-form fake)
+                                   (parse-data-fakes/to-lexical-map-form fake)))
+                               fakes)]
+      `(midje.checking.examples/check-one ~check ~(vec expanded-fakes)))
              
     macroexpansion-arrow?
     (let [expanded-macro `(macroexpand-1 '~call-form)
