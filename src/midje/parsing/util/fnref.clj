@@ -35,5 +35,5 @@
 (defmethod fnref-var-object :symbol [reference]
   (resolve reference))
 (defmethod fnref-var-object :var-form [reference]
-  reference)
+  (fnref-var-object (second reference)))
   
