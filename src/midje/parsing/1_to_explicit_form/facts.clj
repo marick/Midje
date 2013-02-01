@@ -31,6 +31,8 @@
             [midje.data.compendium :as compendium]
             [midje.parsing.1-to-explicit-form.future-facts :as parse-future-facts]
             [midje.parsing.1-to-explicit-form.metadata :as parse-metadata]
+            [midje.parsing.2-to-lexical-maps.fakes :as parse-fakes]
+            [midje.parsing.2-to-lexical-maps.examples :as parse-examples]
             [midje.parsing.2-to-lexical-maps.folded-fakes :as parse-folded-fakes]
             [midje.data.fact :as fact-data]))
 
@@ -103,6 +105,11 @@
     sequential?  (preserve-type form (eagerly (map midjcoexpand form)))
     :else        form))
 
+(defn parse-expects [form]
+  (translate-zipper form
+     expect? (fn [loc]
+               (zip/replace loc (parse-examples/to-lexical-map-form (zip/node loc))))))
+
 (defn expand-fact-body [forms metadata]
   (-> forms
       annotate-embedded-arrows-with-line-numbers
@@ -110,6 +117,7 @@
       parse-folded-fakes/unfold-fakes
       surround-with-background-fakes
       midjcoexpand
+      parse-expects
       (multiwrap (forms-to-wrap-around :facts))))
 
 
