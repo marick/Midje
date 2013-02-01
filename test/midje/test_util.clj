@@ -71,6 +71,7 @@
               [one-failure]))
           failure-maps))
 
+(def file-from-failure-reason (comp first :position))
 (def line-number-from-failure-reason (comp second :position))
 
 ;; Checkers
@@ -103,6 +104,9 @@
 (defn failure-was-at-line [expected-line]
   (fn [actual-failure]
       (= (line-number-from-failure-reason actual-failure) expected-line)))
+(defn failure-was-in-file [expected-file]
+  (fn [actual-failure]
+      (= (file-from-failure-reason actual-failure) expected-file)))
 
 ;; Chatty checkers.
 

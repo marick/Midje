@@ -58,7 +58,6 @@
 
 (defn to-lexical-map-form [full-form]
   (domonad validate-m [[call-form arrow expected-result & fakes+overrides] (validate full-form)
-                       [fakes overrides] (separate a-fake? fakes+overrides)
-                       _ (validate fakes)]
+                       [fakes overrides] (separate a-fake? fakes+overrides)]
            (expansion call-form arrow expected-result fakes overrides)))
 
