@@ -9,6 +9,7 @@
             [midje.config :as config]
             [midje.util.pile :as pile]
             [midje.data.metaconstant :as metaconstant]
+            [midje.error-handling.exceptions :as exceptions]
             [midje.emission.api :as emit]
             [midje.parsing.2-to-lexical-maps.fakes :as parse-fakes])
   (:import midje.data.metaconstant.Metaconstant))
@@ -62,7 +63,7 @@
    Returns nil otherwise."
   [function-var actual-args fakes]
   (when (= 2 @*call-action-count*)
-    (parse-fakes/raise-disallowed-prerequisite-error function-var))
+    (throw (apply exceptions/user-error (parse-fakes/disallowed-function-failure-lines function-var))))
   (if-let [found (find-first (partial call-handled-by-fake? function-var actual-args) fakes)]
     found
     (when-let [fake-with-usable-default (find-first #(and (= function-var (:var %)) 

@@ -9,13 +9,6 @@
     (validate correct) =not=> validation-error-form?
     (validate correct) => '[(f 1) => 3]))
 
-(facts "fake validation returns whole fake form"
-  (let [valid-fake '(fake (f 1) => 3)]
-    (validate valid-fake) =not=> validation-error-form?
-    (validate valid-fake) => valid-fake
-    (validate (list valid-fake valid-fake valid-fake)) 
-           => (list valid-fake valid-fake valid-fake)))
-
 (facts "data fake validation returns whole data-fake form"
   (let [valid-data-fake '(data-fake ..mc.. =contains=> {:foo 'bar})]
     (validate valid-data-fake) =not=> validation-error-form?
@@ -29,11 +22,8 @@
 
   (let [too-short '(expect (f 1) =>)]
     (validate too-short) => validation-error-form?
-    (str (validate too-short)) => (contains "...position..."))
+    (str (validate too-short)) => (contains "...position...")))
   
-  (let [bad-left-side '(fake a => 3)]
-    (validate bad-left-side) => validation-error-form?
-    (str (validate bad-left-side)) => (contains "...position...")))
 
 ;;; Full-bore tests.
 
