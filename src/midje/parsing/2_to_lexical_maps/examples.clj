@@ -17,41 +17,38 @@
             [midje.emission.api :as emit])
   (:import midje.data.metaconstant.Metaconstant))
 
-(prn "CLEAN UP EXPECT-EXPANSION")
-
-(defmulti expect-expansion (fn [_call-form_ arrow & _rhs_]
-                             (name arrow)))
-
-(pile/def-many-methods expect-expansion [=> =not=> =deny=>]
-  [call-form arrow expected-result fakes overrides]
-  ;; (prn call-form)
-  ;; (prn arrow)
-  ;; (prn expected-result)
-  ;; (prn overrides)
-  (let [check (lexical-maps/example call-form arrow expected-result overrides)]
-;     (prn check)                        
-     `(midje.checking.examples/check-one ~check ~fakes)))
-
-(defmethod expect-expansion =expands-to=>
-  [call-form _arrow_ expected-result fakes overrides]
-  (let [expanded-macro `(macroexpand-1 '~call-form)
-        escaped-expected-result `(quote ~expected-result)]
-    (let [check (lexical-maps/example expanded-macro => escaped-expected-result
-                                     (concat overrides [:expected-result-form escaped-expected-result]))]
-       `(midje.checking.examples/check-one ~check ~fakes))))
-
-(defmethod expect-expansion =future=>
-  [call-form arrow expected-result _fakes_ overrides]
-  (let [check (lexical-maps/example call-form arrow expected-result overrides)]
-    `(emit/future-fact (nested-facts/descriptions ~(str "on `" call-form "`"))
-                       (:position ~check))))
-
 (defn- ^{:testable true } a-fake? [x]
   (and (seq? x)
        (semi-sweet-keyword? (first x))))
+
+(defn mkfn:arrow? [& expected]
+  (fn [actual] ((set expected) (name actual))))
+(def normal-arrows? (mkfn:arrow? => =not=> =deny=>))
+(def macroexpansion-arrow? (mkfn:arrow? =expands-to=>))
+(def future-arrow? (mkfn:arrow? =future=>))
+
+(defn expansion [call-form arrow expected-result fakes overrides]
+  (pred-cond arrow
+    normal-arrows?
+    (let [check (lexical-maps/example call-form arrow expected-result overrides)]
+      `(midje.checking.examples/check-one ~check ~(vec fakes)))
+             
+    macroexpansion-arrow?
+    (let [expanded-macro `(macroexpand-1 '~call-form)
+          escaped-expected-result `(quote ~expected-result)]
+      (expansion expanded-macro => escaped-expected-result fakes
+                 (concat overrides [:expected-result-form escaped-expected-result])))
+
+    future-arrow?
+    (let [position (:position (apply hash-map-duplicates-ok overrides))]
+        `(emit/future-fact (nested-facts/descriptions ~(str "on `" call-form "`")) ~position))
+    
+    :else
+    (throw (Error. (str "Program error: Unknown arrow form " arrow)))))
 
 (defn to-lexical-map-form [full-form]
   (domonad validate-m [[call-form arrow expected-result & fakes+overrides] (validate full-form)
                        [fakes overrides] (separate a-fake? fakes+overrides)
                        _ (validate fakes)]
-           (expect-expansion call-form arrow expected-result (vec fakes) overrides)))
+           (expansion call-form arrow expected-result fakes overrides)))
+
