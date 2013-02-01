@@ -37,7 +37,7 @@
 ;;;                                             Example maps
 
 
-(defmacro example
+(defn example
   [call-form arrow expected-result overrides]
   (let [source-details `{:call-form '~call-form
                          :arrow '~arrow }
