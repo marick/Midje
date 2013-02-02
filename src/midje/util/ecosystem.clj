@@ -5,6 +5,8 @@
             [leiningen.core.project :as project]))
 
 (def issues-url "https://github.com/marick/Midje/issues")
+(def syntax-errors-that-will-not-be-fixed     
+  "https://github.com/marick/Midje/wiki/Syntax-errors-that-will-not-be-fixed")
 
 (defn clojure-1-3? []
   (and (= 1 (:major *clojure-version*))

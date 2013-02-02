@@ -1,7 +1,8 @@
 (ns ^{:doc "How the default emitter reports on failures"}
   midje.emission.plugins.default-failure-lines
   (:use midje.clojure.core
-        midje.emission.plugins.util))
+        midje.emission.plugins.util)
+  (:require [midje.util.ecosystem :as ecosystem]))
 
 (defmulti messy-lines :type)
 
@@ -66,7 +67,14 @@
   (list
    (str "    Midje caught an exception when translating this form:")
    (str "      " (pr-str (:macro-form m)))
-   (str "      " "A stack trace probably won't help, but here's one anyway:")
+   (str "    Since we at MidjeCo International are dedicated to providing a gracious")
+   (str "    testing experience, please file an issue at the following URL:")
+   (str "    " ecosystem/issues-url)
+   (str "    But first check " ecosystem/syntax-errors-that-will-not-be-fixed)
+   (str)
+   (str "    In the repl, you can jump to those pages with `(guide file-issue)` and")
+   (str "    `(guide unfixed-syntax-errors)`.")
+   (str "    Please include the following stack trace and your Midje version.")
    (indented (:stacktrace m))))
 
 

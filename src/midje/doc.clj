@@ -328,8 +328,10 @@
 (def guide-topics {
  'future-facts  "https://github.com/marick/Midje/wiki/Future-facts"
  'checkers-within-prerequisites "https://github.com/marick/Midje/wiki/Checkers-within-prerequisites"
- 'chatty-checkers "https://github.com/marick/Midje/wiki/Chatty-checkers"                   
+ 'chatty-checkers "https://github.com/marick/Midje/wiki/Chatty-checkers"
  'partial-prerequisites "https://github.com/marick/Midje/wiki/Partial-prerequisites"
+ 'file-issue ecosystem/issues-url
+ 'unfixed-syntax-errors ecosystem/syntax-errors-that-will-not-be-fixed
 })
                     
 (defmacro guide
