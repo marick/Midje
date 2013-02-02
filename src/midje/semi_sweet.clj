@@ -73,12 +73,14 @@
    Example: (let [a 5] (fake (f a) => a))"
   {:arglists '([call-form arrow result & overrides])}
   [& _]
+  (deprecate "`fake` (and the entire midje.semi-sweet namespace) will be removed in 1.6.")
   (parse-fakes/to-lexical-map-form &form))
 
 (defmacro data-fake
   "Creates a fake map that's used to associate key/value pairs with a metaconstant"
   {:arglists '([metaconstant arrow contained & overrides])}
   [& _]
+  (deprecate "`data-fake` (and the entire midje.semi-sweet namespace) will be removed in 1.6.")
   (parse-data-fakes/to-lexical-map-form &form))
 
 (defmacro expect 
@@ -91,8 +93,8 @@
    midje.semi-sweet/*include-midje-checks*, or midje.sweet/*include-midje-checks* to false."
   {:arglists '([call-form arrow expected-result & fakes+overrides])}
   [& _]
+  (deprecate "`expect` (and the entire midje.semi-sweet namespace) will be removed in 1.6.")
   (when (user-desires-checking?)
-    (prn "EXPECT MACRO SHOULD BE DEPRECATED")
     (parse-examples/to-lexical-map-form &form)))
 
 
@@ -103,7 +105,7 @@
   {:deprecated "1.3-alpha2"
    :arglists '([var-sym & overrides])}
   [var-sym & overrides]
-  (deprecate "`not-called` will be removed in 1.6. Use `(provided (f) => irrelevant :times 0)` instead.")
+  (deprecate "`not-called` (and the entire midje.semi-sweet namespace) will be removed in 1.6. Use `(provided (f) => irrelevant :times 0)` instead.")
   (let [fake-form `(fake (~var-sym) => "doesn't matter" ~@(concat overrides [:times 0]))]
     (with-meta fake-form {:line (meta &form)})))
 
