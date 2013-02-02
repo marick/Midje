@@ -45,3 +45,6 @@
 
 (def ^{:doc "Use this when testing Midje code that processes arrow-forms"}
      =test=> "=test=>")
+
+(def ^{:doc "Use this to generate an exception while parsing"}
+     =throw-parse-exception=> "=throw-parse-exception=>")

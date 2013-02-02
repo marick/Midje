@@ -29,6 +29,7 @@
 (def normal-arrows? (mkfn:arrow? => =not=> =deny=>))
 (def macroexpansion-arrow? (mkfn:arrow? =expands-to=>))
 (def future-arrow? (mkfn:arrow? =future=>))
+(def parse-exception-arrow? (mkfn:arrow? =throw-parse-exception=>))
 
 (defn expansion [call-form arrow expected-result fakes overrides]
   (pred-cond arrow
@@ -53,6 +54,9 @@
     future-arrow?
     (let [position (:position (apply hash-map-duplicates-ok overrides))]
         `(emit/future-fact (nested-facts/descriptions ~(str "on `" call-form "`")) ~position))
+
+    parse-exception-arrow?
+    (throw (java.lang.ClassNotFoundException. "A test asked for an exception"))
     
     :else
     (throw (Error. (str "Program error: Unknown arrow form " arrow)))))

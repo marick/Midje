@@ -170,6 +170,13 @@
 (defn parser-threw-exception [failure-map]
   (= (:type failure-map) :exception-during-parsing))
 
+(defn exception-message-was [stringlike]
+  (fn [failure-map]
+    (extended-= (first (:stacktrace failure-map)) stringlike)))
+
+(defn exception-was-for-form-matching [stringlike]
+  (fn [failure-map]
+    (extended-= (str (:macro-form failure-map)) stringlike)))
 
 
 ;;;; Dispatchers
