@@ -4,8 +4,7 @@
         midje.parsing.util.core
         midje.parsing.util.zip
         [midje.parsing.arrow-symbols]
-        midje.error-handling.validation-errors
-        midje.error-handling.semi-sweet-validations)
+        midje.error-handling.validation-errors)
   (:require [midje.parsing.util.fnref :as fnref]
             [midje.parsing.util.error-handling :as error]
             [midje.parsing.lexical-maps :as lexical-maps]
@@ -36,7 +35,7 @@
 (defn assert-right-shape! [[_fake_ funcall & _ :as form]]
   (when-not (list? funcall)
     (error/report-error form
-                        "The left-hand-side of a prerequisite must look like a function call."
+                        "The left-hand-side of a prerequisite must look like a function call or metaconstant."
                         (cl-format nil "`~S` doesn't." funcall))))
 
 

@@ -5,8 +5,7 @@
         midje.parsing.util.zip
         [clojure.algo.monads :only [domonad]]
         [midje.parsing.arrow-symbols]
-        midje.error-handling.validation-errors
-        midje.error-handling.semi-sweet-validations)
+        midje.error-handling.validation-errors)
   (:require [clojure.zip :as zip]
             [midje.config :as config]
             [midje.util.pile :as pile]
@@ -39,9 +38,19 @@
                                  ;; TODO: Maybe this wants to be a multimethod,
                                  ;; but I'm not sure whether the resemblance between
                                  ;; data-fakes and regular fakes isn't too coincidental. 
-                                 (if (first-named? fake "fake")
-                                   (parse-fakes/to-lexical-map-form fake)
-                                   (parse-data-fakes/to-lexical-map-form fake)))
+                                 (cond (first-named? fake "fake")
+                                       (parse-fakes/to-lexical-map-form fake)
+
+                                       (first-named? fake "data-fake")
+                                       (parse-data-fakes/to-lexical-map-form fake)
+
+                                       (first-named? fake "not-called")
+                                       (macroexpand fake)
+
+                                       :else
+                                       (do 
+                                         (prn "Now here's a peculiar thing to find inside a check: " fake)
+                                         fake)))
                                fakes)]
       `(midje.checking.examples/check-one ~check ~(vec expanded-fakes)))
              

@@ -281,10 +281,6 @@
 (defn at-line [line-no form] 
    (with-meta form {:line line-no}))
 
-(defmacro validation-error-with-notes [& notes]
-  `(just (contains {:notes (just ~@notes)
-                    :type :parse-error})))
-
 (defmacro defn-call-countable
   "Note: For testing Midje code that couldn't use provided.
   
