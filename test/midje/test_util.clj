@@ -92,7 +92,9 @@
   (fn [actual-failure]
     (extended-= (:actual actual-failure) thing)))
 
-(defn fact-captured-throwable-with-message [rhs]
+(defn fact-captured-throwable-with-message
+  "Note: this is used for testing runtime capturing, not parse-time"
+  [rhs]
   (fn [actual-failure]
     (extended-= (captured-message (:actual actual-failure)) rhs)))
 
@@ -159,10 +161,14 @@
 
 ;; Misc
 
-(defn parser-exploded [failure-map]
+(defn parse-error-found [failure-map]
   (= (:type failure-map) :parse-error))
 
+;; Deprecate this one in favor of `parse-error-found`.
+(def parser-exploded parse-error-found)
 
+(defn parser-threw-exception [failure-map]
+  (= (:type failure-map) :exception-during-parsing))
 
 
 
