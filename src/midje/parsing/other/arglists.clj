@@ -2,7 +2,7 @@
   midje.parsing.other.arglists
   (:use midje.clojure.core
         midje.parsing.util.core
-        [midje.error-handling.exceptions :only [user-error]])
+        [midje.util.exceptions :only [user-error]])
   (:require [midje.emission.levels :as levels]
             [midje.config :as config]
             [midje.util.pile :as pile]

@@ -1,5 +1,5 @@
 (ns ^{:doc "Functions for Midje to deal elegantly with exceptions."}
-  midje.error-handling.exceptions
+  midje.util.exceptions
   (:use [clojure.string :only [join]]
         [midje.util.ecosystem :only [line-separator]]
         [midje.emission.colorize :only [colorize-choice]]))

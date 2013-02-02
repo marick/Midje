@@ -2,7 +2,7 @@
   midje.checking.examples
   (:use midje.clojure.core
         midje.checking.core
-        [midje.error-handling.exceptions :only [captured-throwable]]
+        [midje.util.exceptions :only [captured-throwable]]
         midje.data.prerequisite-state
         midje.util.laziness)
   (:require [midje.config :as config]

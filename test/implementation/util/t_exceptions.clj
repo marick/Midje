@@ -1,9 +1,9 @@
-(ns midje.error-handling.t-exceptions
-  (:use [midje.error-handling.exceptions]
+(ns implementation.util.t-exceptions
+  (:use [midje.util.exceptions]
         [midje.emission.colorize :only [colorize-choice]]
 	      [midje sweet test-util]
         midje.util))
-(expose-testables midje.error-handling.exceptions)
+(expose-testables midje.util.exceptions)
 
 (defrecord R [a])
 
@@ -46,4 +46,4 @@
   (let [lines (friendly-exception-lines (Error. "message") ">>>")]
     (first lines) => #"Error.*message"
     (re-find #"^>>>" (first lines)) => falsey
-    (rest lines) => empty?))
+    (count (map #(re-find #">>>implementation.util.t_exceptions" %) (rest lines))) => (count (rest lines))))

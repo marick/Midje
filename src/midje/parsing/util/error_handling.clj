@@ -1,7 +1,7 @@
 (ns ^{:doc "Utility functions dealing with checking or tranforming forms or zippers."}
   midje.parsing.util.error-handling
   (:use midje.clojure.core
-        [midje.error-handling.exceptions :only [user-error-exception-lines]]
+        [midje.util.exceptions :only [user-error-exception-lines]]
         [midje.parsing.util.file-position :only [form-position]])
 
   (:require [bultitude.core :as bultitude]
@@ -52,3 +52,5 @@
               :notes notes
               :position (form-position form)})
   (throw (new javax.xml.soap.SOAPException)))
+
+  

@@ -6,7 +6,7 @@
         [midje.checking.checkers.defining :only [checker?]]
         [midje.parsing.util.file-position :only [user-file-position]]
         [midje.parsing.arrow-symbols])
-  (:require [midje.error-handling.exceptions :as exceptions]))
+  (:require [midje.util.exceptions :as exceptions]))
 
 (defn mkfn:arg-matcher
   "Based on an expected value, generates a function that returns 

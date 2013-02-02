@@ -10,7 +10,7 @@
   (:require [clojure.zip :as zip]
             [midje.config :as config]
             [midje.util.pile :as pile]
-            [midje.error-handling.exceptions :as exceptions]
+            [midje.util.exceptions :as exceptions]
             [midje.data.metaconstant :as metaconstant]
             [midje.data.nested-facts :as nested-facts]
             [midje.parsing.util.error-handling :as error]

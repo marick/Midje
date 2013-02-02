@@ -3,7 +3,7 @@
   midje.data.metaconstant
   (:use [midje.util.thread-safe-var-nesting :only [unbound-marker]])
   (:require [midje.util.ecosystem :as ecosystem]
-            [midje.error-handling.exceptions :as exceptions]))
+            [midje.util.exceptions :as exceptions]))
 
 
 ;;; Metaconstants are built from special symbols, called "metaconstant symbol". Such symbols

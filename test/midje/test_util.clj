@@ -2,7 +2,7 @@
   (:use [clojure.test]
         midje.checkers
         midje.checking.core
-        midje.error-handling.exceptions)
+        midje.util.exceptions)
   (:require midje.clojure.core
             [midje.config :as config]
             [clojure.string :as str]

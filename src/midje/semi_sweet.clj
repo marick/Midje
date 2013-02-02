@@ -7,7 +7,7 @@
         [midje.emission.deprecation :only [deprecate]]
         midje.error-handling.validation-errors
         midje.error-handling.semi-sweet-validations
-        [midje.error-handling.exceptions :only [user-error]]
+        [midje.util.exceptions :only [user-error]]
         [midje.util.ecosystem :only [line-separator]]
         [midje.parsing.util.file-position :only [user-file-position]]
         midje.production-mode

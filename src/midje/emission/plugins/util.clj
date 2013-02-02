@@ -6,7 +6,7 @@
             [midje.util.pile :as pile]
             [midje.emission.clojure-test-facade :as ctf]
             [midje.emission.colorize :as color]
-            [midje.error-handling.exceptions :as exception]
+            [midje.util.exceptions :as exception]
             gui-diff.internal))
 
 

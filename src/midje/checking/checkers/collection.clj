@@ -5,7 +5,7 @@
   (:use midje.clojure.core
         midje.checking.core
       	[midje.checking.checkers collection-util util chatty defining collection-comparison]
-        [midje.error-handling.exceptions :only [user-error]])
+        [midje.util.exceptions :only [user-error]])
   (:require [midje.util.pile :as pile]))
 
 

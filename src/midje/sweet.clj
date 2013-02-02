@@ -9,7 +9,7 @@
   (:require midje.config) ; This should load first.
   (:use midje.clojure.core
         midje.production-mode
-        midje.error-handling.exceptions
+        midje.util.exceptions
         midje.error-handling.validation-errors
         midje.util.debugging
         [midje.parsing.util.wrapping :only [put-wrappers-into-effect]]

@@ -2,7 +2,7 @@
   (:use midje.sweet
         midje.util
         midje.test-util
-        midje.error-handling.exceptions))
+        midje.util.exceptions))
   
 
 ;; A typical called/caller relationship. The key thing is that

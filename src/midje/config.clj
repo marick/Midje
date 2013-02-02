@@ -1,7 +1,7 @@
 (ns ^{:doc "Customizable configuration"}
   midje.config
   (:use midje.clojure.core
-        [midje.error-handling.exceptions :only [user-error]])
+        [midje.util.exceptions :only [user-error]])
   (:require [midje.emission.levels :as levels]
             [midje.util.ecosystem :as ecosystem]))
   

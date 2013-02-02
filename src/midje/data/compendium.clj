@@ -3,7 +3,7 @@
             the currently relevant facts."}
   midje.data.compendium
   (:use midje.clojure.core
-        [midje.error-handling.exceptions :only [user-error]])
+        [midje.util.exceptions :only [user-error]])
   (:require [midje.data.fact :as fact]
             [midje.config :as config]))
 

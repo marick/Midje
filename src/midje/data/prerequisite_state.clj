@@ -9,7 +9,7 @@
             [midje.config :as config]
             [midje.util.pile :as pile]
             [midje.data.metaconstant :as metaconstant]
-            [midje.error-handling.exceptions :as exceptions]
+            [midje.util.exceptions :as exceptions]
             [midje.emission.api :as emit]
             [midje.parsing.2-to-lexical-maps.fakes :as parse-fakes])
   (:import midje.data.metaconstant.Metaconstant))
