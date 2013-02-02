@@ -1,5 +1,5 @@
 Midje has three test directories with three different
-purposes.
+purposes. It also has two legacy test directories.
 
 WARNING: As with all categories
 http://www.exampler.com/testing-com/writings/pnsqc-2005-communication.pdf
@@ -18,23 +18,38 @@ as_documentation
     "should just work in the obvious way" should go
     elsewhere. 
 
-behaviors
+user
     These tests are written using the midje.sweet
     namespace. That is, they don't reach "under the
     hood". They, however, explore behaviors that are
     visible to the user, but not one she wants to learn
-    about. For example, the details of line number
-    calculation aren't relevant to the user: it should just
-    work. So a test about line numbers doesn't belong
-    in `as-documentation`. Since it's important and directly
-    user-visible behavior, it doesn't belong in `midje`. So
-    it goes here.
+    about. For example, exceptions during parsing
+    are reported the same no matter how deep in a
+    structure they happen. Why should a user care?
+
+    These tests also include ones that perhaps should
+    to in as_documentation, but aren't pretty enough (yet). 
+
+implementation
+    These tests are for utility functions in particular
+    namespaces.
+
+    One arguable case: I'm considering line-number
+    reporting to belong here. Although the tests use
+    the sweet interface, different places in the code that
+    produce line numbers may need to use different
+    mechanisms. So line numbers are tied to particular
+    namespaces in a way that'd be muddled if line
+    number tests were put in the `user` namespace.
+    
+
+LEGACY
 
 midje
-    Test namespaces here correspond one-to-one to source
-    namespaces. The tests here are about internal
-    mechanism. It's best if user-visible behavior is tested
-    in one of the above two categories.
+    Many `midje` tests mix together `user` and
+    `implementation` tests. As you work on the namespaces,
+    migrate their contents to the appropriate place.
 
-    Someday I may rename this namespace `internals`.
-
+behaviors
+    Intended for tests that now belong in `user`, but
+    often mixes in implementation details.
