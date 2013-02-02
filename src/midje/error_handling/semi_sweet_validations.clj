@@ -21,9 +21,3 @@
         :else
         form))
 
-(defmethod validate "expect" [form]
-  (if (< (count form) 4)
-    (validation-error-report-form form
-      (cl-format nil "    This form: ~A" form)
-      (cl-format nil "Doesn't match: (~A <actual> => <expected> [<keyword-value pairs>*])" (first form)))
-    (rest form)))

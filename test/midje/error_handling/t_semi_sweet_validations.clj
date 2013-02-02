@@ -16,21 +16,8 @@
     (validate (list valid-data-fake valid-data-fake valid-data-fake)) 
            => (list valid-data-fake valid-data-fake valid-data-fake)))
 
-; Duplication of validate is because of bug in against-background.
-(facts "errors are so tagged and contain file position"
-  (against-background (form-position anything) => ...position...)
-
-  (let [too-short '(expect (f 1) =>)]
-    (validate too-short) => validation-error-form?
-    (str (validate too-short)) => (contains "...position...")))
-  
 
 ;;; Full-bore tests.
-
-(silent-expect (+ 1 2) =>)
-(note-that parser-exploded,
-           (fact-failed-with-note #"expect \(\+ 1 2\) =>")
-           (fact-failed-with-note #"expect <actual> => <expected>"))
 
 (silent-fake a => 3)
 (note-that parser-exploded,

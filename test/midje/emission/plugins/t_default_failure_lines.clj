@@ -137,11 +137,12 @@
     (summarize {:type :exception-during-parsing
                 :macro-form '(foo bar)
                 :stacktrace ["one" "two"]})
-    => (just "notice"
-             #"Midje caught an exception"
-             #"\(foo bar\)"
-             #"stack trace"
-             #"one"
-             #"two"))
+    => (contains ["notice"
+                  #"Midje caught an exception"
+                  #"\(foo bar\)"
+                  #"stack trace"
+                  #"one"
+                  #"two"]
+                 :gaps-ok))
   
 )  ;; Against-background

@@ -8,14 +8,12 @@
 
         [midje.parsing.1-to-explicit-form.expects :only [expect?
                                             wrap-with-expect__then__at-rightmost-expect-leaf]]
-        [midje.parsing.util.file-position :only [annotate-embedded-arrows-with-line-numbers]]
         [midje.parsing.util.wrapping :only [already-wrapped?
                                               multiwrap
                                               with-additional-wrappers
                                               forms-to-wrap-around]]
         [midje.parsing.1-to-explicit-form.prerequisites :only [head-of-form-providing-prerequisites?
                                           insert-prerequisites-into-expect-form-as-fakes]]
-        [midje.parsing.util.arrows :only [start-of-checking-arrow-sequence?]]
         [midje.parsing.1-to-explicit-form.background :only [surround-with-background-fakes
                                        body-of-against-background
                                        against-background-contents-wrappers
@@ -29,6 +27,9 @@
   (:require [midje.util.pile :as pile]
             [midje.checking.facts :as fact-checking]
             [midje.data.compendium :as compendium]
+            [midje.parsing.util.file-position :as position]
+            [midje.parsing.util.arrows :as arrows]
+            [midje.parsing.util.error-handling :as error]
             [midje.parsing.1-to-explicit-form.future-facts :as parse-future-facts]
             [midje.parsing.1-to-explicit-form.metadata :as parse-metadata]
             [midje.parsing.2-to-lexical-maps.fakes :as parse-fakes]
@@ -77,7 +78,7 @@
    2) (provided ...) become fakes inserted into preceding expect."
   [multi-form]
   (translate-zipper multi-form
-    start-of-checking-arrow-sequence?
+    arrows/start-of-checking-arrow-sequence?
     wrap-with-expect__then__at-rightmost-expect-leaf
     
     head-of-form-providing-prerequisites?
@@ -109,6 +110,30 @@
   (translate-zipper form
      expect? (fn [loc]
                (zip/replace loc (parse-examples/to-lexical-map-form (zip/node loc))))))
+
+(defn report-check-arrow-shape [form]
+  (error/report-error form
+                      (cl-format nil "    This form: ~A" form)
+                      "... has the wrong shape. Expecting: (<actual> => <expected> [<keyword-value pairs>*])"))
+
+
+
+(defn at-arrow__add-line-number-to-end__no-movement [number loc]
+  (when (nil? (zip/right loc))
+    (report-check-arrow-shape (position/positioned-form (zip/node (zip/up loc)) number)))
+    
+  (arrows/at-arrow__add-key-value-to-end__no-movement
+   :position `(position/line-number-known ~number) loc))
+
+(defn annotate-embedded-arrows-with-line-numbers [form]
+  (translate-zipper form
+    quoted?
+    (comp skip-to-rightmost-leaf zip/down)
+
+    (partial matches-symbols-in-semi-sweet-or-sweet-ns? arrows/all-arrows)
+    #(at-arrow__add-line-number-to-end__no-movement (position/arrow-line-number %) %)))
+
+
 
 (defn expand-fact-body [forms metadata]
   (-> forms

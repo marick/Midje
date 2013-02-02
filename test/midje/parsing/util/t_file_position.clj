@@ -176,39 +176,11 @@
     (:meta (meta (nth result 1))) => :data))
 
 
+(fact "adding line number information"
+  (fact "to a form without one updates it"
+    (:line (meta (positioned-form (cons 1 '(2)) 8888))) => 8888)
+  (fact "to a form with one does not"
+    (:line (meta (positioned-form '(hello world) 8888))) =not=> 8888))
+    
+  
 
-
-(fact "one can add a line number to an arrow sequence"
-  (let [original '( (f n) => 2  )
-        expected '( (f n) => 2 :position (midje.parsing.util.file-position/line-number-known 10))
-        z            (zip/seq-zip original)
-        original-loc (-> z zip/down zip/right)
-        new-loc      (at-arrow__add-line-number-to-end__no-movement
-                        10 original-loc)]
-    (name (zip/node new-loc)) => "=>"
-    (zip/root new-loc) => expected))
-
-
-(fact "a whole form can have line numbers added to its arrow sequences"
-  (let [original `(let ~(with-meta '[a 1] {:line 33})
-                    a => 2
-                    ~(with-meta '(f 2) {:line 35}) => a)
-        actual (annotate-embedded-arrows-with-line-numbers original)
-        expected '(clojure.core/let [a 1]
-                                    midje.parsing.util.t-file-position/a midje.sweet/=> 2 :position (midje.parsing.util.file-position/line-number-known 34)
-                                    (f 2) midje.sweet/=> midje.parsing.util.t-file-position/a :position (midje.parsing.util.file-position/line-number-known 35))]
-    actual => expected))
-
-(fact "various arrow forms have line numbers"
-  (let [original `(
-                    (~(with-meta '(f 1) {:line 33}) => 2)
-                    (~(with-meta '(f 1) {:line 33}) =not=> 2)
-                    (~(with-meta '(f 1) {:line 33}) =streams=> 2)
-                    (~(with-meta '(f 1) {:line 33}) =future=> 2))
-        actual (annotate-embedded-arrows-with-line-numbers original)]
-    (doseq [expansion actual]
-      (take-last 2 expansion)
-      => '(:position (midje.parsing.util.file-position/line-number-known 33)))))
-
-(fact "Issue #117 - arrows inside quoted forms will not have :position info added"
-  '(fact foo => bar) => '(fact foo => bar))

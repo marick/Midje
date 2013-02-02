@@ -13,6 +13,7 @@
             [midje.error-handling.exceptions :as exceptions]
             [midje.data.metaconstant :as metaconstant]
             [midje.data.nested-facts :as nested-facts]
+            [midje.parsing.util.error-handling :as error]
             [midje.parsing.lexical-maps :as lexical-maps]
             [midje.parsing.2-to-lexical-maps.fakes :as parse-fakes]
             [midje.parsing.2-to-lexical-maps.data-fakes :as parse-data-fakes]
@@ -56,8 +57,10 @@
     :else
     (throw (Error. (str "Program error: Unknown arrow form " arrow)))))
 
+(defn valid-pieces [[_ call-form arrow expected-result & fakes+overrides]]
+  (let [[fakes overrides] (separate a-fake? fakes+overrides)]
+    [call-form arrow expected-result fakes overrides]))
+
 (defn to-lexical-map-form [full-form]
-  (domonad validate-m [[call-form arrow expected-result & fakes+overrides] (validate full-form)
-                       [fakes overrides] (separate a-fake? fakes+overrides)]
-           (expansion call-form arrow expected-result fakes overrides)))
+  (apply expansion (valid-pieces full-form)))
 

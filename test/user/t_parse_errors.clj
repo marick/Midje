@@ -2,14 +2,20 @@
   (:use midje.sweet
         midje.test-util))
 
+(unfinished f)
+
+;; Check expressions
 
 
+
+(silent-fact (f 1) =>)
+(note-that (fact-failed-with-note #"has the wrong shape"))
 
 
 
 ;; Prerequisites
 
-(unfinished f)
+
 
 (silent-fact "Certain functions that cannot be faked are detected at parse time"
   (f) => 1

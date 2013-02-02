@@ -91,15 +91,11 @@
                    (zip/next line-loc))))))
 
 
-(defn at-arrow__add-line-number-to-end__no-movement [number loc]
-  (at-arrow__add-key-value-to-end__no-movement
-   :position `(line-number-known ~number) loc))
-
-(defn annotate-embedded-arrows-with-line-numbers [form]
-  (translate-zipper form
-    quoted?
-    (comp skip-to-rightmost-leaf zip/down)
-
-    (partial matches-symbols-in-semi-sweet-or-sweet-ns? all-arrows)
-    #(at-arrow__add-line-number-to-end__no-movement (arrow-line-number %) %)))
-
+(defn positioned-form
+  "Make sure the form is annotated with a line number, either
+   its original or the given one."
+  [form line-number]
+  (if-not (contains? (meta form) :line)
+    (vary-meta form assoc :line line-number)
+    form))
+    
