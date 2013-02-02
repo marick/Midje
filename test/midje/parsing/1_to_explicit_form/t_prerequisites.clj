@@ -4,6 +4,17 @@
   (:require [clojure.zip :as zip]
             [midje.parsing.1-to-explicit-form.expects :as parse-expects]))
 
+;;; Line numbers
+
+(silent-fact "Check line number and file position of phase 1 errors"
+  (f ..new-val..)
+  (provided
+    (g ..new-val..) => ..new-transformed-val..))
+(note-that (failure-was-in-file "t_provided_errors.clj")
+           (failure-was-at-line 10))
+
+;;; 
+
 (fact "can ask whether at the beginning of a form that provides prerequisites"
   (let [values (zip/seq-zip '(provided midje.semi-sweet/provided fluke))]
     (-> values zip/down) => head-of-form-providing-prerequisites?
