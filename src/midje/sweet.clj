@@ -108,8 +108,7 @@
   "Alias for fact."
   [& forms]
   (when (user-desires-checking?)
-    (when-valid &form
-      (with-meta `(fact ~@forms) (meta &form)))))
+    (with-meta `(fact ~@forms) (meta &form))))
 
 (parse-future-fact/generate-variants)
 (parse-formulas/generate-future-formula-variants)

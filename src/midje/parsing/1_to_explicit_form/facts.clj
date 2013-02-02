@@ -87,6 +87,17 @@
     semi-sweet-keyword?
     skip-to-rightmost-leaf))
 
+(declare midjcoexpand)
+
+(defn expand-against-background [form]
+  (when-valid form
+              (-<> form 
+                   body-of-against-background
+                   midjcoexpand
+                   (with-additional-wrappers (against-background-facts-and-checks-wrappers form) <>)
+                   (multiwrap <> (against-background-contents-wrappers form)))))
+
+
 (defn midjcoexpand
   "Descend form, macroexpanding *only* midje forms and placing background wrappers where appropriate."
   [form]
@@ -94,13 +105,7 @@
     already-wrapped?     form
     quoted?              form
     parse-future-facts/future-fact?         (macroexpand form)
-    against-background?  (when-valid form
-                             (-<> form 
-                                  body-of-against-background
-                                  midjcoexpand
-                                  (with-additional-wrappers (against-background-facts-and-checks-wrappers form) <>)
-                                  (multiwrap <> (against-background-contents-wrappers form))))
-  
+    against-background?  (expand-against-background form)
     expect?      (multiwrap form (forms-to-wrap-around :checks ))
     fact?        (macroexpand form)
     sequential?  (preserve-type form (eagerly (map midjcoexpand form)))
