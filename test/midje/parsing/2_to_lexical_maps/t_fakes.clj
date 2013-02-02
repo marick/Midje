@@ -8,5 +8,5 @@
   (provided
     (deref cons) => 0))  ; for example
 (note-that (failure-was-in-file "t_fakes.clj")
-           (failure-was-at-line 18))
+           (failure-was-at-line 9))
 

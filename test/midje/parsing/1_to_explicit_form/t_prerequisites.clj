@@ -6,12 +6,12 @@
 
 ;;; Line numbers
 
-(silent-fact "Check line number and file position of phase 1 errors"
+(silent-fact "Malformed previous provider"
   (f ..new-val..)
   (provided
     (g ..new-val..) => ..new-transformed-val..))
-(note-that (failure-was-in-file "t_provided_errors.clj")
-           (failure-was-at-line 10))
+(note-that (failure-was-in-file "t_prerequisites.clj")
+           (failure-was-at-line 11))
 
 ;;; 
 
