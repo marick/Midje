@@ -18,10 +18,15 @@
             [midje.util.pile :as pile]
             [midje.util.unify :as unify]
             [midje.parsing.2-to-lexical-maps.fakes :as fakes]
+            [midje.parsing.util.error-handling :as error]
             [midje.emission.api :as emit]))
 
 (defn against-background? [form]
   (first-named? form "against-background"))
+
+(defn either-background? [form]
+  (or (against-background? form)
+      (first-named? form "background")))
 
 (defn background-fakes []
   (namespace-values-inside-out :midje/background-fakes))
@@ -30,8 +35,14 @@
 ;; dissecting background forms
 
 (defn separate-background-forms [fact-forms]
-  (let [[background-forms other-forms] (separate against-background? fact-forms)]
-    [(mapcat rest background-forms) other-forms]))
+  (let [[background-forms other-forms] (separate either-background? fact-forms)
+        background-changers (mapcat (fn [[command & args]]
+                                      (if (and (= 1 (count args))
+                                               (vector? (first args)))
+                                        (first args)
+                                        args))
+                                    background-forms)]
+    [background-changers other-forms]))
 
 (defn setup-teardown-bindings [form]
   (unify/bindings-map-or-nil form
