@@ -11,6 +11,7 @@
         midje.production-mode
         midje.util.exceptions
         midje.util.debugging
+        midje.parsing.util.core
         [midje.parsing.util.wrapping :only [put-wrappers-into-effect]]
         [midje.parsing.util.file-position :only [set-fallback-line-number-from]]
         [midje.parsing.1-to-explicit-form.facts :only [complete-fact-transformation
@@ -52,21 +53,48 @@
   (immigrate-from 'midje.doc doc/for-sweet)
   (doc/midje-notice))
 
-(defmacro background 
-  "Runs facts against setup code which is run before, around, or after 
-   :contents, :facts or :checks. Optionally, contains one or more provided forms 
-   that apply for all facts until the end of the file. 
-   All effects of `background` last until the end of the file."
-  [& state-descriptions]
-  (when (user-desires-checking?)
-    (background/when-valid &form
-      (put-wrappers-into-effect (background/background-wrappers state-descriptions)))))
+(defmacro background
+ " Puts a series of *background changers* into effect from the point of
+   execution until the end of the file. They are also in effect when
+   a loaded fact is rechecked (as with `midje.repl/recheck-fact`).
 
-(defmacro against-background 
-  "Runs facts against setup code which is run before, around, or after 
-   :contents, :facts or :checks. Optionally, contains one or more provided forms 
-   that apply for all facts run within the against-background form. 
-   All effects of `against-background` last until the end of the scope it surrounds."
+   See `(doc midje-background-changers)` for details on background
+   changers. See `(guide background-prerequisites)` and `(guide
+   setup-and-teardown)` for more.
+
+   Examples:
+
+      (background (f 33) => 12, (f 34) => 21)
+      (background (before :facts (reset! some-atom 0)))"
+  [& background-changers]
+  (when (user-desires-checking?)
+    (background/assert-right-shape! &form)
+    (put-wrappers-into-effect (background/background-wrappers (arglist-undoing-nesting background-changers)))))
+
+(defmacro against-background
+ " Puts a series of *background changers* into effect until the end
+   of the `against-background` scope. They remain in effect when a
+   loaded fact is rechecked (as with `midje.repl/recheck-fact`).
+
+   See `(doc midje-background-changers)` for details on background
+   changers. See `(guide background-prerequisites)` and `(guide
+   setup-and-teardown)` for more.
+
+   `against-background` can be used in two ways. In the first, it has
+   a `let`-like syntax that wraps a series of facts:
+
+      (against-background [(f 33) => 12
+                           (f 34) => 21
+                           (before :facts (reset! some-atom 0))]
+        (fact...)
+        (fact...))
+
+   In the second, it can be placed as either the first or last form in
+   a fact, in which case it is taken to \"wrap\" the entire fact:
+
+     (against-background (f 1) => :default, (g 1) => :default)
+
+   Note that in this case the square brackets can be omitted."
   [background-forms & foreground-forms]
   (if (user-desires-checking?)
       (midjcoexpand `(against-background ~background-forms ~@foreground-forms))
