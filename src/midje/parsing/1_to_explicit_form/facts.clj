@@ -30,6 +30,7 @@
             [midje.parsing.util.file-position :as position]
             [midje.parsing.util.arrows :as arrows]
             [midje.parsing.util.error-handling :as error]
+            [midje.parsing.1-to-explicit-form.background :as background]
             [midje.parsing.1-to-explicit-form.future-facts :as parse-future-facts]
             [midje.parsing.1-to-explicit-form.metadata :as parse-metadata]
             [midje.parsing.2-to-lexical-maps.fakes :as parse-fakes]
@@ -90,7 +91,7 @@
 (declare midjcoexpand)
 
 (defn expand-against-background [form]
-  (when-valid form
+  (background/when-valid form
               (-<> form 
                    body-of-against-background
                    midjcoexpand
