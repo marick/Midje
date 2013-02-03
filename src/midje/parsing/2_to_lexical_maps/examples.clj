@@ -3,9 +3,7 @@
   (:use midje.clojure.core
         midje.parsing.util.core
         midje.parsing.util.zip
-        [clojure.algo.monads :only [domonad]]
-        [midje.parsing.arrow-symbols]
-        midje.error-handling.validation-errors)
+        [midje.parsing.arrow-symbols])
   (:require [clojure.zip :as zip]
             [midje.config :as config]
             [midje.util.pile :as pile]

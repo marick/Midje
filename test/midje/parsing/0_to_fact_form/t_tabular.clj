@@ -1,7 +1,6 @@
 (ns midje.parsing.0-to-fact-form.t-tabular
   (:use [midje.parsing.0-to-fact-form.tabular :except [add-binding-note table-binding-maps]]
         [midje.data.metaconstant :only [metaconstant-symbol?]]
-        [midje.error-handling.validation-errors]
         [midje sweet test-util]
         [ordered.map :only (ordered-map)]
         midje.util)
@@ -15,7 +14,7 @@
 (silent-tabular
  (fact
      (cons 1 ?a) => 3))
-(note-that fact-fails (failure-was-at-line 15))
+(note-that fact-fails (failure-was-at-line 14))
 
 ;; Core midje.sweet API
 

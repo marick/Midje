@@ -10,7 +10,6 @@
   (:use midje.clojure.core
         midje.production-mode
         midje.util.exceptions
-        midje.error-handling.validation-errors
         midje.util.debugging
         [midje.parsing.util.wrapping :only [put-wrappers-into-effect]]
         [midje.parsing.util.file-position :only [set-fallback-line-number-from]]
@@ -94,15 +93,13 @@
   [& _] ; we work off &form, not the arguments
   (when (user-desires-checking?)
     (error/parse-and-catch-failure &form
-      #(domonad validate-m [_ (validate &form)
-                            [metadata forms] (parse-metadata/separate-metadata &form)]
-        (do 
-          (set-fallback-line-number-from &form)
-          (let [[background remainder] (background/separate-background-forms forms)]
-            (if (seq background)
-              `(against-background ~background
-                 ~(unparse-edited-fact metadata remainder))
-              (complete-fact-transformation metadata remainder))))))))
+      #(do (set-fallback-line-number-from &form)
+           (let [[metadata forms] (parse-metadata/separate-metadata &form)
+                 [background remainder] (background/separate-background-forms forms)]
+             (if (seq background)
+               `(against-background ~background
+                  ~(unparse-edited-fact metadata remainder))
+               (complete-fact-transformation metadata remainder)))))))
 
 (defmacro facts 
   "Alias for fact."

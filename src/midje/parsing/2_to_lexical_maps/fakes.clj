@@ -3,8 +3,7 @@
   (:use midje.clojure.core
         midje.parsing.util.core
         midje.parsing.util.zip
-        [midje.parsing.arrow-symbols]
-        midje.error-handling.validation-errors)
+        [midje.parsing.arrow-symbols])
   (:require [midje.parsing.util.fnref :as fnref]
             [midje.parsing.util.error-handling :as error]
             [midje.parsing.lexical-maps :as lexical-maps]

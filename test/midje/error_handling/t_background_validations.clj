@@ -1,7 +1,6 @@
 (ns midje.error-handling.t-background-validations
   (:require [clojure.zip :as zip])
-  (:use [midje sweet test-util]
-        [midje.error-handling.background-validations]))
+  (:use [midje sweet test-util]))
 
 (prn "T_BACKGROUND_VALIDATIONS")
 ;; (tabular
