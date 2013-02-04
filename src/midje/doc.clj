@@ -24,6 +24,7 @@
                  midje-arrows
                  midje-setup
                  midje-teardown
+                 midje-background-changers
 
                  midje-configuration
                  midje-print-level
@@ -323,9 +324,47 @@
 "} midje-configuration)
 
 
+(def ^{:doc "
+   There are two types of background-changers. The first provides a default
+   prerequisite and has the same format as `provided`. Here's an example of
+   two inside in a `background` form:
+
+      (background (f 33) => 12, (f 34) => 21)
+
+   The other form runs arbitrary code before, after, or around a fact or
+   individual check. Here's how you execute some setup code before each of a
+   series of facts:
+
+      (against-background [(before :facts (reset! some-atom 0))]
+         (fact ...)
+         (fact ...))
+
+   Here's how you execute some code after each check in a fact:
+
+      (against-background [(after :checks (reset! some-atom 0))]
+        (fact
+          (f 1) => 2   ; Reset happens after.
+          (f 2) => 3)) ; Reset happens after.
+
+   You can execute code both before and after a fact like this:
+
+      (against-background [(before :facts (reset! in-atom 0)
+                                   :after (reset! out-atom 0))]
+         (fact ...)
+         (fact ...))
+
+   You can also wrap code around a fact or check:
+
+      (against-background [(around :facts (sql/with-connection db ?form))]
+         ...)
+
+   The two types of background-changers can be intermingled.
+"} midje-background-changers)
 
 
 (def guide-topics {
+ 'background-prerequisites "https://github.com/marick/Midje/wiki/Background-prerequisites"
+ 'setup-and-teardown "https://github.com/marick/Midje/wiki/Setup%2C-Teardown%2C-and-State"
  'future-facts  "https://github.com/marick/Midje/wiki/Future-facts"
  'checkers-within-prerequisites "https://github.com/marick/Midje/wiki/Checkers-within-prerequisites"
  'chatty-checkers "https://github.com/marick/Midje/wiki/Chatty-checkers"
