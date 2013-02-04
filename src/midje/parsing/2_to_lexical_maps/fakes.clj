@@ -35,7 +35,7 @@
   (when-not (or (list? funcall)
                 (seq? funcall))
     (error/report-error form
-                        "The left-hand-side of a prerequisite must look like a function call or metaconstant."
+                        "The left-hand side of a prerequisite must look like a function call or metaconstant."
                         (cl-format nil "`~S` doesn't." funcall))))
 
 
