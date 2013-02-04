@@ -17,7 +17,7 @@
 
 (expect (separate-background-forms '[ (against-background) (f 1) => 3 ]) => [ [] '[ (f 1) => 3 ] ])
 
-
+(prn "details/t_background should have tests for line numbers")
 
 (tabular
  (fact "separate-background-forms divides forms into background and other things"
@@ -38,6 +38,19 @@
 
  [(against-background)
   (f 1) => 3 ]                          []                              [(f 1) => 3]
+
+ ;; It's OK to use background instead of against-background
+ [ (background ..back1..
+               ..back2..)
+   ..claim1..
+   ..claim2..]                         [..back1.. ..back2..]          [..claim1.. ..claim2..]
+
+ ;; It's OK for against-background in a fact to have a vector of background changers
+ [ (background [..back1.. ..back2..])
+   ..claim1..
+   (against-background ..back3..)
+   ..claim2..]                         [..back1.. ..back2.. ..back3..] [..claim1.. ..claim2..]
+
 )
 
 
