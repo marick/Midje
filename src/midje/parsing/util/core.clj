@@ -83,3 +83,9 @@
       (some (comp :line meta) form)
       "0 (no line info)"))
 
+(defn arglist-undoing-nesting [args]
+  (if (and (= 1 (count args))
+           (vector? (first args)))
+    (first args)
+    args))
+
