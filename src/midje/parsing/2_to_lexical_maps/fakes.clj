@@ -68,6 +68,10 @@
           (apply error/report-error call-form (disallowed-function-failure-lines actual-var))))
   [call-form fnref args arrow result overrides])
 
+(defn assert-valid! [form]
+  (assert-right-shape! form)
+  (valid-pieces form))
+
 (defn to-lexical-map-form [a-list]
   (assert-right-shape! a-list)
   (apply lexical-maps/fake (valid-pieces a-list)))
