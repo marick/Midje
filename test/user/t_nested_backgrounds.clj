@@ -83,10 +83,22 @@
     (background (f 2) => 2)
     (+ (f 1) (f 2)) => 3))
 
+;;; Want to show that error cases work as well.
 
+(silent-fact
+  (against-background [(f 1) => 1]
+    (against-background [(f 2) => 2]
+      (fact
+        (+ (f 1) (f 2)) => 333)))
 
-
-
+  (fact
+    (against-background [(f 2) => 3]
+      (fact 
+        (against-background [(f 3) => 4])
+        (+ (f 2) (f 3)) => 777))))
+(note-that fact-fails)
+(for-failure 1 (note-that (fact-actual 3) (fact-expected 333)))
+(for-failure 2 (note-that (fact-actual 7) (fact-expected 777)))
 
 
 

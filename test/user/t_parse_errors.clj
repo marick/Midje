@@ -196,7 +196,35 @@
  (fact
    @fact-output => #"\(first thing\) does not look like"))
 
- 
+ (silent-fact "It also complains if there are no facts nested inside it"
+   (against-background [(f 1) => 1]
+     (inc (f 1)) => 2))
+(note-that parse-error-found (fact-failed-with-note #"against-background.*only affect nested facts"))
+
+;; It would be nice if it didn't complain about outer-level against-backgrounds
+;; with nothing inside them, but that's more trouble than it's worth.
+
+(capturing-failure-output 
+ (macroexpand-1 '(against-background [(f 1) => 1]
+                   ;; TBD
+                   ))
+ (fact
+   @fact-output => #"against-background.*only affect nested facts"))
+
+(fact "it is not fooled by nested against-backgrounds "
+  (against-background [(f 1) => 1]
+    (against-background [(f 2) => 2]
+      (fact
+        (+ (f 1) (f 2)) => 3)))
+
+  (fact "... which most likely happen by mixing the two forms"
+    (against-background [(f 2) => 3]
+      (fact 
+        (against-background [(f 3) => 4])
+        (+ (f 2) (f 3)) => 7))))
+
+
+
 
 ;;; =====================================              Inside-fact against-background
 ;; `background` finds parse errors of its background changers"

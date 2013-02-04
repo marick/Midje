@@ -38,7 +38,8 @@
 
 (defn fact? [form]
   (or (first-named? form "fact")
-      (first-named? form "facts")))
+      (first-named? form "facts")
+      (first-named? form "silent-fact"))) ;; silent facts are used for testing.
 
                                 ;;; Fact processing
 
@@ -93,11 +94,12 @@
 
 (defn expand-against-background [form]
   (background/assert-right-shape! form)
-  (-<> form 
-       body-of-against-background
-       midjcoexpand
-       (with-additional-wrappers (against-background-facts-and-checks-wrappers form) <>)
-       (multiwrap <> (against-background-contents-wrappers form))))
+  (background/expecting-nested-facts form 
+    (-<> form 
+         body-of-against-background
+         midjcoexpand
+         (with-additional-wrappers (against-background-facts-and-checks-wrappers form) <>)
+         (multiwrap <> (against-background-contents-wrappers form)))))
 
 
 (defn midjcoexpand
@@ -143,6 +145,7 @@
 
 
 (defn expand-fact-body [forms metadata]
+  (background/note-fact!)
   (-> forms
       annotate-embedded-arrows-with-line-numbers
       to-semi-sweet

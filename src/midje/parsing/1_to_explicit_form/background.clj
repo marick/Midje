@@ -225,7 +225,32 @@
                                       
 
 
-(prn "ADDRESS CASE THAT ONE GUY HAD")
+(def against-background-forms-without-enclosed-facts (atom []))
 
+(defmacro expecting-nested-facts [form & body]
+  `(try
+     (swap! against-background-forms-without-enclosed-facts #(cons 'token %))
+     (let [result# ~@body]
+       (when-not (empty? @against-background-forms-without-enclosed-facts)
+         (error/report-error ~form
+                             "Background prerequisites created by the wrapping version of"
+                             "`against-background` only affect nested facts. This one"
+                             "wraps no facts."
+                             ""
+                             "Note: if you want to supply a background to all checks in a fact, "
+                             "use the non-wrapping form. That is, instead of this:"
+                             "    (fact "
+                             "      (against-background [(f 1) => 1] "
+                             "        (g 3 2 1) => 8 "
+                             "        (h 1 2) => 7)) "
+                             "... use this:"
+                             "    (fact "
+                             "      (g 3 2 1) => 8 "
+                             "      (h 1 2) => 7 "
+                             "      (against-background (f 1) => 1)) "))
+       result#)
+     (finally
+      (swap! against-background-forms-without-enclosed-facts rest))))
 
-
+(defn note-fact! []
+  (reset! against-background-forms-without-enclosed-facts []))
