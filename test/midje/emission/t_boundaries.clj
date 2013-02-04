@@ -4,11 +4,8 @@
   (:require [midje.emission.clojure-test-facade :as ctf]
             [midje.emission.state :as state]))
 
-
 (facts "about two forms of results"
   (fact "ternary output is intended for the user"
-    (against-background (ctf/counters) => :irrelevant :times 0)
-
     (midje-results-to-ternary) => nil
     (provided (state/output-counters) => {:midje-failures 0, :midje-passes 0})
 

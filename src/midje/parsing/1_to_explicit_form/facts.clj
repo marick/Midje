@@ -77,6 +77,9 @@
    2) (provided ...) become fakes inserted into preceding expect."
   [multi-form]
   (translate-zipper multi-form
+    fact?
+    skip-to-rightmost-leaf
+                    
     arrows/start-of-checking-arrow-sequence?
     wrap-with-expect__then__at-rightmost-expect-leaf
     
