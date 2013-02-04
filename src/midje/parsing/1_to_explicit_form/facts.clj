@@ -89,12 +89,12 @@
 (declare midjcoexpand)
 
 (defn expand-against-background [form]
-  (background/when-valid form
-              (-<> form 
-                   body-of-against-background
-                   midjcoexpand
-                   (with-additional-wrappers (against-background-facts-and-checks-wrappers form) <>)
-                   (multiwrap <> (against-background-contents-wrappers form)))))
+  (background/assert-right-shape! form)
+  (-<> form 
+       body-of-against-background
+       midjcoexpand
+       (with-additional-wrappers (against-background-facts-and-checks-wrappers form) <>)
+       (multiwrap <> (against-background-contents-wrappers form))))
 
 
 (defn midjcoexpand
