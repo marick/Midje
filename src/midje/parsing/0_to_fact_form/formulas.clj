@@ -41,32 +41,31 @@
                  form)) 
     form))
 
-(defmethod validate "formula" [[_formula_ & args :as form]]
+(defn valid-pieces [[_formula_ & args :as form]]
   (let [[docstring? opts-map bindings body] (deconstruct-formula-args args)
         invalid-keys (remove (partial = :num-trials) (keys opts-map))]
     (cond (not (leaves-contain-arrow? (check-part-of args)))
-          (simple-validation-error-report-form form "There is no expection in your formula form:")
+          (error/report-error form "There is no expection in your formula form:")
     
           (> (count (leaf-expect-arrows (check-part-of args))) 1)
-          (simple-validation-error-report-form form "There are too many expections in your formula form:")
+          (error/report-error form "There are too many expections in your formula form:")
   
           (or (not (vector? bindings))
               (odd? (count bindings))
               (< (count bindings) 2))
-          (simple-validation-error-report-form form "Formula requires bindings to be an even numbered vector of 2 or more:")
+          (error/report-error form "Formula requires bindings to be an even numbered vector of 2 or more:")
   
           (some #(and (named? %) (= "background" (name %))) (flatten args))
-          (simple-validation-error-report-form form "background cannot be used inside of formula")
+          (error/report-error form "background cannot be used inside of formula")
   
           (not (empty? invalid-keys))
-          (simple-validation-error-report-form form (format "Invalid keys (%s) in formula's options map. Valid keys are: :num-trials" (join ", " invalid-keys)))
+          (error/report-error form (format "Invalid keys (%s) in formula's options map. Valid keys are: :num-trials" (join ", " invalid-keys)))
           
           (and (:num-trials opts-map) 
                (not (pos? (:num-trials opts-map))))
-          (simple-validation-error-report-form form (str ":num-trials must be an integer 1 or greater. You tried to set it to: " (:num-trials opts-map)))
+          (error/report-error form (str ":num-trials must be an integer 1 or greater. You tried to set it to: " (:num-trials opts-map))))
       
-          :else 
-          [docstring? opts-map bindings body])))
+    [docstring? opts-map bindings body]))
 
 
 ;;; The work
@@ -101,19 +100,19 @@
   how many facts are generated per formula."
   {:arglists '([docstring? opts-map? bindings & body])}
   [& _args]
-  (domonad validate-m [[docstring? opts-map bindings body] (validate &form)
-                       fact (formula-fact docstring? body)]
+  (error/parse-and-catch-failure &form
+   #(let [[docstring? opts-map bindings body] (valid-pieces &form)
+          fact (formula-fact docstring? body)]
+      `(around-formula
+        (loop [num-trials-left# (or (:num-trials ~opts-map) midje.parsing.0-to-fact-form.formulas/*num-trials*)]
+          (when (pos? num-trials-left#)
+            (let [binding-rightsides# ~(vec (take-nth 2 (rest bindings)))
+                  ~(vec (take-nth 2 bindings)) binding-rightsides#
+                  success?# (emit/producing-only-raw-fact-failures ~fact)]
 
-    `(around-formula
-       (loop [num-trials-left# (or (:num-trials ~opts-map) midje.parsing.0-to-fact-form.formulas/*num-trials*)]
-         (when (pos? num-trials-left#)
-           (let [binding-rightsides# ~(vec (take-nth 2 (rest bindings)))
-                 ~(vec (take-nth 2 bindings)) binding-rightsides#
-                 success?# (emit/producing-only-raw-fact-failures ~fact)]
-
-             (if success?#
-               (recur (dec num-trials-left#))
-               success?#)))))))
+              (if success?#
+                (recur (dec num-trials-left#))
+                success?#))))))))
 
 (defmacro with-num-trials [num-trials & formulas]
   `(binding [midje.parsing.0-to-fact-form.formulas/*num-trials* ~num-trials]

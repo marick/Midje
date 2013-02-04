@@ -116,7 +116,7 @@
     [a 1]
     (background (h anything) => 5)
     (contains 3))
-  (for-each-failure (note-that parser-exploded, (fact-failed-with-note error-regexp)))
+  (for-each-failure (note-that parse-error-found, (fact-failed-with-note error-regexp)))
   )
 
 (let [error-regexp  #"Formula requires bindings to be an even numbered vector of 2 or more"]
@@ -124,14 +124,13 @@
   (silent-formula "a doc string" [a 1 1] 1 => 1)
   (silent-formula "a doc string" [] 1 => 1)
   (silent-formula "a doc string" {:num-trials 50} 1 => 1)
-  (for-each-failure (note-that parser-exploded, (fact-failed-with-note error-regexp))))
+  (for-each-failure (note-that parse-error-found, (fact-failed-with-note error-regexp))))
   
-
 (silent-formula "a doc string" [a 1] a => 1 a => 1)
-(note-that parser-exploded, (fact-failed-with-note #"There are too many expections in your formula form"))
+(note-that parse-error-found, (fact-failed-with-note #"There are too many expections in your formula form"))
 
 (silent-formula {:foo 5 :bar 6 :num-trials 5} [a 1] a => 1)
-(note-that parser-exploded, (fact-failed-with-note #"Invalid keys \(:foo, :bar\) in formula's options map. Valid keys are: :num-trials"))
+(note-that parse-error-found, (fact-failed-with-note #"Invalid keys \(:foo, :bar\) in formula's options map. Valid keys are: :num-trials"))
 
 (let [error-regexp #":num-trials must be an integer 1 or greater"]
   (silent-formula {:num-trials 0 } [a 1] a => 1)
@@ -139,13 +138,13 @@
   (silent-formula {:num-trials -2} [a 1] a => 1)
   (silent-formula {:num-trials -3} [a 1] a => 1)
   (silent-formula {:num-trials -4} [a 1] a => 1)
-  (for-each-failure (note-that parser-exploded, (fact-failed-with-note error-regexp))))
+  (for-each-failure (note-that parse-error-found, (fact-failed-with-note error-regexp))))
 
 (defn z [x] )
 (silent-formula [a 1]
    (background (h 1) => 5)
    (z a) => 10)
-(note-that parser-exploded, (fact-failed-with-note #"background cannot be used inside of formula"))
+(note-that parse-error-found, (fact-failed-with-note #"background cannot be used inside of formula"))
 
 ;; ;; Things that should be valid
 

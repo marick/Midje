@@ -164,9 +164,6 @@
 (defn parse-error-found [failure-map]
   (= (:type failure-map) :parse-error))
 
-;; Deprecate this one in favor of `parse-error-found`.
-(def parser-exploded parse-error-found)
-
 (defn parser-threw-exception [failure-map]
   (= (:type failure-map) :exception-during-parsing))
 
