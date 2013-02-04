@@ -2,7 +2,6 @@
   midje.parsing.0-to-fact-form.formulas
   (:use midje.clojure.core
         midje.parsing.util.core
-        [midje.error-handling.validation-errors :only [simple-validation-error-report-form validate-m validate]]
         [midje.parsing.util.arrows :only [leaf-expect-arrows leaves-contain-arrow?]]
         [midje.parsing.1-to-explicit-form.future-facts :only [future-prefixes]]
         [clojure.algo.monads :only [domonad]]

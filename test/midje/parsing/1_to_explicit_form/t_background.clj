@@ -3,7 +3,6 @@
   (:use [midje sweet test-util]
         [midje.parsing.util.wrapping :only [for-wrapping-target?]]
         [midje.util unify]
-        [midje.error-handling validation-errors]
         [midje.parsing.1-to-explicit-form.background :only [separate-background-forms 
                                  background-wrappers]]
         midje.util))
