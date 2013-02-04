@@ -19,6 +19,11 @@
 
 ;;; The nesting cases
 
+(fact
+  (fact
+    (against-background (f 1) => 1)
+    (f 1) => 1))
+
 (fact 
   (against-background [(f 1) => 1]
     (fact 

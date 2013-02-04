@@ -18,12 +18,6 @@
   (background (g anything) => 2)
   (f 2) => 2)
 
-(prn "Against-background may be deeply nested")
-(future-fact "against-background may be deeply nested"  ;;; Make this more complicated when it actually works.
-  (fact
-    (against-background (g anything) => 2)
-    (f 2) => 2))
-    
 (fact "against-background can have an optional let-style list"
   (against-background [(g anything) => 2])
   (f 2) => 2)
