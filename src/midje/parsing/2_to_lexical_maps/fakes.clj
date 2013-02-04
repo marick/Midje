@@ -32,7 +32,8 @@
   (#{#'deref #'assoc} some-var))
 
 (defn assert-right-shape! [[_fake_ funcall & _ :as form]]
-  (when-not (list? funcall)
+  (when-not (or (list? funcall)
+                (seq? funcall))
     (error/report-error form
                         "The left-hand-side of a prerequisite must look like a function call or metaconstant."
                         (cl-format nil "`~S` doesn't." funcall))))
