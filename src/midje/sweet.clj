@@ -13,7 +13,7 @@
         midje.util.debugging
         midje.parsing.util.core
         [midje.parsing.util.wrapping :only [put-wrappers-into-effect]]
-        [midje.parsing.util.file-position :only [set-fallback-line-number-from]]
+        [midje.parsing.util.file-position :only [set-fallback-line-number-from positioned-form]]
         [midje.parsing.1-to-explicit-form.facts :only [complete-fact-transformation
                                   midjcoexpand unparse-edited-fact]] 
         [clojure.algo.monads :only [domonad]])
@@ -66,10 +66,13 @@
 
       (background (f 33) => 12, (f 34) => 21)
       (background (before :facts (reset! some-atom 0)))"
-  [& background-changers]
-  (when (user-desires-checking?)
-    (background/assert-right-shape! &form)
-    (put-wrappers-into-effect (background/background-wrappers (arglist-undoing-nesting background-changers)))))
+ [& background-changers]
+ (when (user-desires-checking?)
+   (error/parse-and-catch-failure &form
+    #(do                                   
+       (background/assert-right-shape! &form)
+       (put-wrappers-into-effect (background/background-wrappers
+                                  (arglist-undoing-nesting background-changers)))))))
 
 (defmacro against-background
  " Puts a series of *background changers* into effect until the end
@@ -97,8 +100,8 @@
    Note that in this case the square brackets can be omitted."
   [background-forms & foreground-forms]
   (if (user-desires-checking?)
-      (midjcoexpand `(against-background ~background-forms ~@foreground-forms))
-     `(do ~@foreground-forms)))
+    (error/parse-and-catch-failure &form #(midjcoexpand &form))
+    `(do ~@foreground-forms)))
     
 (defmacro fact 
   "A fact is a statement about code:
@@ -125,8 +128,9 @@
            (let [[metadata forms] (parse-metadata/separate-metadata &form)
                  [background remainder] (background/separate-background-forms forms)]
              (if (seq background)
-               `(against-background ~background
-                  ~(unparse-edited-fact metadata remainder))
+               (positioned-form `(against-background [~@background]
+                                   ~(unparse-edited-fact metadata remainder))
+                                (:line (meta &form)))
                (complete-fact-transformation metadata remainder)))))))
 
 (defmacro facts 
