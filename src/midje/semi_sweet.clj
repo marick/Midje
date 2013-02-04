@@ -36,7 +36,8 @@
                                         '~name line-separator '~name (join " " (map pprint# args#)))))))
              
                ;; A reliable way of determining if an `unfinished` function has since been defined.
-               (alter-meta! (var ~name) assoc :midje/unfinished-fun ~name))))]
+               (alter-meta! (var ~name) assoc :midje/unfinished-fun ~name)
+               :ok)))]
 
   (defmacro unfinished
     "Defines a list of names as functions that have no implementation yet. They will
