@@ -81,9 +81,7 @@
     (ensure-correct-form-variable around-form)))
 
 (defn seq-headed-by-setup-teardown-form? [forms]
-  (when-let [bindings (setup-teardown-bindings (first forms))]
-    (and (bindings '?first-form)
-         (or (not (bindings '?after)) (bindings '?second-form)))))
+  (#{"before" "after" "around"} (name (ffirst forms))))
 
 (defn- ^{:testable true } extract-state-descriptions+fakes [forms]
   (loop [expanded []
@@ -144,11 +142,15 @@
 
 ;;; Validation
 
-(defn assert-right-background-changer-shapes! [shapes]
-  ;; (cond (empty? shapes)
-  ;;       (error/report-error shapes "Your background/against-background form doesn't change anything"
-  )
+(defn assert-valid-before [runner]
+  (when-not (#{3 5} (count runner))
+    (error/report-error runner
+                        "`before` has two forms: `(before <target> <form>)` and `(before <target> <form> :after <form>")))
 
+(defn assert-valid-code-runner! [runner]
+  (case (name (first runner))
+    "before" (assert-valid-before runner)
+    nil))
 
 (defn assert-right-shape!
   "This is concerned only with the background-changers." 
@@ -164,7 +166,11 @@
             (fakes/assert-valid! (positioned-form changer (:line (meta form))))
 
             (first-named? changer "data-fake")
-            (data-fakes/assert-valid! (positioned-form changer (:line (meta form))))))))
+            (data-fakes/assert-valid! (positioned-form changer (:line (meta form))))
+
+            :else
+            (assert-valid-code-runner! changer)))))
+                                      
 
 ;;;;; Validation
 ;;;;; This is a lot of old complexity that's retained only because the idea of

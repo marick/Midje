@@ -49,8 +49,6 @@
     g =contains=> {:a 3}))
 (note-that parse-error-found (fact-failed-with-note #"g is not a metaconstant"))
 
-
-
 ;; This can only be done approximately, since the right-hand-side could be a bound symbol,
 ;; a quoted form, etc.
 ;; (silent-fact "No map"
@@ -58,6 +56,16 @@
 ;;   (provided
 ;;     ...new-val.. =contains=> 3))
 ;; (note-that (fact-failed-with-note #"right-hand-side.*should be a map"))
+
+;;; =====================================              Code runners
+;;; Aka before/after/around
+
+;;; (before [:facts | checks] <code>
+
+(silent-fact
+  (against-background (before :facts))
+  1 => 2)
+(note-that parse-error-found (fact-failed-with-note #"`before` has two forms"))
 
 
 
@@ -76,7 +84,10 @@
  (macroexpand-1 '(background f =contains=> {:a 2}))
  (fact @fact-output => #"not a metaconstant"))
 
-(prn "need a changer parse error")
+(capturing-failure-output  ;; a bad code runner
+ (macroexpand-1 '(background (before :facts)))
+ (fact @fact-output => #"`before` has two forms"))
+
 
 (capturing-failure-output ;; multiple failures reports only the first
  (macroexpand-1 '(background (f 1) => 1
@@ -127,7 +138,6 @@
 
 
 ;; (fact "before gets an optional :after param"
-;;   (validate-old `(before :contents (do "something") :after (do "another thing"))) =not=> validation-error-form?
 ;;   (validate-old `(before :contents (do "something") :around (do "another thing"))) => validation-error-form?)
 
 ;; (fact "after and around don't get extra params - length should be 3"

@@ -71,10 +71,7 @@
 
 (facts "recognizing setup/teardown forms"
   '[ (before :checks (+ 1 1)) ... ] => seq-headed-by-setup-teardown-form?
-  '[ (before :checks) ... ] =not=>  seq-headed-by-setup-teardown-form?
   '[ (before :checks (+ 1 1) :after (- 2 2)) ... ] => seq-headed-by-setup-teardown-form?
-  '[ (before :checks (+ 1 1) :after ) ... ] =not=> seq-headed-by-setup-teardown-form?
-
   '[ (after :checks (+ 1 1)) ... ] => seq-headed-by-setup-teardown-form?
   '[ (around :checks (let [x 1] ?form)) ... ] => seq-headed-by-setup-teardown-form?)
 
