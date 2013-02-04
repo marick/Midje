@@ -3,15 +3,15 @@
         midje.test-util))
 
 (unfinished f)
+(defn g [n] (f n))
 
-;; Check expressions
 
-
+;; ==================                            Check expressions
 
 (silent-fact (f 1) =>)
 (note-that parse-error-found (fact-failed-with-note #"has the wrong shape"))
 
-;; Prerequisites
+;; ===================                           In-fact Prerequisites
 
 (silent-fact "Certain functions that cannot be faked are detected at parse time"
   (f) => 1
@@ -47,7 +47,9 @@
   (f ..new-val..) => 0
   (provided
     g =contains=> {:a 3}))
-(note-that parse-error-found (fact-failed-with-note #"there's no metaconstant"))
+(note-that parse-error-found (fact-failed-with-note #"g is not a metaconstant"))
+
+
 
 ;; This can only be done approximately, since the right-hand-side could be a bound symbol,
 ;; a quoted form, etc.
