@@ -4,7 +4,7 @@
         [midje.parsing.util.wrapping :only [for-wrapping-target?]]
         [midje.util unify]
         [midje.error-handling validation-errors]
-        [midje.parsing.1-to-explicit-form.background :only [validate-old separate-background-forms setup-teardown-bindings
+        [midje.parsing.1-to-explicit-form.background :only [separate-background-forms setup-teardown-bindings
                                  seq-headed-by-setup-teardown-form? background-wrappers]]
         midje.util))
 (expose-testables midje.parsing.1-to-explicit-form.background)
