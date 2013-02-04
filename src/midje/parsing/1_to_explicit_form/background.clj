@@ -25,9 +25,15 @@
 (defn against-background? [form]
   (first-named? form "against-background"))
 
-(defn either-background? [form]
-  (or (against-background? form)
-      (first-named? form "background")))
+(defn wrapping-against-background? [form]
+  (and (against-background? form)
+       (and (> (count form) 2)
+            (vector? (second form)))))
+
+(defn against-background-that-applies-to-containing-fact? [form]
+  (and (against-background? form)
+       (not (wrapping-against-background? form))))
+  
 
 (defn background-fakes []
   (namespace-values-inside-out :midje/background-fakes))
@@ -36,15 +42,14 @@
 ;; dissecting background forms
 
 (defn separate-background-forms [fact-forms]
-  (let [[background-forms other-forms] (separate either-background? fact-forms)
-        background-changers (mapcat (fn [[command & args]]
-                                      (arglist-undoing-nesting args))
-                                    background-forms)]
-    [background-changers other-forms]))
-
-(defn setup-teardown-bindings [form]
-  (unify/bindings-map-or-nil form
-                             '(?key ?when ?first-form ?after ?second-form)))
+  (letfn [(background-form-in-fact? [form]
+            (or (first-named? form "background")
+                (against-background-that-applies-to-containing-fact? form)))]
+    (let [[background-forms other-forms] (separate background-form-in-fact? fact-forms)
+          background-changers (mapcat (fn [[command & args]]
+                                        (arglist-undoing-nesting args))
+                                      background-forms)]
+    [background-changers other-forms])))
 
 (letfn [(ensure-correct-form-variable [form]
           (translate-zipper form
@@ -80,29 +85,45 @@
     [_wrapping-target_ around-form]
     (ensure-correct-form-variable around-form)))
 
-(defn seq-headed-by-setup-teardown-form? [forms]
+(defn next-could-be-a-code-runner? [forms]
+  (and (or (list? (first forms))
+           (seq? (first forms)))
+       (symbol? (ffirst forms))))
+
+(defn seq-headed-by-code-runner? [forms]
   (#{"before" "after" "around"} (name (ffirst forms))))
 
-(defn- ^{:testable true } extract-state-descriptions+fakes [forms]
-  (loop [expanded []
-         in-progress forms]
-    (pred-cond in-progress
-      empty? 
-      expanded
+(defn- ^{:testable true } extract-background-changers
+  ([forms error-reporter]
+     (loop [expanded []
+            in-progress forms]
+       (pred-cond in-progress
+                  empty? 
+                  expanded
+                  
+                  start-of-checking-arrow-sequence?
+                  (let [arrow-seq (take-arrow-sequence in-progress)]
+                    (recur (conj expanded (-> arrow-seq prerequisite-to-fake fakes/tag-as-background-fake))
+                           (drop (count arrow-seq) in-progress)))
+                  
+                  metaconstant-prerequisite?
+                  (let [arrow-seq (take-arrow-sequence in-progress)]
+                    (recur (conj expanded (-> arrow-seq prerequisite-to-fake))
+                           (drop (count arrow-seq) in-progress)))
+                  
+                  (complement next-could-be-a-code-runner?)
+                  (error-reporter (cl-format nil "~S does not look like a prerequisite or a before/after/around code runner." (first in-progress)))
+                  
+                  seq-headed-by-code-runner?
+                  (recur (conj expanded (first in-progress))
+                         (rest in-progress))
 
-      start-of-checking-arrow-sequence?
-      (let [arrow-seq (take-arrow-sequence in-progress)]
-        (recur (conj expanded (-> arrow-seq prerequisite-to-fake fakes/tag-as-background-fake))
-               (drop (count arrow-seq) in-progress)))
-
-      metaconstant-prerequisite?
-      (let [arrow-seq (take-arrow-sequence in-progress)]
-        (recur (conj expanded (-> arrow-seq prerequisite-to-fake))
-               (drop (count arrow-seq) in-progress)))
-
-      seq-headed-by-setup-teardown-form?
-      (recur (conj expanded (first in-progress))
-             (rest in-progress)))))
+                  :else
+                  (error-reporter (cl-format nil "~S does not look like a before/after/around code runner." (first in-progress))))))
+  ([forms]
+     (extract-background-changers forms
+                                       (fn [& args]
+                                         (throw (Error. "Supposedly impossible error parsing a background changer."))))))
 
 (defn- ^{:testable true } state-wrapper [[_before-after-or-around_ wrapping-target & _ :as state-description]]
   (with-wrapping-target
@@ -120,7 +141,7 @@
   ;; it made it easier to eyeball expanded forms and see what was going on.
   (defn background-wrappers [background-forms]
     (predefine-metaconstants-from-form background-forms)
-    (let [[fakes state-descriptions] (separate fakes/fake? (extract-state-descriptions+fakes background-forms))
+    (let [[fakes state-descriptions] (separate fakes/fake? (extract-background-changers background-forms))
           state-wrappers (eagerly (map state-wrapper state-descriptions))]
       (if (empty? fakes)
         state-wrappers
@@ -142,15 +163,46 @@
 
 ;;; Validation
 
-(defn assert-valid-before [runner]
-  (when-not (#{3 5} (count runner))
-    (error/report-error runner
-                        "`before` has two forms: `(before <target> <form>)` and `(before <target> <form> :after <form>")))
+(def #^:private possible-targets #{:facts, :contents, :checks })
+(def #^:private target-text ":facts, :checks, or :contents")
+(def wrong (partial cl-format nil "`~S`."))
+
+(defn assert-arg-count! [runner count-set & messages]
+  (when-not (count-set (count (rest runner)))
+    (apply error/report-error runner (wrong runner) messages)))
+
+(defn assert-targets! [runner]
+  (when-not (possible-targets (second runner))
+    (error/report-error runner (wrong runner)
+                        (cl-format nil "Expected the target of `~S` to be ~A." (first runner) target-text))))
+
+
+(defn assert-valid-before! [runner]
+  (assert-arg-count! runner #{2 4} 
+                     "`before` has two forms: `(before <target> <form>)` and `(before <target> <form> :after <form>).")
+  (assert-targets! runner)
+  (when (and (= 5 (count runner))
+             (not= (nth runner 3) :after))
+    (error/report-error runner (wrong runner)
+                        (cl-format nil "Expected the third argument of `before` to be :after."))))
+
+(defn assert-valid-after! [runner]
+  (assert-arg-count! runner #{2} "`after` takes a target and a form to run.")
+  (assert-targets! runner))
+    
+(defn assert-valid-around! [runner]
+  (assert-arg-count! runner #{2} "`around` takes a target and a form to run.")
+  (assert-targets! runner)
+  (when-not (re-find #"\?form\W" (str (nth runner 2)))
+    (error/report-error runner (wrong runner)
+                        "The wrapper must contain `?form`.")))
+  
 
 (defn assert-valid-code-runner! [runner]
   (case (name (first runner))
-    "before" (assert-valid-before runner)
-    nil))
+    "before" (assert-valid-before! runner)
+    "after" (assert-valid-after! runner)
+    "around" (assert-valid-around! runner)))
 
 (defn assert-right-shape!
   "This is concerned only with the background-changers." 
@@ -160,7 +212,7 @@
   (let [changer-args (if (vector? (second form))
                        (second form)
                        (rest form))
-        changers (extract-state-descriptions+fakes changer-args)]
+        changers (extract-background-changers changer-args (partial error/report-error form (wrong changer-args)))]
     (doseq [changer changers]
       (cond (first-named? changer "fake")
             (fakes/assert-valid! (positioned-form changer (:line (meta form))))
@@ -172,149 +224,8 @@
             (assert-valid-code-runner! changer)))))
                                       
 
-;;;;; Validation
-;;;;; This is a lot of old complexity that's retained only because the idea of
-;;;;; background needs to go away in favor of fact metadata
 
-
-
-
-;; Making validation errors
-
-(defn- ^{:testable true} as-validation-error [form]
-  (vary-meta form assoc :midje/validation-error true))
-
-(defn validation-error-form? [form]
-  (:midje/validation-error (meta form)))
-
-(defn validation-error-report-form [form & notes]
-  (as-validation-error `(emit/fail {:type :parse-error
-                                    :notes '~notes
-                                    :position '~(form-position form)})))
-
-(defn simple-validation-error-report-form [form & notes]
-  (apply validation-error-report-form form (conj (vec notes) (pr-str form))))
-
-
-;; Validation control flow macros
-
-(defmonad validate-m
-  "Monad describing form processing with possible failures. Failure
-  is represented by any form with metadata :midje/validation-error"
-  [m-result identity
-   m-bind   (fn [form f] 
-              (if (validation-error-form? form) form (f form)))  ])
-
-(defmacro when-valid [validatable-form & body-to-execute-if-valid]
-  `(domonad validate-m [_# (validate-old ~validatable-form)]
-            ~@body-to-execute-if-valid))
-
-
-(prn "MIGRATE VALIDATION CODE")
-;; ;; Validate
-
-;; (defmulti validate-old (fn [form & _options_] 
-;;                      (if (named? (first form)) 
-;;                        (name (first form)) 
-;;                        :validate-seq)))
-
-;; (defmethod validate-old :validate-seq [seq-of-forms & _options_]
-;;   (let [first-validation-error (->> seq-of-forms 
-;;                                     (map validate-old) 
-;;                                     (filter validation-error-form?)
-;;                                     first)]
-;;     (or first-validation-error seq-of-forms)))
-
-;; (defmethod validate-old :default [form & _options_] (rest form))
-
-;; (def #^:private possible-wrapping-targets   #{:facts, :contents, :checks })
-;; (def #^:private possible-state-descriptions #{"before" "after" "around"})
-
-;; (pile/def-many-methods validate-old ["before" "after" "around"] [[state-description wrapping-target expression :as form]]
-;;   (cond
-;;     (and (#{"after" "around"} (name state-description)) (not= 3 (count form)))
-;;     (error/report-error form
-;;                         (cl-format nil "    In this form: ~A" form)
-;;                         (cl-format nil "~A forms should look like: (~A :contents/:facts/:checks (your-code))"
-;;                                    (name state-description) (name state-description)))
-
-;;     (and (= "before" (name state-description))
-;;          (not= 3 (count form))
-;;          (or (not= 5 (count form))
-;;              (and (= 5 (count form))
-;;                   (not= :after (nth form 3)))))
-;;     (error/report-error form
-;;                         (cl-format nil "    In this form: ~A" form)
-;;                         "before forms should look like: (before :contents/:facts/:checks (your-code)) or "
-;;                         "(before :contents/:facts/:checks (your-code) :after (final-code))")
-
-;;     ((complement possible-wrapping-targets) wrapping-target)
-;;     (error/report-error form
-;;                         (cl-format nil "    In this form: ~A" form)
-;;                         (cl-format nil "The second element (~A) should be one of: :facts, :contents, or :checks"
-;;                                    wrapping-target))
-;;     :else (rest form)))
-
-;; (letfn [(possible-state-descriptions+fakes? [forms]
-;;           (loop [in-progress forms]
-;;             (pred-cond in-progress
-;;               empty?
-;;               true
-
-;;               (some-fn-m start-of-checking-arrow-sequence? metaconstant-prerequisite?)
-;;               (let [arrow-seq (take-arrow-sequence in-progress)]
-;;                 (recur (drop (count arrow-seq) in-progress)))
-
-;;               seq-headed-by-setup-teardown-form?
-;;               (recur (rest in-progress))
-
-;;               :else false)))
-
-;;         (state-description? [form]
-;;           (and (sequential? form)
-;;             (contains? possible-state-descriptions (name (first form))))) ]
-
-;;   (defmethod validate-old "against-background" 
-;;     [[_against-background_ state-descriptions+fakes & _body_ :as form]]
-;;     (cond (< (count form) 3)
-;;           (error/report-error form
-;;                               "You need a minimum of three elements to an against-background form:")
-       
-;;           (vector? state-descriptions+fakes)                                    
-;;           (when-valid (filter state-description? state-descriptions+fakes)
-;;             (pred-cond state-descriptions+fakes   
-;;               empty?
-;;               (error/report-error form
-;;                                   "You put nothing in the background:")
-            
-;;               (comp not possible-state-descriptions+fakes?)
-;;               (error/report-error form
-;;                                   "Badly formatted background prerequisites:")
-        
-;;               :else
-;;               (rest form)))
-            
-;;           (sequential? state-descriptions+fakes)
-;;           (if (named? (first state-descriptions+fakes))
-;;             (when-valid state-descriptions+fakes (rest form))
-;;             (rest form))
-            
-;;           :else                                      
-;;           (simple-validation-error-report-form form 
-;;             "Malformed against-background. against-background requires"
-;;             "at least one background fake or background wrapper: " )))
-  
-;;   (defmethod validate-old "background" [[_background_ & state-descriptions+fakes :as form]]
-;;     (when-valid (filter state-description? state-descriptions+fakes) 
-;;       (pred-cond state-descriptions+fakes 
-;;         empty?
-;;         (error/report-error form "You put nothing in the background:")   ; DONE
-    
-;;         (comp not possible-state-descriptions+fakes?)
-;;         (error/report-error form "Badly formatted background prerequisites:")
-        
-;;         :else
-;;         state-descriptions+fakes))))
+(prn "ADDRESS CASE THAT ONE GUY HAD")
 
 
 

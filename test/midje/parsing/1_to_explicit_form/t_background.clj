@@ -4,8 +4,8 @@
         [midje.parsing.util.wrapping :only [for-wrapping-target?]]
         [midje.util unify]
         [midje.error-handling validation-errors]
-        [midje.parsing.1-to-explicit-form.background :only [separate-background-forms setup-teardown-bindings
-                                 seq-headed-by-setup-teardown-form? background-wrappers]]
+        [midje.parsing.1-to-explicit-form.background :only [separate-background-forms 
+                                 background-wrappers]]
         midje.util))
 (expose-testables midje.parsing.1-to-explicit-form.background)
 
@@ -51,30 +51,14 @@
    (against-background ..back3..)
    ..claim2..]                         [..back1.. ..back2.. ..back3..] [..claim1.. ..claim2..]
 
+ ;; An embedded wrapping against-background is not identified as an against-background.
+   [ (against-background [..back1.. ..back2..]
+       (fact "an embedded fact"))]
+                                       []                               [ (against-background [..back1.. ..back2..]
+                                                                            (fact "an embedded fact"))]
+     
+
 )
-
-
-(facts "dissecting setup/teardown forms"
-  (setup-teardown-bindings '(before :checks (+ 1 1))) =>
-    (contains '{?key before, ?when :checks, ?first-form (+ 1 1), ?after nil})
-
-  (setup-teardown-bindings '(before :checks (+ 1 1) :after (- 2 2))) =>
-    (contains '{?key before, ?when :checks, ?first-form (+ 1 1),
-                ?after :after, ?second-form (- 2 2)})
-
-  (setup-teardown-bindings '(after :checks (+ 1 1))) =>
-    (contains '{?key after, ?when :checks, ?first-form (+ 1 1)})
-
-  (setup-teardown-bindings '(around :checks (let [x 1] ?form))) =>
-    (contains '{?key around, ?when :checks,
-                ?first-form (let [x 1] ?form) }))
-
-(facts "recognizing setup/teardown forms"
-  '[ (before :checks (+ 1 1)) ... ] => seq-headed-by-setup-teardown-form?
-  '[ (before :checks (+ 1 1) :after (- 2 2)) ... ] => seq-headed-by-setup-teardown-form?
-  '[ (after :checks (+ 1 1)) ... ] => seq-headed-by-setup-teardown-form?
-  '[ (around :checks (let [x 1] ?form)) ... ] => seq-headed-by-setup-teardown-form?)
-
 
 
 
@@ -82,11 +66,11 @@
 
 (fact "human-friendly background forms can be canonicalized appropriately"
   "fakes"
-  (extract-state-descriptions+fakes []) => []
-  (extract-state-descriptions+fakes '[(f 1) => 2]) 
+  (extract-background-changers []) => []
+  (extract-background-changers '[(f 1) => 2]) 
   => '[(midje.semi-sweet/fake (f 1) => 2 :background :background
                                          :times (range 0))]
-  (extract-state-descriptions+fakes '[   (f 1) => 2 :foo 'bar (f 2) => 33 ])
+  (extract-background-changers '[   (f 1) => 2 :foo 'bar (f 2) => 33 ])
   => '[(midje.semi-sweet/fake (f 1) => 2 :foo 'bar
                                          :background :background
                                          :times (range 0))
@@ -94,16 +78,16 @@
                               :times (range 0)) ]
 
   "data fakes"
-  (extract-state-descriptions+fakes '[...m... =contains=> {:a 1, :b 2}])
+  (extract-background-changers '[...m... =contains=> {:a 1, :b 2}])
   => '[(midje.semi-sweet/data-fake ...m... =contains=> {:a 1, :b 2})]
 
   "other types are left alone"
-  (extract-state-descriptions+fakes
+  (extract-background-changers
    '[ (before :checks (swap! test-atom (constantly 0))) ]) =>
    '[ (before :checks (swap! test-atom (constantly 0))) ]
 
  "mixtures"
- (extract-state-descriptions+fakes
+ (extract-background-changers
   '[ (f 1) => 2 (before :checks (swap! test-atom (constantly 0))) (f 2) => 3 ])
  => '[ (midje.semi-sweet/fake (f 1) => 2 :background :background
                                         :times (range 0))
