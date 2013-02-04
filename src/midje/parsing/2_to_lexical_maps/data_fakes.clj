@@ -10,7 +10,8 @@
 (defn valid-pieces [[_data-fake_ metaconstant arrow contained & overrides :as form]]
   (cond (not (metaconstant/metaconstant-symbol? metaconstant))
         (error/report-error form
-          "You seem to be assigning values to a metaconstant, but there's no metaconstant."))
+                            (cl-format nil "In `~A ~A ~A`, ~A is not a metaconstant."
+                                       metaconstant arrow contained metaconstant)))
 
         ;; This one isn't possible because the right-hand-side could be a bound symbol.
         ;; (not (map? contained))
@@ -18,6 +19,8 @@
         ;;                     "The right-hand side of a =contains=> arrow should be a map."))
   
   [metaconstant arrow contained overrides])
+
+(def assert-valid! valid-pieces)
 
 (defn to-lexical-map-form [a-list]
   (apply lexical-maps/data-fake (valid-pieces a-list)))
