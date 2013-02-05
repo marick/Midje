@@ -13,12 +13,6 @@
 (expose-testables midje.parsing.0-to-fact-form.tabular)
 
 
-;; Check that errors are reported with the correct line numbers.
-(silent-tabular
- (fact
-     (cons 1 ?a) => 3))
-(note-that fact-fails (failure-was-at-line 17))
-
 ;; Core midje.sweet API
 
 (tabular

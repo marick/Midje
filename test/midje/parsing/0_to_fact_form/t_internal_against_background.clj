@@ -7,7 +7,7 @@
 
 (defn f [] nil)
 
-(fact "two" ; "Checking fact at (test.clj:null)"
+(fact "two"
   (against-background (f) => 2)
   (f) => 2)
 
