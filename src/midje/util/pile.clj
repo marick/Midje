@@ -98,4 +98,4 @@
 ;;; Hashing
 
 (defn form-guid [form]
-  (DigestUtils/sha1Hex (pr-str form)))
+  (DigestUtils/shaHex (pr-str form)))
