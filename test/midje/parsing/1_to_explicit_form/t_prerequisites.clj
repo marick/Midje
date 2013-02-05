@@ -4,17 +4,6 @@
   (:require [clojure.zip :as zip]
             [midje.parsing.1-to-explicit-form.expects :as parse-expects]))
 
-;;; Line numbers
-
-(silent-fact "Malformed previous provider"
-  (f ..new-val..)
-  (provided
-    (g ..new-val..) => ..new-transformed-val..))
-(note-that (failure-was-in-file "t_prerequisites.clj")
-           (failure-was-at-line 11))
-
-;;; 
-
 (fact "can ask whether at the beginning of a form that provides prerequisites"
   (let [values (zip/seq-zip '(provided midje.semi-sweet/provided fluke))]
     (-> values zip/down) => head-of-form-providing-prerequisites?

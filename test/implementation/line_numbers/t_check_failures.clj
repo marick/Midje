@@ -1,4 +1,4 @@
-(ns behaviors.t-line-number-reporting
+(ns implementation.line-numbers.t-check-failures
   (:use midje.sweet
         clojure.test
         midje.test-util)
@@ -110,19 +110,19 @@
 (config/with-augmented-config {:visible-future true}
   (capturing-fact-output
    (future-fact "text")
-   (fact @fact-output => #"t_line_number_reporting.*112")))
+   (fact @fact-output => #"t_check_failures.*112")))
 
 (config/with-augmented-config {:visible-future true}
   (capturing-fact-output
    (pending-fact "text")
-   (fact @fact-output => #"t_line_number_reporting.*117")))
+   (fact @fact-output => #"t_check_failures.*117")))
 
 (config/with-augmented-config {:visible-future true}
   (capturing-fact-output
    (fact "text"
      
      (+ 1 "1") =future=> "2")
-   (fact @fact-output => #"t_line_number_reporting.*124")))
+   (fact @fact-output => #"t_check_failures.*124")))
 
 
 

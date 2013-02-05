@@ -16,8 +16,6 @@
 
 (expect (separate-background-forms '[ (against-background) (f 1) => 3 ]) => [ [] '[ (f 1) => 3 ] ])
 
-(prn "details/t_background should have tests for line numbers")
-
 (tabular
  (fact "separate-background-forms divides forms into background and other things"
    (separate-background-forms '?in) => '[ ?background-forms  ?other-forms])
