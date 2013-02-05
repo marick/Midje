@@ -22,7 +22,7 @@
 
 (comment ; --------------------------------------------------------
   (clojure.core/merge
-   {:position (midje.parsing.util.file-position/user-file-position),
+   {:position (midje.parsing.util.file-position/line-number-known ...),
     :expected-result-form '(just a 2),
     :expected-result (just a 2),
     :check-expectation :expect-match,
@@ -42,12 +42,13 @@
   (let [source-details `{:call-form '~call-form
                          :arrow '~arrow }
         override-map `(hash-map-duplicates-ok ~@overrides)
+        line (:line (meta call-form))
         result `(merge
                  {:function-under-test (fn [] ~call-form)
                   :expected-result ~expected-result
                   :check-expectation ~(expect-match-or-mismatch arrow)
                   :expected-result-form '~expected-result ;; This is also part of the source details.
-                  :position (position/user-file-position)
+                  :position (position/line-number-known ~line)
                   
                   ;; Adding this field insulates people writing emission plugins
                   ;; from the mechanism for keeping track of nested facts.
@@ -68,6 +69,7 @@
                          :arrow '~arrow
                          :rhs '~(cons result overrides)}
         override-map `(hash-map-duplicates-ok ~@overrides)
+        line (:line (meta call-form))
         result `(merge
                  {
                   :type :fake
@@ -78,7 +80,7 @@
                   :result-supplier (from-fake-maps/mkfn:result-supplier ~arrow ~result)
                   :times :default  ; Default allows for a more attractive error in the most common case.
                   
-                  :position (position/user-file-position)
+                  :position (position/line-number-known ~line)
                   :call-count-atom (atom 0)
                   :call-text-for-failures (str '~call-form)
                  }
@@ -96,6 +98,7 @@
                          :arrow '~arrow
                          :rhs '~(cons contained overrides)}
         override-map `(hash-map-duplicates-ok ~@overrides)
+        line (:line (meta contained))
         result `(merge
                  {
                   :type :fake
@@ -103,7 +106,7 @@
                   :var ~(fnref/fnref-call-form metaconstant)
                   :contained ~contained
                   
-                  :position (position/user-file-position)
+                  :position (position/line-number-known ~line)
                   :call-count-atom (atom 1) ;; kludje
                  }
                  ~source-details

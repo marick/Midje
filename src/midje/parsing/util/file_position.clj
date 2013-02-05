@@ -35,33 +35,26 @@
 
 
 
-(defn- basename [string]
+(defn basename [string]
   (last (str/split string #"/")))
 
-;; TODO: Should this strip off the pathname on the front?
+(defn current-file-name []
+  (basename *file*))
+
 (defn form-position [form]
-  (list (basename *file*) (:line (meta form))))
+  (list (current-file-name)  (:line (meta form))))
 
 (defn compile-time-fallback-position []
-  (list (basename *file*) @fallback-line-number))
+  (list (current-file-name) @fallback-line-number))
 
 
 ;; RUNTIME POSITIONS
-;; For reporting information that is not known (was not
-;; inserted at runtime).
-
-(defn user-file-position 
-  "Guesses the file position (basename and line number) that the user is
-   most likely to be interested in if a test fails."
-  []
-  (second (for [^StackTraceElement elem (.getStackTrace (Throwable.))] 
-            (list (.getFileName elem) (.getLineNumber elem)))))
+;; These are positions that determine the file or line at runtime.
 
 (defmacro line-number-known 
   "Guess the filename of a file position, but use the given line number."
   [number]
-  `[(first (user-file-position)) ~number])
-
+  `[(current-file-name) ~number])
 
 (letfn [(replace-loc-line [loc loc-with-line]
           (let [m (fn [loc] (meta (zip/node loc)))
