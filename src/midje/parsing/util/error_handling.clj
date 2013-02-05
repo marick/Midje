@@ -10,6 +10,8 @@
 (def ^{:dynamic true} *wrap-count* 0)
 (def bail-out-of-parsing (gensym))
 
+(defn inside-an-error-handling-wrapper? [] (pos? *wrap-count*))
+
 ;; Note: this could be a macro, but it's easy to
 ;; get confused by macros assisting in the execution
 ;; of parsing code that parses macros. Using a thunk
@@ -29,20 +31,22 @@
    Note that the parsing code should take care not to let
    unparsed code escape from this function via lazy seqs."
   [form-being-parsed parser]
-  (if (pos? *wrap-count*)
-    (parser)
-    (binding [*wrap-count* (inc *wrap-count*)]
-      (try+
-        (parser)
-      (catch (partial = bail-out-of-parsing) _
-        false)
-      (catch Exception ex
-        (emit/fail {:type :exception-during-parsing
-                    :macro-form form-being-parsed
-                    :stacktrace (user-error-exception-lines ex)
-                    :position (form-position form-being-parsed)})
-        false)))))
-     
+  (letfn [(report-exception [ex]
+            (emit/fail {:type :exception-during-parsing
+                        :macro-form form-being-parsed
+                        :stacktrace (user-error-exception-lines ex)
+                        :position (form-position form-being-parsed)}))]
+    (if (inside-an-error-handling-wrapper?)
+      (parser)
+      (binding [*wrap-count* (inc *wrap-count*)]
+        (try+
+         (parser)
+         (catch (partial = bail-out-of-parsing) _
+           false)
+         (catch Exception ex
+           (report-exception ex)
+           false))))))
+  
           
 
 (defn report-error [form & notes]
