@@ -12,14 +12,12 @@
         [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
                                                    with-pushed-namespace-values]])
   (:require [clojure.zip :as zip]
-            [midje.util.pile :as pile]
             [midje.util.unify :as unify]
             [midje.parsing.util.arrows :as arrows]
             [midje.parsing.util.file-position :as position]
-            [midje.parsing.2-to-lexical-maps.fakes :as fakes]
-            [midje.parsing.2-to-lexical-maps.data-fakes :as data-fakes]
             [midje.parsing.util.error-handling :as error]
-            [midje.emission.api :as emit]))
+            [midje.parsing.2-to-lexical-maps.fakes :as fakes]
+            [midje.parsing.2-to-lexical-maps.data-fakes :as data-fakes]))
 
 (defn against-background? [form]
   (first-named? form "against-background"))

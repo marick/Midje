@@ -22,8 +22,7 @@
         [midje.parsing.util.zip :only [skip-to-rightmost-leaf]]
         [swiss-arrows.core :only [-<>]])
   (:require [clojure.zip :as zip])
-  (:require [midje.util.pile :as pile]
-            [midje.checking.facts :as fact-checking]
+  (:require [midje.checking.facts :as fact-checking]
             [midje.data.compendium :as compendium]
             [midje.parsing.util.file-position :as position]
             [midje.parsing.util.arrows :as arrows]
@@ -33,8 +32,7 @@
             [midje.parsing.1-to-explicit-form.metadata :as parse-metadata]
             [midje.parsing.2-to-lexical-maps.fakes :as parse-fakes]
             [midje.parsing.2-to-lexical-maps.expects :as parse-expects]
-            [midje.parsing.2-to-lexical-maps.folded-fakes :as parse-folded-fakes]
-            [midje.data.fact :as fact-data]))
+            [midje.parsing.2-to-lexical-maps.folded-fakes :as parse-folded-fakes]))
 
 (defn fact? [form]
   (or (first-named? form "fact")

@@ -1,12 +1,12 @@
 (ns ^{:doc "Functions for turning provideds into semi-sweet fakes"}
   midje.parsing.1-to-explicit-form.prerequisites
   (:use midje.parsing.util.core
-        [midje.parsing.util.file-position :only [arrow-line-number-from-form]]
         midje.parsing.arrow-symbols
         [midje.parsing.util.arrows :only [pull-all-arrow-seqs-from]]
         [midje.parsing.1-to-explicit-form.expects :only [up-to-full-expect-form expect?
                                                          tack-on__then__at-rightmost-expect-leaf]])
   (:require [clojure.zip :as zip]
+            [midje.parsing.util.file-position :as position]
             [midje.parsing.util.error-handling :as error]
             [midje.util.ecosystem :as ecosystem]))
 
@@ -17,7 +17,7 @@
   (symbol-named? arrow =contains=>))
 
 (defn prerequisite-to-fake [fake-body]
-  (let [^Integer line-number (arrow-line-number-from-form fake-body)
+  (let [^Integer line-number (position/arrow-line-number-from-form fake-body)
         fake-tag (if (metaconstant-prerequisite? fake-body)
                    'midje.semi-sweet/data-fake
                    'midje.semi-sweet/fake)]

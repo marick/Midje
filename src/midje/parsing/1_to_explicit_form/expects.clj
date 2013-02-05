@@ -3,9 +3,9 @@
   midje.parsing.1-to-explicit-form.expects
   (:use midje.parsing.util.core
         [midje.parsing.util.zip :only [skip-to-rightmost-leaf n-times remove-moving-right]]
-        [midje.parsing.util.arrows :only [start-of-checking-arrow-sequence? arrow-sequence-overrides]]
-        [midje.parsing.util.file-position :only [arrow-line-number]])
-  (:require [clojure.zip :as zip]))
+        [midje.parsing.util.arrows :only [start-of-checking-arrow-sequence? arrow-sequence-overrides]])
+  (:require [clojure.zip :as zip]
+            [midje.parsing.util.file-position :as position]))
   
 
 (defmulti expect? tree-variant)
@@ -47,7 +47,7 @@
   (let [right-hand (-> loc zip/right zip/right)
         arrow-sequence (-> loc zip/right zip/node)
         additions (arrow-sequence-overrides (zip/rights right-hand))
-        line-number (arrow-line-number (zip/right loc))
+        line-number (position/arrow-line-number (zip/right loc))
         edited-loc (zip/edit loc
                       (fn [loc]
                         (vary-meta

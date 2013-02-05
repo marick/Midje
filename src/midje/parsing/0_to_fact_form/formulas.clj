@@ -4,14 +4,13 @@
         midje.parsing.util.core
         [midje.parsing.util.arrows :only [leaf-expect-arrows leaves-contain-arrow?]]
         [midje.parsing.1-to-explicit-form.future-facts :only [future-prefixes]]
-        [clojure.algo.monads :only [domonad]]
         [clojure.string :only [join]]
         [clojure.walk :only [prewalk]])
   (:require [midje.util.pile :as pile]
+            [midje.parsing.util.error-handling :as error]
             [midje.emission.boundaries :as emission-boundary]
             [midje.emission.api :as emit]
             [midje.emission.state :as state]
-            [midje.parsing.util.error-handling :as error]
             [midje.emission.plugins.silence :as emission-silence]))
 
 ;; Formulas work by running up to *num-trials* trials per formula.

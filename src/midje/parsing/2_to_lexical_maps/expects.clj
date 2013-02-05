@@ -2,20 +2,13 @@
   midje.parsing.2-to-lexical-maps.expects
   (:use midje.clojure.core
         midje.parsing.util.core
-        midje.parsing.util.zip
         [midje.parsing.arrow-symbols])
-  (:require [clojure.zip :as zip]
-            [midje.config :as config]
-            [midje.util.pile :as pile]
-            [midje.util.exceptions :as exceptions]
-            [midje.data.metaconstant :as metaconstant]
-            [midje.data.nested-facts :as nested-facts]
+  (:require [midje.data.nested-facts :as nested-facts]
             [midje.parsing.util.error-handling :as error]
             [midje.parsing.lexical-maps :as lexical-maps]
             [midje.parsing.2-to-lexical-maps.fakes :as parse-fakes]
             [midje.parsing.2-to-lexical-maps.data-fakes :as parse-data-fakes]
-            [midje.emission.api :as emit])
-  (:import midje.data.metaconstant.Metaconstant))
+            [midje.emission.api :as emit]))
 
 (defn- ^{:testable true } a-fake? [x]
   (and (seq? x)

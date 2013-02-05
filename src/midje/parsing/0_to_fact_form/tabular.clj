@@ -1,8 +1,6 @@
 (ns ^{:doc "A way to create multiple facts with the same template, but different data points."}
   midje.parsing.0-to-fact-form.tabular
   (:use [midje.parsing.util.zip]
-        [clojure.string :only [join]]
-        [clojure.algo.monads :only [domonad]]
         [midje.parsing.util.file-position :only [form-with-copied-line-numbers]]
         [midje.emission.deprecation :only [deprecate]]
         [midje.parsing.util.zip :only [skip-to-rightmost-leaf]]
@@ -11,7 +9,8 @@
         [midje.parsing.1-to-explicit-form.facts :only [working-on-nested-facts unparse-edited-fact]]
         [midje.data.metaconstant :only [metaconstant-symbol?]]
         [utilize.map :only [ordered-zipmap]])
-(:require [midje.util.unify :as unify]
+(:require [clojure.string :as str]
+          [midje.util.unify :as unify]
           [midje.parsing.1-to-explicit-form.metadata :as metadata]
           [midje.parsing.util.error-handling :as error]))
 
@@ -40,7 +39,7 @@
 (defn- format-binding-map [binding-map] 
   (let [formatted-entries (for [[k v] binding-map]
                             (str (pr-str k) " " (pr-str v)))]
-    (str "[" (join "\n                           " formatted-entries) "]")))
+    (str "[" (str/join "\n                           " formatted-entries) "]")))
 
 (defn- ^{:testable true } add-binding-note
   [checking-fact-form ordered-binding-map]
