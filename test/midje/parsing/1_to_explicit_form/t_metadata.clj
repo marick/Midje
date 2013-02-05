@@ -89,6 +89,14 @@
       (fact "and unparse into an explicit map"
         (unparse-metadata meta) => (just [{:a 1} 'name] :in-any-order))))
 
+  (fact "midje core metadata isn't assigned if it's given explicitly"
+    (let [[meta body] (separate-metadata `(fact name {:midje/source "foo" :midje/body-source "bs"
+                                                      :midje/namespace bar} ~@a-body))]
+      (:midje/name meta) => "name"
+      (:midje/source meta) => "foo"
+      (:midje/body-source meta) => "bs"
+      (:midje/namespace meta) => `bar
+      body => a-body))
 
   (fact "is not confused by the presence of an arrow form"
     (let [[meta form] (separate-metadata `(fact 112 => 211))]

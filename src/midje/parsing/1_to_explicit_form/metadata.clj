@@ -11,7 +11,11 @@
   `(binding [metadata-for-fact-group (merge metadata-for-fact-group ~metadata)]
          ~@body))
 
-(defn separate-metadata [metadata-containing-form]
+(defn separate-metadata
+  "Removes metadata from a form and returns it along with the metadate-free
+   remainder. Also assigns the Midje core metadata like :midje/source.
+   However, it does not override such key/value pairs when explicitly supplied."
+  [metadata-containing-form]
   (letfn [(basic-parse [metadata body]
             (let [head (first body)
                   add-key (fn [key value] (assoc metadata key value))]
@@ -42,13 +46,20 @@
                                         :midje/file *file*
                                         :midje/line (:line (meta metadata-containing-form))}
                                        (rest metadata-containing-form))
+          ;; names and descriptions influence each other
           metadata (if (and (contains? metadata :midje/description)
                             (not (contains? metadata :midje/name)))
                      (assoc metadata :midje/name (:midje/description metadata))
-                     metadata)]
-      [(merge metadata-for-fact-group metadata {:midje/body-source body}) body])))
+                     metadata)
+          ;; Add body-source unless it was passed in.
+          metadata (merge {:midje/body-source body} metadata)]
+      [(merge metadata-for-fact-group metadata) body])))
 
-(defn unparse-metadata [metadata]
+(defn unparse-metadata
+  "Returns a sequence containing a name (if any), a description (if any),
+   and a map containing key/value pairs for user supplied metadata.
+   Midje core metadata (like :midje/line) is not included."
+  [metadata]
   (let [name (:midje/name metadata)
         description (:midje/description metadata)
         namelike (cond (and name (not description))

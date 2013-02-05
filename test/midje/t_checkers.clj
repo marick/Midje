@@ -83,20 +83,8 @@ odd?                           3       =not=>   ;; different
 odd?                           odd?    =>       ;; different
 
 (exactly odd?)                 3       =not=>
-(exactly odd?)                 odd?    =>)
+(exactly odd?)                 odd?    =>
 
-;;; Right now there's a Java method overflow problem. Until that's
-;;; fixed, split table in two.
-
-(tabular
-  (fact 
-    (silent-fact
-     (outer ?actual) => "expected"
-     (provided 
-       (inner ?expected) => "expected"))
-    @silent-fact:failure-count ?arrow zero?)
-
-?expected                      ?actual ?arrow
 (as-checker odd?)              3       =>
 (as-checker odd?)              odd?    =not=>
 

@@ -54,7 +54,7 @@
 ;;   should be done the first time the fact is loaded. (Such as running it for
 ;;   the first time.)
 
-;;; Support code 
+;;; Support code
 
 (def ^{:dynamic true} *parse-time-fact-level* 0)
 
@@ -64,6 +64,7 @@
 (defmacro given-possible-fact-nesting [& forms]
   `(binding [*parse-time-fact-level* (inc *parse-time-fact-level*)]
      ~@forms))
+
 
 (defmacro working-on-nested-facts [& forms]
   ;; Make sure we don't treat this as a top-level fact
@@ -211,10 +212,12 @@
 
 (defn unparse-edited-fact
   "Uses a body and (parsed) metadata to make up a new `fact`.
-   The resulting for has `:line` metadata."
+   The resulting for has `:line` metadata. The :midje/source and
+   :midje/body-source are supplied explicitly in the
+   new fact's metadata. That is, the final metadata will contain
+   the source and body-source of the original form."
   [metadata forms]
-  (vary-meta `(midje.sweet/fact ~@(parse-metadata/unparse-metadata metadata) ~@forms)
-             assoc :line (:midje/line metadata)))
-
-  
-  
+  (let [new-metadata (cons (select-keys metadata [:midje/source :midje/body-source])
+                           (parse-metadata/unparse-metadata metadata))]
+    (vary-meta `(midje.sweet/fact ~@new-metadata ~@forms)
+               assoc :line (:midje/line metadata))))
