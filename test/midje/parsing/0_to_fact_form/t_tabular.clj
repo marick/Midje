@@ -4,7 +4,8 @@
         [midje sweet test-util]
         [ordered.map :only (ordered-map)]
         midje.util)
-  (:require [midje.parsing.1-to-explicit-form.facts :as facts]
+  (:require [midje.util.pile :as pile]
+            [midje.parsing.1-to-explicit-form.facts :as facts]
             [midje.data.fact :as fact-data]
             [midje.data.compendium :as compendium]
             [midje.config :as config]))
@@ -16,7 +17,7 @@
 (silent-tabular
  (fact
      (cons 1 ?a) => 3))
-(note-that fact-fails (failure-was-at-line 16))
+(note-that fact-fails (failure-was-at-line 17))
 
 ;; Core midje.sweet API
 
@@ -301,18 +302,18 @@
 (tabular (fact ?a => 1) ?a 1 1)
 (fact :check-only-at-load-time
   (fact-data/source (compendium/last-fact-checked<>)) => '(tabular (fact ?a => 1) ?a 1 1)
-  (fact-data/guid (compendium/last-fact-checked<>)) => '((fact ?a => 1) ?a 1 1))
+  (fact-data/guid (compendium/last-fact-checked<>)) => (pile/form-guid '((fact ?a => 1) ?a 1 1)))
   
 (tabular "name" :integration (fact ?a => 1) ?a 1 1)
 (fact :check-only-at-load-time
   (fact-data/source (compendium/last-fact-checked<>)) => '(tabular "name" :integration (fact ?a => 1) ?a 1 1)
-  (fact-data/guid (compendium/last-fact-checked<>)) => '((fact ?a => 1) ?a 1 1)
+  (fact-data/guid (compendium/last-fact-checked<>)) => (pile/form-guid '((fact ?a => 1) ?a 1 1))
   (:integration (meta (compendium/last-fact-checked<>))) => true)
   
 (tabular (fact "name" :integration ?a => 1) ?a 1 1)
 (fact :check-only-at-load-time
   (fact-data/source (compendium/last-fact-checked<>)) => '(tabular (fact "name" :integration ?a => 1) ?a 1 1)
-  (fact-data/guid (compendium/last-fact-checked<>)) => '((fact ?a => 1) ?a 1 1)
+  (fact-data/guid (compendium/last-fact-checked<>)) => (pile/form-guid '((fact ?a => 1) ?a 1 1))
   (:integration (meta (compendium/last-fact-checked<>))) => true)
   
 

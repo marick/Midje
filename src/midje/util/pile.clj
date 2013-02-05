@@ -1,7 +1,8 @@
 (ns ^{:doc "Functions that are somewhat general purpose, but seem too obscure to be in midje.clojure.core.
            A cue to wiser placement decisions someday."}
   midje.util.pile
-  (:use midje.clojure.core))
+  (:use midje.clojure.core)
+  (:import org.apache.commons.codec.digest.DigestUtils))
 
 ;;; Named things
 
@@ -94,3 +95,7 @@
     `(defmethod ~name ~dval ~args
        ~@body)))
 
+;;; Hashing
+
+(defn form-guid [form]
+  (DigestUtils/sha1Hex (pr-str form)))

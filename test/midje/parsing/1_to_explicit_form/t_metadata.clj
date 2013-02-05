@@ -1,15 +1,17 @@
 (ns midje.parsing.1-to-explicit-form.t-metadata
   (:use midje.sweet
         midje.test-util
-        midje.parsing.1-to-explicit-form.metadata))
+        midje.parsing.1-to-explicit-form.metadata)
+  (:require [midje.util.pile :as pile]))
 
 (def a-body '((f) => 3))
+(def body-guid (pile/form-guid a-body))
 
 (facts "about separate-metadata" 
   (fact "contains the original source and other info"
     (let [[meta _] (separate-metadata `(fact "doc" ~@a-body))]
       (:midje/source meta) => `(fact "doc" ~@a-body)
-      (:midje/guid meta) => a-body
+      (:midje/guid meta) => body-guid
       (:midje/file meta) => "midje/parsing/1_to_explicit_form/t_metadata.clj"
       (:midje/namespace meta) => 'midje.parsing.1-to-explicit-form.t-metadata
       (contains? meta :midje/line) => truthy))
@@ -171,6 +173,6 @@
     (fact "the guid is stripped of metadata"
       (letfn [(guid-of [form]
                 (:midje/guid (first (separate-two-level-metadata form))))]
-        (guid-of two-level-original-with-metadata-at-top) => (rest two-level-without-metadata)
-        (guid-of two-level-original-with-metadata-at-lower) => (rest two-level-without-metadata)))))
+        (guid-of two-level-original-with-metadata-at-top) => (pile/form-guid (rest two-level-without-metadata))
+        (guid-of two-level-original-with-metadata-at-lower) => (pile/form-guid (rest two-level-without-metadata))))))
 

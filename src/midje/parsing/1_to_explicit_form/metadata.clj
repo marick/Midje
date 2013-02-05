@@ -2,7 +2,8 @@
   midje.parsing.1-to-explicit-form.metadata
   (:use midje.clojure.core
         [midje.util.exceptions :only [user-error]])
-  (:require [midje.parsing.util.arrows :as arrows]))
+  (:require [midje.parsing.util.arrows :as arrows]
+            [midje.util.pile :as pile]))
 
 
 (def ^{:dynamic true} metadata-for-fact-group {})
@@ -52,7 +53,7 @@
                      (assoc metadata :midje/name (:midje/description metadata))
                      metadata)
           ;; Add guid unless it was passed in.
-          metadata (merge {:midje/guid body} metadata)]
+          metadata (merge {:midje/guid (pile/form-guid body)} metadata)]
       [(merge metadata-for-fact-group metadata) body])))
 
 (defn unparse-metadata
@@ -86,7 +87,7 @@
         lower-level-form (first top-level-body)
         [lower-level-meta lower-level-body] (separate-metadata lower-level-form)
         stripped-top-level-body `((~(first lower-level-form) ~@lower-level-body) ~@(rest top-level-body))]
-      [(merge lower-level-meta top-level-meta {:midje/guid stripped-top-level-body})
+      [(merge lower-level-meta top-level-meta {:midje/guid (pile/form-guid stripped-top-level-body)})
        stripped-top-level-body]))
        
 

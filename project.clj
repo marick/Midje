@@ -14,6 +14,7 @@
                  [leiningen-core "2.0.0-preview10"]
                  [swiss-arrows "0.1.0"]
                  [org.clojure/tools.namespace "0.2.2"]
+                 [commons-codec/commons-codec "1.7"]
                  [gui-diff "0.3.9"]]
   :profiles {:dev {:dependencies [[slamhound "1.2.0"]
                                   [jonase/kibit "0.0.3"]

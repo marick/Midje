@@ -2,7 +2,8 @@
   (:use midje.sweet
         midje.test-util)
   (:require [midje.data.fact :as fact-data]
-            [midje.data.compendium :as compendium]))
+            [midje.data.compendium :as compendium]
+            [midje.util.pile :as pile]))
 
 (unfinished g)
 
@@ -31,7 +32,7 @@
   (f 2) => 2)
 (fact :check-only-at-load-time
   (fact-data/source (compendium/last-fact-checked<>)) => '(fact (against-background (g anything) => 2) (f 2) => 2)
-  (fact-data/guid (compendium/last-fact-checked<>)) => '((against-background (g anything) => 2) (f 2) => 2))
+  (fact-data/guid (compendium/last-fact-checked<>)) => (pile/form-guid '((against-background (g anything) => 2) (f 2) => 2)))
 
 ;;; Just for the heck of it, also check for surrounding against-background.
 
@@ -39,6 +40,6 @@
   (fact (f 2) => 2))
 (fact :check-only-at-load-time
   (fact-data/source (compendium/last-fact-checked<>)) => '(fact (f 2) => 2)
-  (fact-data/guid (compendium/last-fact-checked<>)) => '((f 2) => 2))
+  (fact-data/guid (compendium/last-fact-checked<>)) => (pile/form-guid '((f 2) => 2)))
 
 
