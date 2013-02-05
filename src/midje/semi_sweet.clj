@@ -3,9 +3,9 @@
   midje.semi-sweet
   (:use midje.clojure.core
         midje.data.prerequisite-state
-        [midje.util debugging]
+        [midje.util debugging] 
         [midje.emission.deprecation :only [deprecate]]
-        [midje.util.exceptions :only [user-error]]
+       [midje.util.exceptions :only [user-error]]
         [midje.util.ecosystem :only [line-separator]]
         [midje.parsing.util.file-position :only [user-file-position]]
         midje.production-mode
@@ -16,6 +16,7 @@
             [midje.parsing.lexical-maps :as lexical-maps]
             [midje.emission.api :as emit]
             midje.checking.examples
+            midje.checkers.extended-equality
             [midje.parsing.util.fnref :as fnref]
             [midje.parsing.2-to-lexical-maps.examples :as parse-examples]
             [midje.parsing.2-to-lexical-maps.fakes :as parse-fakes]
