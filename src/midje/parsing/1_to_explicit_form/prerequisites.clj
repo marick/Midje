@@ -5,7 +5,7 @@
         midje.parsing.arrow-symbols
         [midje.parsing.util.arrows :only [pull-all-arrow-seqs-from]]
         [midje.parsing.1-to-explicit-form.expects :only [up-to-full-expect-form expect?
-                                            tack-on__then__at-rightmost-expect-leaf]])
+                                                         tack-on__then__at-rightmost-expect-leaf]])
   (:require [clojure.zip :as zip]
             [midje.parsing.util.error-handling :as error]
             [midje.util.ecosystem :as ecosystem]))

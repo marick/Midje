@@ -4,12 +4,9 @@
   (:use midje.clojure.core
         midje.parsing.util.core
         midje.parsing.util.zip
-        [midje.parsing.util.arrows :only [start-of-checking-arrow-sequence? take-arrow-sequence]]
         [midje.parsing.1-to-explicit-form.metaconstants :only [predefine-metaconstants-from-form]]
         [midje.parsing.1-to-explicit-form.prerequisites :only [metaconstant-prerequisite? prerequisite-to-fake]]
         [midje.data.prerequisite-state :only [with-installed-fakes]]
-        [midje.parsing.util.file-position :only [form-position positioned-form]]
-        [clojure.algo.monads :only [defmonad domonad]]
         [midje.parsing.util.wrapping :only [for-wrapping-target? with-wrapping-target]]
         [midje.util.laziness :only [eagerly]]
         [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
@@ -17,6 +14,8 @@
   (:require [clojure.zip :as zip]
             [midje.util.pile :as pile]
             [midje.util.unify :as unify]
+            [midje.parsing.util.arrows :as arrows]
+            [midje.parsing.util.file-position :as position]
             [midje.parsing.2-to-lexical-maps.fakes :as fakes]
             [midje.parsing.2-to-lexical-maps.data-fakes :as data-fakes]
             [midje.parsing.util.error-handling :as error]
@@ -101,13 +100,13 @@
                   empty? 
                   expanded
                   
-                  start-of-checking-arrow-sequence?
-                  (let [arrow-seq (take-arrow-sequence in-progress)]
+                  arrows/start-of-checking-arrow-sequence?
+                  (let [arrow-seq (arrows/take-arrow-sequence in-progress)]
                     (recur (conj expanded (-> arrow-seq prerequisite-to-fake fakes/tag-as-background-fake))
                            (drop (count arrow-seq) in-progress)))
                   
                   metaconstant-prerequisite?
-                  (let [arrow-seq (take-arrow-sequence in-progress)]
+                  (let [arrow-seq (arrows/take-arrow-sequence in-progress)]
                     (recur (conj expanded (-> arrow-seq prerequisite-to-fake))
                            (drop (count arrow-seq) in-progress)))
                   
@@ -215,10 +214,10 @@
         changers (extract-background-changers changer-args (partial error/report-error form (wrong changer-args)))]
     (doseq [changer changers]
       (cond (first-named? changer "fake")
-            (fakes/assert-valid! (positioned-form changer (:line (meta form))))
+            (fakes/assert-valid! (position/positioned-form changer (:line (meta form))))
 
             (first-named? changer "data-fake")
-            (data-fakes/assert-valid! (positioned-form changer (:line (meta form))))
+            (data-fakes/assert-valid! (position/positioned-form changer (:line (meta form))))
 
             :else
             (assert-valid-code-runner! changer)))))
