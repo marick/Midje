@@ -1,5 +1,5 @@
 (ns ^{:doc "generate a map for a particular example"}
-  midje.parsing.2-to-lexical-maps.examples
+  midje.parsing.2-to-lexical-maps.expects
   (:use midje.clojure.core
         midje.parsing.util.core
         midje.parsing.util.zip

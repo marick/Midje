@@ -17,7 +17,7 @@
             midje.checking.examples
             midje.checkers.extended-equality
             [midje.parsing.util.fnref :as fnref]
-            [midje.parsing.2-to-lexical-maps.examples :as parse-examples]
+            [midje.parsing.2-to-lexical-maps.expects :as parse-expects]
             [midje.parsing.2-to-lexical-maps.fakes :as parse-fakes]
             [midje.parsing.2-to-lexical-maps.data-fakes :as parse-data-fakes]))
   
@@ -94,7 +94,7 @@
   [& _]
   (deprecate "`expect` (and the entire midje.semi-sweet namespace) will be removed in 1.6.")
   (when (user-desires-checking?)
-    (parse-examples/to-lexical-map-form &form)))
+    (parse-expects/to-lexical-map-form &form)))
 
 
 (defmacro not-called

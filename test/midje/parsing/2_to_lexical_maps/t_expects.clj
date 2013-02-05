@@ -1,13 +1,13 @@
-(ns midje.parsing.2-to-lexical-maps.t-examples
+(ns midje.parsing.2-to-lexical-maps.t-expects
   (:use clojure.test  ;; This is used to check production mode with deftest.
         midje.sweet
-        midje.parsing.2-to-lexical-maps.examples
+        midje.parsing.2-to-lexical-maps.expects
         midje.test-util
         midje.util)
   (:require [midje.config :as config]
             [midje.util.pile :as pile]
             [midje.emission.api :as emit]))
-(expose-testables midje.parsing.2-to-lexical-maps.examples)
+(expose-testables midje.parsing.2-to-lexical-maps.expects)
  
 (unfinished faked-function mocked-function other-function)
 
@@ -66,7 +66,7 @@
         fake-streamed (fake (faked-function 0) =streams=> ['r1 'r2])]
 
     (fact "The basic parts"
-      (:var fake-0) => #'midje.parsing.2-to-lexical-maps.t-examples/faked-function
+      (:var fake-0) => #'midje.parsing.2-to-lexical-maps.t-expects/faked-function
       (:call-text-for-failures fake-1) => "(faked-function some-variable)"
       (deref (:call-count-atom fake-0)) => 0)
 
