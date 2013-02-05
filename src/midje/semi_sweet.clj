@@ -7,7 +7,6 @@
         [midje.emission.deprecation :only [deprecate]]
        [midje.util.exceptions :only [user-error]]
         [midje.util.ecosystem :only [line-separator]]
-        [midje.parsing.util.file-position :only [user-file-position]]
         midje.production-mode
         [clojure.algo.monads :only [domonad]]
         [clojure.string :only [join]])

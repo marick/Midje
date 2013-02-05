@@ -4,7 +4,6 @@
         midje.checking.core
         [midje.checkers :only [exactly]]
         [midje.checking.checkers.defining :only [checker?]]
-        [midje.parsing.util.file-position :only [user-file-position]]
         [midje.parsing.arrow-symbols])
   (:require [midje.util.exceptions :as exceptions]))
 
