@@ -51,8 +51,8 @@
                             (not (contains? metadata :midje/name)))
                      (assoc metadata :midje/name (:midje/description metadata))
                      metadata)
-          ;; Add body-source unless it was passed in.
-          metadata (merge {:midje/body-source body} metadata)]
+          ;; Add guid unless it was passed in.
+          metadata (merge {:midje/guid body} metadata)]
       [(merge metadata-for-fact-group metadata) body])))
 
 (defn unparse-metadata
@@ -86,7 +86,7 @@
         lower-level-form (first top-level-body)
         [lower-level-meta lower-level-body] (separate-metadata lower-level-form)
         stripped-top-level-body `((~(first lower-level-form) ~@lower-level-body) ~@(rest top-level-body))]
-      [(merge lower-level-meta top-level-meta {:midje/body-source stripped-top-level-body})
+      [(merge lower-level-meta top-level-meta {:midje/guid stripped-top-level-body})
        stripped-top-level-body]))
        
 

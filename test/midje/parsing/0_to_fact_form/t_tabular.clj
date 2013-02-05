@@ -301,18 +301,18 @@
 (tabular (fact ?a => 1) ?a 1 1)
 (fact :check-only-at-load-time
   (fact-data/source (compendium/last-fact-checked<>)) => '(tabular (fact ?a => 1) ?a 1 1)
-  (fact-data/body-source (compendium/last-fact-checked<>)) => '((fact ?a => 1) ?a 1 1))
+  (fact-data/guid (compendium/last-fact-checked<>)) => '((fact ?a => 1) ?a 1 1))
   
 (tabular "name" :integration (fact ?a => 1) ?a 1 1)
 (fact :check-only-at-load-time
   (fact-data/source (compendium/last-fact-checked<>)) => '(tabular "name" :integration (fact ?a => 1) ?a 1 1)
-  (fact-data/body-source (compendium/last-fact-checked<>)) => '((fact ?a => 1) ?a 1 1)
+  (fact-data/guid (compendium/last-fact-checked<>)) => '((fact ?a => 1) ?a 1 1)
   (:integration (meta (compendium/last-fact-checked<>))) => true)
   
 (tabular (fact "name" :integration ?a => 1) ?a 1 1)
 (fact :check-only-at-load-time
   (fact-data/source (compendium/last-fact-checked<>)) => '(tabular (fact "name" :integration ?a => 1) ?a 1 1)
-  (fact-data/body-source (compendium/last-fact-checked<>)) => '((fact ?a => 1) ?a 1 1)
+  (fact-data/guid (compendium/last-fact-checked<>)) => '((fact ?a => 1) ?a 1 1)
   (:integration (meta (compendium/last-fact-checked<>))) => true)
   
 

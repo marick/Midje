@@ -213,11 +213,11 @@
 (defn unparse-edited-fact
   "Uses a body and (parsed) metadata to make up a new `fact`.
    The resulting for has `:line` metadata. The :midje/source and
-   :midje/body-source are supplied explicitly in the
+   :midje/guid are supplied explicitly in the
    new fact's metadata. That is, the final metadata will contain
-   the source and body-source of the original form."
+   the source and guid of the original form."
   [metadata forms]
-  (let [new-metadata (cons (select-keys metadata [:midje/source :midje/body-source])
+  (let [new-metadata (cons (select-keys metadata [:midje/source :midje/guid])
                            (parse-metadata/unparse-metadata metadata))]
     (vary-meta `(midje.sweet/fact ~@new-metadata ~@forms)
                assoc :line (:midje/line metadata))))

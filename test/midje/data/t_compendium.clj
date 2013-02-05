@@ -22,7 +22,7 @@
     (vary-meta starting-value
                merge {:midje/namespace common-namespace
                       :midje/source source
-                      :midje/body-source (rest source)})))
+                      :midje/guid (rest source)})))
 
 (def named (a-fact "named" '(fact (+ 1 1) => 2)))
 (def unnamed (a-fact nil '(fact 3 => odd?)))
@@ -36,7 +36,7 @@
 ;    ((:last-fact-checked compendium)) => "No fact has been checked."
     (namespace-facts compendium common-namespace) => empty?
     (named-fact compendium common-namespace (fact/name named)) => nil
-    (embodied-fact compendium common-namespace (fact/body-source named)) => nil))
+    (fact-with-guid compendium common-namespace (fact/guid named)) => nil))
 
 (fact "adding a fact to the compendium"
   (let [compendium (-> (fresh)
@@ -44,7 +44,7 @@
     (all-facts compendium) => [named]
 ;    ((:last-fact-checked compendium)) => "No fact has been checked."
     (named-fact compendium common-namespace (fact/name named)) => named
-    (embodied-fact compendium common-namespace (fact/body-source named)) => named
+    (fact-with-guid compendium common-namespace (fact/guid named)) => named
 
     (fact "adds facts in order"
       (namespace-facts (add-to compendium unnamed) common-namespace)
@@ -55,7 +55,7 @@
         (all-facts compendium) => [named unnamed]
         (namespace-facts compendium common-namespace) => [named unnamed]
         (named-fact compendium common-namespace (fact/name unnamed)) => nil
-        (embodied-fact compendium common-namespace (fact/body-source unnamed)) => unnamed))))
+        (fact-with-guid compendium common-namespace (fact/guid unnamed)) => unnamed))))
 
 (fact "when namespaces are called for, they can be a symbol"
   (let [compendium (-> (fresh)
@@ -64,11 +64,11 @@
         symbol-namespace (ns-name true-namespace)]
     (namespace-facts compendium true-namespace) => [named]
     (named-fact compendium true-namespace (fact/name named)) => named
-    (embodied-fact compendium true-namespace (fact/body-source named)) => named
+    (fact-with-guid compendium true-namespace (fact/guid named)) => named
 
     (namespace-facts compendium symbol-namespace) => [named]
     (named-fact compendium symbol-namespace (fact/name named)) => named
-    (embodied-fact compendium symbol-namespace (fact/body-source named)) => named))
+    (fact-with-guid compendium symbol-namespace (fact/guid named)) => named))
 
 
 (fact "there is sometimes a useful error message when the symbol does not name a loaded namespace"
@@ -92,21 +92,21 @@
     (namespace-facts compendium common-namespace) => [named unnamed]
     (named-fact compendium common-namespace (fact/name named)) => named
     (named-fact compendium common-namespace (fact/name unnamed)) => nil
-    (embodied-fact compendium common-namespace (fact/body-source named)) => named
-    (embodied-fact compendium common-namespace (fact/body-source unnamed)) => unnamed
+    (fact-with-guid compendium common-namespace (fact/guid named)) => named
+    (fact-with-guid compendium common-namespace (fact/guid unnamed)) => unnamed
 
     (fact "deletes named facts"
       (let [result (remove-from compendium named)]
         (all-facts result) => [unnamed]
         (namespace-facts result common-namespace) => [unnamed]
         (named-fact result common-namespace (fact/name named)) => nil
-        (embodied-fact result common-namespace (fact/source named)) => nil))
+        (fact-with-guid result common-namespace (fact/guid named)) => nil))
 
     (fact "also deletes unnamed facts"
       (let [result (remove-from compendium unnamed)]
         (all-facts result) => [named]
         (namespace-facts result common-namespace) => [named]
-        (embodied-fact result common-namespace (fact/source unnamed)) => nil))))
+        (fact-with-guid result common-namespace (fact/guid unnamed)) => nil))))
 
 (fact "forgetting an entire namespaces' worth of facts"
   (fact "can use a namespace name"
@@ -116,7 +116,7 @@
       (all-facts compendium) => empty?    
       (namespace-facts compendium common-namespace) => empty?
       (named-fact compendium common-namespace (fact/name named)) => nil
-      (embodied-fact compendium common-namespace (fact/source named)) => nil))
+      (fact-with-guid compendium common-namespace (fact/guid named)) => nil))
   (fact "can use a namespace itself"
     (let [compendium (-> (fresh)
                          (add-to named)
@@ -124,7 +124,7 @@
       (all-facts compendium) => empty?    
       (namespace-facts compendium common-namespace) => empty?
       (named-fact compendium common-namespace (fact/name named)) => nil
-      (embodied-fact compendium common-namespace (fact/source named)) => nil))
+      (fact-with-guid compendium common-namespace (fact/guid named)) => nil))
   (fact "it is ok if the compendium doesn't exist"
     (remove-namespace-facts-from (fresh) 'some.imaginary.namespace)))
 

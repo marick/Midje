@@ -9,7 +9,7 @@
 ;;; plugin code from depending on code slated to be destroyed.
 
 (def fact-properties
-  [:midje/source :midje/body-source :midje/file :midje/line :midje/namespace
+  [:midje/source :midje/guid :midje/file :midje/line :midje/namespace
    :midje/name :midje/description :midje/top-level?])
 
 (defn make-getters 

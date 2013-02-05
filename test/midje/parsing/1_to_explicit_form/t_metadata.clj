@@ -9,7 +9,7 @@
   (fact "contains the original source and other info"
     (let [[meta _] (separate-metadata `(fact "doc" ~@a-body))]
       (:midje/source meta) => `(fact "doc" ~@a-body)
-      (:midje/body-source meta) => a-body
+      (:midje/guid meta) => a-body
       (:midje/file meta) => "midje/parsing/1_to_explicit_form/t_metadata.clj"
       (:midje/namespace meta) => 'midje.parsing.1-to-explicit-form.t-metadata
       (contains? meta :midje/line) => truthy))
@@ -90,11 +90,11 @@
         (unparse-metadata meta) => (just [{:a 1} 'name] :in-any-order))))
 
   (fact "midje core metadata isn't assigned if it's given explicitly"
-    (let [[meta body] (separate-metadata `(fact name {:midje/source "foo" :midje/body-source "bs"
+    (let [[meta body] (separate-metadata `(fact name {:midje/source "foo" :midje/guid "guid"
                                                       :midje/namespace bar} ~@a-body))]
       (:midje/name meta) => "name"
       (:midje/source meta) => "foo"
-      (:midje/body-source meta) => "bs"
+      (:midje/guid meta) => "guid"
       (:midje/namespace meta) => `bar
       body => a-body))
 
@@ -168,9 +168,9 @@
         (source-of two-level-original-with-metadata-at-top) => two-level-original-with-metadata-at-top
         (source-of two-level-original-with-metadata-at-lower) => two-level-original-with-metadata-at-lower))
 
-    (fact "the body source is stripped of metadata"
-      (letfn [(body-source-of [form]
-                (:midje/body-source (first (separate-two-level-metadata form))))]
-        (body-source-of two-level-original-with-metadata-at-top) => (rest two-level-without-metadata)
-        (body-source-of two-level-original-with-metadata-at-lower) => (rest two-level-without-metadata)))))
+    (fact "the guid is stripped of metadata"
+      (letfn [(guid-of [form]
+                (:midje/guid (first (separate-two-level-metadata form))))]
+        (guid-of two-level-original-with-metadata-at-top) => (rest two-level-without-metadata)
+        (guid-of two-level-original-with-metadata-at-lower) => (rest two-level-without-metadata)))))
 

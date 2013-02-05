@@ -80,13 +80,13 @@
   '(fact foo => bar) => '(fact foo => bar))
 
 (fact "facts can be unparsed"
-  (let [result (unparse-edited-fact {:midje/source "s", :midje/body-source "bs", :midje/line 8888888
+  (let [result (unparse-edited-fact {:midje/source "s", :midje/guid "guid", :midje/line 8888888
                                      :integration true, :midje/name "fred"} '((form1) (form2)))]
     (fact "it is a fact form"
       result => (contains ['midje.sweet/fact '(form1) '(form2)] :gaps-ok))
-    (fact "it contains the source and body-source"
+    (fact "it contains the source and guid"
       (some #(and (map? %) (:midje/source %)) result) => "s"
-      (some #(and (map? %) (:midje/body-source %)) result) => "bs")
+      (some #(and (map? %) (:midje/guid %)) result) => "guid")
     (fact "it does not contain other midje core metadata"
       (not-any? #(and (map? %) (:midje-line %)) result) => truthy)
     (fact "it carries forward user-supplied metadata"

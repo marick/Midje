@@ -16,7 +16,7 @@
   (namespace-facts [this namespace])
   (all-facts [this])
   (named-fact [this namespace name])
-  (embodied-fact [this namespace source])
+  (fact-with-guid [this namespace guid])
   (previous-version [this fact-function]))
     
 
@@ -28,7 +28,7 @@
 ;;
 ;; Another maps to a by-name map of facts for quick lookup by name.
 ;;
-;; Another maps to a by-body-source map to allow quick checks for
+;; Another maps to a body-guid map to allow quick checks for
 ;; reloading of identical facts.
 
 (defn friendly-ns-name [symbol-or-namespace]
@@ -40,11 +40,11 @@
   
   
 
-(defrecord Compendium [by-namespace by-name by-source last-fact-checked]
+(defrecord Compendium [by-namespace by-name by-guid last-fact-checked]
   CompendiumProtocol
   (add-to [this fact-function]
-    (let [[namespace name body-source]
-          ( (juxt fact/namespace fact/name fact/body-source)
+    (let [[namespace name guid]
+          ( (juxt fact/namespace fact/name fact/guid)
             fact-function)]
       (-> this 
           (assoc-in [:by-namespace namespace]
@@ -52,7 +52,7 @@
           (#(if name
               (assoc-in % [:by-name namespace name] fact-function)
               %))
-          (assoc-in [:by-source namespace body-source] fact-function))))
+          (assoc-in [:by-guid namespace guid] fact-function))))
 
 
   (remove-from [this fact-function]
@@ -61,8 +61,8 @@
                   (assert (not (neg? index-to-exclude)))
                   (into (subvec vector 0 index-to-exclude)
                         (subvec vector (inc index-to-exclude)))))]
-      (let [[namespace name body-source]
-            ( (juxt fact/namespace fact/name fact/body-source)
+      (let [[namespace name guid]
+            ( (juxt fact/namespace fact/name fact/guid)
               fact-function)
 
             new-namespace-facts
@@ -70,7 +70,7 @@
       (-> this
           (assoc-in [:by-namespace namespace] new-namespace-facts)
           (dissoc-keypath [:by-name namespace name])
-          (dissoc-keypath [:by-source namespace body-source])))))
+          (dissoc-keypath [:by-guid namespace guid])))))
 
   (remove-namespace-facts-from [this namespace]
     (if (and (symbol? namespace)
@@ -80,7 +80,7 @@
         (-> this 
             (dissoc-keypath [:by-namespace namespace-name])
             (dissoc-keypath [:by-name namespace-name])
-            (dissoc-keypath [:by-source namespace-name])))))
+            (dissoc-keypath [:by-guid namespace-name])))))
 
   (namespace-facts [this namespace]
     (get by-namespace (friendly-ns-name namespace) []))
@@ -88,20 +88,20 @@
     (apply concat (vals by-namespace)))
   (named-fact [this namespace name]
     (get-in by-name [(friendly-ns-name namespace) name]))
-  (embodied-fact [this namespace body-source]
-    (get-in by-source [(friendly-ns-name namespace) body-source]))
+  (fact-with-guid [this namespace guid]
+    (get-in by-guid [(friendly-ns-name namespace) guid]))
 
   (previous-version [this fact-function]
-    (let [[namespace name body-source]
-            ( (juxt fact/namespace fact/name fact/body-source) fact-function)
+    (let [[namespace name guid]
+            ( (juxt fact/namespace fact/name fact/guid) fact-function)
           existing-named-fact (named-fact this namespace name)
-          existing-embodied-fact (embodied-fact this namespace body-source)]
+          existing-fact-with-guid (fact-with-guid this namespace guid)]
       (cond existing-named-fact
             existing-named-fact
 
-            (and existing-embodied-fact
-                 (not (fact/name existing-embodied-fact)))
-            existing-embodied-fact
+            (and existing-fact-with-guid
+                 (not (fact/name existing-fact-with-guid)))
+            existing-fact-with-guid
 
             :else
             nil))))
