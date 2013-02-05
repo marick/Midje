@@ -10,7 +10,16 @@
 
   (defmacro defn-once-in-core [sym & rest]
     (when (missing? sym)
-      `(intern 'clojure.core '~sym (fn ~@rest)))))
+      `(intern 'clojure.core '~sym (fn ~@rest))))
+
+  (defmacro move-once-to-core [source-namespace syms]
+    (when (missing? (first syms))
+      `(do
+         (require '~source-namespace)
+         (doseq [sym# '~syms]
+           (intern 'clojure.core sym# (ns-resolve '~source-namespace sym#)))))))
+
+(move-once-to-core slingshot.ex-info [ex-info ex-data])
 
 (defn-once every-pred-m
   "Takes a set of predicates and returns a function f that returns true if all of its
@@ -91,10 +100,3 @@
          ([x y z] (some #(or (% x) (% y) (% z)) ps))
          ([x y z & args] (or (spn x y z)
                              (some #(some % args) ps)))))))
-
-
-(defn-once-in-core ex-info
-  ([msg map]
-     (RuntimeException. msg))
-  ([msg map cause]
-     (RuntimeException. msg cause)))

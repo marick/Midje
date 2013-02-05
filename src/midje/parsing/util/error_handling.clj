@@ -2,15 +2,13 @@
   midje.parsing.util.error-handling
   (:use midje.clojure.core
         [midje.util.exceptions :only [user-error-exception-lines]]
-        [midje.parsing.util.file-position :only [form-position]])
-
+        [midje.parsing.util.file-position :only [form-position]]
+        [slingshot.slingshot :only [throw+ try+]])
   (:require [bultitude.core :as bultitude]
-            [midje.emission.api :as emit])
-  ;; Because exception subclasses are so hard to create, throw
-  ;; one of these to indicate parsing has terminated. Seems safe."
-  (:import javax.xml.soap.SOAPException))
+            [midje.emission.api :as emit]))
 
 (def ^{:dynamic true} *wrap-count* 0)
+(def bail-out-of-parsing (gensym))
 
 ;; Note: this could be a macro, but it's easy to
 ;; get confused by macros assisting in the execution
@@ -34,9 +32,9 @@
   (if (pos? *wrap-count*)
     (parser)
     (binding [*wrap-count* (inc *wrap-count*)]
-      (try
+      (try+
         (parser)
-      (catch javax.xml.soap.SOAPException ex
+      (catch (partial = bail-out-of-parsing) _
         false)
       (catch Exception ex
         (emit/fail {:type :exception-during-parsing
@@ -51,6 +49,6 @@
   (emit/fail {:type :parse-error
               :notes notes
               :position (form-position form)})
-  (throw (new javax.xml.soap.SOAPException)))
+  (throw+ bail-out-of-parsing))
 
   
