@@ -69,6 +69,11 @@
     (throw (Error. (str "Program error: Unknown arrow form " arrow)))))
 
 (defn valid-pieces [[_ call-form arrow expected-result & fakes+overrides]]
+  (cond (and (sequential? call-form)
+             (= (first call-form) 'provided))
+        (error/report-error call-form
+                            (cl-format nil "... ~S ~A ~S" call-form arrow expected-result)
+                            "It looks as though you've misparenthesized a prerequisite."))
   (let [[fakes overrides] (separate a-fake? fakes+overrides)]
     [call-form arrow expected-result fakes overrides]))
 

@@ -42,20 +42,21 @@
     (g ..new-val..) => ..new-transformed-val..))
 (note-that parse-error-found (fact-failed-with-note #"The form before the `provided`"))
 
-
 (silent-fact "No metaconstant"
   (f ..new-val..) => 0
   (provided
     g =contains=> {:a 3}))
 (note-that parse-error-found (fact-failed-with-note #"g is not a metaconstant"))
 
-;; This can only be done approximately, since the right-hand-side could be a bound symbol,
-;; a quoted form, etc.
-;; (silent-fact "No map"
-;;   (f ..new-val..) => 0
-;;   (provided
-;;     ...new-val.. =contains=> 3))
-;; (note-that (fact-failed-with-note #"right-hand-side.*should be a map"))
+(silent-fact "checker as right-hand side"
+  (f 1) => 2
+  (provided (g "2") => truthy))
+(note-that parse-error-found (fact-failed-with-note #"checker on the right-hand side"))
+
+(silent-fact "Squash cause of 'Unable to resolve symbol: provided'"
+  (f 1) => 2
+  (provided (g "2")) => truthy)
+(note-that parse-error-found (fact-failed-with-note #"looks as though you've misparenthesized"))
 
 ;;; =====================================              Code runners
 ;;; Aka before/after/around
@@ -130,7 +131,7 @@
 
 
 
-;;; =====================================              Background forms
+;;; =====================================              `background` forms
 ;; `background` finds parse errors of its background changers"
 ;; For this first case, we check each of the types of background changers
 ;; (fake, data-fake, and code-runner). In later background forms, we'll 
@@ -211,6 +212,17 @@
  (fact
    @fact-output => #"against-background.*only affect nested facts"))
 
+;;; The same mechanism that would tell the code *not* to produce an
+;;; error in the above case could probably be used to produce an
+;;; error in the following case (without producing errors for
+;;; wrapping against-backgrounds outside any fact).
+(future-fact "a non-wrapping form that is too deeply nested"
+  (let [something 'some-value]
+    (f [3]) => 3
+    (against-background (g 3) => 3))) ;; incorrectly within the let body
+
+
+
 (fact "it is not fooled by nested against-backgrounds "
   (against-background [(f 1) => 1]
     (against-background [(f 2) => 2]
@@ -222,8 +234,6 @@
       (fact 
         (against-background [(f 3) => 4])
         (+ (f 2) (f 3)) => 7))))
-
-
 
 
 ;;; =====================================              Inside-fact against-background

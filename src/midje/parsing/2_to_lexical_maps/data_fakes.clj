@@ -12,12 +12,6 @@
         (error/report-error form
                             (cl-format nil "In `~A ~A ~A`, ~A is not a metaconstant."
                                        metaconstant arrow contained metaconstant)))
-
-        ;; This one isn't possible because the right-hand-side could be a bound symbol.
-        ;; (not (map? contained))
-        ;; (error/report-error form 
-        ;;                     "The right-hand side of a =contains=> arrow should be a map."))
-  
   [metaconstant arrow contained overrides])
 
 (def assert-valid! valid-pieces)

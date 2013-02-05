@@ -63,6 +63,11 @@
                               (cl-format nil "Instead, use the var directly: #'~S/~S"
                                          (-> actual-var meta :ns ns-name)
                                          fnref))
+          ('#{truthy falsey} result)
+          (error/report-error call-form
+                              (cl-format nil "... ~S ~A ~S" call-form arrow result)
+                              "Do you really want a checker on the right-hand side of a prerequisite?"
+                              "It's easy to use `truthy` when you meant `true`, etc.")
 
           (statically-disallowed-prerequisite-function-set actual-var)
           (apply error/report-error call-form (disallowed-function-failure-lines actual-var))))
