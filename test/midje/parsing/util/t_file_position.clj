@@ -177,10 +177,12 @@
 
 
 (fact "adding line number information"
-  (fact "to a form without one updates it"
-    (:line (meta (positioned-form (cons 1 '(2)) 8888))) => 8888)
-  (fact "to a form with one does not"
-    (:line (meta (positioned-form '(hello world) 8888))) =not=> 8888))
-    
-  
-
+  (let [form-without-line-number (cons 'without '(line))
+        form-with-line-number '(with line)]
+    (fact "to a form without one updates it"
+      (:line (meta (positioned-form form-without-line-number 8888))) => 8888)
+    (fact "to a form with one does not"
+      (:line (meta (positioned-form form-with-line-number 8888))) =not=> 8888)
+    (fact "the source of the line number can be a form"
+      (:line (meta (positioned-form form-without-line-number form-with-line-number)))
+      => (:line (meta form-with-line-number)))))

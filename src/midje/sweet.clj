@@ -130,7 +130,7 @@
              (if (seq background)
                (positioned-form `(against-background [~@background]
                                    ~(unparse-edited-fact metadata remainder))
-                                (:line (meta &form)))
+                                &form)
                (complete-fact-transformation metadata remainder)))))))
 
 (defmacro facts 

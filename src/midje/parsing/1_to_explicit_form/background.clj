@@ -212,10 +212,10 @@
         changers (extract-background-changers changer-args (partial error/report-error form (wrong changer-args)))]
     (doseq [changer changers]
       (cond (first-named? changer "fake")
-            (fakes/assert-valid! (position/positioned-form changer (:line (meta form))))
+            (fakes/assert-valid! (position/positioned-form changer form))
 
             (first-named? changer "data-fake")
-            (data-fakes/assert-valid! (position/positioned-form changer (:line (meta form))))
+            (data-fakes/assert-valid! (position/positioned-form changer form))
 
             :else
             (assert-valid-code-runner! changer)))))

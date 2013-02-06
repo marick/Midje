@@ -86,9 +86,15 @@
 
 (defn positioned-form
   "Make sure the form is annotated with a line number, either
-   its original or the given one."
-  [form line-number]
-  (if-not (contains? (meta form) :line)
-    (vary-meta form assoc :line line-number)
-    form))
+   its original or the given one. Takes either a number or form
+   as a source."
+  [form number-source]
+  (cond (contains? (meta form) :line)
+        form
+
+        (integer? number-source)
+        (vary-meta form assoc :line number-source)
+
+        :else 
+        (vary-meta form assoc :line (:line (meta number-source)))))
     
