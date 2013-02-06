@@ -4,8 +4,7 @@
         [midje.util.exceptions :only [user-error-exception-lines]]
         [midje.parsing.util.file-position :only [form-position]]
         [slingshot.slingshot :only [throw+ try+]])
-  (:require [bultitude.core :as bultitude]
-            [midje.emission.api :as emit]))
+  (:require [midje.emission.api :as emit]))
 
 (def ^{:dynamic true} *wrap-count* 0)
 (def bail-out-of-parsing (gensym))

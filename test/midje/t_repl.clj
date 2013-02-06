@@ -557,10 +557,17 @@
 
   (fact "can be used to set default values"
     (config/with-augmented-config {:partial-prerequisites true}
-      (autotest :dirs 1 2 :interval 5) => anything
+      (autotest :dirs "src" "test" :interval 5) => anything
       (provided
-        (set-autotest-option! :dirs [1 2]) => anything
+        (set-autotest-option! :dirs ["src" "test"]) => anything
         (set-autotest-option! :interval 5) => anything
+        (autotest) => anything)))
+
+  (fact "Can reset directories"
+    (config/with-augmented-config {:partial-prerequisites true}
+      (autotest :all) => irrelevant
+      (provided
+        (set-autotest-option! :dirs (autotest-default-dirs)) => irrelevant
         (autotest) => anything)))
 )
   

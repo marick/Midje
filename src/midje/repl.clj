@@ -4,17 +4,20 @@
   (:use midje.clojure.core)
   (:require midje.sweet
             [midje.doc :as doc]
+
+            [clojure.java.io :as io]
             [midje.config :as config]
-            [midje.parsing.other.arglists :as parsing]
+            [midje.util.pile :as pile]
+            [midje.util.ecosystem :as ecosystem]
+            [midje.util.scheduling :as scheduling]
             [midje.data.fact :as fact-data]
-            [midje.checking.facts :as fact-checking]
             [midje.data.compendium :as compendium]
             [midje.data.project-state :as project-state]
+            [midje.checking.facts :as fact-checking]
+            [midje.parsing.other.arglists :as parsing]
             [midje.emission.boundaries :as emission-boundary]
             [midje.emission.colorize :as color]
-            [midje.emission.api :as emit]
-            [midje.util.ecosystem :as ecosystem]
-            [midje.util.scheduling :as scheduling]))
+            [midje.emission.api :as emit]))
 
 (when (and (config/running-in-repl?) (ecosystem/clojure-1-2-X?))
   (println (color/fail "The Midje repl tools don't work on Clojure 1.2.X")))
@@ -394,17 +397,30 @@
     ;; It's not really a continuation because it's wrapped inside `around-namespace-stream`.
     (a-sort-of-continuation)))
 
+(defn autotest-default-dirs
+  "These are the directories that will be watched if you type
+   `autotest` with no arguments."
+  []
+  (ecosystem/leiningen-paths))
+
+(defn- complained-about-missing-dirs? [candidate-strings]
+  (let [missing (remove #(.isDirectory (io/file %)) candidate-strings)]
+    (when-not (empty? missing)
+      (println (color/fail (cl-format nil "~[~;This is not a directory:~:;These are not directories:~] ~{~S~^, ~}."
+                                      (count missing)
+                                      missing))))
+    (not-empty? missing)))
+
 (defonce ^{:private true}
   autotest-options-atom
   (atom {:interval 500
-         :dirs (ecosystem/leiningen-paths)
+         :dirs (autotest-default-dirs)
          :note-require-failure note-require-failure
          :note-namespace-stream note-namespace-stream}))
 
 (defn autotest-options
   "If you want a peek at how autotest is controlled, look here."
   [] @autotest-options-atom)
-
 
 (defn set-autotest-option!
   "Set autotest options without starting autotesting."
@@ -428,12 +444,9 @@
   depends on `some-untracked-dir/B` that depends on `src/midje/util/C`,
   a change to `C` will not cause `A` to be reloaded.
 
-  `autotest` can also be given an `:interval` argument to control how often
-  it checks for modified files. The argument is in milliseconds:
+  You can revert back to the project.clj versions like this:
 
-      (autotest :interval 1000) ; check each second.
-
-  The default is to check twice each second.
+    (autotest :all)
 
   `autotest` can take special keyword arguments:
 
@@ -441,6 +454,12 @@
      (autotest :pause)  ; pause checking
      (autotest :resume) ; continue after a pause
 
+  `autotest` can also be given an `:interval` argument to control how often
+  it checks for modified files. The argument is in milliseconds:
+
+      (autotest :interval 1000) ; check each second.
+
+  The default is to check twice each second.
   "
   [& args]
   (letfn [(start-periodic-check []
@@ -451,7 +470,7 @@
     ;; Note that stopping and pausing, which seeming different to user, actually do
     ;; exactly the same thing.
     (let [option ((parsing/make-option-arglist-parser [:dirs :dir] [:interval :each]
-                                                      [:stop :pause] [:resume])
+                                                      [:stop :pause] [:resume] [:all])
                   args)]
       
       (cond (not (empty? (:true-args option)))
@@ -468,8 +487,13 @@
               (project-state/load-everything (autotest-options))
               (start-periodic-check))
 
+            (and (:dirs? option)
+                 (complained-about-missing-dirs? (:dirs-args option)))
+            :oops
+                 
             :else
-            (do 
+            (do
+              (when (:all? option) (set-autotest-option! :dirs (autotest-default-dirs)))
               (when (:dirs? option) (set-autotest-option! :dirs (:dirs-args option)))
               (when (:interval? option) (set-autotest-option! :interval (first (:interval-args option))))
               (autotest)))))
