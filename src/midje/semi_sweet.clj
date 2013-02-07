@@ -72,14 +72,12 @@
    Example: (let [a 5] (fake (f a) => a))"
   {:arglists '([call-form arrow result & overrides])}
   [& _]
-  (deprecate "`fake` (and the entire midje.semi-sweet namespace) will be removed in 1.6.")
   (parse-fakes/to-lexical-map-form &form))
 
 (defmacro data-fake
   "Creates a fake map that's used to associate key/value pairs with a metaconstant"
   {:arglists '([metaconstant arrow contained & overrides])}
   [& _]
-  (deprecate "`data-fake` (and the entire midje.semi-sweet namespace) will be removed in 1.6.")
   (parse-data-fakes/to-lexical-map-form &form))
 
 (defmacro expect 
