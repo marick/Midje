@@ -2,42 +2,39 @@
   midje.parsing.1-to-explicit-form.facts
   (:use midje.clojure.core
         midje.parsing.util.core
+        midje.parsing.arrow-symbols
         midje.parsing.util.zip
         
-        [midje.parsing.1-to-explicit-form.expects :only [expect?
+        
+        [midje.parsing.1-to-explicit-form.expects :only [
                                                          wrap-with-expect__then__at-rightmost-expect-leaf]]
         [midje.parsing.util.wrapping :only [already-wrapped?
                                             multiwrap
                                             with-additional-wrappers
                                             forms-to-wrap-around]]
-        [midje.parsing.1-to-explicit-form.prerequisites :only [head-of-form-providing-prerequisites?
+        [midje.parsing.1-to-explicit-form.prerequisites :only [
                                                                insert-prerequisites-into-expect-form-as-fakes]]
         [midje.parsing.1-to-explicit-form.background :only [surround-with-background-fakes
                                        body-of-against-background
                                        against-background-contents-wrappers
                                        against-background-facts-and-checks-wrappers
-                                       against-background?]]
+                                       ]]
         [midje.parsing.1-to-explicit-form.metaconstants :only [predefine-metaconstants-from-form]]
         [midje.util.laziness :only [eagerly]]
         [midje.parsing.util.zip :only [skip-to-rightmost-leaf]]
         [swiss-arrows.core :only [-<>]])
-  (:require [clojure.zip :as zip])
+  (:require [clojure.zip :as zip]
+            [midje.parsing.util.overrides :as override])
   (:require [midje.checking.facts :as fact-checking]
             [midje.data.compendium :as compendium]
             [midje.parsing.util.file-position :as position]
-            [midje.parsing.util.arrows :as arrows]
             [midje.parsing.util.error-handling :as error]
+            [midje.parsing.util.recognizing :as recognize]
             [midje.parsing.1-to-explicit-form.background :as background]
-            [midje.parsing.1-to-explicit-form.future-facts :as parse-future-facts]
             [midje.parsing.1-to-explicit-form.metadata :as parse-metadata]
             [midje.parsing.2-to-lexical-maps.fakes :as parse-fakes]
             [midje.parsing.2-to-lexical-maps.expects :as parse-expects]
             [midje.parsing.2-to-lexical-maps.folded-fakes :as parse-folded-fakes]))
-
-(defn fact? [form]
-  (or (first-named? form "fact")
-      (first-named? form "facts")
-      (first-named? form "silent-fact"))) ;; silent facts are used for testing.
 
                                 ;;; Fact processing
 
@@ -77,13 +74,13 @@
    2) (provided ...) become fakes inserted into preceding expect."
   [multi-form]
   (translate-zipper multi-form
-    fact?
+    recognize/fact?
     skip-to-rightmost-leaf
                     
-    arrows/start-of-checking-arrow-sequence?
+    recognize/start-of-checking-arrow-sequence?
     wrap-with-expect__then__at-rightmost-expect-leaf
     
-    head-of-form-providing-prerequisites?
+    recognize/provided?
     insert-prerequisites-into-expect-form-as-fakes
 
     semi-sweet-keyword?
@@ -107,17 +104,17 @@
   (pred-cond form
     already-wrapped?     form
     quoted?              form
-    parse-future-facts/future-fact?         (macroexpand form)
-    against-background?  (expand-against-background form)
-    expect?      (multiwrap form (forms-to-wrap-around :checks ))
-    fact?        (macroexpand form)
+    recognize/future-fact?         (macroexpand form)
+    recognize/against-background?  (expand-against-background form)
+    recognize/expect?      (multiwrap form (forms-to-wrap-around :checks ))
+    recognize/fact?        (macroexpand form)
     sequential?  (preserve-type form (eagerly (map midjcoexpand form)))
     :else        form))
 
 (defn parse-expects [form]
   (translate-zipper form
-     expect? (fn [loc]
-               (zip/replace loc (parse-expects/to-lexical-map-form (zip/node loc))))))
+     recognize/expect? (fn [loc]
+                         (zip/replace loc (parse-expects/to-lexical-map-form (zip/node loc))))))
 
 (defn report-check-arrow-shape [form]
   (error/report-error form
@@ -130,7 +127,7 @@
   (when (nil? (zip/right loc))
     (report-check-arrow-shape (position/positioned-form (zip/node (zip/up loc)) number)))
     
-  (arrows/at-arrow__add-key-value-to-end__no-movement
+  (override/at-arrow__add-key-value-to-end__no-movement
    :position `(position/line-number-known ~number) loc))
 
 (defn annotate-embedded-arrows-with-line-numbers [form]
@@ -138,7 +135,7 @@
     quoted?
     (comp skip-to-rightmost-leaf zip/down)
 
-    (partial matches-symbols-in-semi-sweet-or-sweet-ns? arrows/all-arrows)
+    (partial matches-symbols-in-semi-sweet-or-sweet-ns? recognize/all-arrows)
     #(at-arrow__add-line-number-to-end__no-movement (position/arrow-line-number %) %)))
 
 

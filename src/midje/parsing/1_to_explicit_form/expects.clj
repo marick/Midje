@@ -2,21 +2,12 @@
             midje.sweet arrow forms into semi-sweet expcet forms."}
   midje.parsing.1-to-explicit-form.expects
   (:use midje.parsing.util.core
-        [midje.parsing.util.zip :only [skip-to-rightmost-leaf n-times remove-moving-right]]
-        [midje.parsing.util.arrows :only [start-of-checking-arrow-sequence? arrow-sequence-overrides]])
+        [midje.parsing.util.zip :only [skip-to-rightmost-leaf n-times remove-moving-right]])
   (:require [clojure.zip :as zip]
+            [midje.parsing.util.overrides :as override]
+            [midje.parsing.util.recognizing :as recognize]
             [midje.parsing.util.file-position :as position]))
   
-
-(defmulti expect? tree-variant)
-
-(defmethod expect? :zipper [loc]
-  (and (zip/branch? loc)
-       (matches-symbols-in-semi-sweet-or-sweet-ns? '(expect) (zip/down loc))))
-
-(defmethod expect? :form [form]
-  (first-named? form "expect"))
-
 
 
 ;; Moving around
@@ -25,14 +16,14 @@
   "From anywhere (recursively) within an expect form, move so that
    loc is at the full form (so that zip/down is 'expect)." 
   [loc]
-  (if (expect? loc)
+  (if (recognize/expect? loc)
     loc
     (recur (zip/up loc))))
 
 
 
 (defn tack-on__then__at-same-location [[form & more-forms] loc]
-  (assert (expect? loc))
+  (assert (recognize/expect? loc))
   (if form
     (recur more-forms (zip/append-child loc form))	  
     (up-to-full-expect-form loc)))
@@ -41,12 +32,11 @@
   (let [tack (fn [loc] (tack-on__then__at-same-location forms loc))]
     (-> loc tack zip/down skip-to-rightmost-leaf)))
 
-
 (defn wrap-with-expect__then__at-rightmost-expect-leaf [loc]
-  (assert (start-of-checking-arrow-sequence? loc))
+  (assert (recognize/start-of-checking-arrow-sequence? loc))
   (let [right-hand (-> loc zip/right zip/right)
         arrow-sequence (-> loc zip/right zip/node)
-        additions (arrow-sequence-overrides (zip/rights right-hand))
+        additions (override/arrow-sequence-overrides (zip/rights right-hand))
         line-number (position/arrow-line-number (zip/right loc))
         edited-loc (zip/edit loc
                       (fn [loc]

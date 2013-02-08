@@ -4,13 +4,13 @@
         [midje.parsing.util.file-position :only [form-with-copied-line-numbers]]
         [midje.emission.deprecation :only [deprecate]]
         [midje.parsing.util.zip :only [skip-to-rightmost-leaf]]
-        [midje.parsing.1-to-explicit-form.expects :only [expect?]]
-        [midje.parsing.util.arrows :only [above-arrow-sequence__add-key-value__at-arrow]]
         [midje.parsing.1-to-explicit-form.facts :only [working-on-nested-facts unparse-edited-fact]]
         [midje.data.metaconstant :only [metaconstant-symbol?]]
         [utilize.map :only [ordered-zipmap]])
 (:require [clojure.string :as str]
           [midje.util.unify :as unify]
+          [midje.parsing.util.overrides :as override]
+          [midje.parsing.util.recognizing :as recognize]
           [midje.parsing.1-to-explicit-form.metadata :as metadata]
           [midje.parsing.util.error-handling :as error]))
 
@@ -70,11 +70,11 @@
 
           (translate-letfn-body [expect-containing-form]
            (translate-zipper expect-containing-form
-                             expect? one-binding-note))
+                             recognize/expect? one-binding-note))
 
           (one-binding-note [loc]
             (skip-to-rightmost-leaf
-             (above-arrow-sequence__add-key-value__at-arrow
+             (override/above-arrow-sequence__add-key-value__at-arrow
               :binding-note (format-binding-map ordered-binding-map) loc)))]
 
     (if (acceptable-body?)

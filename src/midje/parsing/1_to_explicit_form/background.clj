@@ -5,7 +5,7 @@
         midje.parsing.util.core
         midje.parsing.util.zip
         [midje.parsing.1-to-explicit-form.metaconstants :only [predefine-metaconstants-from-form]]
-        [midje.parsing.1-to-explicit-form.prerequisites :only [metaconstant-prerequisite? prerequisite-to-fake]]
+        [midje.parsing.1-to-explicit-form.prerequisites :only [prerequisite-to-fake take-arrow-sequence]]
         [midje.data.prerequisite-state :only [with-installed-fakes]]
         [midje.parsing.util.wrapping :only [for-wrapping-target? with-wrapping-target]]
         [midje.util.laziness :only [eagerly]]
@@ -13,24 +13,11 @@
                                                    with-pushed-namespace-values]])
   (:require [clojure.zip :as zip]
             [midje.util.unify :as unify]
-            [midje.parsing.util.arrows :as arrows]
             [midje.parsing.util.file-position :as position]
             [midje.parsing.util.error-handling :as error]
+            [midje.parsing.util.recognizing :as recognize]
             [midje.parsing.2-to-lexical-maps.fakes :as fakes]
             [midje.parsing.2-to-lexical-maps.data-fakes :as data-fakes]))
-
-(defn against-background? [form]
-  (first-named? form "against-background"))
-
-(defn wrapping-against-background? [form]
-  (and (against-background? form)
-       (and (> (count form) 2)
-            (vector? (second form)))))
-
-(defn against-background-that-applies-to-containing-fact? [form]
-  (and (against-background? form)
-       (not (wrapping-against-background? form))))
-  
 
 (defn background-fakes []
   (namespace-values-inside-out :midje/background-fakes))
@@ -41,7 +28,7 @@
 (defn separate-background-forms [fact-forms]
   (letfn [(background-form-in-fact? [form]
             (or (first-named? form "background")
-                (against-background-that-applies-to-containing-fact? form)))]
+                (recognize/against-background-that-applies-to-containing-fact? form)))]
     (let [[background-forms other-forms] (separate background-form-in-fact? fact-forms)
           background-changers (mapcat (fn [[command & args]]
                                         (arglist-undoing-nesting args))
@@ -82,14 +69,6 @@
     [_wrapping-target_ around-form]
     (ensure-correct-form-variable around-form)))
 
-(defn next-could-be-a-code-runner? [forms]
-  (and (or (list? (first forms))
-           (seq? (first forms)))
-       (symbol? (ffirst forms))))
-
-(defn seq-headed-by-code-runner? [forms]
-  (#{"before" "after" "around"} (name (ffirst forms))))
-
 (defn- ^{:testable true } extract-background-changers
   ([forms error-reporter]
      (loop [expanded []
@@ -98,20 +77,20 @@
                   empty? 
                   expanded
                   
-                  arrows/start-of-checking-arrow-sequence?
-                  (let [arrow-seq (arrows/take-arrow-sequence in-progress)]
+                  recognize/start-of-checking-arrow-sequence?
+                  (let [arrow-seq (take-arrow-sequence in-progress)]
                     (recur (conj expanded (-> arrow-seq prerequisite-to-fake fakes/tag-as-background-fake))
                            (drop (count arrow-seq) in-progress)))
                   
-                  metaconstant-prerequisite?
-                  (let [arrow-seq (arrows/take-arrow-sequence in-progress)]
+                  recognize/metaconstant-prerequisite?
+                  (let [arrow-seq (take-arrow-sequence in-progress)]
                     (recur (conj expanded (-> arrow-seq prerequisite-to-fake))
                            (drop (count arrow-seq) in-progress)))
                   
-                  (complement next-could-be-a-code-runner?)
+                  (complement recognize/first-form-could-be-a-code-runner?)
                   (error-reporter (cl-format nil "~S does not look like a prerequisite or a before/after/around code runner." (first in-progress)))
                   
-                  seq-headed-by-code-runner?
+                  recognize/first-form-is-a-code-runner?
                   (recur (conj expanded (first in-progress))
                          (rest in-progress))
 
@@ -138,7 +117,7 @@
   ;; it made it easier to eyeball expanded forms and see what was going on.
   (defn background-wrappers [background-forms]
     (predefine-metaconstants-from-form background-forms)
-    (let [[fakes state-descriptions] (separate fakes/fake? (extract-background-changers background-forms))
+    (let [[fakes state-descriptions] (separate recognize/fake? (extract-background-changers background-forms))
           state-wrappers (eagerly (map state-wrapper state-descriptions))]
       (if (empty? fakes)
         state-wrappers

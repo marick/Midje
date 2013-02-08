@@ -2,13 +2,7 @@
   (:use midje.parsing.1-to-explicit-form.prerequisites
         midje.sweet midje.test-util)
   (:require [clojure.zip :as zip]
-            [midje.parsing.1-to-explicit-form.expects :as parse-expects]))
-
-(fact "can ask whether at the beginning of a form that provides prerequisites"
-  (let [values (zip/seq-zip '(provided midje.semi-sweet/provided fluke))]
-    (-> values zip/down) => head-of-form-providing-prerequisites?
-    (-> values zip/down zip/right) => head-of-form-providing-prerequisites?
-    (-> values zip/down zip/right zip/right) =not=> head-of-form-providing-prerequisites?))
+            [midje.parsing.util.recognizing :as recognize]))
 
 (fact "can convert prerequisites into fake calls"
   (let [original '( provided                        (f 1) => 3                         (f 2) => (+ 1 1))
@@ -36,6 +30,14 @@
         resulting-loc
          (delete_prerequisite_form__then__at-previous-full-expect-form original-loc)]
         
-    original-loc => head-of-form-providing-prerequisites?
-    resulting-loc => parse-expects/expect?
+    original-loc => recognize/provided?
+    resulting-loc => recognize/expect?
     (zip/root resulting-loc) => edited))
+
+(facts "the run-on string of arrow forms can be grouped into a list of arrow sequences"
+  ;; Use of let is to prevent #'fact from slapping a line number onto the results.
+  (let [result (pull-all-arrow-seqs-from '(   (f 1) => 2    (g 1) => 3))]
+    result =>                         '(  [(f 1) => 2]  [(g 1) => 3] ))
+
+  (let [result (pull-all-arrow-seqs-from '(  (f 1) => 2 :key value   (g 1) => 3))]
+    result =>                         '( [(f 1) => 2 :key value] [(g 1) => 3])))

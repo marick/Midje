@@ -2,10 +2,11 @@
   midje.parsing.util.file-position
   (:use midje.parsing.util.core
         midje.parsing.util.zip
-        [midje.parsing.util.zip :only [skip-to-rightmost-leaf]]
-        [midje.parsing.util.arrows :only [all-arrows at-arrow__add-key-value-to-end__no-movement]])
+        midje.parsing.arrow-symbols
+        [midje.parsing.util.zip :only [skip-to-rightmost-leaf]])
   (:require [clojure.zip :as zip]
             [clojure.string :as str]))
+            
 
 ;; COMPILE-TIME POSITIONS.
 ;; For annotating forms with information retrieved at runtime.

@@ -37,3 +37,9 @@
 (defn remove-moving-right [loc]
   (-> loc zip/remove zip/next))
 
+(defn previous-loc [loc]
+  (zip/left (zip/up loc)))
+
+(defn previous-form [loc]
+  (zip/node (previous-loc loc)))
+  

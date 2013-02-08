@@ -4,7 +4,7 @@
         [midje.checking.checkers.defining :only [checker? checker-makers]])
   (:require [clojure.zip :as zip]
             [midje.util.pile :as pile]
-            [midje.parsing.1-to-explicit-form.expects :as expects]
+            [midje.parsing.util.recognizing :as recognize]
             [midje.parsing.util.fnref :as fnref]))
 
 ;; Note that unfolding is done after prerequisites are converted to fakes. 
@@ -96,5 +96,5 @@
   (defn unfold-fakes [form]
     (with-fresh-generated-metaconstant-names
       (translate-zipper form
-        expects/expect?
+        recognize/expect?
         unfold-expect-form__then__stay_put))))

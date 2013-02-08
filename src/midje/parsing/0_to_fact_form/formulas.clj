@@ -2,12 +2,11 @@
   midje.parsing.0-to-fact-form.formulas
   (:use midje.clojure.core
         midje.parsing.util.core
-        [midje.parsing.util.arrows :only [leaf-expect-arrows leaves-contain-arrow?]]
-        [midje.parsing.1-to-explicit-form.future-facts :only [future-prefixes]]
         [clojure.string :only [join]]
         [clojure.walk :only [prewalk]])
   (:require [midje.util.pile :as pile]
             [midje.parsing.util.error-handling :as error]
+            [midje.parsing.util.recognizing :as recognize]
             [midje.emission.boundaries :as emission-boundary]
             [midje.emission.api :as emit]
             [midje.emission.state :as state]
@@ -25,6 +24,13 @@
       (throw (Error. (str "*num-trials* must be an integer 1 or greater. You tried to set it to: " new-val))))))
 
 ;;; Validation
+
+(defn leaf-expect-arrows [nested-form]
+  (let [named-form-leaves (map name (filter named? (flatten nested-form)))]
+    (filter recognize/expect-arrows named-form-leaves)))
+
+(defn leaves-contain-arrow? [nested-form]
+  (not (empty? (leaf-expect-arrows nested-form))))
 
 (defn- deconstruct-formula-args [args]
   (let [[docstring? more-args] (pile/pop-docstring args)
@@ -115,16 +121,4 @@
 (defmacro with-num-trials [num-trials & formulas]
   `(binding [midje.parsing.0-to-fact-form.formulas/*num-trials* ~num-trials]
      ~@formulas))
-
-(def future-formula-variant-names (map #(str % "formula") future-prefixes))
-
-
-(defmacro generate-future-formula-variants []
-  (pile/macro-for [name future-formula-variant-names]
-    `(defmacro ~(symbol name)
-       "ALPHA/EXPERIMENTAL (subject to change)
-        Formula that will not be run. Generates 'WORK TO DO' report output as a reminder."
-       {:arglists '([& forms])}
-       [& forms#]
-       (parse-future-fact/parse ~'&form))))
 

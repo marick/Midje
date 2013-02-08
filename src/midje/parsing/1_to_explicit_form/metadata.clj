@@ -2,8 +2,8 @@
   midje.parsing.1-to-explicit-form.metadata
   (:use midje.clojure.core
         [midje.util.exceptions :only [user-error]])
-  (:require [midje.parsing.util.arrows :as arrows]
-            [midje.util.pile :as pile]))
+  (:require [midje.util.pile :as pile]
+            [midje.parsing.util.recognizing :as recognize]))
 
 
 (def ^{:dynamic true} metadata-for-fact-group {})
@@ -21,7 +21,7 @@
             (let [head (first body)
                   add-key (fn [key value] (assoc metadata key value))]
 
-              (cond (arrows/start-of-checking-arrow-sequence? body)
+              (cond (recognize/start-of-checking-arrow-sequence? body)
                     [metadata body] 
 
                     (string? head)

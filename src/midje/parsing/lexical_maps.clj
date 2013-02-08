@@ -1,12 +1,11 @@
 (ns ^{:doc "example maps, redefine maps, failure maps"} 
   midje.parsing.lexical-maps
-  (:use midje.clojure.core
-        midje.parsing.arrow-symbols
-        midje.parsing.util.arrows)
+  (:use midje.clojure.core)
   (:require [midje.data.nested-facts :as nested-facts]
             [midje.parsing.util.fnref :as fnref]
-            [midje.parsing.util.file-position :as position])
-  (:require [midje.parsing.3-from-lexical-maps.from-fake-maps :as from-fake-maps]))
+            [midje.parsing.util.file-position :as position]
+            [midje.parsing.util.recognizing :as recognize]
+            [midje.parsing.3-from-lexical-maps.from-fake-maps :as from-fake-maps]))
 
 
 ;;; Because this code is a bit tricky, what with the lexical
@@ -46,7 +45,7 @@
         result `(merge
                  {:function-under-test (fn [] ~call-form)
                   :expected-result ~expected-result
-                  :check-expectation ~(expect-match-or-mismatch arrow)
+                  :check-expectation ~(recognize/expect-match-or-mismatch arrow)
                   :expected-result-form '~expected-result ;; This is also part of the source details.
                   :position (position/line-number-known ~line)
                   

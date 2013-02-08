@@ -1,0 +1,62 @@
+(ns implementation.parsing.util.t_recognizing
+  (:use midje.sweet
+        midje.test-util
+        midje.parsing.util.recognizing)
+  (:require [clojure.zip :as zip]))
+
+;;; Arrows 
+
+(tabular 
+ (fact "an embedded expect form can be recognized"
+   (expect? (zip/seq-zip ?form)) => ?expected)
+
+ ?form                                  ?expected
+ '(expect x => y)                       truthy
+ '(midje.semi-sweet/expect x => y)      truthy
+ '(+ x y)                               falsey
+ 'expect                                falsey)
+
+
+(fact "some arrows expect matches, some mismatches"
+  (let [result (map expect-match-or-mismatch
+                    '(=> midje.data.core-maps/=> midje.sweet/=>
+                      =not=> midje.data.core-maps/=not=> midje.sweet/=not=>
+                      =expands-to=> midje.semi-sweet/=expands-to=> midje.sweet/=expands-to=>))]
+    (fact result => [:expect-match :expect-match :expect-match
+                     :expect-mismatch :expect-mismatch :expect-mismatch
+                     :expect-match :expect-match :expect-match])))
+
+
+(fact "can ask if at first element of X =?> Y :possible :keywords"
+  (let [possible (fn [nested-form] (zip/down (zip/seq-zip nested-form)))]
+              "a string" =not=> start-of-checking-arrow-sequence?
+              '(foo) =not=> start-of-checking-arrow-sequence?
+    
+              '( (f 1) ) =not=> start-of-checking-arrow-sequence?
+    (possible '( (f 1) )) =not=> start-of-checking-arrow-sequence?
+    
+              '( (f 1) (f 2)) =not=> start-of-checking-arrow-sequence?
+    (possible '( (f 1) (f 2))) =not=> start-of-checking-arrow-sequence?
+
+              '( (f 1) => 2) => start-of-checking-arrow-sequence?
+    (possible '( (f 1) => 2)) => start-of-checking-arrow-sequence?
+
+              '( (f 1) =not=> 2) => start-of-checking-arrow-sequence?
+    (possible '( (f 1) =not=> 2)) => start-of-checking-arrow-sequence?
+
+              '( (f 1) => 2 :key 'value) => start-of-checking-arrow-sequence?
+    (possible '( (f 1) => 2 :key 'value)) => start-of-checking-arrow-sequence?
+
+              '( (f 1) midje.semi-sweet/=> 2) => start-of-checking-arrow-sequence?
+              (possible '( (f 1) midje.semi-sweet/=> 2)) => start-of-checking-arrow-sequence?))
+
+;;; Provided
+
+(fact "can ask whether at the beginning of a form that provides prerequisites"
+  (let [values (zip/seq-zip '(provided midje.semi-sweet/provided fluke))]
+    (-> values zip/down) => provided?
+    (-> values zip/down zip/right) => provided?
+    (-> values zip/down zip/right zip/right) =not=> provided?))
+
+
+

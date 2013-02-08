@@ -1,10 +1,9 @@
 (ns midje.parsing.1-to-explicit-form.t-expects
-  (:use [midje.parsing.1-to-explicit-form.expects]
-        [midje.parsing.util.arrows :only [start-of-checking-arrow-sequence?]]
-	midje.sweet
-	midje.test-util)
-  (:require [clojure.zip :as zip])
-)
+  (:use midje.sweet
+        midje.test-util
+        midje.parsing.1-to-explicit-form.expects)
+  (:require [clojure.zip :as zip]
+            [midje.parsing.util.recognizing :as recognize]))
 
 (fact "can position so loc is the entire expect form"
   (let [z (zip/seq-zip '(expect (f 1) => (+ 1 1)))
@@ -14,17 +13,6 @@
     (up-to-full-expect-form (-> z zip/down zip/rightmost)) => finds-enclosing
     (up-to-full-expect-form (-> z zip/down zip/rightmost zip/down)) => finds-enclosing))
 
-(tabular 
- (fact "an embedded expect form can be recognized"
-   (expect? (zip/seq-zip ?form)) => ?expected)
-
- ?form                                  ?expected
- '(expect x => y)                       truthy
- '(midje.semi-sweet/expect x => y)      truthy
- '(+ x y)                               falsey
- 'expect                                falsey)
-
-
 (fact "can append forms to end of top-level of expect form"
   (let [original '( (expect ...                                ) "next")
         edited   '( (expect ... (fake (f) => 2) (fake (g) => 3)) "next")
@@ -32,8 +20,8 @@
         original-loc (-> z zip/down)
         resulting-loc
            (tack-on__then__at-same-location '((fake (f) => 2) (fake (g) => 3)) original-loc)]
-    original-loc => expect?
-    resulting-loc => expect?
+    original-loc => recognize/expect?
+    resulting-loc => recognize/expect?
     (zip/root resulting-loc) => edited))
 
 (defn node [expected] (fn [actual] (= expected (zip/node actual))))
@@ -46,7 +34,7 @@
         original-loc  (-> z zip/down)
         resulting-loc (wrap-with-expect__then__at-rightmost-expect-leaf original-loc)]
     original-loc => (node '(f 1))
-    original-loc => start-of-checking-arrow-sequence?
+    original-loc => recognize/start-of-checking-arrow-sequence?
     
     (zip/root resulting-loc) => edited
     (zip/next resulting-loc) => (node "next"))
@@ -59,7 +47,7 @@
         original-loc  (-> z zip/down)
         resulting-loc (wrap-with-expect__then__at-rightmost-expect-leaf original-loc)]
     original-loc => (node '(f 1))
-    original-loc => start-of-checking-arrow-sequence?
+    original-loc => recognize/start-of-checking-arrow-sequence?
     
     (zip/root resulting-loc) => edited
     (zip/next resulting-loc) => (node "next"))
@@ -71,7 +59,7 @@
         original-loc  (-> z zip/down)
         resulting-loc (wrap-with-expect__then__at-rightmost-expect-leaf original-loc)]
     original-loc => (node '(f 1))
-    original-loc => start-of-checking-arrow-sequence?
+    original-loc => recognize/start-of-checking-arrow-sequence?
     
    (zip/root resulting-loc) => edited
    (zip/next resulting-loc) => (node "next"))

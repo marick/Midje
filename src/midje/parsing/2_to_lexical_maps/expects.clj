@@ -5,25 +5,17 @@
         [midje.parsing.arrow-symbols])
   (:require [midje.data.nested-facts :as nested-facts]
             [midje.parsing.util.error-handling :as error]
+            [midje.parsing.util.recognizing :as recognize]
             [midje.parsing.lexical-maps :as lexical-maps]
             [midje.parsing.2-to-lexical-maps.fakes :as parse-fakes]
             [midje.parsing.2-to-lexical-maps.data-fakes :as parse-data-fakes]
             [midje.emission.api :as emit]))
 
-(defn- ^{:testable true } a-fake? [x]
-  (and (seq? x)
-       (semi-sweet-keyword? (first x))))
 
-(defn mkfn:arrow? [& expected]
-  (fn [actual] ((set expected) (name actual))))
-(def normal-arrows? (mkfn:arrow? => =not=> =deny=>))
-(def macroexpansion-arrow? (mkfn:arrow? =expands-to=>))
-(def future-arrow? (mkfn:arrow? =future=>))
-(def parse-exception-arrow? (mkfn:arrow? =throw-parse-exception=>))
 
 (defn expansion [call-form arrow expected-result fakes overrides]
   (pred-cond arrow
-    normal-arrows?
+    recognize/common-check-arrow?
     (let [check (lexical-maps/example call-form arrow expected-result overrides)
           expanded-fakes (map (fn [fake]
                                  ;; TODO: Maybe this wants to be a multimethod,
@@ -45,17 +37,17 @@
                                fakes)]
       `(midje.checking.examples/check-one ~check ~(vec expanded-fakes)))
              
-    macroexpansion-arrow?
+    recognize/macroexpansion-check-arrow?
     (let [expanded-macro `(macroexpand-1 '~call-form)
           escaped-expected-result `(quote ~expected-result)]
       (expansion expanded-macro => escaped-expected-result fakes
                  (concat overrides [:expected-result-form escaped-expected-result])))
 
-    future-arrow?
+    recognize/future-check-arrow?
     (let [position (:position (apply hash-map-duplicates-ok overrides))]
         `(emit/future-fact (nested-facts/descriptions ~(str "on `" call-form "`")) ~position))
 
-    parse-exception-arrow?
+    recognize/parse-exception-arrow?
     (throw (java.lang.ClassNotFoundException. "A test asked for an exception"))
     
     :else
@@ -67,7 +59,7 @@
         (error/report-error call-form
                             (cl-format nil "... ~S ~A ~S" call-form arrow expected-result)
                             "It looks as though you've misparenthesized a prerequisite."))
-  (let [[fakes overrides] (separate a-fake? fakes+overrides)]
+  (let [[fakes overrides] (separate recognize/fake? fakes+overrides)]
     [call-form arrow expected-result fakes overrides]))
 
 (defn to-lexical-map-form [full-form]

@@ -7,27 +7,29 @@
             graciousness."}
   midje.sweet
   (:require midje.config) ; This should load first.
+  ;; The following lets us avoid a circular dependency. Sigh.
+  (:require midje.parsing.1-to-explicit-form.future-facts)
+
   (:use midje.clojure.core
-        midje.production-mode
-        midje.util.exceptions
-        midje.util.debugging
         midje.parsing.util.core
-        [midje.parsing.util.wrapping :only [put-wrappers-into-effect]]
-        [midje.parsing.util.file-position :only [set-fallback-line-number-from positioned-form]]
-        [midje.parsing.1-to-explicit-form.facts :only [complete-fact-transformation
-                                  midjcoexpand unparse-edited-fact]] 
-        [clojure.algo.monads :only [domonad]])
-  (:require [midje.parsing.1-to-explicit-form.background :as background]
-            [midje.parsing.1-to-explicit-form.metadata :as parse-metadata]
-            [midje.parsing.1-to-explicit-form.future-facts :as parse-future-fact]
-            [midje.parsing.1-to-explicit-form.metaconstants :as parse-metaconstants]
-            [midje.parsing.util.error-handling :as error]
-            [midje.parsing.0-to-fact-form.tabular :as tabular]
-            [midje.parsing.0-to-fact-form.formulas :as parse-formulas]
-            [midje.emission.api :as emit]
+        midje.production-mode)
+  ;; For immigration
+  (:require midje.semi-sweet
             [midje.doc :as doc]
+            midje.checkers)
+  (:require [midje.parsing.util.recognizing :as recognize]
+            [midje.parsing.util.future-variants :as future-variants]
+            [midje.parsing.util.error-handling :as error]
+            [midje.parsing.util.wrapping :as wrapping]
+            [midje.parsing.util.file-position :as position]
+            [midje.parsing.0-to-fact-form.tabular :as parse-tabular]
+            [midje.parsing.0-to-fact-form.formulas :as parse-formulas]
+            [midje.parsing.1-to-explicit-form.facts :as parse-facts]
+            [midje.parsing.1-to-explicit-form.background :as background]
+            [midje.parsing.1-to-explicit-form.metadata :as parse-metadata]
+            [midje.parsing.1-to-explicit-form.metaconstants :as parse-metaconstants]
             [midje.data.nested-facts :as nested-facts]
-            midje.checkers))
+            [midje.emission.api :as emit]))
 
 (immigrate 'midje.checkers)
 (immigrate 'midje.semi-sweet)
@@ -71,8 +73,8 @@
    (error/parse-and-catch-failure &form
     #(do                                   
        (background/assert-right-shape! &form)
-       (put-wrappers-into-effect (background/background-wrappers
-                                  (arglist-undoing-nesting background-changers)))))))
+       (wrapping/put-wrappers-into-effect (background/background-wrappers
+                                           (arglist-undoing-nesting background-changers)))))))
 
 (defmacro against-background
  " Puts a series of *background changers* into effect until the end
@@ -100,7 +102,7 @@
    Note that in this case the square brackets can be omitted."
   [background-forms & foreground-forms]
   (if (user-desires-checking?)
-    (error/parse-and-catch-failure &form #(midjcoexpand &form))
+    (error/parse-and-catch-failure &form #(parse-facts/midjcoexpand &form))
     `(do ~@foreground-forms)))
     
 (defmacro fact 
@@ -124,14 +126,14 @@
   [& _] ; we work off &form, not the arguments
   (when (user-desires-checking?)
     (error/parse-and-catch-failure &form
-      #(do (set-fallback-line-number-from &form)
+      #(do (position/set-fallback-line-number-from &form)
            (let [[metadata forms] (parse-metadata/separate-metadata &form)
                  [background remainder] (background/separate-background-forms forms)]
              (if (seq background)
-               (positioned-form `(against-background [~@background]
-                                   ~(unparse-edited-fact metadata remainder))
-                                &form)
-               (complete-fact-transformation metadata remainder)))))))
+               (position/positioned-form `(against-background [~@background]
+                                            ~(parse-facts/unparse-edited-fact metadata remainder))
+                                         &form)
+               (parse-facts/complete-fact-transformation metadata remainder)))))))
 
 (defmacro facts 
   "Alias for fact."
@@ -139,8 +141,8 @@
   (when (user-desires-checking?)
     (with-meta `(fact ~@forms) (meta &form))))
 
-(parse-future-fact/generate-variants)
-(parse-formulas/generate-future-formula-variants)
+(future-variants/generate-future-fact-variants)
+(future-variants/generate-future-formula-variants)
 
 (defmacro tabular 
   "Generate a table of related facts.
@@ -154,8 +156,8 @@
            9 10     19 )"
   {:arglists '([doc-string? fact table])}
   [& _]
-  (set-fallback-line-number-from &form)
-  (tabular/parse (keys &env) &form))
+  (position/set-fallback-line-number-from &form)
+  (parse-tabular/parse (keys &env) &form))
 
 
 (defmacro metaconstants
@@ -173,6 +175,6 @@
   [& forms]
   (let [[metadata body] (parse-metadata/separate-multi-fact-metadata forms)]
     (parse-metadata/with-wrapped-metadata metadata 
-      (midjcoexpand `(do ~@body)))))
+      (parse-facts/midjcoexpand `(do ~@body)))))
 
 

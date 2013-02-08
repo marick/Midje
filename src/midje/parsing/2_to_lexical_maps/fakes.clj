@@ -7,10 +7,6 @@
             [midje.parsing.util.error-handling :as error]
             [midje.parsing.lexical-maps :as lexical-maps]))
 
-(defn fake? [form]
-  (or (first-named? form "fake") 
-      (first-named? form "data-fake")))
-
 (defn tag-as-background-fake [fake]
   `(~@fake :background :background :times (~'range 0)))
 
