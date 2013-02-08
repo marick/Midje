@@ -433,8 +433,8 @@
   that typically results in facts being reloaded and checked. 
 
   By default, `autotest` monitors all the files in the
-  project.clj's :source-paths and :test-paths. If you don't have a
-  project.clj file, don't use `autotest`. To change the default, 
+  project.clj's :source-paths and :test-paths. (If you don't have
+  a project.clj file, don't use `autotest`.) To change the default, 
   give the `:dirs` argument:
 
      (autotest :dirs \"test/midje/util\" \"src/midje/util\")
