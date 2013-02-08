@@ -1,9 +1,9 @@
 (ns ^{:doc "Mostly functions for identifying semi-sweet expects, and for converting 
             midje.sweet arrow forms into semi-sweet expcet forms."}
   midje.parsing.1-to-explicit-form.expects
-  (:use midje.parsing.util.core
-        [midje.parsing.util.zip :only [skip-to-rightmost-leaf n-times remove-moving-right]])
+  (:use midje.parsing.util.core)
   (:require [clojure.zip :as zip]
+            [midje.parsing.util.zip :as pzip]
             [midje.parsing.util.overrides :as override]
             [midje.parsing.util.recognizing :as recognize]
             [midje.parsing.util.file-position :as position]))
@@ -30,7 +30,7 @@
 
 (defn tack-on__then__at-rightmost-expect-leaf [forms loc]
   (let [tack (fn [loc] (tack-on__then__at-same-location forms loc))]
-    (-> loc tack zip/down skip-to-rightmost-leaf)))
+    (-> loc tack zip/down pzip/skip-to-rightmost-leaf)))
 
 (defn wrap-with-expect__then__at-rightmost-expect-leaf [loc]
   (assert (recognize/start-of-checking-arrow-sequence? loc))
@@ -45,5 +45,5 @@
                           assoc :line line-number)))]
     (->> edited-loc
       zip/right
-      (n-times (inc (count additions)) remove-moving-right)
+      (pzip/n-times (inc (count additions)) pzip/remove-moving-right)
       zip/remove)))

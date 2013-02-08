@@ -3,38 +3,31 @@
   (:use midje.clojure.core
         midje.parsing.util.core
         midje.parsing.arrow-symbols
-        midje.parsing.util.zip
         
-        
-        [midje.parsing.1-to-explicit-form.expects :only [
-                                                         wrap-with-expect__then__at-rightmost-expect-leaf]]
-        [midje.parsing.util.wrapping :only [already-wrapped?
-                                            multiwrap
-                                            with-additional-wrappers
-                                            forms-to-wrap-around]]
-        [midje.parsing.1-to-explicit-form.prerequisites :only [
-                                                               insert-prerequisites-into-expect-form-as-fakes]]
+        [midje.parsing.1-to-explicit-form.expects :only [wrap-with-expect__then__at-rightmost-expect-leaf]]
+        [midje.parsing.1-to-explicit-form.prerequisites :only [insert-prerequisites-into-expect-form-as-fakes]]
         [midje.parsing.1-to-explicit-form.background :only [surround-with-background-fakes
-                                       body-of-against-background
-                                       against-background-contents-wrappers
-                                       against-background-facts-and-checks-wrappers
-                                       ]]
+                                                            body-of-against-background
+                                                            against-background-contents-wrappers
+                                                            against-background-facts-and-checks-wrappers
+                                                            ]]
         [midje.parsing.1-to-explicit-form.metaconstants :only [predefine-metaconstants-from-form]]
         [midje.util.laziness :only [eagerly]]
-        [midje.parsing.util.zip :only [skip-to-rightmost-leaf]]
         [swiss-arrows.core :only [-<>]])
   (:require [clojure.zip :as zip]
-            [midje.parsing.util.overrides :as override])
-  (:require [midje.checking.facts :as fact-checking]
-            [midje.data.compendium :as compendium]
+            [midje.parsing.util.zip :as pzip]
+            [midje.parsing.util.overrides :as override]
             [midje.parsing.util.file-position :as position]
             [midje.parsing.util.error-handling :as error]
+            [midje.parsing.util.wrapping :as wrapping]
             [midje.parsing.util.recognizing :as recognize]
             [midje.parsing.1-to-explicit-form.background :as background]
             [midje.parsing.1-to-explicit-form.metadata :as parse-metadata]
             [midje.parsing.2-to-lexical-maps.fakes :as parse-fakes]
             [midje.parsing.2-to-lexical-maps.expects :as parse-expects]
-            [midje.parsing.2-to-lexical-maps.folded-fakes :as parse-folded-fakes]))
+            [midje.parsing.2-to-lexical-maps.folded-fakes :as parse-folded-fakes]
+            [midje.data.compendium :as compendium]
+            [midje.checking.facts :as fact-checking]))
 
                                 ;;; Fact processing
 
@@ -73,9 +66,9 @@
    1) Arrow sequences become expect forms.
    2) (provided ...) become fakes inserted into preceding expect."
   [multi-form]
-  (translate-zipper multi-form
+  (pzip/translate-zipper multi-form
     recognize/fact?
-    skip-to-rightmost-leaf
+    pzip/skip-to-rightmost-leaf
                     
     recognize/start-of-checking-arrow-sequence?
     wrap-with-expect__then__at-rightmost-expect-leaf
@@ -84,7 +77,7 @@
     insert-prerequisites-into-expect-form-as-fakes
 
     semi-sweet-keyword?
-    skip-to-rightmost-leaf))
+    pzip/skip-to-rightmost-leaf))
 
 (declare midjcoexpand)
 
@@ -94,25 +87,25 @@
     (-<> form 
          body-of-against-background
          midjcoexpand
-         (with-additional-wrappers (against-background-facts-and-checks-wrappers form) <>)
-         (multiwrap <> (against-background-contents-wrappers form)))))
+         (wrapping/with-additional-wrappers (against-background-facts-and-checks-wrappers form) <>)
+         (wrapping/multiwrap <> (against-background-contents-wrappers form)))))
 
 
 (defn midjcoexpand
   "Descend form, macroexpanding *only* midje forms and placing background wrappers where appropriate."
   [form]
   (pred-cond form
-    already-wrapped?     form
+    wrapping/already-wrapped?     form
     quoted?              form
     recognize/future-fact?         (macroexpand form)
     recognize/against-background?  (expand-against-background form)
-    recognize/expect?      (multiwrap form (forms-to-wrap-around :checks ))
+    recognize/expect?      (wrapping/multiwrap form (wrapping/forms-to-wrap-around :checks ))
     recognize/fact?        (macroexpand form)
     sequential?  (preserve-type form (eagerly (map midjcoexpand form)))
     :else        form))
 
 (defn parse-expects [form]
-  (translate-zipper form
+  (pzip/translate-zipper form
      recognize/expect? (fn [loc]
                          (zip/replace loc (parse-expects/to-lexical-map-form (zip/node loc))))))
 
@@ -131,9 +124,9 @@
    :position `(position/line-number-known ~number) loc))
 
 (defn annotate-embedded-arrows-with-line-numbers [form]
-  (translate-zipper form
+  (pzip/translate-zipper form
     quoted?
-    (comp skip-to-rightmost-leaf zip/down)
+    (comp pzip/skip-to-rightmost-leaf zip/down)
 
     (partial matches-symbols-in-semi-sweet-or-sweet-ns? recognize/all-arrows)
     #(at-arrow__add-line-number-to-end__no-movement (position/arrow-line-number %) %)))
@@ -149,7 +142,7 @@
       surround-with-background-fakes
       midjcoexpand
       parse-expects
-      (multiwrap (forms-to-wrap-around :facts))))
+      (wrapping/multiwrap (wrapping/forms-to-wrap-around :facts))))
 
 
 ;;; Check-time processing
@@ -192,10 +185,6 @@
     (-> function-form
         wrap-with-creation-time-fact-recording
         run-after-creation)))
-
-;;; There could be validation here, but none has proven useful.
-
-;;; Ta-da!
 
 (defn complete-fact-transformation [metadata forms]
   (given-possible-fact-nesting

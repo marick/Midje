@@ -7,7 +7,6 @@
         [midje.parsing.1-to-explicit-form.metaconstants :only [predefine-metaconstants-from-form]]
         [midje.parsing.1-to-explicit-form.prerequisites :only [prerequisite-to-fake take-arrow-sequence]]
         [midje.data.prerequisite-state :only [with-installed-fakes]]
-        [midje.parsing.util.wrapping :only [for-wrapping-target? with-wrapping-target]]
         [midje.util.laziness :only [eagerly]]
         [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
                                                    with-pushed-namespace-values]])
@@ -16,6 +15,7 @@
             [midje.parsing.util.file-position :as position]
             [midje.parsing.util.error-handling :as error]
             [midje.parsing.util.recognizing :as recognize]
+            [midje.parsing.util.wrapping :as wrapping]
             [midje.parsing.2-to-lexical-maps.fakes :as fakes]
             [midje.parsing.2-to-lexical-maps.data-fakes :as data-fakes]))
 
@@ -102,7 +102,7 @@
                                          (throw (Error. "Supposedly impossible error parsing a background changer."))))))
 
 (defn- ^{:testable true } state-wrapper [[_before-after-or-around_ wrapping-target & _ :as state-description]]
-  (with-wrapping-target
+  (wrapping/with-wrapping-target
     (macroexpand-1 (map-first #(symbol "midje.parsing.1-to-explicit-form.background" (name %)) state-description))
     wrapping-target))
 
@@ -111,7 +111,7 @@
                                            :midje/background-fakes
                                            [~@fake-maker-forms] ~(unify/?form))]
             (list 
-             (with-wrapping-target around-facts-and-checks :facts))))]
+             (wrapping/with-wrapping-target around-facts-and-checks :facts))))]
 
   ;; Collecting all the background fakes is here for historical reasons:
   ;; it made it easier to eyeball expanded forms and see what was going on.
@@ -127,10 +127,10 @@
   `(do ~@background-body))
 
 (defn against-background-contents-wrappers [[_against-background_ background-forms & _]]
-  (filter (for-wrapping-target? :contents ) (background-wrappers background-forms)))
+  (filter (wrapping/for-wrapping-target? :contents ) (background-wrappers background-forms)))
 
 (defn against-background-facts-and-checks-wrappers [[_against-background_ background-forms & _]]
-  (remove (for-wrapping-target? :contents ) (background-wrappers background-forms)))
+  (remove (wrapping/for-wrapping-target? :contents ) (background-wrappers background-forms)))
 
 (defn surround-with-background-fakes [forms]
   `(with-installed-fakes (background-fakes)
