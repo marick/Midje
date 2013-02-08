@@ -72,9 +72,9 @@
         result `(merge
                  {
                   :type :fake
-                  :var ~(fnref/fnref-call-form fnref)
-                  :value-at-time-of-faking (if (bound? ~(fnref/fnref-call-form fnref))
-                                             ~(fnref/fnref-dereference-form fnref))
+                  :var ~(fnref/as-var-form fnref)
+                  :value-at-time-of-faking (if (bound? ~(fnref/as-var-form fnref))
+                                             ~(fnref/as-form-to-fetch-var-value fnref))
                   :arg-matchers (map from-fake-maps/mkfn:arg-matcher ~(vec args))
                   :result-supplier (from-fake-maps/mkfn:result-supplier ~arrow ~result)
                   :times :default  ; Default allows for a more attractive error in the most common case.
@@ -102,7 +102,7 @@
                  {
                   :type :fake
                   :data-fake true
-                  :var ~(fnref/fnref-call-form metaconstant)
+                  :var ~(fnref/as-var-form metaconstant)
                   :contained ~contained
                   
                   :position (position/line-number-known ~line)

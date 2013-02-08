@@ -19,12 +19,12 @@
   `(binding [*metaconstant-counts* (atom {})]
      ~@forms))
 
-(defn metaconstant-for-form [[function-symbol & _ :as inner-form]]
-  (let [swap-fn (fn [current-value function-symbol]
-                  (assoc current-value function-symbol ((fnil inc 0) (current-value function-symbol))))
-        number ((swap! *metaconstant-counts* swap-fn function-symbol)
-                  function-symbol)]
-    (symbol (format "...%s-value-%s..." (name (fnref/fnref-symbol function-symbol)) number))))
+(defn metaconstant-for-form [[fnref & _ :as inner-form]]
+  (let [swap-fn (fn [current-value fnref]
+                  (assoc current-value fnref ((fnil inc 0) (current-value fnref))))
+        number ((swap! *metaconstant-counts* swap-fn fnref)
+                  fnref)]
+    (symbol (format "...%s-value-%s..." (name (fnref/as-symbol fnref)) number))))
 
 (defn- ^{:testable true } mockable-funcall? [x]
   (let [constructor? (fn [symbol]
@@ -33,8 +33,8 @@
         mockable-function? (fn [fnref]
                              (not (or (some #{fnref} special-forms)
                                       (some #{fnref} checker-makers)
-                                      (constructor? (fnref/fnref-symbol fnref))
-                                      (checker? (fnref/fnref-var-object fnref)))))]
+                                      (constructor? (fnref/as-symbol fnref))
+                                      (checker? (fnref/resolved-to-actual-var-object fnref)))))]
     (and (list? x)
       (mockable-function? (first x)))))
 

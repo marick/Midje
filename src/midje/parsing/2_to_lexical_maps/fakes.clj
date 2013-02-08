@@ -46,7 +46,7 @@
    "  (provided (all-even? ..xs..) => true)"])
 
 (defn valid-pieces [[_ [fnref & args :as call-form] arrow result & overrides]]
-  (let [actual-var (fnref/fnref-var-object fnref)]
+  (let [actual-var (fnref/resolved-to-actual-var-object fnref)]
     (cond (compiler-will-inline-fn? actual-var)
           (error/report-error call-form
                               (cl-format nil "You cannot override the function `~S`: it is inlined by the Clojure compiler." actual-var))
