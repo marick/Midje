@@ -25,12 +25,16 @@
      ?candidate   ?arrow
      ---foo---      => 
      -foo-          => 
+     -a-b-          =>
      foo            =not=>
      -foo           =not=>
      foo-           =not=>
      "-string-"     =not=>
      (--foo--)      =not=>
-     ---            =not=>)
+     ;; "..." is too potentially valid to be accepted as a metaconstant,
+     ;; but "---" seems useless enough that we'll allow it to be a
+     ;; (badly chosen) metaconstant.
+     ---            =>)
 
 (fact "but they must be exclusively one or the other"
     (metaconstant-symbol? '-x.) => false)

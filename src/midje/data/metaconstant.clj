@@ -10,7 +10,7 @@
 ;;; begin and end with either a dash or a period.
 
 (def ^{:private true} formats {"..." #"^(\.+)([^.]+)(\.+)$"
-                               "---" #"^(-+)([^-]+)(-+)$"})
+                               "---" #"^(-+)(.+?)(-+)$"})
 
 (defn- evaluate-comparison-potential [x]
   (letfn [(variant-and-body [variant]
