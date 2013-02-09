@@ -40,16 +40,10 @@
        :dynamic true}
   *include-midje-checks* *include-midje-checks*)
 
-;; TODO: How is this different from defalias?
-(defn- intern+keep-meta [ns sym v]
-  (intern ns sym v)
-  (let [newguy (get (ns-interns ns) sym)]
-    (alter-meta! newguy merge (meta v))))
-
-(intern+keep-meta *ns* 'before  #'background/before)
-(intern+keep-meta *ns* 'after   #'background/after)
-(intern+keep-meta *ns* 'around  #'background/around)
-(intern+keep-meta *ns* 'formula #'parse-formulas/formula)
+(defalias before  background/before)
+(defalias after   background/after)
+(defalias around  background/around)
+(defalias formula parse-formulas/formula)
 
 (when (doc/appropriate?)
   (immigrate-from 'midje.doc doc/for-sweet)
