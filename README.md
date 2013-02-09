@@ -75,3 +75,4 @@ Contributors
 * Sébastien RoccaSerra
 * Harri Salokorpi
 * Greg Spurrier
+* Giorgio Valoti
