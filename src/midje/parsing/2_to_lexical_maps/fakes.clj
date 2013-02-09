@@ -51,7 +51,7 @@
           (error/report-error call-form
                               (cl-format nil "You cannot override the function `~S`: it is inlined by the Clojure compiler." actual-var))
 
-          (exposed-testable? actual-var)
+          (and (symbol? fnref) (exposed-testable? actual-var))
           (error/report-error call-form
                               "A prerequisite cannot use a symbol exposed via `expose-testables` or `testable-privates`."
                               (cl-format nil "Instead, use the var directly: #'~S/~S"

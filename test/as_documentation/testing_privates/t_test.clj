@@ -32,8 +32,14 @@
   (et-caller 1) => 8988
   (provided
     (et-called 1) => 8988))
-(note-that (fact-failed-with-note #"A prerequisite cannot use a symbol exposed via `expose-testables`"))
+(note-that (fact-failed-with-note #"A prerequisite cannot use a symbol exposed via `expose-testables`")
+           (fact-failed-with-note #"Instead, use the var directly: #'as-documentation.testing-privates.privates-for-expose-testables/et-called"))
 
+
+(fact "Here is how you must use them"
+  (et-caller 1) => 8988
+  (provided
+    (#'as-documentation.testing-privates.privates-for-expose-testables/et-called 1) => 8988))
 
 ;; 3. You can also name specific privates that should be made available in the current namespace.
 
@@ -48,6 +54,10 @@
   (tp-caller 1) => 8988
   (provided
     (tp-called 1) => 8988))
-(note-that (fact-failed-with-note #"A prerequisite cannot use a symbol exposed via.* `testable-privates`"))
-  
+(note-that (fact-failed-with-note #"A prerequisite cannot use a symbol exposed via.* `testable-privates`")
+           (fact-failed-with-note #"Instead, use the var directly: #'as-documentation.testing-privates.privates-for-testable-privates/tp-called"))
 
+(fact "Here is how such a private must be used"
+  (tp-caller 1) => 8988
+  (provided
+    (#'as-documentation.testing-privates.privates-for-testable-privates/tp-called 1) => 8988))
