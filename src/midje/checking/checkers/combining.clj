@@ -10,17 +10,15 @@
                             [ [checker-form (user-friendly-falsehood result)]]}))
 
 (defn- build-check-form [checker-form actual-sym]
-  `(if (instance? java.util.regex.Pattern ~checker-form)
-     (re-matches ~checker-form ~actual-sym)
-     (~checker-form ~actual-sym)))
+  `(extended-= ~actual-sym ~checker-form))
 
 (defn- ^{:testable true}
   wrap-in-and-checking-form [checker-form to-wrap result-sym actual-sym]
   (let [check-form (build-check-form checker-form actual-sym)]
     `(let [~result-sym ~check-form]
-    (if (extended-false? ~result-sym)
-      (report-failure ~actual-sym '~checker-form ~result-sym)
-      ~to-wrap))))
+       (if (extended-false? ~result-sym)
+         (report-failure ~actual-sym '~checker-form ~result-sym)
+         ~to-wrap))))
 
 (defmacro every-checker
   "Combines multiple checkers into one checker that passes 
@@ -35,6 +33,14 @@
        ...
        During checking, these intermediate values were seen:
           neg? => false
+
+   The combined checkers can include anything that can appear on the
+   right-hand side of an arrow.
+
+   Example:
+
+       (fact \"-1b-\" => (every-checker #(= 4 (count %))
+                                      #\"1b\"))
   "
   [& checker-forms]
   (let [actual-gensym (gensym "actual-result-")
@@ -61,6 +67,14 @@
    passes, the remainder are not run. Example:
 
       (fact 3 => (some-checker even? neg?)) ; fails
+
+   The combined checkers can include anything that can appear on the
+   right-hand side of an arrow.
+
+   Example:
+
+       (fact \"-1b-\" => (some-checker #(= 4 (count %))
+                                     \"-1b-\"))
    "
   [& checker-forms]
   (let [actual-gensym (gensym "actual-result-")

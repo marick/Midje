@@ -52,13 +52,16 @@
   "containers are another form of chatty checker"
   {:a 1} =not=> (every-checker (contains {:b 1})))
 
-(fact "checkers can be regexs as well as functions"
-  (let [checker (every-checker (fn [actual] (= (count actual) 1))
-                               #"/d+"
-                               #"5")]
-
-    (checker "5") => truthy
-    (checker "1") => falsey))
+(fact "checkers can be any right-hand side as well as functions"
+  (let [checks-out (every-checker (fn [actual] (= (count actual) 4))
+                                  #"\d+"
+                                  #"5")]
+    "x5xx" => checks-out
+    "x1xx" =not=> checks-out
+    [1 2 3 4] =not=> checks-out)
+  (fact "even such a silly case as a regexp compared to a regexp"
+    #"12*" => (every-checker regex? #"12*")))
+  
 
 (fact "the empty every-checker passes"
   5 => (every-checker))
@@ -96,14 +99,17 @@
     (checker 88) => true
     (checker 3) => false))
 
-(fact "checkers can be regexs as well as functions"
-  (let [checker (some-checker (fn [actual] (= (count actual) 1))
-                               #"\d+")]
+(fact "checkers can be any right-hand side as well as functions"
+  (let [checks-out (some-checker (fn [actual] (= (count actual) 4))
+                                  #"\d+"
+                                  #"5")]
+    "x5xx" => checks-out
+    "xax" =not=> checks-out
+    [1 2 3 4] => checks-out)
+  (fact "even such a silly case as a regexp compared to a regexp"
+    #"12*" => (some-checker string? #"12*")))
 
-    (checker "11") => truthy
-    (checker "test") => falsey))
-
-(fact "the empty some-checker false"
+(fact "the empty some-checker is false"
   5 =not=> (some-checker))
 
 (def hit-count (atom 0))

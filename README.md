@@ -76,3 +76,4 @@ Contributors
 * Harri Salokorpi
 * Greg Spurrier
 * Giorgio Valoti
+* Joseph Wilk
