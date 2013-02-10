@@ -50,9 +50,10 @@
 
 (defn- ^{:testable true}
   wrap-in-or-checking-form [checker-form to-wrap actual-sym]
-    `(if (extended-true? (~checker-form ~actual-sym))
+  (let [check-form (build-check-form checker-form actual-sym)]
+    `(if (extended-true? ~check-form)
        true
-       ~to-wrap))
+       ~to-wrap)))
 
 (defmacro some-checker
   "Combines multiple checkers into one checker that passes 

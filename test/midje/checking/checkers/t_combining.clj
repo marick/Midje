@@ -96,6 +96,13 @@
     (checker 88) => true
     (checker 3) => false))
 
+(fact "checkers can be regexs as well as functions"
+  (let [checker (some-checker (fn [actual] (= (count actual) 1))
+                               #"\d+")]
+
+    (checker "11") => truthy
+    (checker "test") => falsey))
+
 (fact "the empty some-checker false"
   5 =not=> (some-checker))
 
