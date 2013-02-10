@@ -9,12 +9,18 @@
                             :intermediate-results
                             [ [checker-form (user-friendly-falsehood result)]]}))
 
+(defn- build-check-form [checker-form actual-sym]
+  `(if (instance? java.util.regex.Pattern ~checker-form)
+     (re-matches ~checker-form ~actual-sym)
+     (~checker-form ~actual-sym)))
+
 (defn- ^{:testable true}
   wrap-in-and-checking-form [checker-form to-wrap result-sym actual-sym]
-    `(let [~result-sym ( ~checker-form ~actual-sym)]
-       (if (extended-false? ~result-sym)
-         (report-failure ~actual-sym '~checker-form ~result-sym)
-         ~to-wrap)))
+  (let [check-form (build-check-form checker-form actual-sym)]
+    `(let [~result-sym ~check-form]
+    (if (extended-false? ~result-sym)
+      (report-failure ~actual-sym '~checker-form ~result-sym)
+      ~to-wrap))))
 
 (defmacro every-checker
   "Combines multiple checkers into one checker that passes 

@@ -52,6 +52,14 @@
   "containers are another form of chatty checker"
   {:a 1} =not=> (every-checker (contains {:b 1})))
 
+(fact "checkers can be regexs as well as functions"
+  (let [checker (every-checker (fn [actual] (= (count actual) 1))
+                               #"/d+"
+                               #"5")]
+
+    (checker "5") => truthy
+    (checker "1") => falsey))
+
 (fact "the empty every-checker passes"
   5 => (every-checker))
 
