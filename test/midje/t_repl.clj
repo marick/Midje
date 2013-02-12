@@ -357,7 +357,7 @@
     (fact "It also prints a summary"
       :check-only-at-load-time
       (config/with-augmented-config {:print-level :print-normally}
-        (captured-output (recheck-fact)) => #"All claims \(1\) have been confirmed"))
+        (captured-output (recheck-fact)) => #"All predictions \(1\) came true"))
 
     (fact "It can take a print-level argument"
       :check-only-at-load-time
