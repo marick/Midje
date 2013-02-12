@@ -1,3 +1,10 @@
+(when (and (= 1 (:major *clojure-version*))
+           (= 2 (:minor *clojure-version*)))
+  (println "================================================")
+  (println "==== Midje no longer supports Clojure 1.2.X ====")
+  (println "================================================")
+  (println))
+
 (ns ^{:doc "Environmental factors."}
   midje.util.ecosystem
   (:require [clojure.string :as str]
