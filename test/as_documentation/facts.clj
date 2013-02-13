@@ -1,4 +1,4 @@
-(ns as-documentation.t-facts
+(ns as-documentation.facts
   (:use midje.sweet
         midje.test-util)
   (:require [midje.config :as config]))
@@ -51,6 +51,6 @@
    (fact
      @fact-output => (contains "WORK TO DO")
      @fact-output => (contains "on `(- 1 1)`")
-     @fact-output => #"t_facts.clj:\d\d"))
+     @fact-output => #"facts.clj:\d\d"))
   
 )

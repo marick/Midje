@@ -1,4 +1,4 @@
-(ns as-documentation.testing-privates.privates-for-direct-access)
+(ns as-documentation.about-privates.privates-for-direct-access)
 
 (defn- da-function-without-prerequisite [n] (inc n))
 

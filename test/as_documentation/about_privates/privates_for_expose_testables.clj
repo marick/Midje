@@ -1,4 +1,4 @@
-(ns as-documentation.testing-privates.privates-for-expose-testables)
+(ns as-documentation.about-privates.privates-for-expose-testables)
 
 (defn- ^{:testable true}
   et-function-without-prerequisite [n]

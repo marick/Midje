@@ -1,4 +1,4 @@
-(ns as-documentation.t-prerequisites
+(ns as-documentation.prerequisites
   (:use midje.sweet
         midje.util
         midje.test-util)

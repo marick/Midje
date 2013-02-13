@@ -1,4 +1,4 @@
-(ns as-documentation.t-assumptions
+(ns as-documentation.assumptions
   (:use midje.sweet
         midje.test-util))
 

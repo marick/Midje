@@ -1,4 +1,4 @@
-(ns as-documentation.testing-privates.privates-for-testable-privates)
+(ns as-documentation.about-privates.privates-for-testable-privates)
 
 (defn- tp-function-without-prerequisite [n] (inc n))
 

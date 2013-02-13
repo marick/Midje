@@ -1,4 +1,4 @@
-(ns as-documentation.t-metaconstants
+(ns as-documentation.metaconstants
   (:use [midje sweet test-util]))
 
 ;;;                             THE BASICS

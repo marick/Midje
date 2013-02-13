@@ -1,4 +1,4 @@
-(ns as-documentation.t-streaming-prerequisites
+(ns as-documentation.prerequisites-that-stream-values
   (:use midje.sweet
         midje.util
         midje.test-util
