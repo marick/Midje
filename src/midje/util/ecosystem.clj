@@ -8,8 +8,7 @@
 (ns ^{:doc "Environmental factors."}
   midje.util.ecosystem
   (:require [clojure.string :as str]
-            midje.clojure.backwards-compatibility
-            [leiningen.core.project :as project]))
+            midje.clojure.backwards-compatibility))
 
 (def issues-url "https://github.com/marick/Midje/issues")
 (def syntax-errors-that-will-not-be-fixed     
@@ -89,32 +88,38 @@
 ;; get that from `lein repl`, so the default value from `project.clj`
 ;; is returned.
 
-(when-1-3+
+(def leiningen-paths-var nil)
 
- (def leiningen-paths-var nil)
-
- (defmacro around-initial-paths [& body]
-   `(let [original# leiningen-paths-var]
-      (try
-        (alter-var-root #'leiningen-paths-var (constantly nil))
-        ~@body
-        (finally (alter-var-root #'leiningen-paths-var (constantly original#))))))
+(defmacro around-initial-paths [& body]
+  `(let [original# leiningen-paths-var]
+     (try
+       (alter-var-root #'leiningen-paths-var (constantly nil))
+       ~@body
+       (finally (alter-var-root #'leiningen-paths-var (constantly original#))))))
  
- (defn set-leiningen-paths! [project]
-   ;; Note that the order is guaranteed: test paths come before project paths.
-   (alter-var-root #'leiningen-paths-var
-                   (constantly (concat (:test-paths project) (:source-paths project)))))
+(defn set-leiningen-paths! [project]
+  ;; Note that the order is guaranteed: test paths come before project paths.
+  (alter-var-root #'leiningen-paths-var
+                  (constantly (concat (:test-paths project) (:source-paths project)))))
 
- (defn- project-with-paths []
-   (try
-     (project/read)
-   (catch java.io.FileNotFoundException e
-     {:test-paths ["test"]})))
+
+(defn leiningen-project []
+  (try
+    (binding [*ns* *ns*]
+      (in-ns 'midje.util.temporary)
+      (load-file "./project.clj")
+      (resolve 'midje.util.temporary/project))
+  (catch java.io.FileNotFoundException e
+    nil)
+  (catch Exception e
+    (println "======================================================")
+    (println "==== There was an error loading the project file. ====")
+    (println "======================================================")
+    (println)
+    (throw e))))
  
- (defn leiningen-paths []
-   (or leiningen-paths-var
-       (do
-         (set-leiningen-paths! (project-with-paths))
-         leiningen-paths-var)))
-       
-)
+(defn leiningen-paths []
+  (or leiningen-paths-var
+      (do
+        (set-leiningen-paths! (or (leiningen-project) {:test-paths ["test"]}))
+        leiningen-paths-var)))
