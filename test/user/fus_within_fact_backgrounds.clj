@@ -1,4 +1,4 @@
-(ns user.t-within-fact-backgrounds
+(ns user.fus-within-fact-backgrounds
   (:use midje.sweet
         midje.test-util)
   (:require [midje.data.fact :as fact-data]

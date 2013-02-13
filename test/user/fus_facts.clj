@@ -1,4 +1,4 @@
-(ns user.t-facts
+(ns user.fus-facts
   (:use midje.sweet
         midje.test-util)
   (:require [midje.config :as config]))

@@ -1,4 +1,4 @@
-(ns user.t-parse-exceptions
+(ns user.fus-parse-exceptions
   (:use midje.sweet
         midje.test-util))
 

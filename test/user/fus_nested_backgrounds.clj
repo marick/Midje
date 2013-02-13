@@ -1,4 +1,4 @@
-(ns user.t-nested-backgrounds
+(ns user.fus-nested-backgrounds
   (:use midje.sweet
         midje.test-util))
 
