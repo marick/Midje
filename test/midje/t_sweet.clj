@@ -19,22 +19,8 @@
   (map str (remove (comp :doc meta) (vals (ns-publics 'midje.util)))) => []
   (map str (remove (comp :doc meta) (vals (ns-publics 'midje.repl)))) => [])
 
-(silent-fact (+ 1 1) => 3)
-(note-that fact-fails, (fact-expected 3), (fact-actual 2))
-
-(facts
-  (+ 10 10) => 20
-  (+ 20 20) => 40)
-
-
               
 
-
-(silent-fact
-   (+ 1 1) => 3
-   (+ 11 "1") =future=> "12"  ;; does not fail
-   (+ 111 1) => 112)
-(note-that (fails 1 time), (fact-actual 2), (fact-expected 3))
 
 
 (defn number [] )
