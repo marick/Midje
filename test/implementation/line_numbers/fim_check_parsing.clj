@@ -1,4 +1,4 @@
-(ns implementation.line-numbers.t-check-parsing
+(ns implementation.line-numbers.fim-check-parsing
   (:use midje.sweet
         midje.test-util))
 
@@ -16,6 +16,6 @@
   (f ..new-val..) ;; this is not a good check
   (provided
     (g ..new-val..) => ..new-transformed-val..))
-(note-that (failure-was-in-file "t_check_parsing.clj")
+(note-that (failure-was-in-file "fim_check_parsing.clj")
            (failure-was-at-line 17))
 

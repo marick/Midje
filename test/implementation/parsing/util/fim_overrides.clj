@@ -1,4 +1,4 @@
-(ns implementation.parsing.util.t_overrides
+(ns implementation.parsing.util.fim_overrides
   (:use midje.sweet
         midje.test-util
         midje.parsing.util.overrides))

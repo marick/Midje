@@ -1,4 +1,4 @@
-(ns implementation.util.t-exceptions
+(ns implementation.util.fim-exceptions
   (:use [midje.util.exceptions]
         [midje.emission.colorize :only [colorize-choice]]
 	      [midje sweet test-util]

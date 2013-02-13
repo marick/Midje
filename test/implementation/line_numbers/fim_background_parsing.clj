@@ -1,4 +1,4 @@
-(ns implementation.line-numbers.t-background-parsing
+(ns implementation.line-numbers.fim-background-parsing
   (:use midje.sweet
         midje.test-util))
 

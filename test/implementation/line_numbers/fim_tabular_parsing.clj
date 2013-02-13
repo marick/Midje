@@ -1,4 +1,4 @@
-(ns implementation.line-numbers.t-tabular-parsing
+(ns implementation.line-numbers.fim-tabular-parsing
   (:use midje.sweet
         midje.test-util))
 

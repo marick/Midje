@@ -1,4 +1,4 @@
-(ns implementation.parsing.util.t_recognizing
+(ns implementation.parsing.util.fim_recognizing
   (:use midje.sweet
         midje.test-util
         midje.parsing.util.recognizing)
