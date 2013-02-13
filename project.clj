@@ -11,6 +11,7 @@
                  [org.clojure/tools.macro "0.1.1"]
                  [org.clojure/core.incubator "0.1.0"]
                  [bultitude "0.1.7"]
+                 [leiningen-core "2.0.0-preview10"]
                  [swiss-arrows "0.1.0"]
                  [org.clojure/tools.namespace "0.2.2"]
                  [slingshot "0.10.3"]
