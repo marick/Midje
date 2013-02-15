@@ -263,8 +263,8 @@
 
  ;; Obeying metadata filters
  (let [string-result ; will only be visible for facts defined at the repl.
-       (config/with-augmented-config {:desired-fact? (with-meta (constantly false)
-                                                       {:created-from ["desiderata"]})}
+       (config/with-augmented-config {:fact-filter (with-meta (constantly false)
+                                                     {:created-from ["desiderata"]})}
          
          (check-one-fact the-fact))]
    (fact :check-only-at-load-time

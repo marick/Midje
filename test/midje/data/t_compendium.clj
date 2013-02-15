@@ -185,7 +185,7 @@
     ((last-fact-checked<>)) => "No fact has been checked.")
 
   ;; The user can also override creation-time recording (but not run-time)
-  (config/with-augmented-config {:desired-fact? (constantly false)}
+  (config/with-augmented-config {:fact-filter (constantly false)}
     (fact (str "foo" "bar") => "foobar")
     (fact :check-only-at-load-time
       (all-facts<>) => empty?

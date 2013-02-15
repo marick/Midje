@@ -8,7 +8,7 @@
 
 (defn check-one [fact]
   (let [top-level? (:midje/top-level-fact? (meta fact))
-        fact-creation-filter (config/choice :desired-fact?)]
+        fact-creation-filter (config/choice :fact-filter)]
     (cond (not (fact-creation-filter fact))
           (str "This fact was ignored because of the current configuration. "
                "Only facts matching "

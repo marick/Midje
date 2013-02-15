@@ -193,7 +193,7 @@
     (let [namespaces (:namespaces-to-use intention)]
       (emission-boundary/around-namespace-stream namespaces
                                                  {:print-level (:print-level intention)
-                                                  :desired-fact? (:filter-function intention)}
+                                                  :fact-filter (:filter-function intention)}
         (forget-certain-namespaces! namespaces)
         (doseq [ns namespaces :when (unloaded? ns)]
           (compendium/remove-namespace-facts-from! ns)

@@ -38,9 +38,7 @@
             :check-after-creation true
             :emitter 'midje.emission.plugins.default
             :check-recorder (fn [example-map prerequisite-maps])
-
-            ;; The following aren't changed by users.
-            :desired-fact? (constantly true)})
+            :fact-filter (constantly true)})
 
 (defmulti validate-key! first)
 (defmethod validate-key! :print-level [[_ value]]
@@ -95,7 +93,7 @@
 ;; Fact functions
 
 (defn user-wants-fact-to-be-recorded? [fact]
-  ((choice :desired-fact?) fact))
+  ((choice :fact-filter) fact))
 
 ;; Convenience
 (def no-overrides {})
