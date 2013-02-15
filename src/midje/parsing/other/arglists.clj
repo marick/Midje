@@ -44,20 +44,18 @@
      assoc :created-from desireds))
 
 
-(defn separate-filters
-  ([args plain-argument?]
-     (let [[filters remainder]
-           (separate #(and (not (plain-argument? %))
-                           ((pile/any-pred-from [string? regex? fn? keyword?]) %))
-                     args)]
-       [filters
-        (desired-fact-predicate-from filters)
-        remainder]))
-  ([args]
-     (separate-filters args (constantly false))))
-
-
-
+;;; TODO: Whatever happened to the single-responsibility principle? Should this
+;;; really both separate filters *and* compile them into a predicate?
+(defn separate-filters [args plain-argument? default-filter]
+  (let [[filters remainder]
+        (separate #(and (not (plain-argument? %)) 
+                        ((pile/any-pred-from [string? regex? fn? keyword?]) %))
+                  args)]
+    (vector filters
+            (if (empty? filters)
+              (appropriate-matcher-for default-filter)
+              (desired-fact-predicate-from filters))
+            remainder)))
 
 
 ;;;                                           Keyword options with 0 or more arguments.

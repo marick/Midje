@@ -35,62 +35,79 @@
   (let [an-argument-list [#"a regex" "a string" 'a-symbol 6 map? :a-keyword]
 
         filter-args first
-        non-filter-args #(nth % 2)
         filter-function second
+        non-filter-args #(nth % 2)
+        no-special-args (constantly false)
         a-fact (fn [metadata] (with-meta '[] metadata))]
 
     (fact "filter arguments can be separated out"
-      (filter-args (separate-filters an-argument-list))
+      (filter-args (separate-filters an-argument-list no-special-args :default))
       => (contains #"a regex" "a string" (exactly map?) :a-keyword))
 
     (fact "other arguments can be found"
-      (non-filter-args (separate-filters an-argument-list))
+      (non-filter-args (separate-filters an-argument-list no-special-args :default))
       => ['a-symbol 6])
-
-    (fact "particular arguments can be special-cased as not filters"
-      (filter-args (separate-filters an-argument-list (constantly true))) => empty?)
-
+        
     (fact "filters are converted into a function"
       (fact "keywords check for the truthiness of the key in the metadata"
-        (let [prop-filter (filter-function (separate-filters [:property]))]
-          (prop-filter (a-fact {:property 'truthy})) => truthy
-          (prop-filter (a-fact {:property false})) => falsey
-          (prop-filter (a-fact {})) => falsey))
+        (let [fun (filter-function (separate-filters [:property] no-special-args :default))]
+          (fun (a-fact {:property 'truthy})) => truthy
+          (fun (a-fact {:property false})) => falsey
+          (fun (a-fact {})) => falsey))
 
       (fact "regexes check the fact's name property"
-        (let [prop-filter (filter-function (separate-filters [#"regex"]))]
-          (prop-filter (a-fact {:midje/name "something containing regex."})) => truthy
-          (prop-filter (a-fact {:midje/name "not a match"})) => falsey
-          (prop-filter (a-fact {})) => falsey))
+        (let [fun (filter-function (separate-filters [#"regex"] no-special-args :default))]
+          (fun (a-fact {:midje/name "something containing regex."})) => truthy
+          (fun (a-fact {:midje/name "not a match"})) => falsey
+          (fun (a-fact {})) => falsey))
 
       (fact "strings are treated as substrings"
-        (let [prop-filter (filter-function (separate-filters ["str"]))]
-          (prop-filter (a-fact {:midje/name "something str like"})) => truthy
-          (prop-filter (a-fact {:midje/name "not a match"})) => falsey
-          (prop-filter (a-fact {})) => falsey))
+        (let [fun (filter-function (separate-filters ["str"] no-special-args :default))]
+          (fun (a-fact {:midje/name "something str like"})) => truthy
+          (fun (a-fact {:midje/name "not a match"})) => falsey
+          (fun (a-fact {})) => falsey))
 
       (fact "functions are applied to arguments"
-        (let [prop-filter (filter-function (separate-filters
-                                            [(fn [meta] (= "yes" (:something meta)))]))]
-          (prop-filter (a-fact {:something "yes"})) => truthy
-          (prop-filter (a-fact {:something "no"})) => falsey
-          (prop-filter (a-fact {})) => falsey))
-
-      (fact "default judgment is true"
-        (let [prop-filter (filter-function (separate-filters []))]
-          (prop-filter (a-fact {})) => truthy))
+        (let [fun (filter-function (separate-filters
+                                            [(fn [meta] (= "yes" (:something meta)))]
+                                            no-special-args :default))]
+          (fun (a-fact {:something "yes"})) => truthy
+          (fun (a-fact {:something "no"})) => falsey
+          (fun (a-fact {})) => falsey))
 
       (fact "multiple arguments are OR'd together"
-         (let [prop-filter (filter-function (separate-filters [#"foo" :valiant]))]
-           (prop-filter (a-fact {:midje/name "ofoop"})) => truthy
-           (prop-filter (a-fact {:valiant true})) => truthy
-           (prop-filter (a-fact {})) => falsey))
+         (let [fun (filter-function (separate-filters [#"foo" :valiant]
+                                                      no-special-args :default))]
+           (fun (a-fact {:midje/name "ofoop"})) => truthy
+           (fun (a-fact {:valiant true})) => truthy
+           (fun (a-fact {})) => falsey))
 
       (fact "filter predicates know why they were created"
-        (:created-from (meta (filter-function (separate-filters [:oddity :valiant]))))
-        => [:oddity :valiant])
+        (:created-from (meta (filter-function (separate-filters [:oddity :valiant]
+                                                                no-special-args :default))))
+        => [:oddity :valiant]))
 
-  )))      
+    (fact "default judgment can be made"
+      (fact "with empty arglist"
+        (let [result (separate-filters [] no-special-args :default)
+              fun (filter-function result)]
+          (filter-args result) => []
+          (non-filter-args result) => []
+          ;; Note that a predicate is created even though the filter-args are empty.
+          (fun (a-fact {})) => falsey
+          (fun (a-fact {:default true})) => truthy))
+      
+      (fact "with non-empty-arglist"
+        (let [result (separate-filters ['non-filter] no-special-args :default)]
+          (filter-args result) => []
+          (non-filter-args result) => ['non-filter]))
+      
+      (fact "with a common repl tools argument"
+        (let [result (separate-filters [:all] #(= % :all) :default)]
+          (filter-args result) => []
+          (non-filter-args result) => [:all])))))
+  
+      
       
 
 

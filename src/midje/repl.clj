@@ -102,10 +102,13 @@
 ;; This function makes user intentions explicit.
 
 (defn- ^{:testable true} defaulting-args [original-args command-type]
+  (when-not ((pile/any-pred-from [fn? keyword?]) (config/choice :fact-filter))
+    (throw (Error. (cl-format nil "The config `:fact-filter` should a function or keyword, not ~A."
+                              (config/choice :fact-filter)))))
   (let [[given-level-seq print-level-to-use args]
           (parsing/separate-print-levels original-args (config/choice :print-level))
         [filters filter-function namespaces]
-        (parsing/separate-filters args all-keyword-is-not-a-filter)]
+          (parsing/separate-filters args all-keyword-is-not-a-filter (config/choice :fact-filter))]
 
     (if (empty? namespaces)
       (defaulting-args
