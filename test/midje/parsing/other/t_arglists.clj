@@ -88,24 +88,19 @@
         => [:oddity :valiant]))
 
     (fact "default judgment can be made"
-      (fact "with empty arglist"
-        (let [result (separate-filters [] no-special-args :default)
-              fun (filter-function result)]
-          (filter-args result) => []
-          (non-filter-args result) => []
-          ;; Note that a predicate is created even though the filter-args are empty.
-          (fun (a-fact {})) => falsey
-          (fun (a-fact {:default true})) => truthy))
-      
-      (fact "with non-empty-arglist"
-        (let [result (separate-filters ['non-filter] no-special-args :default)]
-          (filter-args result) => []
-          (non-filter-args result) => ['non-filter]))
-      
-      (fact "with a common repl tools argument"
-        (let [result (separate-filters [:all] #(= % :all) :default)]
-          (filter-args result) => []
-          (non-filter-args result) => [:all])))))
+      (tabular
+        (fact 
+          (let [result (separate-filters ?args ?special-args :default)
+                fun (filter-function result)]
+            (filter-args result) => ?filter-args
+            (non-filter-args result) => ?non-filter-args
+            ;; Note that a predicate is created even though the filter-args are empty.
+            (fun (a-fact {})) => falsey
+            (fun (a-fact {:default true})) => truthy))
+        ?args         ?special-args      ?filter-args       ?non-filter-args
+        []            no-special-args    []                 []
+        ['non-filter] no-special-args    []                 ['non-filter]
+        [:all]        #(= % :all)        []                 [:all]))))
   
       
       
