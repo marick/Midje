@@ -38,24 +38,19 @@
   ( (if (describes-name-matcher? desired) name-matcher-for callable-matcher-for) 
     desired))
 
-(defn desired-fact-predicate-from [desireds]
-  (vary-meta
+(defn desired-fact-predicate-from [default-filter desireds]
+  (if (empty? desireds)
+    (appropriate-matcher-for default-filter)
+    (vary-meta
      (pile/any-pred-from (map appropriate-matcher-for desireds))
-     assoc :created-from desireds))
+     assoc :created-from desireds)))
 
-
-;;; TODO: Whatever happened to the single-responsibility principle? Should this
-;;; really both separate filters *and* compile them into a predicate?
-(defn separate-filters [args plain-argument? default-filter]
+(defn separate-filters [args plain-argument?]
   (let [[filters remainder]
-        (separate #(and (not (plain-argument? %)) 
+        (separate #(and (not (plain-argument? %))
                         ((pile/any-pred-from [string? regex? fn? keyword?]) %))
                   args)]
-    (vector filters
-            (if (empty? filters)
-              (appropriate-matcher-for default-filter)
-              (desired-fact-predicate-from filters))
-            remainder)))
+    (vector filters remainder)))
 
 
 ;;;                                           Keyword options with 0 or more arguments.
