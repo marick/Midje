@@ -15,6 +15,7 @@
             [midje.data.project-state :as project-state]
             [midje.checking.facts :as fact-checking]
             [midje.parsing.other.arglists :as parsing]
+            [midje.parsing.util.file-position :as position]
             [midje.emission.boundaries :as emission-boundary]
             [midje.emission.colorize :as color]
             [midje.emission.api :as emit]))
@@ -502,5 +503,18 @@
               (when (:interval? option) (set-autotest-option! :interval (first (:interval-args option))))
               (autotest)))))
   true)
+
+                                ;;; repl-background
+
+;;; Repl-background is a synonym that's part of an effort to make all
+;;; the background/against-background stuff easier to remember and use.
+
+(defmacro repl-background
+  "This variant of `against-background` does not wrap forms. Instead,
+   it side-effects namespace state. This is useful when sending individual
+   facts to the repl: you don't have to send an entire group of facts
+   wrapped in `against-background`."
+  [& forms]
+  (position/positioned-form `(midje.sweet/background ~@forms) &form))
 
 )  ;; when-1-3+
