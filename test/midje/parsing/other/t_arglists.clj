@@ -36,8 +36,10 @@
 
         filter-args first
         non-filter-args #(peek %)
+        a-fact (fn [metadata] (with-meta '[] metadata))
+
         no-special-args (constantly false)
-        a-fact (fn [metadata] (with-meta '[] metadata))]
+        all-args-are-special (constantly true)]
 
     (fact "filter arguments can be separated out"
       (filter-args (separate-filters an-argument-list no-special-args))
@@ -46,70 +48,55 @@
     (fact "other arguments can be found"
       (non-filter-args (separate-filters an-argument-list no-special-args))
       => ['a-symbol 6])
-        
-    (fact "filters are converted into a function"
-      (fact "keywords check for the truthiness of the key in the metadata"
-        (let [filters (filter-args (separate-filters [:property] no-special-args))
-              fun (desired-fact-predicate-from :default filters)]
-          (fun (a-fact {:property 'truthy})) => truthy
-          (fun (a-fact {:property false})) => falsey
-          (fun (a-fact {})) => falsey))
 
-      (fact "regexes check the fact's name property"
-        (let [filters (filter-args (separate-filters [#"regex"] no-special-args))
-              fun (desired-fact-predicate-from :default filters)]
-          (fun (a-fact {:midje/name "something containing regex."})) => truthy
-          (fun (a-fact {:midje/name "not a match"})) => falsey
-          (fun (a-fact {})) => falsey))
+    (fact "a function can be used to mark arguments that would ordinarily be
+           filters as non-filters"
+      (separate-filters an-argument-list all-args-are-special)
+      => (just [] an-argument-list))))
 
-      (fact "strings are treated as substrings"
-        (let [filters (filter-args (separate-filters ["str"] no-special-args))
-              fun (desired-fact-predicate-from :default filters)]
-          (fun (a-fact {:midje/name "something str like"})) => truthy
-          (fun (a-fact {:midje/name "not a match"})) => falsey
-          (fun (a-fact {})) => falsey))
 
-      (fact "functions are applied to arguments"
-        (let [filters (filter-args (separate-filters
-                                    [(fn [meta] (= "yes" (:something meta)))]
-                                    no-special-args))
-              fun (desired-fact-predicate-from :default filters)]
-          (fun (a-fact {:something "yes"})) => truthy
-          (fun (a-fact {:something "no"})) => falsey
-          (fun (a-fact {})) => falsey))
+(facts "about converting filters into functions"
+  (let [a-fact (fn [metadata] (with-meta '[] metadata))]
+    (fact "keywords check for the truthiness of the key in the metadata"
+      (let [fun (desired-fact-predicate-from :default [:property])]
+        (fun (a-fact {:property 'truthy})) => truthy
+        (fun (a-fact {:property false})) => falsey
+        (fun (a-fact {})) => falsey))
 
-      (fact "multiple arguments are OR'd together"
-        (let [filters (filter-args (separate-filters [#"foo" :valiant]
-                                                     no-special-args))
-              fun (desired-fact-predicate-from :default filters)]
-           (fun (a-fact {:midje/name "ofoop"})) => truthy
-           (fun (a-fact {:valiant true})) => truthy
-           (fun (a-fact {})) => falsey))
-
-      (future-fact "filter predicates know why they were created"
-        (:created-from (meta (filter-function (separate-filters [:oddity :valiant]
-                                                                no-special-args))))
-        => [:oddity :valiant]))
-
-    (future-fact "default judgment can be made"
-      (tabular
-        (future-fact 
-          (let [result (separate-filters ?args ?special-args)
-                fun (filter-function result)]
-            (filter-args result) => ?filter-args
-            (non-filter-args result) => ?non-filter-args
-            ;; Note that a predicate is created even though the filter-args are empty.
-            (fun (a-fact {})) => falsey
-            (fun (a-fact {:default true})) => truthy))
-        ?args         ?special-args      ?filter-args       ?non-filter-args
-        []            no-special-args    []                 []
-        ['non-filter] no-special-args    []                 ['non-filter]
-        [:all]        #(= % :all)        []                 [:all]))))
+    (fact "regexes check the fact's name property"
+      (let [fun (desired-fact-predicate-from :default [#"regex"])]
+        (fun (a-fact {:midje/name "something containing regex."})) => truthy
+        (fun (a-fact {:midje/name "not a match"})) => falsey
+        (fun (a-fact {})) => falsey))
+    
+    (fact "strings are treated as substrings"
+      (let [fun (desired-fact-predicate-from :default ["str"])]
+        (fun (a-fact {:midje/name "something str like"})) => truthy
+        (fun (a-fact {:midje/name "not a match"})) => falsey
+        (fun (a-fact {})) => falsey))
+    
+    (fact "functions are applied to arguments"
+      (let [fun (desired-fact-predicate-from :default [(fn [meta] (= "yes" (:something meta)))])]
+        (fun (a-fact {:something "yes"})) => truthy
+        (fun (a-fact {:something "no"})) => falsey
+        (fun (a-fact {})) => falsey))
+    
+    (fact "multiple arguments are OR'd together"
+      (let [fun (desired-fact-predicate-from :default [#"foo" :valiant])]
+        (fun (a-fact {:midje/name "ofoop"})) => truthy
+        (fun (a-fact {:valiant true})) => truthy
+        (fun (a-fact {})) => falsey))
+    
+    (fact "filter predicates know why they were created"
+      (meta (desired-fact-predicate-from :default [:oddity :valiant]))
+      => (contains {:created-from [:oddity :valiant]}))
+    
+    (fact "A default function (callable) is used if there are no filter arguments"
+      (let [fun (desired-fact-predicate-from :has-this-meta-key [])]
+        (fun (a-fact {})) => falsey
+        (fun (a-fact {:has-this-meta-key true})) => truthy
+        (meta fun) => (contains {:created-from :has-this-meta-key})))))
   
-      
-      
-
-
 (fact "arglist parser with :options"
   (let [flag-descriptions [[:dirs :dir] [:interval]]
         parser (apply make-option-arglist-parser flag-descriptions)]

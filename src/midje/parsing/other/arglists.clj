@@ -39,11 +39,11 @@
     desired))
 
 (defn desired-fact-predicate-from [default-filter desireds]
-  (if (empty? desireds)
-    (appropriate-matcher-for default-filter)
-    (vary-meta
-     (pile/any-pred-from (map appropriate-matcher-for desireds))
-     assoc :created-from desireds)))
+  (letfn [(make [fun source]
+            (vary-meta fun assoc :created-from source))]
+    (if (empty? desireds)
+      (make (appropriate-matcher-for default-filter) default-filter)
+      (make (pile/any-pred-from (map appropriate-matcher-for desireds)) desireds))))
 
 (defn separate-filters [args plain-argument?]
   (let [[filters remainder]
