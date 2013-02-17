@@ -222,7 +222,10 @@ just is also useful if you don't care about order:
   (checker [actual]
     (let [lifted-quantifier
           (fn [predicate collection]
-            (quantifier #(extended-true? (predicate %)) collection))]
+            (quantifier #(let [predicate-to-run (if (regex? predicate)
+                                                  (fn [actual] (try-re predicate actual re-find))
+                                                  predicate)]
+            (extended-true? (predicate-to-run %))) collection))]
       (lifted-quantifier predicate
                   (if (map? actual)
                     (vals actual)
