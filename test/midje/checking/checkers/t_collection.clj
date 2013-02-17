@@ -88,6 +88,10 @@
   ;; Has
   [4 4 1] => (has some odd?)
   [1 3 5] => (has every? odd?)
+  ["a" "aa" "aaa"] => (has every? #"^a+$")
+
+  ( (has every? #"b") ["a" "aa" "aaa"]) => falsey
+
   ( (has some odd?) [34 34 88]) => falsey
   ( (has every? odd?) [1 3 44]) => falsey
 
