@@ -107,8 +107,9 @@
                               (config/choice :fact-filter)))))
   (let [[given-level-seq print-level-to-use args]
           (parsing/separate-print-levels original-args (config/choice :print-level))
-        [filters filter-function namespaces]
-          (parsing/separate-filters args all-keyword-is-not-a-filter (config/choice :fact-filter))]
+        [filters namespaces]
+        (parsing/separate-filters args all-keyword-is-not-a-filter)
+        filter-function (parsing/desired-fact-predicate-from (config/choice :fact-filter) filters)]
 
     (if (empty? namespaces)
       (defaulting-args
