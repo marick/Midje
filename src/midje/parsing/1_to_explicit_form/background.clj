@@ -26,14 +26,12 @@
 ;; dissecting background forms
 
 (defn separate-background-forms [fact-forms]
-  (letfn [(background-form-in-fact? [form]
-            (or (first-named? form "background")
-                (recognize/against-background-that-applies-to-containing-fact? form)))]
-    (let [[background-forms other-forms] (separate background-form-in-fact? fact-forms)
-          background-changers (mapcat (fn [[command & args]]
-                                        (arglist-undoing-nesting args))
-                                      background-forms)]
-    [background-changers other-forms])))
+  (let [[background-forms other-forms]
+          (separate recognize/form-signaling-intention-to-wrap-background-around-fact? fact-forms)
+        background-changers
+          (mapcat (fn [[command & args]] (arglist-undoing-nesting args))
+                  background-forms)]
+    [background-changers other-forms]))
 
 (letfn [(ensure-correct-form-variable [form]
           (translate-zipper form

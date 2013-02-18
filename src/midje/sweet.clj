@@ -98,6 +98,16 @@
   (if (user-desires-checking?)
     (error/parse-and-catch-failure &form #(parse-facts/midjcoexpand &form))
     `(do ~@foreground-forms)))
+
+(defmacro with-state-changes
+  "Describe how state should change before or after enclosed facts. Example:
+
+   (with-state-changes [(before :facts (reset! state 0))
+                        (after :facts (reset! state 1111))]
+     (fact ...)
+     (fact ...))"
+  [& forms]
+  (position/positioned-form `(midje.sweet/against-background ~@forms) &form))
     
 (defmacro fact 
   "A fact is a statement about code:

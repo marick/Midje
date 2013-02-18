@@ -1,4 +1,4 @@
-(ns as-documentation.prerequisites
+(ns as-documentation.prerequisites--prediction-specific
   (:use midje.sweet
         midje.util
         midje.test-util)

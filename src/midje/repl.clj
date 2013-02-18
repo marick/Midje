@@ -504,12 +504,12 @@
               (autotest)))))
   true)
 
-                                ;;; repl-background
+                                ;;; repl-state-changes
 
-;;; Repl-background is a synonym that's part of an effort to make all
+;;; repl-state-changes is a synonym that's part of an effort to make all
 ;;; the background/against-background stuff easier to remember and use.
 
-(defmacro repl-background
+(defmacro repl-state-changes
   "This variant of `against-background` does not wrap forms. Instead,
    it side-effects namespace state. This is useful when sending individual
    facts to the repl: you don't have to send an entire group of facts
