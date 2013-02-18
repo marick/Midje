@@ -94,8 +94,8 @@
 
 (defn- fn-fakes-binding-map [fn-fakes]
   (let [var->faker-fn (fn [the-var]
-                        (-> (fn [& actual-args] 
-                               (handle-mocked-call the-var actual-args fn-fakes)) 
+                        (-> (fn [& actual-args]
+                              (handle-mocked-call the-var actual-args fn-fakes)) 
                             (vary-meta assoc :midje/faked-function true)))
         fn-fake-vars (map :var fn-fakes)]
     (zipmap fn-fake-vars 

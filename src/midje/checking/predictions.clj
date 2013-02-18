@@ -91,7 +91,9 @@
    and checks that example, reporting results through the emission interface."
   [example-map local-fakes]
   ((config/choice :check-recorder) example-map local-fakes)
-  (with-installed-fakes (concat (reverse (filter :data-fake (background/background-fakes))) local-fakes)
+  (with-installed-fakes (concat (reverse (filter :data-fake (background/background-fakes)))
+                                local-fakes
+                                (remove :data-fake (background/background-fakes)))
     (emission-boundary/around-check 
       (let [actual (try  
                      (eagerly ((:function-under-test example-map)))

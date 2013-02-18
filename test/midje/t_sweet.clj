@@ -149,17 +149,6 @@
    (fact @fact-output => #"WORK TO DO.*about mathematics.*do in future")))
 
 ;; Background prerequisites
-(unfinished check-f check-g check-h)
-(defn ander [n]
-  (and (check-f n) (check-g n) (check-h n)))
-
-(against-background [(check-f 1) => true, (check-g 1) => true, (check-h 1) => true]
-   (fact
-    (ander 1) => truthy
-    (ander 1) => falsey (provided (check-f 1) => false)
-    (ander 1) => falsey (provided (check-g 1) => false)
-    (ander 1) => falsey (provided (check-h 1) => false)))
-
 
 (unfinished h g i j)
 
