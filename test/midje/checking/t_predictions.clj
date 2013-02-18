@@ -1,6 +1,6 @@
-(ns midje.checking.t-examples
+(ns midje.checking.t-predictions
   (:use [midje sweet test-util]
-        midje.checking.examples))
+        midje.checking.predictions))
 
 (tabular (fact "The number of calls can be described"
            (let [fake-fake {:call-count-atom (atom ?actual-count),

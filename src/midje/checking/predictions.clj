@@ -1,5 +1,5 @@
 (ns ^{:doc "Core Midje functions that process expects and report on their results."} 
-  midje.checking.examples
+  midje.checking.predictions
   (:use midje.clojure.core
         midje.checking.core
         [midje.util.exceptions :only [captured-throwable]]

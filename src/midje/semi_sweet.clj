@@ -14,7 +14,7 @@
             [midje.data.nested-facts :as nested-facts]
             [midje.parsing.lexical-maps :as lexical-maps]
             [midje.emission.api :as emit]
-            midje.checking.examples
+            midje.checking.predictions
             midje.checkers.extended-equality
             [midje.parsing.util.fnref :as fnref]
             [midje.parsing.2-to-lexical-maps.expects :as parse-expects]
