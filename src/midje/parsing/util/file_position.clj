@@ -39,8 +39,14 @@
 (defn basename [string]
   (last (str/split string #"/")))
 
+;; clojure.test sometimes runs with *file* bound to #"NO_SOURCE.*".
+;; This corrects that by looking up the stack. Note that it
+;; produces a reasonable result for the repl, because the stack
+;; frame it finds has NO_SOURCE_FILE as its "filename". 
 (defn current-file-name []
-  (basename *file*))
+  (if-not (re-find #"NO_SOURCE" *file*)
+    (basename *file*)
+    (.getFileName (second (.getStackTrace (Throwable.))))))
 
 (defn form-position [form]
   (list (current-file-name)  (:line (meta form))))
