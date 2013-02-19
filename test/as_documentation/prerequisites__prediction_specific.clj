@@ -1,25 +1,83 @@
 (ns as-documentation.prerequisites--prediction-specific
   (:use midje.sweet
-        midje.util
-        midje.test-util)
-  (:require [midje.config :as config]))
+        midje.test-util))
+                                ;;; The Basics
 
 ;; One development path is to work top-down and use the `provided`
 ;; clause to substitute prerequisite values.
+
+(unfinished read-project-file)
+(defn fetch-project-paths []
+  (try
+    (flatten ((juxt :test-paths :source-paths) (read-project-file)))
+  (catch Error ex
+    ["test"])))
+
+(facts "about fetch-project-paths"
+  (fact "returns the project file's test and source paths, in that order"
+    (fetch-project-paths) => ["test1" "test2" "source1"]
+    (provided
+      (read-project-file) => {:test-paths ["test1" "test2"]
+                              :source-paths ["source1"]}))
+  (fact "returns [\"test\"] if there is no project file."
+    (fetch-project-paths) => ["test"]
+    (provided
+      (read-project-file) =throws=> (Error. "boom!"))))
+  
+
+;;; A version with metaconstants. Plain metaconstants have only one
+;;; property: identity. If you see a metaconstant twice in the same
+;;; prediction, you know it's the same value each time. 
+
+(fact "fetch-project-paths returns the project file's test and source paths, in that order"
+  (fetch-project-paths) => [..test1.. ..test2.. ..source..]
+  (provided
+    (read-project-file) => {:test-paths [..test1.. ..test2..]
+                            :source-paths [..source..]}))
+
+
+;;; A first version of a grade-point average application:
+
+(defn gpa [student courses]
+  (let [credits (map :credit-hours courses)
+        grades (map :grade courses)
+        weighted (map * credits grades)]
+    (/ (reduce + 0.0 weighted) (reduce + 0 credits))))
+
+(fact
+  (let [three-six-six-coursework [{:credit-hours 1, :grade 5}
+                                  {:credit-hours 2, :grade 3}]]
+    (gpa ..student.. three-six-six-coursework) => (roughly 3.66 0.01)))
+
+;;; A version that gives wealth its due.
+
+(unfinished child-of-wealthy-alumnus?)
+
+(defn gpa [student courses]
+  (let [credits (map :credit-hours courses)
+        grades (map :grade courses)
+        weighted (map * credits grades)
+        true-gpa (/ (reduce + 0.0 weighted) (reduce + 0 credits))
+        adjustment (if (child-of-wealthy-alumnus? student) 0.5 0)]
+    (+ true-gpa adjustment)))
+
+(fact
+  (let [three-six-six-coursework [{:credit-hours 1, :grade 5}
+                                  {:credit-hours 2, :grade 3}]]
+
+    (gpa ..student.. three-six-six-coursework) => (roughly 3.66 0.01)
+    (provided (child-of-wealthy-alumnus? ..student..) => false)
+
+    (gpa ..student.. three-six-six-coursework) => (roughly (+ 3.66 0.5) 0.01)
+    (provided (child-of-wealthy-alumnus? ..student..) => true)))
+
+
+                        ;;; What happens when a check fails?
 
 (unfinished lower-function)
 
 (defn top-function [n]
   (+ (lower-function n) (lower-function (inc n))))
-
-(fact
-  (top-function 5) => 55
-  (provided
-    (lower-function 5) => 50
-    (lower-function 6) =>  5))
-
-;; If you leave off a prerequisite, you get a helpful failure:
-
 
 (capturing-failure-output
  (fact
@@ -52,6 +110,8 @@
    @fact-output => #"Expected: 5555"
    @fact-output => #"Actual: 55"))
 
+
+                                ;;; Call counts
 
 ;; By default, prerequisites can be called one or more times. The
 ;; :times modifier lets you change that. Here's how you can insist
@@ -97,32 +157,71 @@
     (lower-function 5) => 50 
     (lower-function 6) =>  5))
 
+;; The idiom for saying a function is not called is annoying:
 
-;;;                     Default prerequisites
-
-;; Sometimes the prerequisite function already exists. What should
-;; happen if there's no prerequisite for a particular argument list?
-;; Should it default to the existing function or not? The Midje users
-;; who care prefer that such a case be an error:
-
-(defn I-am-I-cried [n] n)
-
-(defn using-function [n]
-  (+ (I-am-I-cried n) (I-am-I-cried (inc n))))
-
-
-(silent-fact
-  (using-function 4) => (+ 80 4)
+(fact "how to say a function is not called"
+  (+ 1 1) => 2
   (provided
-    (I-am-I-cried 5) => 80))
-(note-that fact-fails, some-prerequisite-was-called-with-unexpected-arguments)
+    (top-function anything) => irrelevant :times 0))
 
-;; However, it's also possible to ask that unmatched calls default to
-;; the real values. The config/with-augmented-config simulates the
-;; loading of a .midje.clj file.
 
-(config/with-augmented-config {:partial-prerequisites true}
-  (fact
-    (using-function 4) => (+ 80 4)
-    (provided
-      (I-am-I-cried 5) => 80)))
+;;;                         Prerequisites use a variant of extended-equality
+
+
+(fact "You can use checkers"
+  (+ 1 (lower-function 5.01)) => 8
+  (provided
+    (lower-function (roughly 5 0.1)) => 7))
+
+(fact "You can use regular expressions"
+  (str "this: " (lower-function "hello,           world")) => "this: worked"
+  (provided
+    (lower-function #"hello,\s+world") => "worked"))
+
+;;; However, plain (non-checker) functions are matched literally. In the following,
+;;; the `provided` means that the the specific function `even?` is to be passed to
+;;; `hilbertian`.
+  
+(unfinished hilbertian)
+
+(defn function-under-test [n]
+  (hilbertian (if (pos? n) even? odd?)))
+
+(fact 
+  (function-under-test 3) => ..hilbertian-result..
+  (provided
+    (hilbertian even?) => ..hilbertian-result..))
+
+;;; If you want a plain function to be interpreted as a checker, do this:
+
+(fact "Saying "
+  (+ 1 (lower-function 2)) => 8
+  (provided
+    (lower-function (as-checker even?)) => 7))
+
+
+                                ;;; Nested functions in prerequisites
+
+(unfinished first-est second-est)
+
+;; This function's correctness depends on how `first-est` is called and on how
+;; `second-est` is composed with `first-est`.
+(defn function-under-test [n]
+ (-> (first-est 1 n) second-est inc))
+
+;; That could be expressed like this:
+
+(fact
+  (function-under-test 5) => 101
+  (provided
+    (first-est 1 5) => ..some-result..
+    (second-est ..some-result..) => 100))
+    
+;; But it could be more tersely expressed like this:
+
+(fact
+  (function-under-test 5) => 101
+  (provided
+    (second-est (first-est 1 5)) => 100))
+
+
