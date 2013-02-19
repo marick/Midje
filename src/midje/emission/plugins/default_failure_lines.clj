@@ -9,7 +9,15 @@
 (defmethod messy-lines :actual-result-did-not-match-expected-value [m]
   (list
    (str "    Expected: " (attractively-stringified-value (:expected-result m)))
-   (str "      Actual: " (attractively-stringified-value (:actual m)))))
+   (str "      Actual: " (attractively-stringified-value (:actual m)))
+
+   (let [expected-type (type (:expected-result m))
+         actual-type   (type (:actual m))
+         types-match   (= expected-type actual-type)]
+     (when-not types-match
+       (list      "     The checker noted:"
+             (str "           Actual type => " actual-type)
+             (str "         Expected type => " expected-type))))))
 
 (defmethod messy-lines :actual-result-should-not-have-matched-expected-value [m]
   (list
