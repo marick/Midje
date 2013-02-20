@@ -4,6 +4,9 @@
         midje.emission.plugins.util)
   (:require [midje.util.ecosystem :as ecosystem]))
 
+(defn- interesting-miss-type? [thing]
+  (not (regex? thing)))
+
 (defmulti messy-lines :type)
 
 (defmethod messy-lines :actual-result-did-not-match-expected-value [m]
@@ -13,8 +16,8 @@
 
    (let [expected-type (type (:expected-result m))
          actual-type   (type (:actual m))
-         types-match   (= expected-type actual-type)]
-     (when-not types-match
+         type-mismatch   (not (= expected-type actual-type))]
+     (when (and type-mismatch (interesting-miss-type? (:expected-result m)))
        (list      "     The checker noted:"
              (str "           Actual type => " actual-type)
              (str "         Expected type => " expected-type))))))
