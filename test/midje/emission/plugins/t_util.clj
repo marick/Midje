@@ -37,4 +37,6 @@
   => (just #"FAIL\S* \"outer - inner\" at \(filename:10\)" nil)
   (failure-notice {:position ["filename" 10] :binding-note "a big string"})
   => (just #"FAIL\S* at \(filename:10\)"
-           "With table substitutions: a big string"))
+           "With table substitutions: a big string")
+  (failure-notice {:position ["filename" 10] :namespace "example.ns.file"})
+  => (just #"FAIL\S* at \(filename:10 example.ns.file\)" nil))

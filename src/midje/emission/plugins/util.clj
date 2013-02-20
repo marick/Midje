@@ -79,6 +79,11 @@
   [[filename line-num]]
   (format "(%s:%s)" filename line-num))
 
+(defn position-str
+  "Describe a failure with its namespace"
+  [[filename line-num] namespace]
+  (let [namespace (if namespace (str " " namespace) "")]
+      (format "(%s:%s%s)" filename line-num namespace)))
 
 ;; TODO: The binding-note comes pre-formatted. Would probably be better
 ;; if the formatting were done here.
@@ -90,7 +95,7 @@
   [m]
   (let [description (when-let [doc (format-nested-descriptions (:description m))]
                       (str (pr-str doc) " "))
-        position (filename-lineno (:position m))
+        position (position-str (:position m) (:namespace m))
         table-substitutions (when-let [substitutions (:binding-note m)]
                               (str "With table substitutions: " substitutions))]
     (list
