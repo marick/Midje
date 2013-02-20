@@ -82,7 +82,7 @@
 (defn position-str
   "Describe a failure with its namespace"
   [[filename line-num] namespace]
-  (let [namespace (if namespace (str " " namespace) "")]
+  (let [namespace (if namespace (str "  " namespace) "")]
       (format "(%s:%s%s)" filename line-num namespace)))
 
 ;; TODO: The binding-note comes pre-formatted. Would probably be better
