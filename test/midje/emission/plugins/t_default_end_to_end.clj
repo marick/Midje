@@ -89,8 +89,8 @@
  (fact
    {:x 1, :y 2} => (R. 1 2))
  (fact
-   @fact-output => #"Actual type => class clojure.lang.PersistentArrayMap"
-   @fact-output => #"Expected type => class midje.emission.plugins.t_default_end_to_end.R"))
+   @fact-output => #"Actual type => clojure.lang.PersistentArrayMap"
+   @fact-output => #"Expected type => midje.emission.plugins.t_default_end_to_end.R"))
 
 (capturing-failure-output
  (fact
