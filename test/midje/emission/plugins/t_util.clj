@@ -1,4 +1,6 @@
 (ns midje.emission.plugins.t-util
+  (:require
+   [midje.config :as config])
   (:use midje.sweet
         midje.emission.plugins.util))
 
@@ -38,5 +40,7 @@
   (failure-notice {:position ["filename" 10] :binding-note "a big string"})
   => (just #"FAIL\S* at \(filename:10\)"
            "With table substitutions: a big string")
-  (failure-notice {:position ["filename" 10] :namespace "example.ns.file"})
-  => (just #"FAIL\S* at \(filename:10  example.ns.file\)" nil))
+
+  (config/with-augmented-config {:visible-failure-namespace true}
+    (failure-notice {:position ["filename" 10] :namespace "example.ns.file"})
+    => (just #"FAIL\S* at \(filename:10  example.ns.file\)" nil)))
