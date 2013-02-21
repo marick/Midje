@@ -48,7 +48,8 @@
                   :check-expectation ~(recognize/expect-match-or-mismatch arrow)
                   :expected-result-form '~expected-result ;; This is also part of the source details.
                   :position (position/line-number-known ~line)
-                  
+                  :namespace *ns*
+
                   ;; Adding this field insulates people writing emission plugins
                   ;; from the mechanism for keeping track of nested facts.
                   :description (nested-facts/descriptions)}
