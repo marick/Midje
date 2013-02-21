@@ -34,6 +34,7 @@
   *config* {:print-level :print-normally
             :visible-deprecation true
             :visible-future true
+            :visible-failure-namespaces false
             :partial-prerequisites false
             :check-after-creation true
             :emitter 'midje.emission.plugins.default

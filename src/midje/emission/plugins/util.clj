@@ -7,6 +7,7 @@
             [midje.emission.clojure-test-facade :as ctf]
             [midje.emission.colorize :as color]
             [midje.util.exceptions :as exception]
+            [midje.config :as config]
             gui-diff.internal))
 
 
@@ -80,10 +81,12 @@
   (format "(%s:%s)" filename line-num))
 
 (defn position-str
-  "Describe a failure with its namespace"
+  "Describe a failure with optional namespace"
   [[filename line-num] namespace]
   (let [namespace (if namespace (str "  " namespace) "")]
-      (format "(%s:%s%s)" filename line-num namespace)))
+    (if config/choice :visible-failure-namespace))
+      (format "(%s:%s%s)" filename line-num namespace)
+      (filename-lineno [filename line-num]))
 
 ;; TODO: The binding-note comes pre-formatted. Would probably be better
 ;; if the formatting were done here.
