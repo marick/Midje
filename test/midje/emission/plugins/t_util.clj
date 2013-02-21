@@ -39,4 +39,4 @@
   => (just #"FAIL\S* at \(filename:10\)"
            "With table substitutions: a big string")
   (failure-notice {:position ["filename" 10] :namespace "example.ns.file"})
-  => (just #"FAIL\S* at \(filename:10 example.ns.file\)" nil))
+  => (just #"FAIL\S* at \(filename:10  example.ns.file\)" nil))
