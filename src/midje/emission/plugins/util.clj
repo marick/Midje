@@ -84,9 +84,9 @@
   "Describe a failure with optional namespace"
   [[filename line-num] namespace]
   (let [namespace (if namespace (str "  " namespace) "")]
-    (if config/choice :visible-failure-namespace))
+    (if (config/choice :visible-failure-namespace)
       (format "(%s:%s%s)" filename line-num namespace)
-      (filename-lineno [filename line-num]))
+      (filename-lineno [filename line-num]))))
 
 ;; TODO: The binding-note comes pre-formatted. Would probably be better
 ;; if the formatting were done here.
