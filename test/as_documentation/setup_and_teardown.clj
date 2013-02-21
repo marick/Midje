@@ -1,5 +1,5 @@
 (ns as-documentation.setup-and-teardown
-  (:use midje.repl
+  (:use midje.sweet
         midje.test-util))
 
 (def state (atom nil))
@@ -76,27 +76,29 @@
   (catch Error ex))
   @log =not=> ["caught!"])
       
-                                        ;;; repl-state-changes
+                                        ;;; namespace-state-changes
 
 ;;; The earlier example of testing `swap!` surrounded three facts with
 ;;; an `with-state-changes`. That prevents you from using only one of
 ;;; the facts in the repl.  An alternative to awkward editing is to
-;;; use `repl-state-changes`. It establishes a namespace-specific background.
+;;; use `namespace-state-changes`. Rather than being lexically scoped,
+;;; it affects all fact definitions from the moment it's seen until the
+;;; momment it's cancelled.
 
-(repl-state-changes [(before :facts (reset! state 0))])
+(namespace-state-changes [(before :facts (reset! state 0))])
 
 ;;; Note that the syntax is the same as for `with-state-changes`. Now you
-;;; can use a fact that depends on the background:
+;;; can use a fact that assumes a starting mutable state:
 
 (fact "uses a function to update the current value"
   (swap! state inc)
   @state => 1)
 
-;;; Note that any change to the global background replaces
-;;; everything. For example, the following doesn't add teardown to the
-;;; earlier setup. There is no longer any setup, just teardown.
+;;; Note that any use of `namespace-state-changes` erases the
+;;; previous one. For example, the following doesn't add teardown to 
+;;; the earlier setup. There is no longer any setup, just teardown.
 
-(repl-state-changes [(after :facts (swap! state inc))])
+(namespace-state-changes [(after :facts (swap! state inc))])
 
 (reset! state 1000)
 (fact "the `before` no longer happens"
@@ -107,6 +109,6 @@
 
 ;;; Therefore, to "erase" the background, you can do this:
 
-(repl-state-changes [(after :facts identity)])
+(namespace-state-changes [])
 (fact @state => 1002)
 (fact @state => 1002)

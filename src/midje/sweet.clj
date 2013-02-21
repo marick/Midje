@@ -55,13 +55,13 @@
    a loaded fact is rechecked (as with `midje.repl/recheck-fact`).
 
    See `(doc midje-background-changers)` for details on background
-   changers. See `(guide background-prerequisites)` and `(guide
-   setup-and-teardown)` for more.
+   changers.
 
    Examples:
 
       (background (f 33) => 12, (f 34) => 21)
-      (background (before :facts (reset! some-atom 0)))"
+      (background (before :facts (reset! some-atom 0)))
+ "
  [& background-changers]
  (when (user-desires-checking?)
    (error/parse-and-catch-failure &form
@@ -76,8 +76,7 @@
    loaded fact is rechecked (as with `midje.repl/recheck-fact`).
 
    See `(doc midje-background-changers)` for details on background
-   changers. See `(guide background-prerequisites)` and `(guide
-   setup-and-teardown)` for more.
+   changers.
 
    `against-background` can be used in two ways. In the first, it has
    a `let`-like syntax that wraps a series of facts:
@@ -102,31 +101,41 @@
 (defmacro with-state-changes
   "Describe how state should change before or after enclosed facts. Example:
 
-   (with-state-changes [(before :facts (reset! state 0))
-                        (after :facts (reset! state 1111))]
-     (fact ...)
-     (fact ...))"
+       (with-state-changes [(before :facts (reset! state 0))
+                            (after :facts (reset! state 1111))]
+         (fact ...)
+         (fact ...))"
   [& forms]
   (position/positioned-form `(midje.sweet/against-background ~@forms) &form))
-    
+
+
+(defmacro namespace-state-changes
+  "Applies arguments to any facts later created in the namespace. Often used
+   in the repl. Example:
+
+       (namespace-state-changes (before :facts (reset! state 0))
+                                (after :facts (reset! state 1111)))
+
+   A later use of `namespace-state-changes` replaces the effect of an earlier
+   one. To \"turn off\" a previous use, do this:
+
+       (namespace-state-changes)
+  "
+  [& instructions]
+  (position/positioned-form `(midje.sweet/background ~@instructions) &form))
+
 (defmacro fact 
   "A fact is a statement about code:
   
   (fact \"one plus one is two\"
     (+ 1 1) => 2)
         
-  You can make facts relative to other information:
+  Facts may describe one functions dependency on another:
   
-  (defn g [x] nil)
-  (defn f [x] (+ (g x) (g x)))
-  
-  (fact \"f of some arg, ..x.. calls g twice w/ the same arg,
-          (..x..), that was sent to f, and adds up the results\"
+  (fact 
     (f ..x..) => 12 
-    (provided (g ..x..) => 6 :times 2))
-    
-  For more info, see on the wiki: 
-  metaconstants, checkers, arrows and specifying call counts"
+    (provided (g ..x..) => 6))
+  "
   [& _] ; we work off &form, not the arguments
   (when (user-desires-checking?)
     (error/parse-and-catch-failure &form
@@ -152,12 +161,12 @@
   "Generate a table of related facts.
   
    Ex. (tabular \"table of simple math\" 
-         (fact (+ a b) => c)
+         (fact (+ ?a ?b) => ?c)
            
-           a b      c
-           1 2      3
-           3 4      7
-           9 10     19 )"
+           ?a ?b      ?c
+            1  2       3
+            3  4       7
+            9 10      19 )"
   {:arglists '([doc-string? fact table])}
   [& _]
   (position/set-fallback-line-number-from &form)

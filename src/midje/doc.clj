@@ -19,12 +19,11 @@
                  midje-facts
                  midje-fact
                  midje-checkers
-                 midje-defining
+                 midje-defining-checkers
                  midje-prerequisites
                  midje-arrows
                  midje-setup
                  midje-teardown
-                 midje-background-changers
 
                  midje-configuration
                  midje-print-level
@@ -34,15 +33,16 @@
 
 (def ^{:doc "
    Detailed help:
-   (doc midje-facts)         -- The basic form.
-   (doc midje-prerequisites) -- For top-down test-driven design.
-   (doc midje-checkers)      -- Predefined predicates to use with arrows.
-   (doc midje-defining)      -- Defining checkers
-   (doc midje-arrows)        -- Alternate ways of describing the relationship
-                             -- between actual and expected values.
-   (doc midje-setup)         -- Setup and teardown for facts and checkers.
-   (doc midje-configuration) -- Changing Midje's defaults.
-   (doc midje-print-levels)  -- Changing Midje's verbosity.
+   (doc midje-facts)             -- The basic form.
+   (doc midje-checkers)          -- Predefined predicates to use with arrows.
+   (doc midje-arrows)            -- Alternate ways of describing the relationship
+                                 -- between actual and expected values.
+
+   (doc midje-prerequisites)     -- For top-down test-driven design.
+   (doc midje-defining-checkers) -- Defining checkers
+   (doc midje-setup)             -- Setup and teardown for facts and checkers.
+   (doc midje-configuration)     -- Changing Midje's defaults.
+   (doc midje-print-levels)      -- Changing Midje's verbosity.
 
    See also the `(guide)` macro, which takes you to pages in the
    user's guide.
@@ -93,7 +93,7 @@
   ----- Fetching facts
   Same notation as the `check-facts` family, but with
   \"fetch\" instead of \"check\". 
-  To check the returned facts,use `check-one-fact`:
+  To check the returned facts, use `check-one-fact`:
      (map check-one-fact (fetch-facts :all))
 
   In addition, you can fetch the last fact checked with
@@ -101,12 +101,12 @@
   gives you its source.
 
   To query fact metadata more easily, use these:
-  -- (fact-name <ff>)                ; result might be nil
+  -- (fact-name <ff>)         ; result might be nil
   -- (fact-source <ff>)
   -- (fact-file <ff>)
   -- (fact-line <ff>)
-  -- (fact-namespace <ff>)
-  -- (fact-description <ff>)         ; the doc string; might be nil
+  -- (fact-namespace <ff>)    ; a symbol
+  -- (fact-description <ff>)  ; the doc string; might be nil
   "} midje-repl)
 
 
@@ -150,6 +150,13 @@
       (facts \"about birth\"...)
       (facts \"about childhood\"...)
       ...)
+
+  * Tabular facts
+    (tabular
+      (fact (+ ?x ?y) => 3)
+      ?x   ?y
+       1    2
+       0    3)
       
   * Metadata
     (fact :integration ...)
@@ -163,9 +170,9 @@
     (f) => truthy
     (f) => falsey
     (f) => irrelevant ; or `anything`
-    (f) => (exactly odd?) ; when function is returned
+    (f) => (exactly odd?) ; when you expect a particular function
     (f) => (roughly 10 0.1)
-    (f) => (throws SomeException \"with message\")
+    (f) => (throws SomeException #\"with message\")
     (f) => (contains [1 2 3]) ; works with strings, maps, etc.
     (f) => (contains [1 2 3] :in-any-order :gaps-ok)
     (f) => (just [1 2 3])
@@ -191,10 +198,10 @@
         (fact 2 => twosie)
 
         (defchecker roughly [expected delta]
-           (checker [actual]
-              (and (number? actual)
-                   ...)))
-       (fact 1.1 => (roughly 1 0.2))
+          (checker [actual]
+             (and (number? actual)
+                  ...)))
+        (fact 1.1 => (roughly 1 0.2))
 
   Chatty checkers print the values of subexpressions in the
   case of a failure:
@@ -209,7 +216,7 @@
 
        (def unnatural-number (some-checker (complement number?) odd? neg?))
        (fact 'fred => unnatural-number)
-  "} midje-defining)        
+  "} midje-defining-checkers)        
 
 (def ^{:doc "
   * Prerequisites and top-down TDD:
@@ -223,52 +230,37 @@
           
   * Prerequisites can be defaulted for claims within a fact:
     (fact \"No one is ready until everyone is ready.\"
-      (against-background
-         (pilot-ready) => true,
-         (copilot-ready) => true,
-         (flight-engineer-ready) => true)
-      (ready) => truthy
-      (ready) => falsey (provided (pilot-ready) => false)
-      (ready) => falsey (provided (copilot-ready) => false)
-      (ready) => falsey (provided (flight-engineer-ready) => false))
+      (prerequisites (pilot-ready?) => true,
+                     (copilot-ready?) => true,
+                     (flight-engineer-ready?) => true)
+      (ready?) => truthy
+      (ready?) => falsey (provided (pilot-ready?) => false)
+      (ready?) => falsey (provided (copilot-ready?) => false)
+      (ready?) => falsey (provided (flight-engineer-ready?) => false))
           
-  * Prerequisites can also be wrapped around facts.
-    (against-background [(pilot-ready) => true
-                         (copilot-ready) => true
-                         (flight-engineer-ready) => true]
-      (fact \"No one is ready until everyone is ready.\"
-         (ready) => truthy
-         (ready) => falsey (provided (pilot-ready) => false)
-         (ready) => falsey (provided (copilot-ready) => false)
-         (ready) => falsey (provided (flight-engineer-ready) => false)))
+  * Prerequisites apply to nested facts
+    (facts \"about airplanes\"
+       (prerequisites (wings) => 2
+                      (engines => 2)
+          (fact
+             (prerequisite (crew) => 8)
+             ...)))
 "} midje-prerequisites)
        
 
 (def ^{:doc
        "
   Setup and Teardown
-  * Before, after, and around facts
-    (against-background [(before :facts (do-this))
-                         (after :facts (do-that))
-                         (around :facts (wrapping-around ?form))]
-      (fact ...)
-      (fact ...))
-          
-  * Before, after, and around checks
-    (against-background [(before :checks (do-this))
-                         (after :checks (do-that))
-                         (around :checks (wrapping-around ?form))]
-      (fact
-        (something) => truthy
-        (something-else) => falsey))
-          
-  * Setup/teardown can be placed within fact bodies
-    (fact 
-      (against-background
-        (before :checks (do-this))
-        (after :checks (do-that))
-        (around :checks (wrapping-around ?form)))
-       ...)
+  * Applies to all enclosed facts
+    (with-state-changes [(before :facts (do-this))
+                         (after :facts (do-that))]
+       (fact ...)
+       (fact ...))
+
+  * For the rest of this namespace:
+
+       (namespace-state-changes (before :facts (do-this))
+                                (after :facts (do-that)))
 "} midje-setup)
 
 (alternate-doc-source 'midje-teardown 'midje-setup)
@@ -276,7 +268,7 @@
 (def ^{:doc "
   * For checks
     5     =not=>    even?      ; Invert the check. Synonym: =deny=>
-    (f)   =future=> :halts?    ; don't check, but issue reminder.
+    (f)   =future=> halts      ; don't check, but issue reminder.
     (m x) =expands-to=> form   ; expand macro and check result
           
   * In prerequisites
@@ -302,21 +294,29 @@
   
   ------ Configuration keywords
   :print-level                  ; Verbosity of printing.
-                                ; See `(print-level-help)`
-  
-  :check-after-creation         ; Should facts be checked as they're loaded?
-                                ; Default true.
-
-  :emitter                      ; Namespace or pathname that contains
-                                  an \"emitter\" of custom output.
+                                ; See `(doc midje-print-levels)`.
   
   :visible-deprecation          ; Whether information about deprecated
                                 ; features or functions is printed.
-                                ; Default true.
+                                ; Default: true.
   
   :visible-future               ; Whether future facts produce output.
-                                ; Default true.
+                                ; Default: true.
                                 ; More: `(guide future-facts)`
+
+  :visible-failure-namespace    ; Should failure messages include the
+                                ; namespace name as well as the file name?
+                                ; Default: false.
+
+  :fact-filter                  ; A function applied to the metadata of
+                                ; a fact to see if it should be checked.
+                                ; Default: (constantly true)
+  
+  :check-after-creation         ; Should facts be checked as they're loaded?
+                                ; Default: true.
+
+  :emitter                      ; Namespace or pathname that contains
+                                  an \"emitter\" of custom output.
   
   :partial-prerequisites        ; Whether the real function can be used.
                                 ; Default false.
@@ -325,6 +325,9 @@
 
 
 (def ^{:doc "
+   Background-changers are discouraged in favor of `with-state-changes`
+   and `prerequisites`, but they still may sometimes be needed.
+
    There are two types of background-changers. The first provides a default
    prerequisite and has the same format as `provided`. Here's an example of
    two inside in a `background` form:
@@ -363,13 +366,11 @@
 
 
 (def guide-topics {
- 'background-prerequisites "https://github.com/marick/Midje/wiki/Background-prerequisites"
- 'setup-and-teardown "https://github.com/marick/Midje/wiki/Setup%2C-Teardown%2C-and-State"
+ 'setup-and-teardown "https://github.com/marick/Midje/wiki/Setup-and-teardown"
  'future-facts  "https://github.com/marick/Midje/wiki/Future-facts"
- 'checkers-within-prerequisites "https://github.com/marick/Midje/wiki/Checkers-within-prerequisites"
  'chatty-checkers "https://github.com/marick/Midje/wiki/Chatty-checkers"
  'partial-prerequisites "https://github.com/marick/Midje/wiki/Partial-prerequisites"
- 'file-issue ecosystem/issues-url
+ 'file-an-issue ecosystem/issues-url
  'unfixed-syntax-errors ecosystem/syntax-errors-that-will-not-be-fixed
 })
                     
@@ -384,5 +385,3 @@
             (println "   " topic#)))))
   ([]
      `(guide :no-such-topic)))
-  
-

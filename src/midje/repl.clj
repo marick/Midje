@@ -438,9 +438,8 @@
   that typically results in facts being reloaded and checked. 
 
   By default, `autotest` monitors all the files in the
-  project.clj's :source-paths and :test-paths. (If you don't have
-  a project.clj file, don't use `autotest`.) To change the default, 
-  give the `:dirs` argument:
+  project.clj's :source-paths and :test-paths. To change the
+  default, give the `:dirs` argument:
 
      (autotest :dirs \"test/midje/util\" \"src/midje/util\")
 
@@ -503,18 +502,5 @@
               (when (:interval? option) (set-autotest-option! :interval (first (:interval-args option))))
               (autotest)))))
   true)
-
-                                ;;; repl-state-changes
-
-;;; repl-state-changes is a synonym that's part of an effort to make all
-;;; the background/against-background stuff easier to remember and use.
-
-(defmacro repl-state-changes
-  "This variant of `against-background` does not wrap forms. Instead,
-   it side-effects namespace state. This is useful when sending individual
-   facts to the repl: you don't have to send an entire group of facts
-   wrapped in `against-background`."
-  [& forms]
-  (position/positioned-form `(midje.sweet/background ~@forms) &form))
 
 )  ;; when-1-3+
