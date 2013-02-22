@@ -32,7 +32,7 @@
     false
     value))
 
-;;; There is a notion of "extended equality" that powers the right-hand-side of Midje examples.
+;;; There is a notion of "extended equality" that powers the right-hand-side of Midje examples.
 
 (defn evaluate-checking-function
   "Returns a sequence. The first value is either truthy or falsey.

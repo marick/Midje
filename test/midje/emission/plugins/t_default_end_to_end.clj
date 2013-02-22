@@ -84,4 +84,17 @@
    @fact-output => #"Checking function:\s+\(every-checker even\? \(throws \"message\"\)\)"
    @fact-output => #"even\? => false"))
 
+(defrecord R [x y])
+(capturing-failure-output
+ (fact
+   {:x 1, :y 2} => (R. 1 2))
+ (fact
+   @fact-output => #"Actual type => clojure.lang.PersistentArrayMap"
+   @fact-output => #"Expected type => midje.emission.plugins.t_default_end_to_end.R"))
 
+(capturing-failure-output
+ (fact
+   "b" => #"a")
+ (fact
+   @fact-output =not=> #"Actual type"
+   @fact-output =not=> #"Expected type"))
