@@ -1,6 +1,8 @@
 (ns ^{:doc "Core ideas underlying all checking"}
   midje.checking.core
-  (:use midje.clojure.core))
+  (:use midje.clojure.core)
+  ;; TODO: Shouldn't really have this dependency.
+  (:require [midje.emission.plugins.util :as names]))
 
 ;;; There is a notion of "extended falsehood", in which a false value may be a
 ;;; map containing information about what went wrong.
@@ -65,3 +67,16 @@
   "Element-by-element comparison, using extended-= for the right-hand-side values."
   [actual-args checkers]
   (every? (partial apply extended-=) (vertical-slices actual-args checkers)))
+
+;;; An element of extended-= is that an actual map cannot match an expected record (or type).
+;;; That produces a plain `false` above. If client code wants to be more informative, it
+;;; can use these functions.
+
+(defn inherently-false-map-to-record-comparison? [actual expected]
+  (and (record? expected)
+       (map? actual)
+       (not= (class expected) (class actual))))
+
+;; Leaving the args in case we decide to have a more explicit note.
+(defn inherently-false-map-to-record-comparison-note [actual expected]
+  (str "A record on the right of the arrow means the value on the left must be of the same type."))

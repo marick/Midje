@@ -45,13 +45,8 @@
       (throw (user-error (str "You can't compare " (pr-str actual) " (" (type actual)
                            ") to " (pr-str expected) " (" (type expected) ").")))
 
-      (and (record? expected)
-           (map? actual)
-           (not= (class expected) (class actual)))
-      (throw (user-error (str "You expected a " (.getName (class expected))
-                           " but the actual value was a "
-                           (if (classic-map? actual) "map" (.getName (class actual)))
-                           ".")))
+      (inherently-false-map-to-record-comparison? actual expected)
+      (throw (user-error (inherently-false-map-to-record-comparison-note actual expected)))
 
       (and (map? actual)
            (not (map? expected)))

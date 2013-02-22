@@ -6,33 +6,36 @@
 
 (defmulti messy-lines :type)
 
+(defn- notes [m]
+  (if (:notes m)
+    (cons "    The checker said this about the reason:"
+          (indented (:notes m)))))
+
+(defn- intermediate-results [m] 
+  (if (:intermediate-results m)
+    (cons "    During checking, these intermediate values were seen:"
+          (for [[form value] (:intermediate-results m)]
+            (format "       %s => %s" (pr-str form) (attractively-stringified-value value))))))
+
 (defmethod messy-lines :actual-result-did-not-match-expected-value [m]
   (list
    (str "    Expected: " (attractively-stringified-value (:expected-result m)))
    (str "      Actual: " (attractively-stringified-value (:actual m)))
-
-   (if-let [notes (:notes m)]
-     (cons "    The checker noted:"
-           (for [[note data] notes]
-             (format "       %s => %s" note (pr-str data)))))))
+   (notes m)))
 
 (defmethod messy-lines :actual-result-should-not-have-matched-expected-value [m]
   (list
    (str "    Expected: Anything BUT " (attractively-stringified-value (:expected-result m)))
-   (str "      Actual: " (attractively-stringified-value (:actual m)))))
+   (str "      Actual: " (attractively-stringified-value (:actual m)))
+   (notes m)))
 
 (defmethod messy-lines :actual-result-did-not-match-checker [m]
     (list
       "Actual result did not agree with the checking function."
       (str "        Actual result: " (attractively-stringified-value (:actual m)))
       (str "    Checking function: " (:expected-result-form m))
-      (if (:intermediate-results m)
-        (cons "    During checking, these intermediate values were seen:"
-          (for [[form value] (:intermediate-results m)]
-            (format "       %s => %s" (pr-str form) (attractively-stringified-value value)))))
-      (if (:notes m)
-        (cons "    The checker said this about the reason:"
-          (indented (:notes m))))))
+      (intermediate-results m)
+      (notes m)))
 
 (defmethod messy-lines :actual-result-should-not-have-matched-checker [m]
     (list

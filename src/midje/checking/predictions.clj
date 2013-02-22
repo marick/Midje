@@ -10,16 +10,6 @@
             [midje.parsing.1-to-explicit-form.background :as background]
             [midje.emission.api :as emit]))
 
-(defn- interesting-miss-type? [thing]
-  (not (regex? thing)))
-
-(defn- type-mismatch-info [actual expected]
-  (let [expected-type (type expected)
-        actual-type   (type actual)
-        type-mismatch (not (= expected-type actual-type))]
-    (if (and type-mismatch (interesting-miss-type? expected))
-      {:notes [["Actual type" actual-type] ["Expected type" expected-type]]}
-       {})))
 
 (defn- minimal-failure-map
   "Failure maps are created by adding on to parser-created maps"
@@ -28,37 +18,48 @@
 
 (def ^{:private true} has-function-checker? (comp extended-fn? :expected-result))
 
+(defn map-record-mismatch-addition [actual expected]
+  {:notes [(inherently-false-map-to-record-comparison-note actual expected)]})
+
 (defn- check-for-match [actual example-map]
-  (cond  (extended-= actual (:expected-result example-map))
-         (emit/pass)
+  (let [expected (:expected-result example-map)]
+    (cond  (extended-= actual expected)
+           (emit/pass)
          
-         (has-function-checker? example-map)
-         (emit/fail (merge (minimal-failure-map :actual-result-did-not-match-checker
-                                                          actual example-map)
-                           ;; TODO: It is very lame that the
-                           ;; result-function has to be called again to
-                           ;; retrieve information that extended-=
-                           ;; knows and threw away. But it's surprisingly
-                           ;; difficult to use evaluate-checking-function
-                           ;; at the top of the cond
-                           (second (evaluate-checking-function (:expected-result example-map)
-                                                               actual))))
+           (has-function-checker? example-map)
+           (emit/fail (merge (minimal-failure-map :actual-result-did-not-match-checker
+                                                  actual example-map)
+                             ;; TODO: It is very lame that the
+                             ;; result-function has to be called again to
+                             ;; retrieve information that extended-=
+                             ;; knows and threw away. But it's surprisingly
+                             ;; difficult to use evaluate-checking-function
+                             ;; at the top of the cond
+                             (second (evaluate-checking-function expected actual))))
          
-         :else
-         (emit/fail (merge (type-mismatch-info actual (:expected-result example-map))
-                           (assoc (minimal-failure-map :actual-result-did-not-match-expected-value actual example-map)
-                              :expected-result (:expected-result example-map))))))
+           (inherently-false-map-to-record-comparison? actual expected)
+           (emit/fail (merge (minimal-failure-map :actual-result-did-not-match-expected-value actual example-map)
+                             (map-record-mismatch-addition actual expected)))
+         
+           :else
+           (emit/fail (assoc (minimal-failure-map :actual-result-did-not-match-expected-value actual example-map)
+                             :expected-result expected)))))
 
 
 (defn- check-for-mismatch [actual example-map]
-  (cond (not (extended-= actual (:expected-result example-map)))
-        (emit/pass)
+  (let [expected (:expected-result example-map)]
+    (cond (inherently-false-map-to-record-comparison? actual expected)
+          (emit/fail (merge (minimal-failure-map :actual-result-should-not-have-matched-expected-value actual example-map)
+                            (map-record-mismatch-addition actual expected)))
+
+          (not (extended-= actual expected))
+          (emit/pass)
+
+          (has-function-checker? example-map)
+          (emit/fail (minimal-failure-map :actual-result-should-not-have-matched-checker actual example-map))
         
-        (has-function-checker? example-map)
-        (emit/fail (minimal-failure-map :actual-result-should-not-have-matched-checker actual example-map))
-        
-        :else
-        (emit/fail (minimal-failure-map :actual-result-should-not-have-matched-expected-value actual example-map))))
+          :else
+          (emit/fail (minimal-failure-map :actual-result-should-not-have-matched-expected-value actual example-map)))))
 
 
 (defn- check-result [actual example-map]
@@ -93,9 +94,6 @@
     (emit/fail {:type :some-prerequisites-were-called-the-wrong-number-of-times
                 :failures failures
                 :position (:position (first failures))} )))
-
-
-
 
 
 (defn check-one

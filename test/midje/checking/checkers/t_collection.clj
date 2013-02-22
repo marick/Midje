@@ -467,10 +467,10 @@
   => (contains {:actual {:a 1} :notes (just #"\{:a 1\}.*1.*map entries")})
   (data-laden-falsehood-to-map ( (just (AB. 1 2)) {:a 1 :b 2}))
   => (contains {:actual {:a 1 :b 2}
-                :notes (just #"AB.*but.*was.*map")})
+                :notes (just #"must be of the same type")})
   (data-laden-falsehood-to-map ( (just (AB. 1 2)) (AB-different-class. 1 2)))
   => (contains {:actual (AB-different-class. 1 2)
-                :notes (just #"AB.*but.*was.*AB-different-class")})
+                :notes (just #"must be of the same type")})
   )
 
 (fact "Actual result shown is the original collection"
