@@ -1,3 +1,3 @@
 language: clojure
 lein: lein2
-script: lein2 with-profile 1.3:1.4:1.5 midje
+script: "lein2 with-profile 1.3:1.4:1.5 midje"
