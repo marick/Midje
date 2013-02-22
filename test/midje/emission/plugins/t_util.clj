@@ -7,13 +7,16 @@
 (fact "line structures can be linearized"
   (linearize-lines [ ["1" [nil] "2" nil] [] "3" [[["4"]]]]) => ["1" "2" "3" "4"])
 
+(defrecord R [x m a])
 
 (fact "Different forms can be attractively printed"
   (attractively-stringified-value even?) => "core/even?"
   (attractively-stringified-value midje.emission.plugins.util/emit-lines) => "util/emit-lines"
   (attractively-stringified-value (fn [n] 1)) => #"fn--"
+  ;; Note ordering
   (attractively-stringified-value {:b 2 :a 1}) => "{:a 1, :b 2}"
-  (attractively-stringified-value #{9 6 2 7 1 3}) => "#{1 2 3 6 7 9}")
+  (attractively-stringified-value #{9 6 2 7 1 3}) => "#{1 2 3 6 7 9}"
+  (attractively-stringified-value (R. 1 2 3)) => #"\{:a 3, :m 2, :x 1\}::\S+\.R")
 
 
 (tabular "descriptions harvested from nested facts can be formatted as '-' separated"

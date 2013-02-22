@@ -42,6 +42,15 @@
         [_ match] (re-matches #"#<([^/]+/[^ ]+).*" (demunge printed))]
   match))
 
+(defn record-name [value]
+  (.getName (class value)))
+
+(defn record-name-shorthand [value]
+  (last (str/split (record-name value) #"\.")))
+
+(defn maplike-name [value]
+  (if (classic-map? value) "map" (record-name-shorthand value)))
+
 (defn prerequisite-var-description
   "Takes a var naming a prerequisite and returns a string useful for printing"
   [prerequisite-var]
@@ -66,6 +75,7 @@
   (pred-cond value
     fn?                           (function-name value)
     exception/captured-throwable? (exception/friendly-stacktrace value)
+    record?                       (str (sorted-if-appropriate value) "::" (record-name value))
     :else                         (pr-str (sorted-if-appropriate value))))
 
 (defn format-nested-descriptions
