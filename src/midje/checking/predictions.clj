@@ -10,6 +10,17 @@
             [midje.parsing.1-to-explicit-form.background :as background]
             [midje.emission.api :as emit]))
 
+(defn- interesting-miss-type? [thing]
+  (not (regex? thing)))
+
+(defn- type-mismatch-info [actual expected]
+  (let [expected-type (type expected)
+        actual-type   (type actual)
+        type-mismatch (not (= expected-type actual-type))]
+    (if (and type-mismatch (interesting-miss-type? expected))
+      {:notes [["Actual type" actual-type] ["Expected type" expected-type]]}
+       {})))
+
 (defn- minimal-failure-map
   "Failure maps are created by adding on to parser-created maps"
   [type actual existing]
@@ -34,8 +45,9 @@
                                                                actual))))
          
          :else
-         (emit/fail (assoc (minimal-failure-map :actual-result-did-not-match-expected-value actual example-map)
-                           :expected-result (:expected-result example-map)))))
+         (emit/fail (merge (type-mismatch-info actual (:expected-result example-map))
+                           (assoc (minimal-failure-map :actual-result-did-not-match-expected-value actual example-map)
+                              :expected-result (:expected-result example-map))))))
 
 
 (defn- check-for-mismatch [actual example-map]

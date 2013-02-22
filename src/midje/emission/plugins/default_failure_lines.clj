@@ -9,7 +9,12 @@
 (defmethod messy-lines :actual-result-did-not-match-expected-value [m]
   (list
    (str "    Expected: " (attractively-stringified-value (:expected-result m)))
-   (str "      Actual: " (attractively-stringified-value (:actual m)))))
+   (str "      Actual: " (attractively-stringified-value (:actual m)))
+
+   (if-let [notes (:notes m)]
+     (cons "    The checker noted:"
+           (for [[note data] notes]
+             (format "       %s => %s" note (pr-str data)))))))
 
 (defmethod messy-lines :actual-result-should-not-have-matched-expected-value [m]
   (list
