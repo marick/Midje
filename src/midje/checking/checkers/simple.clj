@@ -24,6 +24,8 @@
   (not actual))
 (defalias FALSEY falsey)
 
+(defchecker & "Any arity" [])
+
 (defchecker anything
   "Accepts any value."
   [actual]

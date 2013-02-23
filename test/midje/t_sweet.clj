@@ -63,6 +63,14 @@
     (g 1) => 10
     (g 2) => 20))
 
+
+(defn letter [x y z] x)
+(defn find-letter [] (letter "x" "y" "z"))
+
+(fact (find-letter) => "aaa"
+  (provided
+    (letter & anything) => "aaa"))
+
 ;; facts can see their environment
 (let [outer-value 2]
   (fact
