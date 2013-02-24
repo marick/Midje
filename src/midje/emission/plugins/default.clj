@@ -40,20 +40,20 @@
   (letfn [(midje-summary-lines [passes fails]
             (letfn [(midje-failure-summary []
                       (if (= 1 fails)
-                        (str (color/fail "FAILURE:") (format " %d prediction did not come true." fails))
-                        (str (color/fail "FAILURE:") (format " %d predictions did not come true." fails))))
+                        (str (color/fail "FAILURE:") (format " %d check failed." fails))
+                        (str (color/fail "FAILURE:") (format " %d checks failed." fails))))
           
                     (midje-consolation []
                       (condp = passes
                         0 ""
-                        (format " (But %d did.)" passes)))]
+                        (format " (But %d succeeded.)" passes)))]
               
               (vector
                (cond (zero? (+ passes fails))
                      (color/note "No facts were checked. Is that what you wanted?")
                      
                      (zero? fails)
-                     (color/pass (format "All predictions (%d) came true." passes))
+                     (color/pass (format "All checks (%d) succeeded." passes))
                      
                      :else
                      (str (midje-failure-summary) " " (midje-consolation))))))

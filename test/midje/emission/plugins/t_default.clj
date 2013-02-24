@@ -39,19 +39,19 @@
     => #"No facts were checked. Is that what you wanted\?"
 
     (innocuously :finishing-fact-stream (assoc minimal-midje :midje-passes 1) minimal-ct)
-    => #"All predictions \(1\) came true."
+    => #"All checks \(1\) succeeded."
 
     (innocuously :finishing-fact-stream (assoc minimal-midje :midje-failures 1 :midje-passes 0) minimal-ct)
-    => #"FAILURE.*1 prediction did not come true.\s*$"
+    => #"FAILURE.*1 check failed.\s*$"
 
     (innocuously :finishing-fact-stream (assoc minimal-midje :midje-failures 3 :midje-passes 0) minimal-ct)
-    => #"FAILURE.*3 predictions did not come true.\s*$"
+    => #"FAILURE.*3 checks failed.\s*$"
 
     (innocuously :finishing-fact-stream (assoc minimal-midje :midje-failures 3 :midje-passes 1) minimal-ct)
-    => #"FAILURE.*3 predictions did not come true.*But 1 did"
+    => #"FAILURE.*3 checks failed.*But 1 succeeded"
 
     (innocuously :finishing-fact-stream (assoc minimal-midje :midje-failures 3 :midje-passes 2) minimal-ct)
-    => #"FAILURE.*3 predictions did not come true.*But 2 did"
+    => #"FAILURE.*3 checks failed.*But 2 succeeded"
 
 
     (str/split-lines (innocuously :finishing-fact-stream
@@ -68,7 +68,7 @@
                  #"line 2"
                  #"summary line"
                  #"Midje summary"
-                 #"All predictions \(2\) came true.")
+                 #"All checks \(2\) succeeded.")
     ))
 
 
