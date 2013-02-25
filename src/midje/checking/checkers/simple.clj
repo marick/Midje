@@ -24,7 +24,8 @@
   (not actual))
 (defalias FALSEY falsey)
 
-(defchecker & "Any arity" [])
+(defchecker & "Any arity" [actual argument-matchers]
+  (reduce #(extended-= actual %) argument-matchers))
 
 (defchecker anything
   "Accepts any value."
