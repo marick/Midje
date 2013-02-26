@@ -461,6 +461,20 @@
 
     (autotest :all)
 
+  You can filter the facts checked by giving more arguments following
+  a `:filter` or `:filters` keyword:
+
+    (autotest :filter :integration)
+
+  Facts matching any of the arguments are the ones that are
+  checked. The arguments can be of these types:
+
+  :keyword      -- Does the metadata have a truthy value for the keyword?
+  \"string\"    -- Does the fact's name contain the given string? 
+  #\"regex\"    -- Does any part of the fact's name match the regex?
+  a function    -- Does the function return a truthy value when given
+                   the fact's metadata?
+
   `autotest` can take special keyword arguments:
 
      (autotest :stop)   ; stop checking
