@@ -29,5 +29,10 @@
               (comp property-key meta)))))
 (make-getters *ns* "")
 
+(defn best-description [fact]
+  (or (description fact)
+      (name fact)
+      nil))
+
 
 (def allows-itself-to-be-recorded? (comp not :check-only-at-load-time meta))

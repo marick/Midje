@@ -14,7 +14,7 @@
 
 (defn descriptions
   ([]
-     (vec (map fact/description *fact-context*)))
+     (vec (map fact/best-description *fact-context*)))
   ([suffix]
      (conj (descriptions) suffix)))
 

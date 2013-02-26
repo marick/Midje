@@ -39,3 +39,9 @@
       (in-new-fact (faux-fact "level 3")
         (is (= (descriptions "level 4")
                ["level 1" "level 2" "level 3" "level 4"]))))))
+
+(fact names-can-be-used-for-descriptions
+  (fact
+    (fact "too"
+      (fact with-names "having lower precedence"
+        (descriptions) => ["names-can-be-used-for-descriptions" nil "too" "having lower precedence"]))))
