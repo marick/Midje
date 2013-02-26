@@ -3,7 +3,10 @@
   (:use midje.clojure.core
         [midje.util.exceptions :only [user-error]])
   (:require [midje.emission.levels :as levels]
-            [midje.util.ecosystem :as ecosystem]))
+            [midje.util.ecosystem :as ecosystem]
+            [midje.util.pile :as pile]
+            [midje.data.fact :as fact]))
+
   
 ;;; I consider whether we're running in the repl part of the config. This matters because
 ;;; threads can't examine the stack to see if they're in the repl. So we check once at
@@ -91,7 +94,33 @@
 (def at-or-above? (level-checker >=))
 (def above?(level-checker >))
 
-;; Fact functions
+;; Fact filters
+
+(def describes-name-matcher? stringlike?)
+(defn describes-callable-matcher? [arg]
+  (or (fn? arg) (keyword? arg)))
+
+(defn name-matcher-for [desired]
+  #(pile/stringlike-matches? desired (fact/name %)))
+(defn callable-matcher-for [desired]
+  (comp desired meta))
+
+(defn appropriate-matcher-for [desired]
+  ( (pred-cond desired
+               describes-name-matcher? name-matcher-for
+               describes-callable-matcher? callable-matcher-for
+               :else (throw (Error. (str "Program error: Bad matcher for " desired))))
+    desired))
+
+(defn mkfn:fact-filter-predicate [desireds]
+  (letfn [(make [fun source]
+            (vary-meta fun assoc :created-from source))]
+    (if (empty? desireds)
+      (let [default-filter (choice :fact-filter)]
+        (make (appropriate-matcher-for default-filter) [default-filter]))
+      (make (pile/any-pred-from (map appropriate-matcher-for desireds)) desireds))))
+
+
 
 (defn user-wants-fact-to-be-recorded? [fact]
   ((choice :fact-filter) fact))
@@ -101,3 +130,4 @@
 
 (defn load-config-files []
   (dorun (map load-file ecosystem/config-files)))
+

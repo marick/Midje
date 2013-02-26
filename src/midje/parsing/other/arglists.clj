@@ -5,8 +5,7 @@
         [midje.util.exceptions :only [user-error]])
   (:require [midje.emission.levels :as levels]
             [midje.config :as config]
-            [midje.util.pile :as pile]
-            [midje.data.fact :as fact]))
+            [midje.util.pile :as pile]))
 
 
 ;;;                                           Print levels (keywords)
@@ -24,26 +23,6 @@
 
 ;;;                                           Metadata filters
 
-
-(def describes-name-matcher? stringlike?)
-(defn describes-callable-matcher? [arg]
-  (or (fn? arg) (keyword? arg)))
-
-(defn name-matcher-for [desired]
-  #(stringlike-matches? desired (fact/name %)))
-(defn callable-matcher-for [desired]
-  (comp desired meta))
-
-(defn appropriate-matcher-for [desired]
-  ( (if (describes-name-matcher? desired) name-matcher-for callable-matcher-for) 
-    desired))
-
-(defn desired-fact-predicate-from [default-filter desireds]
-  (letfn [(make [fun source]
-            (vary-meta fun assoc :created-from source))]
-    (if (empty? desireds)
-      (make (appropriate-matcher-for default-filter) default-filter)
-      (make (pile/any-pred-from (map appropriate-matcher-for desireds)) desireds))))
 
 (defn separate-filters [args plain-argument?]
   (let [[filters remainder]

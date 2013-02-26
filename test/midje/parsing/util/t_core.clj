@@ -20,15 +20,6 @@
           skippable (-> z zip/down zip/next zip/down)]
       skippable => semi-sweet-keyword?)))
 
-(fact "stringlike-matches?"
-  (stringlike-matches? "foo" "ofoop") => true
-  (stringlike-matches? "foo" "ooop") => false
-  (stringlike-matches? "foo" nil) => false
-  (stringlike-matches? "foo" [1 2 3]) => false
-  (stringlike-matches? #"fo." "ofop") => true
-  (stringlike-matches? #"fo." "ooop") => false
-  (stringlike-matches? #"fo." false) => false)
-
 (facts "a form's reader-assigned line-number can be extracted"
   (reader-line-number (with-meta '(fact (this that)) {:line 23})) => 23
   "or, failing that: try top-level subforms"

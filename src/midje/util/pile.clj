@@ -18,7 +18,6 @@
 (defn name-object [object name]
   (vary-meta object assoc :name name))
 
-
 ;;; Maps
 
 (defn tack-on-to
@@ -99,3 +98,16 @@
 
 (defn form-guid [form]
   (DigestUtils/shaHex (pr-str form)))
+
+;;; Randomness
+
+(defn stringlike-matches? [stringlike given]
+  (cond (not (string? given))
+        false
+
+        (string? stringlike)
+        (.contains given stringlike)
+
+        :else
+        (boolean (re-find stringlike given))))
+

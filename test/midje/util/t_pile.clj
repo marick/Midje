@@ -29,3 +29,12 @@
   ;; Any empty list means that everything matches
   ((any-pred-from []) 3) => true)
 
+(fact "stringlike-matches?"
+  (stringlike-matches? "foo" "ofoop") => true
+  (stringlike-matches? "foo" "ooop") => false
+  (stringlike-matches? "foo" nil) => false
+  (stringlike-matches? "foo" [1 2 3]) => false
+  (stringlike-matches? #"fo." "ofop") => true
+  (stringlike-matches? #"fo." "ooop") => false
+  (stringlike-matches? #"fo." false) => false)
+

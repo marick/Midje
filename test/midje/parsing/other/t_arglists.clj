@@ -55,47 +55,7 @@
       => (just [] an-argument-list))))
 
 
-(facts "about converting filters into functions"
-  (let [a-fact (fn [metadata] (with-meta '[] metadata))]
-    (fact "keywords check for the truthiness of the key in the metadata"
-      (let [fun (desired-fact-predicate-from :default [:property])]
-        (fun (a-fact {:property 'truthy})) => truthy
-        (fun (a-fact {:property false})) => falsey
-        (fun (a-fact {})) => falsey))
 
-    (fact "regexes check the fact's name property"
-      (let [fun (desired-fact-predicate-from :default [#"regex"])]
-        (fun (a-fact {:midje/name "something containing regex."})) => truthy
-        (fun (a-fact {:midje/name "not a match"})) => falsey
-        (fun (a-fact {})) => falsey))
-    
-    (fact "strings are treated as substrings"
-      (let [fun (desired-fact-predicate-from :default ["str"])]
-        (fun (a-fact {:midje/name "something str like"})) => truthy
-        (fun (a-fact {:midje/name "not a match"})) => falsey
-        (fun (a-fact {})) => falsey))
-    
-    (fact "functions are applied to arguments"
-      (let [fun (desired-fact-predicate-from :default [(fn [meta] (= "yes" (:something meta)))])]
-        (fun (a-fact {:something "yes"})) => truthy
-        (fun (a-fact {:something "no"})) => falsey
-        (fun (a-fact {})) => falsey))
-    
-    (fact "multiple arguments are OR'd together"
-      (let [fun (desired-fact-predicate-from :default [#"foo" :valiant])]
-        (fun (a-fact {:midje/name "ofoop"})) => truthy
-        (fun (a-fact {:valiant true})) => truthy
-        (fun (a-fact {})) => falsey))
-    
-    (fact "filter predicates know why they were created"
-      (meta (desired-fact-predicate-from :default [:oddity :valiant]))
-      => (contains {:created-from [:oddity :valiant]}))
-    
-    (fact "A default function (callable) is used if there are no filter arguments"
-      (let [fun (desired-fact-predicate-from :has-this-meta-key [])]
-        (fun (a-fact {})) => falsey
-        (fun (a-fact {:has-this-meta-key true})) => truthy
-        (meta fun) => (contains {:created-from :has-this-meta-key})))))
   
 (fact "arglist parser with :options"
   (let [flag-descriptions [[:dirs :dir] [:interval]]

@@ -25,16 +25,6 @@
   (matches-symbols-in-semi-sweet-or-sweet-ns? '(expect fake not-called data-fake) loc))
 
 
-(defn stringlike-matches? [stringlike given]
-  (cond (not (string? given))
-        false
-
-        (string? stringlike)
-        (.contains given stringlike)
-
-        :else
-        (boolean (re-find stringlike given))))
-
 (defn symbol-named?
   "Is the thing a symbol with the name given by the string?"
   [x string]
