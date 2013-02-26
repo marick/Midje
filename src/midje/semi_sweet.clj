@@ -63,6 +63,11 @@
      :dynamic true}
   *include-midje-checks* true)
 
+(set-validator! #'*include-midje-checks*
+                (fn [_]
+                  (deprecate "Set #'midje.sweet/*include-midje-checks* instead of the #'midje.semi-sweet version.")
+                  true))
+
 
 ;;; Interface: Main macros
 
