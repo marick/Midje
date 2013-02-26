@@ -61,6 +61,13 @@
 
 ;;;                                             Fake Maps
 
+
+(defn- arg-matchers [arg-matchers]
+  (if (= (str (first arg-matchers)) "&")
+    `(map from-fake-maps/mkfn:arg-matcher ~(vec arg-matchers))
+    `(map from-fake-maps/mkfn:arg-matcher ~(vec arg-matchers))))
+
+
 ;; A fake map describes all or part of a temporary rebinding of a var with a function that
 ;; captures invocations and also returns canned values.
 
@@ -68,6 +75,7 @@
   (let [source-details `{:call-form '~call-form
                          :arrow '~arrow
                          :rhs '~(cons result overrides)}
+        arg-mappers (arg-matchers args)
         override-map `(hash-map-duplicates-ok ~@overrides)
         line (:line (meta call-form))
         result `(merge
@@ -76,7 +84,7 @@
                   :var ~(fnref/as-var-form fnref)
                   :value-at-time-of-faking (if (bound? ~(fnref/as-var-form fnref))
                                              ~(fnref/as-form-to-fetch-var-value fnref))
-                  :arg-matchers (map from-fake-maps/mkfn:arg-matcher ~(vec args))
+                  :arg-matchers ~arg-mappers
                   :result-supplier (from-fake-maps/mkfn:result-supplier ~arrow ~result)
                   :times :default  ; Default allows for a more attractive error in the most common case.
                   
