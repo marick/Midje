@@ -20,10 +20,6 @@
             [midje.emission.colorize :as color]
             [midje.emission.api :as emit]))
 
-(when (and (config/running-in-repl?) (ecosystem/clojure-1-2-X?))
-  (println (color/fail "The Midje repl tools don't work on Clojure 1.2.X")))
-(ecosystem/when-1-3+
-
 (fact-data/make-getters *ns* "fact-") 
 
 (when (doc/appropriate?)
@@ -528,4 +524,3 @@
               (autotest)))))
   true)
 
-)  ;; when-1-3+
