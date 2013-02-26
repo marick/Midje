@@ -56,13 +56,13 @@
             (map file-modification-time relevant-files))))
 
 
- (defn require-namespaces! [namespaces note-require-failure clean-dependents]
+ (defn require-namespaces! [namespaces on-require-failure clean-dependents]
    (letfn [(broken-source-file? [the-ns]
              (try
                (require the-ns :reload)
                false
              (catch Throwable t
-               (note-require-failure the-ns t)
+               (on-require-failure the-ns t)
                true)))
 
            (shorten-ns-list-by-trying-first [[the-ns & remainder]]
@@ -91,10 +91,10 @@
  (defn react-to-tracker! [state-tracker options]
    (let [namespaces (load-key state-tracker)]
      (when (not (empty? namespaces))
-       ( (:note-namespace-stream options)
+       ( (:namespace-stream-checker options)
          namespaces
          #(require-namespaces! namespaces
-                               (:note-require-failure options)
+                               (:on-require-failure options)
                                (mkfn:clean-dependents state-tracker))))))
 
  (defn prepare-for-next-scan [state-tracker]

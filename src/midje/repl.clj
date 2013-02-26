@@ -110,7 +110,7 @@
           (parsing/separate-print-levels original-args (config/choice :print-level))
         [filters namespaces]
         (parsing/separate-filters args all-keyword-is-not-a-filter)
-        filter-function (parsing/desired-fact-predicate-from (config/choice :fact-filter) filters)]
+        filter-function (config/mkfn:fact-filter-predicate filters)]
 
     (if (empty? namespaces)
       (defaulting-args
@@ -387,7 +387,7 @@
 (defonce ^{:doc "Stores last exception encountered in autotesting"}
   *me nil)
 
-(defn- note-require-failure [the-ns throwable]
+(defn- on-require-failure [the-ns throwable]
   (println (color/fail "LOAD FAILURE for " (ns-name the-ns)))
   (println (.getMessage throwable))
   (emit/fail-silently) ; to make sure last line shows a failure.
@@ -395,12 +395,16 @@
     (println "The exception has been stored in #'*me, so `(pst *me)` will show the stack trace.")
     (alter-var-root #'*me (constantly throwable))))
 
-(defn- note-namespace-stream [namespaces a-sort-of-continuation]
-  (emission-boundary/around-namespace-stream namespaces config/no-overrides
-    (println (color/note "\n======================================================================"))
-    (println (color/note "Loading " (pr-str namespaces)))
-    ;; It's not really a continuation because it's wrapped inside `around-namespace-stream`.
-    (a-sort-of-continuation)))
+
+(declare autotest-options)
+
+(defn- namespace-stream-checker [namespaces a-sort-of-continuation]
+  (let [chosen-fact-filter-predicate (config/mkfn:fact-filter-predicate (:fact-filters (autotest-options)))]
+    (emission-boundary/around-namespace-stream namespaces {:fact-filter chosen-fact-filter-predicate}
+      (println (color/note "\n======================================================================"))
+      (println (color/note "Loading " (pr-str namespaces)))
+      ;; It's not really a continuation because it's wrapped inside `around-namespace-stream`.
+      (a-sort-of-continuation))))
 
 (defn autotest-default-dirs
   "These are the directories that will be watched if you type
@@ -420,8 +424,13 @@
   autotest-options-atom
   (atom {:interval 500
          :dirs (autotest-default-dirs)
-         :note-require-failure note-require-failure
-         :note-namespace-stream note-namespace-stream}))
+         :fact-filters []
+
+         ;; These options aren't really settable. They serve to
+         ;; decouple the checking of facts from the handling of
+         ;; project state and tracking of file changes.
+         :on-require-failure on-require-failure
+         :namespace-stream-checker namespace-stream-checker}))
 
 (defn autotest-options
   "If you want a peek at how autotest is controlled, look here."
@@ -474,6 +483,7 @@
     ;; Note that stopping and pausing, which seeming different to user, actually do
     ;; exactly the same thing.
     (let [option ((parsing/make-option-arglist-parser [:dirs :dir] [:interval :each]
+                                                      [:filters :filter]
                                                       [:stop :pause] [:resume] [:all])
                   args)]
       
@@ -499,6 +509,7 @@
             (do
               (when (:all? option) (set-autotest-option! :dirs (autotest-default-dirs)))
               (when (:dirs? option) (set-autotest-option! :dirs (:dirs-args option)))
+              (when (:filters? option) (set-autotest-option! :fact-filters (:filters-args option)))
               (when (:interval? option) (set-autotest-option! :interval (first (:interval-args option))))
               (autotest)))))
   true)
