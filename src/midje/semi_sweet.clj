@@ -61,11 +61,12 @@
   ^{:doc "True by default.  If set to false, Midje checks are not
      included into production code, whether compiled or loaded."
      :dynamic true}
-  *include-midje-checks* true)
+  *include-midje-checks* :original-truthy-value)
 
 (set-validator! #'*include-midje-checks*
-                (fn [_]
-                  (deprecate "Set #'midje.sweet/*include-midje-checks* instead of the #'midje.semi-sweet version.")
+                (fn [val]
+                  (when-not (= val :original-truthy-value)
+                    (deprecate "Set #'midje.sweet/*include-midje-checks* instead of the #'midje.semi-sweet version."))
                   true))
 
 
