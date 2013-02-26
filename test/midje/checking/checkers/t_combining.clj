@@ -61,6 +61,8 @@
     [1 2 3 4] =not=> checks-out)
   (fact "even such a silly case as a regexp compared to a regexp"
     #"12*" => (every-checker regex? #"12*")))
+(fact "You can even use explicit values"
+  5 => (every-checker 5 odd? (roughly 5)))
   
 
 (fact "the empty every-checker passes"

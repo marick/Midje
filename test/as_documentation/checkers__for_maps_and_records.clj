@@ -77,6 +77,24 @@
 ;; (note-that (fact-failed-with-note #"expected.*R but the actual value was a map"))
 
 
+;;; If you want to use `contains` but also insist on an exact type, use a combining checker:
+
+(fact
+  (R. 1 'IGNORE!) => (every-checker #(instance? R %)
+                                    (contains {:x 1}))
+  {:x 1, :y 2} =not=> (every-checker #(instance? R %)
+                                     (contains {:x 1}))
+  (R. 2 'IGNORE) =not=> (every-checker #(instance? R %)
+                                       (contains {:x 1})))
+
+(fact "ways to make claims about keys"
+  (keys {:x 1, :y 1}) => (just #{:x :y})            ;; Contains every key
+  {:x 1, :y 1} => (just {:x anything, :y anything}) ;; a variant
+
+  (keys {:x 1, :y 1}) => (contains #{:x}) ;; Contains some of the keys
+  {:x 1, :y 1} => (contains {:x anything}))
+
+
 
                                 ;;; key/value pairs
 
