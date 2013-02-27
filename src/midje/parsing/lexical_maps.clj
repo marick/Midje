@@ -64,7 +64,7 @@
 
 (defn- arg-matchers [arg-matchers]
   (if (= (str (first arg-matchers)) "&")
-    `(from-fake-maps/mkfn:arity-arg-matchers ~(rest (vec arg-matchers)))
+    `(from-fake-maps/mkfn:arity-arg-matchers ~(vec (rest arg-matchers)))
     `(from-fake-maps/mkfn:arg-matchers ~(vec arg-matchers))))
 
 
