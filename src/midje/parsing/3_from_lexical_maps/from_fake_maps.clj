@@ -16,6 +16,20 @@
     (fn [actual] (extended-= actual (exactly expected)))
     (fn [actual] (extended-= actual expected))))
 
+(defn mkfn:arg-matchers
+  "Based on an expected value, generates a function that returns
+  true if the actual value matches it."
+  [matchers]
+  (fn [actual-args]
+    (let [arg-matchers (map mkfn:arg-matcher matchers)]
+       (and (= (count actual-args) (count arg-matchers))
+            (extended-list-= actual-args arg-matchers)))))
+
+(defn mkfn:arity-arg-matchers [matchers]
+  (fn [actual-args]
+    (let [arg-matchers (map mkfn:arg-matcher matchers)]
+       (extended-list-= actual-args arg-matchers))))
+
 (defmulti mkfn:result-supplier (fn [arrow & _] arrow))
 
 (defmethod mkfn:result-supplier => [_arrow_ result] (constantly result))

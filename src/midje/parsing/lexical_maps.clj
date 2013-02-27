@@ -64,8 +64,8 @@
 
 (defn- arg-matchers [arg-matchers]
   (if (= (str (first arg-matchers)) "&")
-    `(map from-fake-maps/mkfn:arg-matcher ~(vec arg-matchers))
-    `(map from-fake-maps/mkfn:arg-matcher ~(vec arg-matchers))))
+    `(from-fake-maps/mkfn:arity-arg-matchers ~(vec arg-matchers))
+    `(from-fake-maps/mkfn:arg-matchers ~(vec arg-matchers))))
 
 
 ;; A fake map describes all or part of a temporary rebinding of a var with a function that
