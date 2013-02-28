@@ -30,8 +30,11 @@
     (let [arg-matchers (map mkfn:arg-matcher matchers)]
        (extended-list-= actual-args arg-matchers))))
 
+(defn- ignore-arity-matcher? [args]
+  (= (first args) (symbol "&")))
+
 (defn mkfn:arg-matchers [arg-matchers]
-  (if (= (first arg-matchers) (symbol "&"))
+  (if (ignore-arity-matcher? arg-matchers)
     `(mkfn:arg-matchers-without-arity ~(vec (rest arg-matchers)))
     `(mkfn:arg-matchers-with-arity    ~(vec arg-matchers))))
 
