@@ -31,7 +31,7 @@
        (extended-list-= actual-args arg-matchers))))
 
 (defn mkfn:arg-matchers [arg-matchers]
-  (if (= (str (first arg-matchers)) "&")
+  (if (= (first arg-matchers) (symbol "&"))
     `(mkfn:arg-matchers-without-arity ~(vec (rest arg-matchers)))
     `(mkfn:arg-matchers-with-arity    ~(vec arg-matchers))))
 
