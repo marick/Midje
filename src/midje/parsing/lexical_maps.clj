@@ -64,6 +64,14 @@
 ;; A fake map describes all or part of a temporary rebinding of a var with a function that
 ;; captures invocations and also returns canned values.
 
+(defn- ignore-arity-matcher? [args]
+  (= (first args) (symbol "&")))
+
+(defn- arg-matchers-form [arg-matchers]
+  (if (ignore-arity-matcher? arg-matchers)
+    `(from-fake-maps/mkfn:arg-matchers-without-arity ~(vec (rest arg-matchers)))
+    `(from-fake-maps/mkfn:arg-matchers-with-arity    ~(vec arg-matchers))))
+
 (defn fake [call-form fnref args arrow result overrides]
   (let [source-details `{:call-form '~call-form
                          :arrow '~arrow
@@ -76,7 +84,7 @@
                   :var ~(fnref/as-var-form fnref)
                   :value-at-time-of-faking (if (bound? ~(fnref/as-var-form fnref))
                                              ~(fnref/as-form-to-fetch-var-value fnref))
-                  :arg-matchers ~(from-fake-maps/mkfn:arg-matchers args)
+                  :arg-matchers ~(arg-matchers-form args)
                   :result-supplier (from-fake-maps/mkfn:result-supplier ~arrow ~result)
                   :times :default  ; Default allows for a more attractive error in the most common case.
                   
