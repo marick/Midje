@@ -75,11 +75,11 @@
 ;; provided functions can match on parts of the arguments and ignore the rest
 (fact (find-letter) => "aaa"
   (provided
-    (letter & "x" anything) => "aaa"))
+    (letter "x" & anything) => "aaa"))
 
 (silent-fact (find-letter) => "aaa"
   (provided
-    (letter & "y" anything) => "aaa"))
+    (letter "y" & anything) => "aaa"))
 (note-that some-prerequisite-was-called-with-unexpected-arguments)
 
 
