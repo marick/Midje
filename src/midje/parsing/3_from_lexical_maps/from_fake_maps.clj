@@ -7,7 +7,7 @@
         [midje.parsing.arrow-symbols])
   (:require [midje.util.exceptions :as exceptions]))
 
-(defn mkfn:arg-matcher
+(defn- mkfn:arg-matcher
   "Based on an expected value, generates a function that returns
   true if the actual value matches it."
   [expected]
@@ -24,8 +24,9 @@
        (and (= (count actual-args) (count arg-matchers))
             (extended-list-= actual-args arg-matchers)))))
 
-(defn mkfn:arg-matchers-without-arity [matchers]
+(defn mkfn:arg-matchers-without-arity
   "Generates a function that returns true if all the matchers return true but it ignores arity matching."
+  [matchers]
   (fn [actual-args]
     (let [arg-matchers (map mkfn:arg-matcher matchers)]
        (extended-list-= actual-args arg-matchers))))
