@@ -1,4 +1,4 @@
-(ns as-documentation.prerequisites--prediction-specific
+(ns as-documentation.prerequisites--checkable-specific
   (:use midje.sweet
         midje.test-util))
                                 ;;; The Basics
@@ -38,16 +38,16 @@
 
 ;;; A first version of a grade-point average application:
 
-(defn gpa [student courses]
+(defn gpa [courses]
   (let [credits (map :credit-hours courses)
         grades (map :grade courses)
         weighted (map * credits grades)]
     (/ (reduce + 0.0 weighted) (reduce + 0 credits))))
 
 (fact
-  (let [three-six-six-coursework [{:credit-hours 1, :grade 5}
-                                  {:credit-hours 2, :grade 3}]]
-    (gpa ..student.. three-six-six-coursework) => (roughly 3.66 0.01)))
+  (let [coursework-for-3_66-gpa [{:credit-hours 1, :grade 5}
+                                 {:credit-hours 2, :grade 3}]]
+    (gpa coursework-for-3_66-gpa) => (roughly 3.66 0.01)))
 
 ;;; A version that gives wealth its due.
 
@@ -62,13 +62,15 @@
     (+ true-gpa adjustment)))
 
 (fact
-  (let [three-six-six-coursework [{:credit-hours 1, :grade 5}
-                                  {:credit-hours 2, :grade 3}]]
+  (let [correct-gpa 3.66
+        tolerance 0.01
+        coursework [{:credit-hours 1, :grade 5}
+                    {:credit-hours 2, :grade 3}]]
 
-    (gpa ..student.. three-six-six-coursework) => (roughly 3.66 0.01)
+    (gpa ..student.. coursework) => (roughly correct-gpa tolerance)
     (provided (child-of-wealthy-alumnus? ..student..) => false)
-
-    (gpa ..student.. three-six-six-coursework) => (roughly (+ 3.66 0.5) 0.01)
+    
+    (gpa ..student.. coursework) => (roughly (+ correct-gpa 0.5) tolerance)
     (provided (child-of-wealthy-alumnus? ..student..) => true)))
 
 

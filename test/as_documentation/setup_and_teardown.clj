@@ -112,3 +112,20 @@
 (namespace-state-changes [])
 (fact @state => 1002)
 (fact @state => 1002)
+
+
+;;; This form is also acceptable:
+
+(namespace-state-changes)
+
+;;; `namespace-state-changes doesn't actually require the square brackets.
+
+(defn halts?
+  "Form is a function definition: '(fn [...] ...)
+  `halts?` determins if that function will halt when applied to the given args."
+  [form & args]
+  true)
+
+(fact "`halts` determines if a program halts"
+  (halts? '(fn [n] (+ n 2)) 1) => true
+  (halts? '(fn recursive [n] (recursive (dec n))) 1) =future=> false)
