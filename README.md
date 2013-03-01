@@ -18,9 +18,24 @@ to support a balance between [abstraction and
 concreteness](https://github.com/marick/Midje/wiki/Metaconstants),
 and to be gracious in its treatment of its users.
 
-Learning Midje
+Gallery
 =======================
 
+To make tests more readable, Midje makes them look like
+examples in Clojure books. Here's how  *[The Joy of
+Clojure](http://www.amazon.com/The-Joy-Clojure-Thinking-Way/dp/1935182641)*
+uses syntax to explain Clojure:
+
+![](https://raw.github.com/marick/midje-clojure-test-tutorial/master/images/other/truthy.jpg)
+
+Here's the same fact about Clojure in Midje, expressed in a
+way that's just as readable but also machine-checkable:
+
+![](https://raw.github.com/marick/midje-clojure-test-tutorial/master/images/other/truthy-fact.jpg)
+
+
+Learning Midje
+=======================
 
 [User guide](https://github.com/marick/Midje/wiki)    
 [Tutorial](https://github.com/marick/Midje/wiki/A-tutorial-introduction)      
