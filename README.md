@@ -63,10 +63,10 @@ And so on.
 Learning Midje
 =======================
 
-[User guide](https://github.com/marick/Midje/wiki)    
 [Tutorial](https://github.com/marick/Midje/wiki/A-tutorial-introduction)      
-[Tutorial (and sales pitch) for clojure.test user](https://github.com/marick/Midje/wiki/A-tutorial-introduction-for-Clojure.test-users)
-[Mailing list](http://groups.google.com/group/midje
+[Tutorial (and sales pitch) for clojure.test user](https://github.com/marick/Midje/wiki/A-tutorial-introduction-for-Clojure.test-users)    
+[User guide](https://github.com/marick/Midje/wiki)    
+[Mailing list](http://groups.google.com/group/midje)
 
 Contributors
 ==============
