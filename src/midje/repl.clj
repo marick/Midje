@@ -449,6 +449,10 @@
   depends on `some-untracked-dir/B` that depends on `src/midje/util/C`,
   a change to `C` will not cause `A` to be reloaded.
 
+  You can also rather than dirs use specific files with the :files argument:
+
+      (autotest :files "test/midje/util/t_unify.clj" "src/midje/util/unify.clj")
+
   You can revert back to the project.clj versions like this:
 
     (autotest :all)
