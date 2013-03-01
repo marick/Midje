@@ -16,7 +16,7 @@ to support [top-down](https://github.com/marick/Midje/wiki/The-idea-behind-top-d
 to encourage readable tests,
 to support a balance between [abstraction and
 concreteness](https://github.com/marick/Midje/wiki/Metaconstants),
-and to be gracious in its treatment of its users.
+and to be gracious in its treatment of the people who use it.
 
 Gallery
 =======================
@@ -32,6 +32,25 @@ Here's the same fact about Clojure in Midje, expressed in a
 way that's just as readable but also machine-checkable:
 
 ![](https://raw.github.com/marick/midje-clojure-test-tutorial/master/images/other/truthy-fact.jpg)
+
+While Midje assumes you'll be building a test suite with
+lasting value, it allows you to do that while still using
+the repl in an idiomatic way. 
+
+Here's the start of a typical Midje repl session:
+
+![](https://raw.github.com/marick/midje-clojure-test-tutorial/master/images/plain/3.jpg)
+
+Midje has loaded the tests and run them for the first time.
+It's also watching for file changes. When it sees them, it
+loads the changed files and any dependencies. But notice
+that you still have a repl prompt. That means you have
+choices: type at the repl to try out code samples or look up
+documentation, have your editor send code snippets to the
+repl to evaluate, *and* save source or test files and
+immediately see what passes or fails:
+
+![](https://raw.github.com/marick/midje-clojure-test-tutorial/master/images/plain/5.jpg)
 
 
 Learning Midje
