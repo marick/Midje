@@ -105,7 +105,7 @@
  (defn mkfn:scan-and-react [options scanner]
    (fn []
      (swap! state-tracker
-            #(let [new-tracker (apply scanner % (:dirs options))]
+            #(let [new-tracker (apply scanner % (or (:files options) (:dirs options)))]
                (react-to-tracker! new-tracker options)
                (prepare-for-next-scan new-tracker)))))
 

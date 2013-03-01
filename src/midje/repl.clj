@@ -422,6 +422,7 @@
          :dirs (autotest-default-dirs)
          :note-require-failure note-require-failure
          :note-namespace-stream note-namespace-stream}))
+         :files []
 
 (defn autotest-options
   "If you want a peek at how autotest is controlled, look here."
@@ -474,6 +475,7 @@
     ;; Note that stopping and pausing, which seeming different to user, actually do
     ;; exactly the same thing.
     (let [option ((parsing/make-option-arglist-parser [:dirs :dir] [:interval :each]
+                                                      [:files :file]
                                                       [:stop :pause] [:resume] [:all])
                   args)]
       
@@ -499,6 +501,7 @@
             (do
               (when (:all? option) (set-autotest-option! :dirs (autotest-default-dirs)))
               (when (:dirs? option) (set-autotest-option! :dirs (:dirs-args option)))
+              (when (:files? option) (set-autotest-option! :files (:files-args option)))
               (when (:interval? option) (set-autotest-option! :interval (first (:interval-args option))))
               (autotest)))))
   true)
