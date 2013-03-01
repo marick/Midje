@@ -44,13 +44,19 @@ Here's the start of a typical Midje repl session:
 Midje has loaded the tests and run them for the first time.
 It's also watching for file changes. When it sees them, it
 loads the changed files and any dependencies. But notice
-that you still have a repl prompt. That means you have
-choices: type at the repl to try out code samples or look up
-documentation, have your editor send code snippets to the
-repl to evaluate, *and* save source or test files and
+that you still have a repl prompt. That means you can move
+rapidly and smoothly among  typing at the repl to try out code samples or look up
+documentation, having your editor send code snippets to the
+repl to evaluate, *and* saving source or test files to
 immediately see what passes or fails:
 
 ![](https://raw.github.com/marick/midje-clojure-test-tutorial/master/images/plain/5.jpg)
+
+Midje supplies prepackaged
+[checkers](https://github.com/marick/Midje/wiki/Checkers)
+that save you the trouble of writing common code:
+
+![](https://raw.github.com/marick/midje-clojure-test-tutorial/master/images/other/checkers.jpg)
 
 
 Learning Midje
