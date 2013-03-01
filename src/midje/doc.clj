@@ -365,23 +365,44 @@
 "} midje-background-changers)
 
 
-(def guide-topics {
- 'setup-and-teardown "https://github.com/marick/Midje/wiki/Setup-and-teardown"
- 'future-facts  "https://github.com/marick/Midje/wiki/Future-facts"
- 'chatty-checkers "https://github.com/marick/Midje/wiki/Chatty-checkers"
- 'partial-prerequisites "https://github.com/marick/Midje/wiki/Partial-prerequisites"
- 'file-an-issue ecosystem/issues-url
- 'unfixed-syntax-errors ecosystem/syntax-errors-that-will-not-be-fixed
-})
+(def guide-raw
+ ['user-guide "https://github.com/marick/Midje/wiki"
+  'concept-index "https://github.com/marick/Midje/wiki/Concept-index"
+  'syntax-reference "https://github.com/marick/Midje/wiki/Syntax-and-a-little-semantics"
+  '--- ""
+  'file-an-issue ecosystem/issues-url
+  'unfixed-syntax-errors ecosystem/syntax-errors-that-will-not-be-fixed
+  '--- ""
+  'future-facts  "https://github.com/marick/Midje/wiki/Future-facts"
+  'tabular-facts "https://github.com/marick/Midje/wiki/Tabular-facts"
+  'fact-metadata "https://github.com/marick/Midje/wiki/Using-metadata-to-filter-facts"
+  "" ""
+  'setup-and-teardown "https://github.com/marick/Midje/wiki/Setup-and-teardown"
+  'prerequisites "https://github.com/marick/Midje/wiki/Describing-one-checkable%27s-prerequisites"
+  'fact-wide-prerequisites "https://github.com/marick/Midje/wiki/Establishing-fact-wide-prerequisites"
+  'partial-prerequisites "https://github.com/marick/Midje/wiki/Partial-prerequisites"
+  "" ""
+  'checking-sequences "https://github.com/marick/Midje/wiki/Checking-sequential-collections"
+  'checking-maps-and-records "https://github.com/marick/Midje/wiki/Checking-maps-and-records"
+  'checking-sets "https://github.com/marick/Midje/wiki/Checking-sets"
+  'combining-checkers "https://github.com/marick/Midje/wiki/Combining-checkers"
+  'chatty-checkers "https://github.com/marick/Midje/wiki/Chatty-checkers"
+
+  ])
+
+(def guide-topics (map first (partition 2 guide-raw)))
+(def guide-urls (map second (partition 2 guide-raw)))
+
+(def guide-map (zipmap guide-topics guide-urls))
                     
 (defmacro guide
   "Open a web page that addresses a particular topic"
   ([topic]
-     `(if-let [url# (guide-topics '~topic)]
+     `(if-let [url# (guide-map '~topic)]
         (browse/browse-url url#)
         (do 
           (println "There is no such topic. Did you mean one of these?")
-          (doseq [topic# (keys guide-topics)]
+          (doseq [topic# guide-topics]
             (println "   " topic#)))))
   ([]
      `(guide :no-such-topic)))
