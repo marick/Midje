@@ -62,7 +62,9 @@ that save you the trouble of writing common code:
 
 ![](https://raw.github.com/marick/midje-clojure-test-tutorial/master/images/other/checkers.jpg)
 
-And so on.
+-------------
+
+[And so on](https://github.com/marick/Midje/wiki).
 
 Learning Midje
 =======================
