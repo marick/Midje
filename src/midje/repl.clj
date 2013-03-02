@@ -494,7 +494,8 @@
 
     ;; Note that stopping and pausing, which seeming different to user, actually do
     ;; exactly the same thing.
-    (let [option ((parsing/make-option-arglist-parser [:files :file] [:interval :each]
+    (let [option ((parsing/make-option-arglist-parser [:files :file] [:dirs :dir]
+                                                      [:interval :each]
                                                       [:filters :filter]
                                                       [:stop :pause] [:resume] [:all])
                   args)]
@@ -517,6 +518,10 @@
                  (complained-about-missing-files? (:files-args option)))
             :oops
                  
+            (and (:dirs? option)
+                 (complained-about-missing-files? (:dirs-args option)))
+            :oops
+
             :else
             (do
               (when (:all? option) (set-autotest-option! :files (autotest-default-dirs)))

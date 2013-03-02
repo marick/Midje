@@ -570,9 +570,20 @@
         (set-autotest-option! :files (autotest-default-dirs)) => irrelevant
         (autotest) => anything)))
 
+  (fact "dirs is just an alias for files"
+    (config/with-augmented-config {:partial-prerequisites true}
+      (autotest :dirs "src" "test") => anything
+      (provided
+        (set-autotest-option! :files ["src" "test"]) => anything
+        (autotest) => anything)))
+
   (fact "skips adding nonexistent files or dirs"
-    (autotest :files "blah/src" "blah/test") => irrelevant
-    (autotest :files "blah/src.clj" "blah/test.clj") => irrelevant
+    (autotest :files "blah/src" "blah/test") => anything
+    (autotest :files "blah/src.clj" "blah/test.clj") => anything
+    
+    (autotest :dirs "blah/src" "blah/test") => anything
+    (autotest :dirs "blah/src.clj" "blah/test.clj") => anything
+
     (provided
       (set-autotest-option! :files anything) => irrelevant :times 0))
 )
