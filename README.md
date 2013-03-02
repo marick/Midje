@@ -33,6 +33,8 @@ way that's just as readable but also machine-checkable:
 
 ![](https://raw.github.com/marick/midje-clojure-test-tutorial/master/images/other/truthy-fact.jpg)
 
+------------
+
 While Midje assumes you'll be building a test suite with
 lasting value, it allows you to do that while still using
 the repl in an idiomatic way. 
@@ -51,6 +53,8 @@ repl to evaluate, *and* saving source or test files to
 immediately see what passes or fails:
 
 ![](https://raw.github.com/marick/midje-clojure-test-tutorial/master/images/plain/5.jpg)
+
+-------------
 
 Midje supplies prepackaged
 [checkers](https://github.com/marick/Midje/wiki/Checkers)
