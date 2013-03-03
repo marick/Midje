@@ -578,11 +578,11 @@
         (autotest) => anything)))
 
   (fact "skips adding nonexistent files or dirs"
-    (autotest :files "blah/src" "blah/test") => anything
-    (autotest :files "blah/src.clj" "blah/test.clj") => anything
+    (captured-output (autotest :files "blah/src" "blah/test")) => anything
+    (captured-output (autotest :files "blah/src.clj" "blah/test.clj")) => anything
     
-    (autotest :dirs "blah/src" "blah/test") => anything
-    (autotest :dirs "blah/src.clj" "blah/test.clj") => anything
+    (captured-output (autotest :dirs "blah/src" "blah/test")) => anything
+    (captured-output (autotest :dirs "blah/src.clj" "blah/test.clj")) => anything
 
     (provided
       (set-autotest-option! :files anything) => irrelevant :times 0))
