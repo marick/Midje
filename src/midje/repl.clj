@@ -408,9 +408,13 @@
   []
   (ecosystem/leiningen-paths))
 
-(defn- complained-about-missing-files? [candidate-strings]
-  (let [not-dirs (remove #(.isDirectory (io/file %)) candidate-strings)
-        missing  (remove #(.isFile (io/file %)) not-dirs)]
+(defn- exists-on-filesystem? [file-or-dir-name]
+  (let [file-or-dir (io/file file-or-dir-name)]
+    (or (.isDirectory file-or-dir)
+        (.isFile file-or-dir))))
+
+(defn- complained-about-missing-on-filesystem? [candidate-strings]
+  (let [missing (remove exists-on-filesystem? candidate-strings)]
     (when-not (empty? missing)
       (println (color/fail (cl-format nil "~[~;This is not a directory or file:~:;These are not directories or files:~] ~{~S~^, ~}."
                                       (count missing)
@@ -515,11 +519,11 @@
               (start-periodic-check))
 
             (and (:files? option)
-                 (complained-about-missing-files? (:files-args option)))
+                 (complained-about-missing-on-filesystem? (:files-args option)))
             :oops
                  
             (and (:dirs? option)
-                 (complained-about-missing-files? (:dirs-args option)))
+                 (complained-about-missing-on-filesystem? (:dirs-args option)))
             :oops
 
             :else
