@@ -1,4 +1,4 @@
-(ns implementation.firm-check-failures
+(ns implementation.line-numbers.fim-numbers-and-namespaces
   (:require
    [midje.config :as config])
   (:use midje.sweet
@@ -16,8 +16,8 @@
        (f) => -3
        (provided (g) => 88))
      (fact
-       @fact-output => #".clj:17\s+implementation.firm-check-failures"
-       @fact-output => #".clj:16\s+implementation.firm-check-failures")))
+       @fact-output => #".clj:17\s+implementation.line-numbers.fim-numbers-and-namespaces"
+       @fact-output => #".clj:16\s+implementation.line-numbers.fim-numbers-and-namespaces")))
 
   (config/with-augmented-config {:visible-failure-namespace false}
     (capturing-failure-output
@@ -26,5 +26,5 @@
        (provided (g) => 88))
      (fact
        @fact-output => #".clj:26"
-       @fact-output =not=> #"clj:26\s+implementation.firm-check-failures"
+       @fact-output =not=> #"clj:26\s+implementation.line-numbers.fim-numbers-and-namespaces"
        @fact-output => #".clj:25"))))
