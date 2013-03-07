@@ -93,7 +93,8 @@
                                :expected-result-form        (:call-text-for-failures fake)}))]
     (emit/fail {:type :some-prerequisites-were-called-the-wrong-number-of-times
                 :failures failures
-                :position (:position (first failures))} )))
+                :position (:position (first failures))
+                :namespace *ns*})))
 
 
 (defn check-one

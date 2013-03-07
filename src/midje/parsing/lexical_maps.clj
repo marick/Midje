@@ -81,6 +81,7 @@
                   :times :default  ; Default allows for a more attractive error in the most common case.
                   
                   :position (position/line-number-known ~line)
+                  :namespace *ns*
                   :call-count-atom (atom 0)
                   :call-text-for-failures (str '~call-form)
                  }
