@@ -5,7 +5,8 @@ require 'rake'
 
 def jar_name
   text = File.read('project.clj')
-  unless / midje\s+"(\d+\.\d+(-RC\d+)?)"/ =~ text ||
+  unless / midje\s+"(\d+\.\d+.\d+)"/ =~ text ||
+         / midje\s+"(\d+\.\d+(-RC\d+)?)"/ =~ text ||
          / midje\s+"(\d+\.\d+(\.\d+)*-SNAPSHOT)"/ =~ text || 
          / midje\s+"(\d+\.\d-alpha\d+)"/ =~ text || 
          / midje\s+"(\d+\.\d-beta\d+)"/ =~ text
