@@ -55,6 +55,12 @@
 
 
 
+(defn start-of-prerequisite-arrow-sequence? [form]
+  (and (sequential? form)
+       (matches-symbols-in-semi-sweet-or-sweet-ns? fake-arrows (second form))))
+
+
+
 ;;; Backgrounds -- this is confusing while we're backing away from earlier,
 ;;; overly-baroque forms.
 

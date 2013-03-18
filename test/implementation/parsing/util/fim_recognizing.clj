@@ -50,6 +50,12 @@
               '( (f 1) midje.semi-sweet/=> 2) => start-of-checking-arrow-sequence?
               (possible '( (f 1) midje.semi-sweet/=> 2)) => start-of-checking-arrow-sequence?))
 
+(fact "some of the arrow forms for prerequisites differ"
+  '( (f) => 3) => start-of-checking-arrow-sequence?  ; Not this one
+  '( (rand) =streams=> [1 2 3]) => start-of-prerequisite-arrow-sequence?
+  '( (f) =not=> empty?) =not=> start-of-prerequisite-arrow-sequence?
+  '((before :facts (f))) =not=> start-of-prerequisite-arrow-sequence?)
+
 ;;; Provided
 
 (fact "can ask whether at the beginning of a form that provides prerequisites"

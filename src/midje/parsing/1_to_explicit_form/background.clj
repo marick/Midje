@@ -75,7 +75,7 @@
                   empty? 
                   expanded
                   
-                  recognize/start-of-checking-arrow-sequence?
+                  recognize/start-of-prerequisite-arrow-sequence?
                   (let [arrow-seq (take-arrow-sequence in-progress)]
                     (recur (conj expanded (-> arrow-seq prerequisite-to-fake fakes/tag-as-background-fake))
                            (drop (count arrow-seq) in-progress)))

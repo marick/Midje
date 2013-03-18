@@ -76,7 +76,9 @@
 
   "data fakes"
   (extract-background-changers '[...m... =contains=> {:a 1, :b 2}])
-  => '[(midje.semi-sweet/data-fake ...m... =contains=> {:a 1, :b 2})]
+  => '[(midje.semi-sweet/data-fake ...m... =contains=> {:a 1, :b 2}
+                                   :background :background
+                                   :times (range 0))]
 
   "other types are left alone"
   (extract-background-changers

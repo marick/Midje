@@ -179,6 +179,11 @@
  (fact
    @fact-output => #"\(first :facts identity\) does not look like"))
 
+
+(fact ;; prerequisite forms don't object to prerequisite arrows
+  (prerequisite (rand) =streams=> [1 2 3])
+  1 => 1)
+
 ;;; =====================================              Outside-fact against-background
 ;; `background` finds parse errors of its background changers"
 
