@@ -17,7 +17,7 @@
   (republish 'midje.checking.checkers.chatty
              '[chatty-checker])
   (republish 'midje.checking.checkers.simple
-             '[truthy falsey TRUTHY FALSEY anything irrelevant exactly throws roughly])
+             '[truthy falsey TRUTHY FALSEY & anything irrelevant exactly throws roughly])
   (republish 'midje.checking.checkers.combining
              '[every-checker some-checker])
   (republish 'midje.checking.checkers.collection

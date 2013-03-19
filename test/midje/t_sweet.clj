@@ -63,6 +63,26 @@
     (g 1) => 10
     (g 2) => 20))
 
+
+(defn letter [x y z] x)
+(defn find-letter [] (letter "x" "y" "z"))
+
+;; provided functions using & can ignore the arity
+(fact (find-letter) => "aaa"
+  (provided
+    (letter & anything) => "aaa"))
+
+;; provided functions can match on parts of the arguments and ignore the rest
+(fact (find-letter) => "aaa"
+  (provided
+    (letter "x" & anything) => "aaa"))
+
+(silent-fact (find-letter) => "aaa"
+  (provided
+    (letter "y" & anything) => "aaa"))
+(note-that some-prerequisite-was-called-with-unexpected-arguments)
+
+
 ;; facts can see their environment
 (let [outer-value 2]
   (fact

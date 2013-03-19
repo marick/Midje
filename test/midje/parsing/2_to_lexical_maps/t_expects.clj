@@ -71,16 +71,6 @@
       (:call-text-for-failures fake-1) => "(faked-function some-variable)"
       (deref (:call-count-atom fake-0)) => 0)
 
-    (fact "argument matching"
-      (count (:arg-matchers fake-0)) => 0)
-
-    (fact "Note that lexical scoping is obeyed"
-      (count (:arg-matchers fake-1)) => 1
-      (pile/apply-pairwise (:arg-matchers fake-1) [5] [nil]) => [[true] [false]]
-      (count (:arg-matchers fake-2)) => 2
-      (pile/apply-pairwise (:arg-matchers fake-2) [5 5] [1 1]) => [  [false true]
-                                                                     [true false] ])
-
     (fact "Result supplied"
       ((:result-supplier fake-0)) => 2
       ((:result-supplier fake-1)) => (+ 2 some-variable)
