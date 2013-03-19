@@ -1,4 +1,4 @@
-(ns as-documentation.prerequisites--checkable-specific
+(ns as-documentation.prerequisites--the-basics
   (:use midje.sweet
         midje.test-util))
                                 ;;; The Basics
@@ -200,7 +200,6 @@
   (+ 1 (lower-function 2)) => 8
   (provided
     (lower-function (as-checker even?)) => 7))
-
 
                                 ;;; Nested functions in prerequisites
 

@@ -1,4 +1,4 @@
-(ns as-documentation.assumptions
+(ns as-documentation.sketch-for-background-replacement
   (:use midje.sweet
         midje.test-util))
 
