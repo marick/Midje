@@ -516,7 +516,7 @@
 ;;;; ==== PART 5: Autotest
 
 (fact "autotest is driven by options"
-  (set (keys (autotest-options))) => (contains #{:interval :dirs}))
+  (set (keys (autotest-options))) => (contains #{:interval :files}))
 
 (fact "options can be set"
   (:interval (autotest-options)) =not=> 832
@@ -557,9 +557,9 @@
 
   (fact "can be used to set default values"
     (config/with-augmented-config {:partial-prerequisites true}
-      (autotest :dirs "src" "test" :interval 5) => anything
+      (autotest :files "src" "test" :interval 5) => anything
       (provided
-        (set-autotest-option! :dirs ["src" "test"]) => anything
+        (set-autotest-option! :files ["src" "test"]) => anything
         (set-autotest-option! :interval 5) => anything
         (autotest) => anything)))
 
@@ -567,8 +567,25 @@
     (config/with-augmented-config {:partial-prerequisites true}
       (autotest :all) => irrelevant
       (provided
-        (set-autotest-option! :dirs (autotest-default-dirs)) => irrelevant
+        (set-autotest-option! :files (autotest-default-dirs)) => irrelevant
         (autotest) => anything)))
+
+  (fact "dirs is just an alias for files"
+    (config/with-augmented-config {:partial-prerequisites true}
+      (autotest :dirs "src" "test") => anything
+      (provided
+        (set-autotest-option! :files ["src" "test"]) => anything
+        (autotest) => anything)))
+
+  (fact "skips adding nonexistent files or dirs"
+    (captured-output (autotest :files "blah/src" "blah/test")) => anything
+    (captured-output (autotest :files "blah/src.clj" "blah/test.clj")) => anything
+    
+    (captured-output (autotest :dirs "blah/src" "blah/test")) => anything
+    (captured-output (autotest :dirs "blah/src.clj" "blah/test.clj")) => anything
+
+    (provided
+      (set-autotest-option! :files anything) => irrelevant :times 0))
 )
   
 

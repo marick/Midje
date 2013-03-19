@@ -408,10 +408,15 @@
   []
   (ecosystem/leiningen-paths))
 
-(defn- complained-about-missing-dirs? [candidate-strings]
-  (let [missing (remove #(.isDirectory (io/file %)) candidate-strings)]
+(defn- exists-on-filesystem? [file-or-dir-name]
+  (let [file-or-dir (io/file file-or-dir-name)]
+    (or (.isDirectory file-or-dir)
+        (.isFile file-or-dir))))
+
+(defn- complained-about-missing-on-filesystem? [candidate-strings]
+  (let [missing (remove exists-on-filesystem? candidate-strings)]
     (when-not (empty? missing)
-      (println (color/fail (cl-format nil "~[~;This is not a directory:~:;These are not directories:~] ~{~S~^, ~}."
+      (println (color/fail (cl-format nil "~[~;This is not a directory or file:~:;These are not directories or files:~] ~{~S~^, ~}."
                                       (count missing)
                                       missing))))
     (not-empty? missing)))
@@ -419,7 +424,7 @@
 (defonce ^{:private true}
   autotest-options-atom
   (atom {:interval 500
-         :dirs (autotest-default-dirs)
+         :files (autotest-default-dirs)
          :fact-filters []
 
          ;; These options aren't really settable. They serve to
@@ -444,9 +449,10 @@
 
   By default, `autotest` monitors all the files in the
   project.clj's :source-paths and :test-paths. To change the
-  default, give the `:dirs` argument:
+  default, give the `:files` argument:
 
-     (autotest :dirs \"test/midje/util\" \"src/midje/util\")
+     (autotest :files \"test/midje/util\" \"src/midje/util\")
+     (autotest :files \"test/midje/util/t_unify.clj\" \"src/midje/util/unify.clj\")
 
   This is useful in large projects. Note that `autotest` doesn't follow
   dependencies outside the given directories. If `test/midje/util/A`
@@ -492,13 +498,14 @@
 
     ;; Note that stopping and pausing, which seeming different to user, actually do
     ;; exactly the same thing.
-    (let [option ((parsing/make-option-arglist-parser [:dirs :dir] [:interval :each]
+    (let [option ((parsing/make-option-arglist-parser [:files :file] [:dirs :dir]
+                                                      [:interval :each]
                                                       [:filters :filter]
                                                       [:stop :pause] [:resume] [:all])
                   args)]
       
       (cond (not (empty? (:true-args option)))
-            (println (color/fail "Did you mean to put the arguments after `:dirs`?"))
+            (println (color/fail "Did you mean to put the arguments after `:files`?"))
             
             (:stop? option)
             (scheduling/stop :autotest)
@@ -511,14 +518,19 @@
               (project-state/load-everything (autotest-options))
               (start-periodic-check))
 
-            (and (:dirs? option)
-                 (complained-about-missing-dirs? (:dirs-args option)))
+            (and (:files? option)
+                 (complained-about-missing-on-filesystem? (:files-args option)))
             :oops
                  
+            (and (:dirs? option)
+                 (complained-about-missing-on-filesystem? (:dirs-args option)))
+            :oops
+
             :else
             (do
-              (when (:all? option) (set-autotest-option! :dirs (autotest-default-dirs)))
-              (when (:dirs? option) (set-autotest-option! :dirs (:dirs-args option)))
+              (when (:all? option) (set-autotest-option! :files (autotest-default-dirs)))
+              (when (:files? option) (set-autotest-option! :files (:files-args option)))
+              (when (:dirs? option) (set-autotest-option! :files (:dirs-args option)))
               (when (:filters? option) (set-autotest-option! :fact-filters (:filters-args option)))
               (when (:interval? option) (set-autotest-option! :interval (first (:interval-args option))))
               (autotest)))))
