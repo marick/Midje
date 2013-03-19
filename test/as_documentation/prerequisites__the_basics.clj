@@ -201,6 +201,42 @@
   (provided
     (lower-function (as-checker even?)) => 7))
 
+
+;;; Prerequisites can ignore uninteresting trailing arguments by using the
+;;; & marker followed by `anything`.
+(unfinished letter)
+(defn find-letter [] (letter "x" "y" "z"))
+
+(fact "You can only care about the first argument"
+  (fact "an example using a literal"
+    (find-letter) => ..letter-result..
+    (provided
+      (letter "x" & anything) => ..letter-result..))
+  (fact "an example using a checker argument"
+    (find-letter) => ..letter-result..
+    (provided
+      (letter (as-checker string?) & anything) => ..letter-result..))
+  (silent-fact (find-letter) => ..letter-result..
+    (provided
+      (letter "y" & anything) => ..letter-result..))
+  (note-that some-prerequisite-was-called-with-unexpected-arguments))
+
+(fact "Here is an idiom for saying that you care only that a sub-function has been called"
+  ;; A bit wordy
+  (find-letter) => anything
+  (provided
+    (letter & anything) => anything))
+  
+    
+(future-fact "You can even apply a checker to the &rest argument"
+  (find-letter) => ..letter-result..
+  (provided
+    (letter & (as-checker (fn [actual] (prn actual) true))) => ..letter-result..))
+
+
+
+
+
                                 ;;; Nested functions in prerequisites
 
 (unfinished first-est second-est)
