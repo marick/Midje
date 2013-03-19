@@ -43,6 +43,5 @@ end
 
 desc "Check many versions of Clojure"
 task :compatibility do
-  puts "Use compatibility12 after changing project.clj"
-  doit("lein with-profile 1.3:1.4:1.5 midje")
+  doit("lein with-profile 1.3:1.4:1.5.0:1.5.1 midje")
 end

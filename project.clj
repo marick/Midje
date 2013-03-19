@@ -20,12 +20,11 @@
   :profiles {:dev {:dependencies [[slamhound "1.2.0"]
                                   [jonase/kibit "0.0.3"]
                                   [jonase/eastwood "0.0.2"]]
-                   :plugins [[lein-midje "3.0-SNAPSHOT"]]}
-             :1.2.0 {:dependencies [[org.clojure/clojure "1.2.0"]]}
-             :1.2.1 {:dependencies [[org.clojure/clojure "1.2.1"]]}
+                   :plugins [[lein-midje "3.0.0"]]}
              :1.3 {:dependencies [[org.clojure/clojure "1.3.0"]]}
              :1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
-             :1.5 {:dependencies [[org.clojure/clojure "1.5.0"]]}
+             :1.5.0 {:dependencies [[org.clojure/clojure "1.5.0"]]}
+             :1.5.1 {:dependencies [[org.clojure/clojure "1.5.1"]]}
              ;; The following profile can be used to check that `lein with-profile`
              ;; profiles are obeyed. Note that profile `:test-paths` *add on* to the
              ;; defaults.
@@ -36,8 +35,7 @@
             :distribution :repo}
   :mailing-list {:name "Midje"
                  :subscribe "https://groups.google.com/forum/?fromgroups#!forum/midje"}
-  :aliases {"compatibility" ["with-profile" "1.3:1.4:1.5" "test"]
-            "compatibility12" ["with-profile" "1.2.0:1.2.1:1.3:1.4:1.5" "test"]}
+  :aliases {"compatibility" ["with-profile" "1.3:1.4:1.5.0:1.5.1" "test"]}
   
   ;; For Clojure snapshots
   :repositories {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"
