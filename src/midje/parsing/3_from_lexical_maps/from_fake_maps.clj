@@ -17,7 +17,7 @@
     (fn [actual] (extended-= actual expected))))
 
 (defn mkfn:arg-matchers-with-arity
-  "Generates a function that returns true if all the matchers return true for the actual args its passed."
+  "Generates a function that returns true if all the matchers return true for the actual args it's passed."
   [matchers]
   (fn [actual-args]
     (let [arg-matchers (map mkfn:arg-matcher matchers)]

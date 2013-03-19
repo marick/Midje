@@ -24,6 +24,8 @@
   (not actual))
 (defalias FALSEY falsey)
 
+;; This checker doesn't actually do anything. It's used 
+;; to match the `&` notation in prerequisite argument lists.
 (defchecker &
   "Any arity"
   [actual])
