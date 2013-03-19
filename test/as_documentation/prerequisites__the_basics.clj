@@ -226,7 +226,15 @@
   (find-letter) => anything
   (provided
     (letter & anything) => anything))
-  
+
+(let [desired-letter "x"]
+  (fact "lexical bindings are obeyed"
+    (find-letter) => ..letter-result..
+    (provided
+      (letter desired-letter & anything) => ..letter-result..)))
+    
+
+
     
 (future-fact "You can even apply a checker to the &rest argument"
   (find-letter) => ..letter-result..
@@ -234,6 +242,7 @@
     (letter & (as-checker (fn [actual] (prn actual) true))) => ..letter-result..))
 
 
+  
 
 
 
