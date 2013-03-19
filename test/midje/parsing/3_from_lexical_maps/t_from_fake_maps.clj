@@ -10,7 +10,8 @@
 
 (tabular
   (facts "the arg matcher maker handles functions specially"
-   ((mkfn:arg-matcher ?expected) ?actual) => ?result)
+   ((mkfn:arg-matchers-with-arity    [?expected]) [?actual]) => ?result
+   ((mkfn:arg-matchers-without-arity [?expected]) [?actual]) => ?result)
 ?expected              ?actual         ?result
 1                      1               TRUTHY
 1                      odd?            falsey
@@ -33,6 +34,11 @@ anything               odd?            TRUTHY
 odd?                   odd?            TRUTHY
 odd?                   3               falsey)
 
+(fact "false if there is an arity mismatch"
+  ((mkfn:arg-matchers-with-arity [anything]) [1 2 3]) => falsey)
+
+(fact "ignoring arity mismatches"
+  ((mkfn:arg-matchers-without-arity [anything]) [1 2 3]) => TRUTHY)
 
 (facts "about result suppliers used"
   "returns identity for =>"
