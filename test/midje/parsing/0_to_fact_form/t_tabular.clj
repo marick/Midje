@@ -5,26 +5,14 @@
         [ordered.map :only (ordered-map)]
         midje.util)
   (:require [midje.util.pile :as pile]
-            [midje.parsing.1-to-explicit-form.facts :as facts]
+            [midje.parsing.lexical-maps :as maps]
+            [midje.parsing.1-to-explicit-form.facts :as parse-facts]
             [midje.data.fact :as fact-data]
             [midje.data.compendium :as compendium]
             [midje.config :as config]))
 
 (expose-testables midje.parsing.0-to-fact-form.tabular)
 
-
-;; Core midje.sweet API
-
-(tabular
- (fact (+ ?a ?b) => ?result )
- ?a    ?b      ?result
- 1     2       3)
-
-(tabular
- (fact "some information about that"
-   (+ ?a ?b) => ?result)
- ?a    ?b      ?result
- 1     2       3)
 
 (tabular "no longer need to prefix table variables with '?'"
  (fact (+ a b) => result )
@@ -197,56 +185,39 @@
   (table-binding-maps ['?a  '?b '?result] [1 2 3])
   => [ (ordered-map '?a 1, '?b 2, '?result 3) ])
 
-(defn as-received-by-add-binding-note [body]
-  (facts/wrap-with-creation-time-code 
-    (facts/wrap-with-check-time-code
-      body
-      {:some-fact-metadata true}
-      'symbol-to-name-function-with)))
 
+(defn filter-checkable-maps [form]
+  (filter maps/checkable-map? (flatten form)))
 
-(tabular (fact ?comment
-           (let [line-no-free-original ?original
-                 line-no-free-expected ?expected]
-             (add-binding-note line-no-free-original (ordered-map '?a 'a))
-             => line-no-free-expected))
+(defn expand-and-add-binding-note
+  ([form binding-map]
+     (add-binding-note (parse-facts/midjcoexpand form) binding-map))
+  ([form]
+     (expand-and-add-binding-note form (ordered-map '?a 'a))))
 
-         ?comment ?original ?expected
+(def binding-notes-from (comp filter-checkable-maps expand-and-add-binding-note))
 
-         "binding notes can be inserted"
-         (as-received-by-add-binding-note
-          '(do (midje.semi-sweet/expect (a) => b)
-               (do (midje.semi-sweet/expect (inc a) => M))))
-          
-         (as-received-by-add-binding-note
-          '(do (midje.semi-sweet/expect (a) => b :binding-note "[?a a]")
-               (do (midje.semi-sweet/expect (inc a) => M :binding-note "[?a a]"))))
+(fact "binding notes"
+  (fact "can be inserted"
+    (binding-notes-from '(fact 1 => 1)) => (just (contains {:binding-note "[?a a]"})))
+  
+  (fact "are inserted into every checkable"
+    (binding-notes-from '(fact 1 => 1
+                               2 => 2)) => (just (contains {:binding-note "[?a a]"})
+                                                (contains {:binding-note "[?a a]"})))
+  
+  (future-fact "are added to nested facts"
+    (binding-notes-from '(fact 1 => 1 (fact 2 => 2))) => (just (contains {:binding-note "[?a a]"})
+                                                               (contains {:binding-note "[?a a]"})))
 
-         "fakes do not get insertions"
-         (as-received-by-add-binding-note
-          '(do (midje.semi-sweet/expect (a) => b
-                                        (midje.semi-sweet/fake (x) => 3))))
+  (fact "are not added to prerequisites"
+    (binding-notes-from '(fact (f 1) => 1 (provided (g 1) => 2))) => (just (contains {:binding-note "[?a a]"})))
 
-         (as-received-by-add-binding-note
-          '(do (midje.semi-sweet/expect (a) => b :binding-note "[?a a]"
-                                        (midje.semi-sweet/fake (x) => 3))))
-
-         "other annotations are preserved"
-         (as-received-by-add-binding-note
-          '(do (midje.semi-sweet/expect (a) => b :line 33)))
-
-         (as-received-by-add-binding-note
-          '(do (midje.semi-sweet/expect (a) => b :binding-note "[?a a]" :line 33))))
-
-(fact "binding notes are in the order of the original row - this order is maintained within the ordered-binding-map"
-  (let [actual (add-binding-note
-                (as-received-by-add-binding-note
-                 '(do (expect 1 => 2)))
-                (ordered-map '?a 1, '?b 2, '?delta "0", '?result 3))
-        
-        expected (as-received-by-add-binding-note
-                  '(do (expect 1 => 2 :binding-note "[?a 1\n                           ?b 2\n                           ?delta \"0\"\n                           ?result 3]")))]
-    actual => expected))
+  (fact "are added in the left-to-right order of the original table"
+    (let [result (binding-notes-from '(fact (+ 1 2) => 3) (ordered-map :c 1, :b 2, :a 3))]
+      (count result) => 1
+      (:binding-note (first result)) => #"(?s):c 1.*:b 2.*:a 3")))
+    
     
 ;; tabular doc-string prints in report
 

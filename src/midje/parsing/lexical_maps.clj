@@ -33,8 +33,11 @@
     (midje.parsing.util.file-position/line-number-known 2)))
 ) ; ---------------------------------------------------------------
 
-;;;                                             Example maps
+;;;                                             Checkable maps
 
+(defn checkable-map? [value]
+  (and (map? value)
+       (::a-midje-checkable-map? value)))
 
 (defn example
   [call-form arrow expected-result overrides]
@@ -43,7 +46,8 @@
         override-map `(hash-map-duplicates-ok ~@overrides)
         line (:line (meta call-form))
         result `(merge
-                 {:function-under-test (fn [] ~call-form)
+                 {::a-midje-checkable-map? true
+                  :function-under-test (fn [] ~call-form)
                   :expected-result ~expected-result
                   :check-expectation ~(recognize/expect-match-or-mismatch arrow)
                   :expected-result-form '~expected-result ;; This is also part of the source details.
