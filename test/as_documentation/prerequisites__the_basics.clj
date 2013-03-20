@@ -233,13 +233,11 @@
     (provided
       (letter desired-letter & anything) => ..letter-result..)))
     
-
-
-    
-(future-fact "You can even apply a checker to the &rest argument"
+(fact "You can even apply a checker to the &rest argument"
   (find-letter) => ..letter-result..
   (provided
-    (letter & (as-checker (fn [actual] (prn actual) true))) => ..letter-result..))
+    (letter & (just "this" "doesn't" "match")) => ..bogus-result.. :times 0
+    (letter & (just "x" "y" "z")) => ..letter-result..))
 
 
   

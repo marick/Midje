@@ -16,20 +16,25 @@
     (fn [actual] (extended-= actual (exactly expected)))
     (fn [actual] (extended-= actual expected))))
 
-(defn mkfn:arg-matchers-with-arity
+(defn mkfn:arglist-matcher-fixed-arity
   "Generates a function that returns true if all the matchers return true for the actual args it's passed."
-  [matchers]
+  [& arg-descriptions]
   (fn [actual-args]
-    (let [arg-matchers (map mkfn:arg-matcher matchers)]
-       (and (= (count actual-args) (count arg-matchers))
-            (extended-list-= actual-args arg-matchers)))))
+    (extended-list-= actual-args
+                     (map mkfn:arg-matcher arg-descriptions))))
 
-(defn mkfn:arg-matchers-without-arity
-  "Generates a function that returns true if all the matchers return true but it ignores arity matching."
-  [matchers]
-  (fn [actual-args]
-    (let [arg-matchers (map mkfn:arg-matcher matchers)]
-       (extended-list-= actual-args arg-matchers))))
+(defn mkfn:arglist-matcher-allowing-optional-args
+  "Generates a function that attempts to match required and optional args."
+  [& arg-descriptions]
+  (let [required-count (- (count arg-descriptions) 2)
+        required-arglist-descriptions (take required-count arg-descriptions)
+        rest-arg-description (last arg-descriptions)
+        required-arg-matchers (map mkfn:arg-matcher required-arglist-descriptions)
+        rest-arg-matcher (mkfn:arg-matcher rest-arg-description)]
+    (fn [actual-args]
+      (let [[required-actual rest-actual] (split-at required-count actual-args)]
+        (and (extended-list-= required-actual required-arg-matchers)
+             (extended-= rest-actual rest-arg-matcher))))))
 
 (defmulti mkfn:result-supplier (fn [arrow & _] arrow))
 

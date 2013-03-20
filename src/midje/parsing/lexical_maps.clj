@@ -64,16 +64,11 @@
 ;; A fake map describes all or part of a temporary rebinding of a var with a function that
 ;; captures invocations and also returns canned values.
 
-(defn- arity-matcher? [arg]
-  (boolean (= arg (symbol "&"))))
-
-(defn- some-ignore-arity-matcher? [args]
-  (boolean (some arity-matcher? args)))
-
-(defn- arg-matchers-form [arg-matchers]
-  (if (some-ignore-arity-matcher? arg-matchers)
-    `(from-fake-maps/mkfn:arg-matchers-without-arity ~(vec (remove arity-matcher? arg-matchers)))
-    `(from-fake-maps/mkfn:arg-matchers-with-arity    ~(vec arg-matchers))))
+(defn- choose-mkfn-for-arglist-matcher [arg-matchers]
+  (letfn [(allows-optional-args? [args] (any? #(= % (symbol "&")) args))]
+    (if (allows-optional-args? arg-matchers)
+      `(from-fake-maps/mkfn:arglist-matcher-allowing-optional-args ~@arg-matchers)
+      `(from-fake-maps/mkfn:arglist-matcher-fixed-arity ~@arg-matchers))))
 
 (defn fake [call-form fnref args arrow result overrides]
   (let [source-details `{:call-form '~call-form
@@ -87,7 +82,7 @@
                   :var ~(fnref/as-var-form fnref)
                   :value-at-time-of-faking (if (bound? ~(fnref/as-var-form fnref))
                                              ~(fnref/as-form-to-fetch-var-value fnref))
-                  :arg-matchers ~(arg-matchers-form args)
+                  :arg-matchers ~(choose-mkfn-for-arglist-matcher args)
                   :result-supplier (from-fake-maps/mkfn:result-supplier ~arrow ~result)
                   :times :default  ; Default allows for a more attractive error in the most common case.
                   

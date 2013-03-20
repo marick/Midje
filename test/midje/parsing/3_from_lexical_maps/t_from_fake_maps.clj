@@ -10,8 +10,7 @@
 
 (tabular
   (facts "the arg matcher maker handles functions specially"
-   ((mkfn:arg-matchers-with-arity    [?expected]) [?actual]) => ?result
-   ((mkfn:arg-matchers-without-arity [?expected]) [?actual]) => ?result)
+   ((apply mkfn:arglist-matcher-fixed-arity       [?expected]) [?actual]) => ?result)
 ?expected              ?actual         ?result
 1                      1               TRUTHY
 1                      odd?            falsey
@@ -34,12 +33,25 @@ anything               odd?            TRUTHY
 odd?                   odd?            TRUTHY
 odd?                   3               falsey)
 
-(fact "false if there is an arity mismatch"
-  ((mkfn:arg-matchers-with-arity [anything]) [1 2 3]) => falsey)
+(fact "sometimes an arglist must be matched exactly"
+  ((mkfn:arglist-matcher-fixed-arity 1 2) [1    ]) => falsey
+  ((mkfn:arglist-matcher-fixed-arity 1 2) [1 2  ]) => truthy
+  ((mkfn:arglist-matcher-fixed-arity 1 2) [1 2 3]) => falsey)
+    
+(fact "an arglist can allow rest args"
+  ((mkfn:arglist-matcher-allowing-optional-args 1 2 & anything) [1    ]) => falsey
+  ((mkfn:arglist-matcher-allowing-optional-args 1 2 & anything) [1 2  ]) => truthy
+  ((mkfn:arglist-matcher-allowing-optional-args 1 2 & anything) [1 2 3]) => truthy
 
-(fact "ignoring arity mismatches"
-  ((mkfn:arg-matchers-without-arity [anything]) [1 2 3]) => TRUTHY)
+  (fact "the required args are treated the same as the fixed-arity case"
+    ( (mkfn:arglist-matcher-allowing-optional-args 1 even?              & anything) [1 2 3]) => falsey
+    ( (mkfn:arglist-matcher-allowing-optional-args 1 (as-checker even?) & anything) [1 2 3]) => truthy)
 
+  (fact "the argument after the & is treated as a checker"
+    ((mkfn:arglist-matcher-allowing-optional-args 1 2 & (as-checker empty?)) [1 2]) => truthy
+    ((mkfn:arglist-matcher-allowing-optional-args 1 2 &             empty? ) [1 2]) => falsey
+    ((mkfn:arglist-matcher-allowing-optional-args 1 2 & (as-checker empty?)) [1 2 3]) => falsey))
+  
 (facts "about result suppliers used"
   "returns identity for =>"
   (let [arrow "=>"]
