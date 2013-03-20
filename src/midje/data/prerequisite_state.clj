@@ -33,9 +33,8 @@
   (= function-var (:var fake)))
 
 (defmethod call-handled-by-fake? :default [function-var actual-args fake]
-  (let [arg-matchers-fn (:arg-matchers fake)]
-    (and (= function-var (:var fake))
-       (arg-matchers-fn actual-args))))
+  (and (= function-var (:var fake))
+       ((:arglist-matcher fake) actual-args)))
 
 (defn usable-default-function? [fake]
   (when config/*allow-default-prerequisites*

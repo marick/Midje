@@ -88,11 +88,11 @@ maps are stored in `parsing/lexical_maps.clj`.
 
 The lexical map shown above uses only core Clojure. Other
 maps might not. For example, a `fake` map uses Midje
-functions to generate matching functions:
+functions to generate functions:
 
 ```clojure
-    {:arg-matchers (map mkfn:arg-matcher [1 (roughly 2)])
-     :result-supplier (mkfn:result-supplier lexical-var)}
+    {:result-supplier (from-fake-maps/mkfn:result-supplier lexical-var)
+     :arglist-matcher (from-fake-maps/mkfn:arglist-matcher-fixed-arity ...)}
 ```
 
 Such functions are defined in the `3_*` directory.

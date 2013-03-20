@@ -64,11 +64,11 @@
 ;; A fake map describes all or part of a temporary rebinding of a var with a function that
 ;; captures invocations and also returns canned values.
 
-(defn- choose-mkfn-for-arglist-matcher [arg-matchers]
+(defn- choose-mkfn-for-arglist-matcher [arg-descriptions]
   (letfn [(allows-optional-args? [args] (any? #(= % (symbol "&")) args))]
-    (if (allows-optional-args? arg-matchers)
-      `(from-fake-maps/mkfn:arglist-matcher-allowing-optional-args ~@arg-matchers)
-      `(from-fake-maps/mkfn:arglist-matcher-fixed-arity ~@arg-matchers))))
+    (if (allows-optional-args? arg-descriptions)
+      `(from-fake-maps/mkfn:arglist-matcher-allowing-optional-args ~@arg-descriptions)
+      `(from-fake-maps/mkfn:arglist-matcher-fixed-arity ~@arg-descriptions))))
 
 (defn fake [call-form fnref args arrow result overrides]
   (let [source-details `{:call-form '~call-form
@@ -82,7 +82,7 @@
                   :var ~(fnref/as-var-form fnref)
                   :value-at-time-of-faking (if (bound? ~(fnref/as-var-form fnref))
                                              ~(fnref/as-form-to-fetch-var-value fnref))
-                  :arg-matchers ~(choose-mkfn-for-arglist-matcher args)
+                  :arglist-matcher ~(choose-mkfn-for-arglist-matcher args)
                   :result-supplier (from-fake-maps/mkfn:result-supplier ~arrow ~result)
                   :times :default  ; Default allows for a more attractive error in the most common case.
                   
