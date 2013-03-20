@@ -66,7 +66,8 @@
 (defn extended-list-=
   "Element-by-element comparison, using extended-= for the right-hand-side values."
   [actual-args checkers]
-  (every? (partial apply extended-=) (vertical-slices actual-args checkers)))
+  (and (= (count actual-args) (count checkers))
+       (every? (partial apply extended-=) (vertical-slices actual-args checkers))))
 
 ;;; An element of extended-= is that an actual map cannot match an expected record (or type).
 ;;; That produces a plain `false` above. If client code wants to be more informative, it

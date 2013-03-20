@@ -51,7 +51,12 @@
   (extended-list-= [] []) => truthy
   (extended-list-= [1] [1]) => truthy
   (extended-list-= ['()] [seq?]) => truthy
-  (extended-list-= ['() 1] [seq? seq?]) => falsey)
+  (extended-list-= ['() 1] [seq? seq?]) => falsey
+
+  (fact "counts must match"
+    (extended-list-= [] [1]) => falsey
+    (extended-list-= [1] []) => falsey))
+    
 
 (defrecord AB [a b])
 (defrecord AB2 [a b])
