@@ -9,7 +9,7 @@
 
                                             ;;; Basics 
 
-  ;; This is the simplest form of a fact. It has two *predictions*.
+  ;; This is the simplest form of a fact. It has two *checkables*.
   (fact "addition works in Clojure"
     ;; Because addition works, we predict the following whenever Midje is run
     ;; for this file.
@@ -21,10 +21,10 @@
     (+ 10 10) => 20
     (+ 20 20) => 40)
   
-  (facts "`Facts` is a synonym for `fact`. It doesn't require multiple predictions."
+  (facts "`Facts` is a synonym for `fact`. It doesn't require multiple checkables."
     (+ 1 1) => 2)
   
-  (silent-fact "Predictions fail individually."
+  (silent-fact "Checkables fail individually."
     (+ 1 1) => 2
     (+ 2 2) => 3)
   (note-that (fails 1 time), (fact-expected 3), (fact-actual 4))
@@ -45,7 +45,7 @@
    (fact @fact-output => #"WORK TO DO.*do something someday"))
 
   (capturing-fact-output
-   (fact "Individual predictions can be marked as 'not yet true'"
+   (fact "Individual checkables can be marked as 'not yet true'"
      (+ 1 1) => 2
      (- 1 1) =future=> 0)
    (fact
