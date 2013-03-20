@@ -3,6 +3,11 @@
   midje.checkers
   (:use midje.clojure.core))
 
+
+(when-not (resolve '&)
+  (let [docstring "This var is defined so that Midje prerequisites can use & for optional args without having to quote it."]
+    (intern *ns* (vary-meta '& assoc :doc docstring) docstring)))
+
 (letfn [(republish [namespace symbols]
           (require namespace)
           (doseq [sym symbols]
@@ -17,7 +22,7 @@
   (republish 'midje.checking.checkers.chatty
              '[chatty-checker])
   (republish 'midje.checking.checkers.simple
-             '[truthy falsey TRUTHY FALSEY & anything irrelevant exactly throws roughly])
+             '[truthy falsey TRUTHY FALSEY anything irrelevant exactly throws roughly])
   (republish 'midje.checking.checkers.combining
              '[every-checker some-checker])
   (republish 'midje.checking.checkers.collection
