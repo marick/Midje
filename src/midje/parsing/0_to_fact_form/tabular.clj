@@ -1,6 +1,7 @@
 (ns ^{:doc "A way to create multiple facts with the same template, but different data points."}
   midje.parsing.0-to-fact-form.tabular
-  (:use [midje.parsing.util.zip]
+  (:use midje.clojure.core
+        midje.parsing.util.zip
         [midje.parsing.util.file-position :only [form-with-copied-line-numbers]]
         [midje.emission.deprecation :only [deprecate]]
         [midje.parsing.util.zip :only [skip-to-rightmost-leaf]]
@@ -8,9 +9,10 @@
         [midje.data.metaconstant :only [metaconstant-symbol?]]
         [utilize.map :only [ordered-zipmap]])
 (:require [clojure.string :as str]
+          [clojure.zip :as zip]
           [midje.util.unify :as unify]
           [midje.parsing.util.overrides :as override]
-          [midje.parsing.util.recognizing :as recognize]
+          [midje.parsing.lexical-maps :as maps]
           [midje.parsing.1-to-explicit-form.metadata :as metadata]
           [midje.parsing.util.error-handling :as error]))
 
@@ -48,7 +50,7 @@
   ;;    (creation-time-check
   ;;      (letfn [...] <letfn-body>
   ;;
-  ;; It is the <letfn-body> that must be searched for expect forms,
+  ;; It is the <letfn-body> that must be searched for the construction of checkable maps,
   ;; which then have annotations added to them.
   (letfn [(headed-by? [form string]
             (and (sequential? form)
@@ -68,14 +70,17 @@
                                    (second possible-letfn))]
             (-> definite-letfn second first rest second)))
 
-          (translate-letfn-body [expect-containing-form]
-           (translate-zipper expect-containing-form
-                             recognize/expect? one-binding-note))
+          (translate-letfn-body [checkable-containing-form]
+            ;; TODO: Nested facts lead to nested letfns, and that stops processing,
+            ;; so nested facts don't get binding annotations.
+            (translate-zipper checkable-containing-form
+                              (comp maps/checkable-map? zip/node)
+                              one-binding-note))
 
           (one-binding-note [loc]
-            (skip-to-rightmost-leaf
-             (override/above-arrow-sequence__add-key-value__at-arrow
-              :binding-note (format-binding-map ordered-binding-map) loc)))]
+            (zip/replace loc
+                         (assoc (clojure.zip/node loc) 
+                                :binding-note (format-binding-map ordered-binding-map))))]
 
     (if (acceptable-body?)
       (let [letfn-body (target-body)]
