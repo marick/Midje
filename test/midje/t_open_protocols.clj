@@ -1,15 +1,22 @@
 (ns midje.t-open-protocols
-  (:use midje.open-protocols)
-  (:use [midje sweet test-util]))
+  (:use midje.open-protocols
+        midje.sweet
+        midje.test-util
+        midje.util))
+(expose-testables midje.open-protocols)
 
-;; The end-to-endish tests are under tests/behaviors.
-
-(fact "can distinguish a protocol name from a function implementation"
-  (#'midje.open-protocols/implementation? 'REDEEMABLE) => falsey
-   (#'midje.open-protocols/implementation? '(fake-me [this f] form1 form2)) => truthy)
-
+(fact "can distinguish a protocol/interface name from a function implementation"
+  (implementation? 'Object) => false
+  (implementation? '(fake-me [this f] form1 form2)) => true)
 
 (defprotocol P (f [this x]))
+
+(fact "can distinguish a protocol from an interface"
+  (protocol? 'Object) => false
+  (protocol? 'java.lang.Comparable) => false
+  (protocol? 'P) => true)
+
+
 (let [type-or-record-tail '([a b c] P (f [this x] (+ x a b c)))
       in-typ             (list* 'deftype-openly 'T type-or-record-tail)
       unexpanded-out-typ (list* 'clojure.core/deftype        'T type-or-record-tail)

@@ -121,3 +121,31 @@
    (pzero? anything) => true))
 (note-that fact-fails, (fact-expected '(psuccessor (padd (Peano. ...a...) (Peano. ...b...)))))
 
+
+
+;;; When you deftype a Java class or interface, no function is
+;;; created, therefore you cannot treat it as a prerequisite. 
+
+(defprotocol Fearful
+  (fear? [this]))
+
+(deftype-openly Fear []
+  Fearful
+  (fear? [this] true)
+  Comparable
+  (compareTo [this that] -1)
+  Object
+  (toString [this] "object"))
+
+(fact "The Java functions are harmlessly skipped."
+  (fear? (Fear.)) => true
+  (.compareTo (Fear.) :anything) => -1
+  (.toString (Fear.)) => "object")
+
+(fact "Only the protocol function can be mocked."
+  (resolve 'compareTo) => falsey
+  (resolve 'toString) => falsey
+  (let [fear (Fear.)]
+    (fear? fear) => :faked
+    (provided
+      (fear? fear) => :faked)))
