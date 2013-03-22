@@ -13,23 +13,33 @@
   [name-or-impl]
   (not (symbol? name-or-impl)))
 
-(letfn [(open-spec
-          ;;Return function that checks if its name has been bound to a fake-function.
-          [[name args & body]]
-          `(~name ~args
-             (if (implements-a-fake? ~name)
-               (apply ~name ~args)
-               (do ~@body))))
+(defn- ^:testable protocol?
+  "Is this a java interface or class (like Object) or a Clojure protocol?"
+  [symbol]
+  (not (instance? java.lang.Class (resolve symbol))))
 
-        (revised-specs [specifications]
-          (for [spec specifications]
-            (if (and (user-desires-checking?) (implementation? spec))
-              (open-spec spec)
-              spec)))]
+(defn- rewrite-as-mockable-function [[name args & body]]
+  `(~name ~args
+      (if (implements-a-fake? ~name)
+        (apply ~name ~args)
+        (do ~@body))))
 
-  (defmacro deftype-openly [name fields & specs]
-    `(deftype ~name ~fields ~@(revised-specs specs)))
+(defn- rewrite-def*-body [body]
+  (if (user-desires-checking?)
+    (first
+     (reduce (fn [[revised-body working-on-protocol?] form]
+               (if (implementation? form)
+                 (vector (conj revised-body (if working-on-protocol? (rewrite-as-mockable-function form) form))
+                         working-on-protocol?)
+                 (vector (conj revised-body form)
+                         (protocol? form))))
+             [[] false]
+             body))
+    body))
 
-  (defmacro defrecord-openly [name fields & specs]
-    `(defrecord ~name ~fields ~@(revised-specs specs))))
+(defmacro deftype-openly [name fields & specs]
+  `(deftype ~name ~fields ~@(rewrite-def*-body specs)))
+
+(defmacro defrecord-openly [name fields & specs]
+  `(defrecord ~name ~fields ~@(rewrite-def*-body specs)))
 
