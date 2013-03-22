@@ -237,7 +237,7 @@
   (find-letter) => ..letter-result..
   (provided
     (letter & (just "this" "doesn't" "match")) => ..bogus-result.. :times 0
-    (letter & (just "x" "y" "z")) => ..letter-result..))
+    (letter & (contains ["x" "y"])) => ..letter-result..))
 
 
   
