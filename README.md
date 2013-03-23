@@ -39,7 +39,7 @@ the repl in an idiomatic way.
 Here's the start of a typical Midje repl session:
 
 ![](https://raw.github.com/marick/midje-clojure-test-tutorial/master/images/plain/3.jpg)
-
+ 
 Midje has loaded the tests and run them for the first time.
 It's also watching for file changes. When it sees them, it
 loads the changed files and any dependencies. But notice
