@@ -1,4 +1,4 @@
-(ns behaviors.t-protocols-support
+(ns user.fus-protocols.protocols-defined-in-another-namespace
   (:use midje.open-protocols))
 
 (defprotocol RecordFakeable

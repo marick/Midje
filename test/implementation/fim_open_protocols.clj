@@ -1,4 +1,4 @@
-(ns midje.t-open-protocols
+(ns implementation.fim-open-protocols
   (:use midje.open-protocols
         midje.sweet
         midje.test-util
