@@ -1,5 +1,5 @@
 Available via [clojars](http://clojars.org/search?q=midje)   
-Current stable version: [midje "1.5.0"]  - [what's new](https://github.com/marick/Midje/wiki/What%27s-new-in-midje-1.5)    
+Current stable version: [midje "1.5.1"]  - [what's new](https://github.com/marick/Midje/wiki/What%27s-new-in-midje-1.5)    
 Development version: [midje "1.6-SNAPSHOT"]  - [what's new](https://github.com/marick/Midje/wiki/What%27s-new-in-midje-1.6)    
 
 [![Build Status](https://travis-ci.org/marick/Midje.png?branch=master)](https://travis-ci.org/marick/Midje)
