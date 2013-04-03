@@ -16,7 +16,7 @@
                  [org.clojure/tools.namespace "0.2.2"]
                  [slingshot "0.10.3"]
                  [commons-codec/commons-codec "1.6"]
-                 [gui-diff "0.3.9"]]
+                 [gui-diff "0.5.0"]]
   :profiles {:dev {:dependencies [[slamhound "1.2.0"]
                                   [jonase/kibit "0.0.3"]
                                   [jonase/eastwood "0.0.2"]]
