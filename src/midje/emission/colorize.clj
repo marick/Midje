@@ -2,13 +2,21 @@
             Midje output be ergonomically colorful."}
   midje.emission.colorize
   (:require [colorize.core :as color]
-            [clojure.string :as str])
+            [clojure.string :as str]
+            [midje.config :as config])
   (:use [midje.util.ecosystem :only [getenv on-windows?]]))
 
+(defn colorize-setting []
+  (config/choice :colorize))
 
-(defn colorize-choice []
+(defn- colorize-config-as-str []
+  (let [setting-as-str (str (colorize-setting))]
+    (when-not (str/blank? setting-as-str) setting-as-str)))
+
+(defn- colorize-choice []
   (str/upper-case (or (getenv "MIDJE_COLORIZE")
-                    (str (not (on-windows?))))))
+                      (colorize-config-as-str)
+                      (str (not (on-windows?))))))
 
 (defn init! []
   (case (colorize-choice)

@@ -1,11 +1,8 @@
 (ns ^{:doc "Functions for Midje to deal elegantly with exceptions."}
   midje.util.exceptions
   (:use [clojure.string :only [join]]
-        [midje.util.ecosystem :only [line-separator]])
-  (:require
-    [midje.emission.colorize :as colorize]))
+        [midje.util.ecosystem :only [line-separator]]))
 
-(colorize/init!)
 
 ;;; Creating 
 

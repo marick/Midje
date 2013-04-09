@@ -16,6 +16,8 @@
     ( (ns-resolve 'midje.emission.api 'load-plugin)
       ( (ns-resolve 'midje.config 'choice) :emitter))
 
+    ((ns-resolve 'midje.emission.colorize 'init!))
+
     ((ns-resolve 'midje.emission.state 'no-more-plugin-installation))
     (alter-var-root #'bootstrapped (constantly true))))
 
