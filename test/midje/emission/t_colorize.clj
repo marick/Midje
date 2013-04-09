@@ -6,7 +6,7 @@
 (tabular
   (fact "wraps string in ascii color when env variable is not explicitly set to FALSE"
     (do
-      (require '[midje.emission.colorize :as color] :reload ) ;; enables 'provided' to take
+      (color/init!)
       (?color-fn "string")) => ?result
     (provided
       (on-windows?) => ?on-windows :times (range)
@@ -26,7 +26,7 @@
   color/note   nil          true            "string")
 
 ;; Reset to user's default colorization.
-(require '[midje.emission.colorize] :reload )
+(color/init!)
 
 
 (fact "access environment vars only when namespace is loaded"

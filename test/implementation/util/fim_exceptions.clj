@@ -1,8 +1,11 @@
 (ns implementation.util.fim-exceptions
   (:use [midje.util.exceptions]
-        [midje.emission.colorize :only [colorize-choice]]
 	      [midje sweet test-util]
-        midje.util))
+        [midje.util])
+  (:require
+    [midje.emission.colorize :as colorize))
+
+(colorize/init!)
 (expose-testables midje.util.exceptions)
 
 (defrecord R [a])
