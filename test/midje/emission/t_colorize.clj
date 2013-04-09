@@ -28,6 +28,7 @@
   color/fail   "FALSE"  true         false           "string"
   color/fail   nil      false        false           "string"
   color/fail   "TRUE"   false        false           "\u001b[31mstring\u001b[0m"
+  color/fail   nil      :reverse     false           "\u001b[41mstring\u001b[0m"
 
   color/note  "FALSE"   nil          false           "string"
   color/note  "TRUE"    nil          false           "\u001b[36mstring\u001b[0m"

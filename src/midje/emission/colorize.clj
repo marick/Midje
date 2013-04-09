@@ -25,7 +25,7 @@
              (def pass color/green)
              (def note color/cyan))
 
-    "REVERSE" (do
+    ("REVERSE" ":REVERSE") (do
                 (def fail color/red-bg)
                 (def pass color/green-bg)
                 (def note color/cyan-bg))
