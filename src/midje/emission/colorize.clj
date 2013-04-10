@@ -10,7 +10,9 @@
   (config/choice :colorize))
 
 (defn- colorize-config-as-str []
-  (let [setting-as-str (str (colorize-setting))]
+  (let [setting (colorize-setting)
+        setting (if (keyword? setting) (name setting) setting)
+        setting-as-str (str setting)]
     (when-not (str/blank? setting-as-str) setting-as-str)))
 
 (defn- colorize-choice []
@@ -25,7 +27,7 @@
              (def pass color/green)
              (def note color/cyan))
 
-    ("REVERSE" ":REVERSE") (do
+    "REVERSE" (do
                 (def fail color/red-bg)
                 (def pass color/green-bg)
                 (def note color/cyan-bg))
