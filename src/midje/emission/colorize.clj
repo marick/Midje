@@ -3,35 +3,38 @@
   midje.emission.colorize
   (:require [colorize.core :as color]
             [clojure.string :as str]
-            [midje.config :as config])
-  (:use [midje.util.ecosystem :only [getenv on-windows?]]))
+            [midje.config :as config]
+            [midje.util.ecosystem :as ecosystem]))
 
-(defn colorize-setting []
-  (config/choice :colorize))
+;; This indirection is required so that the tests of this
+;; file can fake the prerequisite
+(def config-choice config/choice)
 
-(defn- colorize-config-as-str []
-  (let [setting (colorize-setting)
-        setting (if (keyword? setting) (name setting) setting)
-        setting-as-str (str setting)]
-    (when-not (str/blank? setting-as-str) setting-as-str)))
+(defn- config-choice-as-string []
+  (let [choice (config-choice :colorize)]
+    (if (keyword? choice)
+      (name choice)
+      (str choice))))
 
-(defn- colorize-choice []
-  (str/upper-case (or (getenv "MIDJE_COLORIZE")
-                      (colorize-config-as-str)
-                      (str (not (on-windows?))))))
+(defn- colorize-string []
+  (str/upper-case (or (ecosystem/getenv "MIDJE_COLORIZE")
+                      (config-choice-as-string))))
 
 (defn init! []
-  (case (colorize-choice)
-    "TRUE" (do
-             (def fail color/red)
-             (def pass color/green)
-             (def note color/cyan))
+  (case (colorize-string)
+    "TRUE"
+    (do
+      (def fail color/red)
+      (def pass color/green)
+      (def note color/cyan))
+    
+    "REVERSE"
+    (do
+      (def fail color/red-bg)
+      (def pass color/green-bg)
+      (def note color/cyan-bg))
 
-    "REVERSE" (do
-                (def fail color/red-bg)
-                (def pass color/green-bg)
-                (def note color/cyan-bg))
-
+    ;; else
     (do
       (def fail str)
       (def pass str)

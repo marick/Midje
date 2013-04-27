@@ -35,7 +35,7 @@
 
 (defonce ^{:dynamic true}
   *config* {:print-level :print-normally
-            :colorize nil
+            :colorize (not (ecosystem/on-windows?))
             :visible-deprecation true
             :visible-future true
             :visible-failure-namespace false
