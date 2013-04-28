@@ -8,7 +8,7 @@
             [midje.emission.colorize :as color]
             [midje.util.exceptions :as exception]
             [midje.config :as config]
-            gui-diff.internal))
+            gui.diff))
 
 
 ;; The theory here was that using clojure.test output would allow text
@@ -27,7 +27,7 @@
 (defn indented [lines]
   (map (partial str "        ") lines))
 
-(def sorted-if-appropriate gui-diff.internal/nested-sort)
+(def sorted-if-appropriate gui.diff/nested-sort)
 
 (defn linearize-lines
   "Takes a nested structure that contains nils and strings.
