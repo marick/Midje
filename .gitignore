@@ -14,3 +14,4 @@ semantic.cache
 .lein-repl-history
 target
 tmp/
+report.xml
