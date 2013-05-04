@@ -90,11 +90,6 @@
     (str "It should be the identity for value " v) ;; doc string needn't be constant
     (a-fun v) => v))
 
-; http://github.com/marick/Midje/issues/#issue/2
-(fact
-  (expect (always-one 5) => 1
-          (not-called a-fun)))
-
 (binding [midje.semi-sweet/*include-midje-checks* false]
   (load "sweet_compile_out"))
 

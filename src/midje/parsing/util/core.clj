@@ -22,7 +22,7 @@
     (some #(= % (str node)) (concat base-names semi-sweet-names sweet-names))))
 
 (defn semi-sweet-keyword? [loc]
-  (matches-symbols-in-semi-sweet-or-sweet-ns? '(expect fake not-called data-fake) loc))
+  (matches-symbols-in-semi-sweet-or-sweet-ns? '(expect fake data-fake) loc))
 
 
 (defn symbol-named?

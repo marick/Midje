@@ -32,7 +32,7 @@
 ;; rather than midje.semi_sweet_test. Since 'fake' is used only in the latter,
 ;; the tests fail.
 ;;
-;; FURTHERMORE, I wanted to use set operations to check for fake and not-called,
+;; FURTHERMORE, I wanted to use set operations to check for fake
 ;; but those fail for reasons I don't understand. Bah.
 (defn expect-match-or-mismatch [arrow]
   (condp = (name arrow) 
@@ -131,5 +131,4 @@
 
 (defn fake? [form]
   (or (first-named? form "fake")
-      (first-named? form "data-fake")
-      (first-named? form "not-called")))
+      (first-named? form "data-fake")))

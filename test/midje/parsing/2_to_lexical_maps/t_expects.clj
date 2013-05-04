@@ -37,10 +37,6 @@
     actual => [  '[(fake (f 1) => 2)]
                  '[:key 'value] ])
 
-  (let [actual (separate recognize/fake?  '( (not-called some-function) :key 'value))]
-    actual => [ '[(not-called some-function)]
-                '[:key 'value] ])
-
   ;; often passed a seq.
   (let [actual (separate recognize/fake?  (seq '( (fake (f 1) => 2) :key 'value)))]
     actual => [  '[(fake (f 1) => 2)]
@@ -103,16 +99,6 @@
     (expect (+ 1 3) => nil))
   (note-that fact-fails, (fact-expected nil), (fact-actual 4))
 
-  (fact "not-called in the first position"
-    (expect (function-under-test) => 33
-            (not-called no-caller)
-            (fake (mocked-function) => 33)))
-
-  (fact "not-called in last position"
-    (expect (function-under-test) => 33
-            (fake (mocked-function) => 33)
-            (not-called no-caller)))
-
   (silent-fact "mocked calls go fine, but function under test produces the wrong result"
      (expect (function-under-test 33) => 12
              (fake (mocked-function 33) => (not 12) )))
@@ -122,16 +108,6 @@
      (expect (no-caller) => "irrelevant"
              (fake (mocked-function) => 33)))
   (note-that fact-fails, (the-prerequisite-was-never-called))
-
-  ;;; This causes an java.lang.AbstractMethodError in Clojure 1.4,
-  ;;; 1.5. Clojure bug?  In any case, since not-called is deprecated
-  ;;; and :times 0 works, I'm not that worried about it. Also, it only
-  ;;; happens because the function under test uses apply to call the mocked function.
-  ;;; Direct call is no problem.
-  (future-fact "mock call was not supposed to be made, but was (non-zero call count)"
-      (expect (function-under-test 33) => "irrelevant"
-              (not-called mocked-function)))
-  ; (note-that fact-fails, (the-prerequisite-was-incorrectly-called 1 :time))
 
   (fact "call not from inside function"
     (expect (+ (mocked-function 12) (other-function 12)) => 12

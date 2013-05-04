@@ -26,33 +26,23 @@
 
 ;;; Interface: unfinished
 
-(letfn [(unfinished* [names]
-          (pile/macro-for [name names]
-            `(do
-               (defn ~name [& args#]
-                 (let [pprint# (partial cl-format nil "~S")]
-                   (throw (user-error (format "#'%s has no implementation, but it was called like this:%s(%s %s)" 
-                                        '~name line-separator '~name (join " " (map pprint# args#)))))))
-             
-               ;; A reliable way of determining if an `unfinished` function has since been defined.
-               (alter-meta! (var ~name) assoc :midje/unfinished-fun ~name)
-               :ok)))]
+(defn- unfinished* [names]
+  (pile/macro-for [name names]
+     `(do
+        (defn ~name [& args#]
+          (let [pprint# (partial cl-format nil "~S")]
+            (throw (user-error (format "#'%s has no implementation, but it was called like this:%s(%s %s)" 
+                                       '~name line-separator '~name (join " " (map pprint# args#)))))))
+        
+        ;; A reliable way of determining if an `unfinished` function has since been defined.
+        (alter-meta! (var ~name) assoc :midje/unfinished-fun ~name)
+        :ok)))
 
-  (defmacro unfinished
+(defmacro unfinished
     "Defines a list of names as functions that have no implementation yet. They will
      throw Errors if ever called."
     [& names] (unfinished* names))
   
-  (defmacro only-mocked 
-    "Defines a list of names as functions that have no implementation yet. They will
-     throw Errors if ever called.
-     DEPRECATED: Prefer `unfinished`."
-    {:deprecated "1.3-alpha2"}
-    [& names]
-    (deprecate "`only-mocked` will be removed in version 1.6. Use `unfinished` instead.")
-    (unfinished* names)))
-
-
 
 ;;; Interface: production mode
 
@@ -100,14 +90,5 @@
     (parse-expects/to-lexical-map-form &form)))
 
 
-(defmacro not-called
-  "Creates an fake map that a function will not be called.
-   Example: (not-called f))
-   DEPRECATED: Prefer `:times 0` annotation to `fake`, ex. (provided (f) => irrelevant :times 0))"
-  {:deprecated "1.3-alpha2"
-   :arglists '([var-sym & overrides])}
-  [var-sym & overrides]
-  (deprecate "`not-called` (and the entire midje.semi-sweet namespace) will be removed in 1.6. Use `(provided (f) => irrelevant :times 0)` instead.")
-  (let [fake-form `(fake (~var-sym) => "doesn't matter" ~@(concat overrides [:times 0]))]
-    (with-meta fake-form {:line (meta &form)})))
+
 
