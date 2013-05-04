@@ -202,10 +202,15 @@
  (fact
    @fact-output => #"\(first thing\) does not look like"))
 
- (silent-fact "It also complains if there are no facts nested inside it"
-   (against-background [(f 1) => 1]
-     (inc (f 1)) => 2))
+(silent-fact "It also complains if there are no facts nested inside it"
+  (against-background [(f 1) => 1]
+    (inc (f 1)) => 2))
 (note-that parse-error-found (fact-failed-with-note #"against-background.*only affect nested facts"))
+
+(fact "Nested future-facts do not trigger the complaint"
+  (macroexpand-1 '(against-background [(f 1) => 1] (future-fact (+ 1 1) => 3))))
+
+  
 
 ;; It would be nice if it didn't complain about outer-level against-backgrounds
 ;; with nothing inside them, but that's more trouble than it's worth.

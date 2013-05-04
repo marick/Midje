@@ -201,9 +201,17 @@
 
 (def against-background-forms-without-enclosed-facts (atom []))
 
+(defn note-new-nesting-level! []
+  (swap! against-background-forms-without-enclosed-facts #(cons :any-old-value %)))
+(defn decrease-nesting-level! []
+  (swap! against-background-forms-without-enclosed-facts rest))
+(defn note-fact! []
+  (reset! against-background-forms-without-enclosed-facts []))
+
+
 (defmacro expecting-nested-facts [form & body]
   `(try
-     (swap! against-background-forms-without-enclosed-facts #(cons 'token %))
+     (note-new-nesting-level!)
      (let [result# ~@body]
        (when-not (empty? @against-background-forms-without-enclosed-facts)
          (error/report-error ~form
@@ -224,7 +232,5 @@
                              "      (against-background (f 1) => 1)) "))
        result#)
      (finally
-      (swap! against-background-forms-without-enclosed-facts rest))))
+      (decrease-nesting-level!))))
 
-(defn note-fact! []
-  (reset! against-background-forms-without-enclosed-facts []))
