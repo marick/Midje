@@ -26,23 +26,6 @@
 
 ;;; Interface: unfinished
 
-(defn- unfinished* [names]
-  (pile/macro-for [name names]
-     `(do
-        (defn ~name [& args#]
-          (let [pprint# (partial cl-format nil "~S")]
-            (throw (user-error (format "#'%s has no implementation, but it was called like this:%s(%s %s)" 
-                                       '~name line-separator '~name (join " " (map pprint# args#)))))))
-        
-        ;; A reliable way of determining if an `unfinished` function has since been defined.
-        (alter-meta! (var ~name) assoc :midje/unfinished-fun ~name)
-        :ok)))
-
-(defmacro unfinished
-    "Defines a list of names as functions that have no implementation yet. They will
-     throw Errors if ever called."
-    [& names] (unfinished* names))
-  
 
 ;;; Interface: production mode
 

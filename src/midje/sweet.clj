@@ -17,7 +17,11 @@
   (:require midje.semi-sweet
             [midje.doc :as doc]
             midje.checkers)
-  (:require [midje.parsing.util.recognizing :as recognize]
+  (:require [clojure.string :as str]
+            [midje.util.pile :as pile]
+            [midje.util.exceptions :as exceptions]
+            [midje.util.ecosystem :as ecosystem]
+            [midje.parsing.util.recognizing :as recognize]
             [midje.parsing.util.future-variants :as future-variants]
             [midje.parsing.util.error-handling :as error]
             [midje.parsing.util.wrapping :as wrapping]
@@ -34,6 +38,25 @@
 (immigrate 'midje.checkers)
 (immigrate 'midje.semi-sweet)
 
+
+(defn- unfinished* [names]
+  (pile/macro-for [name names]
+     `(do
+        (defn ~name [& args#]
+          (let [pprint# (partial cl-format nil "~S")]
+            (throw (exceptions/user-error (format "#'%s has no implementation, but it was called like this:%s(%s %s)" 
+                                                  '~name ecosystem/line-separator '~name
+                                                  (str/join " " (map pprint# args#)))))))
+        
+        ;; A reliable way of determining if an `unfinished` function has since been defined.
+        (alter-meta! (var ~name) assoc :midje/unfinished-fun ~name)
+        :ok)))
+
+(defmacro unfinished
+    "Defines a list of names as functions that have no implementation yet. They will
+     throw Errors if ever called."
+    [& names] (unfinished* names))
+  
 ;; Following two are required because `intern` doesn't transfer "dynamicity".
 (def ^{:doc "True by default.  If set to false, Midje checks are not
              included into production code, whether compiled or loaded."
