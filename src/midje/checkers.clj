@@ -27,6 +27,4 @@
              '[every-checker some-checker])
   (republish 'midje.checking.checkers.collection
              '[has has-suffix has-prefix just contains n-of
-              one-of two-of three-of four-of five-of six-of seven-of eight-of nine-of ten-of])
-  (republish 'midje.checking.checkers.deprecated
-             '[map-containing only-maps-containing maps-containing in-any-order]))
+              one-of two-of three-of four-of five-of six-of seven-of eight-of nine-of ten-of]))

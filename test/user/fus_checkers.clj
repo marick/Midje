@@ -1,21 +1,14 @@
-(ns midje.t-checkers
+(ns user.fus-checkers
   (:use midje.sweet
         midje.test-util))
 
-;; Make sure the published interface actually exists.
-
-(fact "simple checkers exist"
+(fact "simple checkers are exported into midje.sweet"
   1 => truthy
   nil => falsey
   'foo => anything
   odd? => (exactly odd?)
+  5 => (roughly 5)
   (throw (Error.)) => (throws Error))
-
-(fact "deprecated checkers"
-  [1 2 3] => (in-any-order [3 2 1])
-  {:a 1 :b 2} => (map-containing {:a 1})
-  [{:a 1} {:b 2}] => (maps-containing {:a 1} {:b 2})
-  [{:a 1} {:b 2}] => (only-maps-containing {:a 1} {:b 2}))
 
 (defn equality [expected]
   (chatty-checker [actual] (= actual expected)))
@@ -32,20 +25,21 @@
     
 
 
-(defn as-sets [& expected]
-  (let [set-of-sets #(set (map set %))]
-    (fn [actual]
-      ( (just (set-of-sets expected)) (set-of-sets actual)))))
-
-
-(silent-fact
- [ [1] [2 3] ] => (as-sets [ [1] ]))
-
 (future-fact "Failures from chatty-checkers-within-functions propagate chatty information"
-   @silent-fact:last-raw-failure => (contains {:type :actual-result-did-not-match-checker
-                                              :actual [ [1] [2 3]]
-                                              :expected-result-form '(as-sets [[1]])
-                                              :notes  ["Expected one element. There were two."]}))
+
+     (defn as-sets [& expected]
+       (let [set-of-sets #(set (map set %))]
+         (fn [actual]
+           ( (just (set-of-sets expected)) (set-of-sets actual)))))
+     
+     
+     (silent-fact
+       [ [1] [2 3] ] => (as-sets [ [1] ]))
+     
+     @silent-fact:last-raw-failure => (contains {:type :actual-result-did-not-match-checker
+                                                 :actual [ [1] [2 3]]
+                                                 :expected-result-form '(as-sets [[1]])
+                                                 :notes  ["Expected one element. There were two."]}))
 
 
 ;; The behavior of checkers is different in prerequisites
