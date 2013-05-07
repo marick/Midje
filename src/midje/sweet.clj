@@ -38,6 +38,26 @@
 (immigrate 'midje.checkers)
 (immigrate 'midje.semi-sweet)
 
+(def include-midje-checks
+  "True by default. If set to false, Midje checks are not
+   included into production code, whether compiled or loaded.
+
+   Note that the variable must be set, as with `alter-var-root`
+   or `def`, not bound, as with `binding`."
+  true)
+
+(defonce
+  ^{:doc "This variable is defunct. Use `include-midje-checks` instead."
+     :dynamic true}
+  *include-midje-checks* :original-truthy-value)
+
+(set-validator! #'*include-midje-checks*
+                (fn [val]
+                  (when-not (= val :original-truthy-value)
+                    (emit/fail {:type :parse-error
+                                :notes ["*include-midje-checks* is defunct. Use `include-midje-checks` instead."]
+                                :position (position/compile-time-fallback-position)}))
+                  true))
 
 (defn- unfinished* [names]
   (pile/macro-for [name names]
@@ -57,12 +77,6 @@
      throw Errors if ever called."
     [& names] (unfinished* names))
   
-;; Following two are required because `intern` doesn't transfer "dynamicity".
-(def ^{:doc "True by default.  If set to false, Midje checks are not
-             included into production code, whether compiled or loaded."
-       :dynamic true}
-  *include-midje-checks* *include-midje-checks*)
-
 (defalias before  background/before)
 (defalias after   background/after)
 (defalias around  background/around)
@@ -117,9 +131,8 @@
 
    Note that in this case the square brackets can be omitted."
   [background-forms & foreground-forms]
-  (if (user-desires-checking?)
-    (error/parse-and-catch-failure &form #(parse-facts/midjcoexpand &form))
-    `(do ~@foreground-forms)))
+  (when (user-desires-checking?)
+    (error/parse-and-catch-failure &form #(parse-facts/midjcoexpand &form))))
 
 (defmacro with-state-changes
   "Describe how state should change before or after enclosed facts. Example:
@@ -209,8 +222,9 @@
 (defmacro fact-group
   "Supply default metadata to all facts in the body."
   [& forms]
-  (let [[metadata body] (parse-metadata/separate-multi-fact-metadata forms)]
-    (parse-metadata/with-wrapped-metadata metadata 
-      (parse-facts/midjcoexpand `(do ~@body)))))
+  (when (user-desires-checking?)
+    (let [[metadata body] (parse-metadata/separate-multi-fact-metadata forms)]
+      (parse-metadata/with-wrapped-metadata metadata 
+        (parse-facts/midjcoexpand `(do ~@body))))))
 
 

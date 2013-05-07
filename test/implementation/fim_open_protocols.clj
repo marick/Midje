@@ -24,12 +24,15 @@
       unexpanded-out-rec (list* 'clojure.core/defrecord        'R type-or-record-tail)]
   (fact "normally, types and records are rewritten"
     (macroexpand-1 in-typ) =not=> unexpanded-out-typ
-    (macroexpand-1 in-rec) =not=> unexpanded-out-rec
+    (macroexpand-1 in-rec) =not=> unexpanded-out-rec)
 
-    "but they remain the same when the user doesn't want checking"
-    (with-bindings {#'midje.sweet/*include-midje-checks* false}
+  (fact "but they remain the same when the user doesn't want checking"
+    (try
+      (alter-var-root #'midje.sweet/include-midje-checks (constantly false))
       (macroexpand-1 in-typ) => unexpanded-out-typ
-      (macroexpand-1 in-rec) => unexpanded-out-rec)))
+      (macroexpand-1 in-rec) => unexpanded-out-rec
+    (finally
+     (alter-var-root #'midje.sweet/include-midje-checks (constantly true))))))
       
 
 

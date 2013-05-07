@@ -27,21 +27,6 @@
 ;;; Interface: unfinished
 
 
-;;; Interface: production mode
-
-(defonce
-  ^{:doc "True by default.  If set to false, Midje checks are not
-     included into production code, whether compiled or loaded."
-     :dynamic true}
-  *include-midje-checks* :original-truthy-value)
-
-(set-validator! #'*include-midje-checks*
-                (fn [val]
-                  (when-not (= val :original-truthy-value)
-                    (deprecate "Set #'midje.sweet/*include-midje-checks* instead of the #'midje.semi-sweet version."))
-                  true))
-
-
 ;;; Interface: Main macros
 
 (defmacro fake 
@@ -64,8 +49,8 @@
    results are as expected. If the expected results are a function, it
    will be called with the actual result as its single argument.
 
-   To strip tests from production code, set either clojure.test/*load-tests*, 
-   midje.semi-sweet/*include-midje-checks*, or midje.sweet/*include-midje-checks* to false."
+   To strip tests from production code, set either clojure.test/*load-tests*
+   or midje.sweet/include-midje-checks to false."
   {:arglists '([call-form arrow expected-result & fakes+overrides])}
   [& _]
   (deprecate "`expect` (and the entire midje.semi-sweet namespace) will be removed in 1.6.")

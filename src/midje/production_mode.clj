@@ -1,16 +1,19 @@
 (ns midje.production-mode)
 
+;; This function is needed because midje.sweet is not fully
+;; loaded when this file is loaded.
 (letfn [(value-within [namespace-symbol variable-symbol]
           (if-let [namespace (find-ns namespace-symbol)]
             (var-get ((ns-map namespace) variable-symbol))
-            true))]
+            (throw (Error. (str "It should be impossible for production mode to be checked before "
+                                namespace-symbol
+                                " is loaded.")))))]
 
   (defn user-desires-checking? 
-    "If any of clojure.test/*load-tests* or midje.sweet/*include-midje-checks* 
-    or midje.semi-sweet/*include-midje-checks* are false, facts won't run."
+    "If clojure.test/*load-tests* or midje.sweet/include-midje-checks 
+    is false, facts won't run."
     []
     (and (value-within 'clojure.test '*load-tests*)
-         (value-within 'midje.sweet '*include-midje-checks*)
-         (value-within 'midje.semi-sweet '*include-midje-checks*))))
+         (value-within 'midje.sweet 'include-midje-checks))))
 
 

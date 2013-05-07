@@ -56,13 +56,13 @@
 ;; When Midje is in "production mode", `defrecord-openly` does the same thing as `defrecord`, so
 ;; the speed gains of inlining remain:
 
-(alter-var-root #'*include-midje-checks* (constantly false))
+(alter-var-root #'include-midje-checks (constantly false))
 
 (defrecord-openly MyRecord [a b]
   Addable
   (add-fields [this] (+ a b)))
 
-(alter-var-root #'*include-midje-checks* (constantly true))
+(alter-var-root #'include-midje-checks (constantly true))
 
 (silent-fact
   (let [rec (MyRecord. 1 2)]
