@@ -39,7 +39,7 @@
       `(do
          (def ~atom-name (atom :undefined))
          (defn ~name [] (deref ~atom-name))
-         (ecosystem/when-1-3+ (.setDynamic (var ~atom-name)))
+         (.setDynamic (var ~atom-name))
          (def ~fresh-name ~(zipmap keys (repeat 0)))
          (defn ~set-name [newval#] (swap! ~atom-name (constantly newval#)))
          (defn ~reset-name [] (reset! ~atom-name ~fresh-name))

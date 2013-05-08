@@ -7,7 +7,7 @@
         [midje.checking.checkers.defining :only [as-checker checker defchecker]]
       	[midje.checking.checkers.util :only [named-as-call]]
       	[midje.util.exceptions :only [captured-throwable?]]
-        [midje.util.ecosystem :only [clojure-1-3? +M -M *M]]
+        [midje.util.ecosystem :only [clojure-1-3?]]
         [clojure.algo.monads :only [domonad set-m]])
   (:import [midje.util.exceptions ICapturedThrowable]))
 
@@ -39,7 +39,7 @@
 (letfn [(abs [n]
           (if (pos? n)
             n
-            (-M n)))] ;; -M not strictly necessary, but...
+            (-' n)))] ;; -' not strictly necessary, but...
 
   (defchecker roughly
     "With two arguments, accepts a value within delta of the
@@ -48,10 +48,10 @@
     ([expected delta]
        (checker [actual]
          (and (number? actual)
-              (>= expected (-M actual delta))
-              (<= expected (+M actual delta)))))
+              (>= expected (-' actual delta))
+              (<= expected (+' actual delta)))))
     ([expected]
-       (roughly expected (abs (*M 0.001 expected))))))
+       (roughly expected (abs (*' 0.001 expected))))))
 
 
 ;; Concerning Throwables

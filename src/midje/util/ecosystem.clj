@@ -19,38 +19,9 @@
   (and (= 1 (:major *clojure-version*))
        (= 3 (:minor *clojure-version*))))
 
-(defn clojure-1-2-X? []
-  (and (= 1 (:major *clojure-version*))
-       (= 2 (:minor *clojure-version*))))
-
-(defn clojure-1-2-0? []
-  (and (= 1 (:major *clojure-version*))
-       (= 2 (:minor *clojure-version*))
-       (= 0 (:incremental *clojure-version*))))
-
-(defmacro when-1-3+ [& body] 
-  (when-not (= 2 (:minor *clojure-version*))
-    `(do ~@body)))
-
-(defmacro when-1-3- [& body] 
-  (when (< (:minor *clojure-version*) 4)
-    `(do ~@body)))
-
 (defmacro when-1-4+ [& body] 
   (when (>= (:minor *clojure-version*) 4)
     `(do ~@body)))
-
-(defmacro unless-1-2-0
-  "Skip body completely - including 'Unable to resolve classname' errors."
-  [& body]
-  (when-not (clojure-1-2-0?)
-    `(do ~@body)))
-
-;; The following works because in 1.2 it's parsed as [+  '1].
-
-(def +M (first [+' 1]))
-(def -M (first [-' 1]))
-(def *M (first [*' 1]))
 
 ;;
 
@@ -89,32 +60,28 @@
 ;; get that from `lein repl`, so the default value from `project.clj`
 ;; is returned.
 
-(when-1-3+
+(def leiningen-paths-var nil)
 
- (def leiningen-paths-var nil)
+(defmacro around-initial-paths [& body]
+  `(let [original# leiningen-paths-var]
+     (try
+       (alter-var-root #'leiningen-paths-var (constantly nil))
+       ~@body
+       (finally (alter-var-root #'leiningen-paths-var (constantly original#))))))
 
- (defmacro around-initial-paths [& body]
-   `(let [original# leiningen-paths-var]
-      (try
-        (alter-var-root #'leiningen-paths-var (constantly nil))
-        ~@body
-        (finally (alter-var-root #'leiningen-paths-var (constantly original#))))))
+(defn set-leiningen-paths! [project]
+  ;; Note that the order is guaranteed: test paths come before project paths.
+  (alter-var-root #'leiningen-paths-var
+                  (constantly (concat (:test-paths project) (:source-paths project)))))
+
+(defn- project-with-paths []
+  (try
+    (project/read)
+  (catch java.io.FileNotFoundException e
+    {:test-paths ["test"]})))
  
- (defn set-leiningen-paths! [project]
-   ;; Note that the order is guaranteed: test paths come before project paths.
-   (alter-var-root #'leiningen-paths-var
-                   (constantly (concat (:test-paths project) (:source-paths project)))))
-
- (defn- project-with-paths []
-   (try
-     (project/read)
-   (catch java.io.FileNotFoundException e
-     {:test-paths ["test"]})))
- 
- (defn leiningen-paths []
-   (or leiningen-paths-var
-       (do
-         (set-leiningen-paths! (project-with-paths))
-         leiningen-paths-var)))
-       
-)
+(defn leiningen-paths []
+  (or leiningen-paths-var
+      (do
+        (set-leiningen-paths! (project-with-paths))
+        leiningen-paths-var)))

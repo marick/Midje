@@ -9,8 +9,6 @@
             [midje.util.scheduling :as scheduling]
             midje.util))
 
-(ecosystem/when-1-3+
-
 (midje.util/expose-testables midje.repl)
 
 ;;;; === Util
@@ -750,5 +748,4 @@
 
 )      ; confirming-cumulative-totals-not-stepped-on
 
-)
 

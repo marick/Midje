@@ -404,14 +404,12 @@
 
 
 
-(ecosystem/when-1-3+
- (emit/silently
-  ;; Don't step on the running count up to this point.
-  (repl/check-facts *ns* :print-no-summary :integration))
+(emit/silently
+ ;; Don't step on the running count up to this point.
+ (repl/check-facts *ns* :print-no-summary :integration))
 
 
- (fact
-   :check-only-at-load-time
-   @integration-run-count => 2
-   @not-integration-run-count => 1)
-)
+(fact
+  :check-only-at-load-time
+  @integration-run-count => 2
+  @not-integration-run-count => 1)
