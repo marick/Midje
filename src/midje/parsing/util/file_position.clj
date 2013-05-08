@@ -30,7 +30,7 @@
 
           (best-lineish [arrow-loc]
             (try
-              ( (some-fn-m left-lineish right-lineish #(inc (previous-lineish %))) arrow-loc)
+              ( (some-fn left-lineish right-lineish #(inc (previous-lineish %))) arrow-loc)
             (catch Throwable ex
               ;; `previous-lineish` returned nil: use the fallback-line-number
               nil)))]

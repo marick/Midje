@@ -12,7 +12,7 @@
   [form]
   (let [m #(with-meta % (meta form))]
     (pred-cond form
-      (some-fn-m seq? list?)  (m (apply list (map eagerly form)))
+      (some-fn seq? list?)    (m (apply list (map eagerly form)))
       vector?                 (m (vec (map eagerly form)))
       map?                    (m (into form (map eagerly form)))
       set?                    (m (into (empty form) (map eagerly form)))

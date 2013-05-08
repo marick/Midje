@@ -40,9 +40,9 @@
         snd-to-last-is-as? #(= :as (second (reverse %)))
         has-key-as?        #(contains? % :as)]
     (pred-cond arg-form
-               (every-pred-m vector? snd-to-last-is-as?) [arg-form (last arg-form)]
+               (every-pred vector? snd-to-last-is-as?)   [arg-form (last arg-form)]
                vector?                                   [(-> arg-form (conj :as) (conj as-symbol)) as-symbol]
-               (every-pred-m map? has-key-as?)           [arg-form (:as arg-form)]
+               (every-pred map? has-key-as?)             [arg-form (:as arg-form)]
                map?                                      [(assoc arg-form :as as-symbol) as-symbol]
                :else                                     [arg-form arg-form] )))
 

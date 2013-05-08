@@ -59,7 +59,7 @@
 (letfn [(throwable-as-desired? [throwable desideratum]
            (pred-cond desideratum
                    fn?                        (desideratum throwable)
-                   (some-fn-m string? regex?) (extended-= (.getMessage ^Throwable throwable) desideratum)
+                   (some-fn string? regex?)   (extended-= (.getMessage ^Throwable throwable) desideratum)
                    class?                     (instance? desideratum throwable)))]
 
   (defchecker throws
