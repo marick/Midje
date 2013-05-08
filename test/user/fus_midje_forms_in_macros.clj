@@ -1,0 +1,31 @@
+(ns user.fus-midje-forms-in-macros
+  (:use midje.sweet
+        midje.test-util))
+
+;; Because of the way that Midje does its parsing, there are
+;; complications when a user writes macros that wrap Midje forms. This
+;; shows that some of those complications are handled.
+
+;; This is pretty incomplete so far. 
+
+
+
+;; A macro with a let in it that surrounded a fact used to blow up.
+
+(def random-atom (atom 0))
+(def count-of-facts-checked (atom 0))
+
+(defmacro with-memory-store [& body]
+  `(let [increment# 1]
+     (with-state-changes [(before :facts (reset! random-atom increment#))
+                          (after :facts (swap! count-of-facts-checked inc))]
+       ~@body)))
+
+(with-memory-store
+  (fact "one fact"
+    @random-atom => 1)
+  (fact "another"
+    @count-of-facts-checked => 1))
+
+(fact @count-of-facts-checked => 2)
+
