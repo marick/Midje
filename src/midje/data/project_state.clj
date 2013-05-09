@@ -1,7 +1,6 @@
 (ns ^{:doc "What we know about the changing project file/namespace tree."}
   midje.data.project-state
   (:use midje.clojure.core
-        [swiss-arrows.core :only [-<>]]
         [bultitude.core :only [namespaces-in-dir namespaces-on-classpath]])
   (:require [midje.emission.boundaries :as emission-boundary]
             [midje.util.ecosystem :as ecosystem]

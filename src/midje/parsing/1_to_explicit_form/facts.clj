@@ -12,8 +12,7 @@
                                                             against-background-facts-and-checks-wrappers
                                                             ]]
         [midje.parsing.1-to-explicit-form.metaconstants :only [predefine-metaconstants-from-form]]
-        [midje.util.laziness :only [eagerly]]
-        [swiss-arrows.core :only [-<>]])
+        [midje.util.laziness :only [eagerly]])
   (:require [clojure.zip :as zip]
             [midje.parsing.util.zip :as pzip]
             [midje.parsing.util.overrides :as override]
