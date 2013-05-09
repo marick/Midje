@@ -228,3 +228,17 @@
         (parse-facts/midjcoexpand `(do ~@body))))))
 
 
+(defn add-midje-fact-symbols
+  "If you use a macro to wrap Midje's fact forms, `with-state-changes` will
+   complain that it contains no facts. You can avoid that by \"registering\"
+   your macro with Midje."
+  [symbols]
+  (background/add-midje-fact-symbols symbols))
+
+(add-midje-fact-symbols '[fact facts
+                          future-fact future-facts
+                          pending-fact pending-facts ; Sick of the other variants
+                          formula future-formula
+                          ;; `check-one` appears because expansion of facts can
+                          ;; happen from the bottom up.
+                          check-one])

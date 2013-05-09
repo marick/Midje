@@ -11,7 +11,6 @@
 (defn parse [form]
   (let [lineno (reader-line-number form)
         [metadata _] (parse-metadata/separate-metadata form)]
-    (background/note-fact!)
     `(emit/future-fact (nested-facts/descriptions ~(:midje/description metadata))
                        (position/line-number-known ~lineno))))
 

@@ -82,12 +82,12 @@
 
 (defn expand-against-background [form]
   (background/assert-right-shape! form)
-  (background/expecting-nested-facts form 
-    (-<> form 
-         body-of-against-background
-         midjcoexpand
-         (wrapping/with-additional-wrappers (against-background-facts-and-checks-wrappers form) <>)
-         (wrapping/multiwrap <> (against-background-contents-wrappers form)))))
+  (background/assert-contains-facts! form)
+  (-<> form 
+       body-of-against-background
+       midjcoexpand
+       (wrapping/with-additional-wrappers (against-background-facts-and-checks-wrappers form) <>)
+       (wrapping/multiwrap <> (against-background-contents-wrappers form))))
 
 
 (defn midjcoexpand
@@ -133,7 +133,6 @@
 
 
 (defn expand-fact-body [forms metadata]
-  (background/note-fact!)
   (-> forms
       annotate-embedded-arrows-with-line-numbers
       to-semi-sweet

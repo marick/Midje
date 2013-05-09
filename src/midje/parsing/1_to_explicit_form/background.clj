@@ -121,7 +121,7 @@
         state-wrappers
         (concat state-wrappers (background-fake-wrappers fakes))))))
 
-(defn body-of-against-background [[_against-background_ background-forms & background-body :as form]]
+(defn body-of-against-background [[_against-background_ _background-forms_ & background-body :as form]]
   `(do ~@background-body))
 
 (defn against-background-contents-wrappers [[_against-background_ background-forms & _]]
@@ -196,41 +196,39 @@
 
             :else
             (assert-valid-code-runner! changer)))))
-                                      
 
+(def at-least-one-string-with-this-name-must-be-present [])
 
-(def against-background-forms-without-enclosed-facts (atom []))
+(defn add-midje-fact-symbols [symbols]
+  (alter-var-root #'at-least-one-string-with-this-name-must-be-present
+                  union
+                  (set (map name symbols))))
 
-(defn note-new-nesting-level! []
-  (swap! against-background-forms-without-enclosed-facts #(cons :any-old-value %)))
-(defn decrease-nesting-level! []
-  (swap! against-background-forms-without-enclosed-facts rest))
-(defn note-fact! []
-  (reset! against-background-forms-without-enclosed-facts []))
-
-
-(defmacro expecting-nested-facts [form & body]
-  `(try
-     (note-new-nesting-level!)
-     (let [result# ~@body]
-       (when-not (empty? @against-background-forms-without-enclosed-facts)
-         (error/report-error ~form
-                             "Background prerequisites created by the wrapping version of"
-                             "`against-background` only affect nested facts. This one"
-                             "wraps no facts."
-                             ""
-                             "Note: if you want to supply a background to all checks in a fact, "
-                             "use the non-wrapping form. That is, instead of this:"
-                             "    (fact "
-                             "      (against-background [(f 1) => 1] "
-                             "        (g 3 2 1) => 8 "
-                             "        (h 1 2) => 7)) "
-                             "... use this:"
-                             "    (fact "
-                             "      (g 3 2 1) => 8 "
-                             "      (h 1 2) => 7 "
-                             "      (against-background (f 1) => 1)) "))
-       result#)
-     (finally
-      (decrease-nesting-level!))))
-
+;; It would be better to check symbols like `midje/fact` than the string "fact";
+;; however, all the symbols are duplicated in midje.sweet and midje.repl (because they
+;; can be loaded independently). It seems too convoluted to list everything twice, and the
+;; worst that can happen from a name clash is that the parse error isn't caught.
+(defn assert-contains-facts! [wrapping-background-form]
+  (let [possibilities (-<> wrapping-background-form
+                           body-of-against-background
+                           flatten
+                           (filter symbol? <>)
+                           (map name <>)
+                           set)]
+    (when (empty? (intersection possibilities at-least-one-string-with-this-name-must-be-present))
+      (error/report-error wrapping-background-form
+                          "Background prerequisites created by the wrapping version of"
+                          "`against-background` only affect nested facts. This one"
+                          "wraps no facts."
+                          ""
+                          "Note: if you want to supply a background to all checks in a fact, "
+                          "use the non-wrapping form. That is, instead of this:"
+                          "    (fact "
+                          "      (against-background [(f 1) => 1] "
+                          "        (g 3 2 1) => 8 "
+                          "        (h 1 2) => 7)) "
+                          "... use this:"
+                          "    (fact "
+                          "      (g 3 2 1) => 8 "
+                          "      (h 1 2) => 7 "
+                          "      (against-background (f 1) => 1)) "))))

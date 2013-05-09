@@ -48,6 +48,8 @@
   (silent-body 'midje.sweet/formula &form))
 (defmacro silent-against-background [& _]
   (silent-body 'midje.sweet/against-background &form))
+(defmacro silent-with-state-changes [& _]
+  (silent-body 'midje.sweet/with-state-changes &form))
 (defmacro silent-background [& _]
   (silent-body 'midje.sweet/background &form))
 (defmacro silent-expect [& _]

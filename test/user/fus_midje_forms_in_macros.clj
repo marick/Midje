@@ -8,7 +8,7 @@
 
 ;; This is pretty incomplete so far. 
 
-
+                                ;;; against-background
 
 ;; A macro with a let in it that surrounded a fact used to blow up.
 
@@ -29,3 +29,46 @@
 
 (fact @count-of-facts-checked => 2)
 
+
+
+
+;; Putting a fact inside a macro should not lead to an erroneous parse error
+
+(defmacro hidden-fact [& body]
+  `(fact ~@body))
+
+(silent-with-state-changes []
+  (hidden-fact 1 => 1))
+(note-that parse-error-found)
+
+;; That can be prevented with `add-midje-fact-symbols`:
+
+(add-midje-fact-symbols '[hidden-fact])
+(with-state-changes []
+  (hidden-fact 1 => 1))
+
+;;; Here is an old bug
+
+(def db (atom 0))
+
+(defmacro with-memory-store [& body]
+  `(let [db# @db]
+    (facts
+      (with-state-changes [(before :contents (reset! db 3))
+                           (after :facts (fn []))
+                           (after :contents (reset! db db#))]
+        ~@body))))
+
+(with-memory-store
+  (fact 1 => 1))
+
+(defmacro with-server [& body]
+  `(let [server# (fn [])]
+     (facts
+       (with-state-changes [(after :contents (server#))]
+         ~@body))))
+
+(with-server
+  (fact 1 => 1))
+
+(with-server (with-memory-store (fact 1 => 1)))
