@@ -11,13 +11,15 @@
         [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
                                                    with-pushed-namespace-values]])
   (:require [clojure.zip :as zip]
+            [midje.config :as config]
             [midje.util.unify :as unify]
             [midje.parsing.util.file-position :as position]
             [midje.parsing.util.error-handling :as error]
             [midje.parsing.util.recognizing :as recognize]
             [midje.parsing.util.wrapping :as wrapping]
             [midje.parsing.2-to-lexical-maps.fakes :as fakes]
-            [midje.parsing.2-to-lexical-maps.data-fakes :as data-fakes]))
+            [midje.parsing.2-to-lexical-maps.data-fakes :as data-fakes]
+            [midje.emission.api :as emit]))
 
 (defn background-fakes []
   (namespace-values-inside-out :midje/background-fakes))
@@ -33,29 +35,29 @@
                   background-forms)]
     [background-changers other-forms]))
 
-(letfn [(ensure-correct-form-variable [form]
-          (translate-zipper form
-            (fn [loc] (symbol-named? (zip/node loc) "?form"))
-            (fn [loc] (zip/replace loc (unify/?form)))))]
+(defn- substitute-correct-form-variable [form]
+  (translate-zipper form
+                    (fn [loc] (symbol-named? (zip/node loc) "?form"))
+                    (fn [loc] (zip/replace loc (unify/?form)))))
 
-  (defmacro before 
-    "Code to run before a given wrapping target (:facts, :contents, :checks).
+(defmacro before 
+  "Code to run before a given wrapping target (:facts, :contents, :checks).
   Can take an optional keyword argument :after, for any code to run afterward.
   Used with background and against-background"
-    [_wrapping-target_ before-form & {:keys [after]}]
-    (ensure-correct-form-variable `(try
-                                     ~before-form
-                                     ?form
+  [_wrapping-target_ before-form & {:keys [after]}]
+  (substitute-correct-form-variable `(try
+                                       ~before-form
+                                       ?form
                                      (finally ~after))))
 
-  (defmacro after 
-    "Code to run after a given wrapping target (:facts, :contents, :checks).
+(defmacro after 
+  "Code to run after a given wrapping target (:facts, :contents, :checks).
   Used with background and against-background"
-    [_wrapping-target_ after-form]
-    (ensure-correct-form-variable `(try ?form (finally ~after-form))))
+  [_wrapping-target_ after-form]
+  (substitute-correct-form-variable `(try ?form (finally ~after-form))))
 
-  (defmacro around 
-    "Code to run around a given wrapping target (:facts, :contents, :checks).
+(defmacro around 
+  "Code to run around a given wrapping target (:facts, :contents, :checks).
   Use the symbol '?form' to denote the code that is being wrapped around.
      
   Ex.
@@ -64,8 +66,8 @@
                       (print a))) 
      
   Used with background and against-background"
-    [_wrapping-target_ around-form]
-    (ensure-correct-form-variable around-form)))
+  [_wrapping-target_ around-form]
+  (substitute-correct-form-variable around-form))
 
 (defn- ^{:testable true } extract-background-changers
   ([forms error-reporter]
@@ -124,8 +126,36 @@
 (defn body-of-against-background [[_against-background_ _background-forms_ & background-body :as form]]
   `(do ~@background-body))
 
-(defn against-background-contents-wrappers [[_against-background_ background-forms & _]]
-  (filter (wrapping/for-wrapping-target? :contents ) (background-wrappers background-forms)))
+
+(def #^:private misused-content-message
+  ["It is meaningless to combine `against-background` or `with-state-changes` and"
+   "a `:check-after-creation` configuration variable that's false. If you want some"
+   "state to be set up the first time one of the enclosed facts is run, do something"
+   "like this:"
+   ""
+   "user=> (def state (atom nil))"
+   "user=> (defn ensure-state []"
+   "         (when (nil? @state) "
+   "           (println \"One-time setup\")"
+   "           (reset! state ...)))"
+   ""
+   "user=> (against-background [(before :facts (ensure-state))]"
+   "         (fact...) "
+   "         (fact...))"
+   ""
+   "user=> (check-facts)"])
+
+
+(defn against-background-contents-wrappers [[_against-background_ background-forms & _ :as form]]
+  (let [result (filter (wrapping/for-wrapping-target? :contents ) (background-wrappers background-forms))]
+    (if (empty? result)
+      result
+      (conj (vec result)
+            (substitute-correct-form-variable `(if-not (config/choice :check-after-creation)
+                                                 (emit/fail {:type :parse-error
+                                                             :notes ~misused-content-message
+                                                             :position '~(position/form-position form)})
+                                                 ?form))))))
 
 (defn against-background-facts-and-checks-wrappers [[_against-background_ background-forms & _]]
   (remove (wrapping/for-wrapping-target? :contents ) (background-wrappers background-forms)))

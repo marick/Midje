@@ -58,6 +58,9 @@
   (silent-body 'midje.semi-sweet/fake &form))
 (defmacro silent-data-fake [& _]
   (silent-body 'midje.semi-sweet/data-fake &form))
+(defmacro silent-check-facts [& _]
+  (silent-body 'midje.repl/check-facts &form))
+  
 
 ;;; Checkers, mainly for failures
 
