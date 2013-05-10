@@ -11,10 +11,10 @@
   (future-fact (throw (new Error ":check-after-creation fail")))
 )
 
-(silent-check-facts #"^fact$")
+(silent-check-facts *ns* #"^fact$")
 (note-that fact-failed (fact-expected "fact"))
 
-(silent-check-facts #"^facts$")
+(silent-check-facts *ns* #"^facts$")
 (note-that fact-failed (fact-expected "facts"))
 
 ;; `with-state-changes` also obeys :check-after-creation
@@ -29,7 +29,7 @@
 
 (fact @state => 0)
 
-(silent-check-facts #"^state changes$")
+(silent-check-facts *ns* #"^state changes$")
 (note-that fact-failed (fact-expected "state changes"))
 
 ;;; Check-after-creation makes no sense with contents.
