@@ -5,26 +5,17 @@
         [midje.parsing.util.file-position :only [form-with-copied-line-numbers]]
         [midje.emission.deprecation :only [deprecate]]
         [midje.parsing.util.zip :only [skip-to-rightmost-leaf]]
-        [midje.parsing.1-to-explicit-form.facts :only [working-on-nested-facts unparse-edited-fact]]
         [midje.data.metaconstant :only [metaconstant-symbol?]]
         [utilize.map :only [ordered-zipmap]])
 (:require [clojure.string :as str]
           [clojure.zip :as zip]
+          [midje.parsing.util.zip :as pzip]
+          [midje.parsing.1-to-explicit-form.facts :as parse-facts]
           [midje.util.unify :as unify]
           [midje.parsing.util.overrides :as override]
           [midje.parsing.lexical-maps :as maps]
           [midje.parsing.1-to-explicit-form.metadata :as metadata]
           [midje.parsing.util.error-handling :as error]))
-
-(defn- remove-pipes+where [table]
-  (when (#{:where 'where} (first table))
-    (deprecate "The `where` syntactic sugar for tabular facts is deprecated and will be removed in Midje 1.6."))
-
-  (when (some #(= % '|) table)
-    (deprecate "The `|` syntactic sugar for tabular facts is deprecated and will be removed in Midje 1.6."))
-
-  (letfn [(strip-off-where [x] (if (#{:where 'where} (first x)) (rest x) x))]
-    (->> table strip-off-where (remove #(= % '|)))))
 
 (defn- headings-rows+values [table locals]
   (letfn [(table-variable? [s]
@@ -32,7 +23,7 @@
               (not (metaconstant-symbol? s))
               (not (resolve s))
               (not ((set locals) s))))] 
-    (split-with table-variable? (remove-pipes+where table))))
+    (split-with table-variable? table)))
 
 (defn- ^{:testable true } table-binding-maps [headings-row values]
   (let [value-rows (partition (count headings-row) values)]
@@ -110,7 +101,7 @@
 (defn parse [locals form]
   (letfn [(macroexpander-for [fact-form]
             (fn [binding-map]
-              (working-on-nested-facts
+              (parse-facts/working-on-nested-facts
                (-> binding-map
                    ((partial unify/substitute fact-form))
                    ((partial form-with-copied-line-numbers fact-form))
