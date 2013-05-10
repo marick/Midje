@@ -80,8 +80,8 @@
   '(fact foo => bar) => '(fact foo => bar))
 
 (fact "facts can be unparsed"
-  (let [result (unparse-edited-fact {:midje/source "s", :midje/guid "guid", :midje/line 8888888
-                                     :integration true, :midje/name "fred"} '((form1) (form2)))]
+  (let [result (wrap-fact-around-body {:midje/source "s", :midje/guid "guid", :midje/line 8888888
+                                       :integration true, :midje/name "fred"} '((form1) (form2)))]
     (fact "it is a fact form"
       result => (contains ['midje.sweet/fact '(form1) '(form2)] :gaps-ok))
     (fact "it contains the source and guid"

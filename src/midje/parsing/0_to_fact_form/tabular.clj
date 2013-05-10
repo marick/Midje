@@ -122,4 +122,4 @@
              nested-facts-with-binding-notes (map add-binding-note
                                                   nested-facts
                                                   ordered-binding-maps)]
-         (macroexpand (unparse-edited-fact metadata nested-facts-with-binding-notes))))))
+         (macroexpand (parse-facts/wrap-fact-around-body metadata nested-facts-with-binding-notes))))))

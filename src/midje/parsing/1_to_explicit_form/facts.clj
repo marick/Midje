@@ -191,8 +191,7 @@
        (wrap-with-check-time-code metadata)
        wrap-with-creation-time-code)))
 
-
-(defn unparse-edited-fact
+(defn wrap-fact-around-body
   "Uses a body and (parsed) metadata to make up a new `fact`.
    The resulting for has `:line` metadata. The :midje/source and
    :midje/guid are supplied explicitly in the

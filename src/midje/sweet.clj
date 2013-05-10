@@ -180,7 +180,7 @@
                  [background remainder] (background/separate-background-forms forms)]
              (if (seq background)
                (position/positioned-form `(against-background [~@background]
-                                            ~(parse-facts/unparse-edited-fact metadata remainder))
+                                            ~(parse-facts/wrap-fact-around-body metadata remainder))
                                          &form)
                (parse-facts/complete-fact-transformation metadata remainder)))))))
 
