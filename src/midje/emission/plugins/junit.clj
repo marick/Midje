@@ -2,12 +2,18 @@
   midje.emission.plugins.junit
   (:use
     [midje.emission.util])
-  (:require [midje.data.fact :as fact]
+  (:require [midje.config :as config]
+            [midje.data.fact :as fact]
             [midje.emission.state :as state]
             [midje.emission.plugins.silence :as silence]
             [midje.emission.plugins.default-failure-lines :as lines]
             [clojure.string :as str]
             [clojure.xml :as xml :only [emit-element]]))
+
+
+;; This plugin requires all emission api calls to be
+;; forwarded to it.
+(config/change-defaults :print-level :print-facts)
 
 (def report-file "report.xml")
 
