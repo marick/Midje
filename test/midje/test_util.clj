@@ -89,6 +89,10 @@
   (fn [actual-failure]
     (extended-= (str/join (:notes actual-failure)) regex)))
 
+(defn fact-failed-with-binding-note [regex]
+  (fn [actual-failure]
+    (extended-= (:binding-note actual-failure) regex)))
+
 (defn fact-expected [thing]
   (fn [actual-failure]
     (extended-= (:expected-result-form actual-failure) thing)))

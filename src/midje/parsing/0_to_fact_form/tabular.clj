@@ -34,50 +34,7 @@
                             (str (pr-str k) " " (pr-str v)))]
     (str "[" (str/join "\n                           " formatted-entries) "]")))
 
-(defn- ^{:testable true } add-binding-note
-  [checking-fact-form ordered-binding-map]
-  ;; A binding note should be added if the structure of the
-  ;; `checking-fact-form` is this:
-  ;;    (creation-time-check
-  ;;      (letfn [...] <letfn-body>
-  ;;
-  ;; It is the <letfn-body> that must be searched for the construction of checkable maps,
-  ;; which then have annotations added to them.
-  (letfn [(headed-by? [form string]
-            (and (sequential? form)
-                 (symbol? (first form))
-                 (= (name (first form)) string)))
 
-          (acceptable-body? []
-            (headed-by? checking-fact-form "creation-time-check"))
-
-          (target-body []
-            ;; This is horrible. `tabular` can be wrapped around two different
-            ;; trees, depending on whether there's a wrapping `against-background`.
-            ;; This handles that. I am ashamed of the losingness that is against-background. 
-            (let [possible-letfn (second checking-fact-form)
-                  definite-letfn (if (headed-by? possible-letfn "letfn")
-                                   possible-letfn
-                                   (second possible-letfn))]
-            (-> definite-letfn second first rest second)))
-
-          (translate-letfn-body [checkable-containing-form]
-            ;; TODO: Nested facts lead to nested letfns, and that stops processing,
-            ;; so nested facts don't get binding annotations.
-            (translate-zipper checkable-containing-form
-                              (comp maps/checkable-map? zip/node)
-                              one-binding-note))
-
-          (one-binding-note [loc]
-            (zip/replace loc
-                         (assoc (clojure.zip/node loc) 
-                                :binding-note (format-binding-map ordered-binding-map))))]
-
-    (if (acceptable-body?)
-      (let [letfn-body (target-body)]
-        (clojure.walk/prewalk-replace {letfn-body (translate-letfn-body letfn-body)}
-                                      checking-fact-form))
-      checking-fact-form)))
 
 (defn valid-pieces [full-form locals]
   (let [[metadata [fact-form & table]] (metadata/separate-two-level-metadata full-form)
@@ -101,16 +58,14 @@
 (defn parse [locals form]
   (letfn [(macroexpander-for [fact-form]
             (fn [binding-map]
-              (parse-facts/working-on-nested-facts
-               (-> binding-map
-                   ((partial unify/substitute fact-form))
-                   ((partial form-with-copied-line-numbers fact-form))
-                  macroexpand))))]
+              (metadata/with-wrapped-metadata {:binding-note (format-binding-map binding-map)}
+                (parse-facts/working-on-nested-facts
+                 (-> binding-map
+                     ((partial unify/substitute fact-form))
+                     ((partial form-with-copied-line-numbers fact-form))
+                     macroexpand)))))]
     (error/parse-and-catch-failure form
       #(let [[metadata fact-form headings-row values] (valid-pieces form locals)
              ordered-binding-maps (table-binding-maps headings-row values)
-             nested-facts (map (macroexpander-for fact-form) ordered-binding-maps)
-             nested-facts-with-binding-notes (map add-binding-note
-                                                  nested-facts
-                                                  ordered-binding-maps)]
-         (macroexpand (parse-facts/wrap-fact-around-body metadata nested-facts-with-binding-notes))))))
+             nested-facts (map (macroexpander-for fact-form) ordered-binding-maps)]
+         (macroexpand (parse-facts/wrap-fact-around-body metadata nested-facts))))))

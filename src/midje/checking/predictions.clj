@@ -6,6 +6,7 @@
         midje.data.prerequisite-state
         midje.util.laziness)
   (:require [midje.config :as config]
+            [midje.data.nested-facts :as nested-facts]
             [midje.emission.boundaries :as emission-boundary]
             [midje.parsing.1-to-explicit-form.background :as background]
             [midje.emission.api :as emit]))
@@ -14,7 +15,11 @@
 (defn- minimal-failure-map
   "Failure maps are created by adding on to parser-created maps"
   [type actual existing]
-  (assoc existing :type type :actual actual))
+  (let [base (assoc existing :type type :actual actual)
+        table-bindings (nested-facts/table-bindings)]
+    (if (empty? table-bindings)
+      base
+      (assoc base :binding-note table-bindings))))
 
 (def ^{:private true} has-function-checker? (comp extended-fn? :expected-result))
 

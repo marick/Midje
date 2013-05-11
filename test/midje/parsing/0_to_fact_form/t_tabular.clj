@@ -1,5 +1,5 @@
 (ns midje.parsing.0-to-fact-form.t-tabular
-  (:use [midje.parsing.0-to-fact-form.tabular :except [add-binding-note table-binding-maps]]
+  (:use [midje.parsing.0-to-fact-form.tabular :except [table-binding-maps]]
         [midje.data.metaconstant :only [metaconstant-symbol?]]
         [midje sweet test-util]
         [ordered.map :only (ordered-map)]
@@ -50,7 +50,6 @@
    (+ ?a ?b) => ?result)
  ?a    ?b      ?result
  1     2       3)
-
 
 ;; Table Validation
 
@@ -152,39 +151,6 @@
   => [ (ordered-map '?a 1, '?b 2, '?result 3) ])
 
 
-(defn filter-checkable-maps [form]
-  (filter maps/checkable-map? (flatten form)))
-
-(defn expand-and-add-binding-note
-  ([form binding-map]
-     (add-binding-note (parse-facts/midjcoexpand form) binding-map))
-  ([form]
-     (expand-and-add-binding-note form (ordered-map '?a 'a))))
-
-(def binding-notes-from (comp filter-checkable-maps expand-and-add-binding-note))
-
-(fact "binding notes"
-  (fact "can be inserted"
-    (binding-notes-from '(fact 1 => 1)) => (just (contains {:binding-note "[?a a]"})))
-  
-  (fact "are inserted into every checkable"
-    (binding-notes-from '(fact 1 => 1
-                               2 => 2)) => (just (contains {:binding-note "[?a a]"})
-                                                (contains {:binding-note "[?a a]"})))
-  
-  (future-fact "are added to nested facts"
-    (binding-notes-from '(fact 1 => 1 (fact 2 => 2))) => (just (contains {:binding-note "[?a a]"})
-                                                               (contains {:binding-note "[?a a]"})))
-
-  (fact "are not added to prerequisites"
-    (binding-notes-from '(fact (f 1) => 1 (provided (g 1) => 2))) => (just (contains {:binding-note "[?a a]"})))
-
-  (fact "are added in the left-to-right order of the original table"
-    (let [result (binding-notes-from '(fact (+ 1 2) => 3) (ordered-map :c 1, :b 2, :a 3))]
-      (count result) => 1
-      (:binding-note (first result)) => #"(?s):c 1.*:b 2.*:a 3")))
-    
-    
 ;; tabular doc-string prints in report
 
 (tabular "table of results"
@@ -204,29 +170,6 @@
       2    4   999     )  ;; PURPOSELY FAIL
 (note-that fact-fails, (fact-described-as  "add stuff" nil))
 
-
-;;; Bug fixes
-
-(unfinished g)
-
-(defn f [arg] (g arg))
-
-(def before-fact (atom 0))
-(def before-check (atom 0))
-
-(against-background [(g "OK3") => 3
-                     (before :facts (swap! before-fact inc))
-                     (before :checks (swap! before-check inc))]
-  (tabular
-    (fact
-      (f ?foo) => 3
-      (f ?foo) => 3)
-    ?foo
-    "OK3"))
-
-(fact
-  @before-fact => 1
-  @before-check => 2)
 
 ;;; Tabular facts have appropriate source and body source.
 

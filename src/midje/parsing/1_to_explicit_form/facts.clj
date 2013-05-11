@@ -100,6 +100,7 @@
     recognize/against-background?  (expand-against-background form)
     recognize/expect?      (wrapping/multiwrap form (wrapping/forms-to-wrap-around :checks ))
     recognize/fact?        (macroexpand form)
+    recognize/tabular?      (macroexpand form)
     sequential?  (preserve-type form (eagerly (map midjcoexpand form)))
     :else        form))
 
@@ -131,8 +132,7 @@
     #(at-arrow__add-line-number-to-end__no-movement (position/arrow-line-number %) %)))
 
 
-
-(defn expand-fact-body [forms metadata]
+(defn expand-fact-body [forms]
   (-> forms
       annotate-embedded-arrows-with-line-numbers
       to-semi-sweet
@@ -143,21 +143,11 @@
       (wrapping/multiwrap (wrapping/forms-to-wrap-around :facts))))
 
 
-;;; Check-time processing
+;;; Metadata handling
 
-(defn wrap-with-check-time-code
-  ([expanded-body metadata]
-     (wrap-with-check-time-code expanded-body metadata
-                                               (gensym 'this-function-here-)))
-
-  ;; Having two versions lets tests not get stuck with a gensym.
-  ([expanded-body metadata this-function-here-symbol]
-     `(letfn [(base-function# [] ~expanded-body)
-              (~this-function-here-symbol []
-                (with-meta base-function#
-                  (merge '~metadata
-                         {:midje/top-level-fact? ~(working-on-top-level-fact?)})))]
-        (~this-function-here-symbol))))
+(defn add-metadata [expanded-body metadata]
+  `(with-meta (fn [] ~expanded-body) (merge '~metadata
+                                            {:midje/top-level-fact? ~(working-on-top-level-fact?)})))
 
 ;;; Load-time processing
 
@@ -187,8 +177,8 @@
 (defn complete-fact-transformation [metadata forms]
   (given-possible-fact-nesting
    (-> forms
-       (expand-fact-body metadata)
-       (wrap-with-check-time-code metadata)
+       expand-fact-body
+       (add-metadata metadata)
        wrap-with-creation-time-code)))
 
 (defn wrap-fact-around-body

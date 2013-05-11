@@ -103,6 +103,9 @@
 (defn future-fact? [form]
   (some (partial first-named? form) future-variants/future-fact-variant-names))
 
+(defn tabular? [form]
+  (first-named? form "tabular"))
+
 (defn provided? [loc]
   (matches-symbols-in-semi-sweet-or-sweet-ns? '(provided) loc))
 
