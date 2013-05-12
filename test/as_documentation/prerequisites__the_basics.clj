@@ -27,7 +27,7 @@
 
 ;;; A version with metaconstants. Plain metaconstants have only one
 ;;; property: identity. If you see a metaconstant twice in the same
-;;; prediction, you know it's the same value each time. 
+;;; checkable, you know it's the same value each time. 
 
 (fact "fetch-project-paths returns the project file's test and source paths, in that order"
   (fetch-project-paths) => [..test1.. ..test2.. ..source..]

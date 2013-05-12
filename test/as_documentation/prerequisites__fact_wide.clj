@@ -6,9 +6,9 @@
 
 (unfinished pilot-ready? copilot-ready? engines-ready?)
 
-;; It would be annoying to specify the values of each predicate for each prediction. You'd
+;; It would be annoying to specify the values of each predicate for each checkable. You'd
 ;; rather define some defaults for the whole fact and override the ones that change for each
-;; prediction. Here's how that's done.
+;; checkable. Here's how that's done.
 
 ;; Note that the var references are required if Midje is to override them.
 (def flight-ready? (every-pred #'pilot-ready? #'copilot-ready? #'engines-ready?))

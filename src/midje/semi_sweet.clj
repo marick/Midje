@@ -14,20 +14,16 @@
             [midje.data.nested-facts :as nested-facts]
             [midje.parsing.lexical-maps :as lexical-maps]
             [midje.emission.api :as emit]
-            midje.checking.predictions
+            midje.checking.checkables
             [midje.parsing.util.fnref :as fnref]
             [midje.parsing.2-to-lexical-maps.expects :as parse-expects]
             [midje.parsing.2-to-lexical-maps.fakes :as parse-fakes]
             [midje.parsing.2-to-lexical-maps.data-fakes :as parse-data-fakes]))
-  
 
 (immigrate 'midje.parsing.arrow-symbols)
 
-
-;;; Interface: unfinished
-
-
-;;; Interface: Main macros
+;;; Once upon a time, this fine represented a lower level user interface that midje.sweet was
+;;; written in terms of. It has mostly been phased out, but isn't all gone yet. 
 
 (defmacro fake 
   "Creates a fake map that a particular call will be made. When it is made,

@@ -16,7 +16,7 @@
   [1 2 3] => (just [odd? even? odd?])
   ["a" "aa" "aaa"] (just [#"a+" #"a+" #"a+"])
 
-  (fact "as a side note, you can also use `three-of` for the previous prediction"
+  (fact "as a side note, you can also use `three-of` instead of the previous checkable"
     ["a" "aa" "aaa"] => (three-of #"a+")))
     
 

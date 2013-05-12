@@ -35,7 +35,7 @@
                                          (prn "Now here's a peculiar thing to find inside a check: " fake)
                                          fake)))
                                fakes)]
-      `(midje.checking.predictions/check-one ~check ~(vec expanded-fakes)))
+      `(midje.checking.checkables/check-one ~check ~(vec expanded-fakes)))
              
     recognize/macroexpansion-check-arrow?
     (let [expanded-macro `(macroexpand-1 '~call-form)

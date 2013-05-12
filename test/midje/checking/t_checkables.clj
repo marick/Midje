@@ -1,6 +1,6 @@
-(ns midje.checking.t-predictions
+(ns midje.checking.t-checkables
   (:use [midje sweet test-util]
-        midje.checking.predictions))
+        midje.checking.checkables))
 
 (tabular (fact "The number of calls can be described"
            (let [fake-fake {:call-count-atom (atom ?actual-count),

@@ -5,7 +5,7 @@
         
 
 (config/with-augmented-config {:visible-future true}
-  (silent-fact "future facts don't interfere with the checking of other predictions"
+  (silent-fact "checkables marked 'future' don't interfere with the checking of other checkables"
     (+ 1 1) => 3
     (+ 11 "1") =future=> "12"  ;; does not fail
     (+ 111 1) => 112)
