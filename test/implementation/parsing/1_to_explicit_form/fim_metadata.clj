@@ -1,4 +1,4 @@
-(ns midje.parsing.1-to-explicit-form.t-metadata
+(ns implementation.parsing.1-to-explicit-form.fim-metadata
   (:use midje.sweet
         midje.test-util
         midje.parsing.1-to-explicit-form.metadata)
@@ -13,8 +13,8 @@
     (let [[meta _] (separate-metadata `(fact "doc" ~@a-body))]
       (:midje/source meta) => `'(fact "doc" ~@a-body)
       (:midje/guid meta) => body-guid
-      (:midje/file meta) => "midje/parsing/1_to_explicit_form/t_metadata.clj"
-      (:midje/namespace meta) => ''midje.parsing.1-to-explicit-form.t-metadata
+      (:midje/file meta) => "implementation/parsing/1_to_explicit_form/fim_metadata.clj"
+      (:midje/namespace meta) => ''implementation.parsing.1-to-explicit-form.fim-metadata
       (contains? meta :midje/line) => truthy))
 
   (fact "ignores the head of the form"
