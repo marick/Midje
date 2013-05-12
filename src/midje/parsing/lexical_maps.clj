@@ -1,4 +1,4 @@
-(ns ^{:doc "example maps, redefine maps, failure maps"} 
+(ns ^{:doc "checkable maps, redefine maps, failure maps"} 
   midje.parsing.lexical-maps
   (:use midje.clojure.core)
   (:require [midje.data.nested-facts :as nested-facts]
@@ -39,7 +39,7 @@
   (and (map? value)
        (::a-midje-checkable-map? value)))
 
-(defn example
+(defn checkable
   [call-form arrow expected-result overrides]
   (let [source-details `{:call-form '~call-form
                          :arrow '~arrow }

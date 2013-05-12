@@ -26,14 +26,14 @@
 (defn map-record-mismatch-addition [actual expected]
   {:notes [(inherently-false-map-to-record-comparison-note actual expected)]})
 
-(defn- check-for-match [actual example-map]
-  (let [expected (:expected-result example-map)]
+(defn- check-for-match [actual checkable-map]
+  (let [expected (:expected-result checkable-map)]
     (cond  (extended-= actual expected)
            (emit/pass)
          
-           (has-function-checker? example-map)
+           (has-function-checker? checkable-map)
            (emit/fail (merge (minimal-failure-map :actual-result-did-not-match-checker
-                                                  actual example-map)
+                                                  actual checkable-map)
                              ;; TODO: It is very lame that the
                              ;; result-function has to be called again to
                              ;; retrieve information that extended-=
@@ -43,34 +43,34 @@
                              (second (evaluate-checking-function expected actual))))
          
            (inherently-false-map-to-record-comparison? actual expected)
-           (emit/fail (merge (minimal-failure-map :actual-result-did-not-match-expected-value actual example-map)
+           (emit/fail (merge (minimal-failure-map :actual-result-did-not-match-expected-value actual checkable-map)
                              (map-record-mismatch-addition actual expected)))
          
            :else
-           (emit/fail (assoc (minimal-failure-map :actual-result-did-not-match-expected-value actual example-map)
+           (emit/fail (assoc (minimal-failure-map :actual-result-did-not-match-expected-value actual checkable-map)
                              :expected-result expected)))))
 
 
-(defn- check-for-mismatch [actual example-map]
-  (let [expected (:expected-result example-map)]
+(defn- check-for-mismatch [actual checkable-map]
+  (let [expected (:expected-result checkable-map)]
     (cond (inherently-false-map-to-record-comparison? actual expected)
-          (emit/fail (merge (minimal-failure-map :actual-result-should-not-have-matched-expected-value actual example-map)
+          (emit/fail (merge (minimal-failure-map :actual-result-should-not-have-matched-expected-value actual checkable-map)
                             (map-record-mismatch-addition actual expected)))
 
           (not (extended-= actual expected))
           (emit/pass)
 
-          (has-function-checker? example-map)
-          (emit/fail (minimal-failure-map :actual-result-should-not-have-matched-checker actual example-map))
+          (has-function-checker? checkable-map)
+          (emit/fail (minimal-failure-map :actual-result-should-not-have-matched-checker actual checkable-map))
         
           :else
-          (emit/fail (minimal-failure-map :actual-result-should-not-have-matched-expected-value actual example-map)))))
+          (emit/fail (minimal-failure-map :actual-result-should-not-have-matched-expected-value actual checkable-map)))))
 
 
-(defn- check-result [actual example-map]
-  (if (= (:check-expectation example-map) :expect-match)
-    (check-for-match actual example-map)
-    (check-for-mismatch actual example-map)))
+(defn- check-result [actual checkable-map]
+  (if (= (:check-expectation checkable-map) :expect-match)
+    (check-for-match actual checkable-map)
+    (check-for-mismatch actual checkable-map)))
 
 
 
@@ -103,18 +103,18 @@
 
 
 (defn check-one
-  "Takes a map describing a single example, plus some function redefine-maps
-   and checks that example, reporting results through the emission interface."
-  [example-map local-fakes]
-  ((config/choice :check-recorder) example-map local-fakes)
+  "Takes a map describing a single checkable, plus some function-redefinition maps
+   and checks the checkable, reporting results through the emission interface."
+  [checkable-map local-fakes]
+  ((config/choice :check-recorder) checkable-map local-fakes)
   (with-installed-fakes (concat (reverse (filter :data-fake (background/background-fakes)))
                                 local-fakes
                                 (remove :data-fake (background/background-fakes)))
     (emission-boundary/around-check 
       (let [actual (try  
-                     (eagerly ((:function-under-test example-map)))
+                     (eagerly ((:function-under-test checkable-map)))
                     (catch Throwable ex
                       (captured-throwable ex)))]
         (report-incorrect-call-counts local-fakes)
-        (check-result actual example-map)
+        (check-result actual checkable-map)
         :irrelevant-return-value))))

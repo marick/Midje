@@ -42,7 +42,7 @@
             :partial-prerequisites false
             :check-after-creation true
             :emitter 'midje.emission.plugins.default
-            :check-recorder (fn [example-map prerequisite-maps])
+            :check-recorder (fn [checkable-map prerequisite-maps])
             :fact-filter (constantly true)})
 
 (defmulti validate-key! first)

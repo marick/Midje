@@ -1,4 +1,4 @@
-(ns ^{:doc "generate a map for a particular example"}
+(ns ^{:doc "generate a map for a particular checkable"}
   midje.parsing.2-to-lexical-maps.expects
   (:use midje.clojure.core
         midje.parsing.util.core
@@ -16,7 +16,7 @@
 (defn expansion [call-form arrow expected-result fakes overrides]
   (pred-cond arrow
     recognize/common-check-arrow?
-    (let [check (lexical-maps/example call-form arrow expected-result overrides)
+    (let [check (lexical-maps/checkable call-form arrow expected-result overrides)
           expanded-fakes (map (fn [fake]
                                  ;; TODO: Maybe this wants to be a multimethod,
                                  ;; but I'm not sure whether the resemblance between
