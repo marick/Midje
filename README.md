@@ -75,7 +75,7 @@ Learning Midje
 [Mailing list](http://groups.google.com/group/midje)
 
 Contributors
-==============
+============
 * Sean T. Allen
 * Alex Baranosky
 * Phillip Calçado
