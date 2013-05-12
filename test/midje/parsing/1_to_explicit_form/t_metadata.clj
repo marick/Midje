@@ -2,23 +2,24 @@
   (:use midje.sweet
         midje.test-util
         midje.parsing.1-to-explicit-form.metadata)
-  (:require [midje.util.pile :as pile]))
+  (:require [midje.util.pile :as pile]
+            [midje.data.compendium :as compendium]))
 
 (def a-body '((f) => 3))
 (def body-guid (pile/form-guid a-body))
 
 (facts "about separate-metadata" 
-  (fact "contains the original source and other info"
+  (fact "contains the original source and other info, appropriately quoted"
     (let [[meta _] (separate-metadata `(fact "doc" ~@a-body))]
-      (:midje/source meta) => `(fact "doc" ~@a-body)
+      (:midje/source meta) => `'(fact "doc" ~@a-body)
       (:midje/guid meta) => body-guid
       (:midje/file meta) => "midje/parsing/1_to_explicit_form/t_metadata.clj"
-      (:midje/namespace meta) => 'midje.parsing.1-to-explicit-form.t-metadata
+      (:midje/namespace meta) => ''midje.parsing.1-to-explicit-form.t-metadata
       (contains? meta :midje/line) => truthy))
 
   (fact "ignores the head of the form"
     (let [[meta _] (separate-metadata `(FOO "doc" ~@a-body))]
-      (:midje/source meta) => `(FOO "doc" ~@a-body)
+      (:midje/source meta) => `'(FOO "doc" ~@a-body)
       (:midje/name meta) => "doc"))
 
   (fact "doc strings"
@@ -79,25 +80,26 @@
       (:b meta) => true
       body => a-body
 
-      (fact "and unparse into an explicit map"
-        (unparse-metadata meta) => [{:a true, :b true}])))
+      (fact "and unparse into an explicit quoted map"
+        (unparse-metadata meta) => [{:a 'true, :b 'true}])))
 
   (fact "metadata can be an explicit map"
-    (let [[meta body] (separate-metadata `(fact name {:a 1}  ~@a-body))]
+    (let [[meta body] (separate-metadata `(fact name {:a (+ 1 2) :b 'symbol}  ~@a-body))]
       (:midje/name meta) => "name"
-      (:a meta) => 1
+      (:a meta) => `(+ 1 2)
+      (:b meta) => `'symbol
       body => a-body
 
-      (fact "and unparse into an explicit map"
-        (unparse-metadata meta) => (just [{:a 1} 'name] :in-any-order))))
+      (fact "and unparse into an explicit quoted map"
+        (unparse-metadata meta) => (just [`{:a (+ 1 2), :b 'symbol} 'name] :in-any-order))))
 
   (fact "midje core metadata isn't assigned if it's given explicitly"
     (let [[meta body] (separate-metadata `(fact name {:midje/source "foo" :midje/guid "guid"
-                                                      :midje/namespace bar} ~@a-body))]
+                                                      :midje/namespace 'clojure.core} ~@a-body))]
       (:midje/name meta) => "name"
       (:midje/source meta) => "foo"
       (:midje/guid meta) => "guid"
-      (:midje/namespace meta) => `bar
+      (:midje/namespace meta) => ''clojure.core
       body => a-body))
 
   (fact "is not confused by the presence of an arrow form"
@@ -128,6 +130,9 @@
     (let [[meta form] (separate-metadata `(fact foo "bar" => 1))]
       (:midje/name meta) => "foo"
       form => `("bar" => 1))))
+
+
+
 
 
 (facts "about separate-two-level-metadata"
@@ -167,8 +172,8 @@
     (fact "the source is the original"
       (letfn [(source-of [form]
                 (:midje/source (first (separate-two-level-metadata form))))]
-        (source-of two-level-original-with-metadata-at-top) => two-level-original-with-metadata-at-top
-        (source-of two-level-original-with-metadata-at-lower) => two-level-original-with-metadata-at-lower))
+        (source-of two-level-original-with-metadata-at-top) => `'~two-level-original-with-metadata-at-top
+        (source-of two-level-original-with-metadata-at-lower) => `'~two-level-original-with-metadata-at-lower))
 
     (fact "the guid is stripped of metadata"
       (letfn [(guid-of [form]

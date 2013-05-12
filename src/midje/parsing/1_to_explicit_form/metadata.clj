@@ -39,11 +39,11 @@
                     
                     :else
                     [metadata body])))]
-    (let [[metadata body] (basic-parse {:midje/source metadata-containing-form
+    (let [[metadata body] (basic-parse {:midje/source `'~metadata-containing-form
                                         ;; Storing actual namespaces in these
                                         ;; maps causes bizarre errors in
                                         ;; seemingly unrelated code.
-                                        :midje/namespace (ns-name *ns*)
+                                        :midje/namespace `'~(ns-name *ns*)
                                         :midje/file *file*
                                         :midje/line (:line (meta metadata-containing-form))}
                                        (rest metadata-containing-form))
