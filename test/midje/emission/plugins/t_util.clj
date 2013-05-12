@@ -40,9 +40,9 @@
   => (just #"FAIL\S* at \(filename:10\)" nil)
   (failure-notice {:position ["filename" 10] :description ["outer" nil "inner"]})
   => (just #"FAIL\S* \"outer - inner\" at \(filename:10\)" nil)
-  (failure-notice {:position ["filename" 10] :binding-note "a big string"})
+  (failure-notice {:position ["filename" 10] :midje/table-bindings '{?a 1}})
   => (just #"FAIL\S* at \(filename:10\)"
-           "With table substitutions: a big string")
+           "With table substitutions: [?a 1]")
 
   (config/with-augmented-config {:visible-failure-namespace true}
     (failure-notice {:position ["filename" 10] :namespace "example.ns.file"})

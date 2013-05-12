@@ -2,7 +2,8 @@
   (:use [midje.data.nested-facts]
         clojure.test
         midje.sweet
-        midje.test-util))
+        midje.test-util)
+  (:require [utilize.map :as utilize]))
 
 
 (defn faux-fact
@@ -45,3 +46,19 @@
     (fact "too"
       (fact with-names "having lower precedence"
         (descriptions) => ["names-can-be-used-for-descriptions" nil "too" "having lower precedence"]))))
+
+
+
+;;; Binding maps
+(defn minimal-fact [binding-map-keys binding-map-vals]
+  (with-meta (fn[])
+    {:midje/table-bindings (utilize/ordered-zipmap binding-map-keys binding-map-vals)}))
+
+
+(fact "multiple binding maps are merged into one"
+  (in-new-fact (minimal-fact [:a :b] [1 2])
+    (in-new-fact (minimal-fact [:c] [3])
+      ;; It happens that binding maps are duplicated in nested
+      ;; tables.
+      (in-new-fact (minimal-fact [:c] [3])
+        (table-bindings) => (:midje/table-bindings (meta (minimal-fact [:a :b :c] [1 2 3])))))))

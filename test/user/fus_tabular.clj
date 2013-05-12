@@ -15,7 +15,6 @@
   3)
 
 (silent-tabular "the error output is reasonable"
-  ;; It actually looks ugly, but it's good enough for now.
   (fact
     (tabular (fact (+ ?a ?b) => ?c)
       ?a ?b
@@ -23,18 +22,14 @@
       2  3))
   ?c
   4)
-(note-that (fact-failed-with-binding-note #"\?a 2")
-           (fact-failed-with-binding-note #"\?b 3")
-           (fact-failed-with-binding-note #"\?c 4"))
-
-
+(note-that (fact-failed-with-table-bindings '{?a 2, ?b 3, ?c 4}))
 
 (silent-tabular "fact inside fact inside tabular"
   (fact ?a => 2
     (fact 3 => ?a))
   ?a
   2)
-(note-that (fact-failed-with-binding-note #"\?a 2"))
+(note-that (fact-failed-with-table-bindings '{?a 2}))
 
 
 (declare g)
@@ -46,7 +41,7 @@
     (f ?a) => 3)
   ?a
   2)
-(note-that (fact-failed-with-binding-note #"\?a 2"))
+(note-that (fact-failed-with-table-bindings '{?a 2}))
 
 
 ;;; Because the tabular form expands into a top-level fact (so that it's a

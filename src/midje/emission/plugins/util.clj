@@ -98,8 +98,14 @@
       (format "(%s:%s%s)" filename line-num namespace)
       (filename-lineno [filename line-num]))))
 
-;; TODO: The binding-note comes pre-formatted. Would probably be better
-;; if the formatting were done here.
+
+(defn- format-binding-map [binding-map] 
+  (let [formatted-entries (for [[k v] binding-map]
+                            (str (pr-str k) " " (pr-str v)))]
+    (str "[" (str/join "\n                           " formatted-entries) "]")))
+
+
+
 (defn failure-notice
   "The reader's eye is guided by a bright red FAIL, the filename and lineno, and
    perhaps this other information:
@@ -109,8 +115,8 @@
   (let [description (when-let [doc (format-nested-descriptions (:description m))]
                       (str (pr-str doc) " "))
         position (position-str (:position m) (:namespace m))
-        table-substitutions (when-let [substitutions (:binding-note m)]
-                              (str "With table substitutions: " substitutions))]
+        table-substitutions (when (:midje/table-bindings m)
+                              (str "With table substitutions: " (format-binding-map (:midje/table-bindings m))))]
     (list
      (str "\n" (color/fail "FAIL") " " description "at " position)
      table-substitutions)))

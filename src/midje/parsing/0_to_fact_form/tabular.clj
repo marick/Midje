@@ -29,12 +29,6 @@
   (let [value-rows (partition (count headings-row) values)]
     (map (partial ordered-zipmap headings-row) value-rows)))
 
-(defn- format-binding-map [binding-map] 
-  (let [formatted-entries (for [[k v] binding-map]
-                            (str (pr-str k) " " (pr-str v)))]
-    (str "[" (str/join "\n                           " formatted-entries) "]")))
-
-
 
 (defn valid-pieces [full-form locals]
   (let [[metadata [fact-form & table]] (metadata/separate-two-level-metadata full-form)
@@ -58,7 +52,8 @@
 (defn parse [locals form]
   (letfn [(macroexpander-for [fact-form]
             (fn [binding-map]
-              (metadata/with-wrapped-metadata {:binding-note (format-binding-map binding-map)}
+              (metadata/with-wrapped-metadata
+                {:midje/table-bindings `(ordered-zipmap '~(keys binding-map) '~(vals binding-map))}
                 (parse-facts/working-on-nested-facts
                  (-> binding-map
                      ((partial unify/substitute fact-form))

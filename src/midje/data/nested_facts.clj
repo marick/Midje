@@ -3,6 +3,7 @@
   midje.data.nested-facts
   (:use midje.clojure.core)
   (:require [midje.data.fact :as fact]
+            [utilize.map :as utilize]
             [clojure.string :as str]))
 
 ;;; Note: this should probably be a lexically-scoped property of the
@@ -25,9 +26,6 @@
      ~@body))
 
 (defn table-bindings []
-  (-<> *fact-context*
-       (map (comp :binding-note meta) <>)
-       (remove nil? <>)
-       reverse
-       (str/join "\n" <>)))
-       
+  (letfn [(context-part [extractor]
+            (mapcat #(-> % meta :midje/table-bindings extractor) *fact-context*))]
+    (utilize/ordered-zipmap (context-part keys) (context-part vals))))

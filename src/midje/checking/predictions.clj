@@ -19,7 +19,7 @@
         table-bindings (nested-facts/table-bindings)]
     (if (empty? table-bindings)
       base
-      (assoc base :binding-note table-bindings))))
+      (assoc base :midje/table-bindings table-bindings))))
 
 (def ^{:private true} has-function-checker? (comp extended-fn? :expected-result))
 
