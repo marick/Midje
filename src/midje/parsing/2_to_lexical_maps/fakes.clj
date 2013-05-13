@@ -8,7 +8,7 @@
             [midje.parsing.lexical-maps :as lexical-maps]))
 
 (defn tag-as-background-fake [fake]
-  `(~@fake :background :background :times (~'range 0)))
+  `(~@fake :background :background :times (range 0)))
 
 (defn- compiler-will-inline-fn? [var]
   (contains? (meta var) :inline))

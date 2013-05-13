@@ -227,7 +227,7 @@
             :else
             (assert-valid-code-runner! changer)))))
 
-(def at-least-one-string-with-this-name-must-be-present [])
+(defonce at-least-one-string-with-this-name-must-be-present #{})
 
 (defn add-midje-fact-symbols [symbols]
   (alter-var-root #'at-least-one-string-with-this-name-must-be-present
