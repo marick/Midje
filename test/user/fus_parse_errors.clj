@@ -58,6 +58,12 @@
   (provided (g "2")) => truthy)
 (note-that parse-error-found (fact-failed-with-note #"looks as though you've misparenthesized"))
 
+(silent-fact "Cannot use a keyword in a prerequisite's call form"
+  (:name ..foo..) => "name"
+  (provided (:name ..foo..) => "name"))
+(note-that parse-error-found (fact-failed-with-note #"prerequisite.*a var or a symbol"))
+
+
 ;;; =====================================              Code runners
 ;;; Aka before/after/around
 

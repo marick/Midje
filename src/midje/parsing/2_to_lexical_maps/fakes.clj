@@ -46,16 +46,21 @@
    "  (provided (all-even? ..xs..) => true)"])
 
 (defn valid-pieces [[_ [fnref & args :as call-form] arrow result & overrides]]
-  (let [actual-var (fnref/resolved-to-actual-var-object fnref)]
-    (cond (compiler-will-inline-fn? actual-var)
+  (let [actual-var (memoize (partial fnref/resolved-to-actual-var-object fnref))]
+    (cond (keyword? fnref)
           (error/report-error call-form
-                              (cl-format nil "You cannot override the function `~S`: it is inlined by the Clojure compiler." actual-var))
+                              "The first value in a prerequisite's call form has to be a var or a symbol."
+                              (cl-format nil "~S starts with a keyword." call-form))
+     
+          (compiler-will-inline-fn? (actual-var))
+          (error/report-error call-form
+                              (cl-format nil "You cannot override the function `~S`: it is inlined by the Clojure compiler." (actual-var)))
 
-          (and (symbol? fnref) (exposed-testable? actual-var))
+          (and (symbol? fnref) (exposed-testable? (actual-var)))
           (error/report-error call-form
                               "A prerequisite cannot use a symbol exposed via `expose-testables` or `testable-privates`."
                               (cl-format nil "Instead, use the var directly: #'~S/~S"
-                                         (-> actual-var meta :ns ns-name)
+                                         (-> (actual-var) meta :ns ns-name)
                                          fnref))
           ('#{truthy falsey} result)
           (error/report-error call-form
@@ -63,8 +68,8 @@
                               "Do you really want a checker on the right-hand side of a prerequisite?"
                               "It's easy to use `truthy` when you meant `true`, etc.")
 
-          (statically-disallowed-prerequisite-function-set actual-var)
-          (apply error/report-error call-form (disallowed-function-failure-lines actual-var))))
+          (statically-disallowed-prerequisite-function-set (actual-var))
+          (apply error/report-error call-form (disallowed-function-failure-lines (actual-var)))))
   [call-form fnref args arrow result overrides])
 
 (defn assert-valid! [form]
