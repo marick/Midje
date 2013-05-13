@@ -1,4 +1,4 @@
-(ns ^{:doc "Checkers are for checking results of expectations, or checking 
+(ns ^{:doc "Checkers are for checking results of checkables, or checking 
             that appropriate arguments are passed to prerequisites"} 
   midje.checkers
   (:use midje.clojure.core))

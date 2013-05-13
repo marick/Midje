@@ -1,15 +1,14 @@
 (ns ^{:doc "Functions for turning provideds into semi-sweet fakes"}
   midje.parsing.1-to-explicit-form.prerequisites
   (:use midje.parsing.util.core
-        midje.parsing.arrow-symbols
-        [midje.parsing.1-to-explicit-form.expects :only [up-to-full-expect-form
-                                                         tack-on__then__at-rightmost-expect-leaf]])
+        midje.parsing.arrow-symbols)
   (:require [clojure.zip :as zip]
             [midje.parsing.util.zip :as pzip]
             [midje.parsing.util.overrides :as override]
             [midje.parsing.util.file-position :as position]
             [midje.parsing.util.error-handling :as error]
             [midje.parsing.util.recognizing :as recognize]
+            [midje.parsing.1-to-explicit-form.expects :as parse-expects]
             [midje.util.ecosystem :as ecosystem]))
 
 (defn prerequisite-to-fake [fake-body]
@@ -45,14 +44,14 @@
 
 (defn delete_prerequisite_form__then__at-previous-full-expect-form [loc]
   (assert (recognize/provided? loc))
-  (-> loc zip/up zip/remove up-to-full-expect-form))
+  (-> loc zip/up zip/remove parse-expects/up-to-full-expect-form))
 
 
 (defn insert-prerequisites-into-expect-form-as-fakes [loc]
   (if (recognize/immediately-following-check-form? loc)
     (let [fake-calls (expand-prerequisites-into-fake-calls loc)
           full-expect-form (delete_prerequisite_form__then__at-previous-full-expect-form loc)]
-      (tack-on__then__at-rightmost-expect-leaf fake-calls full-expect-form))
+      (parse-expects/tack-on__then__at-rightmost-expect-leaf fake-calls full-expect-form))
     (error/report-error (zip/node (zip/up loc))
                         "The form before the `provided` is not a check:"
                         (pr-str (pzip/previous-form loc))
