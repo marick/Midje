@@ -1,21 +1,24 @@
 (ns midje.parsing.util.t-core
   (:use midje.parsing.util.core
         midje.sweet
+        [midje.parsing.2-to-lexical-maps.expects :only [expect]]
+        [midje.parsing.2-to-lexical-maps.fakes :only [fake]]
+        [midje.parsing.2-to-lexical-maps.data-fakes :only [data-fake]]
         midje.test-util)
   (:require [clojure.zip :as zip]))
 
 (fact "matches-symbols-in-semi-sweet-or-sweet-ns? accepts symbols from different midje namespaces"
-  (let [values (zip/seq-zip '(m midje.semi-sweet/expect))
+  (let [values (zip/seq-zip `(m expect))
         m-node (zip/down values)
         expect-node (-> values zip/down zip/right)]
-    (expect (matches-symbols-in-semi-sweet-or-sweet-ns? '(m) m-node) => truthy)
-    (expect (matches-symbols-in-semi-sweet-or-sweet-ns? '(expect) expect-node) => truthy)
-    (expect (matches-symbols-in-semi-sweet-or-sweet-ns? '(n) m-node) => falsey)))
+    (matches-symbols-in-semi-sweet-or-sweet-ns? `(m) m-node) => truthy
+    (matches-symbols-in-semi-sweet-or-sweet-ns? `(expect) expect-node) => truthy
+    (matches-symbols-in-semi-sweet-or-sweet-ns? `(n) m-node) => falsey))
 
 (fact "can identify semi-sweet keywords"
-  (doseq [skippable '(expect midje.semi-sweet/expect
-                       fake midje.semi-sweet/fake
-                       data-fake midje.semi-sweet/data-fake)]
+  (doseq [skippable `(expect
+                       fake
+                       data-fake)]
     (let [z (zip/seq-zip `(111 (~skippable 1 2 '(3)) "next"))
           skippable (-> z zip/down zip/next zip/down)]
       skippable => semi-sweet-keyword?)))

@@ -1,4 +1,4 @@
-(ns ^{:doc "Lexicon of all Midje arrows, both expect arrows and prerequisite arrows."}
+(ns ^{:doc "Lexicon of all Midje arrows. Arrows are used in both the sweet and expanded forms."}
   midje.parsing.arrow-symbols)
 
 (def ^{:doc "As a checking arrow: the left side should result in the right side.

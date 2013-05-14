@@ -11,6 +11,12 @@
             [midje.parsing.util.recognizing :as recognize]
             [midje.emission.api :as emit]))
 (expose-testables midje.parsing.2-to-lexical-maps.expects)
+
+
+;; I don't know why `expect` (and it alone) has to be fully qualified for these
+;; tests to pass, but it does. Because these tests are mostly holdovers from when
+;; users could use `expect` directly, I'm not overly concerned. 
+
  
 (unfinished faked-function mocked-function other-function)
 
@@ -23,9 +29,11 @@
       (provided
         (emit/pass) => anything))
     ?expect-call
-    (expect 1 => 1)
-    (expect 2 =not=> 1)
-    (expect 1 => odd?)))
+    (midje.parsing.2-to-lexical-maps.expects/expect 1 => 1)
+    (midje.parsing.2-to-lexical-maps.expects/expect 2 =not=> 1)
+    (midje.parsing.2-to-lexical-maps.expects/expect 1 => odd?)))
+
+
 
 ;;; RE-EXAMINE THE USEFULNESS OF THESE TESTS
 
@@ -92,32 +100,32 @@
 
 (facts "about expect"
   (fact "success"
-    (expect (+ 1 3) => 4))
+    (midje.parsing.2-to-lexical-maps.expects/expect (+ 1 3) => 4))
 
   (fact "There is a =not=> arrow."
-    (expect (+ 1 3) =not=> 5))
+    (midje.parsing.2-to-lexical-maps.expects/expect (+ 1 3) =not=> 5))
 
   (silent-fact "actual doesn't match expected"
-    (expect (+ 1 3) => nil))
+    (midje.parsing.2-to-lexical-maps.expects/expect (+ 1 3) => nil))
   (note-that fact-fails, (fact-expected nil), (fact-actual 4))
 
   (silent-fact "mocked calls go fine, but function under test produces the wrong result"
-     (expect (function-under-test 33) => 12
+     (midje.parsing.2-to-lexical-maps.expects/expect (function-under-test 33) => 12
              (fake (mocked-function 33) => (not 12) )))
   (note-that fact-fails, (fact-actual false), (fact-expected 12))
 
   (silent-fact "mock call supposed to be made, but wasn't (zero call count)"
-     (expect (no-caller) => "irrelevant"
+     (midje.parsing.2-to-lexical-maps.expects/expect (no-caller) => "irrelevant"
              (fake (mocked-function) => 33)))
   (note-that fact-fails, (the-prerequisite-was-never-called))
 
   (fact "call not from inside function"
-    (expect (+ (mocked-function 12) (other-function 12)) => 12
+    (midje.parsing.2-to-lexical-maps.expects/expect (+ (mocked-function 12) (other-function 12)) => 12
             (fake (mocked-function 12) => 11)
             (fake (other-function 12) => 1)))
 
   (silent-fact "failure because one variant of multiply-mocked function is not called"
-     (expect (+ (mocked-function 12) (mocked-function 22)) => 3
+     (midje.parsing.2-to-lexical-maps.expects/expect (+ (mocked-function 12) (mocked-function 22)) => 3
              (fake (mocked-function 12) => 1)
              (fake (mocked-function 22) => 2)
              (fake (mocked-function 33) => 3)))
@@ -125,24 +133,24 @@
              (prerequisite-was-never-called #"mocked-function 33"))
 
   (fact "multiple calls to a mocked function are perfectly fine"
-    (expect (+ (mocked-function 12) (mocked-function 12)) => 2
+    (midje.parsing.2-to-lexical-maps.expects/expect (+ (mocked-function 12) (mocked-function 12)) => 2
             (fake (mocked-function 12) => 1) )))
 
 
 (facts "about overriding values in an expect"
-  (expect (function-under-test 1) => 33 :expected-result "not 33"
+  (midje.parsing.2-to-lexical-maps.expects/expect (function-under-test 1) => 33 :expected-result "not 33"
           (fake (mocked-function 1) => "not 33"))
 
   (let [expected "not 33"]
-    (expect (function-under-test 1) => 33 :expected-result expected
+    (midje.parsing.2-to-lexical-maps.expects/expect (function-under-test 1) => 33 :expected-result expected
             (fake (mocked-function 1) => "not 33"))))
 
 (fact "if there are duplicate overrides, the last one takes precedence"
   (let [expected "not 33"]
-    (expect (function-under-test 1) => 33 :expected-result "to be overridden"
+    (midje.parsing.2-to-lexical-maps.expects/expect (function-under-test 1) => 33 :expected-result "to be overridden"
             :expected-result expected
             (fake (mocked-function 1) => "not 33"))
-    (expect (function-under-test 1) => 33 :expected-result "to be overridden"
+    (midje.parsing.2-to-lexical-maps.expects/expect (function-under-test 1) => 33 :expected-result "to be overridden"
             :expected-result expected
             (fake (mocked-function 1) => 5 :result-supplier "IGNORED"
                   :result-supplier (fn [] expected)))))
@@ -153,20 +161,20 @@
 
 (fact "mocks can be partial: they fall through to any previously defined function"
   (config/with-augmented-config {:partial-prerequisites true}
-    (expect (str (backing-function "returned") " " (backing-function "overridden")) => "returned new value"
+    (midje.parsing.2-to-lexical-maps.expects/expect (str (backing-function "returned") " " (backing-function "overridden")) => "returned new value"
             (fake (backing-function "overridden") => "new value"))))
 
 (facts "about checkers"
   (fact "expected results can be functions"
-    (expect (+ 1 1) => even?))  
+    (midje.parsing.2-to-lexical-maps.expects/expect (+ 1 1) => even?))  
 
   (fact "exact function matches can be checked with exactly"
     (let [myfun (constantly 33)
           funs [myfun]]
-      (expect (first funs) => (exactly myfun))))
+      (midje.parsing.2-to-lexical-maps.expects/expect (first funs) => (exactly myfun))))
 
   (fact "mocked function argument matching uses function-aware equality"
-    (expect (function-under-test 1 "floob" even?) => even?
+    (midje.parsing.2-to-lexical-maps.expects/expect (function-under-test 1 "floob" even?) => even?
             (fake (mocked-function odd-checker irrelevant (exactly even?)) => 44))))
 
 (defn actual-plus-one-is-greater-than [expected]
@@ -174,14 +182,14 @@
 
 (facts "expect can also use chatty checkers"
   (silent-fact "chatty failures provide extra information"
-    (expect (+ 1 1) => (actual-plus-one-is-greater-than 33)))
+    (midje.parsing.2-to-lexical-maps.expects/expect (+ 1 1) => (actual-plus-one-is-greater-than 33)))
   (note-that fact-fails, (fact-actual 2), (fact-expected '(actual-plus-one-is-greater-than 33)))
   ;; For some reason the parser gets fooled into sticking an expect inside the intermediate result.
   ;; Hence the =test=>
   (note-that (fact-gave-intermediate-result (inc actual) =test=> 3))
 
   (silent-fact "chatty checkers can be used anonymously, like functions"
-    (expect (+ 1 1) => (chatty-checker [actual] (> (inc actual) 33))))
+    (midje.parsing.2-to-lexical-maps.expects/expect (+ 1 1) => (chatty-checker [actual] (> (inc actual) 33))))
   (note-that fact-fails, (fact-actual 2), (fact-expected '(chatty-checker [actual] (> (inc actual) 33))))
   (note-that (fact-gave-intermediate-result (inc actual) =test=> 3)))
 
@@ -190,12 +198,12 @@
 (declare chatty-prerequisite)
 (defn chatty-fut [x] (chatty-prerequisite x))
 (fact "chatty functions can be used for argument matching"
-  (expect (chatty-fut 5) => "hello"
+  (midje.parsing.2-to-lexical-maps.expects/expect (chatty-fut 5) => "hello"
           (fake (chatty-prerequisite (actual-plus-one-is-greater-than 5)) => "hello")))
 
 (fact "you can fake a function from another namespace"
   (let [myfun (fn [x] (list x))]
-    (expect (myfun 1) => :list-called
+    (midje.parsing.2-to-lexical-maps.expects/expect (myfun 1) => :list-called
             (fake (list 1) => :list-called))))
 
 (defn set-handler [set1 set2]
@@ -204,9 +212,9 @@
     (intersection set1 set2)))
 
 (fact "a more indirect use of a function can still be faked"
-  (expect (set-handler 'set 'disjoint-set) => 'set
+  (midje.parsing.2-to-lexical-maps.expects/expect (set-handler 'set 'disjoint-set) => 'set
           (fake (intersection 'set 'disjoint-set) => #{}))
-  (expect (set-handler 'set 'overlapping-set) => #{'intersection}
+  (midje.parsing.2-to-lexical-maps.expects/expect (set-handler 'set 'overlapping-set) => #{'intersection}
           (fake (intersection 'set 'overlapping-set) => #{'intersection})))
 
 
@@ -220,13 +228,13 @@
   (list (map (fn [n] (testfun n)) [1])))
 
 (fact "entire trees are eagerly evaluated"
-  (expect (lazy-seq-not-at-top-level) => '((32))
+  (midje.parsing.2-to-lexical-maps.expects/expect (lazy-seq-not-at-top-level) => '((32))
           (fake (testfun 1) => 32)))
 
 
 (capturing-fact-output
  (config/with-augmented-config {:visible-future true}
-   (expect (cons :fred) =future=> 3))
+   (midje.parsing.2-to-lexical-maps.expects/expect (cons :fred) =future=> 3))
  (fact @fact-output => #"WORK TO DO.*on.*cons :fred"))
 
 

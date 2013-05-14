@@ -1,7 +1,9 @@
 (ns ^{:doc "Utility functions dealing with checking or tranforming forms or zippers."}
   midje.parsing.util.core
   (:use midje.clojure.core)
-  (:require [clojure.zip :as zip]))
+  (:require [clojure.zip :as zip]
+            [midje.parsing.expanded-symbols :as expanded-symbols]))
+
 
 
 (defn tree-variant [treelike]
@@ -22,8 +24,7 @@
     (some #(= % (str node)) (concat base-names semi-sweet-names sweet-names))))
 
 (defn semi-sweet-keyword? [loc]
-  (matches-symbols-in-semi-sweet-or-sweet-ns? '(expect fake data-fake) loc))
-
+  (expanded-symbols/all (zip/node loc)))
 
 (defn symbol-named?
   "Is the thing a symbol with the name given by the string?"
