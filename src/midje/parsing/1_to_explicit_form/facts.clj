@@ -14,6 +14,7 @@
         [midje.parsing.1-to-explicit-form.metaconstants :only [predefine-metaconstants-from-form]]
         [midje.util.laziness :only [eagerly]])
   (:require [clojure.zip :as zip]
+            [midje.parsing.expanded-symbols :as expanded-symbols]
             [midje.parsing.util.zip :as pzip]
             [midje.parsing.util.overrides :as override]
             [midje.parsing.util.file-position :as position]
@@ -60,6 +61,9 @@
 
 ;;; Body Processing
 
+(defn already-expanded? [loc]
+  (expanded-symbols/all (zip/node loc)))
+
 (defn to-explicit-form
   "Convert sweet pseudo-forms into their explicit equivalents.
    1) Arrow sequences become expect forms.
@@ -75,7 +79,7 @@
     recognize/provided?
     insert-prerequisites-into-expect-form-as-fakes
 
-    semi-sweet-keyword?
+    already-expanded?
     pzip/skip-to-rightmost-leaf))
 
 (declare midjcoexpand)
@@ -128,7 +132,7 @@
     quoted?
     (comp pzip/skip-to-rightmost-leaf zip/down)
 
-    (partial matches-symbols-in-semi-sweet-or-sweet-ns? recognize/all-arrows)
+    recognize/any-arrow?
     #(at-arrow__add-line-number-to-end__no-movement (position/arrow-line-number %) %)))
 
 

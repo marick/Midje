@@ -22,18 +22,6 @@
 (def parse-exception-arrow? (mkfn:arrow? =throw-parse-exception=>))
 
 
-
-
-;; TODO: Old comment. This is a side-effect of having different sweet and semi-sweet
-;; arrow symbols. Once semi-sweet is destroyed, this can be improved.
-
-;; I want to use resolve() to compare calls to fake, rather than the string
-;; value of the symbol, but for some reason when the tests run, *ns* is User,
-;; rather than midje.semi_sweet_test. Since 'fake' is used only in the latter,
-;; the tests fail.
-;;
-;; FURTHERMORE, I wanted to use set operations to check for fake
-;; but those fail for reasons I don't understand. Bah.
 (defn expect-match-or-mismatch [arrow]
   (condp = (name arrow) 
     => :expect-match
@@ -46,19 +34,24 @@
 (defmulti start-of-checking-arrow-sequence? tree-variant)
 
 (defmethod start-of-checking-arrow-sequence? :zipper [loc]
-  (and (zip/right loc)
-       (matches-symbols-in-semi-sweet-or-sweet-ns? expect-arrows (zip/right loc))))
+  (boolean (and (zip/right loc)
+                (let [node (zip/node (zip/right loc))]
+                  (and (symbol? node)
+                       (expect-arrows (name node)))))))
 
 (defmethod start-of-checking-arrow-sequence? :form [form]
-  (and (sequential? form)
-       (matches-symbols-in-semi-sweet-or-sweet-ns? expect-arrows (second form))))
-
-
+  (boolean (and (sequential? form)
+                (symbol? (second form))
+                (expect-arrows (name (second form))))))
 
 (defn start-of-prerequisite-arrow-sequence? [form]
-  (and (sequential? form)
-       (matches-symbols-in-semi-sweet-or-sweet-ns? fake-arrows (second form))))
+  (boolean (and (sequential? form)
+                (symbol? (second form))
+                (fake-arrows (name (second form))))))
 
+(defn any-arrow? [loc]
+  (boolean (and (symbol? (zip/node loc))
+                (all-arrows (name (zip/node loc))))))
 
 
 ;;; Backgrounds -- this is confusing while we're backing away from earlier,
@@ -107,8 +100,9 @@
   (first-named? form "tabular"))
 
 (defn provided? [loc]
-  (matches-symbols-in-semi-sweet-or-sweet-ns? '(provided) loc))
-
+  (boolean (and (symbol? (zip/node loc))
+                (= "provided" (name (zip/node loc))))))
+  
 (defn metaconstant-prerequisite? [[lhs arrow rhs & overrides :as fake-body]]
   (symbol-named? arrow =contains=>))
 

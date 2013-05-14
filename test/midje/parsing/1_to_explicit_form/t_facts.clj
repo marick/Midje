@@ -12,6 +12,12 @@
 
 ;; Translating sweet forms into their semi-sweet equivalent
 
+(fact "can identify the head of a form that's already been expanded"
+  (doseq [head `(expect fake data-fake)]
+    (let [z (zip/seq-zip `(111 (~head 1 2 '(3)) "next"))
+          skippable (-> z zip/down zip/next zip/down)]
+      skippable => already-expanded?)))
+
 
 (fact "translating entire fact forms"
   "some parts of a fact are to be left alone"

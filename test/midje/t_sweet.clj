@@ -89,13 +89,6 @@
     (str "It should be the identity for value " v) ;; doc string needn't be constant
     (a-fun v) => v))
 
-;; It doesn't matter which namespace the => is in
-(silent-fact (+ 1 1) midje.semi-sweet/=> 3)
-(note-that fact-fails, (fact-actual 2), (fact-expected 3))
-
-(silent-fact (+ 1 1) midje.sweet/=> 3)
-(note-that fact-fails, (fact-actual 2), (fact-expected 3))
-
 (fact (+ 1 2) =not=> 599)
 
 (silent-fact (+ 1 2) =not=> 3)
