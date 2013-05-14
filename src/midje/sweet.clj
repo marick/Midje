@@ -81,6 +81,7 @@
 (defalias after   background/after)
 (defalias around  background/around)
 (defalias formula parse-formulas/formula)
+(declare #^{:doc "A declaration of the provided form"} provided)
 
 (when (doc/appropriate?)
   (immigrate-from 'midje.doc doc/for-sweet)

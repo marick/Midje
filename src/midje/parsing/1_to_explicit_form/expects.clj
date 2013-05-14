@@ -1,7 +1,8 @@
 (ns ^{:doc "Mostly functions for identifying semi-sweet expects, and for converting 
-            midje.sweet arrow forms into semi-sweet expcet forms."}
+            midje.sweet arrow forms into semi-sweet expect forms."}
   midje.parsing.1-to-explicit-form.expects
-  (:use midje.parsing.util.core)
+  (:use midje.parsing.util.core
+        [midje.parsing.2-to-lexical-maps.expects :only [expect]])
   (:require [clojure.zip :as zip]
             [midje.parsing.util.zip :as pzip]
             [midje.parsing.util.overrides :as override]
@@ -41,7 +42,7 @@
         edited-loc (zip/edit loc
                       (fn [loc]
                         (vary-meta
-                          `(midje.semi-sweet/expect ~loc ~arrow-sequence ~(zip/node right-hand) ~@additions)
+                          `(expect ~loc ~arrow-sequence ~(zip/node right-hand) ~@additions)
                           assoc :line line-number)))]
     (->> edited-loc
       zip/right

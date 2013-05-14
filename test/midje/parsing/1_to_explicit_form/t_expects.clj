@@ -1,6 +1,7 @@
 (ns midje.parsing.1-to-explicit-form.t-expects
   (:use midje.sweet
         midje.test-util
+        [midje.parsing.2-to-lexical-maps.expects :only [expect]]
         midje.parsing.1-to-explicit-form.expects)
   (:require [clojure.zip :as zip]
             [midje.parsing.util.recognizing :as recognize]))
@@ -28,12 +29,12 @@
 
 (fact "sweet-style facts can be converted to semi-sweet expect forms"
   "The simple case"
-  (let [original '(                          (f 1) => (+ 2 3)  "next")
-        edited   '( (midje.semi-sweet/expect (f 1) => (+ 2 3)) "next")
+  (let [original `( (f 1) => (+ 2 3)  "next")
+        edited   `( (expect (f 1) => (+ 2 3)) "next")
         z             (zip/seq-zip original)
         original-loc  (-> z zip/down)
         resulting-loc (wrap-with-expect__then__at-rightmost-expect-leaf original-loc)]
-    original-loc => (node '(f 1))
+    original-loc => (node `(f 1))
     original-loc => recognize/start-of-checking-arrow-sequence?
     
     (zip/root resulting-loc) => edited
@@ -41,32 +42,32 @@
 
 
   "A negating check"
-  (let [original '(                          (f 1) =not=> (+ 2 3)  "next")
-        edited   '( (midje.semi-sweet/expect (f 1) =not=> (+ 2 3)) "next")
+  (let [original `( (f 1) =not=> (+ 2 3)  "next")
+        edited   `( (expect (f 1) =not=> (+ 2 3)) "next")
         z             (zip/seq-zip original)
         original-loc  (-> z zip/down)
         resulting-loc (wrap-with-expect__then__at-rightmost-expect-leaf original-loc)]
-    original-loc => (node '(f 1))
+    original-loc => (node `(f 1))
     original-loc => recognize/start-of-checking-arrow-sequence?
     
     (zip/root resulting-loc) => edited
     (zip/next resulting-loc) => (node "next"))
 
 
-  (let [original '(                          (f 1) => (+ 2 3) :key "value"  "next")
-        edited   '( (midje.semi-sweet/expect (f 1) => (+ 2 3) :key "value") "next")   
+  (let [original `( (f 1) => (+ 2 3) :key "value"  "next")
+        edited   `( (expect (f 1) => (+ 2 3) :key "value") "next")   
         z             (zip/seq-zip original)
         original-loc  (-> z zip/down)
         resulting-loc (wrap-with-expect__then__at-rightmost-expect-leaf original-loc)]
-    original-loc => (node '(f 1))
+    original-loc => (node `(f 1))
     original-loc => recognize/start-of-checking-arrow-sequence?
     
    (zip/root resulting-loc) => edited
    (zip/next resulting-loc) => (node "next"))
 
   "annotations on the original form are preserved"
-  (let [original '(                          (f 1) => (+ 2 3) :key "value")
-        edited   '( (midje.semi-sweet/expect (f 1) => (+ 2 3) :key "value"))   
+  (let [original `( (f 1) => (+ 2 3) :key "value")
+        edited   `( (expect (f 1) => (+ 2 3) :key "value"))   
         z             (zip/seq-zip original)
         original-loc  (-> z zip/down)
         resulting-loc (wrap-with-expect__then__at-rightmost-expect-leaf original-loc)]
@@ -79,7 +80,3 @@
         original-loc  (-> z zip/down)
         resulting-loc (wrap-with-expect__then__at-rightmost-expect-leaf original-loc)]
     (:line (meta (first (zip/root resulting-loc)))) => 505))
-
-  
-
-

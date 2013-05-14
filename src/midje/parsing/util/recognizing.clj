@@ -123,7 +123,7 @@
 
 (defmethod expect? :zipper [loc]
   (and (zip/branch? loc)
-       (matches-symbols-in-semi-sweet-or-sweet-ns? '(expect) (zip/down loc))))
+       (expect? (zip/node loc))))
 
 (defmethod expect? :form [form]
   (first-named? form "expect"))
