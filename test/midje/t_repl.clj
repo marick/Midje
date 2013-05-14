@@ -183,7 +183,7 @@
    (forget-facts :all)
    ;; Adding in alphabetical order by namespace for clearer output
    (add-fact :midje/name "ghi" :midje/namespace 'midje.config)
-   (add-fact :midje/name "bcdef" :midje/namespace 'midje.semi-sweet)
+   (add-fact :midje/name "bcdef" :midje/namespace 'midje.doc)
    (add-fact :midje/name "abcde" :midje/namespace 'midje.sweet))
 
  (three-names)

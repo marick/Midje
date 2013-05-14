@@ -2,7 +2,6 @@
   (:use [midje sweet test-util]
         [midje.parsing.2-to-lexical-maps.fakes :only [fake]]
         midje.parsing.2-to-lexical-maps.folded-fakes
-        midje.semi-sweet
         midje.util)
   (:require [midje.util :as util]))
 

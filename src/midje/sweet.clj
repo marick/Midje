@@ -14,8 +14,8 @@
         midje.parsing.util.core
         midje.production-mode)
   ;; For immigration
-  (:require midje.semi-sweet
-            [midje.doc :as doc]
+  (:require [midje.doc :as doc]
+            midje.checking.checkables
             midje.checkers)
   (:require [clojure.string :as str]
             [midje.util.pile :as pile]

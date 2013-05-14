@@ -1,7 +1,6 @@
 (ns midje.parsing.1-to-explicit-form.t-background
   (:require [clojure.zip :as zip])
   (:use [midje sweet test-util]
-        midje.semi-sweet
         [midje.parsing.2-to-lexical-maps.expects :only [expect]]
         [midje.parsing.2-to-lexical-maps.fakes :only [fake]]
         [midje.parsing.2-to-lexical-maps.data-fakes :only [data-fake]]
