@@ -32,7 +32,7 @@
 
 ;; There are three stages to fact processing:
 ;; * Body processing: the convertion of arrow and provided forms into their
-;;   semi-sweet forms, the insertion of background data, line numbering, etc.
+;;   explicit forms, the insertion of background data, line numbering, etc.
 ;;   
 ;; * Compendium processing: wrapping the body in a function form that supports
 ;;   rerunning and history keeping.
@@ -60,8 +60,8 @@
 
 ;;; Body Processing
 
-(defn to-semi-sweet
-  "Convert sweet keywords into their semi-sweet equivalents.
+(defn to-explicit-form
+  "Convert sweet pseudo-forms into their explicit equivalents.
    1) Arrow sequences become expect forms.
    2) (provided ...) become fakes inserted into preceding expect."
   [multi-form]
@@ -135,7 +135,7 @@
 (defn expand-fact-body [forms]
   (-> forms
       annotate-embedded-arrows-with-line-numbers
-      to-semi-sweet
+      to-explicit-form
       parse-folded-fakes/unfold-fakes
       surround-with-background-fakes
       midjcoexpand

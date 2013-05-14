@@ -1,5 +1,4 @@
-(ns ^{:doc "Mostly functions for identifying semi-sweet expects, and for converting 
-            midje.sweet arrow forms into semi-sweet expect forms."}
+(ns ^{:doc "Functions for working with explicit expect forms."}
   midje.parsing.1-to-explicit-form.expects
   (:use midje.parsing.util.core
         [midje.parsing.2-to-lexical-maps.expects :only [expect]])

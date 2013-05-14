@@ -1,4 +1,4 @@
-(ns ^{:doc "Functions for turning provideds into semi-sweet fakes"}
+(ns ^{:doc "Functions for turning provideds into explicit fakes"}
   midje.parsing.1-to-explicit-form.prerequisites
   (:use midje.parsing.util.core
         midje.parsing.arrow-symbols
