@@ -1,6 +1,7 @@
 (ns midje.parsing.util.t-file-position
   (:use [midje.parsing.util.file-position]
-        [midje sweet test-util])
+        [midje sweet test-util]
+        midje.semi-sweet)
   (:require [clojure.zip :as zip]
             [midje.parsing.util.recognizing :as recognize]))
 
@@ -21,7 +22,7 @@
 
 
 
-(def line-marker-2 24)
+(def line-marker-2 25)
 (unfinished f)
 (let [fake-on-one-line (fake (f 1) => 33)
       multiline-with-position-at-first-token (fake

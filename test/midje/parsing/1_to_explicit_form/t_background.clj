@@ -1,6 +1,7 @@
 (ns midje.parsing.1-to-explicit-form.t-background
   (:require [clojure.zip :as zip])
   (:use [midje sweet test-util]
+        midje.semi-sweet
         [midje.parsing.util.wrapping :only [for-wrapping-target?]]
         [midje.util unify]
         [midje.parsing.1-to-explicit-form.background :only [separate-background-forms 
@@ -64,21 +65,21 @@
 (fact "human-friendly background forms can be canonicalized appropriately"
   "fakes"
   (extract-background-changers []) => []
-  (extract-background-changers '[(f 1) => 2]) 
-  => '[(midje.semi-sweet/fake (f 1) => 2 :background :background
-                                         :times (range 0))]
-  (extract-background-changers '[   (f 1) => 2 :foo 'bar (f 2) => 33 ])
-  => '[(midje.semi-sweet/fake (f 1) => 2 :foo 'bar
-                                         :background :background
-                                         :times (range 0))
-       (midje.semi-sweet/fake (f 2) => 33 :background :background
-                              :times (range 0)) ]
+  (extract-background-changers `[(f 1) => 2]) 
+  => `[(fake (f 1) => 2 :background :background
+                        :times (range 0))]
+  (extract-background-changers `[   (f 1) => 2 :foo 'bar (f 2) => 33 ])
+  => `[(fake (f 1) => 2 :foo 'bar
+                        :background :background
+                        :times (range 0))
+       (fake (f 2) => 33 :background :background
+                         :times (range 0)) ]
 
   "data fakes"
-  (extract-background-changers '[...m... =contains=> {:a 1, :b 2}])
-  => '[(midje.semi-sweet/data-fake ...m... =contains=> {:a 1, :b 2}
-                                   :background :background
-                                   :times (range 0))]
+  (extract-background-changers `[...m... =contains=> {:a 1, :b 2}])
+  => `[(data-fake ...m... =contains=> {:a 1, :b 2}
+                  :background :background
+                   :times (range 0))]
 
   "other types are left alone"
   (extract-background-changers
@@ -87,12 +88,12 @@
 
  "mixtures"
  (extract-background-changers
-  '[ (f 1) => 2 (before :checks (swap! test-atom (constantly 0))) (f 2) => 3 ])
- => '[ (midje.semi-sweet/fake (f 1) => 2 :background :background
-                                        :times (range 0))
+  `[ (f 1) => 2 (before :checks (swap! test-atom (constantly 0))) (f 2) => 3 ])
+ => `[ (fake (f 1) => 2 :background :background
+                        :times (range 0))
       (before :checks (swap! test-atom (constantly 0)))
-      (midje.semi-sweet/fake (f 2) => 3 :background :background
-                                        :times (range 0)) ]
+      (fake (f 2) => 3 :background :background
+                       :times (range 0)) ]
  )
 
 (defn guard-special-form [bindings]
@@ -128,7 +129,7 @@
 
 (facts "about safe expansion of weird forms"
   (map? {1 'do}) => truthy
-  (first (second '(midje.semi-sweet.expect (midje.sweet.fact 1 => 2)))) => 'midje.sweet.fact
+  (first (second `(expect (midje.sweet/fact 1 => 2)))) => `fact
   (set? #{1 'do}) => truthy)
 
 (let [around-facts-call-count (atom 0)]

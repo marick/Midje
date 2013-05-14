@@ -35,8 +35,8 @@
             [midje.data.nested-facts :as nested-facts]
             [midje.emission.api :as emit]))
 
+(immigrate 'midje.parsing.arrow-symbols)
 (immigrate 'midje.checkers)
-(immigrate 'midje.semi-sweet)
 
 (def include-midje-checks
   "True by default. If set to false, Midje checks are not

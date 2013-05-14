@@ -20,8 +20,6 @@
             [midje.parsing.2-to-lexical-maps.fakes :as parse-fakes]
             [midje.parsing.2-to-lexical-maps.data-fakes :as parse-data-fakes]))
 
-(immigrate 'midje.parsing.arrow-symbols)
-
 ;;; Once upon a time, this fine represented a lower level user interface that midje.sweet was
 ;;; written in terms of. It has mostly been phased out, but isn't all gone yet. 
 

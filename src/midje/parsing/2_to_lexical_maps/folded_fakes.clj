@@ -58,7 +58,7 @@
 
 (defn generate-fakes [substitutions overrides]
   (for [[funcall metaconstant] substitutions]
-    `(midje.semi-sweet/fake ~funcall midje.semi-sweet/=> ~metaconstant ~@overrides)))
+    `(midje.semi-sweet/fake ~funcall midje.sweet/=> ~metaconstant ~@overrides)))
 
 (defn flatten-fake [[fake [fun & args] & rest] substitutions]
   (let [new-args (for [a args] (get substitutions a a))]

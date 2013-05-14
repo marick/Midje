@@ -3,6 +3,7 @@
         midje.sweet
         midje.parsing.2-to-lexical-maps.expects
         midje.test-util
+        midje.semi-sweet
         midje.util)
   (:require [midje.config :as config]
             [midje.util.pile :as pile]
