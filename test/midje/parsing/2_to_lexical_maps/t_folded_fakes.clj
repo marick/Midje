@@ -29,7 +29,7 @@
   '1                                            =not=> 
   '()                                           =not=> 
   `(fake (f (h 1)))                             =not=> ; not in right namespace
-  '(midje.semi-sweet/non-fake (f (h 1)))             =not=>
+  '(midje.parsing.2-to-lexical-maps/non-fake (f (h 1)))             =not=>
 
   ;; Sad but true: a cons is not a list.
   (cons `fake '((f (h 3)) =test=> 3))    => )

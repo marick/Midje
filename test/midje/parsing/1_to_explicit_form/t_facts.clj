@@ -10,7 +10,7 @@
             [midje.config :as config]))
 
 
-;; Translating sweet forms into their semi-sweet equivalent
+;; Translating sweet forms into their explicit equivalents
 
 (fact "can identify the head of a form that's already been expanded"
   (doseq [head `(expect fake data-fake)]

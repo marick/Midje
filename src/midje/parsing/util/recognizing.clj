@@ -110,9 +110,6 @@
 
 
 
-;;; The old "semi-sweet" forms linger on for a while longer.
-
-
 (defmulti expect? tree-variant)
 
 (defmethod expect? :zipper [loc]

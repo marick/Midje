@@ -27,7 +27,7 @@
 
 (defn node [expected] (fn [actual] (= expected (zip/node actual))))
 
-(fact "sweet-style facts can be converted to semi-sweet expect forms"
+(fact "sweet-style facts can be converted to explicit expect forms"
   "The simple case"
   (let [original `( (f 1) => (+ 2 3)  "next")
         edited   `( (expect (f 1) => (+ 2 3)) "next")

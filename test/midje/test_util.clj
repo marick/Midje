@@ -7,6 +7,7 @@
             [midje.config :as config]
             [clojure.string :as str]
             [midje.emission.api :as emit]
+            [midje.parsing.expanded-symbols :as expanded-symbols]
             [midje.parsing.util.error-handling :as error]
             [midje.emission.state :as state]))
 
@@ -53,11 +54,11 @@
 (defmacro silent-background [& _]
   (silent-body 'midje.sweet/background &form))
 (defmacro silent-expect [& _]
-  (silent-body 'midje.semi-sweet/expect &form))
+  (silent-body expanded-symbols/expect &form))
 (defmacro silent-fake [& _]
-  (silent-body 'midje.semi-sweet/fake &form))
+  (silent-body expanded-symbols/fake &form))
 (defmacro silent-data-fake [& _]
-  (silent-body 'midje.semi-sweet/data-fake &form))
+  (silent-body expanded-symbols/data-fake &form))
 (defmacro silent-check-facts [& _]
   (silent-body 'midje.repl/check-facts &form))
   
