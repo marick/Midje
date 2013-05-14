@@ -1,7 +1,8 @@
 (ns ^{:doc "Unfolding prerequisites like `(f (g 1)) => 3`"}
   midje.parsing.2-to-lexical-maps.folded-fakes
   (:use midje.parsing.util.zip
-        [midje.checking.checkers.defining :only [checker? checker-makers]])
+        [midje.checking.checkers.defining :only [checker? checker-makers]]
+        [midje.parsing.2-to-lexical-maps.fakes :only [fake]])
   (:require [clojure.zip :as zip]
             [midje.util.pile :as pile]
             [midje.parsing.util.recognizing :as recognize]
@@ -52,13 +53,13 @@
   
   (defn folded-fake? [form]
     (and (sequential? form)
-         (= 'midje.semi-sweet/fake (first form))
+         (= `fake (first form))
          (sequential? (second form))
          (some mockable-funcall? (fake-form-funcall-arglist form)))))
 
 (defn generate-fakes [substitutions overrides]
   (for [[funcall metaconstant] substitutions]
-    `(midje.semi-sweet/fake ~funcall midje.sweet/=> ~metaconstant ~@overrides)))
+    `(fake ~funcall midje.sweet/=> ~metaconstant ~@overrides)))
 
 (defn flatten-fake [[fake [fun & args] & rest] substitutions]
   (let [new-args (for [a args] (get substitutions a a))]

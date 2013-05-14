@@ -2,8 +2,9 @@
   (:use clojure.test  ;; This is used to check production mode with deftest.
         midje.sweet
         midje.parsing.2-to-lexical-maps.expects
+        [midje.parsing.2-to-lexical-maps.fakes :only [fake]]
+        [midje.parsing.2-to-lexical-maps.data-fakes :only [data-fake]]
         midje.test-util
-        midje.semi-sweet
         midje.util)
   (:require [midje.config :as config]
             [midje.util.pile :as pile]
@@ -34,22 +35,22 @@
 
 (fact "separating overrides of an #expect from fakes"
   ;; The lets are because fact isn't smart enough not to add overrides to fake call otherwise.
-  (let [actual (separate recognize/fake?  '( (fake (f 1) => 2) :key 'value))]
-    actual => [  '[(fake (f 1) => 2)]
-                 '[:key 'value] ])
+  (let [actual (separate recognize/fake?  `( (fake (f 1) => 2) :key 'value))]
+    actual => [  `[(fake (f 1) => 2)]
+                 `[:key 'value] ])
 
   ;; often passed a seq.
-  (let [actual (separate recognize/fake?  (seq '( (fake (f 1) => 2) :key 'value)))]
-    actual => [  '[(fake (f 1) => 2)]
-                 '[:key 'value] ])
+  (let [actual (separate recognize/fake?  (seq `( (fake (f 1) => 2) :key 'value)))]
+    actual => [  `[(fake (f 1) => 2)]
+                 `[:key 'value] ])
 
   (let [actual (separate recognize/fake?  '())]
     actual => (just empty? empty?))
 
   "data fakes too"
-  (let [actual (separate recognize/fake?  '((data-fake ..m.. =contains=> {:a 1}) :key 'value))]
-    actual => [  '[(data-fake ..m.. =contains=> {:a 1})]
-                 '[:key 'value] ]))
+  (let [actual (separate recognize/fake?  `((data-fake ..m.. =contains=> {:a 1}) :key 'value))]
+    actual => [  `[(data-fake ..m.. =contains=> {:a 1})]
+                 `[:key 'value] ]))
 
 
 (fact "calling a faked function raises an error"

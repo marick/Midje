@@ -1,18 +1,20 @@
 (ns midje.parsing.1-to-explicit-form.t-prerequisites
   (:use midje.parsing.1-to-explicit-form.prerequisites
-        midje.sweet midje.test-util)
+        midje.sweet midje.test-util
+        [midje.parsing.2-to-lexical-maps.fakes :only [fake]]
+        [midje.parsing.2-to-lexical-maps.data-fakes :only [data-fake]])
   (:require [clojure.zip :as zip]
             [midje.parsing.util.recognizing :as recognize]))
 
 (fact "can convert prerequisites into fake calls"
-  (let [original '( provided                        (f 1) => 3                         (f 2) => (+ 1 1))
-        translated '(        (midje.semi-sweet/fake (f 1) => 3) (midje.semi-sweet/fake (f 2) => (+ 1 1)))
+  (let [original `( provided       (f 1) => 3  (f 2) => (+ 1 1))
+        translated `(        (fake (f 1) => 3) (fake (f 2) => (+ 1 1)))
         z (zip/seq-zip original)
         loc (zip/down z)]
     (expand-prerequisites-into-fake-calls loc) => translated)
   "including metaconstant prerequisites"
-  (let [original '( provided                             ...m... =contains=> {:a 'a})
-        translated '(        (midje.semi-sweet/data-fake ...m... =contains=> {:a 'a}) )
+  (let [original `( provided            ...m... =contains=> {:a 'a})
+        translated `(        (data-fake ...m... =contains=> {:a 'a}) )
         z (zip/seq-zip original)
         loc (zip/down z)]
     (expand-prerequisites-into-fake-calls loc) => translated))

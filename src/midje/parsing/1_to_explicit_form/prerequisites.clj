@@ -1,7 +1,9 @@
 (ns ^{:doc "Functions for turning provideds into semi-sweet fakes"}
   midje.parsing.1-to-explicit-form.prerequisites
   (:use midje.parsing.util.core
-        midje.parsing.arrow-symbols)
+        midje.parsing.arrow-symbols
+        [midje.parsing.2-to-lexical-maps.fakes :only [fake]]
+        [midje.parsing.2-to-lexical-maps.data-fakes :only [data-fake]])
   (:require [clojure.zip :as zip]
             [midje.parsing.util.zip :as pzip]
             [midje.parsing.util.overrides :as override]
@@ -14,8 +16,8 @@
 (defn prerequisite-to-fake [fake-body]
   (let [^Integer line-number (position/arrow-line-number-from-form fake-body)
         fake-tag (if (recognize/metaconstant-prerequisite? fake-body)
-                   'midje.semi-sweet/data-fake
-                   'midje.semi-sweet/fake)]
+                   `data-fake
+                   `fake)]
     (vary-meta
      `(~fake-tag ~@fake-body)
      assoc :line (Integer. line-number))))

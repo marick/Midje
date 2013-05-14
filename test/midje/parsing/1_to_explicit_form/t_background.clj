@@ -3,6 +3,8 @@
   (:use [midje sweet test-util]
         midje.semi-sweet
         [midje.parsing.2-to-lexical-maps.expects :only [expect]]
+        [midje.parsing.2-to-lexical-maps.fakes :only [fake]]
+        [midje.parsing.2-to-lexical-maps.data-fakes :only [data-fake]]
         [midje.parsing.util.wrapping :only [for-wrapping-target?]]
         [midje.util unify]
         [midje.parsing.1-to-explicit-form.background :only [separate-background-forms 

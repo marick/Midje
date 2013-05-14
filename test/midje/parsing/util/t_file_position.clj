@@ -1,7 +1,8 @@
 (ns midje.parsing.util.t-file-position
   (:use [midje.parsing.util.file-position]
         [midje sweet test-util]
-        midje.semi-sweet)
+        [midje.parsing.2-to-lexical-maps.fakes :only [fake]]
+        [midje.parsing.2-to-lexical-maps.data-fakes :only [data-fake]])
   (:require [clojure.zip :as zip]
             [midje.parsing.util.recognizing :as recognize]))
 
@@ -12,7 +13,6 @@
 ;; facts. That's because facts have their own mechanism for file
 ;; position, and I want it to be clear that this is just working with
 ;; the base (utility) function.
-
 
 
 

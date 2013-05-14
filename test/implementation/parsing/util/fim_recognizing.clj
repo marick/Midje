@@ -1,6 +1,7 @@
 (ns implementation.parsing.util.fim_recognizing
   (:use midje.sweet
         midje.test-util
+        [midje.parsing.2-to-lexical-maps.expects :only [expect]]
         midje.parsing.util.recognizing)
   (:require [clojure.zip :as zip]))
 
@@ -11,8 +12,7 @@
    (expect? (zip/seq-zip ?form)) => ?expected)
 
  ?form                                  ?expected
- '(expect x => y)                       truthy
- '(midje.semi-sweet/expect x => y)      truthy
+ `(expect x => y)                       truthy
  '(+ x y)                               falsey
  'expect                                falsey)
 
@@ -21,10 +21,10 @@
   (let [result (map expect-match-or-mismatch
                     '(=> midje.data.core-maps/=> midje.sweet/=>
                       =not=> midje.data.core-maps/=not=> midje.sweet/=not=>
-                      =expands-to=> midje.semi-sweet/=expands-to=> midje.sweet/=expands-to=>))]
+                      =expands-to=> midje.sweet/=expands-to=>))]
     (fact result => [:expect-match :expect-match :expect-match
                      :expect-mismatch :expect-mismatch :expect-mismatch
-                     :expect-match :expect-match :expect-match])))
+                     :expect-match :expect-match])))
 
 
 (fact "can ask if at first element of X =?> Y :possible :keywords"
@@ -47,8 +47,8 @@
               '( (f 1) => 2 :key 'value) => start-of-checking-arrow-sequence?
     (possible '( (f 1) => 2 :key 'value)) => start-of-checking-arrow-sequence?
 
-              '( (f 1) midje.semi-sweet/=> 2) => start-of-checking-arrow-sequence?
-              (possible '( (f 1) midje.semi-sweet/=> 2)) => start-of-checking-arrow-sequence?))
+              '( (f 1) midje.sweet/=> 2) => start-of-checking-arrow-sequence?
+              (possible '( (f 1) midje.sweet/=> 2)) => start-of-checking-arrow-sequence?))
 
 (fact "some of the arrow forms for prerequisites differ"
   '( (f) => 3) => start-of-checking-arrow-sequence?  ; Not this one
@@ -59,7 +59,7 @@
 ;;; Provided
 
 (fact "can ask whether at the beginning of a form that provides prerequisites"
-  (let [values (zip/seq-zip '(provided midje.semi-sweet/provided fluke))]
+  (let [values (zip/seq-zip '(provided midje.sweet/provided fluke))]
     (-> values zip/down) => provided?
     (-> values zip/down zip/right) => provided?
     (-> values zip/down zip/right zip/right) =not=> provided?))

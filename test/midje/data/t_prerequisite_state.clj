@@ -3,7 +3,8 @@
         [midje.data.prerequisite-state :except [mockable-funcall? unfolding-step merge-metaconstant-bindings 
                                              unique-vars handle-mocked-call best-call-action ]]
         [midje.test-util]
-        midje.semi-sweet
+        [midje.parsing.2-to-lexical-maps.fakes :only [fake]]
+        [midje.parsing.2-to-lexical-maps.data-fakes :only [data-fake]]
         midje.util)
   (:require [midje.config :as config])
   (:import midje.data.metaconstant.Metaconstant))

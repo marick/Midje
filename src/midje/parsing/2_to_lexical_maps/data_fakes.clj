@@ -18,3 +18,11 @@
 
 (defn to-lexical-map-form [a-list]
   (apply lexical-maps/data-fake (valid-pieces a-list)))
+
+(defmacro data-fake
+  "Creates a fake map that's used to associate key/value pairs with a metaconstant"
+  {:arglists '([metaconstant arrow contained & overrides])}
+  [& _]
+  (to-lexical-map-form &form))
+
+

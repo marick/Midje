@@ -2,7 +2,9 @@
   (:use midje.parsing.1-to-explicit-form.facts
         midje.sweet
         midje.test-util
-        [midje.parsing.2-to-lexical-maps.expects :only [expect]])
+        [midje.parsing.2-to-lexical-maps.expects :only [expect]]
+        [midje.parsing.2-to-lexical-maps.fakes :only [fake]]
+        [midje.parsing.2-to-lexical-maps.data-fakes :only [data-fake]])
   (:require [clojure.zip :as zip]
             [midje.config :as config]))
 
@@ -31,8 +33,8 @@
                 (f 5) => truthy)
         expected `( (expect (f 1) => [1] :ekey "evalue")
                     (expect (f 2) => (+ 2 2)
-                            (midje.semi-sweet/fake (g 3) => 3)
-                            (midje.semi-sweet/fake (g 4) => 4 :pkey "pvalue"))
+                            (fake (g 3) => 3)
+                            (fake (g 4) => 4 :pkey "pvalue"))
                     (expect (f 5) => truthy))]
     (to-semi-sweet form) => expected)
 

@@ -80,3 +80,11 @@
   (assert-right-shape! a-list)
   (apply lexical-maps/fake (valid-pieces a-list)))
     
+(defmacro fake 
+  "Creates a fake map that a particular call will be made. When it is made,
+   the result is to be returned. Either form may contain bound variables. 
+   Example: (let [a 5] (fake (f a) => a))"
+  {:arglists '([call-form arrow result & overrides])}
+  [& _]
+  (to-lexical-map-form &form))
+
