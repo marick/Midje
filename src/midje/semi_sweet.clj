@@ -37,20 +37,6 @@
   [& _]
   (parse-data-fakes/to-lexical-map-form &form))
 
-(defmacro expect 
-  "Run the call form, check that all the mocks defined in the fakes 
-   (probably with 'fake') have been satisfied, and check that the actual
-   results are as expected. If the expected results are a function, it
-   will be called with the actual result as its single argument.
-
-   To strip tests from production code, set either clojure.test/*load-tests*
-   or midje.sweet/include-midje-checks to false."
-  {:arglists '([call-form arrow expected-result & fakes+overrides])}
-  [& _]
-  (deprecate "`expect` (and the entire midje.semi-sweet namespace) will be removed in 1.6.")
-  (when (user-desires-checking?)
-    (parse-expects/to-lexical-map-form &form)))
-
 
 
 

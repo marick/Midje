@@ -2,6 +2,7 @@
   (:require [clojure.zip :as zip])
   (:use [midje sweet test-util]
         midje.semi-sweet
+        [midje.parsing.2-to-lexical-maps.expects :only [expect]]
         [midje.parsing.util.wrapping :only [for-wrapping-target?]]
         [midje.util unify]
         [midje.parsing.1-to-explicit-form.background :only [separate-background-forms 

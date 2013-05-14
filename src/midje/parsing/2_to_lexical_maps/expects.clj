@@ -65,3 +65,8 @@
 (defn to-lexical-map-form [full-form]
   (apply expansion (valid-pieces full-form)))
 
+(defmacro expect 
+  {:arglists '([call-form arrow expected-result & fakes+overrides])}
+  [& _]
+  (to-lexical-map-form &form))
+
