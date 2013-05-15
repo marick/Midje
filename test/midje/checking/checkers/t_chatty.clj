@@ -160,3 +160,21 @@
    3 => (a-chatty-checker 33)))
 (note-that fact-fails, (fact-actual 3),
            (fact-gave-intermediate-result (+ 1 actual) => 4))
+
+
+;;; Parse errors
+
+
+(fact "not a function"
+  (macroexpand '(chatty-checker [n] (let [a 1] (= (inc a) (inc 1)))))
+  => (throws #"Chatty checkers can't be used.*special forms.")
+  (macroexpand '(chatty-checker [n] (cond ...)))
+  => (throws #"Chatty checkers can't be used.*special forms.")
+
+  (fact "`and` and `or`  are still OK, though."
+    (macroexpand '(chatty-checker [n] (and 1 2))) =not=> (throws)
+    (macroexpand '(chatty-checker [n] (or 1 2))) =not=> (throws)))
+
+
+
+  

@@ -4,7 +4,8 @@
         midje.checking.core
         [midje.checking.checkers.util :only [named-as-call]]
         [midje.checking.checkers.defining :only [as-checker]]
-        [midje.parsing.util.core :only [quoted?]]))
+        [midje.parsing.util.core :only [quoted?]]
+        [midje.emission.colorize :as colorize]))
 
 ;; Note: checkers need to be exported in ../checkers.clj
 
@@ -46,6 +47,20 @@
                map?                                      [(assoc arg-form :as as-symbol) as-symbol]
                :else                                     [arg-form arg-form] )))
 
+(defn assert-valid-function! [f]
+  (when (symbol? f)
+    (let [var-form (resolve f)
+          metadata (meta var-form)]
+      (cond (or (= var-form #'and)
+                (= var-form #'or))
+            :ok  ;; They can produce prettier output than `every-checker` and `some-checker`.
+
+            (or (:special-form metadata)
+                (:macro metadata))
+            (throw (new Error (cl-format nil "~%~A:~%Chatty checkers can't be used with special forms or macros.~%(`and` and `or` are allowed, as a special case.)~%~%"
+                                         (colorize/fail "PARSE ERROR"))))))))
+
+
 (defmacro chatty-checker
   "Create a function that returns either true or a description of a failure
    that shows the value of subexpressions. For example, consider this:
@@ -65,6 +80,8 @@
   `every-checker` or `some-checker` in preference to `chatty-checker`.
   "
   [ [actual-arg] [f & args] ]
+  (assert-valid-function! f)
+
   (let [result-symbol (gensym "chatty-intermediate-results-")
         [complex-forms substituted-args] (chatty-untease result-symbol args)
         [arg-form arg-name] (single-destructuring-arg->form+name actual-arg)]
