@@ -141,6 +141,10 @@
    1 => (throws Exception))
 (note-that fact-fails)
 
+(fact "throws can take a single argument - equivalent to (throws Throwable)"
+  1 =not=> (throws)
+  (throw (Error.)) => (throws))
+
 (fact "Checkers turn unexpected exceptions into `false`"
   (silent-fact (throw-exception "throws Error") => anything)
   (note-that fact-fails, (fact-captured-throwable-with-message #"throws Error"))
