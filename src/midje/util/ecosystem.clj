@@ -8,8 +8,7 @@
 (ns ^{:doc "Environmental factors."}
   midje.util.ecosystem
   (:require [clojure.string :as str]
-            midje.clojure.backwards-compatibility
-            [leiningen.core.project :as project]))
+            midje.clojure.backwards-compatibility))
 
 (def issues-url "https://github.com/marick/Midje/issues")
 (def syntax-errors-that-will-not-be-fixed     
@@ -74,14 +73,19 @@
   (alter-var-root #'leiningen-paths-var
                   (constantly (concat (:test-paths project) (:source-paths project)))))
 
-(defn- project-with-paths []
-  (try
-    (project/read)
-  (catch java.io.FileNotFoundException e
-    {:test-paths ["test"]})))
+
+(defmacro #^:private defproject [name version & {:as args}]
+  `(set-leiningen-paths! (merge {:test-paths ["test"] :source-paths ["src"]} '~args)))
+
+(defn- set-leiningen-paths-from-project-file! []
+  (binding [*ns* (find-ns 'midje.util.ecosystem)]
+    (try
+      (load-file "project.clj")
+    (catch java.io.FileNotFoundException e
+        (set-leiningen-paths! {:test-paths ["test"]})))))
  
 (defn leiningen-paths []
   (or leiningen-paths-var
       (do
-        (set-leiningen-paths! (project-with-paths))
+        (set-leiningen-paths-from-project-file!)
         leiningen-paths-var)))
