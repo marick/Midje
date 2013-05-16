@@ -44,6 +44,7 @@
 (note-that (fact-failed-with-table-bindings '{?a 2}))
 
 
+;;; [[INTERACTION CASE]]
 ;;; Because the tabular form expands into a top-level fact (so that it's a
 ;;; recheckable unit), fact-wide state changes apply to it as well as to all
 ;;; enclosed facts. That's potentially annoying.

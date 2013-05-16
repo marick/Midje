@@ -27,37 +27,23 @@
 
 ;; Dissecting background changers. The TERMINOLOGY file will help you understand this.
 
-(defn- possible-state-changer? [form]
-  (or (first-named? form "against-background")
-      (first-named? form "with-state-changes")))
-
-(defn first-form-could-be-a-state-changer? [forms]
-  (and (or (list? (first forms))
-           (seq? (first forms)))
-       (symbol? (ffirst forms))))
-
-(defn first-form-is-a-state-changer? [forms]
-  (#{"before" "after" "around"} (name (ffirst forms))))
-
-(defn separate-extractable-background-changers [fact-forms]
-  (letfn [(treat-as-wrapping-state-changer? [form]
-            (and (possible-state-changer? form) ; only with-state-changes is supposed to be used in wrapping style
-                 (> (count form) 2)
+(defn separate-extractable-background-changers [fact-body-forms]
+  (letfn [(definitely-extractable-form? [form]
+            (any? (partial first-named? form) ["prerequisite" "prerequisites"
+                                               "background"
+                                               "with-state-changes"]))
+          (has-wrapper-syntax? [form]
+            (and (> (count form) 2)
                  (vector? (second form))))
-          (against-background-that-applies-to-containing-fact? [form]
-            (and (possible-state-changer? form)
-                 (not (treat-as-wrapping-state-changer? form))))
           (extractable-background-changer? [form]
-            (or (first-named? form "background")
-                (first-named? form "prerequisites")
-                (first-named? form "prerequisite")
-                (against-background-that-applies-to-containing-fact? form)))]
-  (let [[background-forms other-forms]
-          (separate extractable-background-changer? fact-forms)
-        background-changers
-          (mapcat (fn [[command & args]] (arglist-undoing-nesting args))
-                  background-forms)]
-    [background-changers other-forms])))
+            (cond (definitely-extractable-form? form) true
+                  (not (first-named? form "against-background")) false
+                  (has-wrapper-syntax? form) false
+                  :else true))]
+    (let [[background-forms other-forms] (separate extractable-background-changer? fact-body-forms)
+          background-changers            (mapcat (fn [[command & args]] (arglist-undoing-nesting args))
+                                                 background-forms)]
+      [background-changers other-forms])))
 
 
 ;; Substituting wrapped forms into state changers.
@@ -98,6 +84,14 @@
   [_wrapping-target_ around-form]
   (substitute-correct-form-variable around-form))
 
+
+(defn first-form-could-be-a-state-changer? [forms]
+  (and (or (list? (first forms))
+           (seq? (first forms)))
+       (symbol? (ffirst forms))))
+
+(defn first-form-is-a-state-changer? [forms]
+  (#{"before" "after" "around"} (name (ffirst forms))))
 
 
 

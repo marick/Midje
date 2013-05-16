@@ -43,7 +43,21 @@ Here are examples of extractable style:
      (background (f) => 1, (g) => 1)
      (background [(f) => 1, (g) => 1])
      (prerequisites (f) => 1, (g) => 1)
-     (prerequisites [(f) => 1, (g) => 1]))
+     (prerequisite [(f) => 1, (g) => 1]))
 
 During processing of a fact, top-level extractable background changers
-are pulled out and wrapped around it (as in wrapping style). 
+are pulled out and wrapped around it (as in wrapping style).
+
+There's an annoying interaction between `with-state-changes` and tabular facts - see
+[[INTERACTION CASE]] in `test/user/fus_tabular.clj`. As a result, we also allow
+`with-state-changes` within a fact:
+
+   (tabular
+     (fact
+       (with-state-changes [(before :facts (swap! before-fact inc))
+                            (before :checks (swap! before-check inc))])
+       ...)
+     ...)
+
+
+
