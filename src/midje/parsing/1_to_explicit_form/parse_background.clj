@@ -29,15 +29,15 @@
 
 (defn separate-extractable-background-changers [fact-body-forms]
   (letfn [(definitely-extractable-form? [form]
-            (any? (partial first-named? form) ["prerequisite" "prerequisites"
-                                               "background"
-                                               "with-state-changes"]))
+            (any? (partial first-named? form) ["prerequisite" "prerequisites" "background"]))
+          (possibly-extractable-form? [form]
+            (any? (partial first-named? form) ["against-background" "with-state-changes"]))
           (has-wrapper-syntax? [form]
             (and (> (count form) 2)
                  (vector? (second form))))
           (extractable-background-changer? [form]
             (cond (definitely-extractable-form? form) true
-                  (not (first-named? form "against-background")) false
+                  (not (possibly-extractable-form? form)) false
                   (has-wrapper-syntax? form) false
                   :else true))]
     (let [[background-forms other-forms] (separate extractable-background-changer? fact-body-forms)
