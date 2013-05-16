@@ -137,23 +137,18 @@
     wrapping-target))
 
 (defn- make-prerequisite-unification-template [fake-maker-forms]
-  (let [around-facts-and-checks `(with-pushed-namespace-values
-                                   :midje/background-fakes
-                                   [~@fake-maker-forms] ~(unify/?form))]
-    (list 
-     (wrapping/with-wrapping-target around-facts-and-checks :facts))))
+  (wrapping/with-wrapping-target
+    `(with-pushed-namespace-values :midje/background-fakes [~@fake-maker-forms] ~(unify/?form))
+    :facts))
 
 ;; Collecting all the background fakes is here for historical reasons:
 ;; it made it easier to eyeball expanded forms and see what was going on.
-(defn background-wrappers [background-forms]
+(defn make-unification-templates [background-forms]
   (predefine-metaconstants-from-form background-forms)
   (let [[fakes state-changers] (separate recognize/fake? (separate-individual-changers background-forms))
         make-state-unification-templates (eagerly (map make-state-unification-template state-changers))]
-    (concat make-state-unification-templates (make-prerequisite-unification-template fakes))))
-
-(defn body-of-against-background [[_against-background_ _background-forms_ & background-body :as form]]
-  `(do ~@background-body))
-
+    ;; The state template comes first on the off chance that a prerequisite depends on setup. 
+    (concat make-state-unification-templates (list (make-prerequisite-unification-template fakes)))))
 
 (def #^:private misused-content-message
   ["It is meaningless to combine `against-background` or `with-state-changes` and"
@@ -175,7 +170,8 @@
 
 
 (defn against-background-contents-wrappers [[_against-background_ background-forms & _ :as form]]
-  (let [result (filter (wrapping/for-wrapping-target? :contents ) (background-wrappers background-forms))]
+  (let [result (filter (wrapping/for-wrapping-target? :contents )
+                       (make-unification-templates background-forms))]
     (if (empty? result)
       result
       (conj (vec result)
@@ -186,7 +182,7 @@
                                                  ?form))))))
 
 (defn against-background-facts-and-checks-wrappers [[_against-background_ background-forms & _]]
-  (remove (wrapping/for-wrapping-target? :contents ) (background-wrappers background-forms)))
+  (remove (wrapping/for-wrapping-target? :contents ) (make-unification-templates background-forms)))
 
 (defn surround-with-background-fakes [forms]
   `(with-installed-fakes (background-fakes)
@@ -254,6 +250,9 @@
 
             :else
             (assert-valid-state-changer! changer)))))
+
+(defn body-of-against-background [[_against-background_ _background-forms_ & background-body :as form]]
+  `(do ~@background-body))
 
 (defonce at-least-one-string-with-this-name-must-be-present #{})
 
