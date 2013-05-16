@@ -177,7 +177,7 @@
     (error/parse-and-catch-failure &form
       #(do (position/set-fallback-line-number-from &form)
            (let [[metadata forms] (parse-metadata/separate-metadata &form)
-                 [background remainder] (parse-background/separate-extractable-background-changers forms)]
+                 [background remainder] (parse-background/separate-extractable-background-changing-forms forms)]
              (if (seq background)
                (position/positioned-form `(against-background [~@background]
                                             ~(parse-facts/wrap-fact-around-body metadata remainder))

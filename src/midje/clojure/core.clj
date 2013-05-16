@@ -33,6 +33,10 @@
 (defn named? [x]
   (instance? clojure.lang.Named x))
 
+(defn listlike? [x]
+  (or (list? x)
+      (seq? x)))
+
 
 ;;; Annoyances
 

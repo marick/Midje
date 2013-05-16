@@ -25,9 +25,9 @@
   (namespace-values-inside-out :midje/background-fakes))
 
 
-;; Dissecting background changers. The TERMINOLOGY file will help you understand this.
+;; Dissecting background changers. The TERMINOLOGY file will help you understand this.
 
-(defn separate-extractable-background-changers [fact-body-forms]
+(defn separate-extractable-background-changing-forms [fact-body-forms]
   (letfn [(definitely-extractable-form? [form]
             (any? (partial first-named? form) ["prerequisite" "prerequisites" "background"]))
           (possibly-extractable-form? [form]
@@ -46,7 +46,52 @@
       [background-changers other-forms])))
 
 
-;; Substituting wrapped forms into state changers.
+
+;; Dealing with a list of background changers
+
+(defn- first-form-is-no-state-changer? [forms]
+  (or (not (listlike? (first forms)))
+      (not (symbol? (ffirst forms)))))
+
+(defn- first-form-is-a-state-changer? [forms]
+  (#{"before" "after" "around"} (name (ffirst forms))))
+
+(defn- ^{:testable true } separate-individual-changers
+  ([forms error-reporter]
+     (loop [expanded []
+            in-progress forms]
+       (pred-cond in-progress
+                  empty? 
+                  expanded
+                  
+                  recognize/start-of-prerequisite-arrow-sequence?
+                  (let [arrow-seq (take-arrow-sequence in-progress)]
+                    (recur (conj expanded (-> arrow-seq prerequisite-to-fake fakes/tag-as-background-fake))
+                           (drop (count arrow-seq) in-progress)))
+                  
+                  recognize/metaconstant-prerequisite?
+                  (let [arrow-seq (take-arrow-sequence in-progress)]
+                    (recur (conj expanded (-> arrow-seq prerequisite-to-fake))
+                           (drop (count arrow-seq) in-progress)))
+                  
+                  first-form-is-no-state-changer?
+                  (error-reporter (cl-format nil "~S does not look like a prerequisite or a before/after/around state changer." (first in-progress)))
+                  
+                  first-form-is-a-state-changer?
+                  (recur (conj expanded (first in-progress))
+                         (rest in-progress))
+
+                  :else
+                  (error-reporter (cl-format nil "~S does not look like a before/after/around code runner." (first in-progress))))))
+  ([forms]
+     (separate-individual-changers forms
+                                       (fn [& args]
+                                         (throw (Error. "Supposedly impossible error parsing a background changer."))))))
+
+
+
+;; State changes are converted into unification templates. The unification happens when
+;; individual bodies of code (facts, checkables, etc.) are processed.
 
 (defn- at-substitution-loc? [loc]
   (symbol-named? (zip/node loc) "?form"))
@@ -85,69 +130,26 @@
   (substitute-correct-form-variable around-form))
 
 
-(defn first-form-could-be-a-state-changer? [forms]
-  (and (or (list? (first forms))
-           (seq? (first forms)))
-       (symbol? (ffirst forms))))
-
-(defn first-form-is-a-state-changer? [forms]
-  (#{"before" "after" "around"} (name (ffirst forms))))
-
-
-
-(defn- ^{:testable true } extract-background-changers
-  ([forms error-reporter]
-     (loop [expanded []
-            in-progress forms]
-       (pred-cond in-progress
-                  empty? 
-                  expanded
-                  
-                  recognize/start-of-prerequisite-arrow-sequence?
-                  (let [arrow-seq (take-arrow-sequence in-progress)]
-                    (recur (conj expanded (-> arrow-seq prerequisite-to-fake fakes/tag-as-background-fake))
-                           (drop (count arrow-seq) in-progress)))
-                  
-                  recognize/metaconstant-prerequisite?
-                  (let [arrow-seq (take-arrow-sequence in-progress)]
-                    (recur (conj expanded (-> arrow-seq prerequisite-to-fake))
-                           (drop (count arrow-seq) in-progress)))
-                  
-                  (complement first-form-could-be-a-state-changer?)
-                  (error-reporter (cl-format nil "~S does not look like a prerequisite or a before/after/around state changer." (first in-progress)))
-                  
-                  first-form-is-a-state-changer?
-                  (recur (conj expanded (first in-progress))
-                         (rest in-progress))
-
-                  :else
-                  (error-reporter (cl-format nil "~S does not look like a before/after/around code runner." (first in-progress))))))
-  ([forms]
-     (extract-background-changers forms
-                                       (fn [& args]
-                                         (throw (Error. "Supposedly impossible error parsing a background changer."))))))
-
-(defn- ^{:testable true } state-wrapper [[_before-after-or-around_ wrapping-target & _ :as state-description]]
+(defn- ^{:testable true } make-state-unification-template [[_before-after-or-around_ wrapping-target & _ :as state-changer]]
   (wrapping/with-wrapping-target
-    (macroexpand-1 (map-first #(symbol "midje.parsing.1-to-explicit-form.parse-background" (name %)) state-description))
+    (macroexpand-1 (map-first #(symbol "midje.parsing.1-to-explicit-form.parse-background" (name %))
+                              state-changer))
     wrapping-target))
 
-(letfn [(background-fake-wrappers [fake-maker-forms]
-          (let [around-facts-and-checks `(with-pushed-namespace-values
-                                           :midje/background-fakes
-                                           [~@fake-maker-forms] ~(unify/?form))]
-            (list 
-             (wrapping/with-wrapping-target around-facts-and-checks :facts))))]
+(defn- make-prerequisite-unification-template [fake-maker-forms]
+  (let [around-facts-and-checks `(with-pushed-namespace-values
+                                   :midje/background-fakes
+                                   [~@fake-maker-forms] ~(unify/?form))]
+    (list 
+     (wrapping/with-wrapping-target around-facts-and-checks :facts))))
 
-  ;; Collecting all the background fakes is here for historical reasons:
-  ;; it made it easier to eyeball expanded forms and see what was going on.
-  (defn background-wrappers [background-forms]
-    (predefine-metaconstants-from-form background-forms)
-    (let [[fakes state-descriptions] (separate recognize/fake? (extract-background-changers background-forms))
-          state-wrappers (eagerly (map state-wrapper state-descriptions))]
-      (if (empty? fakes)
-        state-wrappers
-        (concat state-wrappers (background-fake-wrappers fakes))))))
+;; Collecting all the background fakes is here for historical reasons:
+;; it made it easier to eyeball expanded forms and see what was going on.
+(defn background-wrappers [background-forms]
+  (predefine-metaconstants-from-form background-forms)
+  (let [[fakes state-changers] (separate recognize/fake? (separate-individual-changers background-forms))
+        make-state-unification-templates (eagerly (map make-state-unification-template state-changers))]
+    (concat make-state-unification-templates (make-prerequisite-unification-template fakes))))
 
 (defn body-of-against-background [[_against-background_ _background-forms_ & background-body :as form]]
   `(do ~@background-body))
@@ -242,7 +244,7 @@
   (let [changer-args (if (vector? (second form))
                        (second form)
                        (rest form))
-        changers (extract-background-changers changer-args (partial error/report-error form (wrong changer-args)))]
+        changers (separate-individual-changers changer-args (partial error/report-error form (wrong changer-args)))]
     (doseq [changer changers]
       (cond (first-named? changer "fake")
             (fakes/assert-valid! (position/positioned-form changer form))

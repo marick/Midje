@@ -15,7 +15,7 @@
 
 (tabular
  (fact "extract-non-wrapping-background-forms pulls out forms to be wrapped around entire container"
-   (parse-background/separate-extractable-background-changers '?in) => '[ ?background-forms  ?other-forms])
+   (parse-background/separate-extractable-background-changing-forms '?in) => '[ ?background-forms  ?other-forms])
 
  ?in                                    ?background-forms               ?other-forms
  [ (against-background ..back1..
@@ -69,72 +69,64 @@
 
 
 
-;; wrapping
+(fact "Collections of background changers are syntactically ornate, but they can be separated"
+  (fact "ordinary prerequisites are converted to fakes"
+    (separate-individual-changers []) => []
+    (separate-individual-changers `[(f 1) => 2]) 
+    => `[(fake (f 1) => 2 :background :background
+                          :times (range 0))]
+    (separate-individual-changers `[   (f 1) => 2 :foo 'bar (f 2) => 33 ])
+    => `[(fake (f 1) => 2 :foo 'bar
+                          :background :background
+                          :times (range 0))
+         (fake (f 2) => 33 :background :background
+                           :times (range 0)) ])
 
-(fact "human-friendly background forms can be canonicalized appropriately"
-  "fakes"
-  (extract-background-changers []) => []
-  (extract-background-changers `[(f 1) => 2]) 
-  => `[(fake (f 1) => 2 :background :background
-                        :times (range 0))]
-  (extract-background-changers `[   (f 1) => 2 :foo 'bar (f 2) => 33 ])
-  => `[(fake (f 1) => 2 :foo 'bar
-                        :background :background
-                        :times (range 0))
-       (fake (f 2) => 33 :background :background
-                         :times (range 0)) ]
+  (fact "metaconstant `=contains=>` become data fakes"
+    (separate-individual-changers `[...m... =contains=> {:a 1, :b 2}])
+    => `[(data-fake ...m... =contains=> {:a 1, :b 2}
+                    :background :background
+                    :times (range 0))])
 
-  "data fakes"
-  (extract-background-changers `[...m... =contains=> {:a 1, :b 2}])
-  => `[(data-fake ...m... =contains=> {:a 1, :b 2}
-                  :background :background
-                   :times (range 0))]
+  (fact "state changers are simply extracted as-is: no expansion"
+    (separate-individual-changers
+     '[ (before :checks (swap! test-atom (constantly 0))) ]) =>
+     '[ (before :checks (swap! test-atom (constantly 0))) ])
 
-  "other types are left alone"
-  (extract-background-changers
-   '[ (before :checks (swap! test-atom (constantly 0))) ]) =>
-   '[ (before :checks (swap! test-atom (constantly 0))) ]
+  (fact "mixtures"
+    (separate-individual-changers `[ (f 1) => 2 (before :checks (swap! test-atom (constantly 0))) (f 2) => 3 ])
+    => `[ (fake (f 1) => 2 :background :background
+                           :times (range 0))
+          (before :checks (swap! test-atom (constantly 0)))
+          (fake (f 2) => 3 :background :background
+                           :times (range 0)) ]))
 
- "mixtures"
- (extract-background-changers
-  `[ (f 1) => 2 (before :checks (swap! test-atom (constantly 0))) (f 2) => 3 ])
- => `[ (fake (f 1) => 2 :background :background
-                        :times (range 0))
-      (before :checks (swap! test-atom (constantly 0)))
-      (fake (f 2) => 3 :background :background
-                       :times (range 0)) ]
- )
-
-(defn guard-special-form [bindings]
-  (assoc (dissoc bindings '?danger) '?danger (str (bindings '?danger))))
-
-(defmacro wrapping-form-is [ original expected ]
-  (let [bindings (unify/unify expected (state-wrapper original)) ]
-    (guard-special-form bindings) => { '?danger "midje.midje-forms.t-translating/?form" }))
 
 ;; The magical symbol that's used in wrapper substitution can't be used in
-;; a fact because it gets substituted. So we let the caller use "danger" instead.
+;; a fact because it gets substituted. So we let these facts use `?the-unification-symbol` instead.
 (letfn [(form-matching? [expected]
           (chatty-checker [actual] (= actual
-                                      (unify/substitute expected {'?danger `?form}))))]
+                                      (unify/substitute expected {'?the-unification-symbol `?form}))))]
 
-  (fact "canonicalized setup/teardown wrappers can be put into final form"
-    (let [final (state-wrapper '(before :checks (do-something)))]
-      final => (form-matching? '(try (do-something) ?danger (finally nil)))
-      final => (for-wrapping-target? :checks))
+  (fact "state-changers can be turned into unification templates"
+    (let [template (make-state-unification-template '(before :checks (do-something)))]
+      template => (form-matching? '(try (do-something) ?the-unification-symbol (finally nil)))
+      template => (for-wrapping-target? :checks))
   
-    (let [final (state-wrapper '(before :facts (do-something) :after (finish)))]
-      final => (form-matching? '(try (do-something) ?danger (finally (finish))))
-      final => (for-wrapping-target? :facts))
+    (let [template (make-state-unification-template '(before :facts (do-something) :after (finish)))]
+      template => (form-matching? '(try (do-something) ?the-unification-symbol (finally (finish))))
+      template => (for-wrapping-target? :facts))
   
-    (let [final (state-wrapper '(after :all (do-something)))]
-      final => (form-matching? '(try ?danger (finally (do-something))))
-      final => (for-wrapping-target? :all))
+    (let [template (make-state-unification-template '(after :all (do-something)))]
+      template => (form-matching? '(try ?the-unification-symbol (finally (do-something))))
+      template => (for-wrapping-target? :all))
   
-    (let [final (state-wrapper '(around :checks (let [x 1] ?form)))]
-      final => (form-matching? '(let [x 1] ?danger))
-      final => (for-wrapping-target? :checks)))
+    (let [template (make-state-unification-template '(around :checks (let [x 1] ?form)))]
+      template => (form-matching? '(let [x 1] ?the-unification-symbol))
+      template => (for-wrapping-target? :checks)))
 )
+
+
 
 (facts "about safe expansion of weird forms"
   (map? {1 'do}) => truthy
