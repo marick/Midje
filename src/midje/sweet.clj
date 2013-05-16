@@ -21,7 +21,6 @@
             [midje.util.pile :as pile]
             [midje.util.exceptions :as exceptions]
             [midje.util.ecosystem :as ecosystem]
-            [midje.parsing.util.recognizing :as recognize]
             [midje.parsing.util.future-variants :as future-variants]
             [midje.parsing.util.error-handling :as error]
             [midje.parsing.util.wrapping :as wrapping]
@@ -178,7 +177,7 @@
     (error/parse-and-catch-failure &form
       #(do (position/set-fallback-line-number-from &form)
            (let [[metadata forms] (parse-metadata/separate-metadata &form)
-                 [background remainder] (parse-background/separate-background-forms forms)]
+                 [background remainder] (parse-background/separate-extractable-background-changers forms)]
              (if (seq background)
                (position/positioned-form `(against-background [~@background]
                                             ~(parse-facts/wrap-fact-around-body metadata remainder))

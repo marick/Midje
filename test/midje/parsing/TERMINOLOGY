@@ -23,3 +23,27 @@ terms are used internally:
                                    ;; that introduced by `provided`. These forms are sometimes called *local
                                    ;; fakes* to distinguish them from "background" fakes.
 
+
+Within a fact, background changers may appear in either *wrapping style* or *extractable style*.
+Here are examples of wrapping style:
+
+   (fact
+     (against-background [...]    ;; A version that contains prerequisite installers is allowed
+       (fact ...))                ;; but deprecated.
+
+   (fact
+     (with-state-changes [...]    
+       (fact ...)))               ;; It makes no sense to have a state changes without an enclosed fact.
+
+Here are examples of extractable style:
+   
+   (fact
+     (against-background (f) => 1, (g) => 1)    ;; State changers are allowed but deprecated.
+     (against-background [(f) => 1, (g) => 1])  ;; vector is allowed
+     (background (f) => 1, (g) => 1)
+     (background [(f) => 1, (g) => 1])
+     (prerequisites (f) => 1, (g) => 1)
+     (prerequisites [(f) => 1, (g) => 1]))
+
+During processing of a fact, top-level extractable background changers
+are pulled out and wrapped around it (as in wrapping style). 

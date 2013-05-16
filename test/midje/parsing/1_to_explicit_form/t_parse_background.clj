@@ -14,8 +14,8 @@
 
 
 (tabular
- (fact "separate-background-forms divides forms into background and other things"
-   (parse-background/separate-background-forms '?in) => '[ ?background-forms  ?other-forms])
+ (fact "extract-non-wrapping-background-forms pulls out forms to be wrapped around entire container"
+   (parse-background/separate-extractable-background-changers '?in) => '[ ?background-forms  ?other-forms])
 
  ?in                                    ?background-forms               ?other-forms
  [ (against-background ..back1..
@@ -45,11 +45,26 @@
    (against-background ..back3..)
    ..body2..]                         [..back1.. ..back2.. ..back3..]   [..body1.. ..body2..]
 
- ;; A wrapping against-background is not identified as an against-background.
+ ;; prerequisite forms are also extracted
+   [ (prerequisite (f) => 1)
+     (prerequisites (g) => 1)
+     ..body1..
+     (prerequisite [(h) => 1])
+     (prerequisites [(j) => 1])
+     ..body2..]                       [(f) => 1
+                                       (g) => 1
+                                       (h) => 1
+                                       (j) => 1]              [..body1.. ..body2..]
+
+ ;; wrapping background changers are not extracted
    [ (against-background [..back1.. ..back2..]
        (fact "an embedded fact"))]
-                                       []                               [ (against-background [..back1.. ..back2..]
-                                                                            (fact "an embedded fact"))]
+                                       []                     [ (against-background [..back1.. ..back2..]
+                                                                   (fact "an embedded fact"))]
+   [ (with-state-changes [..back1.. ..back2..]
+       (fact "an embedded fact"))]
+                                       []                     [ (with-state-changes [..back1.. ..back2..]
+                                                                   (fact "an embedded fact"))]
 )
 
 

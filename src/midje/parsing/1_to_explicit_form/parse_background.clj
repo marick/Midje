@@ -25,38 +25,49 @@
   (namespace-values-inside-out :midje/background-fakes))
 
 
-;; dissecting background forms
+;; Dissecting background changers. The TERMINOLOGY file will help you understand this.
 
-(defn against-background-that-wraps? [form]
-  (and (recognize/against-background? form)
-       (and (> (count form) 2)
-            (vector? (second form)))))
+(defn- possible-state-changer? [form]
+  (or (first-named? form "against-background")
+      (first-named? form "with-state-changes")))
 
-(defn against-background-that-applies-to-containing-fact? [form]
-  (and (recognize/against-background? form)
-       (not (against-background-that-wraps? form))))
+(defn first-form-could-be-a-state-changer? [forms]
+  (and (or (list? (first forms))
+           (seq? (first forms)))
+       (symbol? (ffirst forms))))
 
-(defn form-signaling-intention-to-wrap-background-around-fact? [form]
-  (or (first-named? form "background")
-      (first-named? form "prerequisites")
-      (first-named? form "prerequisite")
-      (against-background-that-applies-to-containing-fact? form)))
+(defn first-form-is-a-state-changer? [forms]
+  (#{"before" "after" "around"} (name (ffirst forms))))
 
-
-
-
-(defn separate-background-forms [fact-forms]
+(defn separate-extractable-background-changers [fact-forms]
+  (letfn [(treat-as-wrapping-state-changer? [form]
+            (and (possible-state-changer? form) ; only with-state-changes is supposed to be used in wrapping style
+                 (> (count form) 2)
+                 (vector? (second form))))
+          (against-background-that-applies-to-containing-fact? [form]
+            (and (possible-state-changer? form)
+                 (not (treat-as-wrapping-state-changer? form))))
+          (extractable-background-changer? [form]
+            (or (first-named? form "background")
+                (first-named? form "prerequisites")
+                (first-named? form "prerequisite")
+                (against-background-that-applies-to-containing-fact? form)))]
   (let [[background-forms other-forms]
-          (separate form-signaling-intention-to-wrap-background-around-fact? fact-forms)
+          (separate extractable-background-changer? fact-forms)
         background-changers
           (mapcat (fn [[command & args]] (arglist-undoing-nesting args))
                   background-forms)]
-    [background-changers other-forms]))
+    [background-changers other-forms])))
+
+
+;; Substituting wrapped forms into state changers.
+
+(defn- at-substitution-loc? [loc]
+  (symbol-named? (zip/node loc) "?form"))
 
 (defn- substitute-correct-form-variable [form]
   (translate-zipper form
-                    (fn [loc] (symbol-named? (zip/node loc) "?form"))
-                    (fn [loc] (zip/replace loc (unify/?form)))))
+       at-substitution-loc? #(zip/replace % (unify/?form))))
 
 (defmacro before 
   "Code to run before a given wrapping target (:facts, :contents, :checks).
@@ -87,6 +98,9 @@
   [_wrapping-target_ around-form]
   (substitute-correct-form-variable around-form))
 
+
+
+
 (defn- ^{:testable true } extract-background-changers
   ([forms error-reporter]
      (loop [expanded []
@@ -105,10 +119,10 @@
                     (recur (conj expanded (-> arrow-seq prerequisite-to-fake))
                            (drop (count arrow-seq) in-progress)))
                   
-                  (complement recognize/first-form-could-be-a-code-runner?)
-                  (error-reporter (cl-format nil "~S does not look like a prerequisite or a before/after/around code runner." (first in-progress)))
+                  (complement first-form-could-be-a-state-changer?)
+                  (error-reporter (cl-format nil "~S does not look like a prerequisite or a before/after/around state changer." (first in-progress)))
                   
-                  recognize/first-form-is-a-code-runner?
+                  first-form-is-a-state-changer?
                   (recur (conj expanded (first in-progress))
                          (rest in-progress))
 
@@ -220,7 +234,7 @@
                         "The wrapper must contain `?form`.")))
   
 
-(defn assert-valid-code-runner! [runner]
+(defn assert-valid-state-changer! [runner]
   (case (name (first runner))
     "before" (assert-valid-before! runner)
     "after" (assert-valid-after! runner)
@@ -243,7 +257,7 @@
             (data-fakes/assert-valid! (position/positioned-form changer form))
 
             :else
-            (assert-valid-code-runner! changer)))))
+            (assert-valid-state-changer! changer)))))
 
 (defonce at-least-one-string-with-this-name-must-be-present #{})
 

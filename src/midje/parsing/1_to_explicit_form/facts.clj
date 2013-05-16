@@ -79,7 +79,7 @@
 
 (declare midjcoexpand)
 
-(defn expand-against-background [form]
+(defn expand-wrapping-background-changer [form]
   (parse-background/assert-right-shape! form)
   (parse-background/assert-contains-facts! form)
   (-<> form 
@@ -88,6 +88,11 @@
        (wrapping/with-additional-wrappers (parse-background/against-background-facts-and-checks-wrappers form) <>)
        (wrapping/multiwrap <> (parse-background/against-background-contents-wrappers form))))
 
+;; Note that this predicate assumes that extractable (non-wrapping) background changers
+;; have already been extracted from the body of a fact. 
+(defn- wrapping-background-changer? [form]
+  (or (first-named? form "against-background")
+      (first-named? form "with-state-changes")))
 
 (defn midjcoexpand
   "Descend form, macroexpanding *only* midje forms and placing background wrappers where appropriate."
@@ -96,7 +101,8 @@
     wrapping/already-wrapped?     form
     quoted?              form
     recognize/future-fact?         (macroexpand form)
-    recognize/against-background?  (expand-against-background form)
+    ;; The `prerequisites` form is not supposed to be used in wrapping style.
+    wrapping-background-changer?  (expand-wrapping-background-changer form)
     recognize/expect?      (wrapping/multiwrap form (wrapping/forms-to-wrap-around :checks ))
     recognize/fact?        (macroexpand form)
     recognize/tabular?      (macroexpand form)

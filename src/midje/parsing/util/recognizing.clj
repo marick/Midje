@@ -54,22 +54,6 @@
                 (all-arrows (name (zip/node loc))))))
 
 
-;;; Backgrounds -- this is confusing while we're backing away from earlier,
-;;; overly-baroque forms.
-
-(defn against-background? [form]
-  (or (first-named? form "against-background")
-      (first-named? form "with-state-changes")))
-
-(defn first-form-could-be-a-code-runner? [forms]
-  (and (or (list? (first forms))
-           (seq? (first forms)))
-       (symbol? (ffirst forms))))
-
-(defn first-form-is-a-code-runner? [forms]
-  (#{"before" "after" "around"} (name (ffirst forms))))
-
-
 ;;; Facts and what they contain
 
 (defn fact? [form]
