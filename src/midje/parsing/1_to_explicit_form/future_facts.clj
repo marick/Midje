@@ -5,7 +5,6 @@
             [midje.parsing.util.file-position :as position]
             [midje.data.nested-facts :as nested-facts]
             [midje.parsing.1-to-explicit-form.metadata :as parse-metadata]
-            [midje.parsing.1-to-explicit-form.background :as background]
             [midje.emission.api :as emit]))
 
 (defn parse [form]

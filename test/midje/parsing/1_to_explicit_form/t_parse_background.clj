@@ -1,37 +1,31 @@
-(ns midje.parsing.1-to-explicit-form.t-background
-  (:require [clojure.zip :as zip])
-  (:use [midje sweet test-util]
+(ns midje.parsing.1-to-explicit-form.t-parse-background
+  (:use midje.sweet
+        midje.test-util
+        [midje.parsing.util.wrapping :only [for-wrapping-target?]]
         [midje.parsing.2-to-lexical-maps.expects :only [expect]]
         [midje.parsing.2-to-lexical-maps.fakes :only [fake]]
         [midje.parsing.2-to-lexical-maps.data-fakes :only [data-fake]]
-        [midje.parsing.util.wrapping :only [for-wrapping-target?]]
-        [midje.util unify]
-        [midje.parsing.1-to-explicit-form.background :only [separate-background-forms 
-                                 background-wrappers]]
-        midje.util))
-(expose-testables midje.parsing.1-to-explicit-form.background)
+        midje.util)
+  (:require [clojure.zip :as zip]
+            [midje.util.unify :as unify]
+            [midje.parsing.util.wrapping :as wrapping]
+            [midje.parsing.1-to-explicit-form.parse-background :as parse-background]))
+(expose-testables midje.parsing.1-to-explicit-form.parse-background)
 
-(unfinished unused used)
-(defn calls-nothing [] )
-
-(unfinished local)
-(defn calls-used [] (str (used) " " (local)))
-
-(expect (separate-background-forms '[ (against-background) (f 1) => 3 ]) => [ [] '[ (f 1) => 3 ] ])
 
 (tabular
  (fact "separate-background-forms divides forms into background and other things"
-   (separate-background-forms '?in) => '[ ?background-forms  ?other-forms])
+   (parse-background/separate-background-forms '?in) => '[ ?background-forms  ?other-forms])
 
  ?in                                    ?background-forms               ?other-forms
  [ (against-background ..back1..
                        ..back2..)
-   ..claim1..
-   ..claim2..]                         [..back1.. ..back2..]          [..claim1.. ..claim2..]
+   ..body1..
+   ..body2..]                           [..back1.. ..back2..]           [..body1.. ..body2..]
 
  [ (against-background ..back1..)
-   ..claim1..
-   (against-background ..back2..)]      [..back1.. ..back2..]         [..claim1..] 
+   ..body1..
+   (against-background ..back2..)]      [..back1.. ..back2..]           [..body1..] 
 
  []                                     []                              []
  [ (f 1) => 3 ]                         []                              [ (f 1) => 3 ]
@@ -39,25 +33,23 @@
  [(against-background)
   (f 1) => 3 ]                          []                              [(f 1) => 3]
 
- ;; It's OK to use background instead of against-background
+ ;; It's OK to use `background` instead of `against-background`
  [ (background ..back1..
                ..back2..)
-   ..claim1..
-   ..claim2..]                         [..back1.. ..back2..]          [..claim1.. ..claim2..]
+   ..body1..
+   ..body2..]                         [..back1.. ..back2..]              [..body1.. ..body2..]
 
- ;; It's OK for against-background in a fact to have a vector of background changers
+ ;; It's OK for background in a fact to have a vector of background changers
  [ (background [..back1.. ..back2..])
-   ..claim1..
+   ..body1..
    (against-background ..back3..)
-   ..claim2..]                         [..back1.. ..back2.. ..back3..] [..claim1.. ..claim2..]
+   ..body2..]                         [..back1.. ..back2.. ..back3..]   [..body1.. ..body2..]
 
- ;; An embedded wrapping against-background is not identified as an against-background.
+ ;; A wrapping against-background is not identified as an against-background.
    [ (against-background [..back1.. ..back2..]
        (fact "an embedded fact"))]
                                        []                               [ (against-background [..back1.. ..back2..]
                                                                             (fact "an embedded fact"))]
-     
-
 )
 
 
@@ -102,14 +94,14 @@
   (assoc (dissoc bindings '?danger) '?danger (str (bindings '?danger))))
 
 (defmacro wrapping-form-is [ original expected ]
-  (let [bindings (unify expected (state-wrapper original)) ]
+  (let [bindings (unify/unify expected (state-wrapper original)) ]
     (guard-special-form bindings) => { '?danger "midje.midje-forms.t-translating/?form" }))
 
 ;; The magical symbol that's used in wrapper substitution can't be used in
 ;; a fact because it gets substituted. So we let the caller use "danger" instead.
 (letfn [(form-matching? [expected]
-          (fn [actual] (= actual
-                         (substitute expected {'?danger 'midje.parsing.1-to-explicit-form.t-background/?form}))))]
+          (chatty-checker [actual] (= actual
+                                      (unify/substitute expected {'?danger `?form}))))]
 
   (fact "canonicalized setup/teardown wrappers can be put into final form"
     (let [final (state-wrapper '(before :checks (do-something)))]

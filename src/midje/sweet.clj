@@ -29,7 +29,7 @@
             [midje.parsing.0-to-fact-form.tabular :as parse-tabular]
             [midje.parsing.0-to-fact-form.formulas :as parse-formulas]
             [midje.parsing.1-to-explicit-form.facts :as parse-facts]
-            [midje.parsing.1-to-explicit-form.background :as background]
+            [midje.parsing.1-to-explicit-form.parse-background :as parse-background]
             [midje.parsing.1-to-explicit-form.metadata :as parse-metadata]
             [midje.parsing.1-to-explicit-form.metaconstants :as parse-metaconstants]
             [midje.data.nested-facts :as nested-facts]
@@ -77,9 +77,9 @@
      throw Errors if ever called."
     [& names] (unfinished* names))
   
-(defalias before  background/before)
-(defalias after   background/after)
-(defalias around  background/around)
+(defalias before  parse-background/before)
+(defalias after   parse-background/after)
+(defalias around  parse-background/around)
 (defalias formula parse-formulas/formula)
 (declare #^{:doc "A declaration of the provided form"} provided)
 
@@ -104,8 +104,8 @@
  (when (user-desires-checking?)
    (error/parse-and-catch-failure &form
     #(do                                   
-       (background/assert-right-shape! &form)
-       (wrapping/put-wrappers-into-effect (background/background-wrappers
+       (parse-background/assert-right-shape! &form)
+       (wrapping/put-wrappers-into-effect (parse-background/background-wrappers
                                            (arglist-undoing-nesting background-changers)))))))
 
 (defmacro against-background
@@ -178,7 +178,7 @@
     (error/parse-and-catch-failure &form
       #(do (position/set-fallback-line-number-from &form)
            (let [[metadata forms] (parse-metadata/separate-metadata &form)
-                 [background remainder] (background/separate-background-forms forms)]
+                 [background remainder] (parse-background/separate-background-forms forms)]
              (if (seq background)
                (position/positioned-form `(against-background [~@background]
                                             ~(parse-facts/wrap-fact-around-body metadata remainder))
@@ -234,7 +234,7 @@
    complain that it contains no facts. You can avoid that by \"registering\"
    your macro with Midje."
   [symbols]
-  (background/add-midje-fact-symbols symbols))
+  (parse-background/add-midje-fact-symbols symbols))
 
 (add-midje-fact-symbols '[fact facts
                           future-fact future-facts

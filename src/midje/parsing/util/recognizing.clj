@@ -61,22 +61,6 @@
   (or (first-named? form "against-background")
       (first-named? form "with-state-changes")))
 
-(defn against-background-that-wraps? [form]
-  (and (against-background? form)
-       (and (> (count form) 2)
-            (vector? (second form)))))
-
-(defn against-background-that-applies-to-containing-fact? [form]
-  (and (against-background? form)
-       (not (against-background-that-wraps? form))))
-
-(defn form-signaling-intention-to-wrap-background-around-fact? [form]
-  (or (first-named? form "background")
-      (first-named? form "prerequisites")
-      (first-named? form "prerequisite")
-      (against-background-that-applies-to-containing-fact? form)))
-
-
 (defn first-form-could-be-a-code-runner? [forms]
   (and (or (list? (first forms))
            (seq? (first forms)))

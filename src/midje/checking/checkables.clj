@@ -8,7 +8,7 @@
   (:require [midje.config :as config]
             [midje.data.nested-facts :as nested-facts]
             [midje.emission.boundaries :as emission-boundary]
-            [midje.parsing.1-to-explicit-form.background :as background]
+            [midje.parsing.1-to-explicit-form.parse-background :as parse-background]
             [midje.emission.api :as emit]))
 
 
@@ -107,9 +107,9 @@
    and checks the checkable, reporting results through the emission interface."
   [checkable-map local-fakes]
   ((config/choice :check-recorder) checkable-map local-fakes)
-  (with-installed-fakes (concat (reverse (filter :data-fake (background/background-fakes)))
+  (with-installed-fakes (concat (reverse (filter :data-fake (parse-background/background-fakes)))
                                 local-fakes
-                                (remove :data-fake (background/background-fakes)))
+                                (remove :data-fake (parse-background/background-fakes)))
     (emission-boundary/around-check 
       (let [actual (try  
                      (eagerly ((:function-under-test checkable-map)))

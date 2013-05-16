@@ -6,11 +6,6 @@
         
         [midje.parsing.1-to-explicit-form.expects :only [wrap-with-expect__then__at-rightmost-expect-leaf]]
         [midje.parsing.1-to-explicit-form.prerequisites :only [insert-prerequisites-into-expect-form-as-fakes]]
-        [midje.parsing.1-to-explicit-form.background :only [surround-with-background-fakes
-                                                            body-of-against-background
-                                                            against-background-contents-wrappers
-                                                            against-background-facts-and-checks-wrappers
-                                                            ]]
         [midje.parsing.1-to-explicit-form.metaconstants :only [predefine-metaconstants-from-form]]
         [midje.util.laziness :only [eagerly]])
   (:require [clojure.zip :as zip]
@@ -21,7 +16,7 @@
             [midje.parsing.util.error-handling :as error]
             [midje.parsing.util.wrapping :as wrapping]
             [midje.parsing.util.recognizing :as recognize]
-            [midje.parsing.1-to-explicit-form.background :as background]
+            [midje.parsing.1-to-explicit-form.parse-background :as parse-background]
             [midje.parsing.1-to-explicit-form.metadata :as parse-metadata]
             [midje.parsing.2-to-lexical-maps.fakes :as parse-fakes]
             [midje.parsing.2-to-lexical-maps.expects :as parse-expects]
@@ -85,13 +80,13 @@
 (declare midjcoexpand)
 
 (defn expand-against-background [form]
-  (background/assert-right-shape! form)
-  (background/assert-contains-facts! form)
+  (parse-background/assert-right-shape! form)
+  (parse-background/assert-contains-facts! form)
   (-<> form 
-       body-of-against-background
+       parse-background/body-of-against-background
        midjcoexpand
-       (wrapping/with-additional-wrappers (against-background-facts-and-checks-wrappers form) <>)
-       (wrapping/multiwrap <> (against-background-contents-wrappers form))))
+       (wrapping/with-additional-wrappers (parse-background/against-background-facts-and-checks-wrappers form) <>)
+       (wrapping/multiwrap <> (parse-background/against-background-contents-wrappers form))))
 
 
 (defn midjcoexpand
@@ -141,7 +136,7 @@
       annotate-embedded-arrows-with-line-numbers
       to-explicit-form
       parse-folded-fakes/unfold-fakes
-      surround-with-background-fakes
+      parse-background/surround-with-background-fakes
       midjcoexpand
       parse-expects
       (wrapping/multiwrap (wrapping/forms-to-wrap-around :facts))))

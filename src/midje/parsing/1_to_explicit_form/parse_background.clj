@@ -1,6 +1,6 @@
-(ns ^{:doc "Code to be run before, after or around facts. Also, 
-            prerequisites that pertain to a group of facts."} 
-  midje.parsing.1-to-explicit-form.background
+(ns ^{:doc "Handles the parsing of background forms. For the moment, this includes both
+            state changes and fact-wide prerequisites."}
+  midje.parsing.1-to-explicit-form.parse-background
   (:use midje.clojure.core
         midje.parsing.util.core
         midje.parsing.util.zip
@@ -27,9 +27,27 @@
 
 ;; dissecting background forms
 
+(defn against-background-that-wraps? [form]
+  (and (recognize/against-background? form)
+       (and (> (count form) 2)
+            (vector? (second form)))))
+
+(defn against-background-that-applies-to-containing-fact? [form]
+  (and (recognize/against-background? form)
+       (not (against-background-that-wraps? form))))
+
+(defn form-signaling-intention-to-wrap-background-around-fact? [form]
+  (or (first-named? form "background")
+      (first-named? form "prerequisites")
+      (first-named? form "prerequisite")
+      (against-background-that-applies-to-containing-fact? form)))
+
+
+
+
 (defn separate-background-forms [fact-forms]
   (let [[background-forms other-forms]
-          (separate recognize/form-signaling-intention-to-wrap-background-around-fact? fact-forms)
+          (separate form-signaling-intention-to-wrap-background-around-fact? fact-forms)
         background-changers
           (mapcat (fn [[command & args]] (arglist-undoing-nesting args))
                   background-forms)]
@@ -103,7 +121,7 @@
 
 (defn- ^{:testable true } state-wrapper [[_before-after-or-around_ wrapping-target & _ :as state-description]]
   (wrapping/with-wrapping-target
-    (macroexpand-1 (map-first #(symbol "midje.parsing.1-to-explicit-form.background" (name %)) state-description))
+    (macroexpand-1 (map-first #(symbol "midje.parsing.1-to-explicit-form.parse-background" (name %)) state-description))
     wrapping-target))
 
 (letfn [(background-fake-wrappers [fake-maker-forms]

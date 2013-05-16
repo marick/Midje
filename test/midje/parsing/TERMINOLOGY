@@ -1,0 +1,25 @@
+The code is a mix of old and new terminology. The following
+terms are used internally:
+
+  (with-state-changes [(before :facts (f 1) => 2)]    ;; `with-state-changes` contains one kind of *background
+                                                      ;; changer*, called a *state changer*.
+                                                      ;; `with-state-changes` is quickly expanded into the
+                                                      ;; older `against-background` form, so you'll see
+                                                      ;; many references to `against-background`.
+
+    (fact               
+      (prerequisite (g 8) => 3)  ;; In the user documentation, this is a "fact-wide prerequisite".
+                                 ;; In the code, it's another form of background changer, a
+                                 ;; *prerequisite installer*. Prerequisites are sometimes called *fakes*. 
+
+      (h 1) => 5                 ;; Checkables are parsed into an `expect` form. During migration
+                                 ;; to new terminology, you'll sometimes see "expect" and sometimes
+                                 ;; "checkable".
+
+      (provided                     
+        (g 2) => 5)                ;; Prerequisites after `provided` are parsed into either `fake`
+        ..foo.. =contains=> {:x 1} ;; or `data-fake` forms. Note the inconsistent naming between
+                                   ;; prerequisites introduced by `prerequisite` or `against-background` and
+                                   ;; that introduced by `provided`. These forms are sometimes called *local
+                                   ;; fakes* to distinguish them from "background" fakes.
+
