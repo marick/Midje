@@ -1,4 +1,4 @@
-(ns midje.parsing.1-to-explicit-form.t-parse-background
+(ns implementation.parsing.1-to-explicit-form.fim-parse-background
   (:use midje.sweet
         midje.test-util
         [midje.parsing.util.wrapping :only [for-wrapping-target?]]
