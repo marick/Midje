@@ -1,0 +1,56 @@
+(ns midje.emission.plugins.t-tap
+  (:use [midje sweet util test-util])
+  (:require [midje.emission.plugins.tap :as tap]
+            [midje.config :as config]
+            [midje.emission.plugins.default-failure-lines :as failure-lines]
+            [midje.emission.plugins.util :as util]))
+
+(defn innocuously [key & args]
+  (config/with-augmented-config {:emitter 'midje.emission.plugins.junit
+                                 :print-level :print-facts}
+    (captured-output (apply (key plugin/emission-map) args))))
+
+(def test-fact
+  (with-meta (fn[]) {:midje/name "named" :midje/description "desc" :midje/namespace "blah"}))
+
+(def test-failure-map
+  {:type :some-prerequisites-were-called-the-wrong-number-of-times,
+   :namespace "midje.emission.plugins.t-junit"})
+
+(fact
+ "starting a fact stream resets fact-counter and last-namespace-shown"
+ (innocuously :starting-fact-stream) => ""
+ @tap/fact-counter => 0
+ @tap/last-namespace-shown => nil)
+
+(fact
+ "closing a fact stream generates the closing report"
+ (innocuously :finishing-fact-stream
+              {:midje-passes 1 :midje-failures 1} ..ignored..)
+ => (contains "1..0 # midje count: 2")
+ (future-fact
+  "with empty midje-counters"
+  (innocuously :finishing-fact-stream {} ..ignored..)
+  => (contains "# No facts were checked. Is that what you wanted?")))
+
+(with-state-changes [(before :facts (do (reset! tap/fact-counter 0)
+                                        (tap/set-last-namespace-shown! nil)))]
+  (fact
+   "pass produces ok with the index of the test"
+   (tap/starting-to-check-fact test-fact)
+   (innocuously :pass) => (contains "ok 1\n")
+   (innocuously :pass) => (contains "ok 2\n")))
+
+(with-state-changes [(before :facts (do (reset! tap/fact-counter 0)
+                                        (tap/set-last-namespace-shown! nil)))]
+  (fact
+   "failure produces not ok with the index of the test"
+   (tap/starting-to-check-fact test-fact)
+   (innocuously :fail test-failure-map) => (contains "\nnot ok 1")
+   (innocuously :fail test-failure-map) => (contains "\nnot ok 2")))
+
+(with-state-changes [(before :facts (do (reset! tap/fact-counter 0)
+                                        (tap/set-last-namespace-shown! nil)))]
+  (fact "failure also produces not ok"
+        (tap/starting-to-check-fact test-fact)
+        (innocuously :fail test-failure-map) => (contains "\nnot ok 1")))

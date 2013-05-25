@@ -57,7 +57,7 @@
                                                  (fact/line fact)]))))))
 
 
-(defn finishing-fact-stream [midje-counters clojure-test-map]
+(defn finishing-fact-stream [midje-counters _]
   (let [passes-and-failures (+ (:midje-passes midje-counters) (:midje-failures midje-counters))]
     (util/emit-one-line (str 1 ".." @fact-counter
                              " # midje count: " passes-and-failures
