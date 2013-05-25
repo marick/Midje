@@ -1,5 +1,5 @@
 (ns ^{:doc "TAP output. See http://testanything.org"}
-    midje.emission.plugins.tap
+  midje.emission.plugins.tap
   (:use midje.emission.util)
   (:require [midje.data.fact :as fact]
             [midje.emission.state :as state]
@@ -14,6 +14,14 @@
   (let [[_ _ & more] (lines/summarize failure-map)]
     (map #(str "# " %) (conj more (apply str (:position failure-map))))))
 
+(defn future-fact [description-list position]
+  (do
+    (swap! fact-counter inc)
+    (util/emit-one-line (str "not ok " @fact-counter
+                             " # TODO "
+                             (when-let [doc (util/format-nested-descriptions description-list)]
+                               (str (pr-str doc) " "))
+                             "at " (util/filename-lineno position)))))
 (defn fail [failure-map]
   (do
     (swap! fact-counter inc)
@@ -37,6 +45,7 @@
     (set-last-namespace-shown! namespace-symbol)))
 
 (defn starting-fact-stream []
+  (reset! fact-counter 0)
   (set-last-namespace-shown! nil))
 
 (defn starting-to-check-fact [fact]
@@ -50,16 +59,10 @@
 
 (defn finishing-fact-stream [midje-counters clojure-test-map]
   (let [passes-and-failures (+ (:midje-passes midje-counters) (:midje-failures midje-counters))]
-    (util/emit-one-line (str 1 ".." passes-and-failures
+    (util/emit-one-line (str 1 ".." @fact-counter
+                             " # midje count: " passes-and-failures
                              (when-not passes-and-failures
                                "# No facts were checked. Is that what you wanted?")))))
-
-(defn future-fact [description-list position]
-  (util/emit-one-line "")
-  (util/emit-one-line (str "WORK TO DO" " "
-                           (when-let [doc (util/format-nested-descriptions description-list)]
-                             (str (pr-str doc) " "))
-                           "at " (util/filename-lineno position))))
 
 (defn make-map [& keys]
   (zipmap keys
