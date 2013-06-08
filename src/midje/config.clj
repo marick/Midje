@@ -58,7 +58,12 @@
   (dorun (map validate-key! changes)))
 
   
-(defmacro with-augmented-config [additions & body]
+(defmacro with-augmented-config
+  "Dynamically bind the configuration. Example:
+   (require '[clojure.config :as config])
+   (config/with-augmented-config {:check-after-creation false}
+     (fact 1 => 2))"
+  [additions & body]
   `(let [true-map# ~additions]
      (validate! true-map#)
      (binding [*config* (merge *config* true-map#)]
