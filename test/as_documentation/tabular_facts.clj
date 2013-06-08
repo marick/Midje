@@ -16,7 +16,7 @@
 ;;; can any other top-level fact:
 
 (fact
-  (map fact-description (fetch-facts "tabular facts can take a doc string"))
+  (map fact-description (fetch-facts *ns* "tabular facts can take a doc string"))
   => ["tabular facts can take a doc string"])
 
 ;;; On failure, the line number points to the fact, but the message
@@ -63,7 +63,7 @@
   1     0       1)
 
 (fact
-  (let [marked-facts (fetch-facts :a-tabular-fact)]
+  (let [marked-facts (fetch-facts *ns* :a-tabular-fact)]
     (count marked-facts) => 1
     (:a-tabular-fact (meta (first marked-facts))) => true))
     
