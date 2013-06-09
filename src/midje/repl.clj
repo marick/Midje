@@ -384,10 +384,15 @@
   *me nil)
 
 (defn- on-require-failure [the-ns throwable]
-  (println (color/fail "LOAD FAILURE for " (ns-name the-ns)))
+  (println (color/fail "LOAD FAILURE for " the-ns))
   (println (.getMessage throwable))
   (emit/fail-silently) ; to make sure last line shows a failure.
   (when (config/running-in-repl?)
+    (when (re-find #"ould not locate.*classpath" (.getMessage throwable))
+      (println "+ This error indicates that the first argument to `ns` doesn't match the file path.")
+      (println "+ That breaks autotest's file tracking (even for files without errors).")
+      (println "+ After you fix the problem, rerun `autotest`.")
+      (println))
     (println "The exception has been stored in #'*me, so `(pst *me)` will show the stack trace.")
     (alter-var-root #'*me (constantly throwable))))
 
