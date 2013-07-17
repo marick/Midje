@@ -8,7 +8,7 @@
 (defn innocuously [key & args]
   (config/with-augmented-config {:emitter 'midje.emission.plugins.junit
                                  :print-level :print-facts}
-    (captured-output (apply (key plugin/emission-map) args))))
+    (captured-output (apply (key tap/emission-map) args))))
 
 (def test-fact
   (with-meta (fn[]) {:midje/name "named" :midje/description "desc" :midje/namespace "blah"}))
@@ -28,7 +28,13 @@
  (innocuously :finishing-fact-stream
               {:midje-passes 1 :midje-failures 1} ..ignored..)
  => (contains "1..0 # midje count: 2")
- (future-fact
+ (fact
+  "with empty midje-counters set to 0"
+  (innocuously :finishing-fact-stream
+               {:midje-passes 0 :midje-failures 0}
+               ..ignored..)
+  => (contains "# No facts were checked. Is that what you wanted?"))
+ (fact
   "with empty midje-counters"
   (innocuously :finishing-fact-stream {} ..ignored..)
   => (contains "# No facts were checked. Is that what you wanted?")))
@@ -48,6 +54,7 @@
    (tap/starting-to-check-fact test-fact)
    (innocuously :fail test-failure-map) => (contains "\nnot ok 1")
    (innocuously :fail test-failure-map) => (contains "\nnot ok 2")))
+
 
 (with-state-changes [(before :facts (do (reset! tap/fact-counter 0)
                                         (tap/set-last-namespace-shown! nil)))]

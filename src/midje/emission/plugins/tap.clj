@@ -58,10 +58,11 @@
 
 
 (defn finishing-fact-stream [midje-counters _]
-  (let [passes-and-failures (+ (:midje-passes midje-counters) (:midje-failures midje-counters))]
+  (let [passes-and-failures (+ (:midje-passes midje-counters 0)
+                               (:midje-failures midje-counters 0))]
     (util/emit-one-line (str 1 ".." @fact-counter
                              " # midje count: " passes-and-failures
-                             (when-not passes-and-failures
+                             (when (= passes-and-failures 0)
                                "# No facts were checked. Is that what you wanted?")))))
 
 (defn make-map [& keys]
