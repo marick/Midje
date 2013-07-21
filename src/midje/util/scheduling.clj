@@ -14,6 +14,7 @@
   (when (@scheduled-futures service-tag)
     (stop service-tag))
   (let [executor (ScheduledThreadPoolExecutor. 1)
+        function (bound-fn [] (function))
         future (.scheduleWithFixedDelay executor function 0 interval TimeUnit/MILLISECONDS)]
     (swap! scheduled-futures assoc service-tag future)))
 
