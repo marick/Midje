@@ -9,7 +9,7 @@
                  [utilize "0.2.3" :exclusions [org.clojure/clojure]]
                  [colorize "0.1.1" :exclusions [org.clojure/clojure]]
                  [org.clojure/tools.macro "0.1.1"]
-                 [bultitude "0.1.7"]
+                 [bultitude "0.2.2"]
                  [swiss-arrows "0.1.0"]
                  [org.clojure/tools.namespace "0.2.2"]
                  [slingshot "0.10.3"]
