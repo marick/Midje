@@ -81,6 +81,7 @@ Contributors
 * Phillip Calçado
 * Stuart Halloway
 * Wilkes Joiner
+* Colin Jones
 * Ben Mabey
 * Alan Malloy
 * Brian Marick
