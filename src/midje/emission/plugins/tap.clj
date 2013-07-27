@@ -15,24 +15,21 @@
     (map #(str "# " %) (conj more (apply str (:position failure-map))))))
 
 (defn future-fact [description-list position]
-  (do
-    (swap! fact-counter inc)
-    (util/emit-one-line (str "not ok " @fact-counter
-                             " # TODO "
-                             (when-let [doc (util/format-nested-descriptions description-list)]
-                               (str (pr-str doc) " "))
-                             "at " (util/filename-lineno position)))))
+  (swap! fact-counter inc)
+  (util/emit-one-line (str "not ok " @fact-counter
+                           " # TODO "
+                           (when-let [doc (util/format-nested-descriptions description-list)]
+                             (str (pr-str doc) " "))
+                           "at " (util/filename-lineno position))))
 (defn fail [failure-map]
-  (do
-    (swap! fact-counter inc)
-    (util/emit-lines (format-failure-summary failure-map))
-    (util/emit-one-line
-     (str "not ok " @fact-counter))))
+  (swap! fact-counter inc)
+  (util/emit-lines (format-failure-summary failure-map))
+  (util/emit-one-line
+   (str "not ok " @fact-counter)))
 
 (defn pass []
-  (do
-    (swap! fact-counter inc)
-    (util/emit-one-line (str "ok " @fact-counter))))
+  (swap! fact-counter inc)
+  (util/emit-one-line (str "ok " @fact-counter)))
 
 (def last-namespace-shown (atom nil))
 
