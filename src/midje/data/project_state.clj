@@ -1,11 +1,13 @@
 (ns ^{:doc "What we know about the changing project file/namespace tree."}
   midje.data.project-state
-  (:use midje.clojure.core
-        [bultitude.core :only [namespaces-in-dir namespaces-on-classpath]])
+  (:use midje.clojure.core)
   (:require [midje.emission.boundaries :as emission-boundary]
             [midje.util.ecosystem :as ecosystem]
             [midje.emission.colorize :as color]
-            [midje.config :as config]))
+            [midje.config :as config]
+            [midje.util.bultitude :as tude]
+            [midje.emission.api :as emit]))
+
 
 (require '[clojure.tools.namespace.repl :as nsrepl]
          '[clojure.tools.namespace.dir :as nsdir]
@@ -15,8 +17,23 @@
 
 ;;; Querying the project tree
 
+(defn report-namespace-oddities [grouped-by-status]
+  (letfn [(filenames [fileseq]
+            (into [] (map #(.getName (:file %)) fileseq)))]
+    (when-not (empty? (:unreadable grouped-by-status))
+      (println (color/note "Warning: These files were unreadable: "
+                         (filenames (:unreadable grouped-by-status)))))
+    (when-not (empty? (:invalid-clojure-file grouped-by-status))
+      (println (color/fail "FAILURE: These files have broken namespaces and will not be loaded."))
+      (println (color/fail (filenames (:invalid-clojure-file  grouped-by-status))))
+      (emit/fail-silently))))
+
 (defn namespaces []
-  (mapcat namespaces-in-dir (ecosystem/leiningen-paths)))
+  (let [classified (group-by :status
+                             (mapcat tude/classify-dir-entries (ecosystem/leiningen-paths)))]
+    (report-namespace-oddities classified)
+    (map :namespace-symbol (:contains-namespace classified))))
+    
 
 ;; For some purposes, it matters that the :test-paths files come
 ;; before the :source-paths files. That happens to always be true,
@@ -25,7 +42,7 @@
 
 (defn unglob-partial-namespaces [namespaces]
   (mapcat #(if (= \* (last %))
-             (namespaces-on-classpath :prefix (apply str (butlast %)))
+             (tude/namespaces-on-classpath :prefix (apply str (butlast %)))
              [(symbol %)])
           (map str namespaces)))
 

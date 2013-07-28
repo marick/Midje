@@ -14,11 +14,11 @@
   
   (fact "can 'unglob' wildcards"
     (unglob-partial-namespaces ["ns.foo.*"]) => '[ns.foo.bar ns.foo.baz]
-    (provided (bultitude.core/namespaces-on-classpath :prefix "ns.foo.")
+    (provided (midje.util.bultitude/namespaces-on-classpath :prefix "ns.foo.")
               => '[ns.foo.bar ns.foo.baz])
     
     (unglob-partial-namespaces ['ns.foo.*]) => '[ns.foo.bar ns.foo.baz]
-    (provided (bultitude.core/namespaces-on-classpath :prefix "ns.foo.")
+    (provided (midje.util.bultitude/namespaces-on-classpath :prefix "ns.foo.")
               => '[ns.foo.bar ns.foo.baz])))
 
 
