@@ -2,7 +2,9 @@
   (:use [midje.sweet]
         [midje.test-util]
         [midje.data.project-state])
-  (:require [midje.util.ecosystem :as ecosystem]))
+  (:require [midje.util.ecosystem :as ecosystem]
+            [midje.util.bultitude :as tude])
+  (:require [clojure.java.io :as io]))
 
 
 ;;; Directory structure
@@ -13,15 +15,16 @@
     (unglob-partial-namespaces ['explicit-namespace2]) => ['explicit-namespace2])
   
   (fact "can 'unglob' wildcards"
-    (unglob-partial-namespaces ["ns.foo.*"]) => '[ns.foo.bar ns.foo.baz]
-    (provided (midje.util.bultitude/namespaces-on-classpath :prefix "ns.foo.")
-              => '[ns.foo.bar ns.foo.baz])
-    
-    (unglob-partial-namespaces ['ns.foo.*]) => '[ns.foo.bar ns.foo.baz]
-    (provided (midje.util.bultitude/namespaces-on-classpath :prefix "ns.foo.")
-              => '[ns.foo.bar ns.foo.baz])))
+    (prerequisites (ecosystem/leiningen-paths) => ["test" "src"]
+                   (tude/classify-dir-entries "test/ns/foo") => [{:status :contains-namespace
+                                                                   :namespace-symbol 'ns.foo.t-1}
+                                                                 {:status :contains-namespace
+                                                                   :namespace-symbol 'ns.foo.t-2}]
+                   (tude/classify-dir-entries "src/ns/foo") => [{:status :contains-namespace
+                                                                  :namespace-symbol 'ns.foo.bar}])
 
-
+    (unglob-partial-namespaces ["ns.foo.*"]) => '[ns.foo.t-1 ns.foo.t-2 ns.foo.bar]
+    (unglob-partial-namespaces ['ns.foo.* ]) => '[ns.foo.t-1 ns.foo.t-2 ns.foo.bar]))
 
 
 ;;; Working with modification times and dependencies

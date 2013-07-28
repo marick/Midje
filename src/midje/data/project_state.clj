@@ -6,7 +6,8 @@
             [midje.emission.colorize :as color]
             [midje.config :as config]
             [midje.util.bultitude :as tude]
-            [midje.emission.api :as emit]))
+            [midje.emission.api :as emit])
+  (:require [clojure.java.io :as io]))
 
 
 (require '[clojure.tools.namespace.repl :as nsrepl]
@@ -17,32 +18,39 @@
 
 ;;; Querying the project tree
 
-(defn report-namespace-oddities [grouped-by-status]
+(defn valid-namespace-symbols [classifieds]
   (letfn [(filenames [fileseq]
+            (prn (:file (first fileseq)))
+            (prn (.getName (:file (first fileseq))))
             (into [] (map #(.getName (:file %)) fileseq)))]
-    (when-not (empty? (:unreadable grouped-by-status))
-      (println (color/note "Warning: These files were unreadable: "
-                         (filenames (:unreadable grouped-by-status)))))
-    (when-not (empty? (:invalid-clojure-file grouped-by-status))
-      (println (color/fail "FAILURE: These files have broken namespaces and will not be loaded."))
-      (println (color/fail (filenames (:invalid-clojure-file  grouped-by-status))))
-      (emit/fail-silently))))
+    (let [grouped-by-status (group-by :status classifieds)]
+      (when-not (empty? (:unreadable grouped-by-status))
+        (prn (:unreadable grouped-by-status))
+        (println (color/note "Warning: These files were unreadable: "
+                             (filenames (:unreadable grouped-by-status)))))
+      (when-not (empty? (:invalid-clojure-file grouped-by-status))
+        (println (color/fail "FAILURE: These files have broken namespaces and will not be loaded."))
+        (println (color/fail (filenames (:invalid-clojure-file  grouped-by-status))))
+        (emit/fail-silently))
+      (map :namespace-symbol (:contains-namespace grouped-by-status)))))
+      
 
 (defn namespaces []
-  (let [classified (group-by :status
-                             (mapcat tude/classify-dir-entries (ecosystem/leiningen-paths)))]
-    (report-namespace-oddities classified)
-    (map :namespace-symbol (:contains-namespace classified))))
-    
-
+  (valid-namespace-symbols (mapcat tude/classify-dir-entries (ecosystem/leiningen-paths))))
 ;; For some purposes, it matters that the :test-paths files come
 ;; before the :source-paths files. That happens to always be true,
 ;; but the name below emphasizes it.
 (def namespaces-test-first namespaces)
 
+(defn classifications-on-classpath [prefix]
+  (let [roots (map io/file (ecosystem/leiningen-paths))
+        selecteds (map #(tude/select-subdirectory % prefix) roots)
+        dirnames (map #(.getPath %) selecteds)]
+    (mapcat tude/classify-dir-entries dirnames)))
+
 (defn unglob-partial-namespaces [namespaces]
   (mapcat #(if (= \* (last %))
-             (tude/namespaces-on-classpath :prefix (apply str (butlast %)))
+             (valid-namespace-symbols (classifications-on-classpath (apply str (butlast %))))
              [(symbol %)])
           (map str namespaces)))
 
