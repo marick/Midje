@@ -2,7 +2,7 @@
   (:use [midje sweet test-util]
         [midje.open-protocols]
         midje.util.ecosystem
-        user.fus-protocols.protocols-defined-in-another-namespace
+        user.fus-protocols.protocols-defined-in-another-namespace)
   (:require user.fus-protocols.protocols-defined-in-another-namespace))
 (import 'user.fus_protocols.protocols_defined_in_another_namespace.OutsideNSFakeableRecord)
 
