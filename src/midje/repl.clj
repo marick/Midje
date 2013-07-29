@@ -519,9 +519,14 @@
             (start-periodic-check)
 
             (empty? args)
-            (do
+            (try
               (project-state/load-everything (autotest-options))
-              (start-periodic-check))
+              (start-periodic-check)
+            (catch Throwable t
+              (autotest :stop)
+              (println (color/fail "Because failures in the initial load break autotest's dependency tracking,"))
+              (println (color/fail "autotest has been cancelled."))))
+
 
             (and (:files? option)
                  (complained-about-missing-on-filesystem? (:files-args option)))
