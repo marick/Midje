@@ -52,7 +52,15 @@
 (def #^:private ^{:testable true}
      default-function :value-at-time-of-faking)
 
-(def #^:dynamic #^:private *call-action-count* (atom 0))
+(def #^:dynamic #^:private *call-action-count* (atom {}))
+(defn nested-prerequisite-call? []
+  (= 2 (get (deref *call-action-count*) (Thread/currentThread))))
+
+(defn record-start-of-prerequisite-call []
+  (swap! *call-action-count* transform (Thread/currentThread) inc 0))
+(defn record-end-of-prerequisite-call []
+  (swap! *call-action-count* transform (Thread/currentThread) dec))
+
 
 
 (defn- ^{:testable true } best-call-action 
@@ -60,7 +68,7 @@
    Else returns a function: from the first fake with a usable-default-function.
    Returns nil otherwise."
   [function-var actual-args fakes]
-  (when (= 2 @*call-action-count*)
+  (when (nested-prerequisite-call?)
     (throw (apply exceptions/user-error (parse-fakes/disallowed-function-failure-lines function-var))))
   (if-let [found (find-first (partial call-handled-by-fake? function-var actual-args) fakes)]
     found
@@ -72,9 +80,9 @@
 (defn- ^{:testable true } handle-mocked-call [function-var actual-args fakes]
   (macro/macrolet [(counting-nested-calls [& forms]
                `(try
-                  (swap! *call-action-count* inc)
+                  (record-start-of-prerequisite-call)
                   ~@forms
-                  (finally (swap! *call-action-count* dec))))]
+                  (finally (record-end-of-prerequisite-call))))]
 
     (let [action (counting-nested-calls (best-call-action function-var actual-args fakes))]
       (pred-cond action

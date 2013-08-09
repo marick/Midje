@@ -17,6 +17,7 @@
                  [gui-diff "0.5.0"]]
   :profiles {:dev {:dependencies [[slamhound "1.2.0"]
                                   [jonase/kibit "0.0.3"]
+                                  [prismatic/plumbing "0.1.0"]
                                   [jonase/eastwood "0.0.2"]]
                    :plugins [[lein-midje "3.0.0"]]}
              :1.3 {:dependencies [[org.clojure/clojure "1.3.0"]]}
