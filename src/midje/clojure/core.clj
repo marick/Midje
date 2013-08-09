@@ -132,6 +132,20 @@ metadata (as provided by def) merged into the metadata of the original."
     (assoc-in map path-to-end-key without-key)))
 
 
+(defn transform-in
+  ([map keyseq f default]
+     (assoc-in map keyseq
+               (f (get-in map keyseq default))))
+  ([map keyseq f]
+     (transform-in map keyseq f nil)))
+
+(defn transform
+  ([map key f] (transform-in map [key] f))
+  ([map key f default] (transform-in map [key] f default)))
+  
+
+
+
 ;;; Sequences
 
 (defn rotations

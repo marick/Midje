@@ -69,6 +69,18 @@
     (dissoc-keypath {:by-name {:name1 1}} [:NOTFOUND :name1])
     =not=>          {:NOTFOUND {:name1 1}}))
 
+(fact "transform entries in a map"
+  (fact "normal case"
+    (transform-in {:a {:b 1}} [:a :b] inc) => {:a {:b 2}})
+  (fact "can take a default"
+    (transform-in {} [:a :b] inc 0) => {:a {:b 1}})
+
+  (fact "single-level shorthand")
+    (transform {:a 1} :a inc)    => {:a 2}
+    (transform {}     :a inc 0 ) => {:a 1})
+
+
+
 ;;; Sequences
 
 
