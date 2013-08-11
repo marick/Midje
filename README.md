@@ -92,6 +92,7 @@ Contributors
 * Dave Ray
 * Sébastien RoccaSerra
 * Harri Salokorpi
+* Ozan Sener
 * Greg Spurrier
 * Giorgio Valoti
 * Joseph Wilk
