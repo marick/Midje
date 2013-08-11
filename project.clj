@@ -20,10 +20,11 @@
                                   [prismatic/plumbing "0.1.0"]
                                   [jonase/eastwood "0.0.2"]]
                    :plugins [[lein-midje "3.0.0"]]}
-             :1.3 {:dependencies [[org.clojure/clojure "1.3.0"]]}
-             :1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
-             :1.5.0 {:dependencies [[org.clojure/clojure "1.5.0"]]}
-             :1.5.1 {:dependencies [[org.clojure/clojure "1.5.1"]]}
+             :test-libs {:dependencies [[prismatic/plumbing "0.1.0"]]}
+             :1.3 [:test-libs {:dependencies [[org.clojure/clojure "1.3.0"]]}]
+             :1.4 [:test-libs {:dependencies [[org.clojure/clojure "1.4.0"]]}]
+             :1.5.0 [:test-libs {:dependencies [[org.clojure/clojure "1.5.0"]]}]
+             :1.5.1 [:test-libs {:dependencies [[org.clojure/clojure "1.5.1"]]}]
              ;; The following profile can be used to check that `lein with-profile`
              ;; profiles are obeyed. Note that profile `:test-paths` *add on* to the
              ;; defaults.
