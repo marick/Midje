@@ -52,7 +52,11 @@
 
 (defn escape [s]
   (if s
-    (str/escape s {\' "\\'"})
+    (str/escape s {\" "&quot;"
+                   \' "&apos;"
+                   \< "&lt;"
+                   \> "&gt;"
+                   \& "&amp;"})
     ""))
 
 (defn fail [failure-map]
