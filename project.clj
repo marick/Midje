@@ -1,4 +1,4 @@
-(defproject midje "1.6-beta1" 
+(defproject midje "1.6-beta1"
   :description "A TDD library for Clojure that supports top-down ('mockish') TDD, encourages readable tests, provides a smooth migration path from clojure.test, balances abstraction and concreteness, and strives for graciousness."
   :url "https://github.com/marick/Midje"
   :dependencies [[org.clojure/clojure "1.4.0"]
@@ -14,7 +14,8 @@
                  [org.clojure/tools.namespace "0.2.2"]
                  [slingshot "0.10.3"]
                  [commons-codec/commons-codec "1.6"]
-                 [gui-diff "0.5.0"]]
+                 [gui-diff "0.5.0"]
+                 [clj-time "0.5.0"]]
   :profiles {:dev {:dependencies [[slamhound "1.2.0"]
                                   [jonase/kibit "0.0.3"]
                                   [prismatic/plumbing "0.1.0"]
@@ -36,7 +37,7 @@
   :mailing-list {:name "Midje"
                  :subscribe "https://groups.google.com/forum/?fromgroups#!forum/midje"}
   :aliases {"compatibility" ["with-profile" "1.3:1.4:1.5.0:1.5.1" "test"]}
-  
+
   ;; For Clojure snapshots
   :repositories {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"
                  "stuartsierra-releases" "http://stuartsierra.com/maven2"})
