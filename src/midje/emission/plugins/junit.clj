@@ -90,9 +90,14 @@
 
 (defn fail [failure-map]
   (let [testcase (testcase-with-failure failure-map)]
-    (log
-      (with-out-str
-        (xml/emit-element testcase)))))
+    ;; FIXME: currently there is a bug in midje that prevents us emitting this map as xml
+    ;; (xml/emit-element testcase) => StackOverflowError, when called in a
+    ;; midje namespace
+    (log (str "<testcase classname='" (-> testcase :attrs :classname) "' name='" (-> testcase :attrs :name)  "'>\n"))
+    (log (str "<failure type='" (-> testcase :content first :attrs :type) "'>"))
+    (log (-> testcase :content first :content :first))
+    (log "</failure>\n")
+    (log "</testcase>")))
 
 (defn starting-to-check-fact [fact]
   (let [fact-namespace (str (fact/namespace fact))
