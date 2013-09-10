@@ -60,6 +60,7 @@
      (every? regex? [actual expected])   (= (str actual) (str expected))
      (regex? expected)                   (re-find expected actual)
      (and (record? actual) (classic-map? expected))   (= (into {} actual) expected)
+     (= (type expected) java.math.BigDecimal)   (= (compare actual expected) 0)
      :else                               (= actual expected))
     (catch Throwable ex false)))
 

@@ -47,6 +47,11 @@
   ;; Count those as false.
   (extended-= nil odd?) => falsey)
 
+(fact "Big decimal ignore additional 0 in fraction"
+  (extended-= 1M 1M) => truthy
+  (extended-= 1M 1.0M) => truthy      
+  (extended-= 1M 1.0) => falsey)
+
 (fact "extended equality can be applied to lists"
   (extended-list-= [] []) => truthy
   (extended-list-= [1] [1]) => truthy
