@@ -7,8 +7,7 @@
         [midje.checking.checkers.defining :only [as-checker checker defchecker]]
       	[midje.checking.checkers.util :only [named-as-call]]
       	[midje.util.exceptions :only [captured-throwable?]]
-        [midje.util.ecosystem :only [clojure-1-3?]]
-        [clojure.algo.monads :only [domonad set-m]])
+        [midje.util.ecosystem :only [clojure-1-3?]])
   (:import [midje.util.exceptions ICapturedThrowable]))
 
 (defchecker truthy 
