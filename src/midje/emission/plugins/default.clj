@@ -7,7 +7,8 @@
             [midje.emission.plugins.util :as util]
             [midje.emission.plugins.silence :as silence]
             [midje.emission.plugins.default-failure-lines :as lines]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [clj-time.local :as time]))
 
 (defn fail [failure-map]
    (util/emit-lines (lines/summarize failure-map)))
@@ -69,10 +70,17 @@
                                   (str/replace #"^ERROR" (color/fail "ERROR")))
                              result-lines)
                         [((if grievousness? color/fail color/pass) summary-line)]
-                        [(color/note ">>> Midje summary:")]))))]
+                        [(color/note ">>> Midje summary:")]))))
+
+          (current-time []
+            (vector (color/note
+                     (str "[Test run completed at "
+                          (time/format-local-time (time/local-now) :date-hour-minute-second)
+                          "]"))))]
 
     (apply util/emit-one-line (concat (clojure-test-prompted-lines)
-                                      (midje-summary-lines (:midje-passes midje-counters) (:midje-failures midje-counters))))))
+                                      (midje-summary-lines (:midje-passes midje-counters) (:midje-failures midje-counters))
+                                      (current-time)))))
 
 (defn future-fact [description-list position]
   (util/emit-one-line "")
