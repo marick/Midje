@@ -82,6 +82,8 @@ Contributors
 * Stuart Halloway
 * Wilkes Joiner
 * Colin Jones
+* Jacek Lach
+* Reed Lipman
 * Ben Mabey
 * Alan Malloy
 * Brian Marick
@@ -89,6 +91,7 @@ Contributors
 * Paudi Moriarty
 * Dmitri Naumov
 * Alex Nixon
+* Nick Pascucci
 * Dave Ray
 * Sébastien RoccaSerra
 * Harri Salokorpi

@@ -7,7 +7,8 @@
             [midje.config :as config]
             [midje.util.bultitude :as tude]
             [midje.emission.api :as emit])
-  (:require [clojure.java.io :as io]))
+  (:require [clojure.java.io :as io]
+            [clj-time.local :as time]))
 
 
 (require '[clojure.tools.namespace.repl :as nsrepl]
@@ -117,7 +118,9 @@
         namespaces
         #(require-namespaces! namespaces
                               (:on-require-failure options)
-                              (mkfn:clean-dependents state-tracker))))))
+                              (mkfn:clean-dependents state-tracker)))
+      (println (color/note (format "[Completed at %s]"
+                                   (time/format-local-time (time/local-now) :hour-minute-second)))))))
 
 (defn prepare-for-next-scan [state-tracker]
   (assoc state-tracker
