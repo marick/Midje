@@ -4,7 +4,6 @@
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [ordered "1.2.0" :exclusions [org.clojure/clojure]]
                  [org.clojure/math.combinatorics "0.0.1"]
-                 [org.clojure/algo.monads "0.1.0"]
                  [org.clojure/core.unify "0.5.2" :exclusions [org.clojure/clojure]]
                  [utilize "0.2.3" :exclusions [org.clojure/clojure]]
                  [colorize "0.1.1" :exclusions [org.clojure/clojure]]
