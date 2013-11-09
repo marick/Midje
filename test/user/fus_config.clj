@@ -1,8 +1,8 @@
-(ns midje.t-config
+(ns user.fus-config
   (:use [midje sweet util test-util])
   (:require [midje.config :as config]))
 
-(fact "changing defaults"
+(fact "change-defaults operates on the root binding"
   (let [stashed-config config/*config*
         original-print-level (config/choice :print-level)]
     (try
