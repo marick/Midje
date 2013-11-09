@@ -19,7 +19,7 @@
                                   [jonase/kibit "0.0.3"]
                                   [prismatic/plumbing "0.1.0"]
                                   [jonase/eastwood "0.0.2"]]
-                   :plugins [[lein-midje "3.0.0"]]}
+                   :plugins [[lein-midje "3.1.3-RC2"]]}
              :test-libs {:dependencies [[prismatic/plumbing "0.1.0"]]}
              :1.3 [:test-libs {:dependencies [[org.clojure/clojure "1.3.0"]]}]
              :1.4 [:test-libs {:dependencies [[org.clojure/clojure "1.4.0"]]}]
