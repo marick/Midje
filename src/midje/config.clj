@@ -86,7 +86,10 @@
   
 (defn change-defaults
   "Adds key-value pairs to the root configuration.
-   Does not affect any temporary (dynamic) configurations."
+   Does not affect any temporary (dynamic) configurations.
+
+   Note: `change-defaults` can only be used in configuration files.
+   It will not work within namespaces containing facts."
   [& kvs]
   (merge-permanently! (apply hash-map kvs)))
 
