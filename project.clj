@@ -1,4 +1,4 @@
-(defproject midje "1.6-SNAPSHOT"
+(defproject midje "1.6.0"
   :description "A TDD library for Clojure that supports top-down ('mockish') TDD, encourages readable tests, provides a smooth migration path from clojure.test, balances abstraction and concreteness, and strives for graciousness."
   :url "https://github.com/marick/Midje"
   :dependencies [[org.clojure/clojure "1.4.0"]
@@ -19,7 +19,7 @@
                                   [jonase/kibit "0.0.3"]
                                   [prismatic/plumbing "0.1.0"]
                                   [jonase/eastwood "0.0.2"]]
-                   :plugins [[lein-midje "3.1.3-RC2"]]}
+                   :plugins [[lein-midje "3.1.3"]]}
              :test-libs {:dependencies [[prismatic/plumbing "0.1.0"]]}
              :1.3 [:test-libs {:dependencies [[org.clojure/clojure "1.3.0"]]}]
              :1.4 [:test-libs {:dependencies [[org.clojure/clojure "1.4.0"]]}]
