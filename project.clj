@@ -1,10 +1,11 @@
 (defproject midje "1.6.0"
   :description "A TDD library for Clojure that supports top-down ('mockish') TDD, encourages readable tests, provides a smooth migration path from clojure.test, balances abstraction and concreteness, and strives for graciousness."
   :url "https://github.com/marick/Midje"
-  :dependencies [[org.clojure/clojure "1.4.0"]
+  :dependencies [[org.clojure/clojure "1.5.1"]
                  [ordered "1.2.0" :exclusions [org.clojure/clojure]]
                  [org.clojure/math.combinatorics "0.0.1"]
                  [org.clojure/core.unify "0.5.2" :exclusions [org.clojure/clojure]]
+                 [clj-time "0.6.0"]
                  [utilize "0.2.3" :exclusions [org.clojure/clojure]]
                  [colorize "0.1.1" :exclusions [org.clojure/clojure]]
                  [org.clojure/tools.macro "0.1.1"]
@@ -13,8 +14,7 @@
                  [org.clojure/tools.namespace "0.2.2"]
                  [slingshot "0.10.3"]
                  [commons-codec/commons-codec "1.6"]
-                 [gui-diff "0.5.0"]
-                 [clj-time "0.6.0"]]
+                 [gui-diff "0.5.0"]]
   :profiles {:dev {:dependencies [[slamhound "1.2.0"]
                                   [jonase/kibit "0.0.3"]
                                   [prismatic/plumbing "0.1.0"]
