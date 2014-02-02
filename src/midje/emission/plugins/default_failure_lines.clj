@@ -80,7 +80,7 @@
    (str "    " ecosystem/issues-url)
    (str "    But first check " ecosystem/syntax-errors-that-will-not-be-fixed)
    (str)
-   (str "    In the repl, you can jump to those pages with `(guide file-issue)` and")
+   (str "    In the repl, you can jump to those pages with `(guide file-an-issue)` and")
    (str "    `(guide unfixed-syntax-errors)`.")
    (str "    Please include the following stack trace and your Midje version.")
    (indented (:stacktrace m))))
