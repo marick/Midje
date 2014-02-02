@@ -78,6 +78,7 @@ Contributors
 * Sean T. Allen
 * Alex Baranosky
 * Phillip Calçado
+* Chris Devine
 * Stuart Halloway
 * Wilkes Joiner
 * Colin Jones
