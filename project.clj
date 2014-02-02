@@ -10,7 +10,7 @@
                  [colorize "0.1.1" :exclusions [org.clojure/clojure]]
                  [org.clojure/tools.macro "0.1.1"]
                  [dynapath "0.2.0"]
-                 [swiss-arrows "0.6.0"]
+                 [swiss-arrows "1.0.0"]
                  [org.clojure/tools.namespace "0.2.4"]
                  [slingshot "0.10.3"]
                  [commons-codec/commons-codec "1.6"]

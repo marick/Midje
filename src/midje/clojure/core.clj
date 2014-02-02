@@ -3,7 +3,7 @@
   (:require clojure.pprint
             clojure.set
             utilize.seq
-            swiss-arrows.core
+            swiss.arrows
             midje.clojure.backwards-compatibility))
 
 ;; Note: some of this code is taken from https://github.com/flatland/useful/blob/develop/src/flatland/useful/ns.clj
@@ -184,7 +184,7 @@ metadata (as provided by def) merged into the metadata of the original."
                  ~result
                  (pred-cond ~item ~@preds+results))))
 
-(immigrate-from 'swiss-arrows.core '[-<>])
+(immigrate-from 'swiss.arrows '[-<>])
 
 ;;; Printing
 
