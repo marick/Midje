@@ -157,8 +157,8 @@
 
 (fact "keys, values, and contains work on metaconstants"
   (against-background ..m.. =contains=> {:a 3, :b 4})
-  (keys ..m..) => [:a :b]
-  (vals ..m..) => [3 4]
+  (keys ..m..) => (just [:a :b] :in-any-order)
+  (vals ..m..) => (just [3 4] :in-any-order)
   (contains? ..m.. :a) => truthy
   (contains? ..m.. :c) => falsey)
 

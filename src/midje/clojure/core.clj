@@ -1,5 +1,6 @@
 (ns ^{:doc "Functions I wouldn't mind to see in clojure.core"}
   midje.clojure.core
+  (:use midje.util.ecosystem)
   (:require clojure.pprint
             clojure.set
             utilize.seq
@@ -22,9 +23,11 @@
 
 (defn classic-map? [x]
   (.isInstance clojure.lang.APersistentMap x))
-  
-(defn record? [x]
-  (and (map? x) (not (classic-map? x))))
+
+(when-1-5-
+  (defn record? [x]
+    (and (map? x) (not (classic-map? x)))))
+
 
 (defn extended-fn? [x]
   (or (fn? x)
