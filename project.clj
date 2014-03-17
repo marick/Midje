@@ -10,7 +10,7 @@
                  [utilize "0.2.3" :exclusions [org.clojure/clojure]]
                  [colorize "0.1.1" :exclusions [org.clojure/clojure]]
                  [org.clojure/tools.macro "0.1.5"]
-                 [dynapath "0.2.0"]
+                 [org.tcrawley/dynapath "0.2.3"]
                  [swiss-arrows "1.0.0"]
                  [org.clojure/tools.namespace "0.2.4"]
                  [slingshot "0.10.3"]
