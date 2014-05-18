@@ -1,9 +1,10 @@
 (ns ^{:doc "How the default emitter reports on failures"}
   midje.emission.plugins.default-failure-lines
   (:use midje.clojure.core
-        midje.emission.plugins.util)
-  (:require [midje.util.ecosystem :as ecosystem]
-            [com.georgejahad.difform :refer [difform]]))
+        midje.emission.plugins.util
+        [com.georgejahad.difform :only [difform]])
+  (:require [midje.util.ecosystem :as ecosystem]))
+
 
 (defmulti messy-lines :type)
 
