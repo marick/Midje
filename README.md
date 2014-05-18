@@ -80,6 +80,7 @@ Contributors
 * Phillip Calçado
 * Toby Crawley
 * Chris Devine
+* Dolmio
 * Stuart Halloway
 * Chris Hapgood
 * Wilkes Joiner
