@@ -2,7 +2,8 @@
   midje.emission.plugins.default-failure-lines
   (:use midje.clojure.core
         midje.emission.plugins.util)
-  (:require [midje.util.ecosystem :as ecosystem]))
+  (:require [midje.util.ecosystem :as ecosystem]
+            [com.georgejahad.difform :refer [difform]]))
 
 (defmulti messy-lines :type)
 
@@ -17,12 +18,31 @@
           (for [[form value] (:intermediate-results m)]
             (format "       %s => %s" (pr-str form) (attractively-stringified-value value))))))
 
-(defmethod messy-lines :actual-result-did-not-match-expected-value [m]
-  (list
-   (str "    Expected: " (attractively-stringified-value (:expected-result m)))
-   (str "      Actual: " (attractively-stringified-value (:actual m)))
-   (notes m)))
+(defn- diffable? [x]
+  (or (classic-map? x) (sequential? x)))
 
+(defn- complicated? [expected actual]
+  (and (diffable? expected)
+       (diffable? actual)
+       (or (> (count expected) 3)
+           (> (count actual) 3))))
+
+
+(defmethod messy-lines :actual-result-did-not-match-expected-value [m]
+  (let [expected (:expected-result m)
+        actual (:actual m)]
+    (if (complicated? expected actual)
+      (list
+       (str "    Expected: +")
+       (str "      Actual: -")
+       (str "    -----------")
+       (with-out-str (difform actual expected))
+       (notes m))
+      (list
+       (str "    Expected: " (attractively-stringified-value (:expected-result m)))
+       (str "      Actual: " (attractively-stringified-value (:actual m)))
+       (notes m)))))
+    
 (defmethod messy-lines :actual-result-should-not-have-matched-expected-value [m]
   (list
    (str "    Expected: Anything BUT " (attractively-stringified-value (:expected-result m)))
