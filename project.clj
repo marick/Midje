@@ -7,7 +7,7 @@
                  [org.clojure/math.combinatorics "0.0.7"]
                  ;; Changing following to 0.5.6 makes a t_unify test fail.
                  [org.clojure/core.unify "0.5.2" :exclusions [org.clojure/clojure]]
-                 [clj-time "0.6.0"]
+                 [clj-time "0.7.0"]
                  [utilize "0.2.3" :exclusions [org.clojure/clojure]]
                  [colorize "0.1.1" :exclusions [org.clojure/clojure]]
                  [org.clojure/tools.macro "0.1.5"]
@@ -18,10 +18,10 @@
                  [commons-codec/commons-codec "1.9"]
                  ;; upgrade to 0.6.5 causes a reducers-not-found error
                  [gui-diff "0.5.0"]]
-  :profiles {:dev {:dependencies [[slamhound "1.5.1"]
+  :profiles {:dev {:dependencies [[slamhound "1.5.5"]
                                   [jonase/kibit "0.0.8"]
-                                  [prismatic/plumbing "0.2.1"]
-                                  [jonase/eastwood "0.1.0"]]
+                                  [prismatic/plumbing "0.2.2"]
+                                  [jonase/eastwood "0.1.2"]]
                    :plugins [[lein-midje "3.1.3"]]}
              :test-libs {:dependencies [[prismatic/plumbing "0.2.1"]]}
              :1.3 [:test-libs {:dependencies [[org.clojure/clojure "1.3.0"]]}]
