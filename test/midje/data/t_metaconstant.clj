@@ -37,7 +37,8 @@
      ---            =>)
 
 (fact "but they must be exclusively one or the other"
-    (metaconstant-symbol? '-x.) => false)
+    (metaconstant-symbol? '-x.) => false
+    (metaconstant-symbol? '.x-) => false)
 
 
 
