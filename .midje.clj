@@ -1,2 +1,1 @@
-(change-defaults :visible-deprecation false
-                 :visible-future false)
+(change-defaults :visible-deprecation false)
