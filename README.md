@@ -83,6 +83,7 @@ Contributors
 * Dolmio
 * Stuart Halloway
 * Chris Hapgood
+* Sebastian Hennebrueder
 * Wilkes Joiner
 * Colin Jones
 * Jacek Lach
@@ -94,6 +95,7 @@ Contributors
 * Paudi Moriarty
 * Dmitri Naumov
 * Alex Nixon
+* Atamert Ölçgen
 * Nick Pascucci
 * Dave Ray
 * Sébastien RoccaSerra
