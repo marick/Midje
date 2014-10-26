@@ -13,6 +13,7 @@
                  [org.clojure/tools.macro "0.1.5"]
                  [dynapath "0.2.0"]
                  [difform "1.1.2"]
+                 [org.tcrawley/dynapath "0.2.3"]
                  [swiss-arrows "1.0.0"]
                  [org.clojure/tools.namespace "0.2.4"]
                  [slingshot "0.10.3"]
