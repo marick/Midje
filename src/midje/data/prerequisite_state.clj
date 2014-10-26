@@ -109,7 +109,7 @@
 
 (defn- data-fakes-binding-map [data-fakes]
   (apply merge-with metaconstant/merge-metaconstants (for [{:keys [var contained]} data-fakes]
-                                                       {var (Metaconstant. (pile/object-name var) contained)})))
+                                                       {var (Metaconstant. (pile/object-name var) contained nil)})))
 
 (defn binding-map [fakes]
   (let [[data-fakes fn-fakes] (separate :data-fake fakes)]
