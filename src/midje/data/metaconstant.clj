@@ -31,7 +31,7 @@
 
 ;;; Metaconstant proper
 
-(deftype Metaconstant [underlying-symbol ^clojure.lang.Associative storage]
+(deftype Metaconstant [underlying-symbol ^clojure.lang.Associative storage meta-data]
   Object
   (toString [this]
     (str (.underlying-symbol this)))
@@ -91,10 +91,17 @@
            (throw (exceptions/user-error
                    (str "Metaconstants (" (.underlying-symbol this) ") can't be compared for equality with " (pr-str that) ".")
                    "If you have a compelling case for equality, please create an issue:"
-                   ecosystem/issues-url)))))
+                   ecosystem/issues-url))))
+
+  ;; Interface that provide meta support.
+  clojure.lang.IObj
+  (meta [this] meta-data)
+  (withMeta [this m] (Metaconstant. underlying-symbol storage m)))
 
 (defn merge-metaconstants [^Metaconstant mc1 ^Metaconstant mc2]
-  (Metaconstant. (.underlying-symbol mc1) (merge (.storage mc1) (.storage mc2))))
+  (Metaconstant. (.underlying-symbol mc1)
+                 (merge (.storage mc1) (.storage mc2))
+                 (merge (.meta-data mc1) (.meta-data mc2))))
 
 (defmethod print-method Metaconstant [^Metaconstant o ^java.io.Writer w]
   (print-method (.underlying-symbol o) w))
