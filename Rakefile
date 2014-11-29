@@ -44,5 +44,5 @@ task :deploy => [:upload]
 
 desc "Check many versions of Clojure"
 task :compatibility do
-  doit("lein with-profile 1.4:1.5.0:1.5.1:1.6 midje :config .compatibility-test-config")
+  doit("lein with-profile 1.4:1.5.0:1.5.1:1.6:1.7 midje :config .compatibility-test-config")
 end
