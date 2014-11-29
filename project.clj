@@ -8,14 +8,14 @@
                  [org.clojure/math.combinatorics "0.0.8"]
                  ;; Changing following to 0.5.6 makes a t_unify test fail.
                  [org.clojure/core.unify "0.5.2" :exclusions [org.clojure/clojure]]
-                 [clj-time "0.8.0"]
+                 [clj-time "0.8.0" :exclusions [org.clojure/clojure]]
                  [utilize "0.2.3" :exclusions [org.clojure/clojure]]
                  [colorize "0.1.1" :exclusions [org.clojure/clojure]]
                  [org.clojure/tools.macro "0.1.5"]
                  [dynapath "0.2.0"]
                  [difform "1.1.2"]
                  [org.tcrawley/dynapath "0.2.3"]
-                 [swiss-arrows "1.0.0"]
+                 [swiss-arrows "1.0.0" :exclusions [org.clojure/clojure]]
                  [org.clojure/tools.namespace "0.2.7"]
                  [slingshot "0.12.1"]
                  [commons-codec/commons-codec "1.10"]
@@ -24,15 +24,14 @@
   :profiles {:dev {:dependencies [[slamhound "1.5.5"]
                                   [jonase/kibit "0.0.8"]
                                   [prismatic/plumbing "0.3.5"]
-                                  [jonase/eastwood "0.2.0"]]
+                                  [jonase/eastwood "0.2.0" :exclusions [org.clojure/clojure]]]
                    :plugins [[lein-midje "3.1.4-SNAPSHOT"]]}
              :test-libs {:dependencies [[prismatic/plumbing "0.3.5"]]}
-             :1.3 [:test-libs {:dependencies [[org.clojure/clojure "1.3.0"]]}]
              :1.4 [:test-libs {:dependencies [[org.clojure/clojure "1.4.0"]]}]
              :1.5.0 [:test-libs {:dependencies [[org.clojure/clojure "1.5.0"]]}]
              :1.5.1 [:test-libs {:dependencies [[org.clojure/clojure "1.5.1"]]}]
-             :1.6 [:test-libs {:dependencies [[org.clojure/clojure "1.6.0"]
-                                              [org.clojure/tools.nrepl "0.2.3"]]}]
+             :1.6 [:test-libs {:dependencies [[org.clojure/clojure "1.6.0"]]}]
+             :1.7 [:test-libs {:dependencies [[org.clojure/clojure "1.7.0-alpha3"]]}]
              ;; The following profile can be used to check that `lein with-profile`
              ;; profiles are obeyed. Note that profile `:test-paths` *add on* to the
              ;; defaults.
