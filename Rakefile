@@ -37,9 +37,10 @@ end
 
 desc "upload to clojars"
 task :upload do
-  doit("lein pom")
-  doit("scp pom.xml target/#{jar_name} clojars@clojars.org:")
+  doit("lein deploy clojars")
 end
+
+task :deploy => [:upload]
 
 desc "Check many versions of Clojure"
 task :compatibility do
