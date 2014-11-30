@@ -4,14 +4,15 @@
   (:require [midje.emission.colorize :as color]
             [midje.data.fact :as fact]
             [midje.emission.state :as state]
+            [midje.emission.plugins.flare :as flare]
             [midje.emission.plugins.util :as util]
             [midje.emission.plugins.silence :as silence]
             [midje.emission.plugins.default-failure-lines :as lines]
             [clojure.string :as str]))
 
 (defn fail [failure-map]
-   (util/emit-lines (lines/summarize failure-map)))
-
+  (util/emit-lines (lines/summarize failure-map))
+  (flare/emit-flare-lines failure-map))
 
 (def last-namespace-shown (atom nil))
 

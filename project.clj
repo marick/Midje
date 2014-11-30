@@ -13,10 +13,10 @@
                  [colorize "0.1.1" :exclusions [org.clojure/clojure]]
                  [org.clojure/tools.macro "0.1.5"]
                  [dynapath "0.2.0"]
-                 [difform "1.1.2"]
                  [org.tcrawley/dynapath "0.2.3"]
                  [swiss-arrows "1.0.0" :exclusions [org.clojure/clojure]]
                  [org.clojure/tools.namespace "0.2.7"]
+                 [flare "0.2.5"]
                  [slingshot "0.12.1"]
                  [commons-codec/commons-codec "1.10"]
                  ;; upgrade to 0.6.5 causes a reducers-not-found error
