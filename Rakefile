@@ -36,7 +36,7 @@ task :jar_name do
 end
 
 desc "upload to clojars"
-task :upload do
+task :upload => [:fresh] do
   doit("lein deploy clojars")
 end
 
