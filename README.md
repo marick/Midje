@@ -81,6 +81,7 @@ Contributors
 * Toby Crawley
 * Chris Devine
 * Dolmio
+* Anders Furseth
 * Stuart Halloway
 * Chris Hapgood
 * Sebastian Hennebrueder
