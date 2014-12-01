@@ -1,8 +1,8 @@
 (when (and (= 1 (:major *clojure-version*))
-           (= 2 (:minor *clojure-version*)))
-  (println "================================================")
-  (println "==== Midje no longer supports Clojure 1.2.X ====")
-  (println "================================================")
+           (#{2 3} (:minor *clojure-version*)))
+  (println "=====================================================")
+  (println "==== Midje no longer supports Clojure 1.2 or 1.3 ====")
+  (println "=====================================================")
   (println))
 
 (ns ^{:doc "Environmental factors."}
@@ -14,16 +14,16 @@
 (def syntax-errors-that-will-not-be-fixed     
   "https://github.com/marick/Midje/wiki/Syntax-errors-that-will-not-be-fixed")
 
-(defn clojure-1-3? []
-  (and (= 1 (:major *clojure-version*))
-       (= 3 (:minor *clojure-version*))))
-
-(defmacro when-1-4+ [& body] 
-  (when (>= (:minor *clojure-version*) 4)
+(defmacro when-1-4 [& body] 
+  (when (= (:minor *clojure-version*) 4)
     `(do ~@body)))
 
 (defmacro when-1-5- [& body] 
   (when (<= (:minor *clojure-version*) 5)
+    `(do ~@body)))
+
+(defmacro when-1-5+ [& body] 
+  (when (>= (:minor *clojure-version*) 5)
     `(do ~@body)))
 
 ;;

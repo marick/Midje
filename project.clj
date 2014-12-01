@@ -42,7 +42,6 @@
             :distribution :repo}
   :mailing-list {:name "Midje"
                  :subscribe "https://groups.google.com/forum/?fromgroups#!forum/midje"}
-  :aliases {"compatibility" ["with-profile" "1.3:1.4:1.5.0:1.5.1:1.6" "test"]}
 
   ;; For Clojure snapshots
   :repositories {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"

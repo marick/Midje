@@ -178,12 +178,6 @@
   )
 
 
-;; closing; the binding just above because Clojure 1.3 (and only
-;; Clojure 1.3) becomes confused about unbound vars that are defined
-;; inside of a `binding` scope. The binding in the fact below
-;; causes `bound?` to return true, but dereferencing the var still returns
-;; the magic value #<Unbound Unbound>. 
-
 (def unbound-var)
 (def bound-var 3)
 (def #^:dynamic rebound)

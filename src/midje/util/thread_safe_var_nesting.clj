@@ -34,7 +34,7 @@
 
 (defmacro with-altered-roots
   "Used instead of with-bindings because bindings are thread-local
-   and will require specially declared vars in Clojure 1.3"
+   and require specially declared vars."
   [binding-map & body]
   `(with-altered-roots* ~binding-map (fn [] ~@body)))
 
