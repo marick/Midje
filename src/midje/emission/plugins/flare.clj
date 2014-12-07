@@ -25,8 +25,9 @@
          (cond->> (seq path) (str "in " (pr-str path) (if indent-diffs? "\n" " "))))))
 
  (defn generate-reports [diffs]
-   (prn "Flare data: " diffs)
-   (clojure.pprint/pprint diffs)
+   ; (prn "Flare data: " diffs)
+   ; (clojure.pprint/pprint diffs)
+   (println "Flare output (experimental):")
    (try
      (->> diffs
           flare/flatten-keys
