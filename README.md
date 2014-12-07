@@ -1,5 +1,6 @@
 Available via [clojars](http://clojars.org/search?q=midje)   
-Stable version: [midje "1.6.3"]  - [what's new](https://github.com/marick/Midje/wiki/What%27s-new-in-midje-1.6)    
+Stable version: [midje "1.6.3"]    
+Experimental version: [midje "1.7.0-SNAPSHOT]  - [what's new](https://github.com/marick/Midje/wiki/What%27s-new-in-midje-1.7)
 
 [![Build Status](https://travis-ci.org/marick/Midje.png?branch=master)](https://travis-ci.org/marick/Midje)
 
