@@ -4,9 +4,9 @@
   midje.checking.checkers.collection-comparison
   (:use midje.clojure.core
         midje.checking.core
-        [clojure.math.combinatorics :only [permutations]]
         [midje.checking.checkers collection-util util chatty defining])
   (:require [clojure.string :as str]
+            [clojure.math.combinatorics :as comb]
             [midje.util.pile :as pile]))
 
 ;; There is an annoying only-semi-similarity between maps and sequences.
@@ -158,7 +158,7 @@
             [checkers]
 
             (<= (count checkers) 4)
-            (permutations checkers)
+            (comb/permutations checkers)
 
             :else
             (rotations checkers)))]

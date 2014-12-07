@@ -159,7 +159,7 @@
 ;;; A DSLish way of defining intention-obeying functions.
 
 (defmacro ^{:private true} def-obedient-function
-  [command-type function-name update worker-function docstring]
+  [command-type function-name updatef worker-function docstring]
   `(defn ~function-name
      ~docstring
      [& args#]
@@ -167,7 +167,7 @@
            result# (~worker-function intention#)]
        ;; By doing this after calculating the result, we prevent
        ;; a bad set of arguments from polluting the defaults.
-       (~update intention# ~command-type)
+       (~updatef intention# ~command-type)
        result#)))
 
 
