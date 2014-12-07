@@ -8,7 +8,9 @@
             [midje.emission.colorize :as color]
             [midje.util.exceptions :as exception]
             [midje.config :as config]
-            gui.diff))
+            [ordered.map :as om]
+            [ordered.set :as os]))
+  
 
 
 ;; The theory here was that using clojure.test output would allow text
@@ -27,7 +29,65 @@
 (defn indented [lines]
   (map (partial str "        ") lines))
 
-(def sorted-if-appropriate gui.diff/nested-sort)
+;;; The following is taken from Alex Baranosky's gui-diff
+;;; https://github.com/AlexBaranosky/gui-diff
+;;; Extracted because of its dependencies
+
+(defn- map-keys [f m]
+  (zipmap
+   (map f (keys m))
+   (vals m)))
+
+(defn- last-piece-of-ns-qualified-class-name [clazz]
+  (last (clojure.string/split (str clazz) #"\.")))
+
+(defn- grouped-comparables-and-uncomparables [xs]
+  (let [[comparable uncomparable] ((juxt filter remove)
+                                   #(instance? java.lang.Comparable %) xs)
+        group+format+sort (fn [xs]
+                            (->> (group-by class xs)
+                                 (map-keys last-piece-of-ns-qualified-class-name)
+                                 (into (sorted-map))))]
+    [(group+format+sort comparable)
+     (group+format+sort uncomparable)]))
+
+(defn nested-sort
+  "Sorts two nested collections for easy visual comparison.
+   Sets and maps are converted to order-sets and ordered-maps."
+  [x]
+  (letfn [(seq-in-order-by-class
+            [class-name->items sort?]
+            (for [[_clazz_ xs] class-name->items
+                  x (if sort? (sort xs) xs)]
+              x))
+          (map-in-order-by-class
+            [m class-name->keys sort?]
+            (into (om/ordered-map)
+                  (for [[_clazz_ ks] class-name->keys
+                        k (if sort? (sort ks) ks)]
+                    [k (nested-sort (get m k))])))]
+
+    (cond (set? x)
+          (let [[comps uncomps] (grouped-comparables-and-uncomparables x)]
+            (into (os/ordered-set)
+                  (concat (seq-in-order-by-class comps true)
+                          (seq-in-order-by-class uncomps false))))
+
+          (map? x)
+          (let [[comps uncomps] (grouped-comparables-and-uncomparables (keys x))]
+            (into (map-in-order-by-class x comps true)
+                  (map-in-order-by-class x uncomps false)))
+
+          (vector? x)
+          (into [] (map nested-sort x))
+
+          (list? x)
+          (reverse (into '() (map nested-sort x)))
+
+          :else
+          x)))
+
+(def sorted-if-appropriate nested-sort) ; backward compatibility
 
 (defn linearize-lines
   "Takes a nested structure that contains nils and strings.

@@ -18,9 +18,7 @@
                  [org.clojure/tools.namespace "0.2.7"]
                  [flare "0.2.5" :exclusions [org.clojure/clojure]]
                  [slingshot "0.12.1"]
-                 [commons-codec/commons-codec "1.10"]
-                 ;; upgrade to 0.6.5 causes a reducers-not-found error
-                 [gui-diff "0.5.0"]]
+                 [commons-codec/commons-codec "1.10"]]
   :profiles {:dev {:dependencies [[slamhound "1.5.5"]
                                   [jonase/kibit "0.0.8"]
                                   [prismatic/plumbing "0.3.5"]
