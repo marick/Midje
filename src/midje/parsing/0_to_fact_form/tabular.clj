@@ -5,8 +5,7 @@
         [midje.parsing.util.file-position :only [form-with-copied-line-numbers]]
         [midje.emission.deprecation :only [deprecate]]
         [midje.parsing.util.zip :only [skip-to-rightmost-leaf]]
-        [midje.data.metaconstant :only [metaconstant-symbol?]]
-        [utilize.map :only [ordered-zipmap]])
+        [midje.data.metaconstant :only [metaconstant-symbol?]])
 (:require [clojure.string :as str]
           [clojure.zip :as zip]
           [midje.parsing.util.zip :as pzip]

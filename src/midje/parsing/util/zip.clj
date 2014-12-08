@@ -1,8 +1,22 @@
 (ns ^{:doc "Zipper util functions."}
   midje.parsing.util.zip
-  (:use [utilize.seq :only [first-truthy-fn]])
   (:require [clojure.zip :as zip]))
 
+;;; Copied from utilize to remove dependencies. 
+;;; https://github.com/AlexBaranosky/Utilize
+(defn unchunk
+  "Force a lazy sequence to not use size 32 chunks, but true one-element laziness"
+  [s]
+  (lazy-seq (when-let [s (seq s)]
+              (cons (first s) (unchunk (rest s))))))
+
+(defn first-truthy-fn
+  "Returns the first function in a seq of functions
+  that evaluates to truthy for the given arguments - it shortcircuits,
+  only evaluating the minimum number of functions necessary"
+  [preds & args]
+  (first (filter #(apply % args) (unchunk preds))))
+;;; end
 
 (defn translate-zipper
   "Traverses the zipper - for the first predicate that evaluates to truthy for matching a

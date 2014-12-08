@@ -1,11 +1,13 @@
 (ns ^{:doc "Functions I wouldn't mind to see in clojure.core"}
   midje.clojure.core
   (:use midje.util.ecosystem)
+  (:use [ordered.map :only [ordered-map]])
   (:require clojure.pprint
             clojure.set
-            utilize.seq
             swiss.arrows
             midje.clojure.backwards-compatibility))
+            
+
 
 ;; Note: some of this code is taken from https://github.com/flatland/useful/blob/develop/src/flatland/useful/ns.clj
 ;; Those functions should be immigrated once the new useful namespace is pushed to clojars.
@@ -147,7 +149,18 @@ metadata (as provided by def) merged into the metadata of the original."
   ([map key f default] (transform-in map [key] f default)))
   
 
-
+;;; Copied from utilize to remove dependencies. 
+;;; https://github.com/AlexBaranosky/Utilize
+(defn ordered-zipmap [keys vals]
+  "Like zipmap, but guarantees order of the entries"
+  (loop [m (ordered-map)
+         ks (seq keys)
+         vs (seq vals)]
+    (if (and ks vs)
+      (recur (assoc m (first ks) (first vs)) 
+             (next ks)
+             (next vs))
+      m)))
 
 ;;; Sequences
 
@@ -168,7 +181,39 @@ metadata (as provided by def) merged into the metadata of the original."
   [& sequences]
   (apply (partial map (fn [& args] args)) sequences))
 
-(immigrate-from 'utilize.seq '[separate find-first only])
+
+;;; Copied from utilize to remove dependencies. 
+;;; https://github.com/AlexBaranosky/Utilize
+
+(defn- decorate
+  "Return a function f such that (f x) => [x (f1 x) (f2 x) ...]."
+  [& fs]
+  (apply juxt identity fs))
+
+(defn separate
+  "Split coll into two sequences, one that matches pred and one that doesn't. Unlike the
+  version in clojure.contrib.seq-utils, pred is only called once per item."
+  [pred coll]
+  (let [pcoll (map (decorate pred) coll)]
+    (vec (for [f [filter remove]]
+           (map first (f second pcoll))))))
+
+(defn find-first
+  "Returns the first item of coll where (pred item) returns logical true."
+  [pred coll]
+  (first (filter pred coll)))
+
+(defn only
+  "Gives the sole element of a sequence"
+  [coll]
+  (if (seq (rest coll))
+    (throw (RuntimeException. "should have precisely one item, but had at least 2"))
+    (if (seq coll)
+      (first coll)
+      (throw (RuntimeException. "should have precisely one item, but had 0")))))
+
+
+;;; end copy
 
 ;;; Sets
 
