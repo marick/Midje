@@ -19,5 +19,6 @@
          (doseq [sym# '~syms]
            (intern 'clojure.core sym# (ns-resolve '~source-namespace sym#)))))))
 
-(move-once-to-core slingshot.ex-info [ex-info ex-data])
 
+(move-once-to-core slingshot.ex-info [ex-info ex-data])
+(move-once-to-core midje.clojure.extra-core [cond-> cond->>])
