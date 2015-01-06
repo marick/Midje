@@ -2,85 +2,112 @@
     (:use midje.sweet midje.test-util midje.util)
     (:require [flare.core :as core]))
 
-(def f #(subject/generate-reports (core/diff %1 %2)))
+(def f #(subject/generate-reports (core/diff %2 %1)))
+
+;; Note: In all these tests, the actual is on the LEFT, expected on the right.
+;; That's consistent with other Midje functions and Midje's actual => expected notation.
+;;
+;; In evaluating the following, note that both actual and expected will be printed before
+;; the lines with the differences. Or just Expected?
 
 (fact "representing differences in maps"
   (future-fact
-    (f '{:a a :b b} '{:a Z :b b})
-    => ["expected `a`, got `Z` at {:a % ...}"])    ; "in [:a] expected: a, was Z"
+    (f '{:a Z :b b}
+       '{:a a :b b})
+    => ["At key :a, got `Z` instead of `a`"])    ; "in [:a] expected: a, was Z"
+
+  (future-fact "Note that keys are not quoted"
+    (f '{:a Z, "b" Z, 3 Z, d Z, [1 2] Z}
+       '{:a 1, "b" 1, 3 1, d 1, [1 2] 1})
+    => ["At key :a, got `Z` instead of `1`"
+        "At key "b", got `Z` instead of `1`"
+        "At key 3, got `Z` instead of `1`"
+        "At key d, got `Z` instead of `1`"
+        "At key [1 2], got `Z` instead of `1`"])
 
   (future-fact
-    (f '{:a a :b b :c c} '{:a Z :b b :c Y})
-    => ["Expected `a`, got `Z` at {:a % ...}"      ; "in [:a] expected: a, was Z"
-        "Expected `a`, got `Z` at {:c % ...}"])    ; "in [:c] expected: c, was Y"
+    (f '{:a Z :b b :c Y}
+       '{:a a :b b :c c})
+    => ["At key :a, got `Z` instead of `a`"      ; "in [:a] expected: a, was Z"
+        "At key :c, got `Y` instead of `c`"])    ; "in [:c] expected: c, was Y"
 
   (future-fact "extra actual elements"
-    (f '{:a a :b b} '{:a a :b b :c c})
-    => ["Actual has extra key `:c` at {:c % ...}"] ; "map contained key: :c, but not expected."
+    (f '{:a a :b b :c c}
+       '{:a a :b b})
+    => ["Extra key `:c`"] ; "map contained key: :c, but not expected."
 
-    (f '{:a a :b b} '{:a a :b b :c c :d d})
-    => ["Actual has extra keys `:c` and `:d` at {:c % ...}"]) ; use cl-format
+    (f '{:a a :b b :c c :d d}
+       '{:a a :b b})
+    => ["Extra keys `:c` and `:d`"]) ; use cl-format
 
   (future-fact "Missing actual elements"
-    (f '{:a a :b b} '{:a a})
-    => ["Actual is missing key `:b` at {...}"]
+    (f '{:a a}
+       '{:a a :b b})
+    => ["Missing key `:b`"]
 
-    (f '{:a a :b b} '{})
-    => ["Actual is missing keys `:a` and `:b` at {...}"]) ; alphabetic if sortable
+    (f  '{}
+        '{:a a :b b})
+    => ["Missing keys `:a` and `:b`"]) ; alphabetic if sortable
 
   (future-fact "maps within maps"
-    (f '{:a {:a a}} '{:a {:a z}})
-    => ["expected `a`, got `Z` at {:a {:a %...}}"]
+    (f '{:a {:a Z}}
+       '{:a {:a a}} )
+    => ["At path [:a :a], got `Z` instead of `a`"]
 
-    (f '{1 {:a a :b b}} '{1 {:a a :b b :c c}})
-    => ["Actual has extra key `:c` at {1 {:c % ...}}"]
+    (f '{1 {:a a :b b :c c}}
+       '{1 {:a a :b b}})
+    => ["At path [1], value has extra key `:c`"]
 
-    (f '{1 {:a a :b b}} '{1 {:a a}})
-    => ["Actual is missing key `:b` at {1 {...}}"])
+    (f '{1 {}}
+       '{1 {:a a :b b}})
+    => ["At path [1], value has missing keys :a and `:b`"])
 )
 
 (fact "representating differences in sequentials"
-  (future-fact "indexes are highlighted with `%`"
-    (f '[a] '[Z])
-    => [       "Expected `a`, got `Z` at [%0..."])
+  (future-fact "The index is given instead of a key"
+    (f '[Z]
+       '[a])
+    => [       "At index 0, got `Z` instead of `a`"])
         ;; vs. "in [0] expected: a, was Z"
 
   (future-fact "use the `don't care about value` symbol for elements 1 and 2"
-    (f '[a b c] '[a Z Y])
-    => [   "Expected `b`, got `Z` at [_ %1..."
+    (f '[a Z Y]
+       '[a b c])
+    => [   "At index 1, got `Z` instead of `b`"
         ;; "in [1] expected: b, was Z"
-           "Expected `c`, got `Y` at [_ _ %2..."])
+           "At index 2, got `Y` instead of `c`"])
         ;; "in [2] expected: c, was Y"
 
-  (future-fact "use ellipses for elements further than 2"
-    (f '[a b c d] '[a b c Z])
-    => [   "Expected `d`, got `Y` at [... %3..."])
-        ;; "in [3] expected: d, was Y"
-
   (future-fact "note that entire differing element is printed"
-    (f '[a b c] '[a [Z z zz]])
-    => ["Expected `b`, got `[Z z zz]` at [_ %1..."])
+    (f '[a [Z z zz] ]
+       '[a b        ] )
+    => ["At index 1, got `[Z z zz] instead of `b`"])
 
-  (future-fact "Actual has extra elements; location is last matching element" 
-    (f '[a b] '[a b c d e])
-    => [  "Actual has 3 extra elements `(c d e)` at [_ _ %2..."]) 
+  (future-fact "Actual has extra elements" 
+    (f '[a b c d e]
+       '[a b      ])
+    => [  "Actual has 3 extra elements `(c d e)`"])
         ; "expected length of sequence is 2, actual length is 5.\nactual has 3 elements in excess: (c d e)"
 
-  (future-fact "Actual has too few; location is one past end of actual"
-    (f '[a b c d e f g] '[a b c d e])
-    => [   "Actual is missing `f` and 1 other element at [... %5...]"])
+  (future-fact "Actual has too few"
+    (f '[a b c d e    ]
+       '[a b c d e f g])
+    => [   "Actual is missing tail beginning with `f` (index 5)"])
         ;; "expected length of sequence is 7, actual length is 5.\nactual is missing 2 elements: (f g)"
 
   (future-fact "sequentials within sequentials"
-    (f '[1 [2 3]   [4 5] [6 7] 8]
-       '[1 [2 3 X] [4  ] [6 Y] Z])
-    => ["Actual has 1 extra element `(X)` at [_ %1[_ %1...]]
+    (f '[1 [2 3 X] [4  ] [6 Y] Z]
+       '[1 [2 3]   [4 5] [6 7] 8])
+    => ["At index [0 1], actual has 1 extra element `(X)`"
+        "At index [0 2], actual is missing tail beginning with `5` (index 1)"
+        "At index [0 3], got `Y` instead of `7`"
+        "At index 4, got `Z` instead of `8`"])
 )
 
-
-
-;; (fact "mixtures"
-;;   (future-fact
-;;     (f '{:a [a b] :b b} '{:a [a Z] :b b})
-;;     => ["At [%0 {:a % ...} ...}, expected `a`, actual `Z`"])    ; "in [:a] expected: a, was Z"
-;; )
+(fact "mixtures"
+  (future-fact
+    (f '{:a [a Z] :b b :c 1}
+       '{:a [a b] :b b     })
+    ["At path [:a 1], got `Z` instead of `b`"
+     "At key :a, extra key `:c`"])
+)
