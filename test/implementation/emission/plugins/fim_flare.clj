@@ -4,7 +4,42 @@
 
 (def f #(subject/generate-reports (core/diff %1 %2)))
 
-(fact "representation top-level differences in sequentials"
+(fact "representing differences in maps"
+  (future-fact
+    (f '{:a a :b b} '{:a Z :b b})
+    => ["expected `a`, got `Z` at {:a % ...}"])    ; "in [:a] expected: a, was Z"
+
+  (future-fact
+    (f '{:a a :b b :c c} '{:a Z :b b :c Y})
+    => ["Expected `a`, got `Z` at {:a % ...}"      ; "in [:a] expected: a, was Z"
+        "Expected `a`, got `Z` at {:c % ...}"])    ; "in [:c] expected: c, was Y"
+
+  (future-fact "extra actual elements"
+    (f '{:a a :b b} '{:a a :b b :c c})
+    => ["Actual has extra key `:c` at {:c % ...}"] ; "map contained key: :c, but not expected."
+
+    (f '{:a a :b b} '{:a a :b b :c c :d d})
+    => ["Actual has extra keys `:c` and `:d` at {:c % ...}"]) ; use cl-format
+
+  (future-fact "Missing actual elements"
+    (f '{:a a :b b} '{:a a})
+    => ["Actual is missing key `:b` at {...}"]
+
+    (f '{:a a :b b} '{})
+    => ["Actual is missing keys `:a` and `:b` at {...}"]) ; alphabetic if sortable
+
+  (future-fact "maps within maps"
+    (f '{:a {:a a}} '{:a {:a z}})
+    => ["expected `a`, got `Z` at {:a {:a %...}}"]
+
+    (f '{1 {:a a :b b}} '{1 {:a a :b b :c c}})
+    => ["Actual has extra key `:c` at {1 {:c % ...}}"]
+
+    (f '{1 {:a a :b b}} '{1 {:a a}})
+    => ["Actual is missing key `:b` at {1 {...}}"])
+)
+
+(fact "representating differences in sequentials"
   (future-fact "indexes are highlighted with `%`"
     (f '[a] '[Z])
     => [       "Expected `a`, got `Z` at [%0..."])
@@ -28,33 +63,20 @@
 
   (future-fact "Actual has extra elements; location is last matching element" 
     (f '[a b] '[a b c d e])
-    => [  "Actual has three extra elements `(c d e)` at [_ _ %2..."]) 
+    => [  "Actual has 3 extra elements `(c d e)` at [_ _ %2..."]) 
         ; "expected length of sequence is 2, actual length is 5.\nactual has 3 elements in excess: (c d e)"
 
   (future-fact "Actual has too few; location is one past end of actual"
     (f '[a b c d e f g] '[a b c d e])
-    => [   "Actual is missing `f` and one other element at [... %5...]"])
+    => [   "Actual is missing `f` and 1 other element at [... %5...]"])
         ;; "expected length of sequence is 7, actual length is 5.\nactual is missing 2 elements: (f g)"
+
+  (future-fact "sequentials within sequentials"
+    (f '[1 [2 3]   [4 5] [6 7] 8]
+       '[1 [2 3 X] [4  ] [6 Y] Z])
+    => ["Actual has 1 extra element `(X)` at [_ %1[_ %1...]]
 )
 
-(fact "representing top-level differences in maps"
-  (future-fact
-    (f '{:a a :b b} '{:a Z :b b})
-    => ["At {:a % ...}, expected `a`, actual `Z`"])    ; "in [:a] expected: a, was Z"
-
-  (future-fact
-    (f '{:a a :b b :c c} '{:a Z :b b :c Y})
-    => ["At {:a % ...}, expected `a`, actual `Z`"      ; "in [:a] expected: a, was Z"
-        "At {:c % ...}, expected `a`, actual `Z`"])    ; "in [:c] expected: c, was Y"
-
-  (future-fact "extra actual elements"
-    (f '{:a a :b b} '{:a a :b b :c c})
-    => ["At {...}, actual has extra key `:c`"])      ; "map contained key: :c, but not expected."
-
-  (future-fact "Missing actual elements"
-    (f '{:a a :b b} '{:a a})
-    => ["At {...}, actual is missing key `:b`"])      ; "expected map to contain key: :b, but not found."
-)
 
 
 ;; (fact "mixtures"
