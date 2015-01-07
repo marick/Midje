@@ -5,8 +5,7 @@
 
 (defn emit-flare-lines [& args])
 
-(ecosystem/when-1-5+
- (require '[flare.core :as flare])
+(require '[flare.core :as flare])
  ;; Following code adapted from
  ;; https://raw.githubusercontent.com/andersfurseth/flare/master/src/flare/midje.clj
 
@@ -27,4 +26,3 @@
       (some-> (flare/diff (:expected-result failure-map) (:actual failure-map))
               generate-reports
               report)))
-)
