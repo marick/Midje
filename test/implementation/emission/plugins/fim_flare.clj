@@ -110,4 +110,19 @@
        '{:a [a b] :b b     })
     ["At path [:a 1], got `Z` instead of `b`"
      "At key :a, extra key `:c`"])
+
+  (future-fact
+    (f '[0 {1 Z} 2 {}]
+       '[1 {1 2} 2 {:b 2}])
+    ["At index 0, got `0` instead of `1`."
+     "At path [1 1], got `Z` instead of `2`."
+     "At index 4, missing key `:b`"])
+
+  (future-fact 
+    (f '[0 {1 [2 Z], 2 3} [Z] [3 {:a Z}]]
+       '[0 {1 [2 2], 2 4} [3] [3 {:a 2}]])
+    => ["At path [1 1 0], got `Z` instead of `2`"
+        "At path [1 2], got `3` instead of `4`"
+        "At index [2 0], got `Z` instead of `3`"
+        "At path [3 :a], got `Z` instead of `2`"])
 )
