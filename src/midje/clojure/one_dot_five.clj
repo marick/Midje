@@ -1,4 +1,4 @@
-(ns midje.clojure.extra-core
+(ns midje.clojure.one-dot-five
   (:refer-clojure :exclude [cond-> cond->> as-> some-> some->>]))
 
 ;; From Clojure 1.6

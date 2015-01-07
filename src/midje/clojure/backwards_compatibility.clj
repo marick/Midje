@@ -21,4 +21,4 @@
 
 
 (move-once-to-core slingshot.ex-info [ex-info ex-data])
-(move-once-to-core midje.clojure.extra-core [cond-> cond->> as-> some-> some->>])
+(move-once-to-core midje.clojure.one-dot-five [cond-> cond->> as-> some-> some->>])
