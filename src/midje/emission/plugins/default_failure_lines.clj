@@ -21,24 +21,15 @@
 
 ;; TODO: Retaining these functions for now in case they're useful for Flare-based printing
 (letfn [(diffable? [x]
-          (or (classic-map? x) (sequential? x)))
-
-        (complicated? [expected actual]
-          (and false                    ;; revert to old style
-               (diffable? expected)
-               (diffable? actual)
-               (or (> (count expected) 3)
-                   (> (count actual) 3))))]
+          (or (classic-map? x) (sequential? x)))]
 
   (defmethod messy-lines :actual-result-did-not-match-expected-value [m]
     (let [expected (:expected-result m)
           actual (:actual m)]
-      (if (complicated? expected actual)
-        (list " THIS SHOULD NEVER BE SEEN - OLD DIFF-PRINTING")
-        (list
-         (str "    Expected: " (attractively-stringified-value (:expected-result m)))
-         (str "      Actual: " (attractively-stringified-value (:actual m)))
-         (notes m))))))
+      (list
+       (str "    Expected: " (attractively-stringified-value (:expected-result m)))
+       (str "      Actual: " (attractively-stringified-value (:actual m)))
+       (notes m)))))
     
 (defmethod messy-lines :actual-result-should-not-have-matched-expected-value [m]
   (list
