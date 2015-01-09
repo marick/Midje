@@ -19,7 +19,9 @@
           false)))
 
 (defn all-test-failures-to-self-documenting-map [ct-counters]
-  {:failures (+ (state/output-counters:midje-failures) (:fail ct-counters))})
+  {:failures (+ (state/output-counters:midje-failures)
+                (:fail ct-counters)
+                (:error ct-counters))})
   
 
 ;; TODO: Once we reconcile the different ways results are checked and
