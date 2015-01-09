@@ -2,7 +2,9 @@
   midje.emission.plugins.default-failure-lines
   (:use midje.clojure.core
         midje.emission.plugins.util)
-  (:require [midje.util.ecosystem :as ecosystem]))
+  (:require [midje.util.ecosystem :as ecosystem]
+            [flare.core :as flare2]
+            [clojure.string :as str]))
 
 
 (defmulti messy-lines :type)
@@ -18,6 +20,28 @@
           (for [[form value] (:intermediate-results m)]
             (format "       %s => %s" (pr-str form) (attractively-stringified-value value))))))
 
+(defn- diffs [[actual expected :as pair]]
+  (letfn [(flatlines [strings]
+            (loop [[head & tail :as all] strings
+                   result []]
+              (if (empty? all) result
+                  (let [s (str/split head #"\n")]
+                    (if (= 1 (count s))
+                      (recur tail (conj result head))
+                      (recur tail (into [] (flatten (-> result
+                                                        (conj (first s))
+                                                        (concat (map #(str "  " %) (rest s))))))))))))
+
+          (prefix [[first & more]]
+            (cons (str "       Diffs: " first)
+                  (map #(str "              " %) more)))]
+    (cond (or (every? sequential? pair)
+              (every? map? pair)
+              (every? string? pair))
+          (some-> (flare2/diff expected actual)
+                  flare2/generate-reports
+                  flatlines
+                  prefix))))
 
 ;; TODO: Retaining these functions for now in case they're useful for Flare-based printing
 (letfn [(diffable? [x]
@@ -29,6 +53,7 @@
       (list
        (str "    Expected: " (attractively-stringified-value (:expected-result m)))
        (str "      Actual: " (attractively-stringified-value (:actual m)))
+       (diffs [actual expected])
        (notes m)))))
     
 (defmethod messy-lines :actual-result-should-not-have-matched-expected-value [m]
