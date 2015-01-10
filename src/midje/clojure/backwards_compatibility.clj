@@ -17,8 +17,8 @@
       `(do
          (require '~source-namespace)
          (doseq [sym# '~syms]
-           (intern 'clojure.core sym# (ns-resolve '~source-namespace sym#)))))))
-
+           (let [var# (ns-resolve '~source-namespace sym#)]
+             (intern 'clojure.core (with-meta sym# (meta var#)) var#)))))))
 
 (move-once-to-core slingshot.ex-info [ex-info ex-data])
 (move-once-to-core midje.clojure.one-dot-five [cond-> cond->> as-> some-> some->>])
