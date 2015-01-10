@@ -3,7 +3,7 @@
   (:use midje.clojure.core
         midje.emission.plugins.util)
   (:require [midje.util.ecosystem :as ecosystem]
-            [flare.core :as flare2]
+            [flare.core :as flare]
             [clojure.string :as str]))
 
 
@@ -38,23 +38,19 @@
     (cond (or (every? sequential? pair)
               (every? map? pair)
               (every? string? pair))
-          (some-> (flare2/diff expected actual)
-                  flare2/generate-reports
+          (some-> (flare/diff expected actual)
+                  flare/generate-reports
                   flatlines
                   prefix))))
 
-;; TODO: Retaining these functions for now in case they're useful for Flare-based printing
-(letfn [(diffable? [x]
-          (or (classic-map? x) (sequential? x)))]
-
-  (defmethod messy-lines :actual-result-did-not-match-expected-value [m]
-    (let [expected (:expected-result m)
-          actual (:actual m)]
-      (list
-       (str "    Expected: " (attractively-stringified-value (:expected-result m)))
-       (str "      Actual: " (attractively-stringified-value (:actual m)))
-       (diffs [actual expected])
-       (notes m)))))
+(defmethod messy-lines :actual-result-did-not-match-expected-value [m]
+  (let [expected (:expected-result m)
+        actual (:actual m)]
+    (list
+     (str "    Expected: " (attractively-stringified-value (:expected-result m)))
+     (str "      Actual: " (attractively-stringified-value (:actual m)))
+     (diffs [actual expected])
+     (notes m))))
     
 (defmethod messy-lines :actual-result-should-not-have-matched-expected-value [m]
   (list
