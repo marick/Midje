@@ -3,6 +3,18 @@
         [midje.util laziness thread-safe-var-nesting]
         [midje.test-util]))
 
+;; Justification for use of eagerly
+(def counter (atom :needs-to-be-initialized))
+(def #^:dynamic *mocked-function-produces-next-element* inc)
+
+(defn function-under-test-produces-a-lazy-list []
+  (iterate *mocked-function-produces-next-element* 1))
+
+(defn mock-use []
+  (binding [*mocked-function-produces-next-element* (fn [n] (swap! counter inc) (inc n))]
+    (eagerly (take 5 (function-under-test-produces-a-lazy-list)))))
+
+;; After justification, more facts.
 
 (unfinished exploder)
 
