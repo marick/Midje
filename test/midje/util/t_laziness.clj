@@ -22,7 +22,9 @@
 ;; After justification, more facts.
 
 (unfinished exploder)
-; (map exploder [1 2 3])
+
+;; The following is lazy, so it should not cause an error. In 1.7-alpha5, it does.
+;(map exploder [1 2 3])
 
 (defrecord Foo [x y])
 
