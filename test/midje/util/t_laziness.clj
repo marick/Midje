@@ -22,7 +22,7 @@
 ;; After justification, more facts.
 
 (unfinished exploder)
-(map exploder [1 2 3])
+; (map exploder [1 2 3])
 
 (defrecord Foo [x y])
 
