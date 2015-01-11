@@ -28,7 +28,7 @@
   
 
 
-
+(future-fact "should extended-= return strictly true or false?")
 
 (facts "about extended equality"
   (extended-= 1 2) => falsey
