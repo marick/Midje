@@ -14,12 +14,6 @@
   (binding [*mocked-function-produces-next-element* (fn [n] (swap! counter inc) (inc n))]
     (eagerly (take 5 (function-under-test-produces-a-lazy-list)))))
 
-(fact "eagerly forces evaluation"
-  (reset! counter 1)
-  (mock-use)
-;  @counter => 5
-)
-
 ;; After justification, more facts.
 
 (unfinished exploder)
