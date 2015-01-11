@@ -1,4 +1,4 @@
-(ns midje.util.t-laziness
+(ns midje.util.t-one-seven
   (:use [midje.sweet]
         [midje.util laziness thread-safe-var-nesting]
         [midje.test-util]))
