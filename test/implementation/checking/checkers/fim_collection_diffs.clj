@@ -61,9 +61,18 @@
     (result-of (new TwoArgs 1 2) subject/contains:diffs (new TwoArgs 2 2)) => [{:l1 (new AtomDiff 1 2)}])
 
   (future-fact "compares values using extended equality"
-    (result-of {:l1 "123"} subject/contains:diffs {:l1 #"\d\d\d"}) => 1 ; [(new Result-OfRegexpDiff #"\d\d\d")]
-    (result-of {:l1 1} subject/contains:diffs {:a odd?}) => 1; [(new MapKeysDiff #{:a})])
+    (let [result (result-of {:l1 "12"} subject/contains:diffs {:l1 #"\d\d\d"})
+          atom-diff (:l1 (first result))]
+      (:a atom-diff) => "12"
+      (str (:b atom-diff)) => (str #"\d\d\d"))
+
+    (result-of {:l1 1} subject/contains:diffs {:l1 odd?}) => empty?
+
+    (prn "=============")
+    (result-of {:l1 2} subject/contains:diffs {:l1 odd?}) => [{:l1 (new AtomDiff 2 'odd?)}]
     )
 
   (future-fact "Note that extended-equality matches aren't erroneously included in the output")
+
+  (future-fact "embedded checkers 'bubble up'")
 )

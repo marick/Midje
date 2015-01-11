@@ -23,10 +23,18 @@
         missing-keys (difference expected-keys actual-keys)
         
         diff-map (reduce (fn [so-far shared-key] 
-                           (let [[actual-val expected-val] (map shared-key [actual-map expected-map])]
-                             (if (not= actual-val expected-val)
-                               (assoc so-far shared-key (new AtomDiff actual-val expected-val))
-                               so-far)))
+                           (let [[actual-val expected-val] (map shared-key [actual-map expected-map])
+                                 comparison (core/extended-= actual-val expected-val)]
+                             (cond (core/extended-true? comparison)
+                                   so-far
+
+                                   (core/data-laden-falsehood? comparison)
+                                   (do 
+                                     (prn "data laden falsehood " comparison)
+                                     (assoc so-far shared-key (new AtomDiff actual-val expected-val)))
+
+                                   :else
+                                   (assoc so-far shared-key (new AtomDiff actual-val expected-val)))))
                           {}
                           (difference expected-keys missing-keys))]
     (-> []
