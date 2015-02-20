@@ -63,7 +63,7 @@
       (str (fact/file fact) ":" (fact/line fact))))
 
 (defn process-fact [fact]
-  (let [elapsed (/ (time/in-msecs (time/interval (-> fact :attrs :start-time)
+  (let [elapsed (/ (time/in-millis (time/interval (-> fact :attrs :start-time)
                                                  (-> fact :attrs :stop-time)))
                    1000.0)
         dissoc-times (fn [attrs] (-> attrs
