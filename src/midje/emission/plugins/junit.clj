@@ -95,7 +95,7 @@
     ;; midje namespace
     (log (str "<testcase classname='" (-> testcase :attrs :classname) "' name='" (-> testcase :attrs :name)  "'>\n"))
     (log (str "<failure type='" (-> testcase :content first :attrs :type) "'>"))
-    (log (-> testcase :content first :content :first))
+    (log (-> testcase :content first :content first))
     (log "</failure>\n")
     (log "</testcase>")))
 
