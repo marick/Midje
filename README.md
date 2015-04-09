@@ -74,6 +74,11 @@ Learning Midje
 [User guide](https://github.com/marick/Midje/wiki)    
 [Mailing list](http://groups.google.com/group/midje)
 
+Other Tools
+===========
+
+* [midje-notifier](https://github.com/glittershark/midje-notifier)
+
 Contributors
 ============
 * Sean T. Allen
