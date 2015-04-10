@@ -26,6 +26,10 @@
   (when (>= (:minor *clojure-version*) 5)
     `(do ~@body)))
 
+(defmacro when-1-6+ [& body] 
+  (when (>= (:minor *clojure-version*) 6)
+    `(do ~@body)))
+
 ;;
 
 (defn getenv [var] 
