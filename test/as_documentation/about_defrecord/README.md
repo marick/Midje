@@ -1,10 +1,12 @@
+For background, see [Prerequisites and protocols](https://github.com/marick/Midje/wiki/Prerequisites-and-protocols).
+
 Protocols complicate testing when you want to use protocol functions
 as prerequisites. There are two issues:
 
 1. Because protocol functions are inlined, they can't normally be used
     in a `provided` clause. If you want to do that, you have to use a
     special-to-Midje macro. Such a definition is safe to use in
-    production code, but at the expense of a function call and test.
+    production code, but at the expense of setting [production mode](https://github.com/marick/Midje/wiki/Production-mode).
 
 2. Even if you use `defrecord-openly`, you may well stumble over
     some fine points of how protocols work - fine points you wouldn't
