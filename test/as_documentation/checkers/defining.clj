@@ -1,4 +1,4 @@
-(ns as-documentation.checkers--defining
+(ns as-documentation.checkers.defining
   (:use midje.sweet
         midje.test-util))
 

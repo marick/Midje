@@ -1,4 +1,4 @@
-(ns as-documentation.prerequisites--used-with-protocols
+(ns as-documentation.prerequisites.used-with-protocols
   (:use midje.sweet
         midje.test-util
         midje.open-protocols))

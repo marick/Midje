@@ -1,4 +1,4 @@
-(ns as-documentation.checkers--for-sequences
+(ns as-documentation.checkers.for-sequences
   (:use midje.sweet
         midje.test-util))
 

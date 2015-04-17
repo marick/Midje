@@ -1,4 +1,4 @@
-(ns as-documentation.prerequisites--partial
+(ns as-documentation.prerequisites.partial
   (:use midje.sweet
         midje.test-util)
   (:require [midje.config :as config]))

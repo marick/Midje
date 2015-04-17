@@ -1,4 +1,4 @@
-(ns as-documentation.prerequisites--the-basics
+(ns as-documentation.prerequisites.aaaaaa-the-basics
   (:use midje.sweet
         midje.test-util))
                                 ;;; The Basics

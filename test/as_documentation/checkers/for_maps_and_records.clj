@@ -1,4 +1,4 @@
-(ns as-documentation.checkers--for-maps-and-records
+(ns as-documentation.checkers.for-maps-and-records
   (:use midje.sweet
         midje.test-util))
 

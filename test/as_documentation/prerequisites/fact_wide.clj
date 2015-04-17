@@ -1,4 +1,4 @@
-(ns as-documentation.prerequisites--fact-wide
+(ns as-documentation.prerequisites.fact-wide
   (:use midje.sweet))
 
 ;;; Here is a simple motivating example. Suppose you have a predicate `pilot-ready?` that

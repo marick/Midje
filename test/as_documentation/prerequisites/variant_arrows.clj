@@ -1,4 +1,4 @@
-(ns as-documentation.prerequisites--variant-arrows
+(ns as-documentation.prerequisites.variant-arrows
   (:use midje.sweet
         midje.util
         midje.test-util
