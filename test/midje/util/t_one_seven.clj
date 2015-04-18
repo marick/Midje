@@ -14,7 +14,7 @@
   (binding [*mocked-function-produces-next-element* (fn [n] (swap! counter inc) (inc n))]
     (eagerly (take 5 (function-under-test-produces-a-lazy-list)))))
 
-(future-fact "1.7alpha bug: eagerly forces evaluation"
+(fact "1.7alpha bug: eagerly forces evaluation"
   (reset! counter 1)
   (mock-use)
   @counter => 5
