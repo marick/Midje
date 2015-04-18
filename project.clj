@@ -5,10 +5,10 @@
   :dependencies [[org.clojure/clojure "1.6.0"]
                  ;; upgrading to 1.3.2 produces record-type output for ordered maps
                  [ordered "1.2.0" :exclusions [org.clojure/clojure]]
-                 [org.clojure/math.combinatorics "0.0.8"]
+                 [org.clojure/math.combinatorics "0.1.1"]
                  ;; Changing following to 0.5.6 makes a t_unify test fail.
                  [org.clojure/core.unify "0.5.2" :exclusions [org.clojure/clojure]]
-                 [clj-time "0.8.0" :exclusions [org.clojure/clojure]]
+                 [clj-time "0.9.0" :exclusions [org.clojure/clojure]]
                  [colorize "0.1.1" :exclusions [org.clojure/clojure]]
                  [org.clojure/tools.macro "0.1.5"]
                  [dynapath "0.2.0"]
@@ -20,10 +20,10 @@
                  [commons-codec/commons-codec "1.10"]]
   :profiles {:dev {:dependencies [[slamhound "1.5.5"]
                                   [jonase/kibit "0.0.8"]
-                                  [prismatic/plumbing "0.3.5"]
-                                  [jonase/eastwood "0.2.0" :exclusions [org.clojure/clojure]]]
+                                  [prismatic/plumbing "0.4.2"]
+                                  [jonase/eastwood "0.2.1" :exclusions [org.clojure/clojure]]]
                    :plugins [[lein-midje "3.1.4-SNAPSHOT"]]}
-             :test-libs {:dependencies [[prismatic/plumbing "0.3.5"]]}
+             :test-libs {:dependencies [[prismatic/plumbing "0.4.2"]]}
              :1.4 [:test-libs {:dependencies [[org.clojure/clojure "1.4.0"]]}]
              :1.5.0 [:test-libs {:dependencies [[org.clojure/clojure "1.5.0"]]}]
              :1.5.1 [:test-libs {:dependencies [[org.clojure/clojure "1.5.1"]]}]
