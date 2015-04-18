@@ -98,9 +98,11 @@
 (defn function-name
   "Convert a function into a readable name, if possible."
   [function]
-  (let [printed (pr-str function)
-        [_ match] (re-matches #"#<([^/]+/[^ ]+).*" (demunge printed))]
-  match))
+  (->> (.. function getClass getName)
+       demunge
+       ( #(str/split % #"\.|/"))
+       (take-last 2)
+       (str/join "/")))
 
 (defn record-name [value]
   (.getName (class value)))
