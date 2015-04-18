@@ -83,6 +83,7 @@ Contributors
 ============
 * Sean T. Allen
 * Alex Baranosky
+* Blake Bassett
 * Phillip Calçado
 * Toby Crawley
 * Chris Devine
@@ -108,6 +109,7 @@ Contributors
 * Sébastien RoccaSerra
 * Harri Salokorpi
 * Ozan Sener
+* Griffin Smith
 * Greg Spurrier
 * Giorgio Valoti
 * Joseph Wilk
