@@ -63,7 +63,7 @@
       (str (fact/file fact) ":" (fact/line fact))))
 
 (defn process-fact [fact]
-  (let [elapsed (/ (time/in-msecs (time/interval (-> fact :attrs :start-time)
+  (let [elapsed (/ (time/in-millis (time/interval (-> fact :attrs :start-time)
                                                  (-> fact :attrs :stop-time)))
                    1000.0)
         dissoc-times (fn [attrs] (-> attrs
@@ -95,7 +95,7 @@
     ;; midje namespace
     (log (str "<testcase classname='" (-> testcase :attrs :classname) "' name='" (-> testcase :attrs :name)  "'>\n"))
     (log (str "<failure type='" (-> testcase :content first :attrs :type) "'>"))
-    (log (-> testcase :content first :content :first))
+    (log (-> testcase :content first :content first))
     (log "</failure>\n")
     (log "</testcase>")))
 
