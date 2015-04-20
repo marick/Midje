@@ -1,6 +1,6 @@
 (ns ^{:doc "Core ideas underlying all checking"}
   midje.checking.core
-  (:use midje.clojure.core)
+  (:use marick.clojure.core)
   ;; TODO: Shouldn't really have this dependency.
   (:require [midje.emission.plugins.util :as names]))
 

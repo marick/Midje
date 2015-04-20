@@ -2,7 +2,7 @@
 
 (ns ^{:doc "Checkers for collections and strings."}
   midje.checking.checkers.collection
-  (:use midje.clojure.core
+  (:use marick.clojure.core
         midje.checking.core
       	[midje.checking.checkers collection-util util chatty defining collection-comparison]
         [midje.util.exceptions :only [user-error]])

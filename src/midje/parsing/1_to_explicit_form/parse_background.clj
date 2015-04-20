@@ -1,7 +1,7 @@
 (ns ^{:doc "Handles the parsing of background forms. For the moment, this includes both
             state changes and fact-wide prerequisites."}
   midje.parsing.1-to-explicit-form.parse-background
-  (:use midje.clojure.core
+  (:use marick.clojure.core
         midje.parsing.util.core
         midje.parsing.util.zip
         [midje.parsing.1-to-explicit-form.metaconstants :only [predefine-metaconstants-from-form]]

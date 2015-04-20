@@ -1,6 +1,6 @@
 (ns ^{:doc "Parsing function argument lists"}
   midje.parsing.other.arglists
-  (:use midje.clojure.core
+  (:use marick.clojure.core
         midje.parsing.util.core
         [midje.util.exceptions :only [user-error]])
   (:require [midje.emission.levels :as levels]

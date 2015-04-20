@@ -1,6 +1,6 @@
 (ns ^{:doc "General purpose plugin utilities"}
   midje.emission.plugins.util
-  (:use midje.clojure.core
+  (:use marick.clojure.core
         [clojure.repl :only [demunge]])
   (:require [clojure.string :as str]
             [midje.util.pile :as pile]

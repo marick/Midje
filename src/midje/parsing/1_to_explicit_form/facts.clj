@@ -1,6 +1,6 @@
 (ns ^{:doc "Parsing facts."}
   midje.parsing.1-to-explicit-form.facts
-  (:use midje.clojure.core
+  (:use marick.clojure.core
         midje.parsing.util.core
         midje.parsing.arrow-symbols
         

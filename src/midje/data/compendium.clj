@@ -2,7 +2,7 @@
             about a particular subject'. The Midje compendium contains
             the currently relevant facts."}
   midje.data.compendium
-  (:use midje.clojure.core
+  (:use marick.clojure.core
         [midje.util.exceptions :only [user-error]])
   (:require [midje.data.fact :as fact]
             [midje.config :as config]))

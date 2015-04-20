@@ -1,6 +1,6 @@
 (ns ^{:doc "Core Midje functions that process expects and report on their results."} 
   midje.checking.checkables
-  (:use midje.clojure.core
+  (:use marick.clojure.core
         midje.checking.core
         [midje.util.exceptions :only [captured-throwable]]
         midje.data.prerequisite-state

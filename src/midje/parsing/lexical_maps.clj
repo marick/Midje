@@ -1,6 +1,6 @@
 (ns ^{:doc "checkable maps, redefine maps, failure maps"} 
   midje.parsing.lexical-maps
-  (:use midje.clojure.core)
+  (:use marick.clojure.core)
   (:require [midje.data.nested-facts :as nested-facts]
             [midje.parsing.util.fnref :as fnref]
             [midje.parsing.util.file-position :as position]
@@ -28,7 +28,7 @@
     :function-under-test (clojure.core/fn [] (cons a [2])),
     :description (midje.data.nested-facts/descriptions)}
    {:arrow '=>, :call-form '(cons a [2])}
-   (midje.clojure.core/hash-map-duplicates-ok
+   (marick.clojure.core/hash-map-duplicates-ok
     :position
     (midje.parsing.util.file-position/line-number-known 2)))
 ) ; ---------------------------------------------------------------

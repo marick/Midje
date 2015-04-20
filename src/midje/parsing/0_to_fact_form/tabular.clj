@@ -1,6 +1,6 @@
 (ns ^{:doc "A way to create multiple facts with the same template, but different data points."}
   midje.parsing.0-to-fact-form.tabular
-  (:use midje.clojure.core
+  (:use marick.clojure.core
         midje.parsing.util.zip
         [midje.parsing.util.file-position :only [form-with-copied-line-numbers]]
         [midje.emission.deprecation :only [deprecate]]

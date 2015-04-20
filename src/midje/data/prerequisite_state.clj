@@ -1,6 +1,6 @@
 (ns ^{:doc "Maintain the use of namespace-specific prerequisites"}
   midje.data.prerequisite-state
-  (:use midje.clojure.core
+  (:use marick.clojure.core
         midje.checking.core
         [midje.util.thread-safe-var-nesting :only [with-altered-roots]]
         [midje.emission.deprecation :only [deprecate]]

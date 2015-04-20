@@ -1,6 +1,6 @@
 (ns ^{:doc "Customizable configuration"}
   midje.config
-  (:use midje.clojure.core
+  (:use marick.clojure.core
         [midje.util.exceptions :only [user-error]])
   (:require [midje.emission.levels :as levels]
             [midje.util.ecosystem :as ecosystem]

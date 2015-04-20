@@ -3,7 +3,7 @@
         midje.checkers
         midje.checking.core
         midje.util.exceptions)
-  (:require midje.clojure.core
+  (:require marick.clojure.core
             [midje.config :as config]
             [clojure.string :as str]
             [midje.emission.api :as emit]
@@ -11,7 +11,7 @@
             [midje.parsing.util.error-handling :as error]
             [midje.emission.state :as state]))
 
-(midje.clojure.core/immigrate 'midje.clojure.core)
+(marick.clojure.core/immigrate 'marick.clojure.core)
 
 ;;; The "silent" versions of fact and formula, which produce no user-visible results
 ;;; but do stash failures for later examination.

@@ -1,6 +1,6 @@
 (ns ^{:doc "generate a map for a particular checkable"}
   midje.parsing.2-to-lexical-maps.expects
-  (:use midje.clojure.core
+  (:use marick.clojure.core
         midje.parsing.util.core
         [midje.parsing.arrow-symbols])
   (:require [midje.data.nested-facts :as nested-facts]

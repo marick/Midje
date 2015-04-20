@@ -1,6 +1,6 @@
 (ns ^{:doc "Checkers that explain more about a failure."}
   midje.checking.checkers.chatty
-  (:use midje.clojure.core
+  (:use marick.clojure.core
         midje.checking.core
         [midje.checking.checkers.util :only [named-as-call]]
         [midje.checking.checkers.defining :only [as-checker]]

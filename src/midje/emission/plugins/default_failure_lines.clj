@@ -1,6 +1,6 @@
 (ns ^{:doc "How the default emitter reports on failures"}
   midje.emission.plugins.default-failure-lines
-  (:use midje.clojure.core
+  (:use marick.clojure.core
         midje.emission.plugins.util)
   (:require [midje.util.ecosystem :as ecosystem]
             [flare.core :as flare]

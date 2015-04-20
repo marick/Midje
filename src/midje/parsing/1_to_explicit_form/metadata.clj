@@ -1,6 +1,6 @@
 (ns ^{:doc "Parsing metadata as found in facts, around-facts, and tables"}
   midje.parsing.1-to-explicit-form.metadata
-  (:use midje.clojure.core
+  (:use marick.clojure.core
         [midje.util.exceptions :only [user-error]])
   (:require [midje.util.pile :as pile]
             [midje.parsing.util.recognizing :as recognize]))

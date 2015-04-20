@@ -10,7 +10,7 @@
   ;; The following lets us avoid a circular dependency. Sigh.
   (:require midje.parsing.1-to-explicit-form.future-facts)
 
-  (:use midje.clojure.core
+  (:use marick.clojure.core
         midje.parsing.util.core
         midje.production-mode)
   ;; For immigration

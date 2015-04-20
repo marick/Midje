@@ -1,5 +1,5 @@
 (ns midje.checking.checkers.collection-util
-  (:use midje.clojure.core
+  (:use marick.clojure.core
         midje.checking.core))
 
 (defn same-lengths? [actual expected]

@@ -1,5 +1,5 @@
 (ns ^{:doc "Functions I wouldn't mind to see in clojure.core"}
-  midje.clojure.core
+  marick.clojure.core
   (:use midje.util.ecosystem)
   (:use [ordered.map :only [ordered-map]])
   (:require clojure.pprint

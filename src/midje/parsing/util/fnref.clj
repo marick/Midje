@@ -1,7 +1,7 @@
 (ns ^{:doc "A fnref is the first symbol-or-var in a list. These utilities
            allow you to interpret it in multiple ways."}
   midje.parsing.util.fnref
-  (:use midje.clojure.core))
+  (:use marick.clojure.core))
 
 
 (defn classify-function-reference [reference]
