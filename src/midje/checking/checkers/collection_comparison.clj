@@ -161,7 +161,7 @@
             (comb/permutations checkers)
 
             :else
-            (rotations checkers)))]
+            (pile/rotations checkers)))]
 
   (defmulti compare-results
     (fn [actual _expected_ looseness]

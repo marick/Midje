@@ -12,6 +12,7 @@
                                                    with-pushed-namespace-values]])
   (:require [clojure.zip :as zip]
             [midje.config :as config]
+            [midje.util.pile :as pile]
             [midje.util.unify :as unify]
             [midje.parsing.util.file-position :as position]
             [midje.parsing.util.error-handling :as error]
@@ -132,7 +133,7 @@
 
 (defn- ^{:testable true } make-state-unification-template [[_before-after-or-around_ wrapping-target & _ :as state-changer]]
   (wrapping/with-wrapping-target
-    (macroexpand-1 (map-first #(symbol "midje.parsing.1-to-explicit-form.parse-background" (name %))
+    (macroexpand-1 (pile/map-first #(symbol "midje.parsing.1-to-explicit-form.parse-background" (name %))
                               state-changer))
     wrapping-target))
 
