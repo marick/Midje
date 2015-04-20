@@ -1,6 +1,6 @@
 (ns ^{:doc "Functions to help in finding the lines you care about."}
   midje.parsing.util.file-position
-  (:use midje.clojure.backwards-compatibility
+  (:use marick.clojure.core
         midje.parsing.util.core
         midje.parsing.util.zip
         midje.parsing.arrow-symbols
