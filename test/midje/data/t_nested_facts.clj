@@ -2,7 +2,8 @@
   (:use [midje.data.nested-facts]
         clojure.test
         midje.sweet
-        midje.test-util))
+        midje.test-util)
+  (:require [midje.util.pile :as pile]))
 
 
 (defn faux-fact
@@ -51,7 +52,7 @@
 ;;; Binding maps
 (defn minimal-fact [binding-map-keys binding-map-vals]
   (with-meta (fn[])
-    {:midje/table-bindings (ordered-zipmap binding-map-keys binding-map-vals)}))
+    {:midje/table-bindings (pile/ordered-zipmap binding-map-keys binding-map-vals)}))
 
 
 (fact "multiple binding maps are merged into one"

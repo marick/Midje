@@ -7,6 +7,7 @@
         [midje.parsing.util.zip :only [skip-to-rightmost-leaf]]
         [midje.data.metaconstant :only [metaconstant-symbol?]])
 (:require [clojure.string :as str]
+          [midje.util.pile :as pile]
           [clojure.zip :as zip]
           [midje.parsing.util.zip :as pzip]
           [midje.parsing.1-to-explicit-form.facts :as parse-facts]
@@ -26,7 +27,7 @@
 
 (defn- ^{:testable true } table-binding-maps [headings-row values]
   (let [value-rows (partition (count headings-row) values)]
-    (map (partial ordered-zipmap headings-row) value-rows)))
+    (map (partial pile/ordered-zipmap headings-row) value-rows)))
 
 
 (defn valid-pieces [full-form locals]
@@ -52,7 +53,7 @@
   (letfn [(macroexpander-for [fact-form]
             (fn [binding-map]
               (metadata/with-wrapped-metadata
-                {:midje/table-bindings `(ordered-zipmap '~(keys binding-map) '~(vals binding-map))}
+                {:midje/table-bindings `(pile/ordered-zipmap '~(keys binding-map) '~(vals binding-map))}
                 (parse-facts/working-on-nested-facts
                  (-> binding-map
                      ((partial unify/substitute fact-form))

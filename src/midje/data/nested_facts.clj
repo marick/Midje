@@ -3,7 +3,8 @@
   midje.data.nested-facts
   (:use midje.clojure.core)
   (:require [midje.data.fact :as fact]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [midje.util.pile :as pile]))
 
 ;;; Note: this should probably be a lexically-scoped property of the
 ;;; fact, created at parse time. However, it was created before facts
@@ -27,4 +28,4 @@
 (defn table-bindings []
   (letfn [(context-part [extractor]
             (mapcat #(-> % meta :midje/table-bindings extractor) *fact-context*))]
-    (ordered-zipmap (context-part keys) (context-part vals))))
+    (pile/ordered-zipmap (context-part keys) (context-part vals))))
