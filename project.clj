@@ -40,6 +40,8 @@
   :mailing-list {:name "Midje"
                  :subscribe "https://groups.google.com/forum/?fromgroups#!forum/midje"}
 
+  :aliases {"compatibility" ["with-profile" "1.4:1.5.0:1.5.1:1.6:1.7" "midje" ":config" ".compatibility-test-config"]}
+
   ;; For Clojure snapshots
   :repositories {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"
                  "stuartsierra-releases" "http://stuartsierra.com/maven2"})
