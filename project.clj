@@ -3,7 +3,7 @@
   :url "https://github.com/marick/Midje"
   :pedantic? :warn
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [marick/clojure-commons "0.3.2"]
+                 [marick/clojure-commons "0.3.2" :exclusions [org.clojure/clojure]]
                  ;; upgrading to 1.3.2 produces record-type output for ordered maps
                  [ordered "1.2.0" :exclusions [org.clojure/clojure]]
                  [org.clojure/math.combinatorics "0.1.1"]
@@ -41,7 +41,8 @@
   :mailing-list {:name "Midje"
                  :subscribe "https://groups.google.com/forum/?fromgroups#!forum/midje"}
 
-  :aliases {"compatibility" ["with-profile" "1.4:1.5.0:1.5.1:1.6:1.7" "midje" ":config" ".compatibility-test-config"]}
+  :aliases {"compatibility" ["with-profile" "1.4:1.5.0:1.5.1:1.6:1.7" "midje" ":config" ".compatibility-test-config"]
+            "travis" ["with-profile" "1.4:1.5.0:1.5.1:1.6:1.7" "midje"]}
 
   ;; For Clojure snapshots
   :repositories {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"
