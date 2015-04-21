@@ -2,8 +2,7 @@
   midje.parsing.util.error-handling
   (:use marick.clojure.core
         [midje.util.exceptions :only [user-error-exception-lines]]
-        [midje.parsing.util.file-position :only [form-position]]
-        [slingshot.slingshot :only [throw+ try+]])
+        [midje.parsing.util.file-position :only [form-position]])
   (:require [midje.emission.api :as emit]))
 
 (def ^{:dynamic true} *wrap-count* 0)
