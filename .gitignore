@@ -16,3 +16,4 @@ target
 tmp/
 report.xml
 .nrepl-port
+pom.xml.asc
