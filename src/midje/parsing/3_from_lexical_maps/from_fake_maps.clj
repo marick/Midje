@@ -2,10 +2,10 @@
   midje.parsing.3-from-lexical-maps.from-fake-maps
   (:use marick.clojure.core
         midje.checking.core
-        [midje.checkers :only [exactly]]
         [midje.checking.checkers.defining :only [checker?]]
         [midje.parsing.arrow-symbols])
-  (:require [midje.util.exceptions :as exceptions]))
+  (:require [midje.util.exceptions :as exceptions]
+            [midje.checkers :as checkers]))
 
 (defn- mkfn:arg-matcher
   "Based on an expected value, generates a function that returns
@@ -13,7 +13,7 @@
   [expected]
   (if (and (extended-fn? expected)
            (not (checker? expected)))
-    (fn [actual] (extended-= actual (exactly expected)))
+    (fn [actual] (extended-= actual (checkers/exactly expected)))
     (fn [actual] (extended-= actual expected))))
 
 (defn mkfn:arglist-matcher-fixed-arity
