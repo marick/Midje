@@ -1,11 +1,11 @@
-(ns ^{:doc "A fnref is the first symbol-or-var in a list. These utilities
-           allow you to interpret it in multiple ways."}
-  midje.parsing.util.fnref
-  (:use marick.clojure.core))
+(ns midje.parsing.util.fnref
+  "A fnref is the first symbol-or-var in a list. These utilities
+   allow you to interpret it in multiple ways."
+  (:use commons.clojure.core))
 
 
 (defn classify-function-reference [reference]
-  (pred-cond reference
+  (branch-on reference
      symbol?        :symbol
      sequential?    :var-form
      :else          (throw (Exception. "Programmer error"))))

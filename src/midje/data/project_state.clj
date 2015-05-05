@@ -1,12 +1,13 @@
 (ns ^{:doc "What we know about the changing project file/namespace tree."}
   midje.data.project-state
-  (:use marick.clojure.core)
   (:require [midje.emission.boundaries :as emission-boundary]
             [midje.util.ecosystem :as ecosystem]
             [midje.emission.colorize :as color]
             [midje.config :as config]
             [midje.util.bultitude :as tude]
-            [midje.emission.api :as emit])
+            [midje.emission.api :as emit]
+            [commons.sequences :as seq]
+            [commons.maps :as map])
   (:require [clojure.java.io :as io]
             [clj-time.local :as time]))
 
@@ -73,7 +74,7 @@
   (.lastModified file))
 
 (defn latest-modification-time [state-tracker]
-  (let [ns-to-file (invert (filemap-key state-tracker))
+  (let [ns-to-file (map/invert (filemap-key state-tracker))
         relevant-files (map ns-to-file (load-key state-tracker))]
     (apply max (time-key state-tracker)
            (map file-modification-time relevant-files))))
@@ -107,7 +108,7 @@
       (if (nil? root-to-handle)
         surviving-namespaces
         (let [actual-dependent-set (set (get-in state-tracker [deps-key :dependents root-to-handle]))
-              [new-roots unkilled-descendents] (separate actual-dependent-set surviving-namespaces)]
+              [new-roots unkilled-descendents] (seq/separate actual-dependent-set surviving-namespaces)]
           (recur (concat roots-to-handle-later new-roots)
                  unkilled-descendents))))))
          

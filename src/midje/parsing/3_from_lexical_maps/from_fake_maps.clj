@@ -1,6 +1,6 @@
 (ns ^{:doc "Generating functions that work on fake maps."}
   midje.parsing.3-from-lexical-maps.from-fake-maps
-  (:use marick.clojure.core
+  (:use commons.clojure.core
         midje.checking.core
         [midje.checking.checkers.defining :only [checker?]]
         [midje.parsing.arrow-symbols])

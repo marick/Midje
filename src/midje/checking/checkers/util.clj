@@ -1,5 +1,5 @@
 (ns midje.checking.checkers.util
-  (:use marick.clojure.core)
+  (:use commons.clojure.core)
   (:require [midje.util.pile :as pile]))
 
 (defn named-as-call

@@ -1,6 +1,6 @@
 (ns ^{:doc "General purpose plugin utilities"}
   midje.emission.plugins.util
-  (:use marick.clojure.core
+  (:use commons.clojure.core
         [clojure.repl :only [demunge]])
   (:require [clojure.string :as str]
             [midje.util.pile :as pile]
@@ -134,7 +134,7 @@
         : a nicely printed stack trace
         : maps and sets sorted by key."
   [value]
-  (pred-cond value
+  (branch-on value
     fn?                           (function-name value)
     exception/captured-throwable? (exception/friendly-stacktrace value)
     record?                       (str (sorted-if-appropriate value) "::" (record-name value))

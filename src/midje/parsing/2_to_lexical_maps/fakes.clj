@@ -1,6 +1,6 @@
 (ns ^{:doc "An intermediate stage in the compilation of prerequisites."}
   midje.parsing.2-to-lexical-maps.fakes
-  (:use marick.clojure.core
+  (:use commons.clojure.core
         midje.parsing.util.core
         [midje.parsing.arrow-symbols])
   (:require [midje.parsing.util.fnref :as fnref]

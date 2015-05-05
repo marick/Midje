@@ -1,11 +1,12 @@
-(ns ^{:doc "checkable maps, redefine maps, failure maps"} 
-  midje.parsing.lexical-maps
-  (:use marick.clojure.core)
+(ns midje.parsing.lexical-maps
+  "checkable maps, redefine maps, failure maps"
+  (:use commons.clojure.core)
   (:require [midje.data.nested-facts :as nested-facts]
             [midje.parsing.util.fnref :as fnref]
             [midje.parsing.util.file-position :as position]
             [midje.parsing.util.recognizing :as recognize]
-            [midje.parsing.3-from-lexical-maps.from-fake-maps :as from-fake-maps]))
+            [midje.parsing.3-from-lexical-maps.from-fake-maps :as from-fake-maps]
+            [commons.maps :as map]))
 
 
 ;;; Because this code is a bit tricky, what with the lexical
@@ -28,7 +29,7 @@
     :function-under-test (clojure.core/fn [] (cons a [2])),
     :description (midje.data.nested-facts/descriptions)}
    {:arrow '=>, :call-form '(cons a [2])}
-   (marick.clojure.core/hash-map-duplicates-ok
+   (commons.maps/hash-map-duplicates-ok
     :position
     (midje.parsing.util.file-position/line-number-known 2)))
 ) ; ---------------------------------------------------------------
@@ -43,7 +44,7 @@
   [call-form arrow expected-result overrides]
   (let [source-details `{:call-form '~call-form
                          :arrow '~arrow }
-        override-map `(hash-map-duplicates-ok ~@overrides)
+        override-map `(map/hash-map-duplicates-ok ~@overrides)
         line (:line (meta call-form))
         result `(merge
                  {::a-midje-checkable-map? true
@@ -78,7 +79,7 @@
   (let [source-details `{:call-form '~call-form
                          :arrow '~arrow
                          :rhs '~(cons result overrides)}
-        override-map `(hash-map-duplicates-ok ~@overrides)
+        override-map `(map/hash-map-duplicates-ok ~@overrides)
         line (:line (meta call-form))
         result `(merge
                  {
@@ -108,7 +109,7 @@
   (let [source-details `{:call-form '~metaconstant
                          :arrow '~arrow
                          :rhs '~(cons contained overrides)}
-        override-map `(hash-map-duplicates-ok ~@overrides)
+        override-map `(map/hash-map-duplicates-ok ~@overrides)
         line (:line (meta contained))
         result `(merge
                  {

@@ -1,6 +1,6 @@
 (ns ^{:doc "Midje's special blend of generative-style testing."}
   midje.parsing.0-to-fact-form.formulas
-  (:use marick.clojure.core
+  (:use commons.clojure.core
         midje.parsing.util.core
         [clojure.string :only [join]]
         [clojure.walk :only [prewalk]])

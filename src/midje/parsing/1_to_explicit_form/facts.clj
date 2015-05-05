@@ -1,6 +1,6 @@
 (ns ^{:doc "Parsing facts."}
   midje.parsing.1-to-explicit-form.facts
-  (:use marick.clojure.core
+  (:use commons.clojure.core
         midje.parsing.util.core
         midje.parsing.arrow-symbols
         
@@ -97,7 +97,7 @@
 (defn midjcoexpand
   "Descend form, macroexpanding *only* midje forms and placing background wrappers where appropriate."
   [form]
-  (pred-cond form
+  (branch-on form
     wrapping/already-wrapped?     form
     quoted?              form
     recognize/future-fact?         (macroexpand form)

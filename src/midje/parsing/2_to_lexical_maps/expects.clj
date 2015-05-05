@@ -1,9 +1,11 @@
-(ns ^{:doc "generate a map for a particular checkable"}
-  midje.parsing.2-to-lexical-maps.expects
-  (:use marick.clojure.core
+(ns midje.parsing.2-to-lexical-maps.expects
+  "generate a map for a particular checkable"
+  (:use commons.clojure.core
         midje.parsing.util.core
         [midje.parsing.arrow-symbols])
-  (:require [midje.data.nested-facts :as nested-facts]
+  (:require [commons.maps :as map]
+            [commons.sequences :as seq]
+            [midje.data.nested-facts :as nested-facts]
             [midje.parsing.util.error-handling :as error]
             [midje.parsing.util.recognizing :as recognize]
             [midje.parsing.lexical-maps :as lexical-maps]
@@ -12,9 +14,8 @@
             [midje.emission.api :as emit]))
 
 
-
 (defn expansion [call-form arrow expected-result fakes overrides]
-  (pred-cond arrow
+  (branch-on arrow
     recognize/common-check-arrow?
     (let [check (lexical-maps/checkable call-form arrow expected-result overrides)
           expanded-fakes (map (fn [fake]
@@ -44,7 +45,7 @@
                  (concat overrides [:expected-result-form escaped-expected-result])))
 
     recognize/future-check-arrow?
-    (let [position (:position (apply hash-map-duplicates-ok overrides))]
+    (let [position (:position (apply map/hash-map-duplicates-ok overrides))]
         `(emit/future-fact (nested-facts/descriptions ~(str "on `" call-form "`")) ~position))
 
     recognize/parse-exception-arrow?
@@ -59,7 +60,7 @@
         (error/report-error call-form
                             (cl-format nil "... ~S ~A ~S" call-form arrow expected-result)
                             "It looks as though you've misparenthesized a prerequisite."))
-  (let [[fakes overrides] (separate recognize/fake? fakes+overrides)]
+  (let [[fakes overrides] (seq/separate recognize/fake? fakes+overrides)]
     [call-form arrow expected-result fakes overrides]))
 
 (defn to-lexical-map-form [full-form]

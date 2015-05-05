@@ -1,6 +1,6 @@
 (ns ^{:doc "In-repl user documentation"}
   midje.doc
-  (:use marick.clojure.core)
+  (:use commons.clojure.core)
   (:require [midje.emission.colorize :as color]
             [clojure.java.browse :as browse]
             [midje.config :as config]

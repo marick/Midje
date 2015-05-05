@@ -1,11 +1,13 @@
 (ns ^{:doc "Maintain the use of namespace-specific prerequisites"}
   midje.data.prerequisite-state
-  (:use marick.clojure.core
+  (:use commons.clojure.core
         midje.checking.core
         [midje.util.thread-safe-var-nesting :only [with-altered-roots]]
         [midje.emission.deprecation :only [deprecate]]
         [midje.parsing.arrow-symbols])
   (:require [clojure.tools.macro :as macro]
+            [commons.maps :as map]
+            [commons.sequences :as seq]
             [midje.config :as config]
             [midje.util.pile :as pile]
             [midje.data.metaconstant :as metaconstant]
@@ -54,9 +56,9 @@
   (= 2 (get (deref *call-action-count*) (Thread/currentThread))))
 
 (defn record-start-of-prerequisite-call []
-  (swap! *call-action-count* transform (Thread/currentThread) inc 0))
+  (swap! *call-action-count* map/transform (Thread/currentThread) inc 0))
 (defn record-end-of-prerequisite-call []
-  (swap! *call-action-count* transform (Thread/currentThread) dec))
+  (swap! *call-action-count* map/transform (Thread/currentThread) dec))
 
 
 
@@ -82,7 +84,7 @@
                   (finally (record-end-of-prerequisite-call))))]
 
     (let [action (counting-nested-calls (best-call-action function-var actual-args fakes))]
-      (pred-cond action
+      (branch-on action
         extended-fn?  (apply action actual-args)
         map?          (do
                         (swap! (:call-count-atom action) inc)
@@ -109,7 +111,7 @@
                                                        {var (Metaconstant. (pile/object-name var) contained nil)})))
 
 (defn binding-map [fakes]
-  (let [[data-fakes fn-fakes] (separate :data-fake fakes)]
+  (let [[data-fakes fn-fakes] (seq/separate :data-fake fakes)]
     (merge (fn-fakes-binding-map fn-fakes) 
            (data-fakes-binding-map data-fakes))))
 

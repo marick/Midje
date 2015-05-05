@@ -1,7 +1,6 @@
 (ns ^{:doc "Functions to help in finding the lines you care about."}
   midje.parsing.util.file-position
-  (:use marick.clojure.core
-        midje.parsing.util.core
+  (:use midje.parsing.util.core
         midje.parsing.util.zip
         midje.parsing.arrow-symbols
         [midje.parsing.util.zip :only [skip-to-rightmost-leaf]])

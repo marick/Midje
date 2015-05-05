@@ -1,10 +1,10 @@
-(ns ^{:doc "Functions useful when using Midje in the repl or from the command line.
-            See `midje-repl-help` for details."}
-  midje.repl
-  (:use marick.clojure.core)
+(ns midje.repl
+  "Functions useful when using Midje in the repl or from the command line.
+   See `midje-repl-help` for details."
+  (:use commons.clojure.core)
   (:require midje.sweet
             [midje.doc :as doc]
-
+            [such.immigration :as immigrate]
             [clojure.java.io :as io]
             [midje.config :as config]
             [midje.util.pile :as pile]
@@ -23,11 +23,11 @@
 (fact-data/make-getters *ns* "fact-") 
 
 (when (doc/appropriate?)
-  (immigrate-from 'midje.doc doc/for-repl)
+  (immigrate/selection 'midje.doc doc/for-repl)
   (doc/repl-notice))
 
 (when-not (ns-resolve 'user '=>) ; when not already `use`d.
-  (immigrate 'midje.sweet))
+  (immigrate/namespaces 'midje.sweet))
 
 
 

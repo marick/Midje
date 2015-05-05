@@ -1,11 +1,12 @@
 (ns ^{:doc "Checkers that explain more about a failure."}
   midje.checking.checkers.chatty
-  (:use marick.clojure.core
+  (:use commons.clojure.core
         midje.checking.core
         [midje.checking.checkers.util :only [named-as-call]]
         [midje.checking.checkers.defining :only [as-checker]]
-        [midje.parsing.util.core :only [quoted?]]
-        [midje.emission.colorize :as colorize]))
+        [midje.parsing.util.core :only [quoted?]])
+  (:require [midje.emission.colorize :as colorize]
+            [commons.sequences :as seq]))
 
 ;; Note: checkers need to be exported in ../checkers.clj
 
@@ -40,7 +41,7 @@
   (let [as-symbol          (gensym 'symbol-for-destructured-arg)
         snd-to-last-is-as? #(= :as (second (reverse %)))
         has-key-as?        #(contains? % :as)]
-    (pred-cond arg-form
+    (branch-on arg-form
                (every-pred vector? snd-to-last-is-as?)   [arg-form (last arg-form)]
                vector?                                   [(-> arg-form (conj :as) (conj as-symbol)) as-symbol]
                (every-pred map? has-key-as?)             [arg-form (:as arg-form)]
@@ -89,7 +90,7 @@
       (fn [~arg-form]
         (let [~result-symbol (vec ~complex-forms)]
           (if (extended-false? (~f ~@substituted-args))
-            (let [pairs# (vertical-slices '~complex-forms ~result-symbol)]
+            (let [pairs# (seq/vertical-slices '~complex-forms ~result-symbol)]
               (as-data-laden-falsehood {:actual ~arg-name
                                         :intermediate-results pairs#}))
             true))))))

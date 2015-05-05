@@ -1,5 +1,5 @@
 (ns midje.emission.plugins.flare
-  (:use marick.clojure.core)
+  (:use commons.clojure.core)
   (:require [midje.util.ecosystem :as ecosystem]
             [midje.emission.plugins.util :as util]))
 

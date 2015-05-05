@@ -1,6 +1,6 @@
 (ns ^{:doc "Emissions change global state: the output and the pass/fail record."}
   midje.emission.api
-  (:use marick.clojure.core
+  (:use commons.clojure.core
         [midje.util.thread-safe-var-nesting :only [with-altered-roots]])
   (:require [midje.config :as config]
             [midje.emission.clojure-test-facade :as ctf]

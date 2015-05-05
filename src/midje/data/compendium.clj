@@ -2,9 +2,9 @@
             about a particular subject'. The Midje compendium contains
             the currently relevant facts."}
   midje.data.compendium
-  (:use marick.clojure.core
-        [midje.util.exceptions :only [user-error]])
-  (:require [midje.data.fact :as fact]
+  (:use [midje.util.exceptions :only [user-error]])
+  (:require [commons.maps :as map]
+            [midje.data.fact :as fact]
             [midje.config :as config]))
 
 ;;; Facts are stored in a compendium:
@@ -69,8 +69,8 @@
             (vector-remove (by-namespace namespace) fact-function)]
       (-> this
           (assoc-in [:by-namespace namespace] new-namespace-facts)
-          (dissoc-keypath [:by-name namespace name])
-          (dissoc-keypath [:by-guid namespace guid])))))
+          (map/dissoc-keypath [:by-name namespace name])
+          (map/dissoc-keypath [:by-guid namespace guid])))))
 
   (remove-namespace-facts-from [this namespace]
     (if (and (symbol? namespace)
@@ -78,9 +78,9 @@
       this
       (let [namespace-name (friendly-ns-name namespace)]
         (-> this 
-            (dissoc-keypath [:by-namespace namespace-name])
-            (dissoc-keypath [:by-name namespace-name])
-            (dissoc-keypath [:by-guid namespace-name])))))
+            (map/dissoc-keypath [:by-namespace namespace-name])
+            (map/dissoc-keypath [:by-name namespace-name])
+            (map/dissoc-keypath [:by-guid namespace-name])))))
 
   (namespace-facts [this namespace]
     (get by-namespace (friendly-ns-name namespace) []))

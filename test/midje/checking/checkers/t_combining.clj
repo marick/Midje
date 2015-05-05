@@ -1,5 +1,6 @@
 (ns midje.checking.checkers.t-combining
   (:use midje.sweet
+        commons.clojure.core
         midje.checking.core
         [midje.checking.checkers.defining :only [checker?]]
         midje.test-util))

@@ -1,32 +1,34 @@
-;; Note: checkers need to be exported in ../checkers.clj
-
-(ns ^{:doc "Prepackaged functions that perform common checks."}
-  midje.checking.checkers.simple
-  (:use marick.clojure.core
+(ns midje.checking.checkers.simple
+  "Prepackaged functions that perform common checks."
+  (:use commons.clojure.core
         midje.checking.core
         [midje.checking.checkers.defining :only [as-checker checker defchecker]]
       	[midje.checking.checkers.util :only [named-as-call]]
       	[midje.util.exceptions :only [captured-throwable?]])
+  (:require [commons.ns :as ns])
   (:import [midje.util.exceptions ICapturedThrowable]))
+
+;;; DANGER: If you add a checker, add it to ../checkers.clj
+
 
 (defchecker truthy 
   "Returns precisely true if actual is not nil and not false."
   [actual] 
   (and (not (captured-throwable? actual))
        (boolean actual)))
-(defalias TRUTHY truthy)
+(ns/defalias TRUTHY truthy)
 
 (defchecker falsey 
   "Returns precisely true if actual is nil or false."
   [actual] 
   (not actual))
-(defalias FALSEY falsey)
+(ns/defalias FALSEY falsey)
 
 (defchecker anything
   "Accepts any value."
   [actual]
   (not (captured-throwable? actual)))
-(defalias irrelevant anything)
+(ns/defalias irrelevant anything)
 
 (defchecker exactly
   "Checks for equality. Use to avoid default handling of functions."
@@ -55,7 +57,7 @@
 ;; Concerning Throwables
 
 (letfn [(throwable-as-desired? [throwable desideratum]
-           (pred-cond desideratum
+           (branch-on desideratum
                    fn?                        (desideratum throwable)
                    (some-fn string? regex?)   (extended-= (.getMessage ^Throwable throwable) desideratum)
                    class?                     (instance? desideratum throwable)))]

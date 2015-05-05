@@ -3,8 +3,8 @@
   :url "https://github.com/marick/Midje"
   :pedantic? :warn
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [marick/suchwow "1.0.1" :exclusion [org.clojure/clojure]]
-                 [marick/clojure-commons "0.5.0" :exclusions [org.clojure/clojure]]
+                 [marick/suchwow "2.0.0" :exclusions [org.clojure/clojure]]
+                 [marick/clojure-commons "0.7.0" :exclusions [org.clojure/clojure]]
                  ;; upgrading to 1.3.2 produces record-type output for ordered maps
                  [ordered "1.2.0" :exclusions [org.clojure/clojure]]
                  [org.clojure/math.combinatorics "0.1.1"]
@@ -13,7 +13,6 @@
                  [clj-time "0.9.0" :exclusions [org.clojure/clojure]]
                  [colorize "0.1.1" :exclusions [org.clojure/clojure]]
                  [org.clojure/tools.macro "0.1.5"]
-                 [dynapath "0.2.0"]
                  [org.tcrawley/dynapath "0.2.3"]
                  [swiss-arrows "1.0.0" :exclusions [org.clojure/clojure]]
                  [org.clojure/tools.namespace "0.2.7"]

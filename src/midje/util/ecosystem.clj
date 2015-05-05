@@ -8,7 +8,7 @@
 (ns ^{:doc "Environmental factors."}
   midje.util.ecosystem
   (:require [clojure.string :as str]
-            marick.clojure.versions))
+            such.versions))
 
 (def issues-url "https://github.com/marick/Midje/issues")
 (def syntax-errors-that-will-not-be-fixed     

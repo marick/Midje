@@ -1,13 +1,14 @@
 (ns ^{:doc "midje.background uses these to wrap extra code around 
             :contents, :facts, or :expects"}
   midje.parsing.util.wrapping
-  (:use marick.clojure.core
-        midje.parsing.util.core
+  (:use midje.parsing.util.core
         [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
                                                    set-namespace-value
                                                    with-pushed-namespace-values]])
   (:require [clojure.zip :as zip] 
+            [commons.sequences :as seq]
   	        [midje.util.unify :as unify]))
+
 
 (defn midje-wrapped
   "This is used to prevent later wrapping passes from processing 
@@ -39,7 +40,7 @@
     ~form))
 
 (defn put-wrappers-into-effect [wrappers]
-  (let [[immediates deferred] (separate (for-wrapping-target? :contents) wrappers)]
+  (let [[immediates deferred] (seq/separate (for-wrapping-target? :contents) wrappers)]
     (set-namespace-value :midje/wrappers (list wrappers))
     (multiwrap "unimportant-value" immediates)))
 

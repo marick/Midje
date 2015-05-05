@@ -1,6 +1,6 @@
-(ns ^{:doc "Utility functions dealing with checking or tranforming forms or zippers."}
-  midje.parsing.util.error-handling
-  (:use marick.clojure.core
+(ns midje.parsing.util.error-handling
+  "Utility functions dealing with checking or tranforming forms or zippers."
+  (:use commons.clojure.core
         [midje.util.exceptions :only [user-error-exception-lines]]
         [midje.parsing.util.file-position :only [form-position]])
   (:require [midje.emission.api :as emit]))

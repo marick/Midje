@@ -1,7 +1,7 @@
-(ns ^{:doc "Handles the parsing of background forms. For the moment, this includes both
-            state changes and fact-wide prerequisites."}
-  midje.parsing.1-to-explicit-form.parse-background
-  (:use marick.clojure.core
+(ns midje.parsing.1-to-explicit-form.parse-background
+  "Handles the parsing of background forms. For the moment, this includes both
+   state changes and fact-wide prerequisites."
+  (:use commons.clojure.core
         midje.parsing.util.core
         midje.parsing.util.zip
         [midje.parsing.1-to-explicit-form.metaconstants :only [predefine-metaconstants-from-form]]
@@ -11,6 +11,7 @@
         [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
                                                    with-pushed-namespace-values]])
   (:require [clojure.zip :as zip]
+            [commons.sequences :as seq]
             [midje.config :as config]
             [midje.util.pile :as pile]
             [midje.util.unify :as unify]
@@ -41,7 +42,7 @@
                   (not (possibly-extractable-form? form)) false
                   (has-wrapper-syntax? form) false
                   :else true))]
-    (let [[background-forms other-forms] (separate extractable-background-changer? fact-body-forms)
+    (let [[background-forms other-forms] (seq/separate extractable-background-changer? fact-body-forms)
           background-changers            (mapcat (fn [[command & args]] (arglist-undoing-nesting args))
                                                  background-forms)]
       [background-changers other-forms])))
@@ -51,7 +52,7 @@
 ;; Dealing with a list of background changers
 
 (defn- first-form-is-no-state-changer? [forms]
-  (or (not (listlike? (first forms)))
+  (or (not (linear-access? (first forms)))
       (not (symbol? (ffirst forms)))))
 
 (defn- first-form-is-a-state-changer? [forms]
@@ -61,7 +62,7 @@
   ([forms error-reporter]
      (loop [expanded []
             in-progress forms]
-       (pred-cond in-progress
+       (branch-on in-progress
                   empty? 
                   expanded
                   
@@ -146,7 +147,7 @@
 ;; it made it easier to eyeball expanded forms and see what was going on.
 (defn make-unification-templates [background-forms]
   (predefine-metaconstants-from-form background-forms)
-  (let [[fakes state-changers] (separate recognize/fake? (separate-individual-changers background-forms))
+  (let [[fakes state-changers] (seq/separate recognize/fake? (separate-individual-changers background-forms))
         make-state-unification-templates (eagerly (map make-state-unification-template state-changers))]
     ;; The state template comes first on the off chance that a prerequisite depends on setup. 
     (concat make-state-unification-templates (list (make-prerequisite-unification-template fakes)))))

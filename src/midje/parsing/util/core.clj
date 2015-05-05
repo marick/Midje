@@ -1,6 +1,5 @@
 (ns ^{:doc "Utility functions dealing with checking or tranforming forms or zippers."}
   midje.parsing.util.core
-  (:use marick.clojure.core)
   (:require [clojure.zip :as zip]))
 
 

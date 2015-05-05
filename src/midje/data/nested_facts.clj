@@ -1,7 +1,7 @@
 (ns ^{:doc "During checking of a fact, this contains pointers to the facts that contain it,
             in outer-to-inner order. The fact itself is the `last` of the sequence."}
   midje.data.nested-facts
-  (:use marick.clojure.core)
+  (:use commons.clojure.core)
   (:require [midje.data.fact :as fact]
             [clojure.string :as str]
             [midje.util.pile :as pile]))

@@ -1,6 +1,7 @@
-(ns ^{:doc "To evaluate a fact it needs to be eagerly evaluated."}
-  midje.util.laziness
-  (:use [marick.clojure.core]))
+(ns midje.util.laziness
+  "To evaluate a fact it needs to be eagerly evaluated."
+  (:use commons.clojure.core))
+
 
 (defn eagerly
   "Descend form, converting all lazy seqs into lists.
@@ -11,7 +12,7 @@
   ;; Modified from clojure.walk/walk
   [form]
   (let [m (fn [x] (if (instance? clojure.lang.IObj x) (with-meta x (meta form)) x))]
-    (pred-cond form
+    (branch-on form
       (some-fn seq? list?)    (m (apply list (map eagerly form)))
       vector?                 (m (vec (map eagerly form)))
       map?                    (m (into form (map eagerly form)))

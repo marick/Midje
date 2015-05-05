@@ -1,6 +1,6 @@
 (ns ^{:doc "=contains=> prereqisites"}
   midje.parsing.2-to-lexical-maps.data-fakes
-  (:use marick.clojure.core
+  (:use commons.clojure.core
         midje.parsing.util.core
         midje.parsing.arrow-symbols)
   (:require [midje.parsing.lexical-maps :as lexical-maps]

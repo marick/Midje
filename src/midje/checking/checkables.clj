@@ -1,6 +1,6 @@
 (ns ^{:doc "Core Midje functions that process expects and report on their results."} 
   midje.checking.checkables
-  (:use marick.clojure.core
+  (:use commons.clojure.core
         midje.checking.core
         [midje.util.exceptions :only [captured-throwable]]
         midje.data.prerequisite-state
@@ -79,7 +79,7 @@
 (defmethod call-count-incorrect? :fake [fake]
   (let [method (:times fake)
         count @(:call-count-atom fake)]
-    (pred-cond method 
+    (branch-on method 
       #(= % :default) (zero? count)
       number?         (not= method count)
       coll?           (not-any? (partial = count) method)

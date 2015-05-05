@@ -1,12 +1,14 @@
 (ns midje.data.t-prerequisite-state
-  (:use [midje sweet test-util]
+  (:use commons.clojure.core
+        [midje sweet test-util]
         [midje.data.prerequisite-state :except [mockable-funcall? unfolding-step merge-metaconstant-bindings 
                                              unique-vars handle-mocked-call best-call-action ]]
         [midje.test-util]
         [midje.parsing.2-to-lexical-maps.fakes :only [fake]]
         [midje.parsing.2-to-lexical-maps.data-fakes :only [data-fake]]
         midje.util)
-  (:require [midje.config :as config])
+  (:require [midje.config :as config]
+            [commons.sequences :as seq])
   (:import midje.data.metaconstant.Metaconstant))
 
 (expose-testables midje.data.prerequisite-state)
@@ -214,7 +216,7 @@
 
 (fact "data-fakes can be converted to metaconstant-bindings"
   (let [bindings (binding-map [{:data-fake true :var #'name :contained {:a 1}}])
-        [_var_ metaconstant] (only bindings)]
+        [_var_ metaconstant] (seq/only bindings)]
     (.underlying-symbol metaconstant) => 'name
     (.storage metaconstant) => {:a 1} ))
 

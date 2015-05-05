@@ -1,12 +1,11 @@
 (ns ^{:doc "Customizable configuration"}
   midje.config
-  (:use marick.clojure.core
-        [midje.util.exceptions :only [user-error]])
+  (:use [midje.util.exceptions :only [user-error]])
   (:require [midje.emission.levels :as levels]
             [midje.util.ecosystem :as ecosystem]
             [midje.util.pile :as pile]
-            [midje.data.fact :as fact]))
-
+            [midje.data.fact :as fact]
+            [commons.clojure.core :as core]))
   
 ;;; I consider whether we're running in the repl part of the config. This matters because
 ;;; threads can't examine the stack to see if they're in the repl. So we check once at
@@ -42,8 +41,8 @@
 (defmethod validate-key! :default [_])
 
 (defn validate! [changes]
-  (let [extras (difference (set (keys changes))
-                               (set (keys *config*)))]
+  (let [extras (core/difference (set (keys changes))
+                                (set (keys *config*)))]
     (when (not (empty? extras))
       (throw (user-error (str "These are not configuration keys: " (vec extras))))))
   (dorun (map validate-key! changes)))
@@ -96,7 +95,7 @@
 
 ;; Fact filters
 
-(def describes-name-matcher? stringlike?)
+(def describes-name-matcher? core/stringlike?)
 (defn describes-callable-matcher? [arg]
   (or (fn? arg) (keyword? arg)))
 
@@ -106,7 +105,7 @@
   (comp desired meta))
 
 (defn appropriate-matcher-for [desired]
-  ( (pred-cond desired
+  ( (core/branch-on desired
                describes-name-matcher? name-matcher-for
                describes-callable-matcher? callable-matcher-for
                :else (throw (Error. (str "Program error: Bad matcher for " desired))))

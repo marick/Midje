@@ -1,9 +1,9 @@
-(ns ^{:doc "Functions that are somewhat general purpose, but seem too obscure to be in marick.clojure.core.
-           A cue to wiser placement decisions someday."}
-  midje.util.pile
-  (:use marick.clojure.core)
+(ns midje.util.pile
+  "Functions that are somewhat general purpose."
+  (:use commons.clojure.core)
   (:use [ordered.map :only [ordered-map]])
-  (:import org.apache.commons.codec.digest.DigestUtils))
+  (:import org.apache.commons.codec.digest.DigestUtils)
+  (:require [commons.maps :as map]))
 
 ;;; Named things
 
@@ -24,7 +24,7 @@
 (defn tack-on-to
   "Conj new values onto appropriate keys of a map" 
   [hashmap & kvs]
-  (merge-with conj hashmap (apply hash-map-duplicates-ok kvs)))
+  (merge-with conj hashmap (apply map/hash-map-duplicates-ok kvs)))
 
 (defn map-difference [bigger smaller]
   (select-keys bigger (difference (set (keys bigger)) (set (keys smaller)))))

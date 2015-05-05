@@ -1,6 +1,6 @@
 (ns ^{:doc "Recognizing Midje forms"}
   midje.parsing.util.recognizing
-  (:use marick.clojure.core
+  (:use commons.clojure.core
         midje.parsing.util.core
         midje.parsing.arrow-symbols)
   (:require [clojure.zip :as zip]

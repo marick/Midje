@@ -1,8 +1,9 @@
-(ns ^{:doc "Core ideas underlying all checking"}
-  midje.checking.core
-  (:use marick.clojure.core)
+(ns midje.checking.core
+  "Core ideas underlying all checking"
+  (:use commons.clojure.core)
   ;; TODO: Shouldn't really have this dependency.
-  (:require [midje.emission.plugins.util :as names]))
+  (:require [midje.emission.plugins.util :as names]
+            [commons.sequences :as seq]))
 
 ;;; There is a notion of "extended falsehood", in which a false value may be a
 ;;; map containing information about what went wrong.
@@ -68,7 +69,7 @@
   "Element-by-element comparison, using extended-= for the right-hand-side values."
   [actual-args checkers]
   (and (= (count actual-args) (count checkers))
-       (every? (partial apply extended-=) (vertical-slices actual-args checkers))))
+       (every? (partial apply extended-=) (seq/vertical-slices actual-args checkers))))
 
 ;;; An element of extended-= is that an actual map cannot match an expected record (or type).
 ;;; That produces a plain `false` above. If client code wants to be more informative, it

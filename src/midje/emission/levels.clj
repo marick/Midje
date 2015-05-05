@@ -1,6 +1,6 @@
 (ns ^{:doc "print levels"}
   midje.emission.levels
-  (:use marick.clojure.core
+  (:use commons.clojure.core
         [midje.util.exceptions :only [user-error]]))
 
 

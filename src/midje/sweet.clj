@@ -10,7 +10,7 @@
   ;; The following lets us avoid a circular dependency. Sigh.
   (:require midje.parsing.1-to-explicit-form.future-facts)
 
-  (:use marick.clojure.core
+  (:use commons.clojure.core
         midje.parsing.util.core
         midje.production-mode)
   ;; For immigration
@@ -18,6 +18,7 @@
             midje.checking.checkables
             midje.checkers)
   (:require [clojure.string :as str]
+            [commons.ns :as ns]
             [midje.util.pile :as pile]
             [midje.util.exceptions :as exceptions]
             [midje.util.ecosystem :as ecosystem]
@@ -32,10 +33,11 @@
             [midje.parsing.1-to-explicit-form.metadata :as parse-metadata]
             [midje.parsing.1-to-explicit-form.metaconstants :as parse-metaconstants]
             [midje.data.nested-facts :as nested-facts]
-            [midje.emission.api :as emit]))
+            [midje.emission.api :as emit]
+            [such.immigration :as immigrate]))
 
-(immigrate 'midje.parsing.arrow-symbols)
-(immigrate 'midje.checkers)
+(immigrate/namespaces 'midje.parsing.arrow-symbols)
+(immigrate/namespaces 'midje.checkers)
 
 (def include-midje-checks
   "True by default. If set to false, Midje checks are not
@@ -76,14 +78,14 @@
      throw Errors if ever called."
     [& names] (unfinished* names))
   
-(defalias before  parse-background/before)
-(defalias after   parse-background/after)
-(defalias around  parse-background/around)
-(defalias formula parse-formulas/formula)
+(ns/defalias before  parse-background/before)
+(ns/defalias after   parse-background/after)
+(ns/defalias around  parse-background/around)
+(ns/defalias formula parse-formulas/formula)
 (declare #^{:doc "A declaration of the provided form"} provided)
 
 (when (doc/appropriate?)
-  (immigrate-from 'midje.doc doc/for-sweet)
+  (immigrate/selection 'midje.doc doc/for-sweet)
   (doc/midje-notice))
 
 (defmacro background

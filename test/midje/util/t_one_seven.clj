@@ -43,7 +43,7 @@
 ;;           (midje.parsing.util.file-position/line-number-known nil),
 ;;           :namespace clojure.core/*ns*}
 ;;          {:arrow '=>, :call-form '@counter}
-;;          (marick.clojure.core/hash-map-duplicates-ok
+;;          (commons.clojure.core/hash-map-duplicates-ok
 ;;           :position
 ;;           (midje.parsing.util.file-position/line-number-known 18)))
 ;;         [])))))

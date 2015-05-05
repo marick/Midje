@@ -2,11 +2,12 @@
 
 (ns ^{:doc "Checkers for collections and strings."}
   midje.checking.checkers.collection
-  (:use marick.clojure.core
+  (:use commons.clojure.core
         midje.checking.core
       	[midje.checking.checkers collection-util util chatty defining collection-comparison]
         [midje.util.exceptions :only [user-error]])
-  (:require [midje.util.pile :as pile]))
+  (:require [midje.util.pile :as pile]
+            [commons.sequences :as seq]))
 
 
 (def #^:private looseness-modifiers #{:in-any-order :gaps-ok})
@@ -92,7 +93,7 @@
 
 (defn has-xfix [x-name pattern-fn take-fn]
   (checker [actual expected looseness]
-           (pred-cond actual
+           (branch-on actual
                       set? (noted-falsehood (format "Sets don't have %ses." x-name))
                       map? (noted-falsehood (format "Maps don't have %ses." x-name))
                       :else (let [[actual expected looseness] (standardized-arguments actual expected looseness)]

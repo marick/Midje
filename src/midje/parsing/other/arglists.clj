@@ -1,17 +1,18 @@
 (ns ^{:doc "Parsing function argument lists"}
   midje.parsing.other.arglists
-  (:use marick.clojure.core
+  (:use commons.clojure.core
         midje.parsing.util.core
         [midje.util.exceptions :only [user-error]])
   (:require [midje.emission.levels :as levels]
             [midje.config :as config]
-            [midje.util.pile :as pile]))
+            [midje.util.pile :as pile]
+            [commons.sequences :as seq]))
 
 
 ;;;                                           Print levels (keywords)
 
 (defn separate-print-levels [args default]
-  (let [[[print-level & extras] non-levels] (separate levels/valids args)]
+  (let [[[print-level & extras] non-levels] (seq/separate levels/valids args)]
     (when (seq extras)
       (throw (user-error "You have extra print level names or numbers.")))
     (dorun (map levels/validate-level! (filter number? args)))
@@ -26,8 +27,8 @@
 
 (defn separate-filters [args plain-argument?]
   (let [[filters remainder]
-        (separate #(and (not (plain-argument? %))
-                        ((pile/any-pred-from [string? regex? fn? keyword?]) %))
+        (seq/separate #(and (not (plain-argument? %))
+                            ((pile/any-pred-from [string? regex? fn? keyword?]) %))
                   args)]
     (vector filters remainder)))
 
