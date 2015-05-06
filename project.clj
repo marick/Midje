@@ -4,7 +4,7 @@
   :pedantic? :warn
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [marick/suchwow "2.0.0" :exclusions [org.clojure/clojure]]
-                 [marick/clojure-commons "0.7.0" :exclusions [org.clojure/clojure]]
+                 [marick/clojure-commons "0.7.1" :exclusions [org.clojure/clojure]]
                  ;; upgrading to 1.3.2 produces record-type output for ordered maps
                  [ordered "1.2.0" :exclusions [org.clojure/clojure]]
                  [org.clojure/math.combinatorics "0.1.1"]
