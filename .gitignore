@@ -17,3 +17,4 @@ target
 tmp/
 report.xml
 .nrepl-port
+/checkouts/
