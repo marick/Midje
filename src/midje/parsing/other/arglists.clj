@@ -6,6 +6,7 @@
   (:require [midje.emission.levels :as levels]
             [midje.config :as config]
             [midje.util.pile :as pile]
+            [commons.function-makers :as mkfn]
             [commons.sequences :as seq]))
 
 
@@ -28,7 +29,7 @@
 (defn separate-filters [args plain-argument?]
   (let [[filters remainder]
         (seq/separate #(and (not (plain-argument? %))
-                            ((pile/any-pred-from [string? regex? fn? keyword?]) %))
+                            ((mkfn/any-pred string? regex? fn? keyword?) %))
                   args)]
     (vector filters remainder)))
 

@@ -3,8 +3,8 @@
   :url "https://github.com/marick/Midje"
   :pedantic? :warn
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [marick/suchwow "2.0.0" :exclusions [org.clojure/clojure]]
-                 [marick/clojure-commons "0.7.1" :exclusions [org.clojure/clojure]]
+                 [marick/suchwow "2.1.1" :exclusions [org.clojure/clojure]]
+                 [marick/clojure-commons "0.8.0" :exclusions [org.clojure/clojure]]
                  ;; upgrading to 1.3.2 produces record-type output for ordered maps
                  [ordered "1.2.0" :exclusions [org.clojure/clojure]]
                  [org.clojure/math.combinatorics "0.1.1"]
@@ -12,13 +12,14 @@
                  [org.clojure/core.unify "0.5.2" :exclusions [org.clojure/clojure]]
                  [clj-time "0.9.0" :exclusions [org.clojure/clojure]]
                  [colorize "0.1.1" :exclusions [org.clojure/clojure]]
+                 [backtick "0.3.2"]
+                 [traversy "0.3.1"]
                  [org.clojure/tools.macro "0.1.5"]
                  [org.tcrawley/dynapath "0.2.3"]
                  [swiss-arrows "1.0.0" :exclusions [org.clojure/clojure]]
                  [org.clojure/tools.namespace "0.2.7"]
                  [flare "0.2.8" :exclusions [org.clojure/clojure]]
-                 [slingshot "0.12.1"]
-                 [commons-codec/commons-codec "1.10"]]
+                 [slingshot "0.12.1"]]
   :profiles {:dev {:dependencies [[slamhound "1.5.5"]
                                   [jonase/kibit "0.0.8"]
                                   [prismatic/plumbing "0.4.2"]

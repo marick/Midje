@@ -3,6 +3,7 @@
    See `midje-repl-help` for details."
   (:use commons.clojure.core)
   (:require midje.sweet
+            [commons.function-makers :as mkfn]
             [midje.doc :as doc]
             [such.immigration :as immigrate]
             [clojure.java.io :as io]
@@ -99,7 +100,7 @@
 ;; This function makes user intentions explicit.
 
 (defn- ^{:testable true} defaulting-args [original-args command-type]
-  (when-not ((pile/any-pred-from [fn? keyword?]) (config/choice :fact-filter))
+  (when-not ((mkfn/any-pred fn? keyword?) (config/choice :fact-filter))
     (throw (Error. (cl-format nil "The config `:fact-filter` should a function or keyword, not ~A."
                               (config/choice :fact-filter)))))
   (let [[given-level-seq print-level-to-use args]

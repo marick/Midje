@@ -2,7 +2,6 @@
   "Functions that are somewhat general purpose."
   (:use commons.clojure.core)
   (:use [ordered.map :only [ordered-map]])
-  (:import org.apache.commons.codec.digest.DigestUtils)
   (:require [commons.maps :as map]))
 
 ;;; Named things
@@ -20,14 +19,6 @@
   (vary-meta object assoc :name name))
 
 ;;; Maps
-
-(defn tack-on-to
-  "Conj new values onto appropriate keys of a map" 
-  [hashmap & kvs]
-  (merge-with conj hashmap (apply map/hash-map-duplicates-ok kvs)))
-
-(defn map-difference [bigger smaller]
-  (select-keys bigger (difference (set (keys bigger)) (set (keys smaller)))))
 
 (defn sort-map [m]
   (into (sorted-map) m))
@@ -86,22 +77,6 @@
   ;; "Extracts optional docstring from head of args"
   (partial pop-if map?))
 
-;;; Higher-order predicate helpers
-
-(defn any-pred-from
-  "Returns a function that returns strictly true iff any
-   of the predicates is truthy of the function's single argument.
-   ( (any-of? even? odd?) 3) => true
-   Stops checking after first success."
-  [preds]
-  (if (empty? preds)
-    (constantly true)
-    (fn [arg]
-      (loop [[candidate & remainder :as preds] preds]
-        (cond (empty? preds)  false
-              (candidate arg) true
-              :else           (recur remainder))))))
-
 
 ;;; Definition helpers
 
@@ -121,10 +96,6 @@
     `(defmethod ~name ~dval ~args
        ~@body)))
 
-;;; Hashing
-
-(defn form-guid [form]
-  (DigestUtils/shaHex (pr-str form)))
 
 ;;; Randomness
 

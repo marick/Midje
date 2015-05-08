@@ -2,11 +2,11 @@
   (:use midje.sweet
         midje.test-util
         midje.parsing.1-to-explicit-form.metadata)
-  (:require [midje.util.pile :as pile]
+  (:require [commons.random :as random]
             [midje.data.compendium :as compendium]))
 
 (def a-body '((f) => 3))
-(def body-guid (pile/form-guid a-body))
+(def body-guid (random/form-hash a-body))
 
 (facts "about separate-metadata" 
   (fact "contains the original source and other info, appropriately quoted"
@@ -178,6 +178,6 @@
     (fact "the guid is stripped of metadata"
       (letfn [(guid-of [form]
                 (:midje/guid (first (separate-two-level-metadata form))))]
-        (guid-of two-level-original-with-metadata-at-top) => (pile/form-guid (rest two-level-without-metadata))
-        (guid-of two-level-original-with-metadata-at-lower) => (pile/form-guid (rest two-level-without-metadata))))))
+        (guid-of two-level-original-with-metadata-at-top) => (random/form-hash (rest two-level-without-metadata))
+        (guid-of two-level-original-with-metadata-at-lower) => (random/form-hash (rest two-level-without-metadata))))))
 

@@ -7,6 +7,7 @@
         [midje.checking.checkers collection-util util chatty defining])
   (:require [clojure.string :as str]
             [clojure.math.combinatorics :as comb]
+            [commons.maps :as map]
             [midje.util.pile :as pile]))
 
 ;; There is an annoying only-semi-similarity between maps and sequences.
@@ -108,7 +109,7 @@
                   (concat (:expected-skipped-over candidate) (rest walking-expected))
                   best-so-far
                   (merge
-                    (pile/tack-on-to candidate
+                    (map/conj-into candidate
                       :actual-found (first walking-actual)
                       :expected-found (first walking-expected))
                     {:expected-skipped-over []}))
@@ -118,7 +119,7 @@
                 (recur walking-actual
                   (rest walking-expected)
                   best-so-far
-                  (pile/tack-on-to candidate
+                  (map/conj-into candidate
                     :expected-skipped-over (first walking-expected)))
 
                 (not (empty? (rest walking-actual)))
@@ -209,7 +210,7 @@
             (rest walking-actual)
             (rest walking-expected)
             best-so-far
-            (pile/tack-on-to candidate
+            (map/conj-into candidate
               :actual-found (first walking-actual)
               :expected-found (first walking-expected)))
   

@@ -4,6 +4,7 @@
         [midje.checking.checkers.defining :only [checker? checker-makers]]
         [midje.parsing.2-to-lexical-maps.fakes :only [fake]])
   (:require [clojure.zip :as zip]
+            [commons.maps :as map]
             [midje.util.pile :as pile]
             [midje.parsing.util.recognizing :as recognize]
             [midje.parsing.util.fnref :as fnref]))
@@ -81,7 +82,7 @@
       (let [overrides (drop 4 target)
             augmented-substitutions (augment-substitutions substitutions target)
             flattened-target (flatten-fake target augmented-substitutions)
-            generated-fakes (generate-fakes (pile/map-difference augmented-substitutions substitutions) overrides)]
+            generated-fakes (generate-fakes (map/key-difference augmented-substitutions substitutions) overrides)]
         [(conj finished flattened-target), 
          (concat generated-fakes (rest pending)), 
          augmented-substitutions]))))
