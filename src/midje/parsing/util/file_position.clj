@@ -6,12 +6,13 @@
         [midje.parsing.util.zip :only [skip-to-rightmost-leaf]])
   (:require [clojure.zip :as zip]
             [clojure.string :as str]))
-            
+
 
 ;; COMPILE-TIME POSITIONS.
 ;; For annotating forms with information retrieved at runtime.
 ;; For reporting syntax errors
 
+;; TODO: Make private.
 (def fallback-line-number (atom (Integer. 0)))
 
 (defn set-fallback-line-number-from [form]
@@ -33,7 +34,7 @@
             (catch Throwable ex
               ;; `previous-lineish` returned nil: use the fallback-line-number
               nil)))]
-    
+
     (if-let [lineish (best-lineish arrow-loc)]
       (reset! fallback-line-number lineish)
       (swap! fallback-line-number inc))))
@@ -45,13 +46,15 @@
 
 
 
+;; TODO: Make private
 (defn basename [string]
   (last (str/split string #"/")))
 
+;; TODO: Make private.
 ;; clojure.test sometimes runs with *file* bound to #"NO_SOURCE.*".
 ;; This corrects that by looking up the stack. Note that it
 ;; produces a reasonable result for the repl, because the stack
-;; frame it finds has NO_SOURCE_FILE as its "filename". 
+;; frame it finds has NO_SOURCE_FILE as its "filename".
 (defn current-file-name []
   (if-not (re-find #"NO_SOURCE" *file*)
     (basename *file*)
@@ -60,6 +63,8 @@
 (defn form-position [form]
   (list (current-file-name)  (:line (meta form))))
 
+
+;; TODO: Add test.
 (defn compile-time-fallback-position []
   (list (current-file-name) @fallback-line-number))
 
@@ -67,7 +72,7 @@
 ;; RUNTIME POSITIONS
 ;; These are positions that determine the file or line at runtime.
 
-(defmacro line-number-known 
+(defmacro line-number-known
   "Guess the filename of a file position, but use the given line number."
   [number]
   `[(current-file-name) ~number])
@@ -78,23 +83,23 @@
                                    (assoc (m loc) :line (:line (m loc-with-line)))
                                    (dissoc (m loc) :line ))]
             (zip/replace loc (with-meta (zip/node loc) transferred-meta))))]
-  
+
   (defn form-with-copied-line-numbers [line-number-source form]
     (loop [loc (zip/seq-zip form)
            line-loc (zip/seq-zip line-number-source)]
       (cond (zip/end? line-loc)
             (zip/root loc)
-  
+
             (zip/branch? line-loc)
             (recur (zip/next (replace-loc-line loc line-loc))
                    (zip/next line-loc))
-  
+
             ;; the form has a tree in place of a non-tree
             (zip/branch? loc)
               (recur (zip/next
                       (skip-to-rightmost-leaf (zip/down (replace-loc-line loc line-loc))))
                      (zip/next line-loc))
-  
+
             :else
             (recur (zip/next loc)
                    (zip/next line-loc))))))
@@ -117,4 +122,4 @@
 
         :else
         (vary-meta form assoc :line (:line (meta number-source)))))
-    
+
