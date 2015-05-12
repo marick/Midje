@@ -45,8 +45,7 @@
 
 
 
-;; TODO: Make private
-(defn basename [string]
+(defn- basename [string]
   (last (str/split string #"/")))
 
 ;; TODO: Make private.
