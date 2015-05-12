@@ -12,8 +12,7 @@
 ;; For annotating forms with information retrieved at runtime.
 ;; For reporting syntax errors
 
-;; TODO: Make private.
-(def fallback-line-number (atom (Integer. 0)))
+(def ^:private fallback-line-number (atom (Integer. 0)))
 
 (defn set-fallback-line-number-from [form]
   (reset! fallback-line-number (or (:line (meta form)) (Integer. 0))))
