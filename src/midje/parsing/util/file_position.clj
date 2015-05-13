@@ -11,8 +11,10 @@
 
 (def ^:private fallback-line-number (atom (Integer. 0)))
 
+
 (defn set-fallback-line-number-from [form]
   (reset! fallback-line-number (or (:line (meta form)) (Integer. 0))))
+
 
 (defn arrow-line-number
   "Return the best guess for what line an arrow symbol is on."
@@ -35,24 +37,26 @@
       (reset! fallback-line-number lineish)
       (swap! fallback-line-number inc))))
 
+
 (defn arrow-line-number-from-form
   "Form is of the form [ <function-call> => .* ]"
   [form]
   (-> form zip/seq-zip zip/down zip/right arrow-line-number))
 
 
-
 (defn- basename [string]
   (last (str/split string #"/")))
 
-;; clojure.test sometimes runs with *file* bound to #"NO_SOURCE.*".
-;; This corrects that by looking up the stack. Note that it
-;; produces a reasonable result for the repl, because the stack
-;; frame it finds has NO_SOURCE_FILE as its "filename".
+
 (defn current-file-name []
+  ;; clojure.test sometimes runs with *file* bound to #"NO_SOURCE.*".
+  ;; This corrects that by looking up the stack. Note that it
+  ;; produces a reasonable result for the repl, because the stack
+  ;; frame it finds has NO_SOURCE_FILE as its "filename".
   (if-not (re-find #"NO_SOURCE" *file*)
     (basename *file*)
     (.getFileName (second (.getStackTrace (Throwable.))))))
+
 
 (defn form-position [form]
   (list (current-file-name)  (:line (meta form))))
