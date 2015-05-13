@@ -48,7 +48,6 @@
 (defn- basename [string]
   (last (str/split string #"/")))
 
-;; TODO: Make private.
 ;; clojure.test sometimes runs with *file* bound to #"NO_SOURCE.*".
 ;; This corrects that by looking up the stack. Note that it
 ;; produces a reasonable result for the repl, because the stack
