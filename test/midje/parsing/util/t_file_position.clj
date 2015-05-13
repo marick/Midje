@@ -1,10 +1,10 @@
 (ns midje.parsing.util.t-file-position
-  (:use [midje.parsing.util.file-position]
-        [midje sweet test-util]
-        [midje.parsing.2-to-lexical-maps.fakes :only [fake]]
-        [midje.parsing.2-to-lexical-maps.data-fakes :only [data-fake]])
   (:require [clojure.zip :as zip]
-            [midje.parsing.util.recognizing :as recognize]))
+            [midje.parsing.2-to-lexical-maps.fakes :refer [fake]]
+            [midje.parsing.util.file-position :refer :all]
+            [midje.parsing.util.recognizing :as recognize]
+            [midje.sweet :refer :all]
+            [midje.test-util :refer :all]))
 
 (defn this-file [line-number]
   ["t_file_position.clj" line-number])

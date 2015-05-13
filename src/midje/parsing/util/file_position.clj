@@ -1,11 +1,8 @@
-(ns ^{:doc "Functions to help in finding the lines you care about."}
-  midje.parsing.util.file-position
-  (:use midje.parsing.util.core
-        midje.parsing.util.zip
-        midje.parsing.arrow-symbols
-        [midje.parsing.util.zip :only [skip-to-rightmost-leaf]])
-  (:require [clojure.zip :as zip]
-            [clojure.string :as str]))
+(ns midje.parsing.util.file-position
+  "Functions to help in finding the lines you care about."
+  (:require [clojure.string :as str]
+            [clojure.zip :as zip]
+            [midje.parsing.util.zip :refer [skip-to-rightmost-leaf]]))
 
 
 ;; COMPILE-TIME POSITIONS.
