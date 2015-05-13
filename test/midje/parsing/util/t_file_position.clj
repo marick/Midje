@@ -6,7 +6,7 @@
   (:require [clojure.zip :as zip]
             [midje.parsing.util.recognizing :as recognize]))
 
-(defn this-file [line-number] 
+(defn this-file [line-number]
   ["t_file_position.clj" line-number])
 
 ;; Throughout this file, file positions are captured outside of
@@ -52,10 +52,10 @@
 
 
 (def line-marker-4 (+ line-marker-3 13))
-(let [fake (fake-constructor        
+(let [fake (fake-constructor
                       "random garbage"
-                      (f 1) => 33)] 
-  (fact 
+                      (f 1) => 33)]
+  (fact
     (:position fake) => (this-file (+ 3 line-marker-4))))
 
 
@@ -112,7 +112,7 @@
 (facts "about compile-time discovery of positions and line numbers from a form"
   (form-position (with-meta '(form) {:line 332}))
   => ["t_file_position.clj" 332])
-                   
+
 
 
 (defn lineno
@@ -123,14 +123,14 @@
   (let [line-number-source '(This has
                       (some line numbers)
                       (on it))
-        form-source '(The line  
+        form-source '(The line
                       (numbers of this)
                       (tree differ))
         result (form-with-copied-line-numbers line-number-source form-source)]
 
     line-number-source =not=> form-source
     result => form-source
-    
+
     (lineno form-source) =not=> (lineno line-number-source)
     (lineno form-source 2) =not=> (lineno line-number-source 2)
     (lineno form-source 3) =not=> (lineno line-number-source 3)
@@ -187,3 +187,9 @@
     (fact "the source of the line number can be a form"
       (:line (meta (positioned-form form-without-line-number form-with-line-number)))
       => (:line (meta form-with-line-number)))))
+
+
+(fact "compile-time-fallback-position returns current file name with the fallback line number"
+      (set-fallback-line-number-from (with-meta anything {:line ..fallback-line-number..}))
+      (compile-time-fallback-position) => '(..current-file-name.. ..fallback-line-number..)
+      (provided (current-file-name) => ..current-file-name..))

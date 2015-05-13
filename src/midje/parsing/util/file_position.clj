@@ -62,7 +62,6 @@
   (list (current-file-name)  (:line (meta form))))
 
 
-;; TODO: Add test.
 (defn compile-time-fallback-position []
   (list (current-file-name) @fallback-line-number))
 
