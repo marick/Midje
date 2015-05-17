@@ -1,10 +1,10 @@
 (ns pointer.t-core
   (:require [clojure.zip :as zip]
             [midje.parsing.2-to-lexical-maps.fakes :refer [fake]]
-            [pointer.core :refer :all]
-            [midje.parsing.util.recognizing :as recognize]
+            [midje.parsing.util.recognizing :refer [start-of-checking-arrow-sequence?]]
             [midje.sweet :refer :all]
-            [midje.test-util :refer :all]))
+            [midje.test-util :refer [at-line]]
+            [pointer.core :refer :all]))
 
 (defn this-file [line-number]
   ["t_core.clj" line-number])
@@ -69,32 +69,32 @@
   "Typical case is form on left. (f 1) => 5"
   (let [form `( ~(at-line 33 '(f 1)) => 5)
         loc (-> form zip/seq-zip zip/down)]
-    loc => recognize/start-of-checking-arrow-sequence?
+    loc => start-of-checking-arrow-sequence?
     (arrow-line-number (zip/right loc)) => 33)
 
   "When form on the left is has no line, check right: ...a... => (exactly 1)"
   (let [form `( ...a... => ~(at-line 33 '(exactly 1)))
         loc (-> form zip/seq-zip zip/down)]
-    loc => recognize/start-of-checking-arrow-sequence?
+    loc => start-of-checking-arrow-sequence?
     (arrow-line-number (zip/right loc)) => 33)
 
   "If both sides have line numbers, the left takes precedence: (f 1) => (exactly 1)"
   (let [form `( ~(at-line 33 '(f 1)) => ~(at-line 34 '(exactly 1)))
         loc (-> form zip/seq-zip zip/down)]
-    loc => recognize/start-of-checking-arrow-sequence?
+    loc => start-of-checking-arrow-sequence?
     (arrow-line-number (zip/right loc)) => 33)
 
   "If neither side has a line number, look to the left and add 1: (let [a 2] a => b)"
   (let [form `( (let ~(at-line 32 '[a 2]) a => b))
         loc (-> form zip/seq-zip zip/down zip/down zip/right zip/right)]
-    loc => recognize/start-of-checking-arrow-sequence?
+    loc => start-of-checking-arrow-sequence?
     (arrow-line-number (zip/right loc)) => 33)
 
   "Default result is is one plus the fallback line number."
   (set-fallback-line-number-from (at-line 333 '(previous form)))
   (let [form '(1 => 2)
         loc (-> form zip/seq-zip zip/down)]
-    loc => recognize/start-of-checking-arrow-sequence?
+    loc => start-of-checking-arrow-sequence?
     (arrow-line-number (zip/right loc)) => 334
 
     ;; incrementing happens more than once
