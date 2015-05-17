@@ -4,7 +4,7 @@
   :pedantic? :warn
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [marick/suchwow "2.1.1" :exclusions [org.clojure/clojure]]
-                 [marick/clojure-commons "0.8.0" :exclusions [org.clojure/clojure]]
+                 [marick/clojure-commons "0.9.0" :exclusions [org.clojure/clojure]]
                  ;; upgrading to 1.3.2 produces record-type output for ordered maps
                  [ordered "1.2.0" :exclusions [org.clojure/clojure]]
                  [org.clojure/math.combinatorics "0.1.1"]
@@ -30,7 +30,7 @@
              :1.5.0 [:test-libs {:dependencies [[org.clojure/clojure "1.5.0"]]}]
              :1.5.1 [:test-libs {:dependencies [[org.clojure/clojure "1.5.1"]]}]
              :1.6 [:test-libs {:dependencies [[org.clojure/clojure "1.6.0"]]}]
-             :1.7 [:test-libs {:dependencies [[org.clojure/clojure "1.7.0-beta1"]]}]
+             :1.7 [:test-libs {:dependencies [[org.clojure/clojure "1.7.0-beta3"]]}]
              ;; The following profile can be used to check that `lein with-profile`
              ;; profiles are obeyed. Note that profile `:test-paths` *add on* to the
              ;; defaults.
