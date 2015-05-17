@@ -1,13 +1,13 @@
-(ns midje.parsing.util.t-file-position
+(ns pointer.t-core
   (:require [clojure.zip :as zip]
             [midje.parsing.2-to-lexical-maps.fakes :refer [fake]]
-            [midje.parsing.util.file-position :refer :all]
+            [pointer.core :refer :all]
             [midje.parsing.util.recognizing :as recognize]
             [midje.sweet :refer :all]
             [midje.test-util :refer :all]))
 
 (defn this-file [line-number]
-  ["t_file_position.clj" line-number])
+  ["t_core.clj" line-number])
 
 ;; Throughout this file, file positions are captured outside of
 ;; facts. That's because facts have their own mechanism for file
@@ -63,7 +63,7 @@
 ;; the filename will be valid.
 (fact "line-number-known is used when you know the line but not the file"
   (let [position (line-number-known 33)]
-    position => ["t_file_position.clj", 33]))
+    position => ["t_core.clj", 33]))
 
 (facts "about determining a line number from forms near an arrow"
   "Typical case is form on left. (f 1) => 5"
@@ -111,7 +111,7 @@
 
 (facts "about compile-time discovery of positions and line numbers from a form"
   (form-position (with-meta '(form) {:line 332}))
-  => ["t_file_position.clj" 332])
+  => ["t_core.clj" 332])
 
 
 

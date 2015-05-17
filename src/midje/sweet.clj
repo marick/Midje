@@ -1,9 +1,9 @@
 (require 'midje.Bootstrap)
 (midje.Bootstrap/bootstrap)
 
-(ns ^{:doc "A TDD library for Clojure that supports top-down ('mockish') TDD, 
-            encourages readable tests, provides a smooth migration path from 
-            clojure.test, balances abstraction and concreteness, and strives for 
+(ns ^{:doc "A TDD library for Clojure that supports top-down ('mockish') TDD,
+            encourages readable tests, provides a smooth migration path from
+            clojure.test, balances abstraction and concreteness, and strives for
             graciousness."}
   midje.sweet
   (:require midje.config) ; This should load first.
@@ -25,7 +25,7 @@
             [midje.parsing.util.future-variants :as future-variants]
             [midje.parsing.util.error-handling :as error]
             [midje.parsing.util.wrapping :as wrapping]
-            [midje.parsing.util.file-position :as position]
+            [pointer.core :as pointer]
             [midje.parsing.0-to-fact-form.tabular :as parse-tabular]
             [midje.parsing.0-to-fact-form.formulas :as parse-formulas]
             [midje.parsing.1-to-explicit-form.facts :as parse-facts]
@@ -57,7 +57,7 @@
                   (when-not (= val :original-truthy-value)
                     (emit/fail {:type :parse-error
                                 :notes ["*include-midje-checks* is defunct. Use `include-midje-checks` instead."]
-                                :position (position/compile-time-fallback-position)}))
+                                :position (pointer/compile-time-fallback-position)}))
                   true))
 
 (defn- unfinished* [names]
@@ -65,10 +65,10 @@
      `(do
         (defn ~name [& args#]
           (let [pprint# (partial cl-format nil "~S")]
-            (throw (exceptions/user-error (format "#'%s has no implementation, but it was called like this:%s(%s %s)" 
+            (throw (exceptions/user-error (format "#'%s has no implementation, but it was called like this:%s(%s %s)"
                                                   '~name ecosystem/line-separator '~name
                                                   (str/join " " (map pprint# args#)))))))
-        
+
         ;; A reliable way of determining if an `unfinished` function has since been defined.
         (alter-meta! (var ~name) assoc :midje/unfinished-fun ~name)
         :ok)))
@@ -77,7 +77,7 @@
     "Defines a list of names as functions that have no implementation yet. They will
      throw Errors if ever called."
     [& names] (unfinished* names))
-  
+
 (ns/defalias before  parse-background/before)
 (ns/defalias after   parse-background/after)
 (ns/defalias around  parse-background/around)
@@ -104,7 +104,7 @@
  [& background-changers]
  (when (user-desires-checking?)
    (error/parse-and-catch-failure &form
-    #(do                                   
+    #(do
        (parse-background/assert-right-shape! &form)
        (wrapping/put-wrappers-into-effect (parse-background/make-unification-templates
                                            (arglist-undoing-nesting background-changers)))))))
@@ -144,7 +144,7 @@
          (fact ...)
          (fact ...))"
   [& forms]
-  (position/positioned-form `(midje.sweet/against-background ~@forms) &form))
+  (pointer/positioned-form `(midje.sweet/against-background ~@forms) &form))
 
 
 (defmacro namespace-state-changes
@@ -160,33 +160,33 @@
        (namespace-state-changes)
   "
   [& instructions]
-  (position/positioned-form `(midje.sweet/background ~@instructions) &form))
+  (pointer/positioned-form `(midje.sweet/background ~@instructions) &form))
 
-(defmacro fact 
+(defmacro fact
   "A fact is a statement about code:
-  
+
   (fact \"one plus one is two\"
     (+ 1 1) => 2)
-        
+
   Facts may describe one functions dependency on another:
-  
-  (fact 
-    (f ..x..) => 12 
+
+  (fact
+    (f ..x..) => 12
     (provided (g ..x..) => 6))
   "
   [& _] ; we work off &form, not the arguments
   (when (user-desires-checking?)
     (error/parse-and-catch-failure &form
-      #(do (position/set-fallback-line-number-from &form)
+      #(do (pointer/set-fallback-line-number-from &form)
            (let [[metadata forms] (parse-metadata/separate-metadata &form)
                  [background remainder] (parse-background/separate-extractable-background-changing-forms forms)]
              (if (seq background)
-               (position/positioned-form `(against-background [~@background]
-                                            ~(parse-facts/wrap-fact-around-body metadata remainder))
+               (pointer/positioned-form `(against-background [~@background]
+                                                             ~(parse-facts/wrap-fact-around-body metadata remainder))
                                          &form)
                (parse-facts/complete-fact-transformation metadata remainder)))))))
 
-(defmacro facts 
+(defmacro facts
   "Alias for fact."
   [& forms]
   (when (user-desires-checking?)
@@ -195,19 +195,19 @@
 (future-variants/generate-future-fact-variants)
 (future-variants/generate-future-formula-variants)
 
-(defmacro tabular 
+(defmacro tabular
   "Generate a table of related facts.
-  
-   Ex. (tabular \"table of simple math\" 
+
+   Ex. (tabular \"table of simple math\"
          (fact (+ ?a ?b) => ?c)
-           
+
            ?a ?b      ?c
             1  2       3
             3  4       7
             9 10      19 )"
   {:arglists '([doc-string? fact table])}
   [& _]
-  (position/set-fallback-line-number-from &form)
+  (pointer/set-fallback-line-number-from &form)
   (parse-tabular/parse (keys &env) &form))
 
 
@@ -226,7 +226,7 @@
   [& forms]
   (when (user-desires-checking?)
     (let [[metadata body] (parse-metadata/separate-multi-fact-metadata forms)]
-      (parse-metadata/with-wrapped-metadata metadata 
+      (parse-metadata/with-wrapped-metadata metadata
         (parse-facts/midjcoexpand `(do ~@body))))))
 
 

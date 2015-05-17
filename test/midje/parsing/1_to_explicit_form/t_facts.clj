@@ -5,7 +5,7 @@
         [midje.parsing.2-to-lexical-maps.expects :only [expect]]
         [midje.parsing.2-to-lexical-maps.fakes :only [fake]]
         [midje.parsing.2-to-lexical-maps.data-fakes :only [data-fake]]
-        [midje.parsing.util.file-position :only [line-number-known]])
+        [pointer.core :only [line-number-known]])
   (:require [clojure.zip :as zip]
             [midje.config :as config]))
 
@@ -102,5 +102,5 @@
     (fact "it carries forward user-supplied metadata"
       (some #(and (map? %) (:integration %)) result) => true
       (some #(= % 'fred) result) => truthy)))
-  
+
 

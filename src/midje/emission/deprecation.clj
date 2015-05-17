@@ -1,7 +1,7 @@
 (ns ^{:doc "Utilities to deprecate features."}
   midje.emission.deprecation
   (:use midje.emission.util
-        [midje.parsing.util.file-position :only [compile-time-fallback-position]])
+        [pointer.core :only [compile-time-fallback-position]])
   (:require [midje.config :as config]))
 
 (def any-deprecations? (atom :uninitialized))
@@ -12,8 +12,8 @@
 (initialize)
 
 (defn show-all? []
-  (= (config/choice :visible-deprecation) :all))  
-  
+  (= (config/choice :visible-deprecation) :all))
+
 
 (defn- note-first-deprecation []
   (when (and (not @any-deprecations?)

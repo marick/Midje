@@ -1,4 +1,4 @@
-(ns midje.parsing.util.file-position
+(ns pointer.core
   "Functions to help in finding the lines you care about."
   (:require [clojure.string :as str]
             [clojure.zip :as zip]))

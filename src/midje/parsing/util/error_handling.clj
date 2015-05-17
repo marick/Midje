@@ -2,7 +2,7 @@
   "Utility functions dealing with checking or tranforming forms or zippers."
   (:use commons.clojure.core
         [midje.util.exceptions :only [user-error-exception-lines]]
-        [midje.parsing.util.file-position :only [form-position]])
+        [pointer.core :only [form-position]])
   (:require [midje.emission.api :as emit]))
 
 (def ^{:dynamic true} *wrap-count* 0)
@@ -44,8 +44,8 @@
          (catch Exception ex
            (report-exception ex)
            false))))))
-  
-          
+
+
 
 (defn report-error [form & notes]
   (emit/fail {:type :parse-error
@@ -53,4 +53,4 @@
               :position (form-position form)})
   (throw+ bail-out-of-parsing))
 
-  
+

@@ -16,12 +16,11 @@
             [midje.data.project-state :as project-state]
             [midje.checking.facts :as fact-checking]
             [midje.parsing.other.arglists :as parsing]
-            [midje.parsing.util.file-position :as position]
             [midje.emission.boundaries :as emission-boundary]
             [midje.emission.colorize :as color]
             [midje.emission.api :as emit]))
 
-(fact-data/make-getters *ns* "fact-") 
+(fact-data/make-getters *ns* "fact-")
 
 (when (doc/appropriate?)
   (immigrate/selection 'midje.doc doc/for-repl)
@@ -44,7 +43,7 @@
 ;; Whether the default case for future uses should be changed.
 
 
-;; The `:all` keyword means "do this function to all namespaces". 
+;; The `:all` keyword means "do this function to all namespaces".
 (defn- do-to-all? [args]
   (boolean (some #{:all} args)))
 ;; It has to be distinguished from arguments that set up filters.
@@ -65,7 +64,7 @@
 ;; So there are two sets of defaults: one for `:disk-commands` and one
 ;; for `:memory-commands`. As a trick to eliminate some if statements,
 ;; the respective "command types" are used to store the namespace
-;; defaults. 
+;; defaults.
 
 (def ^{:private true, :testable true}
   default-args (atom {:memory-command
@@ -88,7 +87,7 @@
          (select-keys intention
                       [command-type :given-filter-args :given-level-args])))
 
-;; The funny name is because it's used in a DSL below. 
+;; The funny name is because it's used in a DSL below.
 (defn- ^{:testable true} and-update-defaults! [intention command-type]
   (update-one-default! intention :memory-command)
   (when (= command-type :disk-command)
@@ -118,7 +117,7 @@
       {:given-namespace-args namespaces
        :given-filter-args filters
        :given-level-args given-level-seq
-       
+
        :all? (do-to-all? namespaces)
        :print-level print-level-to-use
        :filter-function filter-function})))
@@ -130,7 +129,7 @@
 ;;; That is used to calculate :namespaces-to-use, which is what the
 ;;; code for the command works with. It is also used to recalculate the
 ;;; defaults, which will be either :memory-command or both :memory-command
-;;; and :disk-command. (Remember, those two keys are both arguments to 
+;;; and :disk-command. (Remember, those two keys are both arguments to
 ;;; choose code to run and the name of remembered values.)
 
 ;;; These aren't multimethods because multimethods play poorly with
@@ -221,7 +220,7 @@
    are loaded. The filter arguments are:
 
    :keyword      -- Does the metadata have a truthy value for the keyword?
-   \"string\"    -- Does the fact's name contain the given string? 
+   \"string\"    -- Does the fact's name contain the given string?
    #\"regex\"    -- Does any part of the fact's name match the regex?
    a function    -- Does the function return a truthy value when given
                     the fact's metadata?
@@ -257,7 +256,7 @@
    any of the arguments are included in the result. The arguments are:
 
    :keyword      -- Does the metadata have a truthy value for the keyword?
-   \"string\"    -- Does the fact's name contain the given string? 
+   \"string\"    -- Does the fact's name contain the given string?
    #\"regex\"    -- Does any part of the fact's name match the regex?
    a function    -- Does the function return a truthy value when given
                     the fact's metadata?
@@ -268,7 +267,7 @@
    with explicit arguments.
    "
 )
-     
+
 
                               ;;; Forgetting loaded facts
 
@@ -277,11 +276,11 @@
     ;; a rare concession to efficiency
     (cond (and (empty? (:given-filter-args intention)) (:all? intention))
           (compendium/fresh!)
-          
+
           (empty? (:given-filter-args intention))
           (dorun (map compendium/remove-namespace-facts-from!
                       (:namespaces-to-use intention)))
-          
+
           :else
           (dorun (map compendium/remove-from!
                       (fetch-intended-facts intention)))))
@@ -298,7 +297,7 @@
    any of the arguments are the ones that are forgotten. The arguments are:
 
    :keyword      -- Does the metadata have a truthy value for the keyword?
-   \"string\"    -- Does the fact's name contain the given string? 
+   \"string\"    -- Does the fact's name contain the given string?
    #\"regex\"    -- Does any part of the fact's name match the regex?
    a function    -- Does the function return a truthy value when given
                     the fact's metadata?
@@ -306,9 +305,9 @@
    Filters from the previous command are reused unless they're overridden.
    "
   )
-     
 
-    
+
+
                                 ;;; Checking loaded facts
 
 (def ^{:doc "Check a single fact. Takes as its argument a function such
@@ -334,7 +333,7 @@
    any of the arguments are the ones that are checked. The arguments are:
 
    :keyword      -- Does the metadata have a truthy value for the keyword?
-   \"string\"    -- Does the fact's name contain the given string? 
+   \"string\"    -- Does the fact's name contain the given string?
    #\"regex\"    -- Does any part of the fact's name match the regex?
    a function    -- Does the function return a truthy value when given
                     the fact's metadata?
@@ -347,7 +346,7 @@
    they're overridden with explicit arguments.
    "
   )
-    
+
 
 
                                 ;;; The history of checked facts
@@ -358,12 +357,12 @@
   []
   (compendium/last-fact-checked<>))
 
-(defn source-of-last-fact-checked 
+(defn source-of-last-fact-checked
   "Returns the source of the last fact or tabular fact run."
   []
   (fact-source (last-fact-checked)))
 
-(defn recheck-fact 
+(defn recheck-fact
   "Recheck the last fact or tabular fact that was checked.
    When facts are nested, the entire outer-level fact is rechecked.
    The result is true if the fact checks out.
@@ -451,7 +450,7 @@
 (defn autotest
   "`autotest` checks frequently for changed files. It reloads those files
   and all files that depend on them. Since test files depend on source files,
-  that typically results in facts being reloaded and checked. 
+  that typically results in facts being reloaded and checked.
 
   By default, `autotest` monitors all the files in the
   project.clj's :source-paths and :test-paths. To change the
@@ -478,7 +477,7 @@
   checked. The arguments can be of these types:
 
   :keyword      -- Does the metadata have a truthy value for the keyword?
-  \"string\"    -- Does the fact's name contain the given string? 
+  \"string\"    -- Does the fact's name contain the given string?
   #\"regex\"    -- Does any part of the fact's name match the regex?
   a function    -- Does the function return a truthy value when given
                    the fact's metadata?
@@ -509,13 +508,13 @@
                                                       [:filters :filter]
                                                       [:stop :pause] [:resume] [:all])
                   args)]
-      
+
       (cond (not (empty? (:true-args option)))
             (println (color/fail "Did you mean to put the arguments after `:files`?"))
-            
+
             (:stop? option)
             (scheduling/stop :autotest)
-            
+
             (:resume? option)
             (start-periodic-check)
 
@@ -532,7 +531,7 @@
             (and (:files? option)
                  (complained-about-missing-on-filesystem? (:files-args option)))
             :oops
-                 
+
             :else
             (do
               (when (:all? option) (set-autotest-option! :files (autotest-default-dirs)))

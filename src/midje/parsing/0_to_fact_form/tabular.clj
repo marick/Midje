@@ -2,7 +2,7 @@
   midje.parsing.0-to-fact-form.tabular
   (:use commons.clojure.core
         midje.parsing.util.zip
-        [midje.parsing.util.file-position :only [form-with-copied-line-numbers]]
+        [pointer.core :only [form-with-copied-line-numbers]]
         [midje.emission.deprecation :only [deprecate]]
         [midje.parsing.util.zip :only [skip-to-rightmost-leaf]]
         [midje.data.metaconstant :only [metaconstant-symbol?]])
@@ -22,7 +22,7 @@
             (and (symbol? s)
               (not (metaconstant-symbol? s))
               (not (resolve s))
-              (not ((set locals) s))))] 
+              (not ((set locals) s))))]
     (split-with table-variable? table)))
 
 (defn- ^{:testable true } table-binding-maps [headings-row values]
@@ -36,17 +36,17 @@
     (cond (empty? table)
           (error/report-error full-form
            "There's no table. (Misparenthesized form?)")
-      
+
           (empty? values)
           (error/report-error full-form
             "It looks like the table has headings, but no values:")
-      
+
           (empty? headings-row)
           (error/report-error full-form
             "It looks like the table has no headings, or perhaps you"
             "tried to use a non-literal string for the doc-string?:")
-      
-          :else 
+
+          :else
           [metadata fact-form headings-row values])))
 
 (defn parse [locals form]
