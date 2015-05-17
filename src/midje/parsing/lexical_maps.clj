@@ -22,7 +22,7 @@
 
 (comment ; --------------------------------------------------------
   (clojure.core/merge
-   {:position (midje.parsing.util.file-pointer/line-number-known ...),
+   {:position (pointer/line-number-known ...),
     :expected-result-form '(just a 2),
     :expected-result (just a 2),
     :check-expectation :expect-match,
@@ -31,7 +31,7 @@
    {:arrow '=>, :call-form '(cons a [2])}
    (commons.maps/hash-map-duplicates-ok
     :position
-    (midje.parsing.util.file-pointer/line-number-known 2)))
+    (pointer/line-number-known 2)))
 ) ; ---------------------------------------------------------------
 
 ;;;                                             Checkable maps
