@@ -1,6 +1,5 @@
 (ns pointer.t-core
   (:require [clojure.zip :as zip]
-            [midje.parsing.2-to-lexical-maps.fakes :refer [fake]]
             [midje.parsing.util.recognizing :refer [start-of-checking-arrow-sequence?]]
             [midje.sweet :refer :all]
             [midje.test-util :refer [at-line]]
@@ -9,6 +8,7 @@
 (defn this-file [line-number]
   ["t_core.clj" line-number])
 
+
 ;; Throughout this file, file positions are captured outside of
 ;; facts. That's because facts have their own mechanism for file
 ;; position, and I want it to be clear that this is just working with
@@ -16,29 +16,28 @@
 
 
 
+(defmacro fake [_ _ _]
+  `{:position (line-number-known ~(:line (meta (second &form))))})
 
 
-
-
-
-
-(def line-marker-2 25)
+(def line-marker-2 23)
 (unfinished f)
-(let [fake-on-one-line (fake (f 1) => 33)
+(let [fake-on-one-line (fake (a) => b)
       multiline-with-position-at-first-token (fake
 
-                                              (f 1)
+                                              (a)
 
                                               =>
 
-                                              33)]
+                                              b)]
   (fact "fake, being a one-level macro, knows its file position as a single line"
     (:position fake-on-one-line) => (this-file (+ 2 line-marker-2))
     (:position multiline-with-position-at-first-token) => (this-file (+ 5 line-marker-2))))
 
+
 (defmacro result-of-second-form [& forms] (second forms))
 
-(def line-marker-3 (+ line-marker-2 16))
+(def line-marker-3 40)
 (let [fake (result-of-second-form
             "random garbage"
             (fake (f 1) => 33)
@@ -46,12 +45,13 @@
   (fact "Macros within dirt-simple macroexpansions find their correct file position"
     (:position fake) => (this-file (+ 3 line-marker-3))))
 
+
 (defmacro fake-constructor [& forms]
   `(do
      (fake ~(nth forms 1) => ~(nth forms 3))))
 
 
-(def line-marker-4 (+ line-marker-3 13))
+(def line-marker-4 54)
 (let [fake (fake-constructor
                       "random garbage"
                       (f 1) => 33)]
