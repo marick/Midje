@@ -134,7 +134,7 @@
     (comp pzip/skip-to-rightmost-leaf zip/down)
 
     recognize/any-arrow?
-    #(at-arrow__add-line-number-to-end__no-movement (pointer/arrow-line-number %) %)))
+    #(at-arrow__add-line-number-to-end__no-movement (pointer/line-number-for %) %)))
 
 
 (defn expand-fact-body [forms]

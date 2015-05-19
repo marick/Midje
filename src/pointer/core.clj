@@ -1,10 +1,12 @@
 (ns pointer.core
   "Functions to help in finding the lines you care about."
   (:require [clojure.string :as string]
+            [clojure.set :refer [superset?]]
             [clojure.zip :as zip]))
 
 
-(declare basename
+(declare -node?
+         basename
          current-file-name
          replace-loc-line
          skip-to-rightmost-leaf)
@@ -17,28 +19,13 @@
 ;; For annotating forms with information retrieved at runtime.
 ;; For reporting syntax errors
 
-(defn arrow-line-number
-  "Return the best guess for what line an arrow symbol is on."
-  [arrow-loc]
-  ;; A 'lineish' is either a line number or nil.
-  (let [lineish #(-> % zip/node meta :line)
-        left-lineish #(-> % zip/left lineish)
-        right-lineish #(-> % zip/right lineish)
-        previous-lineish #(some-> % zip/prev zip/left lineish)
-        ;; Note that the preceding function only works when the form before the arrow has no :line
-
-        best-lineish (some-fn left-lineish
-                              right-lineish
-                              #(some-> % (previous-lineish) (inc)))]
-    (if-let [lineish (best-lineish arrow-loc)]
-      (reset! fallback-line-number lineish)
-      (swap! fallback-line-number inc))))
+(declare line-number-for)
 
 
 (defn arrow-line-number-from-form
   "Form is of the form [ <function-call> => .* ]"
   [form]
-  (-> form zip/seq-zip zip/down zip/right arrow-line-number))
+  (-> form zip/seq-zip zip/down zip/right line-number-for))
 
 
 (defn compile-time-fallback-position []
@@ -57,6 +44,26 @@
 
 (defn form-position [form]
   (list (current-file-name)  (:line (meta form))))
+
+
+(defn line-number-for [form]
+  "Return the best guess for what line given form is on."
+  ;; A 'lineish' is either a line number or nil.
+  (let [lineish #(-> % zip/node meta :line)
+        left-lineish #(-> % zip/left lineish)
+        right-lineish #(-> % zip/right lineish)
+        previous-lineish #(some-> % zip/prev zip/left lineish)
+        ;; Note that the preceding function only works when the form before the arrow has no :line
+
+        best-lineish (some-fn left-lineish
+                              right-lineish
+                              #(some-> % (previous-lineish) (inc)))
+        loc (if (-node? form)
+              form
+              (zip/seq-zip form))]
+    (if-let [lineish (best-lineish loc)]
+      (reset! fallback-line-number lineish)
+      (swap! fallback-line-number inc))))
 
 
 (defn set-fallback-line-number-from [form]
@@ -113,6 +120,14 @@
 
 
 ;; PRIVATE MEMBERS
+
+(defn -node? [form]
+  (-> form
+      (meta)
+      (keys)
+      (set)
+      (superset? #{:zip/make-node :zip/children :zip/branch?})))
+
 
 (defn- basename [string]
   (last (string/split string #"/")))

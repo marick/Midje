@@ -37,7 +37,7 @@
   (let [right-hand (-> loc zip/right zip/right)
         arrow-sequence (-> loc zip/right zip/node)
         additions (override/arrow-sequence-overrides (zip/rights right-hand))
-        line-number (pointer/arrow-line-number (zip/right loc))
+        line-number (pointer/line-number-for (zip/right loc))
         edited-loc (zip/edit loc
                       (fn [loc]
                         (vary-meta

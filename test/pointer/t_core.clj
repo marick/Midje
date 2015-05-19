@@ -70,42 +70,42 @@
   (let [form `( ~(at-line 33 '(f 1)) => 5)
         loc (-> form zip/seq-zip zip/down)]
     loc => start-of-checking-arrow-sequence?
-    (arrow-line-number (zip/right loc)) => 33)
+    (line-number-for (zip/right loc)) => 33)
 
   "When form on the left is has no line, check right: ...a... => (exactly 1)"
   (let [form `( ...a... => ~(at-line 33 '(exactly 1)))
         loc (-> form zip/seq-zip zip/down)]
     loc => start-of-checking-arrow-sequence?
-    (arrow-line-number (zip/right loc)) => 33)
+    (line-number-for (zip/right loc)) => 33)
 
   "If both sides have line numbers, the left takes precedence: (f 1) => (exactly 1)"
   (let [form `( ~(at-line 33 '(f 1)) => ~(at-line 34 '(exactly 1)))
         loc (-> form zip/seq-zip zip/down)]
     loc => start-of-checking-arrow-sequence?
-    (arrow-line-number (zip/right loc)) => 33)
+    (line-number-for (zip/right loc)) => 33)
 
   "If neither side has a line number, look to the left and add 1: (let [a 2] a => b)"
   (let [form `( (let ~(at-line 32 '[a 2]) a => b))
         loc (-> form zip/seq-zip zip/down zip/down zip/right zip/right)]
     loc => start-of-checking-arrow-sequence?
-    (arrow-line-number (zip/right loc)) => 33)
+    (line-number-for (zip/right loc)) => 33)
 
   "Default result is is one plus the fallback line number."
   (set-fallback-line-number-from (at-line 333 '(previous form)))
   (let [form '(1 => 2)
         loc (-> form zip/seq-zip zip/down)]
     loc => start-of-checking-arrow-sequence?
-    (arrow-line-number (zip/right loc)) => 334
+    (line-number-for (zip/right loc)) => 334
 
     ;; incrementing happens more than once
-    (arrow-line-number (zip/right loc)) => 335
+    (line-number-for (zip/right loc)) => 335
 
 
     (let [another-form `( ~(at-line 3 '(f 1)) => 5) ]
-      (-> another-form zip/seq-zip zip/down zip/right arrow-line-number)
-      (arrow-line-number (zip/right loc)) => 4)))
+      (-> another-form zip/seq-zip zip/down zip/right line-number-for)
+      (line-number-for (zip/right loc)) => 4)))
 
-(facts "about finding the arrow-line-number from a form"
+(facts "about finding the line-number-for from a form"
   (let [form `( ~(at-line 333 '(f 1)) => 3)]
     (arrow-line-number-from-form form) => 333))
 
@@ -200,3 +200,10 @@
       (set-fallback-line-number-from (with-meta anything {:line ..fallback-line-number..}))
       (compile-time-fallback-position) => '(..current-file-name.. ..fallback-line-number..)
       (provided (current-file-name) => ..current-file-name..))
+
+
+(facts "-node? returns true for zippers."
+       (-node? (-> '(foo :bar :baz) zip/seq-zip)) => true
+       (-node? (-> '(foo :bar :baz) zip/seq-zip zip/down)) => true
+       (-node? (-> '(foo :bar :baz) zip/seq-zip zip/down zip/right)) => true
+       (-node? '(foo :bar :baz)) => false)
