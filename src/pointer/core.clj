@@ -21,17 +21,15 @@
   "Return the best guess for what line an arrow symbol is on."
   [arrow-loc]
   ;; A 'lineish' is either a line number or nil.
-  (letfn [(lineish [loc] (-> loc zip/node meta :line))
-          (left-lineish [arrow-loc]     (-> arrow-loc zip/left          lineish))
-          (right-lineish [arrow-loc]    (-> arrow-loc zip/right         lineish))
-          (previous-lineish [arrow-loc] (some-> arrow-loc zip/prev zip/left lineish))
-          ;; Note that the preceding function only works when the form before the arrow has no :line
+  (let [lineish #(-> % zip/node meta :line)
+        left-lineish #(-> % zip/left lineish)
+        right-lineish #(-> % zip/right lineish)
+        previous-lineish #(some-> % zip/prev zip/left lineish)
+        ;; Note that the preceding function only works when the form before the arrow has no :line
 
-          (best-lineish [arrow-loc]
-                        ((some-fn left-lineish
-                                  right-lineish
-                                  #(some-> % (previous-lineish) (inc)))
-                         arrow-loc))]
+        best-lineish (some-fn left-lineish
+                              right-lineish
+                              #(some-> % (previous-lineish) (inc)))]
     (if-let [lineish (best-lineish arrow-loc)]
       (reset! fallback-line-number lineish)
       (swap! fallback-line-number inc))))
