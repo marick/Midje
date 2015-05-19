@@ -1,19 +1,21 @@
 (ns pointer.core
   "Functions to help in finding the lines you care about."
-  (:require [clojure.string :as str]
+  (:require [clojure.string :as string]
             [clojure.zip :as zip]))
+
+
+(declare basename
+         current-file-name
+         replace-loc-line
+         skip-to-rightmost-leaf)
+
+
+(def ^:private fallback-line-number (atom (Integer. 0)))
 
 
 ;; COMPILE-TIME POSITIONS.
 ;; For annotating forms with information retrieved at runtime.
 ;; For reporting syntax errors
-
-(def ^:private fallback-line-number (atom (Integer. 0)))
-
-
-(defn set-fallback-line-number-from [form]
-  (reset! fallback-line-number (or (:line (meta form)) (Integer. 0))))
-
 
 (defn arrow-line-number
   "Return the best guess for what line an arrow symbol is on."
@@ -43,8 +45,8 @@
   (-> form zip/seq-zip zip/down zip/right arrow-line-number))
 
 
-(defn- basename [string]
-  (last (str/split string #"/")))
+(defn compile-time-fallback-position []
+  (list (current-file-name) @fallback-line-number))
 
 
 (defn current-file-name []
@@ -61,36 +63,12 @@
   (list (current-file-name)  (:line (meta form))))
 
 
-(defn compile-time-fallback-position []
-  (list (current-file-name) @fallback-line-number))
+(defn set-fallback-line-number-from [form]
+  (reset! fallback-line-number (or (:line (meta form)) (Integer. 0))))
 
 
 ;; RUNTIME POSITIONS
 ;; These are positions that determine the file or line at runtime.
-
-(defmacro line-number-known
-  "Guess the filename of a file position, but use the given line number."
-  [number]
-  `[(current-file-name) ~number])
-
-
-(defn- skip-to-rightmost-leaf
-  "When positioned at leftmost position of branch, move to the end form.
-   In a tree, that's the rightmost leaf."
-  [loc]
-  (let [end-form (zip/rightmost loc)]
-    (if (zip/branch? end-form)
-      (recur (zip/down end-form))
-      end-form)))
-
-
-(defn- replace-loc-line [loc loc-with-line]
-  (let [m (fn [loc] (meta (zip/node loc)))
-        transferred-meta (if (contains? (m loc-with-line) :line )
-                           (assoc (m loc) :line (:line (m loc-with-line)))
-                           (dissoc (m loc) :line ))]
-    (zip/replace loc (with-meta (zip/node loc) transferred-meta))))
-
 
 (defn form-with-copied-line-numbers [line-number-source form]
   (loop [loc (zip/seq-zip form)
@@ -113,6 +91,12 @@
                  (zip/next line-loc)))))
 
 
+(defmacro line-number-known
+  "Guess the filename of a file position, but use the given line number."
+  [number]
+  `[(current-file-name) ~number])
+
+
 (defn positioned-form
   "Make sure the form is annotated with a line number, either
    its original or the given one. Takes either a number or form
@@ -131,3 +115,26 @@
         :else
         (vary-meta form assoc :line (:line (meta number-source)))))
 
+
+;; PRIVATE MEMBERS
+
+(defn- basename [string]
+  (last (string/split string #"/")))
+
+
+(defn- replace-loc-line [loc loc-with-line]
+  (let [m (fn [loc] (meta (zip/node loc)))
+        transferred-meta (if (contains? (m loc-with-line) :line )
+                           (assoc (m loc) :line (:line (m loc-with-line)))
+                           (dissoc (m loc) :line ))]
+    (zip/replace loc (with-meta (zip/node loc) transferred-meta))))
+
+
+(defn- skip-to-rightmost-leaf
+  "When positioned at leftmost position of branch, move to the end form.
+   In a tree, that's the rightmost leaf."
+  [loc]
+  (let [end-form (zip/rightmost loc)]
+    (if (zip/branch? end-form)
+      (recur (zip/down end-form))
+      end-form)))
