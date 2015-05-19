@@ -24,16 +24,14 @@
   (letfn [(lineish [loc] (-> loc zip/node meta :line))
           (left-lineish [arrow-loc]     (-> arrow-loc zip/left          lineish))
           (right-lineish [arrow-loc]    (-> arrow-loc zip/right         lineish))
-          (previous-lineish [arrow-loc] (-> arrow-loc zip/prev zip/left lineish))
+          (previous-lineish [arrow-loc] (some-> arrow-loc zip/prev zip/left lineish))
           ;; Note that the preceding function only works when the form before the arrow has no :line
 
           (best-lineish [arrow-loc]
-            (try
-              ( (some-fn left-lineish right-lineish #(inc (previous-lineish %))) arrow-loc)
-            (catch Throwable ex
-              ;; `previous-lineish` returned nil: use the fallback-line-number
-              nil)))]
-
+                        ((some-fn left-lineish
+                                  right-lineish
+                                  #(some-> % (previous-lineish) (inc)))
+                         arrow-loc))]
     (if-let [lineish (best-lineish arrow-loc)]
       (reset! fallback-line-number lineish)
       (swap! fallback-line-number inc))))
