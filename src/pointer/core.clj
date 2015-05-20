@@ -22,12 +22,6 @@
 (declare line-number-for)
 
 
-(defn arrow-line-number-from-form
-  "Form is of the form [ <function-call> => .* ]"
-  [form]
-  (-> form zip/seq-zip zip/down zip/right line-number-for))
-
-
 (defn compile-time-fallback-position []
   (list (current-file-name) @fallback-line-number))
 

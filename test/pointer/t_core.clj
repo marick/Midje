@@ -100,14 +100,10 @@
     ;; incrementing happens more than once
     (line-number-for (zip/right loc)) => 335
 
-
     (let [another-form `( ~(at-line 3 '(f 1)) => 5) ]
       (-> another-form zip/seq-zip zip/down zip/right line-number-for)
       (line-number-for (zip/right loc)) => 4)))
 
-(facts "about finding the line-number-for from a form"
-  (let [form `( ~(at-line 333 '(f 1)) => 3)]
-    (arrow-line-number-from-form form) => 333))
 
 (facts "about compile-time discovery of positions and line numbers from a form"
   (form-position (with-meta '(form) {:line 332}))

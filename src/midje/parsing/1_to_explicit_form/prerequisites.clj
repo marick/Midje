@@ -14,7 +14,11 @@
             [midje.util.ecosystem :as ecosystem]))
 
 (defn prerequisite-to-fake [fake-body]
-  (let [^Integer line-number (pointer/arrow-line-number-from-form fake-body)
+  (let [^Integer line-number (-> fake-body
+                                 (zip/seq-zip)
+                                 (zip/down )
+                                 (zip/right)
+                                 (pointer/line-number-for))
         fake-tag (if (recognize/metaconstant-prerequisite? fake-body)
                    `data-fake
                    `fake)]
