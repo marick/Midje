@@ -7,14 +7,18 @@
   (:require [clojure.zip :as zip]
             [midje.parsing.util.zip :as pzip]
             [midje.parsing.util.overrides :as override]
-            [midje.parsing.util.file-position :as position]
+            [pointer.core :as pointer]
             [midje.parsing.util.error-handling :as error]
             [midje.parsing.util.recognizing :as recognize]
             [midje.parsing.1-to-explicit-form.expects :as parse-expects]
             [midje.util.ecosystem :as ecosystem]))
 
 (defn prerequisite-to-fake [fake-body]
-  (let [^Integer line-number (position/arrow-line-number-from-form fake-body)
+  (let [^Integer line-number (-> fake-body
+                                 (zip/seq-zip)
+                                 (zip/down )
+                                 (zip/right)
+                                 (pointer/line-number-for))
         fake-tag (if (recognize/metaconstant-prerequisite? fake-body)
                    `data-fake
                    `fake)]

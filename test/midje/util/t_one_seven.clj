@@ -40,12 +40,12 @@
 ;;           :function-under-test (clojure.core/fn [] @counter),
 ;;           :expected-result 5,
 ;;           :position
-;;           (midje.parsing.util.file-position/line-number-known nil),
+;;           (pointer.core/line-number-known nil),
 ;;           :namespace clojure.core/*ns*}
 ;;          {:arrow '=>, :call-form '@counter}
 ;;          (commons.clojure.core/hash-map-duplicates-ok
 ;;           :position
-;;           (midje.parsing.util.file-position/line-number-known 18)))
+;;           (pointer.core/line-number-known 18)))
 ;;         [])))))
 ;;    (clojure.core/merge
 ;;     {:midje/guid "9a01710b2962f9945f24630a0579bba82671d1ef",

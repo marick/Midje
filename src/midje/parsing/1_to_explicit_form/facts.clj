@@ -3,7 +3,7 @@
   (:use commons.clojure.core
         midje.parsing.util.core
         midje.parsing.arrow-symbols
-        
+
         [midje.parsing.1-to-explicit-form.expects :only [wrap-with-expect__then__at-rightmost-expect-leaf]]
         [midje.parsing.1-to-explicit-form.prerequisites :only [insert-prerequisites-into-expect-form-as-fakes]]
         [midje.parsing.1-to-explicit-form.metaconstants :only [predefine-metaconstants-from-form]]
@@ -12,7 +12,7 @@
             [midje.parsing.expanded-symbols :as expanded-symbols]
             [midje.parsing.util.zip :as pzip]
             [midje.parsing.util.overrides :as override]
-            [midje.parsing.util.file-position :as position]
+            [pointer.core :as pointer]
             [midje.parsing.util.error-handling :as error]
             [midje.parsing.util.wrapping :as wrapping]
             [midje.parsing.util.recognizing :as recognize]
@@ -29,10 +29,10 @@
 ;; There are three stages to fact processing:
 ;; * Body processing: the convertion of arrow and provided forms into their
 ;;   explicit forms, the insertion of background data, line numbering, etc.
-;;   
+;;
 ;; * Compendium processing: wrapping the body in a function form that supports
 ;;   rerunning and history keeping.
-;;   
+;;
 ;; * Load-time processing: wrapping the final form in code that does whatever
 ;;   should be done the first time the fact is loaded. (Such as running it for
 ;;   the first time.)
@@ -43,7 +43,7 @@
 
 (defn- working-on-top-level-fact? []
   (= *parse-time-fact-level* 1))
-  
+
 (defmacro given-possible-fact-nesting [& forms]
   `(binding [*parse-time-fact-level* (inc *parse-time-fact-level*)]
      ~@forms))
@@ -67,10 +67,10 @@
   (pzip/translate-zipper multi-form
     recognize/fact?
     pzip/skip-to-rightmost-leaf
-                    
+
     recognize/start-of-checking-arrow-sequence?
     wrap-with-expect__then__at-rightmost-expect-leaf
-    
+
     recognize/provided?
     insert-prerequisites-into-expect-form-as-fakes
 
@@ -82,14 +82,14 @@
 (defn expand-wrapping-background-changer [form]
   (parse-background/assert-right-shape! form)
   (parse-background/assert-contains-facts! form)
-  (-<> form 
+  (-<> form
        parse-background/body-of-against-background
        midjcoexpand
        (wrapping/with-additional-wrappers (parse-background/against-background-facts-and-checks-wrappers form) <>)
        (wrapping/multiwrap <> (parse-background/against-background-contents-wrappers form))))
 
 ;; Note that this predicate assumes that extractable (non-wrapping) background changers
-;; have already been extracted from the body of a fact. 
+;; have already been extracted from the body of a fact.
 (defn- wrapping-background-changer? [form]
   (or (first-named? form "against-background")
       (first-named? form "with-state-changes")))
@@ -123,10 +123,10 @@
 
 (defn at-arrow__add-line-number-to-end__no-movement [number loc]
   (when (nil? (zip/right loc))
-    (report-check-arrow-shape (position/positioned-form (zip/node (zip/up loc)) number)))
-    
+    (report-check-arrow-shape (pointer/positioned-form (zip/node (zip/up loc)) number)))
+
   (override/at-arrow__add-key-value-to-end__no-movement
-   :position `(position/line-number-known ~number) loc))
+   :position `(pointer/line-number-known ~number) loc))
 
 (defn annotate-embedded-arrows-with-line-numbers [form]
   (pzip/translate-zipper form
@@ -134,7 +134,7 @@
     (comp pzip/skip-to-rightmost-leaf zip/down)
 
     recognize/any-arrow?
-    #(at-arrow__add-line-number-to-end__no-movement (position/arrow-line-number %) %)))
+    #(at-arrow__add-line-number-to-end__no-movement (pointer/line-number-for %) %)))
 
 
 (defn expand-fact-body [forms]
@@ -156,7 +156,7 @@
 
 ;;; Load-time processing
 
-;; It's kind of annoying that the entire expansion is created, evaluated, 
+;; It's kind of annoying that the entire expansion is created, evaluated,
 ;; and then thrown away. I think this is unavoidable if you want the
 ;; filter predicate to be applied in the repl.
 (defn wrap-with-creation-time-code [function-form]
@@ -170,7 +170,7 @@
             (if (working-on-top-level-fact?)
               `(compendium/record-fact-existence! ~function-form)
               function-form))
-          
+
           (run-after-creation [function-form]
             `(fact-checking/creation-time-check ~function-form))]
 

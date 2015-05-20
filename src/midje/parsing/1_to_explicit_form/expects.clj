@@ -6,15 +6,15 @@
             [midje.parsing.util.zip :as pzip]
             [midje.parsing.util.overrides :as override]
             [midje.parsing.util.recognizing :as recognize]
-            [midje.parsing.util.file-position :as position]))
-  
+            [pointer.core :as pointer]))
+
 
 
 ;; Moving around
 
 (defn up-to-full-expect-form
   "From anywhere (recursively) within an expect form, move so that
-   loc is at the full form (so that zip/down is 'expect)." 
+   loc is at the full form (so that zip/down is 'expect)."
   [loc]
   (if (recognize/expect? loc)
     loc
@@ -25,7 +25,7 @@
 (defn tack-on__then__at-same-location [[form & more-forms] loc]
   (assert (recognize/expect? loc))
   (if form
-    (recur more-forms (zip/append-child loc form))	  
+    (recur more-forms (zip/append-child loc form))
     (up-to-full-expect-form loc)))
 
 (defn tack-on__then__at-rightmost-expect-leaf [forms loc]
@@ -37,7 +37,7 @@
   (let [right-hand (-> loc zip/right zip/right)
         arrow-sequence (-> loc zip/right zip/node)
         additions (override/arrow-sequence-overrides (zip/rights right-hand))
-        line-number (position/arrow-line-number (zip/right loc))
+        line-number (pointer/line-number-for (zip/right loc))
         edited-loc (zip/edit loc
                       (fn [loc]
                         (vary-meta

@@ -3,7 +3,7 @@
   (:use commons.clojure.core)
   (:require [midje.data.nested-facts :as nested-facts]
             [midje.parsing.util.fnref :as fnref]
-            [midje.parsing.util.file-position :as position]
+            [pointer.core :as pointer]
             [midje.parsing.util.recognizing :as recognize]
             [midje.parsing.3-from-lexical-maps.from-fake-maps :as from-fake-maps]
             [commons.maps :as map]))
@@ -13,7 +13,7 @@
 ;;; environment, each function follows a stylized form. If you want to see how the macro
 ;;; expands, uncomment the `pprint` of the results, and do something like this in the
 ;;; repl:
-;;; 
+;;;
 ;;; user=> (let [a 1]
 ;;;          (fact (cons a [2]) => (just a 2)))
 ;;;
@@ -22,7 +22,7 @@
 
 (comment ; --------------------------------------------------------
   (clojure.core/merge
-   {:position (midje.parsing.util.file-position/line-number-known ...),
+   {:position (pointer/line-number-known ...),
     :expected-result-form '(just a 2),
     :expected-result (just a 2),
     :check-expectation :expect-match,
@@ -31,7 +31,7 @@
    {:arrow '=>, :call-form '(cons a [2])}
    (commons.maps/hash-map-duplicates-ok
     :position
-    (midje.parsing.util.file-position/line-number-known 2)))
+    (pointer/line-number-known 2)))
 ) ; ---------------------------------------------------------------
 
 ;;;                                             Checkable maps
@@ -52,16 +52,16 @@
                   :expected-result ~expected-result
                   :check-expectation ~(recognize/expect-match-or-mismatch arrow)
                   :expected-result-form '~expected-result ;; This is also part of the source details.
-                  :position (position/line-number-known ~line)
+                  :position (pointer/line-number-known ~line)
                   :namespace *ns*
 
                   ;; Adding this field insulates people writing emission plugins
                   ;; from the mechanism for keeping track of nested facts.
                   :description (nested-facts/descriptions)}
-      
+
                  ~source-details
                  ~override-map)]
-    ;; (pprint result)                     
+    ;; (pprint result)
     result))
 
 ;;;                                             Fake Maps
@@ -90,8 +90,8 @@
                   :arglist-matcher ~(choose-mkfn-for-arglist-matcher args)
                   :result-supplier (from-fake-maps/mkfn:result-supplier ~arrow ~result)
                   :times :default  ; Default allows for a more attractive error in the most common case.
-                  
-                  :position (position/line-number-known ~line)
+
+                  :position (pointer/line-number-known ~line)
                   :namespace *ns*
                   :call-count-atom (atom 0)
                   :call-text-for-failures (str '~call-form)
@@ -117,8 +117,8 @@
                   :data-fake true
                   :var ~(fnref/as-var-form metaconstant)
                   :contained ~contained
-                  
-                  :position (position/line-number-known ~line)
+
+                  :position (pointer/line-number-known ~line)
                   :call-count-atom (atom 1) ;; kludje
                  }
                  ~source-details

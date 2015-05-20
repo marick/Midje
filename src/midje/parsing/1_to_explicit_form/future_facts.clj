@@ -2,7 +2,7 @@
   midje.parsing.1-to-explicit-form.future-facts
   (:use midje.parsing.util.core)
   (:require [midje.util.pile :as pile]
-            [midje.parsing.util.file-position :as position]
+            [pointer.core :as pointer]
             [midje.data.nested-facts :as nested-facts]
             [midje.parsing.1-to-explicit-form.metadata :as parse-metadata]
             [midje.emission.api :as emit]))
@@ -11,6 +11,6 @@
   (let [lineno (reader-line-number form)
         [metadata _] (parse-metadata/separate-metadata form)]
     `(emit/future-fact (nested-facts/descriptions ~(:midje/description metadata))
-                       (position/line-number-known ~lineno))))
+                       (pointer/line-number-known ~lineno))))
 
 
