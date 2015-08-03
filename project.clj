@@ -1,11 +1,11 @@
-(defproject midje "2.0.0-SNAPSHOT"
+(defproject midje "1.8-alpha1"
   :description "A TDD library for Clojure that supports top-down ('mockish') TDD, encourages readable tests, provides a smooth migration path from clojure.test, balances abstraction and concreteness, and strives for graciousness."
   :url "https://github.com/marick/Midje"
   :pedantic? :warn
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [marick/suchwow "2.2.0" :exclusions [org.clojure/clojure]]
                  [marick/clojure-commons "0.9.0" :exclusions [org.clojure/clojure]]
                  [marick/structural-typing "0.1.0" :exclusions [org.clojure/clojure]]
+                 [marick/suchwow "3.4.0" :exclusions [org.clojure/clojure]]
                  ;; upgrading to 1.3.2 produces record-type output for ordered maps
                  [ordered "1.2.0" :exclusions [org.clojure/clojure]]
                  [org.clojure/math.combinatorics "0.1.1"]
@@ -42,6 +42,7 @@
             :distribution :repo}
   :mailing-list {:name "Midje"
                  :subscribe "https://groups.google.com/forum/?fromgroups#!forum/midje"}
+  :deploy-repositories [["releases" :clojars]]
 
   :aliases {"compatibility" ["with-profile" "1.4:1.5.0:1.5.1:1.6:1.7" "midje" ":config" ".compatibility-test-config"]
             "travis" ["with-profile" "1.4:1.5.0:1.5.1:1.6:1.7" "midje"]}

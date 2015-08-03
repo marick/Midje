@@ -9,17 +9,18 @@
 (defn check-one [fact]
   (let [top-level? (:midje/top-level-fact? (meta fact))
         fact-creation-filter (config/choice :fact-filter)]
-    (cond (not (fact-creation-filter fact))
+    (cond (not top-level?)
+          ;; Fact filter is irrelevant in nested functions.
+          (emission-boundary/around-fact fact
+            (fact))
+
+          (not (fact-creation-filter fact))
           (str "This fact was ignored because of the current configuration. "
                "Only facts matching "
                (vec (map #(if (fn? %) "<some function>" %) 
                          (:created-from (meta fact-creation-filter))))
                " will be created.")
             
-          (not top-level?)
-          (emission-boundary/around-fact fact
-            (fact))
-
           :else-top-level-fact-to-check
           (emission-boundary/around-top-level-fact fact {}
             ;; The fact is recorded on entry so that if a fact is
