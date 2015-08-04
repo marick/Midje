@@ -2,7 +2,7 @@
   midje.parsing.1-to-explicit-form.metadata
   (:use commons.clojure.core
         [midje.util.exceptions :only [user-error]])
-  (:require [commons.random :as random]
+  (:require [such.random :as random]
             [midje.parsing.util.recognizing :as recognize]))
 
 

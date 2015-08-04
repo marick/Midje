@@ -2,7 +2,7 @@
   (:use midje.sweet
         midje.test-util
         midje.parsing.1-to-explicit-form.metadata)
-  (:require [commons.random :as random]
+  (:require [such.random :as random]
             [midje.data.compendium :as compendium]))
 
 (def a-body '((f) => 3))

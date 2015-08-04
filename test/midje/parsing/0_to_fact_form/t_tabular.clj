@@ -4,7 +4,7 @@
         [midje sweet test-util]
         [ordered.map :only (ordered-map)]
         midje.util)
-  (:require [commons.random :as random]
+  (:require [such.random :as random]
             [midje.parsing.lexical-maps :as maps]
             [midje.parsing.1-to-explicit-form.facts :as parse-facts]
             [midje.data.fact :as fact-data]

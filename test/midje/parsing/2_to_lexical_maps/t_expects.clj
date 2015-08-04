@@ -7,7 +7,7 @@
         [midje.parsing.2-to-lexical-maps.data-fakes :only [data-fake]]
         midje.test-util
         midje.util)
-  (:require [commons.sequences :as seq]
+  (:require [such.sequences :as seq]
             [midje.config :as config]
             [midje.util.pile :as pile]
             [midje.parsing.util.recognizing :as recognize]
@@ -45,20 +45,20 @@
 
 (fact "separating overrides of an #expect from fakes"
   ;; The lets are because fact isn't smart enough not to add overrides to fake call otherwise.
-  (let [actual (seq/separate recognize/fake?  `( (fake (f 1) => 2) :key 'value))]
+  (let [actual (seq/bifurcate recognize/fake?  `( (fake (f 1) => 2) :key 'value))]
     actual => [  `[(fake (f 1) => 2)]
                  `[:key 'value] ])
 
   ;; often passed a seq.
-  (let [actual (seq/separate recognize/fake?  (seq `( (fake (f 1) => 2) :key 'value)))]
+  (let [actual (seq/bifurcate recognize/fake?  (seq `( (fake (f 1) => 2) :key 'value)))]
     actual => [  `[(fake (f 1) => 2)]
                  `[:key 'value] ])
 
-  (let [actual (seq/separate recognize/fake?  '())]
+  (let [actual (seq/bifurcate recognize/fake?  '())]
     actual => (just empty? empty?))
 
   "data fakes too"
-  (let [actual (seq/separate recognize/fake?  `((data-fake ..m.. =contains=> {:a 1}) :key 'value))]
+  (let [actual (seq/bifurcate recognize/fake?  `((data-fake ..m.. =contains=> {:a 1}) :key 'value))]
     actual => [  `[(data-fake ..m.. =contains=> {:a 1})]
                  `[:key 'value] ]))
 

@@ -7,7 +7,7 @@
       	[midje.checking.checkers collection-util util chatty defining collection-comparison]
         [midje.util.exceptions :only [user-error]])
   (:require [midje.util.pile :as pile]
-            [commons.sequences :as seq]))
+            [such.sequences :as seq]))
 
 
 (def #^:private looseness-modifiers #{:in-any-order :gaps-ok})

@@ -3,7 +3,7 @@
    See `midje-repl-help` for details."
   (:use commons.clojure.core)
   (:require midje.sweet
-            [commons.function-makers :as mkfn]
+            [such.function-makers :as mkfn]
             [midje.doc :as doc]
             [such.immigration :as immigrate]
             [clojure.java.io :as io]
@@ -22,12 +22,14 @@
 
 (fact-data/make-getters *ns* "fact-")
 
+
+
 (when (doc/appropriate?)
-  (immigrate/selection 'midje.doc doc/for-repl)
+  (immigrate/import-vars [midje.doc midje-repl])
   (doc/repl-notice))
 
 (when-not (ns-resolve 'user '=>) ; when not already `use`d.
-  (immigrate/namespaces 'midje.sweet))
+  (immigrate/import-all-vars midje.sweet))
 
 
 
@@ -99,7 +101,7 @@
 ;; This function makes user intentions explicit.
 
 (defn- ^{:testable true} defaulting-args [original-args command-type]
-  (when-not ((mkfn/any-pred fn? keyword?) (config/choice :fact-filter))
+  (when-not ((mkfn/pred:any? fn? keyword?) (config/choice :fact-filter))
     (throw (Error. (cl-format nil "The config `:fact-filter` should a function or keyword, not ~A."
                               (config/choice :fact-filter)))))
   (let [[given-level-seq print-level-to-use args]

@@ -4,7 +4,7 @@
         [midje.checking.checkers.defining :only [checker? checker-makers]]
         [midje.parsing.2-to-lexical-maps.fakes :only [fake]])
   (:require [clojure.zip :as zip]
-            [commons.maps :as map]
+            [such.maps :as map]
             [midje.util.pile :as pile]
             [midje.parsing.util.recognizing :as recognize]
             [midje.parsing.util.fnref :as fnref]))

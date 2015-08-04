@@ -7,7 +7,7 @@
         [midje.checking.checkers collection-util util chatty defining])
   (:require [clojure.string :as str]
             [clojure.math.combinatorics :as comb]
-            [commons.maps :as map]
+            [such.maps :as map]
             [midje.util.pile :as pile]))
 
 ;; There is an annoying only-semi-similarity between maps and sequences.

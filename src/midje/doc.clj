@@ -14,22 +14,8 @@
 (defn midje-notice []
   (println (color/note "Run `(doc midje)` for Midje usage.")))
 
-
-(def for-sweet '[midje
-                 midje-facts
-                 midje-fact
-                 midje-checkers
-                 midje-defining-checkers
-                 midje-prerequisites
-                 midje-arrows
-                 midje-setup
-                 midje-teardown
-
-                 midje-configuration
-                 midje-print-level
-                 midje-print-levels
-                 guide])
-(def for-repl  '[midje-repl])
+;;; KLUDGE: The list of values to be imported must be known to the importing namespaces.
+;;; Don't forget to update them if adding new doc strings.
 
 (def ^{:doc "
    Detailed help:

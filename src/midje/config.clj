@@ -6,7 +6,7 @@
             [midje.util.pile :as pile]
             [midje.data.fact :as fact]
             [commons.clojure.core :as core]
-            [commons.function-makers :as mkfn]))
+            [such.function-makers :as mkfn]))
   
 ;;; I consider whether we're running in the repl part of the config. This matters because
 ;;; threads can't examine the stack to see if they're in the repl. So we check once at
@@ -118,7 +118,7 @@
     (if (empty? desireds)
       (let [default-filter (choice :fact-filter)]
         (make (appropriate-matcher-for default-filter) [default-filter]))
-      (make (apply mkfn/any-pred (map appropriate-matcher-for desireds)) desireds))))
+      (make (apply mkfn/pred:any? (map appropriate-matcher-for desireds)) desireds))))
 
 
 

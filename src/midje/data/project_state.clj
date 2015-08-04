@@ -6,8 +6,8 @@
             [midje.config :as config]
             [midje.util.bultitude :as tude]
             [midje.emission.api :as emit]
-            [commons.sequences :as seq]
-            [commons.maps :as map])
+            [such.sequences :as seq]
+            [such.maps :as map])
   (:require [clojure.java.io :as io]
             [clj-time.local :as time]))
 
@@ -108,7 +108,7 @@
       (if (nil? root-to-handle)
         surviving-namespaces
         (let [actual-dependent-set (set (get-in state-tracker [deps-key :dependents root-to-handle]))
-              [new-roots unkilled-descendents] (seq/separate actual-dependent-set surviving-namespaces)]
+              [new-roots unkilled-descendents] (seq/bifurcate actual-dependent-set surviving-namespaces)]
           (recur (concat roots-to-handle-later new-roots)
                  unkilled-descendents))))))
          

@@ -3,7 +3,7 @@
   (:use commons.clojure.core)
   ;; TODO: Shouldn't really have this dependency.
   (:require [midje.emission.plugins.util :as names]
-            [commons.sequences :as seq]))
+            [such.sequences :as seq]))
 
 ;;; There is a notion of "extended falsehood", in which a false value may be a
 ;;; map containing information about what went wrong.

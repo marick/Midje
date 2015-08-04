@@ -6,7 +6,7 @@
                                                    set-namespace-value
                                                    with-pushed-namespace-values]])
   (:require [clojure.zip :as zip] 
-            [commons.sequences :as seq]
+            [such.sequences :as seq]
   	        [midje.util.unify :as unify]))
 
 
@@ -40,7 +40,7 @@
     ~form))
 
 (defn put-wrappers-into-effect [wrappers]
-  (let [[immediates deferred] (seq/separate (for-wrapping-target? :contents) wrappers)]
+  (let [[immediates deferred] (seq/bifurcate (for-wrapping-target? :contents) wrappers)]
     (set-namespace-value :midje/wrappers (list wrappers))
     (multiwrap "unimportant-value" immediates)))
 

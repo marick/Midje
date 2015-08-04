@@ -6,7 +6,7 @@
         [midje.checking.checkers.defining :only [as-checker]]
         [midje.parsing.util.core :only [quoted?]])
   (:require [midje.emission.colorize :as colorize]
-            [commons.sequences :as seq]))
+            [such.sequences :as seq]))
 
 ;; Note: checkers need to be exported in ../checkers.clj
 

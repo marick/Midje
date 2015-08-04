@@ -3,7 +3,7 @@
         midje.test-util)
   (:require [midje.data.fact :as fact-data]
             [midje.data.compendium :as compendium]
-            [commons.random :as random]))
+            [such.random :as random]))
 
 (unfinished g)
 

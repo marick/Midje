@@ -11,7 +11,7 @@
         [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out
                                                    with-pushed-namespace-values]])
   (:require [clojure.zip :as zip]
-            [commons.sequences :as seq]
+            [such.sequences :as seq]
             [midje.config :as config]
             [midje.util.pile :as pile]
             [midje.util.unify :as unify]
@@ -42,7 +42,7 @@
                   (not (possibly-extractable-form? form)) false
                   (has-wrapper-syntax? form) false
                   :else true))]
-    (let [[background-forms other-forms] (seq/separate extractable-background-changer? fact-body-forms)
+    (let [[background-forms other-forms] (seq/bifurcate extractable-background-changer? fact-body-forms)
           background-changers            (mapcat (fn [[command & args]] (arglist-undoing-nesting args))
                                                  background-forms)]
       [background-changers other-forms])))
@@ -147,7 +147,7 @@
 ;; it made it easier to eyeball expanded forms and see what was going on.
 (defn make-unification-templates [background-forms]
   (predefine-metaconstants-from-form background-forms)
-  (let [[fakes state-changers] (seq/separate recognize/fake? (separate-individual-changers background-forms))
+  (let [[fakes state-changers] (seq/bifurcate recognize/fake? (separate-individual-changers background-forms))
         make-state-unification-templates (eagerly (map make-state-unification-template state-changers))]
     ;; The state template comes first on the off chance that a prerequisite depends on setup.
     (concat make-state-unification-templates (list (make-prerequisite-unification-template fakes)))))

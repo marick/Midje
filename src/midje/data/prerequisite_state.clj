@@ -6,8 +6,8 @@
         [midje.emission.deprecation :only [deprecate]]
         [midje.parsing.arrow-symbols])
   (:require [clojure.tools.macro :as macro]
-            [commons.maps :as map]
-            [commons.sequences :as seq]
+            [such.maps :as map]
+            [such.sequences :as seq]
             [midje.config :as config]
             [midje.util.pile :as pile]
             [midje.data.metaconstant :as metaconstant]
@@ -55,10 +55,24 @@
 (defn nested-prerequisite-call? []
   (= 2 (get (deref *call-action-count*) (Thread/currentThread))))
 
+;; backwards compatibility hack.
+(defn transform-in
+   "Will be removed with support for Clojure 1.4"
+  ([map keyseq f default]
+     (assoc-in map keyseq
+               (f (get-in map keyseq default))))
+  ([map keyseq f]
+     (transform-in map keyseq f nil)))
+
+(defn transform
+  "Will be removed with support for Clojure 1.4"
+  ([map key f] (transform-in map [key] f))
+  ([map key f default] (transform-in map [key] f default)))
+
 (defn record-start-of-prerequisite-call []
-  (swap! *call-action-count* map/transform (Thread/currentThread) inc 0))
+  (swap! *call-action-count* transform (Thread/currentThread) inc 0))
 (defn record-end-of-prerequisite-call []
-  (swap! *call-action-count* map/transform (Thread/currentThread) dec))
+  (swap! *call-action-count* transform (Thread/currentThread) dec))
 
 
 
@@ -111,7 +125,7 @@
                                                        {var (Metaconstant. (pile/object-name var) contained nil)})))
 
 (defn binding-map [fakes]
-  (let [[data-fakes fn-fakes] (seq/separate :data-fake fakes)]
+  (let [[data-fakes fn-fakes] (seq/bifurcate :data-fake fakes)]
     (merge (fn-fakes-binding-map fn-fakes) 
            (data-fakes-binding-map data-fakes))))
 

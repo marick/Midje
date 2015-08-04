@@ -6,14 +6,14 @@
   (:require [midje.emission.levels :as levels]
             [midje.config :as config]
             [midje.util.pile :as pile]
-            [commons.function-makers :as mkfn]
-            [commons.sequences :as seq]))
+            [such.function-makers :as mkfn]
+            [such.sequences :as seq]))
 
 
 ;;;                                           Print levels (keywords)
 
 (defn separate-print-levels [args default]
-  (let [[[print-level & extras] non-levels] (seq/separate levels/valids args)]
+  (let [[[print-level & extras] non-levels] (seq/bifurcate levels/valids args)]
     (when (seq extras)
       (throw (user-error "You have extra print level names or numbers.")))
     (dorun (map levels/validate-level! (filter number? args)))
@@ -28,8 +28,8 @@
 
 (defn separate-filters [args plain-argument?]
   (let [[filters remainder]
-        (seq/separate #(and (not (plain-argument? %))
-                            ((mkfn/any-pred string? regex? fn? keyword?) %))
+        (seq/bifurcate #(and (not (plain-argument? %))
+                            ((mkfn/pred:any? string? regex? fn? keyword?) %))
                   args)]
     (vector filters remainder)))
 

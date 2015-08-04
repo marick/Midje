@@ -36,8 +36,8 @@
             [midje.emission.api :as emit]
             [such.immigration :as immigrate]))
 
-(immigrate/namespaces 'midje.parsing.arrow-symbols)
-(immigrate/namespaces 'midje.checkers)
+(immigrate/import-all-vars midje.parsing.arrow-symbols)
+(immigrate/import-all-vars midje.checkers)
 
 (def include-midje-checks
   "True by default. If set to false, Midje checks are not
@@ -85,7 +85,12 @@
 (declare #^{:doc "A declaration of the provided form"} provided)
 
 (when (doc/appropriate?)
-  (immigrate/selection 'midje.doc doc/for-sweet)
+  (immigrate/import-vars [midje.doc
+                          midje midje-facts midje-fact midje-checkers midje-defining-checkers
+                          midje-prerequisites midje-arrows midje-setup midje-teardown
+
+                          midje-configuration midje-print-level midje-print-levels
+                          guide])
   (doc/midje-notice))
 
 (defmacro background
