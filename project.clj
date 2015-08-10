@@ -3,7 +3,7 @@
   :url "https://github.com/marick/Midje"
   :pedantic? :warn
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [marick/suchwow "3.4.0" :exclusions [org.clojure/clojure]]
+                 [marick/suchwow "3.4.0" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
                  [marick/clojure-commons "1.0.1" :exclusions [org.clojure/clojure]]
                  ;; upgrading to 1.3.2 produces record-type output for ordered maps
                  [ordered "1.2.0" :exclusions [org.clojure/clojure]]
