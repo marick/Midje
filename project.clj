@@ -12,8 +12,6 @@
                  [org.clojure/core.unify "0.5.2" :exclusions [org.clojure/clojure]]
                  [clj-time "0.10.0" :exclusions [org.clojure/clojure]]
                  [colorize "0.1.1" :exclusions [org.clojure/clojure]]
-                 [backtick "0.3.2" :exclusions [org.clojure/clojure]]
-                 [traversy "0.3.1" :exclusions [org.clojure/clojure]]
                  [org.clojure/tools.macro "0.1.5"]
                  [org.tcrawley/dynapath "0.2.3"]
                  [swiss-arrows "1.0.0" :exclusions [org.clojure/clojure]]
