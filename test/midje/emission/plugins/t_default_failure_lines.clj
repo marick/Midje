@@ -101,12 +101,12 @@
                     :var #'odd?})
         => (just "notice"
                  #"never said .*#'odd.* would be called"
-                 #"\(nil\)"))
+                 #"\[nil\]"))
       (fact "somewhat more complicated arguments"
         (summarize {:type :prerequisite-was-called-with-unexpected-arguments
                     :actual (list #'cons [1 2 3] "foo")
                     :var #'odd?})
-        => (contains #"\(#'clojure.core/cons \[1 2 3\] \"foo\"\)")))
+        => (contains #"\[#'clojure.core/cons \[1 2 3\] \"foo\"\]")))
     (fact "incorrect call count"
       (fact "the never-called case"
         (summarize {:type :some-prerequisites-were-called-the-wrong-number-of-times

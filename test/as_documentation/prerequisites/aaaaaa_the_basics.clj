@@ -81,18 +81,22 @@
 (defn top-function [n]
   (+ (lower-function n) (lower-function (inc n))))
 
+
+
 (capturing-failure-output
  (fact
    (top-function 5) => 55
    (provided
-     ;; (lower-function 5) => 50    ; omit this one.
+     ;; (lower-function 5) => 50    ; do not describe one of the two calls
      (lower-function 6) =>  5))
  ;; So...
- (fact 
+ (fact
    @fact-output => #"You never said #'lower-function would be called with these arguments:"
-   @fact-output => #"\(5\)"))
+   @fact-output => #"\[5\]"))
 
-   
+
+
+
 ;; You also get a helpful failure for an unused prerequisite:       
 
 (capturing-failure-output

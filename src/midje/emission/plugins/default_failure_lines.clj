@@ -88,12 +88,21 @@
      "These calls were not made the right number of times:"
      (map format-one-failure (:failures m)))))
 
+(defn lazyseq? [v]
+  (instance? clojure.lang.LazySeq v))
+
+(defn pretty-xs [xs]
+  (pr-str (mapv #(if (lazyseq? %)
+                   "<an unrealized lazy sequence>"
+                   %)
+                xs)))
+
 (defmethod messy-lines :prerequisite-was-called-with-unexpected-arguments [m]
   (list
    (str "You never said "
         (prerequisite-var-description (:var m))
         " would be called with these arguments:")
-   (str "    " (pr-str (:actual m)))))
+   (str "    " (pretty-xs (:actual m)))))
 
 (defmethod messy-lines :parse-error [m]
   (list

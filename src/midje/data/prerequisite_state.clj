@@ -85,14 +85,22 @@
 
     (let [action (counting-nested-calls (best-call-action function-var actual-args fakes))]
       (branch-on action
-        extended-fn?  (apply action actual-args)
-        map?          (do
-                        (swap! (:call-count-atom action) inc)
-                        ((:result-supplier action )))
-        :else (emit/fail {:type :prerequisite-was-called-with-unexpected-arguments
-                          :var function-var
-                          :actual actual-args
-                          :position (:position (first fakes))})))))
+        extended-fn?
+        (apply action actual-args)
+        
+        map?
+        (do
+          (swap! (:call-count-atom action) inc)
+          ((:result-supplier action )))
+        
+        :else
+        (do 
+          (emit/fail {:type :prerequisite-was-called-with-unexpected-arguments
+                      :var function-var
+                      :actual actual-args
+                      :position (:position (first fakes))})
+          (format "`%s` returned this string because it was called with an unexpected argument"
+                  (+symbol function-var)))))))
 
 
 ;; Binding map related
