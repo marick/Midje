@@ -135,8 +135,9 @@
 (defn record-fact-existence! [fact-function]
   (when (and (fact/allows-itself-to-be-recorded? fact-function)
              (config/user-wants-fact-to-be-recorded? fact-function))
-    (if-let [previous (previous-version @global fact-function)]
-      (swap! global remove-from previous))
+    (swap! global #(if-let [previous (previous-version % fact-function)]
+                     (remove-from % previous)
+                     %))
     (swap! global add-to fact-function))
   ;; Returning the fact-function is a kludge required by the
   ;; way tabular facts are parsed.
