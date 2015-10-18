@@ -55,24 +55,10 @@
 (defn nested-prerequisite-call? []
   (= 2 (get (deref *call-action-count*) (Thread/currentThread))))
 
-;; backwards compatibility hack.
-(defn transform-in
-   "Will be removed with support for Clojure 1.4"
-  ([map keyseq f default]
-     (assoc-in map keyseq
-               (f (get-in map keyseq default))))
-  ([map keyseq f]
-     (transform-in map keyseq f nil)))
-
-(defn transform
-  "Will be removed with support for Clojure 1.4"
-  ([map key f] (transform-in map [key] f))
-  ([map key f default] (transform-in map [key] f default)))
-
 (defn record-start-of-prerequisite-call []
-  (swap! *call-action-count* transform (Thread/currentThread) inc 0))
+  (swap! *call-action-count* update-in [(Thread/currentThread)] (fnil inc 0)))
 (defn record-end-of-prerequisite-call []
-  (swap! *call-action-count* transform (Thread/currentThread) dec))
+  (swap! *call-action-count* update-in [(Thread/currentThread)] dec))
 
 
 

@@ -3,14 +3,14 @@
   :url "https://github.com/marick/Midje"
   :pedantic? :warn
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [marick/suchwow "4.1.0" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
-                 [marick/clojure-commons "1.1.0" :exclusions [org.clojure/clojure]]
+                 [marick/suchwow "4.4.0" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
+                 [marick/clojure-commons "1.1.1" :exclusions [org.clojure/clojure]]
                  ;; upgrading to 1.3.2 produces record-type output for ordered maps
                  [ordered "1.2.0" :exclusions [org.clojure/clojure]]
                  [org.clojure/math.combinatorics "0.1.1"]
                  ;; Changing following to 0.5.6 makes a t_unify test fail.
                  [org.clojure/core.unify "0.5.2" :exclusions [org.clojure/clojure]]
-                 [clj-time "0.10.0" :exclusions [org.clojure/clojure]]
+                 [clj-time "0.11.0" :exclusions [org.clojure/clojure]]
                  [colorize "0.1.1" :exclusions [org.clojure/clojure]]
                  [org.clojure/tools.macro "0.1.5"]
                  [org.tcrawley/dynapath "0.2.3"]
@@ -18,14 +18,14 @@
                  [org.clojure/tools.namespace "0.2.10"]
                  [flare "0.2.9" :exclusions [org.clojure/clojure]]
                  [slingshot "0.12.2"]]
-  :profiles {:dev {:dependencies [[prismatic/plumbing "0.4.4"]]
+  :profiles {:dev {:dependencies [[prismatic/plumbing "0.5.0"]]
                    :plugins [[lein-midje "3.1.4-SNAPSHOT"]]}
              :test-libs {:dependencies [[prismatic/plumbing "0.4.2"]]}
              :1.5.0 [:test-libs {:dependencies [[org.clojure/clojure "1.5.0"]]}]
              :1.5.1 [:test-libs {:dependencies [[org.clojure/clojure "1.5.1"]]}]
              :1.6 [:test-libs {:dependencies [[org.clojure/clojure "1.6.0"]]}]
              :1.7 [:test-libs {:dependencies [[org.clojure/clojure "1.7.0"]]}]
-             :1.8 [:test-libs {:dependencies [[org.clojure/clojure "1.8.0-alpha3"]]}]
+             :1.8 [:test-libs {:dependencies [[org.clojure/clojure "1.8.0-beta1"]]}]
              ;; The following profile can be used to check that `lein with-profile`
              ;; profiles are obeyed. Note that profile `:test-paths` *add on* to the
              ;; defaults.
