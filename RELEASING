@@ -1,0 +1,7 @@
+* Bump version in project, readme, changelog
+* lein ancient
+* lein compatibility 
+* push
+# * rake doc  -- not yet relevant
+* lein deploy
+* lein install
