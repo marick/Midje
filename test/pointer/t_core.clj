@@ -173,8 +173,7 @@
     (:meta (meta (nth result 1))) => :data))
 
 
-(defmacro make-form [] `(quote by macro))
-
+(defmacro make-form [] `(quote by-macro))
 
 (fact "adding line number information"
   (let [form-without-line-number (cons 'without '(line))
