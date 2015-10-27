@@ -5,3 +5,5 @@ See [here](http://keepachangelog.com/) for the change log format.
 ## [1.8]
 - no longer indirectly drags in all of clojurescript.
 - improved error messages when prerequisites are passed unrealized lazyseqs.
+
+(Some other non-feature, cleanup changes were lost.)
