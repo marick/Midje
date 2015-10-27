@@ -38,8 +38,8 @@
                  :subscribe "https://groups.google.com/forum/?fromgroups#!forum/midje"}
   :deploy-repositories [["releases" :clojars]]
 
-  :aliases {"compatibility" ["with-profile" "1.5.0:1.5.1:1.6:1.7" "midje" ":config" ".compatibility-test-config"]
-            "travis" ["with-profile" "1.5.0:1.5.1:1.6:1.7" "midje"]}
+  :aliases {"compatibility" ["with-profile" "1.5.0:1.5.1:1.6:1.7:1.8" "midje" ":config" ".compatibility-test-config"]
+            "travis" ["with-profile" "1.5.0:1.5.1:1.6:1.7:1.8" "midje"]}
 
   ;; For Clojure snapshots
   :repositories {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"
