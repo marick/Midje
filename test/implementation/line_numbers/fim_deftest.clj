@@ -7,13 +7,11 @@
             [midje.config :as config]))
 
 (deftest fails
-  ;; For some reason, clojure.test runs in an environment without the right binding for *file*
-  (binding [*file* "NO_SOURCE_PATH"]
-    (state/with-isolated-output-counters ; we only want the output
-      (fact (+ 1 1) => 3))))
+  (state/with-isolated-output-counters ; we only want the output
+    (fact (+ 1 1) => 3)))
 
-(future-fact "In clojure 1.8, a fact within `deftest` no longer gets the line number right"
+(fact "In clojure 1.8, a fact within `deftest` no longer gets the filename right"
   (let [test-result (ctf/run-tests [*ns*])]
-    (:lines test-result) => (contains #"fim_deftest.clj:13")))
+    (:lines test-result) => (contains #"fim_deftest.clj:11")))
 
 (alter-meta! #'fails dissoc :test) ;; To keep from spewing failure output
