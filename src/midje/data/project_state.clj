@@ -1,5 +1,6 @@
 (ns ^{:doc "What we know about the changing project file/namespace tree."}
   midje.data.project-state
+  (:use commons.clojure.core)
   (:require [midje.emission.boundaries :as emission-boundary]
             [midje.util.ecosystem :as ecosystem]
             [midje.emission.colorize :as color]
