@@ -69,7 +69,7 @@
 
 ;; Global state.
 
-(defonce state-tracker (atom (nstrack/tracker)))
+(defonce state-tracker-atom (atom (nstrack/tracker)))
 
 (defn file-modification-time [file]
   (.lastModified file))
@@ -132,7 +132,7 @@
 
 (defn mkfn:scan-and-react [options scanner]
   (fn []
-    (swap! state-tracker
+    (swap! state-tracker-atom
            #(let [new-tracker (apply scanner % (:files options))]
               (react-to-tracker! new-tracker options)
               (prepare-for-next-scan new-tracker)))))
