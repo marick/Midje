@@ -25,7 +25,7 @@
              :1.5.1 [:test-libs {:dependencies [[org.clojure/clojure "1.5.1"]]}]
              :1.6 [:test-libs {:dependencies [[org.clojure/clojure "1.6.0"]]}]
              :1.7 [:test-libs {:dependencies [[org.clojure/clojure "1.7.0"]]}]
-             :1.8 [:test-libs {:dependencies [[org.clojure/clojure "1.8.0-RC2"]]}]
+             :1.8 [:test-libs {:dependencies [[org.clojure/clojure "1.8.0-RC3"]]}]
              ;; The following profile can be used to check that `lein with-profile`
              ;; profiles are obeyed. Note that profile `:test-paths` *add on* to the
              ;; defaults.
