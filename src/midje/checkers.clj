@@ -2,7 +2,12 @@
   "Checkers are for checking results of checkables, or checking 
    that appropriate arguments are passed to prerequisites"
   (require [such.vars :as var]
-           [such.immigration :as immigrate]))
+           [such.immigration :as immigrate])
+  (require midje.checking.checkers.defining
+           midje.checking.checkers.chatty
+           midje.checking.checkers.simple
+           midje.checking.checkers.combining
+           midje.checking.checkers.collection))
 
 (when-not (resolve '&)
   (let [docstring "This var is defined so that Midje prerequisites can use & for optional args without having to quote it."]
