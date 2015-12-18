@@ -2,6 +2,9 @@
 This project adheres to [Semantic Versioning](http://semver.org/).       
 See [here](http://keepachangelog.com/) for the change log format.
 
+## [1.8.3] 
+- Bump to newer versions of dependencies
+
 ## [1.8.2]
 - Drop back to an older version of commons-codec to match what compojure uses.
   Will avoid annoying Maven messages for many users.

@@ -1,10 +1,10 @@
-(defproject midje "1.8.2"
+(defproject midje "1.8.3"
   :description "A TDD library for Clojure that supports top-down ('mockish') TDD, encourages readable tests, provides a smooth migration path from clojure.test, balances abstraction and concreteness, and strives for graciousness."
   :url "https://github.com/marick/Midje"
   :pedantic? :warn
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [marick/suchwow "4.4.1" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
-                 [marick/clojure-commons "1.1.2" :exclusions [org.clojure/clojure]]
+                 [marick/suchwow "4.4.3" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
+                 [marick/clojure-commons "1.1.3" :exclusions [org.clojure/clojure]]
                  ;; upgrading to 1.3.2 produces record-type output for ordered maps
                  [ordered "1.2.0" :exclusions [org.clojure/clojure]]
                  [org.clojure/math.combinatorics "0.1.1"]
@@ -18,9 +18,9 @@
                  [org.clojure/tools.namespace "0.2.10"]
                  [flare "0.2.9" :exclusions [org.clojure/clojure]]
                  [slingshot "0.12.2"]]
-  :profiles {:dev {:dependencies [[prismatic/plumbing "0.5.1"]]
+  :profiles {:dev {:dependencies [[prismatic/plumbing "0.5.2"]]
                    :plugins [[lein-midje "3.1.4-SNAPSHOT"]]}
-             :test-libs {:dependencies [[prismatic/plumbing "0.5.1"]]}
+             :test-libs {:dependencies [[prismatic/plumbing "0.5.2"]]}
              :1.5.0 [:test-libs {:dependencies [[org.clojure/clojure "1.5.0"]]}]
              :1.5.1 [:test-libs {:dependencies [[org.clojure/clojure "1.5.1"]]}]
              :1.6 [:test-libs {:dependencies [[org.clojure/clojure "1.6.0"]]}]
