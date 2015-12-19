@@ -1,5 +1,5 @@
 Available via [clojars](https://clojars.org/midje)   
-Stable version: [midje "1.8.3"]
+Stable version: [midje "1.8.3"]      
 License: [MIT](http://en.wikipedia.org/wiki/MIT_License)
 
 [![Build Status](https://travis-ci.org/marick/Midje.png?branch=master)](https://travis-ci.org/marick/Midje)
