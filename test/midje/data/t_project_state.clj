@@ -89,10 +89,3 @@
       (require ..ns3.. :reload) => nil)
     @failure-record => {:ns ..ns1.. :throwable throwable}))
 
-(comment
-  (fact "A deleted namespace will not be reloaded"
-        (let [tracker {load-key   [..n1..]
-                       unload-key [..n1.. ..n2..]
-                       deps-key   {:dependants {..n1.. #{..n2..}}}}]
-          (get-in (prepare-for-next-scan tracker) [deps-key :dependants]) => (contains {..n1.. #{}}))))
-
