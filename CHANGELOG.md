@@ -2,6 +2,10 @@
 This project adheres to [Semantic Versioning](http://semver.org/).       
 See [here](http://keepachangelog.com/) for the change log format.
 
+## [1.8.4-SNAPSHOT]
+
+- Experimental version from @dlebrero that unloads deleted namespaces. 
+
 ## [1.8.3] 
 - Bump to newer versions of dependencies
 
