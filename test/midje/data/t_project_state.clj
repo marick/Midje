@@ -32,18 +32,22 @@
 (fact "The files to load can be used to find a modification time"
   (against-background (file-modification-time ..file1..) => 222
     (file-modification-time ..file2..) => 3333)
-  
+
   (let [empty-tracker {time-key 11
                        load-key []
                        filemap-key {..file1.. ..ns1..
                                     ..file2.. ..ns2..}}
-        tracker-with-changes (assoc empty-tracker load-key [..ns1.. ..ns2..])]
-    
+        tracker-with-changes (assoc empty-tracker load-key [..ns1.. ..ns2..])
+        tracker-with-deleled-ns (assoc empty-tracker load-key [..ns1..]
+                                                     unload-key [..ns1.. ..ns2..]
+                                                     deps-key {:dependents {..ns1.. #{..ns2.. ..ns3..}}})]
+
     (latest-modification-time empty-tracker) => 11
     (latest-modification-time tracker-with-changes) => 3333
     
     (prepare-for-next-scan empty-tracker) => (contains {time-key 11, unload-key [], load-key []})
-    (prepare-for-next-scan tracker-with-changes) => (contains {time-key 3333, unload-key [], load-key []})))
+    (prepare-for-next-scan tracker-with-changes) => (contains {time-key 3333, unload-key [], load-key []})
+    (prepare-for-next-scan tracker-with-deleled-ns) => (contains {deps-key {:dependents {..ns1.. #{..ns3..}}}})))
 
 
 (fact "a dependents cleaner knows how to remove namespaces that depend on a namespace"
@@ -84,5 +88,4 @@
       (cleaner ..ns1.. [..ns2.. ..ns3..]) => [..ns3..]
       (require ..ns3.. :reload) => nil)
     @failure-record => {:ns ..ns1.. :throwable throwable}))
-
 

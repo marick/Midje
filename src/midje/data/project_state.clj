@@ -10,7 +10,8 @@
             [such.sequences :as seq]
             [such.maps :as map])
   (:require [clojure.java.io :as io]
-            [clj-time.local :as time]))
+            [clj-time.local :as time]
+            clojure.set))
 
 
 (require '[clojure.tools.namespace.repl :as nsrepl]
@@ -125,10 +126,15 @@
                                    (time/format-local-time (time/local-now) :hour-minute-second)))))))
 
 (defn prepare-for-next-scan [state-tracker]
-  (assoc state-tracker
-         time-key (latest-modification-time state-tracker)
-         unload-key []
-         load-key []))
+  (let [unloaded (clojure.set/difference (set (unload-key state-tracker))
+                                         (set (load-key state-tracker)))
+        remove-unloaded (fn [dependents] (apply disj dependents unloaded))]
+    (-> state-tracker
+        (assoc time-key (latest-modification-time state-tracker)
+               unload-key []
+               load-key [])
+        (update-in [deps-key :dependents]
+                   map/update-each-value remove-unloaded))))
 
 (defn mkfn:scan-and-react [options scanner]
   (fn []
