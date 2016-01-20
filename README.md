@@ -87,6 +87,7 @@ Contributors
 * Phillip Calçado
 * Toby Crawley
 * Chris Devine
+* dlebrero
 * Dolmio
 * Anders Furseth
 * Stuart Halloway
