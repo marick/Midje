@@ -2,6 +2,7 @@
             facade shows how."}
   midje.emission.clojure-test-facade
   (:require [clojure.test :as ct]
+            [midje.config :as config]
             [clojure.string :as str]))
 
 ;; This turns off "Testing ...." lines, which I hate, especially
@@ -21,9 +22,15 @@
    affect the Midje fact counters but instead returns a map
    that can be used to produce a separate report."
   [namespaces]
-  (binding [ct/*test-out* (java.io.StringWriter.)]
-    (assoc (apply ct/run-tests namespaces)
-           :lines (-> ct/*test-out* .toString str/split-lines))))
+  ;; Kind of kludgy: if clojure.test is turned off, run it on
+  ;; no namespaces. That isolates the caller from knowing what
+  ;; was tested with clojure.test.
+  (let [namespaces-to-run (if (config/choice :run-clojure-test)
+                            namespaces
+                            [])]
+    (binding [ct/*test-out* (java.io.StringWriter.)]
+      (assoc (apply ct/run-tests namespaces-to-run)
+             :lines (-> ct/*test-out* .toString str/split-lines)))))
 
 (defn forget-failures
   "This can only be used within the dynamic scope of run-tests."

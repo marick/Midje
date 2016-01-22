@@ -2,9 +2,11 @@
 This project adheres to [Semantic Versioning](http://semver.org/).       
 See [here](http://keepachangelog.com/) for the change log format.
 
-## [1.8.4-SNAPSHOT]
+## [1.9.0-SNAPSHOT]
 
-- Experimental version from @dlebrero that unloads deleted namespaces. 
+- Experimental version from @dlebrero that unloads deleted namespaces.
+- `(change-defaults :run-clojure-test false)` prevents clojure.test tests from being run.
+- NOTE NOTE NOTE: Previous should be documented before 1.9.0 is released.
 
 ## [1.8.3] 
 - Bump to newer versions of dependencies

@@ -32,6 +32,7 @@
             :visible-failure-namespace false
             :partial-prerequisites false
             :check-after-creation true
+            :run-clojure-test true
             :emitter 'midje.emission.plugins.default
             :check-recorder (fn [checkable-map prerequisite-maps])
             :fact-filter (constantly true)})
