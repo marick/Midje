@@ -22,3 +22,9 @@ See [here](http://keepachangelog.com/) for the change log format.
 - obscure bug fixes
 
 (Some other non-feature, cleanup changes were lost.)
+
+
+
+---------------------
+
+Older changes were in HISTORY.md, and they're not worth preserving.
