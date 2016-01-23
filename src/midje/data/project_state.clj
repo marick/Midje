@@ -37,7 +37,6 @@
         (println (color/fail (filenames (:invalid-clojure-file  grouped-by-status))))
         (emit/fail-silently))
       (map :namespace-symbol (:contains-namespace grouped-by-status)))))
-      
 
 (defn namespaces []
   (valid-namespace-symbols (mapcat tude/classify-dir-entries (ecosystem/leiningen-paths))))
@@ -113,7 +112,7 @@
               [new-roots unkilled-descendents] (seq/bifurcate actual-dependent-set surviving-namespaces)]
           (recur (concat roots-to-handle-later new-roots)
                  unkilled-descendents))))))
-         
+
 (defn react-to-tracker! [state-tracker options]
   (let [namespaces (load-key state-tracker)]
     (when (not (empty? namespaces))
@@ -136,10 +135,16 @@
         (update-in [deps-key :dependents]
                    map/update-each-value remove-unloaded))))
 
+(defn with-fresh-copy-of-dependency-map
+  "Records must be recreated if the protocols that they implement are reloaded."
+  [state]
+  (update state deps-key clojure.tools.namespace.dependency/map->MapDependencyGraph))
+
 (defn mkfn:scan-and-react [options scanner]
   (fn []
     (swap! state-tracker-atom
-           #(let [new-tracker (apply scanner % (:files options))]
+           #(let [state (with-fresh-copy-of-dependency-map %)
+                  new-tracker (apply scanner state (:files options))]
               (react-to-tracker! new-tracker options)
               (prepare-for-next-scan new-tracker)))))
 
