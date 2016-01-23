@@ -36,7 +36,8 @@
             :distribution :repo}
   :mailing-list {:name "Midje"
                  :subscribe "https://groups.google.com/forum/?fromgroups#!forum/midje"}
-  :deploy-repositories [["releases" :clojars]]
+  :deploy-repositories [["releases" :clojars]
+                        ["snapshots" :clojars]]
 
   :aliases {"compatibility" ["with-profile" "1.5.0:1.5.1:1.6:1.7:1.8" "midje" ":config" ".compatibility-test-config"]
             "travis" ["with-profile" "1.5.0:1.5.1:1.6:1.7:1.8" "midje"]}
