@@ -2,9 +2,10 @@
   :description "A TDD library for Clojure that supports top-down ('mockish') TDD, encourages readable tests, provides a smooth migration path from clojure.test, balances abstraction and concreteness, and strives for graciousness."
   :url "https://github.com/marick/Midje"
   :pedantic? :warn
-  :dependencies [[org.clojure/clojure "1.6.0"]
+  :dependencies [[org.clojure/clojure "1.7.0"]
                  [marick/suchwow "4.4.3" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
                  [marick/clojure-commons "1.1.3" :exclusions [org.clojure/clojure]]
+                 [marick/structural-typing "1.1.0-SNAPSHOT" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
                  ;; upgrading to 1.3.2 produces record-type output for ordered maps
                  [ordered "1.2.0" :exclusions [org.clojure/clojure]]
                  [org.clojure/math.combinatorics "0.1.1"]
