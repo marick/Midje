@@ -138,7 +138,9 @@
 (defn with-fresh-copy-of-dependency-map
   "Records must be recreated if the protocols that they implement are reloaded."
   [state]
-  (update-in state [deps-key] clojure.tools.namespace.dependency/map->MapDependencyGraph))
+  (if (get state deps-key)
+    (update-in state [deps-key] clojure.tools.namespace.dependency/map->MapDependencyGraph)
+    state))
 
 (defn mkfn:scan-and-react [options scanner]
   (fn []
