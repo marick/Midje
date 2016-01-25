@@ -90,6 +90,7 @@ Contributors
 * Chris Devine
 * dlebrero
 * Dolmio
+* André Eriksson
 * Anders Furseth
 * Stuart Halloway
 * Chris Hapgood
