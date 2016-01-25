@@ -4,8 +4,14 @@
   (:require [such.immigration :as immigrate]
             [midje.checking.core :as checking.core]
             [midje.checking.checkers.defining :refer [checker defchecker]]
-            [structural-typing.type :as type]
-            [structural-typing.assist.oopsie :as oopsie]))
+            [midje.util.ecosystem :refer [when-1-7+]]))
+
+
+(when-1-7+
+
+ (require '[structural-typing.type :as type]
+          '[structural-typing.assist.oopsie :as oopsie])
+
 
 (def type-repo (-> type/empty-type-repo
                    (type/replace-success-handler (constantly true))
@@ -22,3 +28,6 @@
 (defchecker all-built-like [type-shorthand]
   (checker [actual]
     (type/all-built-like type-repo type-shorthand actual)))
+
+
+)

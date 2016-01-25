@@ -14,20 +14,13 @@
 (def syntax-errors-that-will-not-be-fixed     
   "https://github.com/marick/Midje/wiki/Syntax-errors-that-will-not-be-fixed")
 
-(defmacro when-1-4 [& body] 
-  (when (= (:minor *clojure-version*) 4)
-    `(do ~@body)))
 
-(defmacro when-1-5- [& body] 
-  (when (<= (:minor *clojure-version*) 5)
-    `(do ~@body)))
-
-(defmacro when-1-5+ [& body] 
-  (when (>= (:minor *clojure-version*) 5)
-    `(do ~@body)))
-
-(defmacro when-1-6+ [& body] 
+(defmacro when-1-6+ [& body]
   (when (>= (:minor *clojure-version*) 6)
+    `(do ~@body)))
+
+(defmacro when-1-7+ [& body]
+  (when (>= (:minor *clojure-version*) 7)
     `(do ~@body)))
 
 ;;
