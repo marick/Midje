@@ -8,8 +8,8 @@
             [midje.emission.colorize :as color]
             [midje.util.exceptions :as exception]
             [midje.config :as config]
-            [ordered.map :as om]
-            [ordered.set :as os]))
+            [midje.util.ordered-map :as om]
+            [midje.util.ordered-set :as os]))
   
 
 

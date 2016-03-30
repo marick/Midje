@@ -2,7 +2,7 @@
   (:use [midje.parsing.0-to-fact-form.tabular :except [table-binding-maps]]
         [midje.data.metaconstant :only [metaconstant-symbol?]]
         [midje sweet test-util]
-        [ordered.map :only (ordered-map)]
+        [midje.util.ordered-map :only (ordered-map)]
         midje.util)
   (:require [such.random :as random]
             [midje.parsing.lexical-maps :as maps]
