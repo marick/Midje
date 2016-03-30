@@ -3,9 +3,9 @@
   :url "https://github.com/marick/Midje"
   :pedantic? :warn
   :dependencies [[org.clojure/clojure "1.7.0"]
-                 [marick/suchwow "4.4.3" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
-                 [marick/clojure-commons "1.1.3" :exclusions [org.clojure/clojure]]
-                 [marick/structural-typing "1.1.0-SNAPSHOT" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
+                 [marick/suchwow "5.1.0" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
+                 [marick/clojure-commons "1.1.4" :exclusions [org.clojure/clojure]]
+                 [marick/structural-typing "2.0.0" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
                  [org.clojure/math.combinatorics "0.1.1"]
                  ;; Changing following to 0.5.6 makes a t_unify test fail.
                  [org.clojure/core.unify "0.5.2" :exclusions [org.clojure/clojure]]
@@ -17,9 +17,9 @@
                  [org.clojure/tools.namespace "0.2.10"]
                  [flare "0.2.9" :exclusions [org.clojure/clojure]]
                  [slingshot "0.12.2"]]
-  :profiles {:dev {:dependencies [[prismatic/plumbing "0.5.2"]]
+  :profiles {:dev {:dependencies [[prismatic/plumbing "0.5.3"]]
                    :plugins [[lein-midje "3.1.4-SNAPSHOT"]]}
-             :test-libs {:dependencies [[prismatic/plumbing "0.5.2"]]}
+             :test-libs {:dependencies [[prismatic/plumbing "0.5.3"]]}
              :1.5.0 [:test-libs {:dependencies [[org.clojure/clojure "1.5.0"]]}]
              :1.5.1 [:test-libs {:dependencies [[org.clojure/clojure "1.5.1"]]}]
              :1.6 [:test-libs {:dependencies [[org.clojure/clojure "1.6.0"]]}]
