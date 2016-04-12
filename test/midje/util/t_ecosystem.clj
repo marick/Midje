@@ -1,7 +1,7 @@
 (ns midje.util.t-ecosystem
-  (:use midje.sweet
-        midje.util.ecosystem
-        midje.test-util))
+  (:require [midje.sweet :refer :all]
+            [midje.util.ecosystem :refer :all]
+            [midje.test-util :refer :all]))
 
 (fact "can find paths to load from project.clj"
   (against-background (around :facts (around-initial-paths ?form)))

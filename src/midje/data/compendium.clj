@@ -2,10 +2,10 @@
             about a particular subject'. The Midje compendium contains
             the currently relevant facts."}
   midje.data.compendium
-  (:use [midje.util.exceptions :only [user-error]])
-  (:require [such.maps :as map]
+  (:require [midje.config :as config]
             [midje.data.fact :as fact]
-            [midje.config :as config]))
+            [midje.util.exceptions :refer [user-error]]
+            [such.maps :as map]))
 
 ;;; Facts are stored in a compendium:
 

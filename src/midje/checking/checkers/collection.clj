@@ -2,11 +2,16 @@
 
 (ns ^{:doc "Checkers for collections and strings."}
   midje.checking.checkers.collection
-  (:use commons.clojure.core
-        midje.checking.core
-      	[midje.checking.checkers collection-util util chatty defining collection-comparison]
-        [midje.util.exceptions :only [user-error]])
-  (:require [midje.util.pile :as pile]
+  (:require [commons.clojure.core :refer :all]
+            [midje.checking.core :refer :all]
+            [midje.checking.checkers
+             [collection-util :refer :all]
+             [util :refer :all]
+             [chatty :refer :all]
+             [defining :refer :all]
+             [collection-comparison :refer :all]]
+            [midje.util.exceptions :refer [user-error]]
+            [midje.util.pile :as pile]
             [such.sequences :as seq]))
 
 

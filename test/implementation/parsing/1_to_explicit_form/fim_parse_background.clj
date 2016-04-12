@@ -1,15 +1,15 @@
 (ns implementation.parsing.1-to-explicit-form.fim-parse-background
-  (:use midje.sweet
-        midje.test-util
-        [midje.parsing.util.wrapping :only [for-wrapping-target?]]
-        [midje.parsing.2-to-lexical-maps.expects :only [expect]]
-        [midje.parsing.2-to-lexical-maps.fakes :only [fake]]
-        [midje.parsing.2-to-lexical-maps.data-fakes :only [data-fake]]
-        midje.util)
   (:require [clojure.zip :as zip]
-            [midje.util.unify :as unify]
+            [midje.sweet :refer :all]
+            [midje.parsing.1-to-explicit-form.parse-background :as parse-background]
+            [midje.parsing.2-to-lexical-maps.data-fakes :refer [data-fake]]
+            [midje.parsing.2-to-lexical-maps.expects :refer [expect]]
+            [midje.parsing.2-to-lexical-maps.fakes :refer [fake]]
             [midje.parsing.util.wrapping :as wrapping]
-            [midje.parsing.1-to-explicit-form.parse-background :as parse-background]))
+            [midje.parsing.util.wrapping :refer [for-wrapping-target?]]
+            [midje.test-util :refer :all]
+            [midje.util :refer :all]
+            [midje.util.unify :as unify]))
 (expose-testables midje.parsing.1-to-explicit-form.parse-background)
 
 

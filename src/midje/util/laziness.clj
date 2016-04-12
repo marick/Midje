@@ -1,6 +1,6 @@
 (ns midje.util.laziness
   "To evaluate a fact it needs to be eagerly evaluated."
-  (:use commons.clojure.core))
+  (:require [commons.clojure.core :refer :all]))
 
 
 (defn eagerly

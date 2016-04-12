@@ -1,6 +1,6 @@
 (ns as-documentation.sketch-for-background-replacement
-  (:use midje.sweet
-        midje.test-util))
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]))
 
 
 ;;; THESE ARE SKETCHES TOWARD A POSSIBLE FUTURE FEATURE.

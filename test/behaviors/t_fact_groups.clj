@@ -1,6 +1,7 @@
 (ns behaviors.t-fact-groups
-  (:use midje.sweet midje.test-util)
-  (:require [midje.repl :as repl]
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]
+            [midje.repl :as repl]
             [midje.config :as config]))
 
 (repl/forget-facts *ns*)

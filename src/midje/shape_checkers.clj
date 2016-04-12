@@ -1,10 +1,10 @@
 (ns midje.shape-checkers
   "Checkers that use structural-typing"
-  (:use commons.clojure.core)
-  (:require [such.immigration :as immigrate]
+  (:require [commons.clojure.core :refer :all]
             [midje.checking.core :as checking.core]
             [midje.checking.checkers.defining :refer [checker defchecker]]
-            [midje.util.ecosystem :refer [when-1-7+]]))
+            [midje.util.ecosystem :refer [when-1-7+]]
+            [such.immigration :as immigrate]))
 
 
 (when-1-7+

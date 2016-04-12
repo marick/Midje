@@ -1,5 +1,5 @@
 (ns as-documentation.about-defrecord.using-refer--provided-tests.specific
-  (:use midje.sweet)
+  (:require [midje.sweet :refer :all])
   (:require [midje.open-protocols :refer [defrecord-openly]])   ; again, we use `defrecord-openly`
   (:require [as-documentation.about-defrecord.generic
              :refer [Numerical

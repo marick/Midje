@@ -1,5 +1,5 @@
 (ns as-documentation.prerequisites.streaming-with-exceptions
-  (:use midje.sweet))
+  (:require [midje.sweet :refer :all]))
 
 ;; By treating the correctness of functions as facts depending on
 ;; prerequisites, we can test handling of a stream of values that

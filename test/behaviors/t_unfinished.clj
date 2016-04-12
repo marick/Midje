@@ -1,5 +1,7 @@
 (ns behaviors.t-unfinished
-  (:use [midje sweet test-util]))
+  (:require [midje
+             [sweet :refer :all]
+             [test-util :refer :all]]))
 
 (unfinished backing-function)
 

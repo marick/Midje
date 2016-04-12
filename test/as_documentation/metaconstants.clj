@@ -1,5 +1,7 @@
 (ns as-documentation.metaconstants
-  (:use [midje sweet test-util]))
+  (:require [midje
+             [sweet :refer :all]
+             [test-util :refer :all]]))
 
 ;;;                             THE BASICS
 

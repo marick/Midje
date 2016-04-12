@@ -3,8 +3,8 @@
   `https://github.com/flatland/ordered`, because of a version conflict.
   That library is covered by the Eclipse Public License, V1.0, which
   you can find in Midje's root directory."
-  (:use [midje.util.ordered-common :only [Compactable compact change!]])
-  (:require [clojure.string :as s])
+  (:require [clojure.string :as s]
+            [midje.util.ordered-common :refer [Compactable compact change!]])
   (:import (clojure.lang IPersistentSet ITransientSet IEditableCollection
                          IPersistentMap ITransientMap ITransientAssociative
                          IPersistentVector ITransientVector

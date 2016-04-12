@@ -1,13 +1,14 @@
 (ns midje.data.t-prerequisite-state
-  (:use commons.clojure.core
-        [midje sweet test-util]
-        [midje.data.prerequisite-state :except [mockable-funcall? unfolding-step merge-metaconstant-bindings 
-                                             unique-vars handle-mocked-call best-call-action ]]
-        [midje.test-util]
-        [midje.parsing.2-to-lexical-maps.fakes :only [fake]]
-        [midje.parsing.2-to-lexical-maps.data-fakes :only [data-fake]]
-        midje.util)
-  (:require [midje.config :as config]
+  (:require [commons.clojure.core :refer :all]
+            [midje
+             [sweet :refer :all]
+             [test-util :refer :all]]
+            [midje.data.prerequisite-state :refer [binding-map implements-a-fake? usable-default-function?]]
+            [midje.test-util :refer :all]
+            [midje.parsing.2-to-lexical-maps.fakes :refer [fake]]
+            [midje.parsing.2-to-lexical-maps.data-fakes :refer [data-fake]]
+            [midje.util :refer :all]
+            [midje.config :as config]
             [such.sequences :as seq])
   (:import midje.data.metaconstant.Metaconstant))
 

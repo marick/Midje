@@ -1,5 +1,5 @@
 (ns integration.t-pretend
-  (:use midje.sweet))
+  (:require [midje.sweet :refer :all]))
 
 
 (fact "Look, ma! A failure" 1 => 2)

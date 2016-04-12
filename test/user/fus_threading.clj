@@ -1,7 +1,7 @@
 (ns user.fus-threading
-  (:use midje.sweet
-        midje.test-util
-        midje.util.ecosystem))
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]
+            [midje.util.ecosystem :refer :all]))
 
 (require '[plumbing.core :as plumbing])
 (require '[plumbing.graph :as graph])

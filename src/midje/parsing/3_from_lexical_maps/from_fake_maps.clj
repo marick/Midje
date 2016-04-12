@@ -1,11 +1,11 @@
 (ns ^{:doc "Generating functions that work on fake maps."}
   midje.parsing.3-from-lexical-maps.from-fake-maps
-  (:use commons.clojure.core
-        midje.checking.core
-        [midje.checking.checkers.defining :only [checker?]]
-        [midje.parsing.arrow-symbols])
-  (:require [midje.util.exceptions :as exceptions]
-            [midje.checkers :as checkers]))
+  (:require [commons.clojure.core :refer :all]
+            [midje.checkers :as checkers]
+            [midje.checking.core :refer :all]
+            [midje.checking.checkers.defining :refer [checker?]]
+            [midje.parsing.arrow-symbols :refer :all]
+            [midje.util.exceptions :as exceptions]))
 
 (defn- mkfn:arg-matcher
   "Based on an expected value, generates a function that returns

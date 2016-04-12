@@ -2,8 +2,8 @@
 ;; specially.
 
 (ns as-documentation.about-defrecord.using-as--provided-tests.specific
-  (:use midje.sweet)
-  (:require [midje.open-protocols :refer [defrecord-openly]])   ; <= this
+  (:require [midje.sweet :refer :all]
+            [midje.open-protocols :refer [defrecord-openly]])   ; <= this
   (:require [as-documentation.about-defrecord.generic :as generic]))
 
 ;; In contrast to the `defrecord` case (in `using_as__plain_tests/specific.clj`), the

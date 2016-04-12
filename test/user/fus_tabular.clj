@@ -1,6 +1,6 @@
 (ns user.fus-tabular
-  (:use midje.sweet
-        midje.test-util))
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]))
 
 ;;; Some pathological nesting cases
 

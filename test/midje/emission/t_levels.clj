@@ -1,7 +1,10 @@
 (ns midje.emission.t-levels
-  (:use midje.emission.levels
-        [midje sweet util test-util])
-  (:require [midje.config :as config]))
+  (:require [midje.emission.levels :refer :all]
+            [midje
+             [sweet :refer :all]
+             [util :refer :all]
+             [test-util :refer :all]]
+            [midje.config :as config]))
 
 (facts "about levels"
   (-> -2 levels-to-names names-to-levels) => -2

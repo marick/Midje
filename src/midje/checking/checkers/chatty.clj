@@ -1,11 +1,11 @@
 (ns ^{:doc "Checkers that explain more about a failure."}
   midje.checking.checkers.chatty
-  (:use commons.clojure.core
-        midje.checking.core
-        [midje.checking.checkers.util :only [named-as-call]]
-        [midje.checking.checkers.defining :only [as-checker]]
-        [midje.parsing.util.core :only [quoted?]])
-  (:require [midje.emission.colorize :as colorize]
+  (:require [commons.clojure.core :refer :all]
+            [midje.checking.checkers.defining :refer [as-checker]]
+            [midje.checking.checkers.util :refer [named-as-call]]
+            [midje.checking.core :refer :all]
+            [midje.emission.colorize :as colorize]
+            [midje.parsing.util.core :refer [quoted?]]
             [such.sequences :as seq]))
 
 ;; Note: checkers need to be exported in ../checkers.clj

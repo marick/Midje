@@ -1,6 +1,6 @@
 (ns as-documentation.setup-and-teardown
-  (:use midje.sweet
-        midje.test-util))
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]))
 
 (def state (atom nil))
 

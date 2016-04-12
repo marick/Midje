@@ -1,5 +1,5 @@
 (ns as-documentation.production-mode
-  (:use midje.sweet))
+  (:require [midje.sweet :refer :all]))
 
 ;;; People sometimes intermix facts with production code. When you actually deploy the production code,
 ;;; you may not want the Midje facts checked at load time. "Production mode" prevents that.

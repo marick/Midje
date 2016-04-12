@@ -1,9 +1,9 @@
 (ns midje.checking.checkers.t-combining
-  (:use midje.sweet
-        commons.clojure.core
-        midje.checking.core
-        [midje.checking.checkers.defining :only [checker?]]
-        midje.test-util))
+  (:require [midje.sweet :refer :all]
+            [commons.clojure.core :refer :all]
+            [midje.checking.core :refer :all]
+            [midje.checking.checkers.defining :refer [checker?]]
+            [midje.test-util :refer :all]))
 
 (fact "about 'every' combinations"
   (let [checker (every-checker odd?

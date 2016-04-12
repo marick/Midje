@@ -1,7 +1,7 @@
 (ns midje.util.t-pile
-  (:use [midje.sweet])
-  (:use [midje.test-util])
-  (:require [midje.util.pile :as subject]))
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]
+            [midje.util.pile :as subject]))
 
 (fact "apply each function to each corresponding arg" 
   (subject/apply-pairwise [inc dec] [1 1] [2 2]) => [[2 0] [3 1]])

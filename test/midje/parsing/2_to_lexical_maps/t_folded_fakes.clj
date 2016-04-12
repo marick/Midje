@@ -1,9 +1,10 @@
 (ns midje.parsing.2-to-lexical-maps.t-folded-fakes
-  (:use [midje sweet test-util]
-        [midje.parsing.2-to-lexical-maps.fakes :only [fake]]
-        midje.parsing.2-to-lexical-maps.folded-fakes
-        midje.util)
-  (:require [midje.util :as util]))
+  (:use midje.parsing.2-to-lexical-maps.folded-fakes)
+  (:require [midje
+             [sweet :refer :all]
+             [test-util :refer :all]]
+            [midje.parsing.2-to-lexical-maps.fakes :refer [fake]]
+            [midje.util :refer :all :as util]))
 
 (util/expose-testables midje.parsing.2-to-lexical-maps.folded-fakes)
 

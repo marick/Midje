@@ -1,7 +1,6 @@
 (ns behaviors.t-setup-teardown
-  (:use [midje.sweet])
-  (:use [midje.test-util])
-)
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]))
 
 (def test-atom (atom 33))
 (fact

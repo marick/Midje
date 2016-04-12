@@ -1,7 +1,7 @@
 (ns midje.t-repl
-  (:use midje.repl
-        [midje.test-util])
-  (:require [midje.config :as config]
+  (:require [midje.repl :refer :all]
+            [midje.test-util :refer :all]
+            [midje.config :as config]
             [midje.emission.state :as state]
             [midje.data.compendium :as compendium]
             [midje.data.project-state :as project-state]

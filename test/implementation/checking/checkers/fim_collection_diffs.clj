@@ -1,6 +1,7 @@
 (ns implementation.checking.checkers.fim-collection-diffs (:require [midje.checking.checkers.collection-diffs :as subject])
-  (:use midje.sweet midje.test-util)
-  (:require [midje.checking.core :as core])
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]
+            [midje.checking.core :as core])
   (:import [flare.map MapKeysDiff]
            [flare.atom AtomDiff]))
 

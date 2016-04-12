@@ -1,9 +1,9 @@
 (ns midje.checking.checkers.t-collection
-  (:use midje.sweet
-        midje.test-util
-        midje.checking.core
-        [midje.checking.checkers.defining :only [checker?]]
-        midje.util))
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]
+            [midje.checking.core :refer :all]
+            [midje.checking.checkers.defining :refer [checker?]]
+            [midje.util :refer :all]))
 (expose-testables midje.checking.checkers.collection)
 
 (defrecord AB [a b])

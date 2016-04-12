@@ -4,7 +4,7 @@
 ;; following the record definition require `refer`ences.
 
 (ns as-documentation.about-defrecord.using-refer--plain-tests.specific
-  (:use midje.sweet)
+  (:require [midje.sweet :refer :all])
   ;; This is all that's required in simple cases.
   (:require [as-documentation.about-defrecord.generic :refer [Numerical]])
   ;; However, if record definitions need to use other generic functions, or if

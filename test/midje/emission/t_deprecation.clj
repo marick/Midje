@@ -1,7 +1,9 @@
 (ns midje.emission.t-deprecation
-  (:use midje.emission.deprecation)
-  (:use [midje sweet test-util])
-  (:require [midje.config :as config]
+  (:require [midje.emission.deprecation :refer :all]
+            [midje
+             [sweet :refer :all]
+             [test-util :refer :all]]
+            [midje.config :as config]
             [midje.util.ecosystem :as ecosystem]))
 
 

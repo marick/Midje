@@ -1,21 +1,21 @@
 (ns ^{:doc "A way to create multiple facts with the same template, but different data points."}
   midje.parsing.0-to-fact-form.tabular
-  (:use commons.clojure.core
-        midje.parsing.util.zip
-        [pointer.core :only [form-with-copied-line-numbers]]
-        [midje.emission.deprecation :only [deprecate]]
-        [midje.parsing.util.zip :only [skip-to-rightmost-leaf]]
-        [midje.data.metaconstant :only [metaconstant-symbol?]])
-(:require [clojure.string :as str]
-          [midje.util.pile :as pile]
-          [clojure.zip :as zip]
-          [midje.parsing.util.zip :as pzip]
-          [midje.parsing.1-to-explicit-form.facts :as parse-facts]
-          [midje.util.unify :as unify]
-          [midje.parsing.util.overrides :as override]
-          [midje.parsing.lexical-maps :as maps]
-          [midje.parsing.1-to-explicit-form.metadata :as metadata]
-          [midje.parsing.util.error-handling :as error]))
+  (:require [clojure.string :as str]
+            [clojure.zip :as zip]
+            [commons.clojure.core :refer :all]
+            [midje.data.metaconstant :refer [metaconstant-symbol?]]
+            [midje.emission.deprecation :refer [deprecate]]
+            [midje.parsing.1-to-explicit-form.facts :as parse-facts]
+            [midje.parsing.1-to-explicit-form.metadata :as metadata]
+            [midje.parsing.lexical-maps :as maps]
+            [midje.parsing.util.error-handling :as error]
+            [midje.parsing.util.overrides :as override]
+            [midje.parsing.util.zip :as pzip]
+            [midje.parsing.util.zip :refer :all]
+            [midje.parsing.util.zip :refer [skip-to-rightmost-leaf]]
+            [midje.util.pile :as pile]
+            [midje.util.unify :as unify]
+            [pointer.core :refer [form-with-copied-line-numbers]]))
 
 (defn- headings-rows+values [table locals]
   (letfn [(table-variable? [s]

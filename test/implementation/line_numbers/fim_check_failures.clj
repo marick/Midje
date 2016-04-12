@@ -1,8 +1,8 @@
 (ns implementation.line-numbers.fim-check-failures
-  (:use midje.sweet
-        clojure.test
-        midje.test-util)
-  (:require [midje.config :as config]
+  (:require [midje.sweet :refer :all]
+            [clojure.test :refer :all]
+            [midje.test-util :refer :all]
+            [midje.config :as config]
             [midje.emission.clojure-test-facade :as ctf]))
 
 (defn f [n] n)

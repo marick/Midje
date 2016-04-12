@@ -1,7 +1,7 @@
 (ns as-documentation.about-privates.how-to-refer-to-privates-in-facts
-  (:use midje.sweet
-        midje.util
-        midje.test-util))
+  (:require [midje.sweet :refer :all]
+            [midje.util :refer :all]
+            [midje.test-util :refer :all]))
 
 ;;; Suppose you want to test private vars. There are three ways to do it.
 

@@ -1,6 +1,6 @@
 (ns midje.checking.checkers.collection-util
-  (:use commons.clojure.core
-        midje.checking.core))
+  (:require [commons.clojure.core :refer :all]
+            [midje.checking.core :refer :all]))
 
 (defn same-lengths? [actual expected]
   (= (count actual) (count expected)))

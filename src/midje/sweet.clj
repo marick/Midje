@@ -10,9 +10,9 @@
   ;; The following lets us avoid a circular dependency. Sigh.
   (:require midje.parsing.1-to-explicit-form.future-facts)
 
-  (:use commons.clojure.core
-        midje.parsing.util.core
-        midje.production-mode)
+  (:require [commons.clojure.core :refer :all]
+            [midje.parsing.util.core :refer :all]
+            [midje.production-mode :refer :all])
   ;; For immigration
   (:require [midje.doc :as doc]
             midje.checking.checkables

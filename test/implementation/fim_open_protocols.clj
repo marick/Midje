@@ -1,8 +1,8 @@
 (ns implementation.fim-open-protocols
-  (:use midje.open-protocols
-        midje.sweet
-        midje.test-util
-        midje.util))
+  (:require [midje.open-protocols :refer :all]
+            [midje.sweet :refer :all]
+            [midje.test-util :refer :all]
+            [midje.util :refer :all]))
 (expose-testables midje.open-protocols)
 
 (fact "can distinguish a protocol/interface name from a function implementation"

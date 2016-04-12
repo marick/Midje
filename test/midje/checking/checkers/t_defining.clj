@@ -1,7 +1,7 @@
 (ns midje.checking.checkers.t-defining
-  (:use midje.sweet
-        [midje.checking.checkers.defining :only [checker?]]
-        midje.test-util))
+  (:require [midje.sweet :refer :all]
+            [midje.checking.checkers.defining :refer [checker?]]
+            [midje.test-util :refer :all]))
 
 (defchecker magic-number "magic number docstring" {:meta-data :foo} [actual] (= 587 actual))
 (fact "checker with a doc string"

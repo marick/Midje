@@ -1,6 +1,9 @@
 (ns midje.emission.plugins.t-progress
-  (:use [midje sweet util test-util])
-  (:require [midje.emission.plugins.progress :as plugin]
+  (:require [midje
+             [sweet :refer :all]
+             [util :refer :all]
+             [test-util :refer :all]]
+            [midje.emission.plugins.progress :as plugin]
             [midje.config :as config]
             [midje.emission.colorize :as color]
             [midje.emission.state :as state]))

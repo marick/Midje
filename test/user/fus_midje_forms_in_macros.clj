@@ -1,6 +1,6 @@
 (ns user.fus-midje-forms-in-macros
-  (:use midje.sweet
-        midje.test-util))
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]))
 
 ;; Because of the way that Midje does its parsing, there are
 ;; complications when a user writes macros that wrap Midje forms. This

@@ -1,8 +1,8 @@
 (ns midje.data.t-compendium
-  (:use [midje.sweet]
-        [midje.test-util]
-        [midje.data.compendium])
-  (:require [midje.util.ecosystem :as ecosystem]
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]
+            [midje.data.compendium :refer :all]
+            [midje.util.ecosystem :as ecosystem]
             [midje.config :as config]
             [midje.data.fact :as fact]
             [midje.checking.facts :as fact-checking]))

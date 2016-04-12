@@ -1,17 +1,17 @@
 (ns midje.t-sweet
-  (:use midje.sweet
-        midje.util
-        midje.test-util)
-  (:require [midje.repl :as repl]
+  (:require [midje.sweet :refer :all]
+            [midje.util :refer :all]
+            [midje.test-util :refer :all]
+            [midje.repl :as repl]
             [midje.config :as config]
             [midje.util.ecosystem :as ecosystem]
             [midje.emission.clojure-test-facade :as ctf]
             [midje.emission.api :as emit]
             [midje.emission.state :as state]
-            [midje.data.compendium :as compendium])
-  ;; Following is for testing the use of vars to fake private functions
-  ;; in another namespace.
-  (:require midje.data.t-prerequisite-state))
+            [midje.data.compendium :as compendium]
+            ;; Following is for testing the use of vars to fake private functions
+            ;; in another namespace.
+            midje.data.t-prerequisite-state))
 
 (fact "all of Midje's public, API-facing vars have docstrings"
   ;; At the moment, use of Potemkin to import vars breaks the following tests.

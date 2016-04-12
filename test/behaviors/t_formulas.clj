@@ -1,9 +1,9 @@
 (ns behaviors.t-formulas
-  (:use midje.test-util
-        midje.sweet
-        midje.util.ecosystem
-        [midje.parsing.0-to-fact-form.formulas :only [*num-trials* with-num-trials]] )
-  (:require [midje.config :as config]))
+  (:require [midje.config :as config]
+            [midje.test-util :refer :all]
+            [midje.sweet :refer :all]
+            [midje.util.ecosystem :refer :all]
+            [midje.parsing.0-to-fact-form.formulas :refer [*num-trials* with-num-trials]]))
 
 ;;;; Formulas
 

@@ -1,15 +1,15 @@
 (ns ^{:doc "JUnit formatter for Midje output"}
   midje.emission.plugins.junit
   (:import java.io.File)
-  (:use [midje.emission.util])
-  (:require [midje.data.fact :as fact]
+  (:require [clj-time.core :as time]
+            [clojure.string :as string]
+            [clojure.xml :as xml :only [emit-element]]
             [midje.config :as config]
+            [midje.data.fact :as fact]
+            [midje.emission.util :refer :all]
             [midje.emission.state :as state]
             [midje.emission.plugins.silence :as silence]
-            [midje.emission.plugins.default-failure-lines :as lines]
-            [clj-time.core :as time]
-            [clojure.string :as string]
-            [clojure.xml :as xml :only [emit-element]]))
+            [midje.emission.plugins.default-failure-lines :as lines]))
 
 
 ;; This plugin requires all emission api calls to be

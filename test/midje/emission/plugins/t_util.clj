@@ -1,8 +1,7 @@
 (ns midje.emission.plugins.t-util
-  (:require
-   [midje.config :as config])
-  (:use midje.sweet
-        midje.emission.plugins.util))
+  (:require [midje.config :as config]
+            [midje.sweet :refer :all]
+            [midje.emission.plugins.util :refer :all]))
 
 (fact "line structures can be linearized"
   (linearize-lines [ ["1" [nil] "2" nil] [] "3" [[["4"]]]]) => ["1" "2" "3" "4"])

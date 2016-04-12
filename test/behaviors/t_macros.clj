@@ -1,5 +1,7 @@
 (ns behaviors.t-macros
-  (:use [midje sweet test-util]))
+  (:require [midje
+             [sweet :refer :all]
+             [test-util :refer :all]]))
 
 ;; Example from wiki
 (defmacro my-if [test true-branch false-branch]

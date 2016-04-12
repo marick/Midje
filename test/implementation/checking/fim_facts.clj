@@ -1,8 +1,9 @@
 (ns implementation.checking.fim-facts
   (:require [midje.checking.facts :as subject]
             [midje.config :as config]
-            [such.metadata :as meta])
-  (:use midje.sweet midje.test-util))
+            [midje.sweet :refer :all]
+            [midje.test-util :refer :all]
+            [such.metadata :as meta]))
 
 
 (def ^:dynamic record)

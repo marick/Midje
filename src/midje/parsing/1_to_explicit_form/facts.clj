@@ -1,27 +1,26 @@
 (ns ^{:doc "Parsing facts."}
   midje.parsing.1-to-explicit-form.facts
-  (:use commons.clojure.core
-        midje.parsing.util.core
-        midje.parsing.arrow-symbols
-
-        [midje.parsing.1-to-explicit-form.expects :only [wrap-with-expect__then__at-rightmost-expect-leaf]]
-        [midje.parsing.1-to-explicit-form.prerequisites :only [insert-prerequisites-into-expect-form-as-fakes]]
-        [midje.parsing.1-to-explicit-form.metaconstants :only [predefine-metaconstants-from-form]]
-        [midje.util.laziness :only [eagerly]])
   (:require [clojure.zip :as zip]
-            [midje.parsing.expanded-symbols :as expanded-symbols]
-            [midje.parsing.util.zip :as pzip]
-            [midje.parsing.util.overrides :as override]
-            [pointer.core :as pointer]
-            [midje.parsing.util.error-handling :as error]
-            [midje.parsing.util.wrapping :as wrapping]
-            [midje.parsing.util.recognizing :as recognize]
-            [midje.parsing.1-to-explicit-form.parse-background :as parse-background]
-            [midje.parsing.1-to-explicit-form.metadata :as parse-metadata]
-            [midje.parsing.2-to-lexical-maps.fakes :as parse-fakes]
-            [midje.parsing.2-to-lexical-maps.expects :as parse-expects]
-            [midje.parsing.2-to-lexical-maps.folded-fakes :as parse-folded-fakes]
+            [commons.clojure.core :refer :all]
             [midje.data.compendium :as compendium]
+            [midje.parsing.1-to-explicit-form.expects :refer [wrap-with-expect__then__at-rightmost-expect-leaf]]
+            [midje.parsing.1-to-explicit-form.metaconstants :refer [predefine-metaconstants-from-form]]
+            [midje.parsing.1-to-explicit-form.metadata :as parse-metadata]
+            [midje.parsing.1-to-explicit-form.parse-background :as parse-background]
+            [midje.parsing.1-to-explicit-form.prerequisites :refer [insert-prerequisites-into-expect-form-as-fakes]]
+            [midje.parsing.2-to-lexical-maps.expects :as parse-expects]
+            [midje.parsing.2-to-lexical-maps.fakes :as parse-fakes]
+            [midje.parsing.2-to-lexical-maps.folded-fakes :as parse-folded-fakes]
+            [midje.parsing.arrow-symbols :refer :all]
+            [midje.parsing.expanded-symbols :as expanded-symbols]
+            [midje.parsing.util.core :refer :all]
+            [midje.parsing.util.error-handling :as error]
+            [midje.parsing.util.overrides :as override]
+            [midje.parsing.util.recognizing :as recognize]
+            [midje.parsing.util.wrapping :as wrapping]
+            [midje.parsing.util.zip :as pzip]
+            [midje.util.laziness :refer [eagerly]]
+            [pointer.core :as pointer]
             [midje.checking.facts :as fact-checking]))
 
                                 ;;; Fact processing
