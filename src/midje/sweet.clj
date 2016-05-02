@@ -180,16 +180,21 @@
     (provided (g ..x..) => 6))
   "
   [& _] ; we work off &form, not the arguments
-  (when (user-desires-checking?)
-    (error/parse-and-catch-failure &form
-      #(do (pointer/set-fallback-line-number-from &form)
-           (let [[metadata forms] (parse-metadata/separate-metadata &form)
-                 [background remainder] (parse-background/separate-extractable-background-changing-forms forms)]
-             (if (seq background)
-               (pointer/positioned-form `(against-background [~@background]
-                                                             ~(parse-facts/wrap-fact-around-body metadata remainder))
-                                         &form)
-               (parse-facts/complete-fact-transformation metadata remainder)))))))
+  (let [defn-name (if (string? (second &form))
+                    (str/replace (second &form) #"[^\w\d]" "-")
+                    (second &form))
+        body (error/parse-and-catch-failure &form
+               #(do (pointer/set-fallback-line-number-from &form)
+                    (let [[metadata forms] (parse-metadata/separate-metadata &form)
+                          [background remainder] (parse-background/separate-extractable-background-changing-forms forms)]
+                      (if (seq background)
+                        (pointer/positioned-form `(against-background [~@background]
+                                                                      ~(parse-facts/wrap-fact-around-body metadata remainder))
+                                                 &form)
+                        (parse-facts/complete-fact-transformation metadata remainder)))))]
+    (if (user-desires-checking?)
+      body
+      `(defn ~(gensym defn-name) [] ~body))))
 
 (defmacro facts
   "Alias for fact."
