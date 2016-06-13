@@ -1,9 +1,9 @@
 (ns ^{:doc "Parsing metadata as found in facts, around-facts, and tables"}
   midje.parsing.1-to-explicit-form.metadata
-  (:use commons.clojure.core
-        [midje.util.exceptions :only [user-error]])
-  (:require [such.random :as random]
-            [midje.parsing.util.recognizing :as recognize]))
+  (:require [commons.clojure.core :refer :all]
+            [midje.parsing.util.recognizing :as recognize]
+            [midje.util.exceptions :refer [user-error]]
+            [such.random :as random]))
 
 
 (def ^{:dynamic true} metadata-for-fact-group {})

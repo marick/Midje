@@ -1,9 +1,9 @@
 (ns midje.parsing.util.error-handling
   "Utility functions dealing with checking or tranforming forms or zippers."
-  (:use commons.clojure.core
-        [midje.util.exceptions :only [user-error-exception-lines]]
-        [pointer.core :only [form-position]])
-  (:require [midje.emission.api :as emit]))
+  (:require [commons.clojure.core :refer :all]
+            [midje.emission.api :as emit]
+            [midje.util.exceptions :refer [user-error-exception-lines]]
+            [pointer.core :refer [form-position]]))
 
 (def ^{:dynamic true} *wrap-count* 0)
 (def bail-out-of-parsing (gensym))

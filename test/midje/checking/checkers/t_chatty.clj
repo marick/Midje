@@ -1,12 +1,12 @@
 (ns midje.checking.checkers.t-chatty
-  (:use midje.sweet
-        midje.util
-        midje.checking.core
-        [midje.checking.checkers.defining :only [checker?]]
-        [midje.checking.checkers.chatty :only [chatty-worth-reporting-on?
-                                      chatty-untease
-                                      chatty-checker?]]
-        midje.test-util))
+  (:require [midje.sweet :refer :all]
+            [midje.util :refer :all]
+            [midje.checking.core :refer :all]
+            [midje.checking.checkers.defining :refer [checker?]]
+            [midje.checking.checkers.chatty :refer [chatty-worth-reporting-on?
+                                                    chatty-untease
+                                                    chatty-checker?]]
+            [midje.test-util :refer :all]))
 (expose-testables midje.checking.checkers.chatty)
 
 (facts "about chatty-checking utility functions"

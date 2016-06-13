@@ -1,7 +1,9 @@
 (ns midje.data.t-metaconstant
-  (:use midje.data.metaconstant
-        [midje sweet test-util])
-  (:require [clojure.zip :as zip])
+  (:require [midje.data.metaconstant :refer :all]
+            [midje
+             [sweet :refer :all]
+             [test-util :refer :all]]
+            [clojure.zip :as zip])
   (:import midje.data.metaconstant.Metaconstant))
 
 ;;; Metaconstant symbols

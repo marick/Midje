@@ -1,6 +1,9 @@
 (ns midje.emission.plugins.t-junit
-  (:use [midje sweet util test-util])
-  (:require [midje.emission.plugins.junit :as plugin]
+  (:require [midje
+             [sweet :refer :all]
+             [util :refer :all]
+             [test-util :refer :all]]
+            [midje.emission.plugins.junit :as plugin]
             [midje.config :as config]
             [midje.emission.plugins.default-failure-lines :as failure-lines]))
 

@@ -1,7 +1,7 @@
 (ns implementation.parsing.util.fim_overrides
-  (:use midje.sweet
-        midje.test-util
-        midje.parsing.util.overrides))
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]
+            [midje.parsing.util.overrides :refer :all]))
 
 (fact "when at end of required part of arrow form, can ask for overrides"
     "empty rest of form"

@@ -1,7 +1,7 @@
 (ns midje.checking.t-core
-  (:use midje.sweet
-        midje.checking.core
-        midje.test-util))
+  (:require [midje.sweet :refer :all]
+            [midje.checking.core :refer :all]
+            [midje.test-util :refer :all]))
 
 (facts "about an extended notion of falsehood"
   (extended-false? false) => truthy

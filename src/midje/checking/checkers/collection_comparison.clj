@@ -2,13 +2,17 @@
 
 (ns ^{:doc "Code to use to compare collections."}
   midje.checking.checkers.collection-comparison
-  (:use commons.clojure.core
-        midje.checking.core
-        [midje.checking.checkers collection-util util chatty defining])
-  (:require [clojure.string :as str]
-            [clojure.math.combinatorics :as comb]
-            [such.maps :as map]
-            [midje.util.pile :as pile]))
+  (:require [clojure.math.combinatorics :as comb]
+            [clojure.string :as str]
+            [commons.clojure.core :refer :all]
+            [midje.checking.core :refer :all]
+            [midje.checking.checkers
+             [collection-util :refer :all]
+             [util :refer :all]
+             [chatty :refer :all]
+             [defining :refer :all]]
+            [midje.util.pile :as pile]
+            [such.maps :as map]))
 
 ;; There is an annoying only-semi-similarity between maps and sequences.
 ;; These are the generic functions.

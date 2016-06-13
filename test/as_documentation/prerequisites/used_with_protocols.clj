@@ -1,7 +1,7 @@
 (ns as-documentation.prerequisites.used-with-protocols
-  (:use midje.sweet
-        midje.test-util
-        midje.open-protocols))
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]
+            [midje.open-protocols :refer :all]))
 
 ;;; Clojure inlines deftype and defrecord functions for speed. Consider this protocol and record:
 

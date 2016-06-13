@@ -1,7 +1,7 @@
 (ns ^{:doc "Functions for Midje to deal elegantly with exceptions."}
   midje.util.exceptions
-  (:use [clojure.string :only [join]]
-        [midje.util.ecosystem :only [line-separator]]))
+  (:require [clojure.string :refer [join]]
+            [midje.util.ecosystem :refer [line-separator]]))
 
 
 ;;; Creating 

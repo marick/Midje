@@ -1,7 +1,7 @@
 (ns ^{:doc "Unification is used in tabular and (against-)background code."}
   midje.util.unify
-  (:use [clojure.walk :only [prewalk]])
-  (:require [clojure.core.unify :as unify]))
+  (:require [clojure.core.unify :as unify]
+            [clojure.walk :refer [prewalk]]))
 
 (def unify unify/unify)
 

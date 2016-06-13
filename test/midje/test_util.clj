@@ -1,9 +1,9 @@
 (ns midje.test-util
-  (:use [clojure.test]
-        midje.checkers
-        midje.checking.core
-        midje.util.exceptions)
-  (:require [midje.config :as config]
+  (:require [clojure.test :refer :all]
+            [midje.checkers :refer :all]
+            [midje.checking.core :refer :all]
+            [midje.util.exceptions :refer :all]
+            [midje.config :as config]
             [clojure.string :as str]
             [midje.emission.api :as emit]
             [midje.parsing.expanded-symbols :as expanded-symbols]

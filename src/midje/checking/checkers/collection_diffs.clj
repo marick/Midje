@@ -2,8 +2,8 @@
 
 (ns midje.checking.checkers.collection-diffs
   "Checkers for collections and strings."
-  (:use commons.clojure.core)
-  (:require [midje.util.pile :as pile]
+  (:require [commons.clojure.core :refer :all]
+            [midje.util.pile :as pile]
             [midje.checking.checkers.collection :as old]
             [midje.checking.core :as core]
             flare.map)

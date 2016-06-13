@@ -1,9 +1,9 @@
 (ns leiningen.timings
   (:refer-clojure :exclude [test])
-  (:use [leiningen.util.ns :only [namespaces-in-dir]]
-        [leiningen.test :only [*exit-after-tests*]]
-        [leiningen.compile :only [eval-in-project]]
-        [clojure.set :only [difference]]))
+  (:require [leiningen.util.ns :refer [namespaces-in-dir]]
+            [leiningen.test :refer [*exit-after-tests*]]
+            [leiningen.compile :refer [eval-in-project]]
+            [clojure.set :refer [difference]]))
 
 (defn require-namespaces-form [namespaces]
   `(let [array# (doall (map (fn [_#] (let [start# (.getTime (java.util.Date.))]

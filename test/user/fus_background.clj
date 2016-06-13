@@ -1,6 +1,6 @@
 (ns user.fus-background
-  (:use midje.sweet
-        midje.test-util))
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]))
 
 (unfinished g)
 

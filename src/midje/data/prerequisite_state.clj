@@ -1,19 +1,19 @@
 (ns ^{:doc "Maintain the use of namespace-specific prerequisites"}
   midje.data.prerequisite-state
-  (:use commons.clojure.core
-        midje.checking.core
-        [midje.util.thread-safe-var-nesting :only [with-altered-roots]]
-        [midje.emission.deprecation :only [deprecate]]
-        [midje.parsing.arrow-symbols])
   (:require [clojure.tools.macro :as macro]
-            [such.maps :as map]
-            [such.sequences :as seq]
+            [commons.clojure.core :refer :all]
+            [midje.checking.core :refer :all]
             [midje.config :as config]
-            [midje.util.pile :as pile]
             [midje.data.metaconstant :as metaconstant]
-            [midje.util.exceptions :as exceptions]
             [midje.emission.api :as emit]
-            [midje.parsing.2-to-lexical-maps.fakes :as parse-fakes])
+            [midje.emission.deprecation :refer [deprecate]]
+            [midje.parsing.arrow-symbols :refer :all]
+            [midje.parsing.2-to-lexical-maps.fakes :as parse-fakes]
+            [midje.util.exceptions :as exceptions]
+            [midje.util.pile :as pile]
+            [midje.util.thread-safe-var-nesting :refer [with-altered-roots]]
+            [such.maps :as map]
+            [such.sequences :as seq])
   (:import midje.data.metaconstant.Metaconstant))
 
 

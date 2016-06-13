@@ -1,7 +1,10 @@
 (ns midje.emission.t-boundaries
-  (:use midje.emission.boundaries
-        [midje sweet util test-util])
-  (:require [midje.emission.clojure-test-facade :as ctf]
+  (:require [midje.emission.boundaries :refer :all]
+            [midje
+             [sweet :refer :all]
+             [util :refer :all]
+             [test-util :refer :all]]
+            [midje.emission.clojure-test-facade :as ctf]
             [midje.emission.state :as state]))
 
 (facts "about two forms of results"

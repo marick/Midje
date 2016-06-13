@@ -1,9 +1,10 @@
 (ns midje.parsing.1-to-explicit-form.t-prerequisites
-  (:use midje.parsing.1-to-explicit-form.prerequisites
-        midje.sweet midje.test-util
-        [midje.parsing.2-to-lexical-maps.fakes :only [fake]]
-        [midje.parsing.2-to-lexical-maps.data-fakes :only [data-fake]])
-  (:require [clojure.zip :as zip]
+  (:require [midje.parsing.1-to-explicit-form.prerequisites :refer :all]
+            [midje.sweet :refer :all]
+            [midje.test-util :refer :all]
+            [midje.parsing.2-to-lexical-maps.fakes :refer [fake]]
+            [midje.parsing.2-to-lexical-maps.data-fakes :refer [data-fake]]
+            [clojure.zip :as zip]
             [midje.parsing.util.recognizing :as recognize]))
 
 (fact "can convert prerequisites into fake calls"

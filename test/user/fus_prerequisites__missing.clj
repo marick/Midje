@@ -1,7 +1,7 @@
 (ns user.fus-prerequisites--missing
   "From https://github.com/marick/Midje/issues/332"
-  (:use midje.sweet
-        midje.test-util))
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]))
 
 (unfinished pre-process)
 (unfinished process)

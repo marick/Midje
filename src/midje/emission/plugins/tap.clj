@@ -1,12 +1,12 @@
 (ns ^{:doc "TAP output. See http://testanything.org"}
   midje.emission.plugins.tap
-  (:use midje.emission.util)
-  (:require [midje.data.fact :as fact]
-            [midje.emission.state :as state]
+  (:require [clojure.string :as str]
+            [midje.data.fact :as fact]
             [midje.emission.plugins.util :as util]
             [midje.emission.plugins.silence :as silence]
             [midje.emission.plugins.default-failure-lines :as lines]
-            [clojure.string :as str]))
+            [midje.emission.state :as state]
+            [midje.emission.util :refer :all]))
 
 (def fact-counter (atom 0))
 

@@ -2,9 +2,9 @@
 ;; implements a protocol, but doing that makes what's going on more clear.
 
 (ns as-documentation.about-defrecord.using-as--plain-tests.specific
-  (:use midje.sweet)
-  (:require [midje.util.ecosystem :as ecosystem])
-  (:require [as-documentation.about-defrecord.generic :as generic]))
+  (:require [midje.sweet :refer :all]
+            [midje.util.ecosystem :as ecosystem]
+            [as-documentation.about-defrecord.generic :as generic]))
 
 (fact "The generic function exists - it's a bound var"
   (bound? #'generic/bump) => true)

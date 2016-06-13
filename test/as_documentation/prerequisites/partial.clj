@@ -1,7 +1,7 @@
 (ns as-documentation.prerequisites.partial
-  (:use midje.sweet
-        midje.test-util)
-  (:require [midje.config :as config]))
+  (:require [midje.config :as config]
+            [midje.sweet :refer :all]
+            [midje.test-util :refer :all]))
 
 ;; Sometimes the prerequisite function already exists. What should
 ;; happen if there's no prerequisite for a particular argument list?

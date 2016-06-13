@@ -1,10 +1,10 @@
 (ns ^{:doc "Parsing function argument lists"}
   midje.parsing.other.arglists
-  (:use commons.clojure.core
-        midje.parsing.util.core
-        [midje.util.exceptions :only [user-error]])
-  (:require [midje.emission.levels :as levels]
+  (:require [commons.clojure.core :refer :all]
             [midje.config :as config]
+            [midje.emission.levels :as levels]
+            [midje.parsing.util.core :refer :all]
+            [midje.util.exceptions :refer [user-error]]
             [midje.util.pile :as pile]
             [such.function-makers :as mkfn]
             [such.sequences :as seq]))

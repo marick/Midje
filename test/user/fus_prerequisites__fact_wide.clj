@@ -1,5 +1,5 @@
 (ns user.fus-prerequisites--fact-wide
-  (:use midje.sweet))
+  (:require [midje.sweet :refer :all]))
 
 ;; This was bug #161
 

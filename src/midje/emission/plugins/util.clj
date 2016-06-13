@@ -1,8 +1,8 @@
 (ns ^{:doc "General purpose plugin utilities"}
   midje.emission.plugins.util
-  (:use commons.clojure.core
-        [clojure.repl :only [demunge]])
-  (:require [clojure.string :as str]
+  (:require [clojure.repl :refer [demunge]]
+            [clojure.string :as str]
+            [commons.clojure.core :refer :all]
             [midje.util.pile :as pile]
             [midje.emission.clojure-test-facade :as ctf]
             [midje.emission.colorize :as color]

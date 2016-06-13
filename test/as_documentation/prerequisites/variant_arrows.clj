@@ -1,8 +1,8 @@
 (ns as-documentation.prerequisites.variant-arrows
-  (:use midje.sweet
-        midje.util
-        midje.test-util
-        midje.util.exceptions))
+  (:require [midje.sweet :refer :all]
+            [midje.util :refer :all]
+            [midje.test-util :refer :all]
+            [midje.util.exceptions :refer :all]))
   
 
 ;; A typical called/caller relationship. The key thing is that

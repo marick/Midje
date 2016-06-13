@@ -1,11 +1,11 @@
 (ns ^{:doc "=contains=> prereqisites"}
   midje.parsing.2-to-lexical-maps.data-fakes
-  (:use commons.clojure.core
-        midje.parsing.util.core
-        midje.parsing.arrow-symbols)
-  (:require [midje.parsing.lexical-maps :as lexical-maps]
-            [midje.parsing.util.error-handling :as error]
-            [midje.data.metaconstant :as metaconstant]))
+  (:require [commons.clojure.core :refer :all]
+            [midje.data.metaconstant :as metaconstant]
+            [midje.parsing.arrow-symbols :refer :all]
+            [midje.parsing.lexical-maps :as lexical-maps]
+            [midje.parsing.util.core :refer :all]
+            [midje.parsing.util.error-handling :as error]))
 
 (defn valid-pieces [[_data-fake_ metaconstant arrow contained & overrides :as form]]
   (cond (not (metaconstant/metaconstant-symbol? metaconstant))

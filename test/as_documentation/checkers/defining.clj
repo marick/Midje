@@ -1,6 +1,6 @@
 (ns as-documentation.checkers.defining
-  (:use midje.sweet
-        midje.test-util))
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]))
 
                 ;;; Checkers that do not take arguments
 

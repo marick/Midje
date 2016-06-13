@@ -1,7 +1,7 @@
 (ns user.fus-within-fact-backgrounds
-  (:use midje.sweet
-        midje.test-util)
-  (:require [midje.data.fact :as fact-data]
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]
+            [midje.data.fact :as fact-data]
             [midje.data.compendium :as compendium]
             [such.random :as random]))
 

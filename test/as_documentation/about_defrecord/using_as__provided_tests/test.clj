@@ -2,8 +2,8 @@
 ;; `generic` namespace. So we must require them both. That given, tests are unsurprising.
 
 (ns as-documentation.about-defrecord.using-as--provided-tests.test
-  (:use midje.sweet)
-  (:require [as-documentation.about-defrecord.generic :as generic]
+  (:require [midje.sweet :refer :all]
+            [as-documentation.about-defrecord.generic :as generic]
             [as-documentation.about-defrecord.using-as--provided-tests.specific :as specific]))
 
 (fact "testing the record works as in the `using_as__plain_tests` case"

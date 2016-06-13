@@ -1,8 +1,7 @@
 (ns behaviors.background_nesting.t-background-command
-  (:use clojure.test)
-  (:use [midje.sweet])
-  (:use [midje.test-util])
-)
+  (:require [clojure.test :refer :all]
+            [midje.sweet :refer :all]
+            [midje.test-util :refer :all]))
 
 ;; This is a separate file because we're making namespace-wide changes
 

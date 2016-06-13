@@ -1,17 +1,17 @@
 (ns ^{:doc "Functions for turning provideds into explicit fakes"}
   midje.parsing.1-to-explicit-form.prerequisites
-  (:use midje.parsing.util.core
-        midje.parsing.arrow-symbols
-        [midje.parsing.2-to-lexical-maps.fakes :only [fake]]
-        [midje.parsing.2-to-lexical-maps.data-fakes :only [data-fake]])
   (:require [clojure.zip :as zip]
-            [midje.parsing.util.zip :as pzip]
-            [midje.parsing.util.overrides :as override]
-            [pointer.core :as pointer]
-            [midje.parsing.util.error-handling :as error]
-            [midje.parsing.util.recognizing :as recognize]
             [midje.parsing.1-to-explicit-form.expects :as parse-expects]
-            [midje.util.ecosystem :as ecosystem]))
+            [midje.parsing.2-to-lexical-maps.data-fakes :refer [data-fake]]
+            [midje.parsing.2-to-lexical-maps.fakes :refer [fake]]
+            [midje.parsing.arrow-symbols :refer :all]
+            [midje.parsing.util.core :refer :all]
+            [midje.parsing.util.error-handling :as error]
+            [midje.parsing.util.overrides :as override]
+            [midje.parsing.util.recognizing :as recognize]
+            [midje.parsing.util.zip :as pzip]
+            [midje.util.ecosystem :as ecosystem]
+            [pointer.core :as pointer]))
 
 (defn prerequisite-to-fake [fake-body]
   (let [^Integer line-number (-> fake-body

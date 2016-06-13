@@ -1,8 +1,8 @@
 (ns ^{:doc "Customizable configuration"}
   midje.config
-  (:use [midje.util.exceptions :only [user-error]])
   (:require [midje.emission.levels :as levels]
             [midje.util.ecosystem :as ecosystem]
+            [midje.util.exceptions :refer [user-error]]
             [midje.util.pile :as pile]
             [midje.data.fact :as fact]
             [commons.clojure.core :as core]

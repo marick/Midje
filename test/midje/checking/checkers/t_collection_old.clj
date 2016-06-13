@@ -1,7 +1,7 @@
 (ns midje.checking.checkers.t-collection-old
-  (:use midje.sweet
-        midje.checking.core
-        midje.test-util))
+  (:require [midje.sweet :refer :all]
+            [midje.checking.core :refer :all]
+            [midje.test-util :refer :all]))
 
 ;; These are still potentially useful tests from a misguided code organization.
 ;; Delete them as they fail (after moving better tests to t-collection.

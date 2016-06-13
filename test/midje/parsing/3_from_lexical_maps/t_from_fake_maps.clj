@@ -1,9 +1,11 @@
 (ns midje.parsing.3-from-lexical-maps.t-from-fake-maps
-  (:use [midje sweet test-util]
-        [midje.parsing.3-from-lexical-maps.from-fake-maps]
-        [midje.test-util]
-        midje.util)
-  (:require [midje.config :as config])
+  (:require [midje
+             [sweet :refer :all]
+             [test-util :refer :all]]
+            [midje.parsing.3-from-lexical-maps.from-fake-maps :refer :all]
+            [midje.test-util :refer :all]
+            [midje.util :refer :all]
+            [midje.config :as config])
   (:import midje.data.metaconstant.Metaconstant))
 
 (expose-testables midje.data.prerequisite-state)

@@ -1,13 +1,13 @@
 (ns ^{:doc "midje.background uses these to wrap extra code around 
             :contents, :facts, or :expects"}
   midje.parsing.util.wrapping
-  (:use midje.parsing.util.core
-        [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out 
-                                                   set-namespace-value
-                                                   with-pushed-namespace-values]])
-  (:require [clojure.zip :as zip] 
-            [such.sequences :as seq]
-  	        [midje.util.unify :as unify]))
+  (:require [clojure.zip :as zip]
+            [midje.parsing.util.core :refer :all]
+            [midje.util.thread-safe-var-nesting :refer [namespace-values-inside-out 
+                                                        set-namespace-value
+                                                        with-pushed-namespace-values]] 
+            [midje.util.unify :as unify]
+            [such.sequences :as seq]))
 
 
 (defn midje-wrapped

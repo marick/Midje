@@ -1,11 +1,11 @@
 (ns midje.checking.checkers.simple
   "Prepackaged functions that perform common checks."
-  (:use commons.clojure.core
-        midje.checking.core
-        [midje.checking.checkers.defining :only [as-checker checker defchecker]]
-      	[midje.checking.checkers.util :only [named-as-call]]
-      	[midje.util.exceptions :only [captured-throwable?]])
-  (:require [commons.ns :as ns])
+  (:require [commons.clojure.core :refer :all]
+            [commons.ns :as ns]
+            [midje.checking.core :refer :all]
+            [midje.checking.checkers.defining :refer [as-checker checker defchecker]]
+            [midje.checking.checkers.util :refer [named-as-call]]
+            [midje.util.exceptions :refer [captured-throwable?]])
   (:import [midje.util.exceptions ICapturedThrowable]))
 
 ;;; DANGER: If you add a checker, add it to ../checkers.clj

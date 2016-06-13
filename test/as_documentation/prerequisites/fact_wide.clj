@@ -1,5 +1,5 @@
 (ns as-documentation.prerequisites.fact-wide
-  (:use midje.sweet))
+  (:require [midje.sweet :refer :all]))
 
 ;;; Here is a simple motivating example. Suppose you have a predicate `pilot-ready?` that
 ;;; depends on other predicates. 

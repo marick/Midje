@@ -1,6 +1,6 @@
 (ns as-documentation.checkers.for-sets
-  (:use midje.sweet
-        midje.test-util))
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]))
 
 
 (fact "`just` provides extended equality to set equality"

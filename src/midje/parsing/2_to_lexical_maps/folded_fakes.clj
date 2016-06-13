@@ -1,13 +1,13 @@
 (ns ^{:doc "Unfolding prerequisites like `(f (g 1)) => 3`"}
   midje.parsing.2-to-lexical-maps.folded-fakes
-  (:use midje.parsing.util.zip
-        [midje.checking.checkers.defining :only [checker? checker-makers]]
-        [midje.parsing.2-to-lexical-maps.fakes :only [fake]])
   (:require [clojure.zip :as zip]
-            [such.maps :as map]
-            [midje.util.pile :as pile]
+            [midje.checking.checkers.defining :refer [checker? checker-makers]]
+            [midje.parsing.2-to-lexical-maps.fakes :refer [fake]]
+            [midje.parsing.util.fnref :as fnref]
             [midje.parsing.util.recognizing :as recognize]
-            [midje.parsing.util.fnref :as fnref]))
+            [midje.parsing.util.zip :refer :all]
+            [midje.util.pile :as pile]
+            [such.maps :as map]))
 
 ;; Note that unfolding is done after prerequisites are converted to fakes. 
 

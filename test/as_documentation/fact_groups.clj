@@ -1,7 +1,7 @@
 (ns as-documentation.fact-groups
-  (:use midje.repl
-        midje.test-util)
-  (:require [midje.config :as config]))
+  (:require [midje.config :as config]
+            [midje.repl :refer :all]
+            [midje.test-util :refer :all]))
 
 ;;; Fact groups are used to supply metadata to the enclosed top-level facts. 
 ;;; For example, here are two facts that would cause failures if checked.

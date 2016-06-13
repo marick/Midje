@@ -1,9 +1,10 @@
 (ns user.fus-protocols.fus-protocols
-  (:use [midje sweet test-util]
-        [midje.open-protocols]
-        midje.util.ecosystem
-        user.fus-protocols.protocols-defined-in-another-namespace)
-  (:require user.fus-protocols.protocols-defined-in-another-namespace))
+  (:require [midje
+             [sweet :refer :all]
+             [test-util :refer :all]]
+            [midje.open-protocols :refer :all]
+            [midje.util.ecosystem :refer :all]
+            [user.fus-protocols.protocols-defined-in-another-namespace :refer :all]))
 (import 'user.fus_protocols.protocols_defined_in_another_namespace.OutsideNSFakeableRecord)
 
 (fact "Imported record functions can be faked when called from outside"

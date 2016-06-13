@@ -1,5 +1,5 @@
 (ns user.fus-protocols.protocols-defined-in-another-namespace
-  (:use midje.open-protocols))
+  (:require [midje.open-protocols :refer :all]))
 
 (defprotocol RecordFakeable
   (fake-me [this function])

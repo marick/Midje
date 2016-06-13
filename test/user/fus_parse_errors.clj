@@ -1,6 +1,6 @@
 (ns user.fus-parse-errors
-  (:use midje.sweet
-        midje.test-util))
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]))
 
 (unfinished f)
 (defn g [n] (f n))

@@ -1,27 +1,27 @@
 (ns midje.parsing.1-to-explicit-form.parse-background
   "Handles the parsing of background forms. For the moment, this includes both
    state changes and fact-wide prerequisites."
-  (:use commons.clojure.core
-        midje.parsing.util.core
-        midje.parsing.util.zip
-        [midje.parsing.1-to-explicit-form.metaconstants :only [predefine-metaconstants-from-form]]
-        [midje.parsing.1-to-explicit-form.prerequisites :only [prerequisite-to-fake take-arrow-sequence]]
-        [midje.data.prerequisite-state :only [with-installed-fakes]]
-        [midje.util.laziness :only [eagerly]]
-        [midje.util.thread-safe-var-nesting :only [namespace-values-inside-out
-                                                   with-pushed-namespace-values]])
-  (:require [clojure.zip :as zip]
-            [such.sequences :as seq]
+  (:require [commons.clojure.core :refer :all]
+            [clojure.zip :as zip]
             [midje.config :as config]
-            [midje.util.pile :as pile]
-            [midje.util.unify :as unify]
-            [pointer.core :as pointer]
+            [midje.data.prerequisite-state :refer [with-installed-fakes]]
+            [midje.emission.api :as emit]
+            [midje.parsing.1-to-explicit-form.metaconstants :refer [predefine-metaconstants-from-form]]
+            [midje.parsing.1-to-explicit-form.prerequisites :refer [prerequisite-to-fake take-arrow-sequence]]
+            [midje.parsing.2-to-lexical-maps.data-fakes :as data-fakes]
+            [midje.parsing.2-to-lexical-maps.fakes :as fakes]
+            [midje.parsing.util.core :refer :all]
             [midje.parsing.util.error-handling :as error]
             [midje.parsing.util.recognizing :as recognize]
             [midje.parsing.util.wrapping :as wrapping]
-            [midje.parsing.2-to-lexical-maps.fakes :as fakes]
-            [midje.parsing.2-to-lexical-maps.data-fakes :as data-fakes]
-            [midje.emission.api :as emit]))
+            [midje.parsing.util.zip :refer :all]
+            [midje.util.laziness :refer [eagerly]]
+            [midje.util.pile :as pile]
+            [midje.util.thread-safe-var-nesting :refer [namespace-values-inside-out
+                                                        with-pushed-namespace-values]]
+            [midje.util.unify :as unify]
+            [pointer.core :as pointer]
+            [such.sequences :as seq]))
 
 (defn background-fakes []
   (namespace-values-inside-out :midje/background-fakes))

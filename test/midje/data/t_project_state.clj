@@ -1,10 +1,10 @@
 (ns midje.data.t-project-state
-  (:use [midje.sweet]
-        [midje.test-util]
-        [midje.data.project-state])
-  (:require [midje.util.ecosystem :as ecosystem]
-            [midje.util.bultitude :as tude])
-  (:require [clojure.java.io :as io]))
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]
+            [midje.data.project-state :refer :all]
+            [midje.util.ecosystem :as ecosystem]
+            [midje.util.bultitude :as tude]
+            [clojure.java.io :as io]))
 
 
 ;;; Directory structure

@@ -1,6 +1,6 @@
 (ns user.fus-nested-backgrounds
-  (:use midje.sweet
-        midje.test-util))
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]))
 
 ;; It's proven tricky to get the nesting of the macroexpansion of backgrounds correct. Hence these tests.
 

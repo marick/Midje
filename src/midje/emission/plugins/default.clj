@@ -1,12 +1,12 @@
 (ns ^{:doc "The default for Midje output"}
   midje.emission.plugins.default
-  (:use midje.emission.util)
-  (:require [midje.emission.colorize :as color]
-            [midje.data.fact :as fact]
-            [midje.emission.state :as state]
+  (:require [midje.data.fact :as fact]
+            [midje.emission.colorize :as color]
             [midje.emission.plugins.util :as util]
             [midje.emission.plugins.silence :as silence]
             [midje.emission.plugins.default-failure-lines :as lines]
+            [midje.emission.state :as state]
+            [midje.emission.util :refer :all]
             [clojure.string :as str]))
 
 (defn fail [failure-map]

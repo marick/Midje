@@ -1,12 +1,12 @@
 (ns midje.parsing.1-to-explicit-form.t-facts
-  (:use midje.parsing.1-to-explicit-form.facts
-        midje.sweet
-        midje.test-util
-        [midje.parsing.2-to-lexical-maps.expects :only [expect]]
-        [midje.parsing.2-to-lexical-maps.fakes :only [fake]]
-        [midje.parsing.2-to-lexical-maps.data-fakes :only [data-fake]]
-        [pointer.core :only [line-number-known]])
-  (:require [clojure.zip :as zip]
+  (:require [midje.parsing.1-to-explicit-form.facts :refer :all]
+            [midje.sweet :refer :all]
+            [midje.test-util :refer :all]
+            [midje.parsing.2-to-lexical-maps.expects :refer [expect]]
+            [midje.parsing.2-to-lexical-maps.fakes :refer [fake]]
+            [midje.parsing.2-to-lexical-maps.data-fakes :refer [data-fake]]
+            [pointer.core :refer [line-number-known]]
+            [clojure.zip :as zip]
             [midje.config :as config]))
 
 
