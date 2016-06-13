@@ -91,6 +91,7 @@ Contributors
 * dlebrero
 * Dolmio
 * André Eriksson
+* Jason Felice
 * Anders Furseth
 * Stuart Halloway
 * Chris Hapgood
