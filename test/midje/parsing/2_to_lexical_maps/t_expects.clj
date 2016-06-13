@@ -1,13 +1,13 @@
 (ns midje.parsing.2-to-lexical-maps.t-expects
-  (:use clojure.test  ;; This is used to check production mode with deftest.
-        commons.clojure.core
-        midje.sweet
-        midje.parsing.2-to-lexical-maps.expects
-        [midje.parsing.2-to-lexical-maps.fakes :only [fake]]
-        [midje.parsing.2-to-lexical-maps.data-fakes :only [data-fake]]
-        midje.test-util
-        midje.util)
-  (:require [such.sequences :as seq]
+  (:require [clojure.test :refer :all]  ;; This is used to check production mode with deftest.
+            [commons.clojure.core :refer :all]
+            [midje.sweet :refer :all]
+            [midje.parsing.2-to-lexical-maps.expects :refer :all]
+            [midje.parsing.2-to-lexical-maps.fakes :refer [fake]]
+            [midje.parsing.2-to-lexical-maps.data-fakes :refer [data-fake]]
+            [midje.test-util :refer :all]
+            [midje.util :refer :all]
+            [such.sequences :as seq]
             [midje.config :as config]
             [midje.util.pile :as pile]
             [midje.parsing.util.recognizing :as recognize]

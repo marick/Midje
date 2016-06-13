@@ -1,15 +1,15 @@
 (ns ^{:doc "Core Midje functions that process expects and report on their results."} 
   midje.checking.checkables
-  (:use commons.clojure.core
-        midje.checking.core
-        [midje.util.exceptions :only [captured-throwable]]
-        midje.data.prerequisite-state
-        midje.util.laziness)
-  (:require [midje.config :as config]
+  (:require [commons.clojure.core :refer :all]
+            [midje.checking.core :refer :all]
+            [midje.config :as config]
             [midje.data.nested-facts :as nested-facts]
+            [midje.data.prerequisite-state :refer :all]
+            [midje.emission.api :as emit]
             [midje.emission.boundaries :as emission-boundary]
             [midje.parsing.1-to-explicit-form.parse-background :as parse-background]
-            [midje.emission.api :as emit]))
+            [midje.util.exceptions :refer [captured-throwable]]
+            [midje.util.laziness :refer :all]))
 
 
 (defn- minimal-failure-map

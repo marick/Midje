@@ -1,8 +1,8 @@
 (ns midje.util.pile
   "Functions that are somewhat general purpose."
-  (:use commons.clojure.core)
-  (:use [midje.util.ordered-map :only [ordered-map]])
-  (:require [such.maps :as map]))
+  (:require [commons.clojure.core :refer :all]
+            [midje.util.ordered-map :refer [ordered-map]]
+            [such.maps :as map]))
 
 ;;; Named things
 

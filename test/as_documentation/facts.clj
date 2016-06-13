@@ -1,7 +1,7 @@
 (ns as-documentation.facts
-  (:use midje.sweet
-        midje.test-util)
-  (:require [midje.config :as config]))
+  (:require [midje.config :as config]
+            [midje.sweet :refer :all]
+            [midje.test-util :refer :all]))
 
 ;; Midje's test suite is configured not to show some output that's demonstrated here.
 ;; This resets Midje's setting back to the default. 

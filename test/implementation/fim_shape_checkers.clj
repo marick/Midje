@@ -1,7 +1,8 @@
 (ns implementation.fim-shape-checkers
-  (:require [midje.shape-checkers :as subject])
-  (:use midje.sweet midje.test-util)
-  (:require [midje.checking.core :as core]
+  (:require [midje.shape-checkers :as subject]
+            [midje.sweet :refer :all]
+            [midje.test-util :refer :all]
+            [midje.checking.core :as core]
             [midje.util.ecosystem :refer [when-1-7+]]))
 
 (when-1-7+

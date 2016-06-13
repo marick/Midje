@@ -3,9 +3,9 @@
   `https://github.com/flatland/ordered`, because of a version conflict.
   That library is covered by the Eclipse Public License, V1.0, which
   you can find in Midje's root directory."
-  (:use [midje.util.ordered-common :only [change! Compactable compact]]
-        [midje.util.ordered-deftype :only [delegating-deftype]])
-  (:require [clojure.string :as s])
+  (:require [clojure.string :as s]
+            [midje.util.ordered-common :refer [change! Compactable compact]]
+            [midje.util.ordered-deftype :refer [delegating-deftype]])
   (:import (clojure.lang IPersistentMap
                          IPersistentCollection
                          IPersistentVector

@@ -1,7 +1,10 @@
 (ns midje.emission.plugins.t-default-failure-lines
-  (:use [midje sweet util test-util]
-        midje.emission.plugins.default-failure-lines)
-  (:require [midje.emission.plugins.util :as util]))
+  (:require [midje
+             [sweet :refer :all]
+             [util :refer :all]
+             [test-util :refer :all]]
+            [midje.emission.plugins.default-failure-lines :refer :all]
+            [midje.emission.plugins.util :as util]))
 
 
 ;;; Note that this will scrozzle the failure notice from the facts below

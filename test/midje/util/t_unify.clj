@@ -1,7 +1,7 @@
 (ns midje.util.t-unify
-  (:use midje.util.unify
-        midje.sweet
-        midje.test-util))
+  (:require [midje.util.unify :refer :all]
+            [midje.sweet :refer :all]
+            [midje.test-util :refer :all]))
 
 (fact "unify works with nil bindings"
   (substitute '(?without-binding (?nil-binding (?other-binding)))

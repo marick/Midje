@@ -1,7 +1,7 @@
 (ns midje.emission.t-colorize
-  (:use midje.sweet
-        [midje.util.ecosystem :only [getenv on-windows?]])
-  (:require [midje.emission.colorize :as color]
+  (:require [midje.sweet :refer :all]
+            [midje.util.ecosystem :refer [getenv on-windows?]]
+            [midje.emission.colorize :as color]
             [midje.config :as config]))
 
 (tabular

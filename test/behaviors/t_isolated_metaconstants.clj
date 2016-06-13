@@ -1,5 +1,5 @@
 (ns behaviors.t-isolated-metaconstants
-  (:use [midje sweet]))
+  (:require [midje.sweet :refer :all]))
 
 
 (defn verify-service [service]

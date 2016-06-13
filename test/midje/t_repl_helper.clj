@@ -1,6 +1,6 @@
 (ns midje.t-repl-helper
-  (:use midje.sweet
-        [midje.test-util]))
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]))
 
 (fact "a simple test"
   (+ 1 2) => 3)

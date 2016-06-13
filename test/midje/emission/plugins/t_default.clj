@@ -1,6 +1,9 @@
 (ns midje.emission.plugins.t-default
-  (:use [midje sweet util test-util])
-  (:require [midje.emission.plugins.default :as plugin]
+  (:require [midje
+             [sweet :refer :all]
+             [util :refer :all]
+             [test-util :refer :all]]
+            [midje.emission.plugins.default :as plugin]
             [midje.emission.state :as state]
             [clojure.string :as str]))
 

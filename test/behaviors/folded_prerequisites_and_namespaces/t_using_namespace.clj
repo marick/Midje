@@ -1,8 +1,8 @@
 (ns behaviors.folded-prerequisites-and-namespaces.t-using-namespace
-  (:use [clojure.test]
-        [midje.sweet]
-        [behaviors.folded-prerequisites-and-namespaces.using-namespace])
-  (:require [behaviors.folded-prerequisites-and-namespaces.source-namespace :as x]))
+  (:require [clojure.test :refer :all]
+            [midje.sweet :refer :all]
+            [behaviors.folded-prerequisites-and-namespaces.using-namespace :refer :all]
+            [behaviors.folded-prerequisites-and-namespaces.source-namespace :as x]))
 
 (deftest test-something
   (fact

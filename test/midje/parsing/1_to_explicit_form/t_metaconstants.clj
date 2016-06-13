@@ -1,6 +1,8 @@
 (ns midje.parsing.1-to-explicit-form.t-metaconstants
-  (:use midje.parsing.1-to-explicit-form.metaconstants
-        [midje sweet test-util])
+  (:require [midje.parsing.1-to-explicit-form.metaconstants :refer :all]
+            [midje
+             [sweet :refer :all]
+             [test-util :refer :all]])
   (:import midje.data.metaconstant.Metaconstant))
 
 ;;; Two different ways of creating metaconstants from user forms

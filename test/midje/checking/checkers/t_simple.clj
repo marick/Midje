@@ -1,7 +1,7 @@
 (ns midje.checking.checkers.t-simple
-  (:use midje.sweet
-        [midje.checking.checkers.defining :only [checker?]]
-        midje.test-util))
+  (:require [midje.sweet :refer :all]
+            [midje.checking.checkers.defining :refer [checker?]]
+            [midje.test-util :refer :all]))
 
 
 (facts "about truthy"

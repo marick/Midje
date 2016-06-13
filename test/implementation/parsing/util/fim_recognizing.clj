@@ -1,9 +1,9 @@
 (ns implementation.parsing.util.fim_recognizing
-  (:use midje.sweet
-        midje.test-util
-        [midje.parsing.2-to-lexical-maps.expects :only [expect]]
-        midje.parsing.util.recognizing)
-  (:require [clojure.zip :as zip]))
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]
+            [midje.parsing.2-to-lexical-maps.expects :refer [expect]]
+            [midje.parsing.util.recognizing :refer :all]
+            [clojure.zip :as zip]))
 
 ;;; Arrows 
 

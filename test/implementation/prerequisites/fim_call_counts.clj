@@ -1,6 +1,8 @@
 (ns implementation.prerequisites.fim_call_counts
-  (:use [midje sweet test-util]
-        midje.checking.checkables))
+  (:require [midje
+             [sweet :refer :all]
+             [test-util :refer :all]]
+            [midje.checking.checkables :refer :all]))
 
 (tabular
   (fact "The expected call count can be described"

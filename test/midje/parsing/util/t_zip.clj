@@ -1,9 +1,8 @@
 (ns midje.parsing.util.t-zip
-  (:use [midje.parsing.util.zip]
-	midje.sweet
-	midje.test-util)
-  (:require [clojure.zip :as zip])
-)
+  (:require [midje.parsing.util.zip :refer :all]
+            [midje.sweet :refer :all]
+            [midje.test-util :refer :all]
+            [clojure.zip :as zip]))
 
 (defn node [expected] (fn [actual] (= expected (zip/node actual))))
 

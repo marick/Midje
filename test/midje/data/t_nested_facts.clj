@@ -1,9 +1,9 @@
 (ns midje.data.t-nested-facts
-  (:use [midje.data.nested-facts]
-        clojure.test
-        midje.sweet
-        midje.test-util)
-  (:require [midje.util.pile :as pile]))
+  (:require [midje.data.nested-facts :refer :all]
+            [clojure.test :refer :all]
+            [midje.sweet :refer :all]
+            [midje.test-util :refer :all]
+            [midje.util.pile :as pile]))
 
 
 (defn faux-fact

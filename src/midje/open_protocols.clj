@@ -5,8 +5,8 @@
   currently faked out. If so, it uses that function definition instead of
   continuing on with its own implementation."}
   midje.open-protocols
-  (:use [midje.production-mode :only [user-desires-checking?]]
-        [midje.data.prerequisite-state :only [implements-a-fake?]]))
+  (:require [midje.data.prerequisite-state :refer [implements-a-fake?]]
+            [midje.production-mode :refer [user-desires-checking?]]))
 
 (defn- ^{:testable true } implementation?
   "Is this thing a protocol or a function definition?"

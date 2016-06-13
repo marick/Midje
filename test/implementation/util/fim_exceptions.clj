@@ -1,7 +1,9 @@
 (ns implementation.util.fim-exceptions
-  (:use [midje.util.exceptions]
-	      [midje sweet test-util]
-        [midje.util]))
+  (:require [midje.util.exceptions :refer :all]
+            [midje
+             [sweet :refer :all]
+             [test-util :refer :all]]
+            [midje.util :refer :all]))
 
 (expose-testables midje.util.exceptions)
 

@@ -1,6 +1,6 @@
 (ns user.fus-checkers
-  (:use midje.sweet
-        midje.test-util))
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]))
 
 (fact "simple checkers are exported into midje.sweet"
   1 => truthy

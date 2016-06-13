@@ -1,5 +1,5 @@
 (ns behaviors.t-metaconstant-compilation
-  (:use [midje sweet]))
+  (:require [midje.sweet :refer :all]))
 
 ;;; Because metaconstants are auto-defined, a file without `metaconstants`
 ;;; will fail AOT compilation. 

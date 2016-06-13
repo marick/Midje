@@ -1,12 +1,12 @@
 (ns ^{:doc "Recognizing Midje forms"}
   midje.parsing.util.recognizing
-  (:use commons.clojure.core
-        midje.parsing.util.core
-        midje.parsing.arrow-symbols)
   (:require [clojure.zip :as zip]
+            [commons.clojure.core :refer :all]
+            [midje.parsing.arrow-symbols :refer :all]
+            [midje.parsing.util.core :refer :all]
+            [midje.parsing.util.future-variants :as future-variants]
             [midje.parsing.util.zip :as pzip]
-            [midje.util.pile :as pile]
-            [midje.parsing.util.future-variants :as future-variants]))
+            [midje.util.pile :as pile]))
 
 ;; Arrow groupings
 

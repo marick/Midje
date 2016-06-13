@@ -1,6 +1,6 @@
 (ns as-documentation.prerequisites.aaaaaa-the-basics
-  (:use midje.sweet
-        midje.test-util))
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]))
                                 ;;; The Basics
 
 ;; One development path is to work top-down and use the `provided`

@@ -1,17 +1,17 @@
 (ns midje.parsing.2-to-lexical-maps.expects
   "generate a map for a particular checkable"
-  (:use commons.clojure.core
-        midje.parsing.util.core
-        [midje.parsing.arrow-symbols])
-  (:require [such.maps :as map]
-            [such.sequences :as seq]
+  (:require [commons.clojure.core :refer :all]
             [midje.data.nested-facts :as nested-facts]
+            [midje.emission.api :as emit]
+            [midje.parsing.2-to-lexical-maps.data-fakes :as parse-data-fakes]
+            [midje.parsing.2-to-lexical-maps.fakes :as parse-fakes]
+            [midje.parsing.arrow-symbols :refer :all]
+            [midje.parsing.lexical-maps :as lexical-maps]
+            [midje.parsing.util.core :refer :all]
             [midje.parsing.util.error-handling :as error]
             [midje.parsing.util.recognizing :as recognize]
-            [midje.parsing.lexical-maps :as lexical-maps]
-            [midje.parsing.2-to-lexical-maps.fakes :as parse-fakes]
-            [midje.parsing.2-to-lexical-maps.data-fakes :as parse-data-fakes]
-            [midje.emission.api :as emit]))
+            [such.maps :as map]
+            [such.sequences :as seq]))
 
 
 (defn expansion [call-form arrow expected-result fakes overrides]

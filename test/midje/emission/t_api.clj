@@ -1,7 +1,7 @@
 (ns midje.emission.t-api
-  (:use midje.sweet
-        midje.test-util)
-  (:require [midje.emission.api :as emit]
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]
+            [midje.emission.api :as emit]
             [midje.emission.levels :as levels]
             [midje.emission.state :as state]
             [midje.emission.plugins.test-support :as plugin]

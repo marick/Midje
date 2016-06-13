@@ -1,5 +1,7 @@
 (ns behaviors.t-default-prerequisites
-  (:use [midje sweet test-util]))
+  (:require [midje
+             [sweet :refer :all]
+             [test-util :refer :all]]))
 
 (defn calls-nothing [])
 (unfinished unused)

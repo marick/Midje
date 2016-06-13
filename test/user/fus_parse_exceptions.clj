@@ -1,6 +1,6 @@
 (ns user.fus-parse-exceptions
-  (:use midje.sweet
-        midje.test-util))
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]))
 
 
 ;;; In general, it would be nice if these could be moved over to t-parse-errors.

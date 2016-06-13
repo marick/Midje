@@ -1,9 +1,9 @@
 (ns implementation.parsing.1-to-explicit-form.fim-metadata
-  (:use midje.sweet
-        midje.test-util
-        midje.parsing.1-to-explicit-form.metadata)
-  (:require [such.random :as random]
-            [midje.data.compendium :as compendium]))
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]
+            [midje.parsing.1-to-explicit-form.metadata :refer :all]
+            [midje.data.compendium :as compendium]
+            [such.random :as random]))
 
 (def a-body '((f) => 3))
 (def body-guid (random/form-hash a-body))

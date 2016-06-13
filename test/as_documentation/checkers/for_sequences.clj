@@ -1,6 +1,6 @@
 (ns as-documentation.checkers.for-sequences
-  (:use midje.sweet
-        midje.test-util))
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]))
 
                                 ;;; Ordinary equality
 

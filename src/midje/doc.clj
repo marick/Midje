@@ -1,9 +1,9 @@
 (ns ^{:doc "In-repl user documentation"}
   midje.doc
-  (:use commons.clojure.core)
-  (:require [midje.emission.colorize :as color]
-            [clojure.java.browse :as browse]
+  (:require [clojure.java.browse :as browse]
+            [commons.clojure.core :refer :all]
             [midje.config :as config]
+            [midje.emission.colorize :as color]
             [midje.util.ecosystem :as ecosystem]))
 
 (def appropriate? config/running-in-repl?)

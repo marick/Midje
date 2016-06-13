@@ -1,9 +1,9 @@
 (ns midje.parsing.1-to-explicit-form.t-expects
-  (:use midje.sweet
-        midje.test-util
-        [midje.parsing.2-to-lexical-maps.expects :only [expect]]
-        midje.parsing.1-to-explicit-form.expects)
-  (:require [clojure.zip :as zip]
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]
+            [midje.parsing.2-to-lexical-maps.expects :refer [expect]]
+            [midje.parsing.1-to-explicit-form.expects :refer :all]
+            [clojure.zip :as zip]
             [midje.parsing.util.recognizing :as recognize]))
 
 (fact "can position so loc is the entire expect form"

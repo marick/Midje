@@ -1,6 +1,6 @@
 (ns as-documentation.tabular-facts
-  (:use midje.repl
-        midje.test-util))
+  (:require [midje.repl :refer :all]
+            [midje.test-util :refer :all]))
 
 ;;; When you have many similar tests, you can use *tabular facts* to
 ;;; clarify what's special about each test. Here, for example, is a tabular

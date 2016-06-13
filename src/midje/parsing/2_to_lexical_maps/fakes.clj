@@ -1,11 +1,11 @@
 (ns ^{:doc "An intermediate stage in the compilation of prerequisites."}
   midje.parsing.2-to-lexical-maps.fakes
-  (:use commons.clojure.core
-        midje.parsing.util.core
-        [midje.parsing.arrow-symbols])
-  (:require [midje.parsing.util.fnref :as fnref]
+  (:require [commons.clojure.core :refer :all]
+            [midje.parsing.arrow-symbols :refer :all]
+            [midje.parsing.lexical-maps :as lexical-maps]
+            [midje.parsing.util.core :refer :all]
             [midje.parsing.util.error-handling :as error]
-            [midje.parsing.lexical-maps :as lexical-maps]))
+            [midje.parsing.util.fnref :as fnref]))
 
 (defn tag-as-background-fake [fake]
   `(~@fake :background :background :times (range 0)))

@@ -1,6 +1,9 @@
 (ns user.fus-config
-  (:use [midje sweet util test-util])
-  (:require [midje.config :as config]))
+  (:require [midje
+             [sweet :refer :all]
+             [util :refer :all]
+             [test-util :refer :all]]
+            [midje.config :as config]))
 
 (fact "change-defaults operates on the root binding"
   (let [stashed-config config/*config*

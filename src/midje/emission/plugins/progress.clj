@@ -1,12 +1,12 @@
 (ns ^{:doc "Progress formatter for Midje output"}
   midje.emission.plugins.progress
-  (:use midje.emission.util)
   (:require [midje.emission.colorize :as color]
-            [midje.emission.state :as state]
             [midje.emission.plugins.util :as util]
             [midje.emission.plugins.silence :as silence]
             [midje.emission.plugins.default :as default]
-            [midje.emission.plugins.default-failure-lines :as lines]))
+            [midje.emission.plugins.default-failure-lines :as lines]
+            [midje.emission.state :as state]
+            [midje.emission.util :refer :all]))
 
 (defn- def-failure-cache []
  (defonce raw-failures-cache (atom [])))

@@ -4,8 +4,8 @@
 ;;; to annoy.
 
 (ns behaviors.t-canary
-  (:use [midje.sweet])
-  (:use [midje.test-util]))
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]))
 
 
 (unfinished favorite-animal)

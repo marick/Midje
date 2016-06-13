@@ -1,7 +1,7 @@
 (ns user.fus-facts
-  (:use midje.sweet
-        midje.test-util)
-  (:require [midje.config :as config]))
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]
+            [midje.config :as config]))
         
 
 (config/with-augmented-config {:visible-future true}

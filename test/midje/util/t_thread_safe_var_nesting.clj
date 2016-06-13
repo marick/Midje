@@ -1,9 +1,8 @@
 (ns midje.util.t-thread-safe-var-nesting
-  (:use [midje.util.thread-safe-var-nesting])
-  (:use midje.sweet)
-  (:require [clojure.zip :as zip])
-  (:use midje.test-util)
-)
+  (:require [midje.util.thread-safe-var-nesting :refer :all]
+            [midje.sweet :refer :all]
+            [clojure.zip :as zip]
+            [midje.test-util :refer :all]))
 
 (def root "root")
 (def unbound!)

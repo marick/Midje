@@ -1,11 +1,11 @@
 (ns midje.parsing.util.t-core
-  (:use midje.parsing.util.core
-        midje.sweet
-        [midje.parsing.2-to-lexical-maps.expects :only [expect]]
-        [midje.parsing.2-to-lexical-maps.fakes :only [fake]]
-        [midje.parsing.2-to-lexical-maps.data-fakes :only [data-fake]]
-        midje.test-util)
-  (:require [clojure.zip :as zip]))
+  (:require [midje.parsing.util.core :refer :all]
+            [midje.sweet :refer :all]
+            [midje.parsing.2-to-lexical-maps.expects :refer [expect]]
+            [midje.parsing.2-to-lexical-maps.fakes :refer [fake]]
+            [midje.parsing.2-to-lexical-maps.data-fakes :refer [data-fake]]
+            [midje.test-util :refer :all]
+            [clojure.zip :as zip]))
 
 (facts "a form's reader-assigned line-number can be extracted"
   (reader-line-number (with-meta '(fact (this that)) {:line 23})) => 23

@@ -1,7 +1,7 @@
 (ns user.fus-shape-checking
-  (:use midje.sweet
-        midje.test-util)
-  (:require [midje.shape-checkers :as c]
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]
+            [midje.shape-checkers :as c]
             [midje.util.ecosystem :refer [when-1-7+]]))
 
 (when-1-7+

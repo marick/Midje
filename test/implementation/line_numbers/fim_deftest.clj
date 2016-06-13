@@ -1,8 +1,8 @@
 (ns implementation.line-numbers.fim-deftest
-  (:use clojure.test
-        midje.sweet
-        midje.test-util)
-  (:require [midje.emission.clojure-test-facade :as ctf]
+  (:require [clojure.test :refer :all]
+            [midje.sweet :refer :all]
+            [midje.test-util :refer :all]
+            [midje.emission.clojure-test-facade :as ctf]
             [midje.emission.state :as state]
             [midje.config :as config]))
 

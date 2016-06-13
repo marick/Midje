@@ -1,10 +1,12 @@
 (ns midje.parsing.0-to-fact-form.t-tabular
-  (:use [midje.parsing.0-to-fact-form.tabular :except [table-binding-maps]]
-        [midje.data.metaconstant :only [metaconstant-symbol?]]
-        [midje sweet test-util]
-        [midje.util.ordered-map :only (ordered-map)]
-        midje.util)
-  (:require [such.random :as random]
+  (:require midje.parsing.0-to-fact-form.tabular
+            [midje.data.metaconstant :refer [metaconstant-symbol?]]
+            [midje
+             [sweet :refer :all]
+             [test-util :refer :all]]
+            [midje.util.ordered-map :refer [ordered-map]]
+            [midje.util :refer :all]
+            [such.random :as random]
             [midje.parsing.lexical-maps :as maps]
             [midje.parsing.1-to-explicit-form.facts :as parse-facts]
             [midje.data.fact :as fact-data]

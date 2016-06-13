@@ -1,17 +1,17 @@
 (ns ^{:doc "What we know about the changing project file/namespace tree."}
   midje.data.project-state
-  (:use commons.clojure.core)
-  (:require [midje.emission.boundaries :as emission-boundary]
-            [midje.util.ecosystem :as ecosystem]
-            [midje.emission.colorize :as color]
+  (:require [clj-time.local :as time]
+            [clojure.java.io :as io]
+            [clojure.set]
+            [commons.clojure.core :refer :all]
             [midje.config :as config]
-            [midje.util.bultitude :as tude]
             [midje.emission.api :as emit]
-            [such.sequences :as seq]
-            [such.maps :as map])
-  (:require [clojure.java.io :as io]
-            [clj-time.local :as time]
-            clojure.set))
+            [midje.emission.boundaries :as emission-boundary]
+            [midje.emission.colorize :as color]
+            [midje.util.ecosystem :as ecosystem]
+            [midje.util.bultitude :as tude]
+            [such.maps :as map]
+            [such.sequences :as seq]))
 
 
 (require '[clojure.tools.namespace.repl :as nsrepl]

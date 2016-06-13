@@ -1,6 +1,9 @@
 (ns midje.emission.plugins.t-tap
-  (:use [midje sweet util test-util])
-  (:require [midje.emission.plugins.tap :as tap]
+  (:require [midje
+             [sweet :refer :all]
+             [util :refer :all]
+             [test-util :refer :all]]
+            [midje.emission.plugins.tap :as tap]
             [midje.config :as config]
             [midje.emission.plugins.default-failure-lines :as failure-lines]
             [midje.emission.plugins.util :as util]))

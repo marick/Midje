@@ -1,8 +1,8 @@
 (ns ^{:doc "Checkers that combine other checkers."}
   midje.checking.checkers.combining
-  (:use midje.checking.core
-        midje.checking.checkers.defining
-        midje.checking.checkers.chatty))
+  (:require [midje.checking.core :refer :all]
+            [midje.checking.checkers.defining :refer :all]
+            [midje.checking.checkers.chatty :refer :all]))
 
 (defn report-failure [actual checker-form result]
   (as-data-laden-falsehood {:actual actual

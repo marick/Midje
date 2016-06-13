@@ -2,7 +2,7 @@
 ;; namespace. But the generic functions come from the `generic` namespace.
 
 (ns as-documentation.about-defrecord.using-refer--provided-tests.test
-  (:use midje.sweet)
+  (:require [midje.sweet :refer :all])
   (:require [as-documentation.about-defrecord.generic
              :refer [bump twice]])
   (:require [as-documentation.about-defrecord.using-refer--provided-tests.specific

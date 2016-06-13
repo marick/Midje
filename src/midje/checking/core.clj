@@ -1,8 +1,8 @@
 (ns midje.checking.core
   "Core ideas underlying all checking"
-  (:use commons.clojure.core)
-  ;; TODO: Shouldn't really have this dependency.
-  (:require [midje.emission.plugins.util :as names]
+  (:require [commons.clojure.core :refer :all]
+            ;; TODO: Shouldn't really have this dependency.
+            [midje.emission.plugins.util :as names]
             [such.sequences :as seq]))
 
 ;;; There is a notion of "extended falsehood", in which a false value may be a

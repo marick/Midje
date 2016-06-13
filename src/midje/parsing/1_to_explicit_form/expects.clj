@@ -1,8 +1,8 @@
 (ns ^{:doc "Functions for working with explicit expect forms."}
   midje.parsing.1-to-explicit-form.expects
-  (:use midje.parsing.util.core
-        [midje.parsing.2-to-lexical-maps.expects :only [expect]])
   (:require [clojure.zip :as zip]
+            [midje.parsing.2-to-lexical-maps.expects :refer [expect]]
+            [midje.parsing.util.core :refer :all]
             [midje.parsing.util.zip :as pzip]
             [midje.parsing.util.overrides :as override]
             [midje.parsing.util.recognizing :as recognize]

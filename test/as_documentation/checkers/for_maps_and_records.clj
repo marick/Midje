@@ -1,6 +1,6 @@
 (ns as-documentation.checkers.for-maps-and-records
-  (:use midje.sweet
-        midje.test-util))
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]))
 
 
                                 ;;; Implications of extended equality

@@ -1,6 +1,6 @@
 (ns implementation.line-numbers.fim-tabular-parsing
-  (:use midje.sweet
-        midje.test-util))
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]))
 
 ;; Check that errors are reported with the correct line numbers. There's one check for each
 ;; place where line numbers are reported.

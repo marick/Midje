@@ -1,8 +1,8 @@
 (ns midje.emission.t-clojure-test-facade
-  (:use midje.sweet
-        midje.emission.clojure-test-facade
-        midje.test-util)
-  (:require clojure.test))
+  (:require [midje.sweet :refer :all]
+            [midje.emission.clojure-test-facade :refer :all]
+            [midje.test-util :refer :all]
+            clojure.test))
 
 ;;; run-tests
 

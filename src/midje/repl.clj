@@ -1,24 +1,24 @@
 (ns midje.repl
   "Functions useful when using Midje in the repl or from the command line.
    See `midje-repl-help` for details."
-  (:use commons.clojure.core)
-  (:require midje.sweet
-            [such.function-makers :as mkfn]
-            [midje.doc :as doc]
-            [such.immigration :as immigrate]
-            [clojure.java.io :as io]
-            [midje.config :as config]
-            [midje.util.pile :as pile]
-            [midje.util.ecosystem :as ecosystem]
-            [midje.util.scheduling :as scheduling]
-            [midje.data.fact :as fact-data]
-            [midje.data.compendium :as compendium]
-            [midje.data.project-state :as project-state]
+  (:require [clojure.java.io :as io]
+            [commons.clojure.core :refer :all]
             [midje.checking.facts :as fact-checking]
-            [midje.parsing.other.arglists :as parsing]
+            [midje.config :as config]
+            [midje.data.compendium :as compendium]
+            [midje.data.fact :as fact-data]
+            [midje.data.project-state :as project-state]
+            [midje.doc :as doc]
+            [midje.emission.api :as emit]
             [midje.emission.boundaries :as emission-boundary]
             [midje.emission.colorize :as color]
-            [midje.emission.api :as emit]))
+            [midje.parsing.other.arglists :as parsing]
+            midje.sweet
+            [midje.util.ecosystem :as ecosystem]
+            [midje.util.pile :as pile]
+            [midje.util.scheduling :as scheduling]
+            [such.function-makers :as mkfn]
+            [such.immigration :as immigrate]))
 
 (fact-data/make-getters *ns* "fact-")
 

@@ -1,8 +1,8 @@
 (ns user.fus-fact-metadata-and-quoting
-  (:use midje.sweet
-        midje.test-util
-        midje.parsing.1-to-explicit-form.metadata)
-  (:require [midje.util.pile :as pile]
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]
+            [midje.parsing.1-to-explicit-form.metadata :refer :all]
+            [midje.util.pile :as pile]
             [midje.data.compendium :as compendium]))
 
 

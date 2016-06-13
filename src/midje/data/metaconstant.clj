@@ -1,9 +1,9 @@
 (ns ^{:doc "A notation that avoids confusion between what’s essential 
             about data and what’s accidental. A stand in for constant data."}
   midje.data.metaconstant
-  (:use [midje.util.thread-safe-var-nesting :only [unbound-marker]])
   (:require [midje.util.ecosystem :as ecosystem]
-            [midje.util.exceptions :as exceptions]))
+            [midje.util.exceptions :as exceptions]
+            [midje.util.thread-safe-var-nesting :refer [unbound-marker]]))
 
 
 ;;; Metaconstants are built from special symbols, called "metaconstant symbol". Such symbols

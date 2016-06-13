@@ -1,7 +1,7 @@
 (ns user.fus-check-after-creation
-  (:use midje.repl
-        midje.test-util)
-  (:require [midje.config :as config]))
+  (:require [midje.repl :refer :all]
+            [midje.test-util :refer :all]
+            [midje.config :as config]))
 
 ;;; The following forms obey :check-after-creation
 

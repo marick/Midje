@@ -1,7 +1,9 @@
 (ns behaviors.t-lazy-evaluation-cases
-  (:use [midje.sweet]
-        [midje.util laziness thread-safe-var-nesting]
-        [midje.test-util]))
+  (:require [midje.sweet :refer :all]
+            [midje.util
+             [laziness :refer :all]
+             [thread-safe-var-nesting :refer :all]]
+            [midje.test-util :refer :all]))
 
 (unfinished triple)
 

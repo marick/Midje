@@ -1,10 +1,10 @@
 (ns ^{:doc "How the default emitter reports on failures"}
   midje.emission.plugins.default-failure-lines
-  (:use commons.clojure.core
-        midje.emission.plugins.util)
-  (:require [midje.util.ecosystem :as ecosystem]
+  (:require [clojure.string :as str]
+            [commons.clojure.core :refer :all]
             [flare.core :as flare]
-            [clojure.string :as str]))
+            [midje.emission.plugins.util :refer :all]
+            [midje.util.ecosystem :as ecosystem]))
 
 
 (defmulti messy-lines :type)

@@ -1,6 +1,6 @@
 (ns midje.emission.plugins.flare
-  (:use commons.clojure.core)
-  (:require [midje.util.ecosystem :as ecosystem]
+  (:require [commons.clojure.core :refer :all]
+            [midje.util.ecosystem :as ecosystem]
             [midje.emission.plugins.util :as util]))
 
 (defn emit-flare-lines [& args])

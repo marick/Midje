@@ -1,6 +1,6 @@
 (ns as-documentation.configuration
-  (:use midje.sweet
-        midje.test-util))
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]))
 
 
 ;;; To change configuration settings for your whole project, you use
