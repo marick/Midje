@@ -2,6 +2,7 @@
 * lein ancient
 * lein compatibility 
 * push
+* Check that readme and changelog look OK
 # * rake doc  -- not yet relevant
 * lein deploy
 * lein install

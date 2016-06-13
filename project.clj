@@ -1,4 +1,4 @@
-(defproject midje "1.9.0-SNAPSHOT"
+(defproject midje "1.9.0-alpha1"
   :description "A TDD library for Clojure that supports top-down ('mockish') TDD, encourages readable tests, provides a smooth migration path from clojure.test, balances abstraction and concreteness, and strives for graciousness."
   :url "https://github.com/marick/Midje"
   :pedantic? :warn
@@ -20,11 +20,10 @@
   :profiles {:dev {:dependencies [[prismatic/plumbing "0.5.3"]]
                    :plugins [[lein-midje "3.1.4-SNAPSHOT"]]}
              :test-libs {:dependencies [[prismatic/plumbing "0.5.3"]]}
-             :1.5.0 [:test-libs {:dependencies [[org.clojure/clojure "1.5.0"]]}]
-             :1.5.1 [:test-libs {:dependencies [[org.clojure/clojure "1.5.1"]]}]
              :1.6 [:test-libs {:dependencies [[org.clojure/clojure "1.6.0"]]}]
              :1.7 [:test-libs {:dependencies [[org.clojure/clojure "1.7.0"]]}]
              :1.8 [:test-libs {:dependencies [[org.clojure/clojure "1.8.0"]]}]
+             :1.9 [:test-libs {:dependencies [[org.clojure/clojure "1.9.0-alpha5"]]}]
              ;; The following profile can be used to check that `lein with-profile`
              ;; profiles are obeyed. Note that profile `:test-paths` *add on* to the
              ;; defaults.
@@ -38,8 +37,8 @@
   :deploy-repositories [["releases" :clojars]
                         ["snapshots" :clojars]]
 
-  :aliases {"compatibility" ["with-profile" "1.5.0:1.5.1:1.6:1.7:1.8" "midje" ":config" ".compatibility-test-config"]
-            "travis" ["with-profile" "1.5.0:1.5.1:1.6:1.7:1.8" "midje"]}
+  :aliases {"compatibility" ["with-profile" "1.6:1.7:1.8:1.9" "midje" ":config" ".compatibility-test-config"]
+            "travis" ["with-profile" "1.6:1.7:1.8:1.9" "midje"]}
 
   ;; For Clojure snapshots
   :repositories {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"
