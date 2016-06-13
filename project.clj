@@ -1,18 +1,18 @@
-(defproject midje "1.9.0-alpha1"
+(defproject midje "1.9.0-alpha2"
   :description "A TDD library for Clojure that supports top-down ('mockish') TDD, encourages readable tests, provides a smooth migration path from clojure.test, balances abstraction and concreteness, and strives for graciousness."
   :url "https://github.com/marick/Midje"
   :pedantic? :warn
   :dependencies [[org.clojure/clojure "1.7.0"]
-                 [marick/suchwow "5.1.0" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
-                 [marick/clojure-commons "1.1.4" :exclusions [org.clojure/clojure]]
-                 [marick/structural-typing "2.0.0" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
-                 [org.clojure/math.combinatorics "0.1.1"]
+                 [marick/suchwow "5.1.3" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
+                 [marick/clojure-commons "2.0.1" :exclusions [org.clojure/clojure]]
+                 [marick/structural-typing "2.0.3" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
+                 [org.clojure/math.combinatorics "0.1.3"]
                  ;; Changing following to 0.5.6 makes a t_unify test fail.
                  [org.clojure/core.unify "0.5.2" :exclusions [org.clojure/clojure]]
-                 [clj-time "0.11.0" :exclusions [org.clojure/clojure]]
+                 [clj-time "0.12.0" :exclusions [org.clojure/clojure]]
                  [colorize "0.1.1" :exclusions [org.clojure/clojure]]
                  [org.clojure/tools.macro "0.1.5"]
-                 [org.tcrawley/dynapath "0.2.3"]
+                 [org.tcrawley/dynapath "0.2.4"]
                  [swiss-arrows "1.0.0" :exclusions [org.clojure/clojure]]
                  [org.clojure/tools.namespace "0.2.10"]
                  [flare "0.2.9" :exclusions [org.clojure/clojure]]

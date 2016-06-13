@@ -2,12 +2,15 @@
 This project adheres to [Semantic Versioning](http://semver.org/).       
 See [here](http://keepachangelog.com/) for the change log format.
 
-## [1.9.0-alpha1]
+## [1.9.0-alpha2]
+- Now compatible with Specter 0.11.
 
+## [1.9.0-alpha1]
 - Drop support for Clojure 1.5
 - Experimental version from @dlebrero that unloads deleted namespaces.
 - `(change-defaults :run-clojure-test false)` prevents clojure.test tests from being run.
 - NOTE NOTE NOTE: Previous should be documented before 1.9.0 is released.
+- This is the last version compatible with Specter 0.9.X
 
 ## [1.8.3] 
 - Bump to newer versions of dependencies
