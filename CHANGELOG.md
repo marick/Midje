@@ -5,6 +5,9 @@ See [here](http://keepachangelog.com/) for the change log format.
 ## [unreleased]
 - Now produces fewer warnings in Jaunt (via Jason Felice)
 
+## [1.9.0-alpha3]
+- PR to make Midje play better with Eastwood (via Ben Sinclair).
+
 ## [1.9.0-alpha2]
 - Now compatible with Specter 0.11.
 
