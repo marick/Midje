@@ -20,3 +20,4 @@ report.xml
 .nrepl-port
 /checkouts/
 pom.xml.asc
+.pre-commit-config.yaml
