@@ -1,5 +1,5 @@
 (ns midje.data.t-prerequisite-state
-  (:require [commons.clojure.core :refer :all]
+  (:require [commons.clojure.core :refer :all :exclude [any?]]
             [midje
              [sweet :refer :all]
              [test-util :refer :all]]

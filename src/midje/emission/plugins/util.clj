@@ -2,7 +2,7 @@
   midje.emission.plugins.util
   (:require [clojure.repl :refer [demunge]]
             [clojure.string :as str]
-            [commons.clojure.core :refer :all]
+            [commons.clojure.core :refer :all :exclude [any?]]
             [midje.util.pile :as pile]
             [midje.emission.clojure-test-facade :as ctf]
             [midje.emission.colorize :as color]

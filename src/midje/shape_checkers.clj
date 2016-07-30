@@ -1,6 +1,6 @@
 (ns midje.shape-checkers
   "Checkers that use structural-typing"
-  (:require [commons.clojure.core :refer :all]
+  (:require [commons.clojure.core :refer :all :exclude [any?]]
             [midje.checking.core :as checking.core]
             [midje.checking.checkers.defining :refer [checker defchecker]]
             [midje.util.ecosystem :refer [when-1-7+]]

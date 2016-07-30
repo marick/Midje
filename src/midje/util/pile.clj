@@ -1,6 +1,6 @@
 (ns midje.util.pile
   "Functions that are somewhat general purpose."
-  (:require [commons.clojure.core :refer :all]
+  (:require [commons.clojure.core :refer :all :exclude [any?]]
             [midje.util.ordered-map :refer [ordered-map]]
             [such.maps :as map]))
 

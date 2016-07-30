@@ -1,6 +1,6 @@
 (ns ^{:doc "Parsing function argument lists"}
   midje.parsing.other.arglists
-  (:require [commons.clojure.core :refer :all]
+  (:require [commons.clojure.core :refer :all :exclude [any?]]
             [midje.config :as config]
             [midje.emission.levels :as levels]
             [midje.parsing.util.core :refer :all]

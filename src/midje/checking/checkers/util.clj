@@ -1,5 +1,5 @@
 (ns midje.checking.checkers.util
-  (:require [commons.clojure.core :refer :all]
+  (:require [commons.clojure.core :refer :all :exclude [any?]]
             [midje.util.pile :as pile]))
 
 (defn named-as-call

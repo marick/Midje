@@ -1,6 +1,6 @@
 (ns midje.parsing.2-to-lexical-maps.t-expects
   (:require [clojure.test :refer :all]  ;; This is used to check production mode with deftest.
-            [commons.clojure.core :refer :all]
+            [commons.clojure.core :refer :all :exclude [any?]]
             [midje.sweet :refer :all]
             [midje.parsing.2-to-lexical-maps.expects :refer :all]
             [midje.parsing.2-to-lexical-maps.fakes :refer [fake]]

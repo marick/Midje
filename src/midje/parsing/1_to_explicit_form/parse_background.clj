@@ -1,7 +1,7 @@
 (ns midje.parsing.1-to-explicit-form.parse-background
   "Handles the parsing of background forms. For the moment, this includes both
    state changes and fact-wide prerequisites."
-  (:require [commons.clojure.core :refer :all]
+  (:require [commons.clojure.core :as commons]
             [clojure.zip :as zip]
             [midje.config :as config]
             [midje.data.prerequisite-state :refer [with-installed-fakes]]
@@ -31,9 +31,9 @@
 
 (defn separate-extractable-background-changing-forms [fact-body-forms]
   (letfn [(definitely-extractable-form? [form]
-            (any? (partial first-named? form) ["prerequisite" "prerequisites" "background"]))
+            (commons/any? (partial first-named? form) ["prerequisite" "prerequisites" "background"]))
           (possibly-extractable-form? [form]
-            (any? (partial first-named? form) ["against-background" "with-state-changes"]))
+            (commons/any? (partial first-named? form) ["against-background" "with-state-changes"]))
           (has-wrapper-syntax? [form]
             (and (> (count form) 2)
                  (vector? (second form))))
@@ -52,7 +52,7 @@
 ;; Dealing with a list of background changers
 
 (defn- first-form-is-no-state-changer? [forms]
-  (or (not (linear-access? (first forms)))
+  (or (not (commons/linear-access? (first forms)))
       (not (symbol? (ffirst forms)))))
 
 (defn- first-form-is-a-state-changer? [forms]
@@ -62,9 +62,9 @@
   ([forms error-reporter]
      (loop [expanded []
             in-progress forms]
-       (branch-on in-progress
-                  empty?
-                  expanded
+       (commons/branch-on in-progress
+                          empty?
+                          expanded
 
                   recognize/start-of-prerequisite-arrow-sequence?
                   (let [arrow-seq (take-arrow-sequence in-progress)]
@@ -77,14 +77,14 @@
                            (drop (count arrow-seq) in-progress)))
 
                   first-form-is-no-state-changer?
-                  (error-reporter (cl-format nil "~S does not look like a prerequisite or a before/after/around state changer." (first in-progress)))
+                  (error-reporter (commons/cl-format nil "~S does not look like a prerequisite or a before/after/around state changer." (first in-progress)))
 
                   first-form-is-a-state-changer?
                   (recur (conj expanded (first in-progress))
                          (rest in-progress))
 
                   :else
-                  (error-reporter (cl-format nil "~S does not look like a before/after/around code runner." (first in-progress))))))
+                  (error-reporter (commons/cl-format nil "~S does not look like a before/after/around code runner." (first in-progress))))))
   ([forms]
      (separate-individual-changers forms
                                        (fn [& args]
@@ -195,7 +195,7 @@
 
 (def #^:private possible-targets #{:facts, :contents, :checks })
 (def #^:private target-text ":facts, :checks, or :contents")
-(def wrong (partial cl-format nil "`~S`."))
+(def wrong (partial commons/cl-format nil "`~S`."))
 
 (defn assert-arg-count! [runner count-set & messages]
   (when-not (count-set (count (rest runner)))
@@ -204,7 +204,7 @@
 (defn assert-targets! [runner]
   (when-not (possible-targets (second runner))
     (error/report-error runner (wrong runner)
-                        (cl-format nil "Expected the target of `~S` to be ~A." (first runner) target-text))))
+                        (commons/cl-format nil "Expected the target of `~S` to be ~A." (first runner) target-text))))
 
 
 (defn assert-valid-before! [runner]
@@ -214,7 +214,7 @@
   (when (and (= 5 (count runner))
              (not= (nth runner 3) :after))
     (error/report-error runner (wrong runner)
-                        (cl-format nil "Expected the third argument of `before` to be :after."))))
+                        (commons/cl-format nil "Expected the third argument of `before` to be :after."))))
 
 (defn assert-valid-after! [runner]
   (assert-arg-count! runner #{2} "`after` takes a target and a form to run.")
@@ -260,7 +260,7 @@
 
 (defn add-midje-fact-symbols [symbols]
   (alter-var-root #'at-least-one-string-with-this-name-must-be-present
-                  union
+                  commons/union
                   (set (map name symbols))))
 
 ;; It would be better to check symbols like `midje/fact` than the string "fact";
@@ -268,13 +268,13 @@
 ;; can be loaded independently). It seems too convoluted to list everything twice, and the
 ;; worst that can happen from a name clash is that the parse error isn't caught.
 (defn assert-contains-facts! [wrapping-background-form]
-  (let [possibilities (-<> wrapping-background-form
-                           body-of-against-background
-                           flatten
-                           (filter symbol? <>)
-                           (map name <>)
-                           set)]
-    (when (empty? (intersection possibilities at-least-one-string-with-this-name-must-be-present))
+  (let [possibilities (commons/-<> wrapping-background-form
+                                   body-of-against-background
+                                   flatten
+                                   (filter symbol? <>)
+                                   (map name <>)
+                                   set)]
+    (when (empty? (commons/intersection possibilities at-least-one-string-with-this-name-must-be-present))
       (error/report-error wrapping-background-form
                           "Background prerequisites created by the wrapping version of"
                           "`against-background` only affect nested facts. This one"

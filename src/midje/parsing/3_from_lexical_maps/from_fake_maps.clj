@@ -1,6 +1,6 @@
 (ns ^{:doc "Generating functions that work on fake maps."}
   midje.parsing.3-from-lexical-maps.from-fake-maps
-  (:require [commons.clojure.core :refer :all]
+  (:require [commons.clojure.core :refer :all :exclude [any?]]
             [midje.checkers :as checkers]
             [midje.checking.core :refer :all]
             [midje.checking.checkers.defining :refer [checker?]]

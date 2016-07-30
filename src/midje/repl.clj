@@ -2,7 +2,7 @@
   "Functions useful when using Midje in the repl or from the command line.
    See `midje-repl-help` for details."
   (:require [clojure.java.io :as io]
-            [commons.clojure.core :refer :all]
+            [commons.clojure.core :refer :all :exclude [any?]]
             [midje.checking.facts :as fact-checking]
             [midje.config :as config]
             [midje.data.compendium :as compendium]

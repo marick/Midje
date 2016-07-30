@@ -1,6 +1,6 @@
 (ns ^{:doc "print levels"}
   midje.emission.levels
-  (:require [commons.clojure.core :refer :all]
+  (:require [commons.clojure.core :refer :all :exclude [any?]]
             [midje.util.exceptions :refer [user-error]]))
 
 

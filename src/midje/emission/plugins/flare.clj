@@ -1,5 +1,5 @@
 (ns midje.emission.plugins.flare
-  (:require [commons.clojure.core :refer :all]
+  (:require [commons.clojure.core :refer :all :exclude [any?]]
             [midje.util.ecosystem :as ecosystem]
             [midje.emission.plugins.util :as util]))
 

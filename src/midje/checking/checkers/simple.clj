@@ -1,6 +1,6 @@
 (ns midje.checking.checkers.simple
   "Prepackaged functions that perform common checks."
-  (:require [commons.clojure.core :refer :all]
+  (:require [commons.clojure.core :refer :all :exclude [any?]]
             [commons.ns :as ns]
             [midje.checking.core :refer :all]
             [midje.checking.checkers.defining :refer [as-checker checker defchecker]]
