@@ -2,7 +2,7 @@
 
 (ns ^{:doc "Checkers for collections and strings."}
   midje.checking.checkers.collection
-  (:require [commons.clojure.core :refer :all]
+  (:require [commons.clojure.core :refer :all :exclude [any?]]
             [midje.checking.core :refer :all]
             [midje.checking.checkers
              [collection-util :refer :all]

@@ -1,7 +1,7 @@
 (ns ^{:doc "Maintain the use of namespace-specific prerequisites"}
   midje.data.prerequisite-state
   (:require [clojure.tools.macro :as macro]
-            [commons.clojure.core :refer :all]
+            [commons.clojure.core :refer :all :exclude [any?]]
             [midje.checking.core :refer :all]
             [midje.config :as config]
             [midje.data.metaconstant :as metaconstant]

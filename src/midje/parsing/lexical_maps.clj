@@ -1,6 +1,6 @@
 (ns midje.parsing.lexical-maps
   "checkable maps, redefine maps, failure maps"
-  (:require [commons.clojure.core :refer :all]
+  (:require [commons.clojure.core :as commons]
             [midje.data.nested-facts :as nested-facts]
             [midje.parsing.3-from-lexical-maps.from-fake-maps :as from-fake-maps]
             [midje.parsing.util.fnref :as fnref]
@@ -68,7 +68,7 @@
 ;; captures invocations and also returns canned values.
 
 (defn- choose-mkfn-for-arglist-matcher [arg-descriptions]
-  (letfn [(allows-optional-args? [args] (any? #(= % (symbol "&")) args))]
+  (letfn [(allows-optional-args? [args] (commons/any? #(= % (symbol "&")) args))]
     (if (allows-optional-args? arg-descriptions)
       `(from-fake-maps/mkfn:arglist-matcher-allowing-optional-args ~@arg-descriptions)
       `(from-fake-maps/mkfn:arglist-matcher-fixed-arity ~@arg-descriptions))))

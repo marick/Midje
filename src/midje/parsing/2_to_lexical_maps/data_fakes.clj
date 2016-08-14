@@ -1,6 +1,6 @@
 (ns ^{:doc "=contains=> prereqisites"}
   midje.parsing.2-to-lexical-maps.data-fakes
-  (:require [commons.clojure.core :refer :all]
+  (:require [commons.clojure.core :refer :all :exclude [any?]]
             [midje.data.metaconstant :as metaconstant]
             [midje.parsing.arrow-symbols :refer :all]
             [midje.parsing.lexical-maps :as lexical-maps]

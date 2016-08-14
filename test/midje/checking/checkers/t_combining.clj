@@ -1,6 +1,6 @@
 (ns midje.checking.checkers.t-combining
   (:require [midje.sweet :refer :all]
-            [commons.clojure.core :refer :all]
+            [commons.clojure.core :refer :all :exclude [any?]]
             [midje.checking.core :refer :all]
             [midje.checking.checkers.defining :refer [checker?]]
             [midje.test-util :refer :all]))

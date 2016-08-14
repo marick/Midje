@@ -1,7 +1,7 @@
 (ns ^{:doc "How the default emitter reports on failures"}
   midje.emission.plugins.default-failure-lines
   (:require [clojure.string :as str]
-            [commons.clojure.core :refer :all]
+            [commons.clojure.core :refer :all :exclude [any?]]
             [flare.core :as flare]
             [midje.emission.plugins.util :refer :all]
             [midje.util.ecosystem :as ecosystem]))

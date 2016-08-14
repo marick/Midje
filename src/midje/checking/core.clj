@@ -1,6 +1,6 @@
 (ns midje.checking.core
   "Core ideas underlying all checking"
-  (:require [commons.clojure.core :refer :all]
+  (:require [commons.clojure.core :refer :all :exclude [any?]]
             ;; TODO: Shouldn't really have this dependency.
             [midje.emission.plugins.util :as names]
             [such.sequences :as seq]))

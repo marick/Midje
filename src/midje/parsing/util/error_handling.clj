@@ -1,6 +1,6 @@
 (ns midje.parsing.util.error-handling
   "Utility functions dealing with checking or tranforming forms or zippers."
-  (:require [commons.clojure.core :refer :all]
+  (:require [commons.clojure.core :refer :all :exclude [any?]]
             [midje.emission.api :as emit]
             [midje.util.exceptions :refer [user-error-exception-lines]]
             [pointer.core :refer [form-position]]))
