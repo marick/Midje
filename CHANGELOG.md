@@ -4,6 +4,9 @@ See [here](http://keepachangelog.com/) for the change log format.
 
 ## [unreleased]
 
+## [1.9.0-alpha4]
+- Live with `clojure.core/any?`. Thanks, Børge Svingen
+
 ## [1.9.0-alpha3]
 - PR to make Midje play better with Eastwood (via Ben Sinclair).
 - Now produces fewer warnings in Jaunt (via Jason Felice)

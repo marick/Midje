@@ -1,10 +1,10 @@
-(defproject midje "1.9.0-alpha3"
+(defproject midje "1.9.0-alpha4"
   :description "A TDD library for Clojure that supports top-down ('mockish') TDD, encourages readable tests, provides a smooth migration path from clojure.test, balances abstraction and concreteness, and strives for graciousness."
   :url "https://github.com/marick/Midje"
   :pedantic? :warn
   :dependencies [[org.clojure/clojure "1.7.0"]
-                 [marick/suchwow "5.1.3" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
-                 [marick/clojure-commons "2.0.1" :exclusions [org.clojure/clojure]]
+                 [marick/suchwow "5.2.1" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
+                 [marick/clojure-commons "2.0.4" :exclusions [org.clojure/clojure]]
                  [marick/structural-typing "2.0.3" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
                  [org.clojure/math.combinatorics "0.1.3"]
                  ;; Changing following to 0.5.6 makes a t_unify test fail.
