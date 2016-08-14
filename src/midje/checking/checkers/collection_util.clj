@@ -1,5 +1,5 @@
 (ns midje.checking.checkers.collection-util
-  (:require [commons.clojure.core :refer :all]
+  (:require [commons.clojure.core :refer :all :exclude [any?]]
             [midje.checking.core :refer :all]))
 
 (defn same-lengths? [actual expected]

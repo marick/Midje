@@ -1,6 +1,6 @@
 (ns midje.parsing.2-to-lexical-maps.expects
   "generate a map for a particular checkable"
-  (:require [commons.clojure.core :refer :all]
+  (:require [commons.clojure.core :refer :all :exclude [any?]]
             [midje.data.nested-facts :as nested-facts]
             [midje.emission.api :as emit]
             [midje.parsing.2-to-lexical-maps.data-fakes :as parse-data-fakes]

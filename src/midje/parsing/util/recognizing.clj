@@ -1,7 +1,7 @@
 (ns ^{:doc "Recognizing Midje forms"}
   midje.parsing.util.recognizing
   (:require [clojure.zip :as zip]
-            [commons.clojure.core :refer :all]
+            [commons.clojure.core :refer :all :exclude [any?]]
             [midje.parsing.arrow-symbols :refer :all]
             [midje.parsing.util.core :refer :all]
             [midje.parsing.util.future-variants :as future-variants]

@@ -1,7 +1,7 @@
 (ns ^{:doc "Parsing facts."}
   midje.parsing.1-to-explicit-form.facts
   (:require [clojure.zip :as zip]
-            [commons.clojure.core :refer :all]
+            [commons.clojure.core :refer :all :exclude [any?]]
             [midje.data.compendium :as compendium]
             [midje.parsing.1-to-explicit-form.expects :refer [wrap-with-expect__then__at-rightmost-expect-leaf]]
             [midje.parsing.1-to-explicit-form.metaconstants :refer [predefine-metaconstants-from-form]]

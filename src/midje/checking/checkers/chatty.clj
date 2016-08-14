@@ -1,6 +1,6 @@
 (ns ^{:doc "Checkers that explain more about a failure."}
   midje.checking.checkers.chatty
-  (:require [commons.clojure.core :refer :all]
+  (:require [commons.clojure.core :refer :all :exclude [any?]]
             [midje.checking.checkers.defining :refer [as-checker]]
             [midje.checking.checkers.util :refer [named-as-call]]
             [midje.checking.core :refer :all]

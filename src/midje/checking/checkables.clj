@@ -1,6 +1,6 @@
 (ns ^{:doc "Core Midje functions that process expects and report on their results."} 
   midje.checking.checkables
-  (:require [commons.clojure.core :refer :all]
+  (:require [commons.clojure.core :refer :all :exclude [any?]]
             [midje.checking.core :refer :all]
             [midje.config :as config]
             [midje.data.nested-facts :as nested-facts]

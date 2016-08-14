@@ -1,6 +1,6 @@
 (ns ^{:doc "Parsing metadata as found in facts, around-facts, and tables"}
   midje.parsing.1-to-explicit-form.metadata
-  (:require [commons.clojure.core :refer :all]
+  (:require [commons.clojure.core :refer :all :exclude [any?]]
             [midje.parsing.util.recognizing :as recognize]
             [midje.util.exceptions :refer [user-error]]
             [such.random :as random]))

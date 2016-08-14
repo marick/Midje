@@ -4,7 +4,7 @@
   midje.checking.checkers.collection-comparison
   (:require [clojure.math.combinatorics :as comb]
             [clojure.string :as str]
-            [commons.clojure.core :refer :all]
+            [commons.clojure.core :refer :all :exclude [any?]]
             [midje.checking.core :refer :all]
             [midje.checking.checkers
              [collection-util :refer :all]

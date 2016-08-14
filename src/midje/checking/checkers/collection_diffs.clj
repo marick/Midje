@@ -2,7 +2,7 @@
 
 (ns midje.checking.checkers.collection-diffs
   "Checkers for collections and strings."
-  (:require [commons.clojure.core :refer :all]
+  (:require [commons.clojure.core :refer :all :exclude [any?]]
             [midje.util.pile :as pile]
             [midje.checking.checkers.collection :as old]
             [midje.checking.core :as core]

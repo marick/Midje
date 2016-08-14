@@ -2,7 +2,7 @@
   midje.parsing.0-to-fact-form.formulas
   (:require [clojure.string :refer [join]]
             [clojure.walk :refer [prewalk]]
-            [commons.clojure.core :refer :all]
+            [commons.clojure.core :refer :all :exclude [any?]]
             [midje.emission.api :as emit]
             [midje.emission.boundaries :as emission-boundary]
             [midje.emission.state :as state]
