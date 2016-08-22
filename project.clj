@@ -8,7 +8,7 @@
                  [marick/structural-typing "2.0.4" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
                  [org.clojure/math.combinatorics "0.1.3"]
                  ;; Changing following to 0.5.6 makes a t_unify test fail.
-                 [org.clojure/core.unify "0.5.2" :exclusions [org.clojure/clojure]]
+                 [org.clojure/core.unify "0.5.7" :exclusions [org.clojure/clojure]]
                  [clj-time "0.12.0" :exclusions [org.clojure/clojure]]
                  [colorize "0.1.1" :exclusions [org.clojure/clojure]]
                  [org.clojure/tools.macro "0.1.5"]
@@ -23,7 +23,7 @@
              :1.6 [:test-libs {:dependencies [[org.clojure/clojure "1.6.0"]]}]
              :1.7 [:test-libs {:dependencies [[org.clojure/clojure "1.7.0"]]}]
              :1.8 [:test-libs {:dependencies [[org.clojure/clojure "1.8.0"]]}]
-             :1.9 [:test-libs {:dependencies [[org.clojure/clojure "1.9.0-alpha10"]]}]
+             :1.9 [:test-libs {:dependencies [[org.clojure/clojure "1.9.0-alpha11"]]}]
              ;; The following profile can be used to check that `lein with-profile`
              ;; profiles are obeyed. Note that profile `:test-paths` *add on* to the
              ;; defaults.

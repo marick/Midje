@@ -4,6 +4,9 @@ See [here](http://keepachangelog.com/) for the change log format.
 
 ## [unreleased]
 
+## [1.9.0-alpha5]
+- Ugrade clojure.unify to allow compatibility with Clojure 1.9alpha11
+
 ## [1.9.0-alpha4]
 - Live with `clojure.core/any?`. Thanks, Børge Svingen
 
