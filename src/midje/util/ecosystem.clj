@@ -73,8 +73,6 @@
   ;; Note that the order is guaranteed: test paths come before project paths.
   (alter-var-root #'leiningen-paths-var
                   (constantly (concat (:test-paths project) (:source-paths project)))))
-
-
 (defmacro #^:private defproject [name version & {:as args}]
   `(set-leiningen-paths! (merge {:test-paths ["test"] :source-paths ["src"]} '~args)))
 

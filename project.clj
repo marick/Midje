@@ -18,7 +18,7 @@
                  [flare "0.2.9" :exclusions [org.clojure/clojure]]
                  [slingshot "0.12.2"]]
   :profiles {:dev {:dependencies [[prismatic/plumbing "0.5.3"]]
-                   :plugins [[lein-midje "3.1.4-SNAPSHOT"]]}
+                   :plugins [[lein-midje "3.2.1"]]}
              :test-libs {:dependencies [[prismatic/plumbing "0.5.3"]]}
              :1.6 [:test-libs {:dependencies [[org.clojure/clojure "1.6.0"]]}]
              :1.7 [:test-libs {:dependencies [[org.clojure/clojure "1.7.0"]]}]
