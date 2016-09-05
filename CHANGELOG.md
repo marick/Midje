@@ -3,6 +3,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
 
 ## [unreleased]
+- Prevent use of `print` in prerequisites, which causes an infinite
+  loop if Midje needs to print any errors. (#347)
 
 ## [1.9.0-alpha5]
 - Ugrade clojure.unify to allow compatibility with Clojure 1.9alpha11

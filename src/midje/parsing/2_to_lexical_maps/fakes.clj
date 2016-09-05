@@ -23,7 +23,7 @@
    the dynamic checking code that must also not be replaced. These are
    the ones that are known."
   [some-var]
-  (#{#'deref #'assoc #'list?} some-var))
+  (#{#'deref #'assoc #'list? #'print #'println} some-var))
 
 (defn assert-right-shape! [[_fake_ funcall & _ :as form]]
   (when-not (or (list? funcall)
