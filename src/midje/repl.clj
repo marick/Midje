@@ -527,7 +527,9 @@
             (catch Throwable t
               (autotest :stop)
               (println (color/fail "Because failures in the initial load break autotest's dependency tracking,"))
-              (println (color/fail "autotest has been cancelled."))))
+              (println (color/fail "autotest has been cancelled."))
+              (println (color/fail (.getMessage t)))))
+
 
 
             (and (:files? option)

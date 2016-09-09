@@ -5,6 +5,7 @@ See [here](http://keepachangelog.com/) for the change log format.
 ## [unreleased]
 - Prevent use of `print` in prerequisites, which causes an infinite
   loop if Midje needs to print any errors. (#347)
+- Try a bit harder to help user if clojure.tools.namespace fails. (#365)
 
 ## [1.9.0-alpha5]
 - Ugrade clojure.unify to allow compatibility with Clojure 1.9alpha11
