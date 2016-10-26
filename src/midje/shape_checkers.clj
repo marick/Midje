@@ -6,6 +6,7 @@
             [midje.util.ecosystem :refer [when-1-7+]]
             [such.immigration :as immigrate]))
 
+(comment
 
 (when-1-7+
 
@@ -28,6 +29,9 @@
 (defchecker all-built-like [type-shorthand]
   (checker [actual]
     (type/all-built-like type-repo type-shorthand actual)))
+
+
+)
 
 
 )

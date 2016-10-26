@@ -5,6 +5,8 @@
             [midje.checking.core :as core]
             [midje.util.ecosystem :refer [when-1-7+]]))
 
+(comment
+
 (when-1-7+
 
 (fact
@@ -21,4 +23,5 @@
       failure => core/data-laden-falsehood?
       (first (:notes failure)) => #"should be")))
 
+)
 )

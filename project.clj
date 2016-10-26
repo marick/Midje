@@ -3,11 +3,11 @@
   :url "https://github.com/marick/Midje"
   :pedantic? :warn
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [marick/suchwow "5.2.3" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
-                 [marick/clojure-commons "2.0.4" :exclusions [org.clojure/clojure]]
-                 [marick/structural-typing "2.0.4" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
+                 [marick/suchwow "6.0.0" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
+                 [marick/clojure-commons "3.0.0" :exclusions [org.clojure/clojure]]
+                 ;; structural-typing currently broken with specter 0.13
+                 ;; [marick/structural-typing "2.0.4" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
                  [org.clojure/math.combinatorics "0.1.3"]
-                 ;; Changing following to 0.5.6 makes a t_unify test fail.
                  [org.clojure/core.unify "0.5.7" :exclusions [org.clojure/clojure]]
                  [clj-time "0.12.0" :exclusions [org.clojure/clojure]]
                  [colorize "0.1.1" :exclusions [org.clojure/clojure]]

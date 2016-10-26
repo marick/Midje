@@ -2,10 +2,12 @@
 This project adheres to [Semantic Versioning](http://semver.org/).       
 See [here](http://keepachangelog.com/) for the change log format.
 
-## [unreleased]
+## [1.9.0-alpha6]
 - Prevent use of `print` in prerequisites, which causes an infinite
   loop if Midje needs to print any errors. (#347)
 - Try a bit harder to help user if clojure.tools.namespace fails. (#365)
+- Compatibility with Specter 0.13
+- ... which means dumping support for Clojure 1.6
 
 ## [1.9.0-alpha5]
 - Ugrade clojure.unify to allow compatibility with Clojure 1.9alpha11

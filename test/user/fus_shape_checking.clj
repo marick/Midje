@@ -4,6 +4,8 @@
             [midje.shape-checkers :as c]
             [midje.util.ecosystem :refer [when-1-7+]]))
 
+(comment
+
 (when-1-7+
 
 (silent-fact
@@ -20,4 +22,5 @@
 (note-that (fact-failed-with-note #"\[1 :c\]"))
 (note-that (fact-failed-with-note #"\[2 :a :b\]"))
 
+)
 )
