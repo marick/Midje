@@ -2,7 +2,7 @@
 This project adheres to [Semantic Versioning](http://semver.org/).       
 See [here](http://keepachangelog.com/) for the change log format.
 
-## [1.9.0-alpha6]
+## [1.9.0-alpha6] - 2016-10-26
 - Prevent use of `print` in prerequisites, which causes an infinite
   loop if Midje needs to print any errors. (#347)
 - Try a bit harder to help user if clojure.tools.namespace fails. (#365)
