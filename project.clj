@@ -12,7 +12,7 @@
                  [clj-time "0.12.0" :exclusions [org.clojure/clojure]]
                  [colorize "0.1.1" :exclusions [org.clojure/clojure]]
                  [org.clojure/tools.macro "0.1.5"]
-                 [org.tcrawley/dynapath "0.2.4"]
+                 [org.tcrawley/dynapath "0.2.5"]
                  [swiss-arrows "1.0.0" :exclusions [org.clojure/clojure]]
                  [org.clojure/tools.namespace "0.2.10"]
                  [flare "0.2.9" :exclusions [org.clojure/clojure]]
