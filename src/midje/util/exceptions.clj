@@ -35,6 +35,12 @@
   (cons (str throwable)
     (without-clojure-strings (stacktrace-as-strings throwable))))
 
+(defn- friendly-caused-by [ex prefix]
+  (when-let [cause (.getCause ex)]
+    (let [[data & stacktrace] (friendly-exception-lines cause prefix)]
+      (cons (str line-separator prefix "Caused by: " data)
+            stacktrace))))
+
 
 ;; When a fact throws an Exception or Error it gets wrapped
 ;; in this deftype
@@ -47,7 +53,9 @@
   ICapturedThrowable 
   (throwable [this] ex)
   (friendly-stacktrace [this]
-    (join line-separator (friendly-exception-lines (throwable this) "              "))))
+      (join line-separator
+            (concat (friendly-exception-lines (throwable this) "              ")
+                    (friendly-caused-by (throwable this) "              ")))))
 
 (defn captured-throwable [ex] 
   (CapturedThrowable. ex))
