@@ -26,21 +26,26 @@
   (defn- ^{:testable true} without-midje-or-clojure-strings [all-strings]
     (remove-matches #"^java\.|^clojure\.|^sun\.|^swank\.|^user\$eval|^midje" all-strings)))
 
-(defn- ^{:testable true} friendly-exception-lines [ex prefix]
+(declare caused-by-lines)
+
+(defn- main-exception-lines [ex prefix]
   (cons (str ex)
-    (map #(str prefix %)
-      (without-midje-or-clojure-strings (stacktrace-as-strings ex)))))
+      (map #(str prefix %)
+        (without-midje-or-clojure-strings (stacktrace-as-strings ex)))))
 
-(defn user-error-exception-lines [throwable]
-  (cons (str throwable)
-    (without-clojure-strings (stacktrace-as-strings throwable))))
+(defn- ^{:testable true} friendly-exception-lines [ex prefix]
+  (concat (main-exception-lines ex prefix)
+          (caused-by-lines ex prefix)))
 
-(defn- friendly-caused-by [ex prefix]
+(defn- caused-by-lines [ex prefix]
   (when-let [cause (.getCause ex)]
     (let [[data & stacktrace] (friendly-exception-lines cause prefix)]
       (cons (str line-separator prefix "Caused by: " data)
             stacktrace))))
 
+(defn user-error-exception-lines [throwable]
+  (cons (str throwable)
+    (without-clojure-strings (stacktrace-as-strings throwable))))
 
 ;; When a fact throws an Exception or Error it gets wrapped
 ;; in this deftype
@@ -53,9 +58,7 @@
   ICapturedThrowable 
   (throwable [this] ex)
   (friendly-stacktrace [this]
-      (join line-separator
-            (concat (friendly-exception-lines (throwable this) "              ")
-                    (friendly-caused-by (throwable this) "              ")))))
+    (join line-separator (friendly-exception-lines (throwable this) "              "))))
 
 (defn captured-throwable [ex] 
   (CapturedThrowable. ex))

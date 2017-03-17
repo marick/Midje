@@ -49,3 +49,20 @@
     (first lines) => #"Error.*message"
     (re-find #"^>>>" (first lines)) => falsey
     (count (map #(re-find #">>>implementation.util.t_exceptions" %) (rest lines))) => (count (rest lines))))
+
+(def nested-exception
+  (ex-info "Found a NPE" {:info "wrapped throw of an NPE"} (NullPointerException.)))
+
+(fact
+  "Check that exceptions with 'cause' data show the 'cause' stacktrace"
+  (let [lines (friendly-exception-lines nested-exception ">>>")]
+    (count (remove nil? (map #(re-find #">>>Caused by:" %) lines))) => 1))
+
+(def double-nested-exception
+  (ex-info "Exception with a cause chain 2 deep" {:info "2 deep"} nested-exception))
+
+(fact
+  "Check that exceptions with nested 'cause' data more than 1 level deep, shows
+  all 'cause' stacktraces"
+  (let [lines (friendly-exception-lines double-nested-exception ">>>")]
+    (count (remove nil? (map #(re-find #">>>Caused by:" %) lines))) => 2))
