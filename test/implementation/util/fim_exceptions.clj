@@ -48,7 +48,7 @@
   (let [lines (friendly-exception-lines (Error. "message") ">>>")]
     (first lines) => #"Error.*message"
     (re-find #"^>>>" (first lines)) => falsey
-    (count (map #(re-find #">>>implementation.util.t_exceptions" %) (rest lines))) => (count (rest lines))))
+    (count (remove nil? (map #(re-find #">>>implementation.util.fim_exceptions" %) (rest lines)))) => (count (rest lines))))
 
 (def nested-exception
   (ex-info "Found a NPE" {:info "wrapped throw of an NPE"} (NullPointerException.)))
