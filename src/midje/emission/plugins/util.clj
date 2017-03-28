@@ -171,7 +171,10 @@ midje.emission.plugins.util
          exception/captured-throwable? (exception/friendly-stacktrace value)
          record? (str (sorted-if-appropriate value) "::" (record-name value))
          :else (sorted-if-appropriate value))
-      (puget/cprint-str)))
+      (puget/cprint-str {:print-fallback :pretty
+                         :print-handlers custom-handlers
+                         :seq-limit      10
+                         :map-delimiter  ""})))
 
 (defn format-nested-descriptions
   "Takes vector like [\"about cars\" nil \"sports cars are fast\"] and returns non-nils joined with -'s
