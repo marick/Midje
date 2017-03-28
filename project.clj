@@ -1,4 +1,4 @@
-(defproject midje "1.9.0-alpha6"
+(defproject midje "1.9.0-alpha7"
   :description "A TDD library for Clojure that supports top-down ('mockish') TDD, encourages readable tests, provides a smooth migration path from clojure.test, balances abstraction and concreteness, and strives for graciousness."
   :url "https://github.com/marick/Midje"
   :pedantic? :warn
@@ -16,7 +16,8 @@
                  [swiss-arrows "1.0.0" :exclusions [org.clojure/clojure]]
                  [org.clojure/tools.namespace "0.2.10"]
                  [flare "0.2.9" :exclusions [org.clojure/clojure]]
-                 [slingshot "0.12.2"]]
+                 [slingshot "0.12.2"]
+                 [mvxcvi/puget "1.0.1"]]
   :profiles {:dev {:dependencies [[prismatic/plumbing "0.5.3"]]
                    :plugins [[lein-midje "3.2.1"]]}
              :test-libs {:dependencies [[prismatic/plumbing "0.5.3"]]}
