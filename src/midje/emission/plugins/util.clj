@@ -1,5 +1,5 @@
 (ns ^{:doc "General purpose plugin utilities"}
-  midje.emission.plugins.util
+midje.emission.plugins.util
   (:require [clojure.repl :refer [demunge]]
             [clojure.string :as str]
             [commons.clojure.core :refer :all :exclude [any?]]
@@ -10,7 +10,11 @@
             [midje.util.exceptions :as exception]
             [midje.config :as config]
             [midje.util.ordered-map :as om]
-            [midje.util.ordered-set :as os]))
+            [midje.util.ordered-set :as os])
+  (:import (java.time LocalDate LocalDateTime YearMonth)
+           (java.util UUID)
+           (java.net URI)
+           (java.time.format DateTimeFormatter)))
 
 
 
@@ -128,6 +132,33 @@
     (if name
       (str "#'" name)
       (pr-str prerequisite-var))))
+
+(def custom-handlers
+
+  {LocalDate
+   (puget/tagged-handler
+     'date
+     #(.format % DateTimeFormatter/ISO_DATE))
+
+   LocalDateTime
+   (puget/tagged-handler
+     'time
+     #(.format % DateTimeFormatter/ISO_DATE_TIME))
+
+   YearMonth
+   (puget/tagged-handler
+     'year-month
+     #(.format % (DateTimeFormatter/ofPattern "yyyy-MM")))
+
+   UUID
+   (puget/tagged-handler
+     'uuid
+     str)
+
+   URI
+   (puget/tagged-handler
+     'uri
+     str)})
 
 (defn attractively-stringified-value
   "Does some standard prettification of forms:
