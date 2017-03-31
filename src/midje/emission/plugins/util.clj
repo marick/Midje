@@ -10,7 +10,7 @@ midje.emission.plugins.util
             [midje.util.exceptions :as exception]
             [midje.config :as config]
             [midje.util.ordered-map :as om]
-            [midje.util.ordered-set :as os])
+            [midje.util.ordered-set :as os]))
 
 ;; The theory here was that using clojure.test output would allow text
 ;; from failing *facts* to appear within the clojure.test segment of
