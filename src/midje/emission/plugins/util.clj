@@ -11,12 +11,6 @@ midje.emission.plugins.util
             [midje.config :as config]
             [midje.util.ordered-map :as om]
             [midje.util.ordered-set :as os])
-  (:import (java.time LocalDate LocalDateTime YearMonth)
-           (java.util UUID)
-           (java.net URI)
-           (java.time.format DateTimeFormatter)))
-
-
 
 ;; The theory here was that using clojure.test output would allow text
 ;; from failing *facts* to appear within the clojure.test segment of
@@ -133,33 +127,6 @@ midje.emission.plugins.util
       (str "#'" name)
       (pr-str prerequisite-var))))
 
-(def custom-handlers
-
-  {LocalDate
-   (puget/tagged-handler
-     'date
-     #(.format % DateTimeFormatter/ISO_DATE))
-
-   LocalDateTime
-   (puget/tagged-handler
-     'time
-     #(.format % DateTimeFormatter/ISO_DATE_TIME))
-
-   YearMonth
-   (puget/tagged-handler
-     'year-month
-     #(.format % (DateTimeFormatter/ofPattern "yyyy-MM")))
-
-   UUID
-   (puget/tagged-handler
-     'uuid
-     str)
-
-   URI
-   (puget/tagged-handler
-     'uri
-     str)})
-
 (defn attractively-stringified-value
   "Does some standard prettification of forms:
         : a function named `foo`
@@ -172,7 +139,6 @@ midje.emission.plugins.util
          record? (str (sorted-if-appropriate value) "::" (record-name value))
          :else (sorted-if-appropriate value))
       (puget/cprint-str {:print-fallback :pretty
-                         :print-handlers custom-handlers
                          :seq-limit      10
                          :map-delimiter  ""})))
 
