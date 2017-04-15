@@ -39,9 +39,9 @@
 
 (defn- caused-by-lines [ex prefix]
   (when-let [cause (.getCause ex)]
-    (let [[data & stacktrace] (friendly-exception-lines cause prefix)]
-      (cons (str line-separator prefix "Caused by: " data)
-            stacktrace))))
+    (let [[message & stacktrace] (friendly-exception-lines cause prefix)]
+      (concat ["" (str prefix "Caused by: " message)]
+              stacktrace))))
 
 (defn user-error-exception-lines [throwable]
   (cons (str throwable)
