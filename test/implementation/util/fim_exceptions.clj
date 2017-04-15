@@ -48,21 +48,40 @@
   (let [lines (friendly-exception-lines (Error. "message") ">>>")]
     (first lines) => #"Error.*message"
     (re-find #"^>>>" (first lines)) => falsey
-    (count (remove nil? (map #(re-find #">>>implementation.util.fim_exceptions" %) (rest lines)))) => (count (rest lines))))
+    (count (keep #(re-find #">>>implementation.util.fim_exceptions" %) (rest lines))) => (count (rest lines))))
 
-(def nested-exception
-  (ex-info "Found a NPE" {:info "wrapped throw of an NPE"} (NullPointerException.)))
+(defn innermost-exception []
+  (NullPointerException.))
 
-(fact
-  "Check that exceptions with 'cause' data show the 'cause' stacktrace"
-  (let [lines (friendly-exception-lines nested-exception ">>>")]
-    (count (remove nil? (map #(re-find #">>>Caused by:" %) lines))) => 1))
+(defn nested-exception []
+  (ex-info "Found a NPE" {:info "wrapped throw of an NPE"} (innermost-exception)))
+
+(defn call-nested-exception []
+  (nested-exception))
+
+(fact "exceptions with 'cause' data show the 'cause' stacktrace"
+  (let [lines (friendly-exception-lines (call-nested-exception) ">>>")]
+    (clojure.string/join "&" lines) => #"(?x)^clojure.lang.ExceptionInfo:\ Found\ a\ NPE\ \{:info\ \"wrapped\ throw\ of\ an\ NPE\"\}
+                                            (&>>>.*nested.exception.*)+
+                                            (&>>>.*call.nested.exception.*)+
+                                             &
+                                             &>>>Caused\ by:\ java.lang.NullPointerException
+                                            (&>>>.*innermost.exception.*)+
+                                            (&>>>.*nested.exception.*)+
+                                            (&>>>.*call.nested.exception.*)+"))
 
 (def double-nested-exception
-  (ex-info "Exception with a cause chain 2 deep" {:info "2 deep"} nested-exception))
+  (ex-info "Exception with a cause chain 2 deep" {:info "2 deep"} (call-nested-exception)))
 
-(fact
-  "Check that exceptions with nested 'cause' data more than 1 level deep, shows
-  all 'cause' stacktraces"
+(fact "exceptions with nested 'cause' data more than 1 level deep, shows all 'cause' stacktraces"
   (let [lines (friendly-exception-lines double-nested-exception ">>>")]
-    (count (remove nil? (map #(re-find #">>>Caused by:" %) lines))) => 2))
+    (clojure.string/join "&" lines) => #"(?x)^clojure.lang.ExceptionInfo:\ Exception\ with\ a\ cause\ chain\ 2\ deep\ \{:info\ \"2\ deep\"\}
+                                             &
+                                             &>>>Caused\ by:\ clojure.lang.ExceptionInfo:\ Found\ a\ NPE\ \{:info\ \"wrapped\ throw\ of\ an\ NPE\"\}
+                                             (&>>>.*nested.exception.*)+
+                                            (&>>>.*call.nested.exception.*)+
+                                             &
+                                             &>>>Caused\ by:\ java.lang.NullPointerException
+                                            (&>>>.*innermost.exception.*)+
+                                            (&>>>.*nested.exception.*)+
+                                            (&>>>.*call.nested.exception.*)+"))
