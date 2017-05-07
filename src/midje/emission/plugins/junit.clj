@@ -14,7 +14,8 @@
 
 ;; This plugin requires all emission api calls to be
 ;; forwarded to it.
-(config/change-defaults :print-level :print-facts)
+(config/change-defaults :print-level :print-facts
+                        :colorize false)
 
 (defonce report-file (atom nil))
 (defonce last-fact (atom {}))
