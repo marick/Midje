@@ -1,8 +1,9 @@
 (ns ^{:doc "General purpose plugin utilities"}
-  midje.emission.plugins.util
+midje.emission.plugins.util
   (:require [clojure.repl :refer [demunge]]
             [clojure.string :as str]
             [commons.clojure.core :refer :all :exclude [any?]]
+            [puget.printer :as puget]
             [midje.util.pile :as pile]
             [midje.emission.clojure-test-facade :as ctf]
             [midje.emission.colorize :as color]
@@ -10,8 +11,6 @@
             [midje.config :as config]
             [midje.util.ordered-map :as om]
             [midje.util.ordered-set :as os]))
-  
-
 
 ;; The theory here was that using clojure.test output would allow text
 ;; from failing *facts* to appear within the clojure.test segment of
@@ -134,11 +133,14 @@
         : a nicely printed stack trace
         : maps and sets sorted by key."
   [value]
-  (branch-on value
-    fn?                           (function-name value)
-    exception/captured-throwable? (exception/friendly-stacktrace value)
-    record?                       (str (sorted-if-appropriate value) "::" (record-name value))
-    :else                         (pr-str (sorted-if-appropriate value))))
+  (-> (branch-on value
+         fn? (function-name value)
+         exception/captured-throwable? (exception/friendly-stacktrace value)
+         record? (str (sorted-if-appropriate value) "::" (record-name value))
+         :else (sorted-if-appropriate value))
+      (puget/cprint-str {:print-fallback :pretty
+                         :seq-limit      10
+                         :map-delimiter  ""})))
 
 (defn format-nested-descriptions
   "Takes vector like [\"about cars\" nil \"sports cars are fast\"] and returns non-nils joined with -'s
@@ -161,7 +163,7 @@
       (filename-lineno [filename line-num]))))
 
 
-(defn- format-binding-map [binding-map] 
+(defn- format-binding-map [binding-map]
   (let [formatted-entries (for [[k v] binding-map]
                             (str (pr-str k) " " (pr-str v)))]
     (str "[" (str/join "\n                           " formatted-entries) "]")))
