@@ -30,11 +30,28 @@
 
 
 (silent-fact
- (two-numbers) => nil
- (provided
-   (number) =throws=> [1]))
-(note-that fact-fails, (fact-captured-throwable-with-message #"Right side of =throws=> should extend Throwable"))
-  
+  (two-numbers) => nil
+  (provided
+    (number) =throws=> [1]))
+(note-that fact-fails (fact-captured-throwable-with-message
+                        #"Right side of =throws=> should extend Throwable"))
+
+(silent-fact "`=throws=>` provided arrows should fail when used outside of `provided` body"
+  (inc 1) =throws=> 2)
+(note-that fact-fails (fact-failed-with-note
+                        #"The prerequisite arrow appears outside the body of a `provided`:\(inc 1\) =throws=> 2"))
+
+(silent-fact "nested `=throws=>` provided arrows should fail when used outside of `provided` body"
+  (let [x 1]
+    (inc x) =throws=> 2))
+(note-that fact-fails (fact-failed-with-note
+                        #"The prerequisite arrow appears outside the body of a `provided`:\(inc x\) =throws=> 2"))
+
+(silent-fact "`=streams=>` provided arrows should fail when used outside of `provided` body"
+  (inc 1) =streams=> 2)
+(note-that fact-fails (fact-failed-with-note
+                        #"The prerequisite arrow appears outside the body of a `provided`:\(inc 1\) =streams=> 2"))
+
 (facts "this is a doc string"
   (+ 10 10) => 20
   "this is another one"
