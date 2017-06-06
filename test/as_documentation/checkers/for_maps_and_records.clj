@@ -26,7 +26,7 @@
 (for-failure 2 (note-that (fact-failed-with-note "A record on the right of the arrow means the value on the left must be of the same type.")))
 
 ;; The =not=> arrow is a tricky case. Consider this:
-;; 
+;;
 ;; (fact
 ;;   {:x 1, :y 2} =not=> (R. 1 2}
 ;;
@@ -47,7 +47,7 @@
 (fact (R. 1 2) =not=> (R. 1 3333333))
 (silent-fact (R. 1 2) =not=> (R. 1 2))
 (note-that fact-failed)
-           
+
 
 
 

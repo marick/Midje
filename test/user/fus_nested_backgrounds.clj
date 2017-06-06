@@ -10,7 +10,7 @@
 
 (silent-fact
   (against-background [(f 1) => 1]
-    (fact 
+    (fact
       (against-background [(f 2) => 2]
         (fact
           (against-background f => 3)
@@ -24,48 +24,48 @@
     (against-background (f 1) => 1)
     (f 1) => 1))
 
-(fact 
+(fact
   (against-background [(f 1) => 1]
-    (fact 
+    (fact
       (f 1) => 1)))
 
-(fact 
+(fact
   (against-background [(f 1) => 1]
     (fact
       (against-background [(f 2) => 2]
         (fact
           (+ (f 1) (f 2)) => 3)))))
 
-(fact 
+(fact
   (against-background (f 1) => 1)
-  (fact 
+  (fact
     (against-background (f 2) => 2)
     (+ (f 1) (f 2)) => 3))
 
-(fact 
+(fact
   (against-background (f 1) => 1)
-  (fact 
+  (fact
     (against-background [(f 2) => 2]
-      (fact 
+      (fact
         (+ (f 1) (f 2)) => 3))))
 
-(fact 
+(fact
   (against-background [(f 1) => 1]
-    (fact 
+    (fact
       (against-background (f 2) => 2)
       (+ (f 1) (f 2)) => 3)))
 
 
 (against-background [(f 1) => 1]
-  (fact 
+  (fact
     (against-background (f 2) => 2)
     (+ (f 1) (f 2)) => 3))
 
 
 (against-background [(f 1) => 1]
-  (fact 
+  (fact
     (against-background [(f 2) => 2]
-      (fact 
+      (fact
         (+ (f 1) (f 2)) => 3))))
 
 ;; Some of the new looser forms of against-background
@@ -73,13 +73,13 @@
 
 (fact
   (against-background [(f 1) => 1]
-    (fact 
+    (fact
       (against-background [(f 2) => 2])
       (+ (f 1) (f 2)) => 3)))
 
 (fact
   (background [(f 1) => 1])
-  (fact 
+  (fact
     (background (f 2) => 2)
     (+ (f 1) (f 2)) => 3))
 
@@ -93,7 +93,7 @@
 
   (fact
     (against-background [(f 2) => 3]
-      (fact 
+      (fact
         (against-background [(f 3) => 4])
         (+ (f 2) (f 3)) => 777))))
 (note-that fact-fails)

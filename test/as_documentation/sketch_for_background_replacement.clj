@@ -19,7 +19,7 @@
 ;;                           (ping 'symbol) => 404)
 ;;     (f 3) => 5
 ;;     (provided ...))
-    
+
 ;;   (prerequisite-group [(only-numberish-values-succeed?) => true]
 ;;     (ping 1) => 200
 ;;     (ping "1") => 200
@@ -29,13 +29,13 @@
 ;;     (assume-prerequisite (only-numberish-values-succeed?) => true)
 ;;     ...)
 
-  
+
 
 ;;   (prerequisite-group [(numberish-value-status) => ?desired-status]
 ;;     (ping 1) => ?desired-status
 ;;     (ping "1") => ?desired-status
 ;;     (ping 'symbol) => 404)
-  
+
 ;;   (fact "text"
 ;;     (assume-prerequisite (numberish-value-status) => 200)
 ;;     ...)
@@ -65,15 +65,15 @@
 ;;     (dotimes [n ?number]
 ;;       (create-animal :species ?species
 ;;                      :name  (str "horse-" n))))
-    
-                         
+
+
 
 ;;   (to-ensure [(horses
-  
+
 ;;   (to-ensure [@log => empty?]
 ;;     (reset! log []))
 
-;;   (fact 
+;;   (fact
 ;;     (ensure-prerequisite @log => empty?)
 ;;   ;; Empty the log before every example
 ;;   )
@@ -101,9 +101,9 @@
 ;;     (fact "another subclaim")
 ;;       (assume-prerequisite (inner 1) => "55555555555555555555")
 ;;       ;; examples here see both prerequisites, but note that
-;;       ;; `(inner 1)` returns a different value. 
+;;       ;; `(inner 1)` returns a different value.
 ;;       )
-    
+
 ;; )
 
 ;; (fact "you can insert into the database"
@@ -114,5 +114,5 @@
 ;;     (count matches) => 1
 ;;     (:greeting match) => "hi"
 ;;     (:person match) => "mom!"))
-  
+
 ;; )

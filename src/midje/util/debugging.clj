@@ -11,7 +11,7 @@
 ;; Add more functions as needed.
 
 
-;;; Copied from utilize to remove dependencies. 
+;;; Copied from utilize to remove dependencies.
 ;;; https://github.com/AlexBaranosky/Utilize
 
 (defn but-last-str [#^String s n]
@@ -47,5 +47,5 @@
 
 (defn nopret
   "A no-op. Adding 'no' is easier than deleting a 'pret'."
-  [val] 
+  [val]
   val)

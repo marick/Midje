@@ -4,10 +4,10 @@
             [midje.test-util :refer :all]))
 
 ;; Midje's test suite is configured not to show some output that's demonstrated here.
-;; This resets Midje's setting back to the default. 
+;; This resets Midje's setting back to the default.
 (config/with-augmented-config {:visible-future true}
 
-                                            ;;; Basics 
+                                            ;;; Basics
 
   ;; This is the simplest form of a fact. It has two *checkables*.
   (fact "addition works in Clojure"
@@ -15,15 +15,15 @@
     ;; for this file.
     (+ 10 10) => 20
     (+ 20 20) => 40)
-  
+
   ;; Facts do not have to have descriptions
-  (fact 
+  (fact
     (+ 10 10) => 20
     (+ 20 20) => 40)
-  
+
   (facts "`Facts` is a synonym for `fact`. It doesn't require multiple checkables."
     (+ 1 1) => 2)
-  
+
   (silent-fact "Checkables fail individually."
     (+ 1 1) => 2
     (+ 2 2) => 3)
@@ -35,12 +35,12 @@
     (+ 1 "0") => 1
     (note-that fact-fails,
                (fact-captured-throwable-with-message #"Right side of =throws=> should extend Throwable")))
-  
+
 
                                          ;;; Todos / future facts
-  
+
   ;; Future facts act as TODO statements.
-  (capturing-fact-output 
+  (capturing-fact-output
    (future-fact "do something someday")
    (fact @fact-output => #"WORK TO DO.*do something someday"))
 
@@ -52,5 +52,5 @@
      @fact-output => (contains "WORK TO DO")
      @fact-output => (contains "on `(- 1 1)`")
      @fact-output => #"facts.clj:\d\d"))
-  
+
 )

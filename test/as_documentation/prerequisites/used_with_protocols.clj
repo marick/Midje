@@ -7,7 +7,7 @@
 
 (defprotocol Addable
   (add-fields [this]))
-    
+
 (defrecord MyRecord [a b]
   Addable
   (add-fields [this] (+ a b)))
@@ -30,7 +30,7 @@
 (note-that (failed 2 :times))
 (for-failure 1 (note-that (prerequisite-was-called-the-wrong-number-of-times #"add-fields anything" 0 :times)))
 (for-failure 2 (note-that (fact-actual "3") (fact-expected "faked!")))
-           
+
 
 ;; In order to override the default add-fields, we have to fake out the inlining. That's done with the
 ;; defrecord-openly form:
@@ -85,7 +85,7 @@
 
 ;;; Records and types can also implement methods from Java interfaces (and override
 ;;; methods of Object). However, those are still implemented as Java methods, so they
-;;; cannot be overridden with prerequisites. 
+;;; cannot be overridden with prerequisites.
 
 (defprotocol Fearful
   (fear? [this]))
@@ -138,7 +138,7 @@
   (provided
     (pzero? (Peano. ...zero...)) => true))
 
-(silent-fact 
+(silent-fact
  (padd (Peano. ...a...) (psuccessor (Peano. ...b...))) => (psuccessor (padd (Peano. ...a...) (Peano. ...b...)))
  (provided
    (pzero? anything) => true))

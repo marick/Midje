@@ -18,7 +18,7 @@
      (favorite-animal-name) => "betsy"
      (provided
        (name (favorite-animal)) => "betsy"))
-			  
+
 
 
 
@@ -45,14 +45,14 @@
 (tabular
   (fact "makes a stream of given day of the month"
     (day-of-month-stream 1) => ?date-time)
-	  
+
 	?nth   ?date-time
         first  (new-date 1 2 3))
 
 (defn today-num [])
 
-(tabular 
- (fact 
+(tabular
+ (fact
    #(today-num) => anything)
  ?day-num
  7 )

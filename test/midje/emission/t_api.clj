@@ -22,7 +22,7 @@
 
 
 (defmacro innocuously [& body]
-  `(without-changing-cumulative-totals     
+  `(without-changing-cumulative-totals
     (state/with-emission-map plugin/emission-map
       (state/reset-output-counters!)
       (plugin/reset-recorder!)
@@ -51,7 +51,7 @@
    (config/at-print-level (levels/level-above :print-nothing) (emit/fail ..failure-map..)))
   => (contains {:midje-failures 2})
   (plugin/recorded) => [[:fail ..failure-map..]])
-     
+
 (fact emit/starting-to-check-top-level-fact
   (innocuously
     (config/at-print-level (levels/level-below :print-facts) (emit/starting-to-check-top-level-fact ..ignored-fact-function..))

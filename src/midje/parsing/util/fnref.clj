@@ -21,7 +21,7 @@
   `(var ~reference))
 (defmethod as-var-form :var-form [reference]
   reference)
-  
+
 (defmulti as-form-to-fetch-var-value classify-function-reference)
 (defmethod as-form-to-fetch-var-value :symbol [reference]
   reference)
@@ -36,4 +36,4 @@
   (resolve reference))
 (defmethod resolved-to-actual-var-object :var-form [reference]
   (resolved-to-actual-var-object (second reference)))
-  
+

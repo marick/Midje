@@ -12,5 +12,5 @@
   (substitute '(without-binding (nil-binding (other-binding)))
          '{nil-binding nil, other-binding 1})
   => '(without-binding (nil (1))))
-  
+
 

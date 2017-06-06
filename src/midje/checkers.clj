@@ -1,5 +1,5 @@
 (ns midje.checkers
-  "Checkers are for checking results of checkables, or checking 
+  "Checkers are for checking results of checkables, or checking
    that appropriate arguments are passed to prerequisites"
   (:require [such.vars :as var]
             [such.immigration :as immigrate])
