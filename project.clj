@@ -7,19 +7,19 @@
                  [marick/clojure-commons "3.0.0" :exclusions [org.clojure/clojure]]
                  ;; structural-typing currently broken with specter 0.13
                  ;; [marick/structural-typing "2.0.4" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
-                 [org.clojure/math.combinatorics "0.1.3"]
+                 [org.clojure/math.combinatorics "0.1.4"]
                  [org.clojure/core.unify "0.5.7" :exclusions [org.clojure/clojure]]
-                 [clj-time "0.12.0" :exclusions [org.clojure/clojure]]
+                 [clj-time "0.13.0" :exclusions [org.clojure/clojure]]
                  [colorize "0.1.1" :exclusions [org.clojure/clojure]]
                  [org.clojure/tools.macro "0.1.5"]
                  [org.tcrawley/dynapath "0.2.5"]
                  [swiss-arrows "1.0.0" :exclusions [org.clojure/clojure]]
-                 [org.clojure/tools.namespace "0.2.10"]
+                 [org.clojure/tools.namespace "0.2.11"]
                  [flare "0.2.9" :exclusions [org.clojure/clojure]]
                  [slingshot "0.12.2"]]
-  :profiles {:dev {:dependencies [[prismatic/plumbing "0.5.3"]]
+  :profiles {:dev {:dependencies [[prismatic/plumbing "0.5.4"]]
                    :plugins [[lein-midje "3.2.1"]]}
-             :test-libs {:dependencies [[prismatic/plumbing "0.5.3"]]}
+             :test-libs {:dependencies [[prismatic/plumbing "0.5.4"]]}
              :1.7 [:test-libs {:dependencies [[org.clojure/clojure "1.7.0"]]}]
              :1.8 [:test-libs {:dependencies [[org.clojure/clojure "1.8.0"]]}]
              :1.9 [:test-libs {:dependencies [[org.clojure/clojure "1.9.0-alpha13"]]}]
