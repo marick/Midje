@@ -58,6 +58,14 @@
 (defn already-expanded? [loc]
   (expanded-symbols/all (zip/node loc)))
 
+(defn prerequisite-arrow-out-of-place [loc]
+  (let [arrow      (-> loc zip/right zip/node)
+        left-expr  (-> loc zip/node)
+        right-expr (-> loc zip/right zip/right zip/node)]
+  (error/report-error left-expr
+                      "The prerequisite arrow appears outside the body of a `provided`:"
+                      (str left-expr " " arrow " " right-expr))))
+
 (defn to-explicit-form
   "Convert sweet pseudo-forms into their explicit equivalents.
    1) Arrow sequences become expect forms.
@@ -69,6 +77,9 @@
 
     recognize/start-of-checking-arrow-sequence?
     wrap-with-expect__then__at-rightmost-expect-leaf
+
+    recognize/start-of-prerequisite-arrow-sequence?
+    prerequisite-arrow-out-of-place
 
     recognize/provided?
     insert-prerequisites-into-expect-form-as-fakes
