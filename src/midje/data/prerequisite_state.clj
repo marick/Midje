@@ -115,8 +115,9 @@
             (map var->faker-fn fn-fake-vars))))
 
 (defn- data-fakes-binding-map [data-fakes]
-  (apply merge-with metaconstant/merge-metaconstants (for [{:keys [var contained]} data-fakes]
-                                                       {var (Metaconstant. (pile/object-name var) contained nil)})))
+  (let [metaconstant-vars (for [{:keys [var contained]} data-fakes]
+                            {var (Metaconstant. (pile/object-name var) contained nil)})]
+    (apply merge-with metaconstant/merge-metaconstants metaconstant-vars)))
 
 (defn binding-map [fakes]
   (let [[data-fakes fn-fakes] (seq/bifurcate :data-fake fakes)]
