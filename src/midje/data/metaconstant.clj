@@ -106,13 +106,3 @@
 (defmethod print-method Metaconstant [^Metaconstant o ^java.io.Writer w]
   (print-method (.underlying-symbol o) w))
 
-
-
-
-
-
-
-
-
-
-

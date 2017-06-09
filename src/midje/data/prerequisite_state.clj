@@ -27,8 +27,8 @@
 
 
 ;;; Handling mocked calls
-  
-(defmulti ^{:private true} call-handled-by-fake? (fn [function-var actual-args fake] 
+
+(defmulti ^{:private true} call-handled-by-fake? (fn [function-var actual-args fake]
                                                    (:type fake)))
 
 (defmethod call-handled-by-fake? :not-called [function-var actual-args fake]
@@ -62,7 +62,7 @@
 
 
 
-(defn- ^{:testable true } best-call-action 
+(defn- ^{:testable true} best-call-action
   "Returns a fake: when one can handle the call
    Else returns a function: from the first fake with a usable-default-function.
    Returns nil otherwise."
@@ -71,12 +71,12 @@
     (throw (apply exceptions/user-error (parse-fakes/disallowed-function-failure-lines function-var))))
   (if-let [found (find-first (partial call-handled-by-fake? function-var actual-args) fakes)]
     found
-    (when-let [fake-with-usable-default (find-first #(and (= function-var (:var %)) 
-                                                          (usable-default-function? %)) 
+    (when-let [fake-with-usable-default (find-first #(and (= function-var (:var %))
+                                                          (usable-default-function? %))
                                                     fakes)]
       (default-function fake-with-usable-default))))
 
-(defn- ^{:testable true } handle-mocked-call [function-var actual-args fakes]
+(defn- ^{:testable true} handle-mocked-call [function-var actual-args fakes]
   (macro/macrolet [(counting-nested-calls [& forms]
                `(try
                   (record-start-of-prerequisite-call)
@@ -87,14 +87,14 @@
       (branch-on action
         extended-fn?
         (apply action actual-args)
-        
+
         map?
         (do
           (swap! (:call-count-atom action) inc)
           ((:result-supplier action )))
-        
+
         :else
-        (do 
+        (do
           (emit/fail {:type :prerequisite-was-called-with-unexpected-arguments
                       :var function-var
                       :actual actual-args
@@ -108,10 +108,10 @@
 (defn- fn-fakes-binding-map [fn-fakes]
   (let [var->faker-fn (fn [the-var]
                         (-> (fn [& actual-args]
-                              (handle-mocked-call the-var actual-args fn-fakes)) 
+                              (handle-mocked-call the-var actual-args fn-fakes))
                             (vary-meta assoc :midje/faked-function true)))
         fn-fake-vars (map :var fn-fakes)]
-    (zipmap fn-fake-vars 
+    (zipmap fn-fake-vars
             (map var->faker-fn fn-fake-vars))))
 
 (defn- data-fakes-binding-map [data-fakes]
@@ -121,7 +121,7 @@
 
 (defn binding-map [fakes]
   (let [[data-fakes fn-fakes] (seq/bifurcate :data-fake fakes)]
-    (merge (fn-fakes-binding-map fn-fakes) 
+    (merge (fn-fakes-binding-map fn-fakes)
            (data-fakes-binding-map data-fakes))))
 
 (defmacro with-installed-fakes [fakes & forms]
