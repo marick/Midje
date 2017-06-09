@@ -145,22 +145,8 @@
     (provided
       --mc-- =contains=> {:c 50000})))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-;;;;
-
-;;;  Use with prerequisite functions
-
-
+(fact "Metaconstant implementations of Counted/IPersistentColleciton/Seq"
+  (prerequisites ..thing.. =contains=> {:name "basti" :counter 1})
+  (empty ..thing..) => {}
+  (count ..thing..) => 2
+  (seq ..thing..) => (list [:name "basti"] [:counter 1]))
