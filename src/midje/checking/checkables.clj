@@ -1,4 +1,4 @@
-(ns ^{:doc "Core Midje functions that process expects and report on their results."} 
+(ns ^{:doc "Core Midje functions that process expects and report on their results."}
   midje.checking.checkables
   (:require [commons.clojure.core :refer :all :exclude [any?]]
             [midje.checking.core :refer :all]
@@ -29,27 +29,27 @@
 
 (defn- check-for-match [actual checkable-map]
   (let [expected (:expected-result checkable-map)]
-    (cond  (extended-= actual expected)
-           (emit/pass)
-         
-           (has-function-checker? checkable-map)
-           (emit/fail (merge (minimal-failure-map :actual-result-did-not-match-checker
-                                                  actual checkable-map)
-                             ;; TODO: It is very lame that the
-                             ;; result-function has to be called again to
-                             ;; retrieve information that extended-=
-                             ;; knows and threw away. But it's surprisingly
-                             ;; difficult to use evaluate-checking-function
-                             ;; at the top of the cond
-                             (second (evaluate-checking-function expected actual))))
-         
-           (inherently-false-map-to-record-comparison? actual expected)
-           (emit/fail (merge (minimal-failure-map :actual-result-did-not-match-expected-value actual checkable-map)
-                             (map-record-mismatch-addition actual expected)))
-         
-           :else
-           (emit/fail (assoc (minimal-failure-map :actual-result-did-not-match-expected-value actual checkable-map)
-                             :expected-result expected)))))
+    (cond (extended-= actual expected)
+          (emit/pass)
+
+          (has-function-checker? checkable-map)
+          (emit/fail (merge (minimal-failure-map :actual-result-did-not-match-checker
+                                                 actual checkable-map)
+                            ;; TODO: It is very lame that the
+                            ;; result-function has to be called again to
+                            ;; retrieve information that extended-=
+                            ;; knows and threw away. But it's surprisingly
+                            ;; difficult to use evaluate-checking-function
+                            ;; at the top of the cond
+                            (second (evaluate-checking-function expected actual))))
+
+          (inherently-false-map-to-record-comparison? actual expected)
+          (emit/fail (merge (minimal-failure-map :actual-result-did-not-match-expected-value actual checkable-map)
+                            (map-record-mismatch-addition actual expected)))
+
+          :else
+          (emit/fail (assoc (minimal-failure-map :actual-result-did-not-match-expected-value actual checkable-map)
+                            :expected-result expected)))))
 
 
 (defn- check-for-mismatch [actual checkable-map]
@@ -63,7 +63,7 @@
 
           (has-function-checker? checkable-map)
           (emit/fail (minimal-failure-map :actual-result-should-not-have-matched-checker actual checkable-map))
-        
+
           :else
           (emit/fail (minimal-failure-map :actual-result-should-not-have-matched-expected-value actual checkable-map)))))
 
@@ -80,7 +80,7 @@
 (defmethod call-count-incorrect? :fake [fake]
   (let [method (:times fake)
         count @(:call-count-atom fake)]
-    (branch-on method 
+    (branch-on method
       #(= % :default) (zero? count)
       number?         (not= method count)
       coll?           (not-any? (partial = count) method)
