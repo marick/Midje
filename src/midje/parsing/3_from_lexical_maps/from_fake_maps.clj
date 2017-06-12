@@ -38,7 +38,9 @@
 
 (defmulti mkfn:result-supplier (fn [arrow & _] arrow))
 
-(defmethod mkfn:result-supplier => [_arrow_ result] (constantly result))
+(defmethod mkfn:result-supplier => [_arrow_ result] (fn [] (if (var? result)
+                                                             (var-get result)
+                                                             result)))
 
 (defmethod mkfn:result-supplier =streams=> [_arrow_ result-stream]
   (let [the-stream (atom result-stream)]
