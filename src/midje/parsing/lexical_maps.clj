@@ -80,7 +80,6 @@
                          :rhs '~(cons result overrides)}
         override-map `(hash-map ~@overrides)
         line (:line (meta call-form))
-        metaconstant-var-or-val (if (data/metaconstant-symbol? result) `(var ~result) result)
         result `(merge
                  {
                   :type :fake
@@ -88,7 +87,7 @@
                   :value-at-time-of-faking (if (bound? ~(fnref/as-var-form fnref))
                                              ~(fnref/as-form-to-fetch-var-value fnref))
                   :arglist-matcher ~(choose-mkfn-for-arglist-matcher args)
-                  :result-supplier (from-fake-maps/mkfn:result-supplier ~arrow ~metaconstant-var-or-val)
+                  :result-supplier (from-fake-maps/mkfn:result-supplier ~arrow (fn [] ~result))
                   :times :default  ; Default allows for a more attractive error in the most common case.
 
                   :position (pointer/line-number-known ~line)

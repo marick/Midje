@@ -152,6 +152,12 @@
     (gen-doc) => ..doc..
     ..doc.. =contains=> {:header "gamma"}))
 
+(fact "Test merging of nested metaconstant that appear in data and function fakes"
+  (:header (:raw (gen-doc))) => "gamma"
+  (provided
+    (gen-doc) => {:raw ..doc..}
+    ..doc.. =contains=> {:header "gamma"}))
+
 (against-background [..doc.. =contains=> {:header "gamma"}]
   (fact "Test merging of metaconstant with against-background"
     (:header (gen-doc)) => "gamma"
