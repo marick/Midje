@@ -145,22 +145,9 @@
     (provided
       --mc-- =contains=> {:c 50000})))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-;;;;
-
-;;;  Use with prerequisite functions
-
-
+(unfinished gen-doc)
+(fact "Test merging of metaconstant that appear in data and function fakes"
+  (:header (gen-doc)) => "gamma"
+  (provided
+    (gen-doc) => ..doc..
+    ..doc.. =contains=> {:header "gamma"}))
