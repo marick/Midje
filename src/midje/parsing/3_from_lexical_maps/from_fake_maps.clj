@@ -53,7 +53,7 @@
 
 (defmethod mkfn:result-supplier =throws=> [_arrow_ throwable]
   (fn []
-    (when-not (instance? Throwable throwable) 
+    (when-not (instance? Throwable throwable)
       (throw (exceptions/user-error "Right side of =throws=> should extend Throwable.")))
     (throw throwable)))
 
