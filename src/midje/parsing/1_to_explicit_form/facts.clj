@@ -102,9 +102,9 @@
     recognize/future-fact?         (macroexpand form)
     ;; The `prerequisites` form is not supposed to be used in wrapping style.
     wrapping-background-changer?  (expand-wrapping-background-changer form)
-    recognize/expect?      (wrapping/multiwrap form (wrapping/forms-to-wrap-around :checks ))
+    recognize/expect?      (wrapping/multiwrap form (wrapping/forms-to-wrap-around :checks))
     recognize/fact?        (macroexpand form)
-    recognize/tabular?      (macroexpand form)
+    recognize/tabular?     (macroexpand form)
     sequential?  (preserve-type form (eagerly (map midjcoexpand form)))
     :else        form))
 
