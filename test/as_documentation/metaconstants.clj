@@ -151,3 +151,23 @@
   (provided
     (gen-doc) => ..doc..
     ..doc.. =contains=> {:header "gamma"}))
+
+(against-background [..doc.. =contains=> {:header "gamma"}]
+  (fact "Test merging of metaconstant with against-background"
+    (:header (gen-doc)) => "gamma"
+    (provided
+      (gen-doc) => ..doc..)))
+
+(against-background [..doc..    =contains=> {:header ..header..}
+                     ..header.. =contains=> {:title "astronautas"}]
+  (future-fact "Test metaconstants that contain other metaconstants"
+    (-> (gen-doc) :header :title) => "astronautas"
+    (provided
+      (gen-doc) => ..doc..)))
+
+(future-fact "Test metaconstants that contain other metaconstants"
+  (-> (gen-doc) :header :title) => "astronautas"
+  (provided
+    (gen-doc) => ..doc..
+    ..doc..    =contains=> {:header ..header..}
+    ..header.. =contains=> {:title "astronautas"}))
