@@ -165,15 +165,15 @@
       (gen-doc) => ..doc..)))
 
 (against-background [..doc..    =contains=> {:header ..header..}
-                     ..header.. =contains=> {:title "astronautas"}]
+                     ..header.. =contains=> {:title "title"}]
   (future-fact "Test metaconstants that contain other metaconstants"
-    (-> (gen-doc) :header :title) => "astronautas"
+    (-> (gen-doc) :header :title) => "title"
     (provided
       (gen-doc) => ..doc..)))
 
 (future-fact "Test metaconstants that contain other metaconstants"
-  (-> (gen-doc) :header :title) => "astronautas"
+  (-> (gen-doc) :header :title) => "title"
   (provided
     (gen-doc) => ..doc..
     ..doc..    =contains=> {:header ..header..}
-    ..header.. =contains=> {:title "astronautas"}))
+    ..header.. =contains=> {:title "title"}))

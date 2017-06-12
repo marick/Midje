@@ -1,7 +1,6 @@
 (ns midje.parsing.lexical-maps
   "checkable maps, redefine maps, failure maps"
   (:require [commons.clojure.core :as commons]
-            [midje.data.metaconstant :as data]
             [midje.data.nested-facts :as nested-facts]
             [midje.parsing.3-from-lexical-maps.from-fake-maps :as from-fake-maps]
             [midje.parsing.util.fnref :as fnref]
