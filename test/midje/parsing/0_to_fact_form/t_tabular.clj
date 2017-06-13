@@ -53,6 +53,15 @@
  ?a    ?b      ?result
  1     2       3)
 
+(facts
+  (let [aa  2
+        aaa 3]
+    (tabular
+      (fact (?f ?x) => ?res)
+      ?x     ?f      ?res
+      aa     inc     3
+      aaa    inc     4)))
+
 ;; Table Validation
 
 (silent-tabular
