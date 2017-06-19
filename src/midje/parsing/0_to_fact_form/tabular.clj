@@ -17,13 +17,15 @@
             [midje.util.unify :as unify]
             [pointer.core :refer [form-with-copied-line-numbers]]))
 
+(defn- table-variable? [locals]
+  (fn [s]
+    (and (symbol? s)
+      (not (metaconstant-symbol? s))
+      (not (resolve s))
+      (not ((set locals) s)))))
+
 (defn- headings-rows+values [table locals]
-  (letfn [(table-variable? [s]
-            (and (symbol? s)
-              (not (metaconstant-symbol? s))
-              (not (resolve s))
-              (not ((set locals) s))))]
-    (split-with table-variable? table)))
+  (split-with (table-variable? locals) table))
 
 (defn- ^{:testable true } table-binding-maps [headings-row values]
   (let [value-rows (partition (count headings-row) values)]
@@ -49,18 +51,20 @@
           :else
           [metadata fact-form headings-row values])))
 
+(defn- macroexpander-for [fact-form]
+  (fn [binding-map]
+    (metadata/with-wrapped-metadata
+      {:midje/table-bindings `(pile/ordered-zipmap '~(keys binding-map) '~(vals binding-map))}
+      (parse-facts/working-on-nested-facts
+        (-> binding-map
+            ((partial unify/substitute fact-form))
+            ((partial form-with-copied-line-numbers fact-form))
+            macroexpand)))))
+
 (defn parse [locals form]
-  (letfn [(macroexpander-for [fact-form]
-            (fn [binding-map]
-              (metadata/with-wrapped-metadata
-                {:midje/table-bindings `(pile/ordered-zipmap '~(keys binding-map) '~(vals binding-map))}
-                (parse-facts/working-on-nested-facts
-                 (-> binding-map
-                     ((partial unify/substitute fact-form))
-                     ((partial form-with-copied-line-numbers fact-form))
-                     macroexpand)))))]
-    (error/parse-and-catch-failure form
-      #(let [[metadata fact-form headings-row values] (valid-pieces form locals)
-             ordered-binding-maps (table-binding-maps headings-row values)
-             nested-facts (map (macroexpander-for fact-form) ordered-binding-maps)]
-         (macroexpand (parse-facts/wrap-fact-around-body metadata nested-facts))))))
+  (error/parse-and-catch-failure
+    form
+    #(let [[metadata fact-form headings-row values] (valid-pieces form locals)
+           ordered-binding-maps (table-binding-maps headings-row values)
+           nested-facts (map (macroexpander-for fact-form) ordered-binding-maps)]
+       (macroexpand (parse-facts/wrap-fact-around-body metadata nested-facts)))))
