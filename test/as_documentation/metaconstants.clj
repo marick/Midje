@@ -41,7 +41,7 @@
 
 (defn choose-interesting-arg [& args]
   (first (filter interesting? args)))
-  
+
 (fact
   (choose-interesting-arg ..first.. ..second..) => ..second..
   (provided
@@ -66,7 +66,7 @@
   (provided
     (--v-- 1 2 3) => 8))
 
-    
+
 ;; Metaconstants can also be used in background prerequisites, like this:
 
 (future-fact "This is a design flaw: background and 'local' prerequisites should be merged"
@@ -177,3 +177,10 @@
     (gen-doc) => ..doc..
     ..doc..    =contains=> {:header ..header..}
     ..header.. =contains=> {:title "title"}))
+
+(future-fact "Metaconstant merging and streaming"
+  (vector (:header (gen-doc)) (:header (gen-doc))) => [1 2]
+  (provided
+    (gen-doc) =streams=> [..doc1.. ..doc2..]
+    ..doc1.. =contains=> {:header 1}
+    ..doc2.. =contains=> {:header 2}))
