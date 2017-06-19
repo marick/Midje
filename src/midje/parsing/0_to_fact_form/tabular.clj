@@ -25,7 +25,9 @@
       (not ((set locals) s)))))
 
 (defn- headings-rows+values [table locals]
-  (split-with (table-variable? locals) table))
+  (if (list? (first table))
+    (list (first table) (rest table))
+    (split-with (table-variable? locals) table)))
 
 (defn- ^{:testable true } table-binding-maps [headings-row values]
   (let [value-rows (partition (count headings-row) values)]

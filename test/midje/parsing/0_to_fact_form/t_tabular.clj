@@ -53,15 +53,6 @@
  ?a    ?b      ?result
  1     2       3)
 
-(facts
-  (let [aa  2
-        aaa 3]
-    (tabular
-      (fact (?f ?x) => ?res)
-      ?x     ?f      ?res
-      aa     inc     3
-      aaa    inc     4)))
-
 ;; Table Validation
 
 (silent-tabular
@@ -202,4 +193,24 @@
   (:integration (meta (compendium/last-fact-checked<>))) => true)
   
 
+
+(fact "can't correctly establish table headers due unbound 'aa'"
+  (let [aa  2
+        aaa 3]
+    (tabular
+      (silent-fact (?f ?x) => ?res)
+      ?x     ?f      ?res
+      aa     inc     3
+      aaa    inc     4)
+    (note-that (fact-described-as "can't correctly establish table headers due unbound 'aa'" nil nil))))
+
+
+(facts "Wrapping table headers in parenthesis helps deliniate the headers from the table body"
+  (let [aa  2
+        aaa 3]
+    (tabular
+      (fact (?f ?x) => ?res)
+      (?x     ?f      ?res)
+      aa     inc     3
+      aaa    inc     4)))
 
