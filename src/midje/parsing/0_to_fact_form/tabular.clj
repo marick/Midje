@@ -25,7 +25,7 @@
       (not ((set locals) s)))))
 
 (defn- headings-rows+values [table locals]
-  (if (list? (first table))
+  (if (vector? (first table))
     (list (first table) (rest table))
     (split-with (table-variable? locals) table)))
 

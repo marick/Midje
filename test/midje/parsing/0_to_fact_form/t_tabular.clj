@@ -210,7 +210,7 @@
         aaa 3]
     (tabular
       (fact (?f ?x) => ?res)
-      (?x     ?f      ?res)
+      [?x     ?f      ?res]
       aa     inc     3
       aaa    inc     4)))
 
