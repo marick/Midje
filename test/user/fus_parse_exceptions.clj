@@ -5,7 +5,7 @@
 
 ;;; In general, it would be nice if these could be moved over to t-parse-errors.
 
-(silent-fact "an intentional error to demonstrate the mechanism" 
+(silent-fact "an intentional error to demonstrate the mechanism"
   (fact
     (fact
       (let [a 88]

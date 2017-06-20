@@ -18,7 +18,7 @@
 (defn fail [failure-map]
   (print (color/fail "F"))
   (flush))
-  
+
 (defn future-fact [description-list position]
   (print (color/note "P"))
   (flush))

@@ -3,9 +3,9 @@
             [midje.repl :refer :all]
             [midje.test-util :refer :all]))
 
-;;; Fact groups are used to supply metadata to the enclosed top-level facts. 
+;;; Fact groups are used to supply metadata to the enclosed top-level facts.
 ;;; For example, here are two facts that would cause failures if checked.
-;;; They're not checked because we'll only check facts that aren't slow. 
+;;; They're not checked because we'll only check facts that aren't slow.
 
 (config/with-augmented-config {:check-after-creation false}
   (fact-group :slow
@@ -34,4 +34,4 @@
     ;; The metadata below does nothing.
     (fact {:slow false} "fact-third" => :will-fail-when-run)))
 
-(check-facts *ns* :print-no-summary :filter (complement :slow)) 
+(check-facts *ns* :print-no-summary :filter (complement :slow))

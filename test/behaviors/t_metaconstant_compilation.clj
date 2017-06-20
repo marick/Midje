@@ -2,11 +2,11 @@
   (:require [midje.sweet :refer :all]))
 
 ;;; Because metaconstants are auto-defined, a file without `metaconstants`
-;;; will fail AOT compilation. 
+;;; will fail AOT compilation.
 
-(metaconstants ..m.. ..m.... .mc.)    
+(metaconstants ..m.. ..m.... .mc.)
 
-(fact "printing" 
+(fact "printing"
   (str .mc.) => ".mc."
   (pr-str .mc.) => ".mc.")
 

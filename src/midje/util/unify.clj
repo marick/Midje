@@ -8,11 +8,11 @@
 (defn substitute
   "Attempts to substitute the bindings into any symbol in the given form."
   [form bindings]
-  (prewalk (fn [expr] 
+  (prewalk (fn [expr]
                 (if (and (symbol? expr)
                          (contains? bindings expr))
                   (bindings expr)
-                  expr)) 
+                  expr))
                 form))
 
 (defn ?form [] (symbol (name (ns-name *ns*)) "?form")) ; this cannot be right

@@ -85,7 +85,7 @@
        '[a b        ] )
     => ["At index 1, got `[Z z zz] instead of `b`"])
 
-  (future-fact "Actual has extra elements" 
+  (future-fact "Actual has extra elements"
     (f '[a b c d e]
        '[a b      ])
     => [  "Actual has 3 extra elements `(c d e)`"])
@@ -120,7 +120,7 @@
      "At path [1 1], got `Z` instead of `2`."
      "At index 4, missing key `:b`"])
 
-  (future-fact 
+  (future-fact
     (f '[0 {1 [2 Z], 2 3} [Z] [3 {:a Z}]]
        '[0 {1 [2 2], 2 4} [3] [3 {:a 2}]])
     => ["At path [1 1 0], got `Z` instead of `2`"

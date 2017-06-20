@@ -49,7 +49,7 @@
     (vec transformed-form)
     transformed-form))
 
-(defn reader-line-number 
+(defn reader-line-number
   "Find what line number the reader put on the given form or on
    one of its elements. If no line numbers, a warning string."
   [form]

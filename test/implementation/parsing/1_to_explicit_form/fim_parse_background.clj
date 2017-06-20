@@ -25,7 +25,7 @@
 
  [ (against-background ..back1..)
    ..body1..
-   (against-background ..back2..)]      [..back1.. ..back2..]           [..body1..] 
+   (against-background ..back2..)]      [..back1.. ..back2..]           [..body1..]
 
  []                                     []                              []
  [ (f 1) => 3 ]                         []                              [ (f 1) => 3 ]
@@ -72,7 +72,7 @@
 (fact "Collections of background changers are syntactically ornate, but they can be separated"
   (fact "ordinary prerequisites are converted to fakes"
     (separate-individual-changers []) => []
-    (separate-individual-changers `[(f 1) => 2]) 
+    (separate-individual-changers `[(f 1) => 2])
     => `[(fake (f 1) => 2 :background :background
                           :times (range 0))]
     (separate-individual-changers `[   (f 1) => 2 :foo 'bar (f 2) => 33 ])
@@ -112,15 +112,15 @@
     (let [template (make-state-unification-template '(before :checks (do-something)))]
       template => (form-matching? '(try (do-something) ?the-unification-symbol (finally nil)))
       template => (for-wrapping-target? :checks))
-  
+
     (let [template (make-state-unification-template '(before :facts (do-something) :after (finish)))]
       template => (form-matching? '(try (do-something) ?the-unification-symbol (finally (finish))))
       template => (for-wrapping-target? :facts))
-  
+
     (let [template (make-state-unification-template '(after :all (do-something)))]
       template => (form-matching? '(try ?the-unification-symbol (finally (do-something))))
       template => (for-wrapping-target? :all))
-  
+
     (let [template (make-state-unification-template '(around :checks (let [x 1] ?form)))]
       template => (form-matching? '(let [x 1] ?the-unification-symbol))
       template => (for-wrapping-target? :checks)))

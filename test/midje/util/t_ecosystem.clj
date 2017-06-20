@@ -11,12 +11,12 @@
                                       :source-paths ["src1"]
                                       :test-paths ["test1"])))]
       (leiningen-paths) => ["test1" "src1"]))
-  
+
   (fact "and provides a default if it does not"
     (leiningen-paths) => ["test"]
     (provided
       (load-file "project.clj") =throws=> (new java.io.FileNotFoundException)))
-  
+
   (fact "except that lein-midje can explicitly set the value"
     (set-leiningen-paths! {:test-paths ["t"] :source-paths ["s"]})
     (leiningen-paths) => ["t" "s"])

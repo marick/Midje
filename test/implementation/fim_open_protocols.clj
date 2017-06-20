@@ -33,7 +33,7 @@
       (macroexpand-1 in-rec) => unexpanded-out-rec
     (finally
      (alter-var-root #'midje.sweet/include-midje-checks (constantly true))))))
-      
+
 
 
 

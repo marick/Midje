@@ -5,9 +5,9 @@
 ;; This is a separate file because we're making namespace-wide changes
 
 (unfinished outermost middlemost innermost)
-  
+
 (against-background [ (middlemost) => "FOO!" ]
-  (try 
+  (try
     (against-background [ (middlemost) => 33 ]
       (fact (middlemost) => 33)
       (throw (Throwable.)))

@@ -73,19 +73,19 @@
                 true
                 (throw (Exception.))) ; not just implausible: flat out impossible/invalid.
               false))
-            
+
           (next-form []
-            (try 
+            (try
               (let [form (read rdr false ::done)]
                 (cond (= ::done form)
                       ::done
 
                       (plausible-ns-form? form)
-                      (do 
+                      (do
                         (str form) ;; force the read to read the whole form, throwing on error
                         (second form))
 
-                      :else 
+                      :else
                       ::boring-form))
               (catch Exception _
                 ::broken-namespace)))]
@@ -97,7 +97,7 @@
                              {:status :contains-namespace, :namespace-symbol form}))))
 
 (defn- extend-starting-classification [classification]
-  (letfn [(grovel-through-bytes [] 
+  (letfn [(grovel-through-bytes []
             (with-open [r (PushbackReader. ((:reader-maker classification)))]
               (describe-namespace-status r)))]
     (if (not (readable? classification))

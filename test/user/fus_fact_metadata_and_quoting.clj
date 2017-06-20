@@ -6,7 +6,7 @@
             [midje.data.compendium :as compendium]))
 
 
-;;; Metadata and evaluation 
+;;; Metadata and evaluation
 
 ;; Of user-supplied data, only the name is 'autoquoted'. The rest are evaled.
 ;; (Only a map, though, is a non-quoting form.)
@@ -27,7 +27,7 @@
     (:midje/namespace metadata) => (ns-name *ns*)))
 
 ;; Tabular facts turn into a fact wrapped around a number of generated facts.
-;; The metadata must be preserved 
+;; The metadata must be preserved
 (tabular name "doc string" {:meta (+ 1 2) :symbol 'symbol} (fact ?a => 1) ?a 1)
 (fact :check-only-at-load-time
   (let [metadata (meta (compendium/last-fact-checked<>))]
@@ -43,7 +43,7 @@
     (:midje/namespace metadata) => (ns-name *ns*)))
 
 ;; The same is true of metadata that's attached to the enclosed fact.
-;; The metadata must be preserved 
+;; The metadata must be preserved
 (tabular (fact name "doc string" {:meta (+ 1 2) :symbol 'symbol} ?a => 1) ?a 1)
 (fact :check-only-at-load-time
   (let [metadata (meta (compendium/last-fact-checked<>))]

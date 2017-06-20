@@ -13,7 +13,7 @@
 (defn- gen-int [pred]
   (rand-nth (filter pred [-999 -100 -20 -5 -4 -3 -2 -1 0 1 2 3 4 5 20 100 999])))
 
-;; Formulas are a generative style test macro. Each binding has a generator on 
+;; Formulas are a generative style test macro. Each binding has a generator on
 ;; the right and a symbol on the left that will hold the generated value
 
 (formula "can now use simple generative-style formulas - with multiple bindings"
@@ -27,7 +27,7 @@
 (formula "'provided' works"
   [a (make-string)]
   (g a) => (str "foo" a)
-  (provided 
+  (provided
     (f anything) => "foo"))
 
 
@@ -36,7 +36,7 @@
 (silent-formula "some description" [a "y"] a => :foo)
 (note-that (fails 1 time))
 
-;; Passing formulas run the generator many times, and evaluate 
+;; Passing formulas run the generator many times, and evaluate
 ;; their body many times - number of trials is rebindable
 (defn-call-countable y-maker [] "y")
 (defn-call-countable my-str [s] (str s))
@@ -50,7 +50,7 @@
 
 ;; There is syntactic sugar for binding *num-trials*
 (defn-call-countable k-maker [] "k")
-(with-num-trials 1000 
+(with-num-trials 1000
   (formula [a 1] (k-maker) => "k")
   (formula [a 1] (k-maker) => "k")
   (formula [a 1] (k-maker) => "k"))
@@ -81,11 +81,11 @@
 (future-formula "demonstrating the ability to create future formulas"
   [a 1]
   a => 1)
-                
+
 
 ;;;; Validation
 
-;; The following factsexpress an assortment of ways that formulas 
+;; The following factsexpress an assortment of ways that formulas
 ;; could be expressed with invalid syntax
 
 (unfinished h)
@@ -95,24 +95,24 @@
   (silent-formula [a 1] 1)
   (silent-formula "a doc string" [a 1] (contains 3))
 
-  (silent-formula "ignores arrows in provideds" [a 1] 
+  (silent-formula "ignores arrows in provideds" [a 1]
     (contains 3)
     (provided (h anything) => 5))
 
-  (silent-formula "ignores arrows in against-background" [a 1] 
+  (silent-formula "ignores arrows in against-background" [a 1]
     (contains 3)
     (against-background (h anything) => 5))
 
-  (silent-formula "ignores arrows in against-background - even when it comes first" 
+  (silent-formula "ignores arrows in against-background - even when it comes first"
     [a 1]
     (against-background (h anything) => 5)
     (contains 3))
 
-  (silent-formula "ignores arrows in background" [a 1] 
+  (silent-formula "ignores arrows in background" [a 1]
     (contains 3)
     (background (h anything) => 5))
 
-  (silent-formula "ignores arrows in background - even when it comes first" 
+  (silent-formula "ignores arrows in background - even when it comes first"
     [a 1]
     (background (h anything) => 5)
     (contains 3))
@@ -125,7 +125,7 @@
   (silent-formula "a doc string" [] 1 => 1)
   (silent-formula "a doc string" {:num-trials 50} 1 => 1)
   (for-each-failure (note-that parse-error-found, (fact-failed-with-note error-regexp))))
-  
+
 (silent-formula "a doc string" [a 1] a => 1 a => 1)
 (note-that parse-error-found, (fact-failed-with-note #"There are too many expections in your formula form"))
 
@@ -166,13 +166,13 @@
 (formula
   "binding too small a value - gives nice error msg"
   [n (gen-int #(< % 1))]
-  (binding [*num-trials* n] nil) 
+  (binding [*num-trials* n] nil)
      => (throws #"must be an integer 1 or greater"))
 
 (formula
   "allows users to dynamically rebind to 1+"
   [n (gen-int #(>= % 1))]
-  (binding [*num-trials* n] nil) 
+  (binding [*num-trials* n] nil)
      =not=> (throws Exception))
 
 

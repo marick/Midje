@@ -23,4 +23,4 @@
   (dequote 1) => 1
   (dequote '(some form)) => '(some form))
 
-  
+

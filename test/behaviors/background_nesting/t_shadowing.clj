@@ -14,4 +14,4 @@
               (middlemost) => 'a)
   (against-background [ (middlemost) => 33]
     (fact (+ (middlemost) (outermost)) => 35)))
-  
+

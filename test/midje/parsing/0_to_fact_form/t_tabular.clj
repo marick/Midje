@@ -27,28 +27,28 @@
 (let [c 1]
   (tabular "considers local bindings to be table values, not headings"
     (fact (+ a b) => result )
-  
+
        a  b      result
-       c  2      3       ;; need second row, else (in the failure case) this  
-       4  5      9))     ;; mis-parsing tabular will think there are 0 rows     
+       c  2      3       ;; need second row, else (in the failure case) this
+       4  5      9))     ;; mis-parsing tabular will think there are 0 rows
 
 (defn f? [x] true)
 
 (tabular "won't consider bound resolvable fns as table heading var"
-  (fact (+ a b) => result)    
+  (fact (+ a b) => result)
      result  a   b
-     f?      1   2    ;; needs second row, like above 
+     f?      1   2    ;; needs second row, like above
      17      8   9)
-                      
-(tabular "won't think of metaconstants as unbound symbols, and thus 
+
+(tabular "won't think of metaconstants as unbound symbols, and thus
           won't try to make them table heading variables"
   (fact 'candidate arrow metaconstant-symbol?)
      candidate   arrow
-     ---foo---     => 
+     ---foo---     =>
      -foo-         => )
 
 (tabular "The tabular form can have a doc string"
- (fact 
+ (fact
    (+ ?a ?b) => ?result)
  ?a    ?b      ?result
  1     2       3)
@@ -56,7 +56,7 @@
 ;; Table Validation
 
 (silent-tabular
- (fact 
+ (fact
    (tabular-forms '?forms) => '?expected
    ?forms                       ?expect
    [ fact table ]               [fact table]))
@@ -72,7 +72,7 @@
  (fact ?a => ?b)
    ?a   ?b)
 (note-that (fact-failed-with-note #"It looks like the table has headings, but no values"))
- 
+
 (silent-tabular
  (fact
    (+ a b) => result)
@@ -94,12 +94,12 @@
  (+ 1 2) 1      2
  3       2      2)
 
-                                     
+
 (tabular
  (fact "only two numbers have the same sum and square"
    (* ?n ?n) ?arrow (+ ?n ?n))
  ?n        ?arrow
- 0         =>      
+ 0         =>
  2         =>
  ;; Failure cases
  1         =not=>
@@ -120,10 +120,10 @@
 
   ?cell-status   ?neighbor-count   ?expected
   :alive         1                 FALSEY        ; underpopulation
-  :alive         2                 truthy       
+  :alive         2                 truthy
   :alive         3                 truthy
   :alive         4                 FALSEY        ; overpopulation
-  
+
   ;; A newborn cell has three parents
   :dead          2                 FALSEY
   :dead          3                 truthy
@@ -147,7 +147,7 @@
    (fact @fact-output => #"WORK TO DO")))
 
 ;; Util: table-binding-maps
- 
+
 (fact "gets the bindings off fact table"
   (table-binding-maps ['?a  '?b '?result] [1 2 3])
   => [ (ordered-map '?a 1, '?b 2, '?result 3) ])
@@ -157,9 +157,9 @@
 
 (tabular "table of results"
   (silent-fact (+ a b) => result)
-    
+
       a    b   result
-      2    4   999     )  ;; PURPOSELY FAIL 
+      2    4   999     )  ;; PURPOSELY FAIL
 (note-that fact-fails, (fact-described-as  "table of results" nil))
 
 
@@ -167,7 +167,7 @@
 (tabular
   (silent-fact "add stuff"  ;; Note that this gets promoted to be with `tabular`
       (+ a b) => result)
-    
+
       a    b   result
       2    4   999     )  ;; PURPOSELY FAIL
 (note-that fact-fails, (fact-described-as  "add stuff" nil))
@@ -179,19 +179,19 @@
 (fact :check-only-at-load-time
   (fact-data/source (compendium/last-fact-checked<>)) => '(tabular (fact ?a => 1) ?a 1 1)
   (fact-data/guid (compendium/last-fact-checked<>)) => (random/form-hash '((fact ?a => 1) ?a 1 1)))
-  
+
 (tabular "name" :integration (fact ?a => 1) ?a 1 1)
 (fact :check-only-at-load-time
   (fact-data/source (compendium/last-fact-checked<>)) => '(tabular "name" :integration (fact ?a => 1) ?a 1 1)
   (fact-data/guid (compendium/last-fact-checked<>)) => (random/form-hash '((fact ?a => 1) ?a 1 1))
   (:integration (meta (compendium/last-fact-checked<>))) => true)
-  
+
 (tabular (fact "name" :integration ?a => 1) ?a 1 1)
 (fact :check-only-at-load-time
   (fact-data/source (compendium/last-fact-checked<>)) => '(tabular (fact "name" :integration ?a => 1) ?a 1 1)
   (fact-data/guid (compendium/last-fact-checked<>)) => (random/form-hash '((fact ?a => 1) ?a 1 1))
   (:integration (meta (compendium/last-fact-checked<>))) => true)
-  
+
 
 
 (fact "can't correctly establish table headers due unbound 'aa'"

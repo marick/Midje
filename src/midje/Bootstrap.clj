@@ -11,7 +11,7 @@
         ((ns-resolve 'midje.config 'load-config-files))
       (finally
         (in-ns saved-ns))))
-        
+
     (require 'midje.emission.api)
     ( (ns-resolve 'midje.emission.api 'load-plugin)
       ( (ns-resolve 'midje.config 'choice) :emitter))

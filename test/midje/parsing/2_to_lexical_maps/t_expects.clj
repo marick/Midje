@@ -17,9 +17,9 @@
 
 ;; I don't know why `expect` (and it alone) has to be fully qualified for these
 ;; tests to pass, but it does. Because these tests are mostly holdovers from when
-;; users could use `expect` directly, I'm not overly concerned. 
+;; users could use `expect` directly, I'm not overly concerned.
 
- 
+
 (unfinished faked-function mocked-function other-function)
 
 ;;;
@@ -168,7 +168,7 @@
 
 (facts "about checkers"
   (fact "expected results can be functions"
-    (midje.parsing.2-to-lexical-maps.expects/expect (+ 1 1) => even?))  
+    (midje.parsing.2-to-lexical-maps.expects/expect (+ 1 1) => even?))
 
   (fact "exact function matches can be checked with exactly"
     (let [myfun (constantly 33)
@@ -246,10 +246,10 @@
   :check-only-at-load-time
   (fact "calls macro to expand and compares to (unquoted) list"
     (some-macro 8) =expands-to=> (clojure.core/+ 100 200 8))
-  
+
   (fact "fails if expansion does not match expected list"
     (silent-fact (some-macro 1) =expands-to=> (clojure.core/- 100 200 1))
     (note-that fact-failed,
                (fact-actual `(clojure.core/+ 100 200 1))
                (fact-expected (quote (clojure.core/- 100 200 1))))))
- 
+
