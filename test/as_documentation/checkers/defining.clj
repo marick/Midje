@@ -126,7 +126,7 @@
 (note-that fact-fails)
 
 ;; This fails with this message (as of April 2012):
-;;   
+;;
 ;;   FAIL at (t_defining_checkers.clj:105)
 ;;   Actual result did not agree with the checking function.
 ;;           Actual result: {:foo 1, :bar "foo"}
@@ -161,7 +161,7 @@
            (fact-gave-intermediate-result (string? (:bar actual-map)) => true)
            (fact-gave-intermediate-result (= (count (:bar actual-map)) expected-count) => false))
 
-           
+
 
 
 ;; If you want a simpler checker that doesn't take arguments, just use
@@ -190,8 +190,8 @@
 ;;
 ;; In truth, you probably wouldn't use chatty checkers for boolean
 ;; expressions, because chatty checkers don't stop after the first failure,
-;; which is usually desirable. Instead, you'd use `every-checker` or `some-checker`. 
-  
+;; which is usually desirable. Instead, you'd use `every-checker` or `some-checker`.
+
 (fact 4 => (some-checker even? odd?))
 
 (silent-fact 4 => (every-checker odd? (roughly 3)))

@@ -11,7 +11,7 @@
 
     (color/init!)
     (?color-fn "string") => ?result)
-        
+
   ?color-fn     ?env-choice   ?config-choice   ?result
 
   ;; On windows, the config-choice defaults to false
@@ -38,7 +38,7 @@
     (prerequisite (getenv "MIDJE_COLORIZE") => ?env-value)
     (color/init!)
     (?color-fn "string") => ?result)
-        
+
   ?color-fn     ?env-value        ?result
   color/fail    "FALSE"           "string"
   color/fail    "TRUE"            "\u001b[31mstring\u001b[0m"

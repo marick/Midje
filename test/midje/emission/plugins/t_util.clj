@@ -19,11 +19,11 @@
 
 
 (tabular "descriptions harvested from nested facts can be formatted as '-' separated"
-  (fact 
+  (fact
     (format-nested-descriptions descriptions) => result)
-  
+
   descriptions      result
-  ["a" "b" "c"]     "a - b - c" 
+  ["a" "b" "c"]     "a - b - c"
   ["a" nil "c"]     "a - c"
   nil               nil
   []                nil

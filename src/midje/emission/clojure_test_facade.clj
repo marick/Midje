@@ -18,7 +18,7 @@
 
 
 (defn run-tests
-  "Run clojure.test tests in the given namespaces. It does not 
+  "Run clojure.test tests in the given namespaces. It does not
    affect the Midje fact counters but instead returns a map
    that can be used to produce a separate report."
   [namespaces]

@@ -39,7 +39,7 @@ odd?                   3               falsey)
   ((mkfn:arglist-matcher-fixed-arity 1 2) [1    ]) => falsey
   ((mkfn:arglist-matcher-fixed-arity 1 2) [1 2  ]) => truthy
   ((mkfn:arglist-matcher-fixed-arity 1 2) [1 2 3]) => falsey)
-    
+
 (fact "an arglist can allow rest args"
   ((mkfn:arglist-matcher-allowing-optional-args 1 2 & anything) [1    ]) => falsey
   ((mkfn:arglist-matcher-allowing-optional-args 1 2 & anything) [1 2  ]) => truthy
@@ -53,12 +53,12 @@ odd?                   3               falsey)
     ((mkfn:arglist-matcher-allowing-optional-args 1 2 & (as-checker empty?)) [1 2]) => truthy
     ((mkfn:arglist-matcher-allowing-optional-args 1 2 &             empty? ) [1 2]) => falsey
     ((mkfn:arglist-matcher-allowing-optional-args 1 2 & (as-checker empty?)) [1 2 3]) => falsey))
-  
+
 (facts "about result suppliers used"
   "returns identity for =>"
   (let [arrow "=>"]
     ((mkfn:result-supplier arrow (fn [] [1 2 3]))) => [1 2 3])
-             
+
   "returns stream for =streams=>"
   (let [supplier (mkfn:result-supplier "=streams=>" (fn [] [1 2 3]))]
     (supplier) => 1

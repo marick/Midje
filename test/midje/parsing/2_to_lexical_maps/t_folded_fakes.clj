@@ -22,13 +22,13 @@
 
 (defmacro some-macro [& rest] )
 
-(tabular "things that are not fake-sexps don't need to be unfolded" 
+(tabular "things that are not fake-sexps don't need to be unfolded"
 (fact ?thing ?arrow folded-fake?)
 
   ;; things not a proper fake macro
   ?thing                                        ?arrow
-  '1                                            =not=> 
-  '()                                           =not=> 
+  '1                                            =not=>
+  '()                                           =not=>
   `(fake (f (h 1)))                             =not=> ; not in right namespace
   '(midje.parsing.2-to-lexical-maps/non-fake (f (h 1)))             =not=>
 
@@ -38,26 +38,26 @@
 (tabular
   (fact "unfolding depends on the inner structure of a funcall"
     (list `fake '?call =test=> 3) ?arrow folded-fake?)
-   
+
   ?call                  ?arrow
   ;; Things that might be misinterpreted as nested funcalls
-  (f)                  =not=> 
-  (f 1)                =not=> 
-  (f 1 '(foo))         =not=> 
-  (f 1 [foo])          =not=> 
-  (f 1 {foo 1})        =not=> 
-  
+  (f)                  =not=>
+  (f 1)                =not=>
+  (f 1 '(foo))         =not=>
+  (f 1 [foo])          =not=>
+  (f 1 {foo 1})        =not=>
+
   ;; These are real nested function calls
-  (f (h 1))              => 
-  (f 1 (h 1))            => 
-  
+  (f (h 1))              =>
+  (f 1 (h 1))            =>
+
   ;; but don't decide to unfold a checker used as argument matcher"
   (f 1 (exactly even?))  =not=>
 
   ;; don't unfold a constructor.
   (f (java.util.Date. 1 1 1))           =not=>
   (f (new java.util.Date 1 2 2))        =not=>
-  
+
   "Macros are surprisingly hard to get right"
 ;  '(f 1 (some-macro 33))  =not=> folded-fake?
   )

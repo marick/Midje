@@ -11,7 +11,7 @@
  (fact
    @fact-output => #"Midje caught an exception when translating this form"
    @fact-output => #"fim_exception_line_numbers.clj:10"))
-   
+
 
 (capturing-failure-output ;; Reports on outer-level fact
  (macroexpand '(fact "fine" (fact "description" (+ 1 1) =throw-parse-exception=> 2)))

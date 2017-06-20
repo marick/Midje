@@ -11,7 +11,7 @@
             such.versions))
 
 (def issues-url "https://github.com/marick/Midje/issues")
-(def syntax-errors-that-will-not-be-fixed     
+(def syntax-errors-that-will-not-be-fixed
   "https://github.com/marick/Midje/wiki/Syntax-errors-that-will-not-be-fixed")
 
 
@@ -25,7 +25,7 @@
 
 ;;
 
-(defn getenv [var] 
+(defn getenv [var]
   (System/getenv var))
 
 (defn on-windows? []
@@ -82,7 +82,7 @@
       (load-file "project.clj")
     (catch java.io.FileNotFoundException e
         (set-leiningen-paths! {:test-paths ["test"]})))))
- 
+
 (defn leiningen-paths []
   (or leiningen-paths-var
       (do

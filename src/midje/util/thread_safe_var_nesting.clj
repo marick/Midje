@@ -40,7 +40,7 @@
 
 
 ;; Values associated with namespaces
-(defn set-namespace-value [key-name newval] 
+(defn set-namespace-value [key-name newval]
   (alter-meta! *ns* assoc key-name newval))
 
 (defn destroy-namespace-value [key-name]

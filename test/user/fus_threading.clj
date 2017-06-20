@@ -15,7 +15,7 @@
          (tak (dec z) (tak-y 4) y))
     z))
 
-(def computation-tree 
+(def computation-tree
   {:one (plumbing/fnk [arg] (tak arg (tak-y 4) 20))
    :two (plumbing/fnk [arg] (tak arg (tak-y 4) 20))
    :three (plumbing/fnk [arg] (tak arg (tak-y 4) 20))

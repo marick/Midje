@@ -4,9 +4,9 @@
             [midje.util.ecosystem :refer [line-separator]]))
 
 
-;;; Creating 
+;;; Creating
 
-(defn user-error 
+(defn user-error
   "Used when a user does something off-limits or incompatible"
   [& lines]
   (Error. (join line-separator lines)))
@@ -53,14 +53,14 @@
 (defprotocol ICapturedThrowable
   (throwable [this])
   (friendly-stacktrace [this]))
-                       
-(deftype CapturedThrowable [ex] 
-  ICapturedThrowable 
+
+(deftype CapturedThrowable [ex]
+  ICapturedThrowable
   (throwable [this] ex)
   (friendly-stacktrace [this]
     (join line-separator (friendly-exception-lines (throwable this) "              "))))
 
-(defn captured-throwable [ex] 
+(defn captured-throwable [ex]
   (CapturedThrowable. ex))
 
 (defn captured-throwable? [x]

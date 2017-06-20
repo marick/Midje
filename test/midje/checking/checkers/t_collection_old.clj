@@ -9,8 +9,8 @@
 (facts "about has-prefix"
   "lists"
   '() => (has-prefix '())
-  '(1) => (has-prefix '()) 
-  '(1) => (has-prefix '(1)) 
+  '(1) => (has-prefix '())
+  '(1) => (has-prefix '(1))
   '(1 2 3) => (has-prefix '(1))
   ((has-prefix '(2)) '(1 2 3)) => falsey
   '(1 2 3) => (has-prefix '(1 2))
@@ -58,7 +58,7 @@
 
   [ {:a 1} "irrelevant"] => (has-prefix   {:a 1})
 
-  ( (has-prefix [ {:a 1} ])  [ {:a 1, :b 1} ]) => falsey  
+  ( (has-prefix [ {:a 1} ])  [ {:a 1, :b 1} ]) => falsey
   ( (has-prefix {:a 1}) [ {:a 2} ]) => falsey
   ( (has-prefix {:a 1}) [ 1 2 3 ]) => falsey
   ( (has-prefix {:a 1}) [ [:a 1] ]) => falsey ; I suppose could arguably be true.
@@ -103,7 +103,7 @@
   [nil "foo"] => (has-prefix nil)
 
   ( (has-prefix [nil]) []) => falsey
-  
+
   "individual elements"
   [1 2 3] => (has-prefix 1)
   [1 2 3] => (has-prefix odd?)
@@ -113,8 +113,8 @@
 (facts "about has-prefix where elements can be in any order"
   "lists"
   '() => (has-prefix '() :in-any-order)
-  '(1) => (has-prefix '() :in-any-order) 
-  '(1) => (has-prefix '(1) :in-any-order) 
+  '(1) => (has-prefix '() :in-any-order)
+  '(1) => (has-prefix '(1) :in-any-order)
   '(1 2 3) => (has-prefix '(1) :in-any-order)
   ((has-prefix '(2) :in-any-order) '(1 2 3)) => falsey
   '(1 2 3) => (has-prefix '(1 2) :in-any-order)
@@ -149,7 +149,7 @@
   ( (has-prefix #{2 1 5} :in-any-order) [1 2 3]) => falsey
 
   "maps"
-  ((has-prefix :a :in-any-order) { :a 1 }) 
+  ((has-prefix :a :in-any-order) { :a 1 })
   => (contains {:actual {:a 1} :notes (just "Maps don't have prefixes.")})
   ((has-prefix :a :in-any-order) [{ :a 1 }]) => falsey
   ((has-prefix [:a] :in-any-order) {:a 1 })
@@ -163,7 +163,7 @@
   [ {:a 1} {:b 1} {:c 1}] => (has-prefix [ {:b 1} {:a 1} ] :in-any-order)
   [ {:a 1} "irrelevant" ] => (has-prefix   {:a 1} :in-any-order)
 
-  ( (has-prefix [ {:a 1} ] :in-any-order)  [ {:a 1, :b 1} ]) => falsey  
+  ( (has-prefix [ {:a 1} ] :in-any-order)  [ {:a 1, :b 1} ]) => falsey
   ( (has-prefix {:a 1} :in-any-order) [ {:a 2} ]) => falsey
   ( (has-prefix {:a 1} :in-any-order) [ 1 2 3 ]) => falsey
   ( (has-prefix {:a 1} :in-any-order) [ [:a 1] ]) => falsey ; I suppose could arguably be true.
@@ -199,7 +199,7 @@
   [nil "foo"] => (has-prefix ["foo" nil] :in-any-order)
 
   ( (has-prefix [nil] :in-any-order) []) => falsey
-  
+
   "individual elements"
   [1 2 3] => (has-prefix 1 :in-any-order)
   [1 2 3] => (has-prefix odd? :in-any-order)
@@ -220,8 +220,8 @@
 
   "lists"
   '() => (contains '())
-  '(1) => (contains '()) 
-  '(1) => (contains '(1)) 
+  '(1) => (contains '())
+  '(1) => (contains '(1))
   '(1 2 3) => (contains '(1))
   '(1 2 3) => (contains '(2))
   '(1 2 3) => (contains '(3))
@@ -240,7 +240,7 @@
   ( (contains '(1 2 1)) '(1 2 2 1)) => falsey ; duplicates matter
 
   "can contain single elements"
-  '(1 2 3) => (contains 3) 
+  '(1 2 3) => (contains 3)
 
   "vectors"
   [3 2 1] => (contains [1])
@@ -263,7 +263,7 @@
   [ {:a 1} {:b 1}      ] => (contains [ {:a 1} ])
   [ {:a 1} "irrelevant"] => (contains   {:a 1})
 
-  ( (contains [ {:a 1} ])  [ {:a 1, :b 1} ]) => falsey  
+  ( (contains [ {:a 1} ])  [ {:a 1, :b 1} ]) => falsey
   ( (contains {:a 1}) [ {:a 2} ]) => falsey
   ( (contains {:a 1}) [ 1 2 3 ]) => falsey
   ( (contains {:a 1}) [ [:a 1] ]) => falsey ; I suppose could arguably be true.
@@ -350,13 +350,13 @@
 
   "lists"
   '() => (contains '() :in-any-order)
-  '(1) => (contains '() :in-any-order) 
-  '(1) => (contains '(1) :in-any-order) 
+  '(1) => (contains '() :in-any-order)
+  '(1) => (contains '(1) :in-any-order)
   '(1 2 3) => (contains '(1) :in-any-order)
   '(1 2 3) => (contains '(2) :in-any-order)
   '(1 2 2 3) => (contains '(2 3 2) :in-any-order)
   ( (contains '(3 2 2) :in-any-order) '(1 2 3) ) => falsey
-  '(1 2 3) => (contains '(3 2) :in-any-order) 
+  '(1 2 3) => (contains '(3 2) :in-any-order)
 
   '(1 2 3) => (contains '(2 3) :in-any-order)
   '(3 2 1) => (contains '(1) :in-any-order)
@@ -376,7 +376,7 @@
   "vectors"
   [3 2 1] => (contains [1] :in-any-order)
   [1 nil 2 3 nil] => (contains [odd? even? odd? nil? nil] :in-any-order)
-  [3 2 1] => (contains [1 2] :in-any-order) 
+  [3 2 1] => (contains [1 2] :in-any-order)
   ( (contains [2 2] :in-any-order) [2]) => falsey ; duplicates matter
 
   "seqs"
@@ -395,7 +395,7 @@
   [ {:a 1} {:b 1}      ] => (contains [ {:b 1} {:a 1} ] :in-any-order)
   [ {:a 1} "irrelevant"] => (contains   "irrelevant" :in-any-order)
 
-  ( (contains [ {:a 1} ] :in-any-order)  [ {:a 1, :b 1} ]) => falsey  
+  ( (contains [ {:a 1} ] :in-any-order)  [ {:a 1, :b 1} ]) => falsey
   ( (contains {:a 1} :in-any-order) [ {:a 2} ]) => falsey
   ( (contains {:a 1} :in-any-order) [ 1 2 3 ]) => falsey
   ( (contains {:a 1} :in-any-order) [ [:a 1] ]) => falsey ; I suppose could arguably be true.

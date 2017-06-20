@@ -19,7 +19,7 @@
 
 (fact "error-handling"
   (fact "can validate keys"
-    (config/validate! {:unknown-key "value"}) 
+    (config/validate! {:unknown-key "value"})
     => (throws #"not configuration keys.*:unknown-key"))
 
   (fact "can use individual validation functions"
@@ -65,29 +65,29 @@
         (fun (a-fact {:midje/name "something containing regex."})) => truthy
         (fun (a-fact {:midje/name "not a match"})) => falsey
         (fun (a-fact {})) => falsey))
-    
+
     (fact "strings are treated as substrings"
       (let [fun (config/mkfn:fact-filter-predicate ["str"])]
         (fun (a-fact {:midje/name "something str like"})) => truthy
         (fun (a-fact {:midje/name "not a match"})) => falsey
         (fun (a-fact {})) => falsey))
-    
+
     (fact "functions are applied to arguments"
       (let [fun (config/mkfn:fact-filter-predicate [(fn [meta] (= "yes" (:something meta)))])]
         (fun (a-fact {:something "yes"})) => truthy
         (fun (a-fact {:something "no"})) => falsey
         (fun (a-fact {})) => falsey))
-    
+
     (fact "multiple arguments are OR'd together"
       (let [fun (config/mkfn:fact-filter-predicate [#"foo" :valiant])]
         (fun (a-fact {:midje/name "ofoop"})) => truthy
         (fun (a-fact {:valiant true})) => truthy
         (fun (a-fact {})) => falsey))
-    
+
     (fact "filter predicates know why they were created"
       (meta (config/mkfn:fact-filter-predicate [:oddity :valiant]))
       => (contains {:created-from [:oddity :valiant]}))
-    
+
     (fact "If there are no filter arguments, the fact filter is constructed from the default"
       ;; Note that the default is not aware it works on metadata.
       (config/with-augmented-config {:fact-filter :has-this-meta-key}

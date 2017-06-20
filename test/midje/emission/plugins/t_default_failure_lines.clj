@@ -8,7 +8,7 @@
 
 
 ;;; Note that this will scrozzle the failure notice from the facts below
-;;; if they fail. 
+;;; if they fail.
 (against-background [(util/failure-notice anything) => "notice"]
 
   (fact "the simplest kind of failure"
@@ -23,11 +23,11 @@
       (provided
         (util/attractively-stringified-value ..expected..) => 'EEE
         (util/attractively-stringified-value ..actual..) => 'AAA))
-    
-    (fact "or an unexpected match" 
+
+    (fact "or an unexpected match"
       (summarize {:type :actual-result-should-not-have-matched-expected-value :expected-result 2, :actual 2})
       => (just "notice" #"\s+Expected: Anything BUT 2", #"\s+Actual: 2")
-      
+
       ;; in general...
       (summarize {:type :actual-result-should-not-have-matched-expected-value :expected-result
                   ..expected.. :actual ..actual..})
@@ -96,7 +96,7 @@
     )
 
 
-  (fact "prerequisites" 
+  (fact "prerequisites"
     (fact "called with unexpected arguments"
       (fact "a typical case"
         (summarize {:type :prerequisite-was-called-with-unexpected-arguments
@@ -147,5 +147,5 @@
                   #"one"
                   #"two"]
                  :gaps-ok))
-  
+
 )  ;; Against-background

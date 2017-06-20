@@ -20,7 +20,7 @@
                      (range 7)))]
      (println (sort array#))))
 
-(defn timings 
+(defn timings
   "Run both Midje and clojure.test tests.
    Namespaces are looked up in both the src/ and test/ subdirectories.
    If no namespaces are given, runs tests in all namespaces."
@@ -34,4 +34,4 @@
                      nil
                      nil
                      '(require '[clojure walk template stacktrace test string set]))))
-                     
+

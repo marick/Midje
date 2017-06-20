@@ -18,11 +18,11 @@
 
   (fact "as a side note, you can also use `three-of` instead of the previous checkable"
     ["a" "aa" "aaa"] => (three-of #"a+")))
-    
+
 
 (fact "when `just` takes no options, you can omit brackets"
   [1 2 3] => (just odd? even? odd?))
-    
+
 
 (fact "you can specify that order is irrelevant"
   [1 3 2] => (just [1 2 3] :in-any-order)
@@ -58,23 +58,23 @@
 (fact ":in-any-order or set arguments are also supported"
   [5 1 4 2] => (contains [1 2 5] :gaps-ok :in-any-order)
   [5 1 4 2] => (contains #{1 2 5} :gaps-ok))
-  
+
 
                                 ;;; has-prefix, has-suffix
 
 (fact "has-prefix is anchored to the left"
     [1 2 3] =not=> (has-prefix [2 3])     ; it's not a prefix
-    [1 2 3] =>     (has-prefix [1 2])     
+    [1 2 3] =>     (has-prefix [1 2])
     [1 2 3] =not=> (has-prefix [2 1])     ; order matters
     [1 2 3] =>     (has-prefix [2 1] :in-any-order)
     [1 2 3] =>     (has-prefix #{2 1}))
 
 (fact "has-suffix is anchored to the left"
-    [1 2 3] =>     (has-suffix [2 3])     
+    [1 2 3] =>     (has-suffix [2 3])
     [1 2 3] =not=> (has-suffix [1 2])     ; not a suffix
     [1 2 3] =not=> (has-suffix [3 2])     ; order matters
     [1 2 3] =>     (has-suffix [3 2] :in-any-order)
-    [1 2 3] =>     (has-suffix #{3 2}))  
+    [1 2 3] =>     (has-suffix #{3 2}))
 
                                 ;;; has
 
@@ -98,7 +98,7 @@
   ;; ...
   [1 3 5 7 9 11 13 15 17] => (nine-of odd?)
   ["a" "b" "c" "d" "e" "f" "g" "h" "i" "j"] => (ten-of string?)
-  
+
   ;; to go above ten-of
   (repeat 100 "a") => (n-of "a" 100))
 
@@ -107,4 +107,4 @@
   [:k :w :extra :keywords] =not=> (two-of keyword?))
 
 
-  
+

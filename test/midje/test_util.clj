@@ -58,7 +58,7 @@
   (silent-body expanded-symbols/data-fake &form))
 (defmacro silent-check-facts [& _]
   (silent-body 'midje.repl/check-facts &form))
-  
+
 
 ;;; Checkers, mainly for failures
 
@@ -126,17 +126,17 @@
   `(fn [actual-failure#]
      (if-let [match# (intermediate-result-left-match '~left actual-failure#)]
        (= (second match#) ~value))))
-      
+
 (defmacro fact-omitted-intermediate-result [left]
   `(fn [actual-failure#]
      (not (intermediate-result-left-match '~left actual-failure#))))
-  
+
 
 ;; Prerequisites
 
 (def only-incorrect-call-counts (partial filter #(= (:type %) :some-prerequisites-were-called-the-wrong-number-of-times)))
 (def only-incorrect-call-count-reasons (comp all-reasons only-incorrect-call-counts))
-  
+
 
 (defn ^{:all-failures true} some-prerequisite-was-called-with-unexpected-arguments [failure-maps]
   (some #{:prerequisite-was-called-with-unexpected-arguments} (map :type failure-maps)))
@@ -151,7 +151,7 @@
 (defn ^{:all-failures true} prerequisite-was-never-called [expected-call]
   (prerequisite-was-called-the-wrong-number-of-times expected-call 0))
 
-                                 
+
 ;; The following two are to be used when there's only one prerequisite
 
 (defn ^{:all-failures true} the-prerequisite-was-incorrectly-called [n & _times_]
@@ -163,7 +163,7 @@
 
 (defn ^{:all-failures true} failures-were-at-lines [& lines]
   (fn [failure-maps]
-    (= lines 
+    (= lines
        (map line-number-from-failure-reason (all-reasons failure-maps)))))
 
 ;; Misc
@@ -199,7 +199,7 @@
                     (cond (or (= claim 'fact-fails)
                               (= claim 'fact-failed))
                           (tack-on '(@silent-fact:failure-count => pos?))
-                                      
+
                           (or (= claim 'fact-passes)
                               (= claim 'fact-passed))
                           (tack-on '(@silent-fact:failure-count => zero?))
@@ -282,13 +282,13 @@
 
 
 
-(defn at-line [line-no form] 
+(defn at-line [line-no form]
    (with-meta form {:line line-no}))
 
 (defmacro defn-call-countable
   "Note: For testing Midje code that couldn't use provided.
-  
-  Creates a function that records how many times it is called, and records 
+
+  Creates a function that records how many times it is called, and records
   that count in an atom with the same name as the function with \"-count\" appended"
   [name args & body]
   (let [atom-name (symbol (str name "-count"))]

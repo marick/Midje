@@ -18,14 +18,14 @@
 (facts "about data-laden falsehoods"
   (as-data-laden-falsehood [5]) => data-laden-falsehood?
   (meta (as-data-laden-falsehood (with-meta [5] {:foo true}))) => (contains {:foo true}))
-  
+
 (facts "user-friendly-falsehood converts extended-falsehood into just false"
   (user-friendly-falsehood false) => false
   (user-friendly-falsehood nil) => nil
   (user-friendly-falsehood (as-data-laden-falsehood {})) => false)
 
-  
-  
+
+
 
 
 (future-fact "should extended-= return strictly true or false?")
@@ -49,7 +49,7 @@
 
 (fact "Big decimal ignore additional 0 in fraction"
   (extended-= 1M 1M) => truthy
-  (extended-= 1M 1.0M) => truthy      
+  (extended-= 1M 1.0M) => truthy
   (extended-= 1M 1.0) => falsey)
 
 (fact "extended equality can be applied to lists"
@@ -61,7 +61,7 @@
   (fact "counts must match"
     (extended-list-= [] [1]) => falsey
     (extended-list-= [1] []) => falsey))
-    
+
 
 (defrecord AB [a b])
 (defrecord AB2 [a b])
@@ -89,7 +89,7 @@
   (extended-= (AB. 1 2) {:a 1, :b 2, :c 3}) => falsey
   (extended-= (assoc (AB. 1 2) :c 3) {:a 1, :b 2, :c 3}) => truthy
   )
-  
+
 (fact "for functions, you can get information about the failure"
   (first (evaluate-checking-function odd? 3)) => true
   (evaluate-checking-function odd? 4) => [false {}]

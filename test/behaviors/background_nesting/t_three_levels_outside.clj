@@ -22,7 +22,7 @@
 
 (against-background [ (middlemost 2) => 33
                       (innermost) => 'c]
-  
+
   (against-background [ (middlemost 1) => -43 ]
     (fact
       (against-background (innermost) => 8)

@@ -13,7 +13,7 @@
   (fact "from symbols or strings"
     (unglob-partial-namespaces ["explicit-namespace1"]) => ['explicit-namespace1]
     (unglob-partial-namespaces ['explicit-namespace2]) => ['explicit-namespace2])
-  
+
   (fact "can 'unglob' wildcards"
     (prerequisites (ecosystem/leiningen-paths) => ["test" "src"]
                    (tude/classify-dir-entries "test/ns/foo") => [{:status :contains-namespace
@@ -44,7 +44,7 @@
 
     (latest-modification-time empty-tracker) => 11
     (latest-modification-time tracker-with-changes) => 3333
-    
+
     (prepare-for-next-scan empty-tracker) => (contains {time-key 11, unload-key [], load-key []})
     (prepare-for-next-scan tracker-with-changes) => (contains {time-key 3333, unload-key [], load-key []})
     (prepare-for-next-scan tracker-with-deleled-ns) => (contains {deps-key {:dependents {..ns1.. #{..ns3..}}}})))
@@ -79,7 +79,7 @@
     (require ..ns1.. :reload) => nil
     (require ..ns2.. :reload) => nil)
 
-  
+
 
   (let [throwable (Error.)]
     (require-namespaces! [..ns1.. ..ns2.. ..ns3..] record-failure cleaner) => anything

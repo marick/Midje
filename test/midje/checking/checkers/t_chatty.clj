@@ -12,14 +12,14 @@
 (facts "about chatty-checking utility functions"
 
   (chatty-untease 'g-101 '()) => [[] []]
-  
+
   (chatty-untease 'g-101 '(1 (f) 33 (+ 1 2))) =>
                 [ '( (f) (+ 1 2))  '(1 (g-101 0) 33 (g-101 1))  ])
 
-(tabular 
+(tabular
   (fact "knows if is worth reporting on"
     (chatty-worth-reporting-on? ?arg) => ?worth-it)
-  
+
     ?arg   ?worth-it
     1      falsey
     '()    falsey
@@ -46,7 +46,7 @@
 
 
 
-  
+
 ;; The form of chatty checkers
 
 (def actual-plus-one-equals-4 (chatty-checker [actual] (= (inc actual) 4)))
@@ -61,7 +61,7 @@
 
 (facts "about what chatty-checkers return"
   (actual-plus-one-equals-4 3) => true
-   
+
   (let [result (actual-plus-one-equals-4 4)]
     result => data-laden-falsehood?
     result => {:actual 4
@@ -102,23 +102,23 @@
   (= (vec-structured-checker [1 2 3 4]) true) => truthy )
 
 (tabular "chatty checkers can use a map destructuring argument"
-  (fact 
+  (fact
       (= (?structured-checker {:a 1 :b 2}) true) => truthy
       (= (?structured-checker {:a 10 :b 10}) true) => falsey)
-  
+
   ?structured-checker
   map-structured-checker
   map-structured-checker-with-as
   other-map-structured-checker )
 
-(tabular 
+(tabular
   (fact "different parts are in fact checked"
     (let [result (vec-structured-checker ?actual)]
       (= result true) => falsey
       (:actual result) => ?actual))
-  ?actual       
-  ['x 2 3 4]    
-  [1 'x 3 4]    
+  ?actual
+  ['x 2 3 4]
+  [1 'x 3 4]
   [1 2 3 4 'x])
 
 (fact "folded results are still shown"
@@ -129,15 +129,15 @@
 
 (tabular "map structured checkers still work"
   (fact (:intermediate-results (?structured-checker {:a 10 :b 2}))
-  => '(    ((= a 1) false) 
+  => '(    ((= a 1) false)
            ((= b 2) true) ))
-  
+
   ?structured-checker
   map-structured-checker
   map-structured-checker-with-as
   other-map-structured-checker )
 
-  
+
 ;; Chatty checkers: interaction with checkers that return chatty-failures.
 (defn rows-in [rows] rows)
 (defn has-rows [rows]
@@ -153,7 +153,7 @@
 
 
 ;; Old bug. During midjcoexpansion/macroexpansion, the interior of a chatty checker
-;; can turn into a lazy seq, which should be treated as if it were a list. This checks that. 
+;; can turn into a lazy seq, which should be treated as if it were a list. This checks that.
 (silent-fact
  (let [a-chatty-checker (fn [expected]
                           (chatty-checker [actual] (= expected (+ 1 actual))))]
@@ -177,4 +177,4 @@
 
 
 
-  
+
