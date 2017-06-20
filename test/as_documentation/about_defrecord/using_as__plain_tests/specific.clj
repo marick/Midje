@@ -10,16 +10,16 @@
   (bound? #'generic/bump) => true)
 
 
-;; Note that self-calls require qualification with the generic namespace. 
-;; #'bump and #'twice are not bound at this point. That makes for confusing 
-;; declarations like 
+;; Note that self-calls require qualification with the generic namespace.
+;; #'bump and #'twice are not bound at this point. That makes for confusing
+;; declarations like
 ;;
 ;;   (bump [this] (generic/bump this 1))
 ;;
 ;; Why doesn't the first instance of the token `bump` need namespace qualification? It's
 ;; really special-case processing by the macros that make up the defrecord/deftype
 ;; complex. You *can* use a qualified name if you like:
-;; 
+;;
 ;;   (generic/bump [this] (generic/bump this 1))
 ;;
 ;; ... and everything work the same. However, that's not idiomatic.
@@ -35,7 +35,7 @@
   (ecosystem/when-1-6+
    ;; This throws a null-pointer exception in older Clojures
    (find-var 'as-documentation.about-defrecord.generic/using-as--plain-tests.specific/bump) => falsey))
-  
+
 (fact "Therefore, even within this namespace uses of the record must use the generic function's var"
   (let [rec (->Record 3)]
     (generic/bump rec) => 4

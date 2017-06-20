@@ -9,7 +9,7 @@
 
 (facts
   (prerequisite (bar 1) => 1
-                (bar 88) => 88) 
+                (bar 88) => 88)
   (foo) => 3
   (provided
     (bar 2) => 2))

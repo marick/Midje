@@ -26,7 +26,7 @@
   (f 2) => 2)
 
 ;;; in-fact against-background does not affect creation of source metadata
-  
+
 (fact
   (against-background (g anything) => 2)
   (f 2) => 2)

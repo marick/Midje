@@ -17,7 +17,7 @@
 
 (declare f g)
 
-(tabular 
+(tabular
   (fact "binding maps contain functions that increment a call count"
     (let [fake (fake (?function-reference 1) => 3)
           result-map (binding-map [fake])]
@@ -45,19 +45,19 @@
 
 
 
-         
+
 
 (defn called-because-mock-checking-requires-it [] nil)
 (defn has-faked-function []
   (called-because-mock-checking-requires-it)
   (implements-a-fake? called-because-mock-checking-requires-it))
-         
+
 (fact "A faked function can be identified from its metadata"
   (has-faked-function) => falsey
   (has-faked-function) => truthy
   (provided
     (called-because-mock-checking-requires-it) => 33))
-  
+
 ;;; Handling of default values for fakes
 
 
@@ -86,7 +86,7 @@
   (fact
     (double-partition [1 2] ..xs..) => [[1] [2] [..x1..] [..x2..]]
     (provided (partition-all 1 ..xs..) => [ [..x1..] [..x2..] ]))
-  
+
 
   ;; However you can't override functions that are used by Midje itself
   ;; These are reported thusly:
@@ -97,7 +97,7 @@
                       reported)]
       (and important-error
            (.getMessage (.throwable (:actual important-error))))))
-  
+
   (defn all-even? [xs] (every? even? xs))
 
 
@@ -171,7 +171,7 @@
   (let [fakes [(fake (f 1) => 3)
                (fake (g 1) => 4)
                (fake (#'f 2) => 5)]
-        counts (fn [] 
+        counts (fn []
                  (map #(deref (:call-count-atom %)) fakes))]
     (handle-mocked-call #'f [1] fakes)    (counts) => [1 0 0]
     (handle-mocked-call #'f [1] fakes)    (counts) => [2 0 0]

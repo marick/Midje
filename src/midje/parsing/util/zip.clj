@@ -2,7 +2,7 @@
   midje.parsing.util.zip
   (:require [clojure.zip :as zip]))
 
-;;; Copied from utilize to remove dependencies. 
+;;; Copied from utilize to remove dependencies.
 ;;; https://github.com/AlexBaranosky/Utilize
 (defn unchunk
   "Force a lazy sequence to not use size 32 chunks, but true one-element laziness"
@@ -56,4 +56,4 @@
 
 (defn previous-form [loc]
   (zip/node (previous-loc loc)))
-  
+

@@ -23,11 +23,11 @@
     (fetch-project-paths) => ["test"]
     (provided
       (read-project-file) =throws=> (Error. "boom!"))))
-  
+
 
 ;;; A version with metaconstants. Plain metaconstants have only one
 ;;; property: identity. If you see a metaconstant twice in the same
-;;; checkable, you know it's the same value each time. 
+;;; checkable, you know it's the same value each time.
 
 (fact "fetch-project-paths returns the project file's test and source paths, in that order"
   (fetch-project-paths) => [..test1.. ..test2.. ..source..]
@@ -69,7 +69,7 @@
 
     (gpa ..student.. coursework) => (roughly correct-gpa tolerance)
     (provided (child-of-wealthy-alumnus? ..student..) => false)
-    
+
     (gpa ..student.. coursework) => (roughly (+ correct-gpa 0.5) tolerance)
     (provided (child-of-wealthy-alumnus? ..student..) => true)))
 
@@ -97,7 +97,7 @@
 
 
 
-;; You also get a helpful failure for an unused prerequisite:       
+;; You also get a helpful failure for an unused prerequisite:
 
 (capturing-failure-output
  (fact
@@ -141,7 +141,7 @@
   (provided
     (lower-function 5) => 50 :times [1 2]
     (lower-function 6) =>  5))
- 
+
 ;; You can also use a lazy sequence:
 
 (silent-fact
@@ -160,7 +160,7 @@
   (top-function 5) => 55
   (provided
     (lower-function 0) => 88 :times (range)
-    (lower-function 5) => 50 
+    (lower-function 5) => 50
     (lower-function 6) =>  5))
 
 ;; The idiom for saying a function is not called is annoying:
@@ -187,13 +187,13 @@
 ;;; However, plain (non-checker) functions are matched literally. In the following,
 ;;; the `provided` means that the the specific function `even?` is to be passed to
 ;;; `hilbertian`.
-  
+
 (unfinished hilbertian)
 
 (defn function-under-test [n]
   (hilbertian (if (pos? n) even? odd?)))
 
-(fact 
+(fact
   (function-under-test 3) => ..hilbertian-result..
   (provided
     (hilbertian even?) => ..hilbertian-result..))
@@ -236,7 +236,7 @@
     (find-letter) => ..letter-result..
     (provided
       (letter desired-letter & anything) => ..letter-result..)))
-    
+
 (fact "You can even apply a checker to the &rest argument"
   (find-letter) => ..letter-result..
   (provided
@@ -244,7 +244,7 @@
     (letter & (contains ["x" "y"])) => ..letter-result..))
 
 
-  
+
 
 
 
@@ -264,7 +264,7 @@
   (provided
     (first-est 1 5) => ..some-result..
     (second-est ..some-result..) => 100))
-    
+
 ;; But it could be more tersely expressed like this:
 
 (fact

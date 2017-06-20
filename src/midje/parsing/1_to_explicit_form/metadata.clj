@@ -22,7 +22,7 @@
                   add-key (fn [key value] (assoc metadata key value))]
 
               (cond (recognize/start-of-checking-arrow-sequence? body)
-                    [metadata body] 
+                    [metadata body]
 
                     (string? head)
                     (recur (add-key :midje/description head) (rest body))
@@ -36,7 +36,7 @@
 
                     (map? head)
                     (recur (merge metadata head) (rest body))
-                    
+
                     :else
                     [metadata body])))]
     (let [[metadata body] (basic-parse {:midje/source `'~metadata-containing-form
@@ -65,17 +65,17 @@
         description (:midje/description metadata)
         namelike (cond (and name (not description))
                        [(symbol name)]
-                       
+
                        (and description (not name))
                        (throw (Error. "This case is impossible"))
-                       
+
                        (and (not description) (not name))
                        []
-                       
+
                        (= description name)
                        [description]
-                       
-                       :else 
+
+                       :else
                        [(symbol name) description])
         maplike (apply dissoc metadata (filter #(re-find #"^:midje/" (str %)) (keys metadata)))]
     (if (empty? maplike)
@@ -89,7 +89,7 @@
         stripped-top-level-body `((~(first lower-level-form) ~@lower-level-body) ~@(rest top-level-body))]
       [(merge lower-level-meta top-level-meta {:midje/guid (random/form-hash stripped-top-level-body)})
        stripped-top-level-body]))
-       
+
 
 (defn separate-multi-fact-metadata
   "This does not include metadata specified by strings or symbols."
@@ -98,10 +98,10 @@
          [x & xs :as body] forms]
     (cond (keyword? x)
           (recur (assoc metadata x true) xs)
-          
+
           (map? x)
           (recur (merge metadata x) xs)
-          
+
           :else
           [metadata body])))
 

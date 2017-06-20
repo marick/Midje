@@ -13,7 +13,7 @@
 
   (fact "it also gets set before this fact"
     @state => 0))
-    
+
 ;;; It's common to put `with-state-changes` inside an outermost fact
 
 (facts swap!
@@ -44,7 +44,7 @@
 
                                         ;;; teardown
 
-;; Combining setup and teardown. 
+;; Combining setup and teardown.
 
 (fact "whereas `before` executes outer-to-inner, `after` is the reverse"
   (with-state-changes [(before :facts (reset! log ["outer in"]))
@@ -58,24 +58,24 @@
            "outer out"])
 
 (fact "teardown is executed even if the enclosed fact throws an exception."
-  (try 
+  (try
     (with-state-changes [(after :facts (reset! log ["caught!"]))]
       (fact
         (throw (new Error))))
   (catch Error ex))
   @log => ["caught!"])
-  
-    
+
+
 (fact "teardown is NOT executed when the corresponding `before` throws an exception."
   ;; Use `around` instead.
-  (try 
+  (try
     (with-state-changes [(before :facts (do (reset! log [])
                                             (throw (new Error))))
                          (after :facts (reset! log ["caught!"]))]
       (fact))
   (catch Error ex))
   @log =not=> ["caught!"])
-      
+
                                         ;;; namespace-state-changes
 
 ;;; The earlier example of testing `swap!` surrounded three facts with
@@ -95,7 +95,7 @@
   @state => 1)
 
 ;;; Note that any use of `namespace-state-changes` erases the
-;;; previous one. For example, the following doesn't add teardown to 
+;;; previous one. For example, the following doesn't add teardown to
 ;;; the earlier setup. There is no longer any setup, just teardown.
 
 (namespace-state-changes [(after :facts (swap! state inc))])

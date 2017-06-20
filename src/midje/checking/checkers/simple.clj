@@ -11,16 +11,16 @@
 ;;; DANGER: If you add a checker, add it to ../checkers.clj
 
 
-(defchecker truthy 
+(defchecker truthy
   "Returns precisely true if actual is not nil and not false."
-  [actual] 
+  [actual]
   (and (not (captured-throwable? actual))
        (boolean actual)))
 (ns/defalias TRUTHY truthy)
 
-(defchecker falsey 
+(defchecker falsey
   "Returns precisely true if actual is nil or false."
-  [actual] 
+  [actual]
   (not actual))
 (ns/defalias FALSEY falsey)
 
@@ -69,7 +69,7 @@
        (fact (foo) => (throws IOException)
        (fact (foo) => (throws IOException #\"No such file\")
 
-   `throws` takes three kinds of arguments: 
+   `throws` takes three kinds of arguments:
    * A class argument requires that the Throwable be of that class.
    * A string or regular expression requires that the `message` of the Throwable
      match the argument.

@@ -37,7 +37,7 @@
     (provided
       ...source... =contains=> '{:a a, :b b}
       ...source... =contains=> {:c c})))
-  
+
 
 (unfinished m)
 (defn caller [head tail]
@@ -48,7 +48,7 @@
   (provided (m 'sym ...tail...) => '(sym ...tail...)))
 
 (defn claim-symbols [symbols]
-  (fact 
+  (fact
     (doseq [metaconstant-symbol symbols]
       (find (ns-interns *ns*) metaconstant-symbol) => truthy
       (var-get ((ns-interns *ns*) metaconstant-symbol)) => metaconstant-symbol)))
@@ -57,7 +57,7 @@
 (declare f)
 (background (f ...one...) => 1 )
 (against-background [ (f ...two...) => 2 ]
-  (fact 
+  (fact
     (+ (f ...one...) (f ...two...) (f ...three...))  => 6
     (against-background (f ...three...) => 3)))
 (claim-symbols '(...one... ...two... ...three...))

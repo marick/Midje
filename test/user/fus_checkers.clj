@@ -22,7 +22,7 @@
   [1] => (has-prefix 1)
   [1] => (has-suffix 1)
   [1] => (has every? odd?))
-    
+
 
 
 (future-fact "Failures from chatty-checkers-within-functions propagate chatty information"
@@ -31,11 +31,11 @@
        (let [set-of-sets #(set (map set %))]
          (fn [actual]
            ( (just (set-of-sets expected)) (set-of-sets actual)))))
-     
-     
+
+
      (silent-fact
        [ [1] [2 3] ] => (as-sets [ [1] ]))
-     
+
      @silent-fact:last-raw-failure => (contains {:type :actual-result-did-not-match-checker
                                                  :actual [ [1] [2 3]]
                                                  :expected-result-form '(as-sets [[1]])
@@ -46,17 +46,17 @@
 
 (tabular
   (fact ?actual ?arrow ?expected)
-  
+
   ?expected                      ?actual ?arrow
-  odd?                           3       =>             
+  odd?                           3       =>
   odd?                           odd?    =not=>
-                                                     
+
   (exactly odd?)                 3       =not=>
   (exactly odd?)                 odd?    =>
-  
-  (as-checker odd?)              3       =>     
-  (as-checker odd?)              odd?    =not=>  
-  
+
+  (as-checker odd?)              3       =>
+  (as-checker odd?)              odd?    =not=>
+
   (fn [actual] (= 3 actual))     3       =>
   (fn [actual] (= 3 actual))     odd?    =not=>
   )
@@ -65,10 +65,10 @@
 (defn outer [n] (inner n))
 
 (tabular
-  (fact 
+  (fact
     (silent-fact
      (outer ?actual) => "expected"
-     (provided 
+     (provided
        (inner ?expected) => "expected"))
     @silent-fact:failure-count ?arrow zero?)
 
