@@ -38,10 +38,10 @@
 
 (defmulti mkfn:result-supplier (fn [arrow & _] arrow))
 
-(defmethod mkfn:result-supplier => [_arrow_ result] (constantly result))
+(defmethod mkfn:result-supplier => [_arrow_ result] result)
 
 (defmethod mkfn:result-supplier =streams=> [_arrow_ result-stream]
-  (let [the-stream (atom result-stream)]
+  (let [the-stream (atom (result-stream))]
     (fn []
       (when (empty? @the-stream)
         (throw (exceptions/user-error "Your =stream=> ran out of values.")))
@@ -49,11 +49,12 @@
         (swap! the-stream rest)
         current-result))))
 
-(defmethod mkfn:result-supplier =throws=> [_arrow_ throwable]
+(defmethod mkfn:result-supplier =throws=> [_arrow_ wrapped-throwable]
   (fn []
-    (when-not (instance? Throwable throwable)
-      (throw (exceptions/user-error "Right side of =throws=> should extend Throwable.")))
-    (throw throwable)))
+    (let [throwable (wrapped-throwable)]
+      (when-not (instance? Throwable throwable)
+        (throw (exceptions/user-error "Right side of =throws=> should extend Throwable.")))
+      (throw throwable))))
 
 (defmethod mkfn:result-supplier :default [arrow result-stream]
   (throw (exceptions/user-error "It's likely you misparenthesized your metaconstant prerequisite,"

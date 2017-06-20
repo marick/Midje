@@ -150,3 +150,43 @@
   (empty ..thing..) => {}
   (count ..thing..) => 2
   (seq ..thing..) => (list [:name "basti"] [:counter 1]))
+
+(unfinished gen-doc)
+(fact "Test merging of metaconstant that appear in data and function fakes"
+  (:header (gen-doc)) => "gamma"
+  (provided
+    (gen-doc) => ..doc..
+    ..doc.. =contains=> {:header "gamma"}))
+
+(fact "Test merging of nested metaconstant that appear in data and function fakes"
+  (:header (:raw (gen-doc))) => "gamma"
+  (provided
+    (gen-doc) => {:raw ..doc..}
+    ..doc.. =contains=> {:header "gamma"}))
+
+(against-background [..doc.. =contains=> {:header "gamma"}]
+  (fact "Test merging of metaconstant with against-background"
+    (:header (gen-doc)) => "gamma"
+    (provided
+      (gen-doc) => ..doc..)))
+
+(against-background [..doc..    =contains=> {:header ..header..}
+                     ..header.. =contains=> {:title "title"}]
+  (future-fact "Test metaconstants that contain other metaconstants"
+    (-> (gen-doc) :header :title) => "title"
+    (provided
+      (gen-doc) => ..doc..)))
+
+(future-fact "Test metaconstants that contain other metaconstants"
+  (-> (gen-doc) :header :title) => "title"
+  (provided
+    (gen-doc) => ..doc..
+    ..doc..    =contains=> {:header ..header..}
+    ..header.. =contains=> {:title "title"}))
+
+(future-fact "Metaconstant merging and streaming"
+  (vector (:header (gen-doc)) (:header (gen-doc))) => [1 2]
+  (provided
+    (gen-doc) =streams=> [..doc1.. ..doc2..]
+    ..doc1.. =contains=> {:header 1}
+    ..doc2.. =contains=> {:header 2}))

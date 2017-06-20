@@ -57,10 +57,10 @@ odd?                   3               falsey)
 (facts "about result suppliers used"
   "returns identity for =>"
   (let [arrow "=>"]
-    ((mkfn:result-supplier arrow [1 2 3])) => [1 2 3])
+    ((mkfn:result-supplier arrow (fn [] [1 2 3]))) => [1 2 3])
 
   "returns stream for =streams=>"
-  (let [supplier (mkfn:result-supplier "=streams=>" [1 2 3])]
+  (let [supplier (mkfn:result-supplier "=streams=>" (fn [] [1 2 3]))]
     (supplier) => 1
     (supplier) => 2
     (supplier) => 3))

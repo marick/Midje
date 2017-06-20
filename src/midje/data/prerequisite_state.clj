@@ -91,7 +91,7 @@
         map?
         (do
           (swap! (:call-count-atom action) inc)
-          ((:result-supplier action )))
+          ((:result-supplier action)))
 
         :else
         (do
