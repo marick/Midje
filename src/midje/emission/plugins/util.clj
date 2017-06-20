@@ -51,6 +51,12 @@
     [(group+format+sort comparable)
      (group+format+sort uncomparable)]))
 
+(defn- safe-sort
+  "Attempts sorting input but defaults returning the list unsorted when
+  elements are heterogeneous, and hence unsortable"
+  [xs]
+  (try (sort xs) (catch ClassCastException e xs)))
+
 (defn nested-sort
   "Sorts two nested collections for easy visual comparison.
    Sets and maps are converted to order-sets and ordered-maps."
@@ -58,13 +64,13 @@
   (letfn [(seq-in-order-by-class
             [class-name->items sort?]
             (for [[_clazz_ xs] class-name->items
-                  x (if sort? (sort xs) xs)]
+                  x (if sort? (safe-sort xs) xs)]
               x))
           (map-in-order-by-class
             [m class-name->keys sort?]
             (into (om/ordered-map)
                   (for [[_clazz_ ks] class-name->keys
-                        k (if sort? (sort ks) ks)]
+                        k (if sort? (safe-sort ks) ks)]
                     [k (nested-sort (get m k))])))]
 
     (cond (set? x)
