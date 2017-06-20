@@ -53,7 +53,7 @@
     [false {:thrown ex}])))
 
 (defn extended-= [actual expected]
-  (try  
+  (try
     (cond
      (data-laden-falsehood? actual)      actual
      (data-laden-falsehood? expected)    expected

@@ -19,12 +19,12 @@
         z (zip/seq-zip original)
         loc (zip/down z)]
     (expand-prerequisites-into-fake-calls loc) => translated))
-  
+
 
 (fact "created fakes have the line number of the arrow form"
   (let [args `( ~(at-line 789 '(f 1)) => 3)]
     (:line (meta (prerequisite-to-fake args))) => 789))
-     
+
 (fact "prerequisite containers are deleted so their contents can be inserted elsewhere"
   (let [original '( (expect (f x) => (+ 1 2)) (provided ...) "next")
         edited   '( (expect (f x) => (+ 1 2))                "next")
@@ -32,7 +32,7 @@
         original-loc (-> z zip/down zip/right zip/down)
         resulting-loc
          (delete_prerequisite_form__then__at-previous-full-expect-form original-loc)]
-        
+
     original-loc => recognize/provided?
     resulting-loc => recognize/expect?
     (zip/root resulting-loc) => edited))

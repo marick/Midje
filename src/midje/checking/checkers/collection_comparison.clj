@@ -62,7 +62,7 @@
           (pile/function-name item)
           (pr-str item)))
       " (in that order)"))
-  
+
   (defmethod best-expected-match ::map [midje-classification comparison expected]
     (best-expected-match-wrapper midje-classification
       comparison
@@ -143,7 +143,7 @@
 
                 :else
                 (better-of candidate best-so-far)))))
-        
+
         (order-free-compare-results [expected expected-permutations try-permutation]
           (loop [expected-permutations expected-permutations
                  best-so-far (base-starting-candidate expected)]
@@ -154,7 +154,7 @@
                   comparison
                   (recur (rest expected-permutations)
                     (better-of comparison best-so-far)))))))
-        
+
         (feasible-permutations
           ;; "Permute the given list if it contains inexact checkers.
           ;;  Only produces all permutations for short lists."
@@ -195,7 +195,7 @@
     [actual expected looseness]
     (let [starting-candidate (base-starting-candidate expected)
           gaps-ok? (some (partial = :gaps-ok) looseness)]
-  
+
       ;; This embeds two loops. walking-actual controls the inner loop. It walks
       ;; until success or it hits a mismatch. actual controls the outer loop.
       ;; Upon each mismatch, it tries again with the #'rest of itself.
@@ -204,10 +204,10 @@
              walking-expected expected
              best-so-far      starting-candidate
              candidate        starting-candidate]
-  
+
         (cond (or (empty? walking-actual) (empty? walking-expected))
           (better-of candidate best-so-far)
-  
+
           (extended-= (first walking-actual) (first walking-expected))
           ;; actual good so far, keep working on it
           (recur actual
@@ -217,7 +217,7 @@
             (map/conj-into candidate
               :actual-found (first walking-actual)
               :expected-found (first walking-expected)))
-  
+
           (and gaps-ok? (not (empty? (rest walking-actual))))
           ;; This is a gap in the walking actual. Skip it.
           (recur actual
@@ -225,7 +225,7 @@
             walking-expected
             best-so-far
             candidate)
-  
+
           (not (empty? actual))
           ;; See if we can find something better later on.
           (recur (rest actual)

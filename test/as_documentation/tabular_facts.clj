@@ -46,7 +46,7 @@
 ;;; If you prefer, you can put the doc string on the enclosed fact rather than the
 ;;; tabular fact:
 
-(tabular 
+(tabular
   (fact "Put the doc string wherever you prefer"
     (+ ?a ?b) => ?result )
   ?a    ?b      ?result
@@ -66,7 +66,7 @@
   (let [marked-facts (fetch-facts *ns* :a-tabular-fact)]
     (count marked-facts) => 1
     (:a-tabular-fact (meta (first marked-facts))) => true))
-    
+
 
 ;;;                                     Miscellany
 

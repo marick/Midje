@@ -2,7 +2,7 @@
   (:require [midje.sweet :refer :all]))
 
 ;;; Here is a simple motivating example. Suppose you have a predicate `pilot-ready?` that
-;;; depends on other predicates. 
+;;; depends on other predicates.
 
 (unfinished pilot-ready? copilot-ready? engines-ready?)
 
@@ -17,7 +17,7 @@
   (prerequisites (pilot-ready? ..flight..) => true
                  (copilot-ready? ..flight..) => true
                  (engines-ready? ..flight..) => true)
-  
+
   (flight-ready? ..flight..) => truthy
   (flight-ready? ..flight..) => falsey (provided (pilot-ready? ..flight..) => false)
   (flight-ready? ..flight..) => falsey (provided (copilot-ready? ..flight..) => false)
@@ -50,18 +50,18 @@
 
 (fact "prerequisites can be nested"
   (prerequisite (x-handler 1) => 8000)
-  (fact 
+  (fact
     (prerequisite (y-handler 1) => 80)
     (function-under-test 1 1) => 8080)
 
   (fact
     (prerequisite (y-handler 1) => -8000)
     (function-under-test 1 1) => 0))
-    
+
 (fact "prerequisites can be nested"
   (prerequisites (x-handler 1) => 10
                  (y-handler 1) => 8)
-  (fact 
+  (fact
     (prerequisite (y-handler 1) => 33)
 
     (function-under-test 1 1) => (+ 10 33)

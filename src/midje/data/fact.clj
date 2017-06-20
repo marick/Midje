@@ -2,7 +2,7 @@
   midje.data.fact
   (:refer-clojure :exclude [name namespace]))
 
-                  
+
 ;;; This is a potential target for migrating the non-parsing,
 ;;; non-checking parts of ideas/facts.clj, ideas/metadata.clj. It's
 ;;; sketchy now, since it's only being used to keep the emission
@@ -12,7 +12,7 @@
   [:midje/source :midje/guid :midje/file :midje/line :midje/namespace
    :midje/name :midje/description :midje/top-level?])
 
-(defn make-getters 
+(defn make-getters
   "Create midje.data.fact/name midje.data.fact/file, etc."
   [in-namespace prefix]
   (doseq [property-key fact-properties]

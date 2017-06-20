@@ -14,7 +14,7 @@
     (cons "    The checker said this about the reason:"
           (indented (:notes m)))))
 
-(defn- intermediate-results [m] 
+(defn- intermediate-results [m]
   (if (:intermediate-results m)
     (cons "    During checking, these intermediate values were seen:"
           (for [[form value] (:intermediate-results m)]
@@ -51,7 +51,7 @@
      (str "      Actual: " (attractively-stringified-value (:actual m)))
      (diffs [actual expected])
      (notes m))))
-    
+
 (defmethod messy-lines :actual-result-should-not-have-matched-expected-value [m]
   (list
    (str "    Expected: Anything BUT " (attractively-stringified-value (:expected-result m)))
@@ -80,8 +80,8 @@
                   msg (cond
                        (and (= :default exp) (zero? act))
                        "[expected at least once, actually never called]"
-                  
-                       :else 
+
+                       :else
                        (cl-format nil "[expected :times ~A, actually called ~R time~:P]" exp act))]
               (str "    " (:expected-result-form fail) " " msg)))]
     (cons

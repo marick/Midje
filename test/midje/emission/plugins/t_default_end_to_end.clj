@@ -38,15 +38,15 @@
  (config/with-augmented-config {:visible-future true}
    (future-fact 1 => 2))
  (fact @fact-output => #"(?s)WORK TO DO\S* at \(t_default_end_to_end"))
-              
-(capturing-fact-output 
+
+(capturing-fact-output
  (config/with-augmented-config {:visible-future true}
    (future-fact :some-metadata "fact name" 1 => 2))
  (fact @fact-output => #"(?s)WORK TO DO\S* \"fact name\" at \(t_default_end_to_end"))
 
-(capturing-fact-output 
+(capturing-fact-output
  (config/with-augmented-config {:visible-future true}
-   (fact "outer" 
+   (fact "outer"
      (fact "inner" (cons (first 3)) =future=> 2)))
  (fact @fact-output => #"(?s)WORK TO DO\S* \"outer - inner - on `\(cons \(first 3\)\)`\" at \(t_default_end_to_end"))
 

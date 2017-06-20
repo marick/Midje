@@ -20,12 +20,12 @@
   (map str (remove (comp :doc meta) (vals (ns-publics 'midje.util)))) => []
   (map str (remove (comp :doc meta) (vals (ns-publics 'midje.repl)))) =future=> [])
 
-              
+
 
 
 
 (defn number [] )
-(defn two-numbers [] 
+(defn two-numbers []
   (+ (number) (number)))
 
 
@@ -61,23 +61,23 @@
 (defn f [n] (g n))
 (defn call2 [n m]
   (+ (g n) (g m)))
-  
+
 ;; Some examples of prerequisites
 (fact (f 1) => 33
   (provided (g 1) => 33))
 
-(facts 
+(facts
   (f 1) => 313
   (provided
     (g 1) => 313)
-    
+
   (f 22) => 500
-  (provided 
+  (provided
     (g 22) => 500))
 
-(facts 
+(facts
   (call2 1 2) => 30
-  (provided 
+  (provided
     (g 1) => 10
     (g 2) => 20))
 
@@ -151,7 +151,7 @@
  (provided
    (g (h 1)) => 2
    (i (h 1)) => 1))
-  
+
 (defn nesty [n] (g (h (i (j n)))))
 (fact
  (nesty 1) => 3
@@ -179,7 +179,7 @@
     (let [result (g 1)] result => 5)))    ;; This used to fail
 
 (background (scope-to-fact) => 5)
-(facts 
+(facts
   (g 1) => 5
   (let [result (g 1)] result => 5)    ;; This used to fail
 )
@@ -202,19 +202,19 @@
  (provided
    (called 1) => 1 :times 2))
 (note-that fact-fails, (the-prerequisite-was-incorrectly-called 1 :time))
-  
+
 (silent-fact ":times can be a range"
  (called 1) => 1
  (provided
    (called 1) => 1 :times (range 2 8)))
 (note-that fact-fails, (the-prerequisite-was-incorrectly-called 1 :time))
- 
+
 (silent-fact "times can be a function"
  (do (called 1) (called 1) (called 1)) => 1
  (provided
    (called 1) => 1 :times even?))
 (note-that fact-fails, (the-prerequisite-was-incorrectly-called 3 :times))
-  
+
 (fact "by default, can be called zero or more times"
   (do (called 1) (called 1)) => 1
   (provided
@@ -235,13 +235,13 @@
     (fact "fact returns true on success"
       (+ 1 1) => 2
       "some random return value"))
-  
+
   (def should-be-false-because-of-fact-failure
     (fact "fact returns false on failure"
       (+ 1 1) => 3
       (+ 1 1) => 2
       "some random return value"))
-  
+
   (def should-be-true-despite-previous-failue
     (fact "a fact's return value is not affected by previous failures"
       (+ 1 1) => 2
@@ -277,16 +277,16 @@
   (alter-var-root #'inners conj (silent-fact 2 => 1 "ignored value")))
 (fact inners => [true false])
 
-                         
 
-                         ;;;; 
-                         
+
+                         ;;;;
+
 (defn a [])
 (defn b [] (a))
 
 (fact "prerequisites can throw throwables"
   (b) => (throws Exception)
-  (provided 
+  (provided
     (a) =throws=> (Exception.)))
 
 
@@ -331,7 +331,7 @@
 ;;; point of allowing vars is to refer to private vars in another
 ;;; namespace. To make sure there's no mistakes, these local versions
 ;;; are so tagged.
-;;; 
+;;;
 (defn var-inc-local [x] (inc x))
 (defn var-inc-user-local [x] (* x (var-inc-local x)))
 (defn var-twice-local []
@@ -362,7 +362,7 @@
 
 (defn here-and-there []
   (var-inc-local (#'midje.data.t-prerequisite-state/var-inc 2)))
-  
+
 (fact "vars also work with unfolded prerequisites"
   (here-and-there) => 201
   (provided
@@ -370,7 +370,7 @@
 
 (defn there-and-here []
   (#'midje.data.t-prerequisite-state/var-inc (var-inc-local 2)))
-  
+
 (fact "vars also work with unfolded prerequisites"
   (there-and-here) => 201
   (provided
@@ -379,7 +379,7 @@
 (defn over-there-over-there-spread-the-word-to-beware []
   (#'midje.data.t-prerequisite-state/var-inc
    (#'midje.data.t-prerequisite-state/var-inc 2)))
-  
+
 (fact "vars also work with unfolded prerequisites"
   (over-there-over-there-spread-the-word-to-beware) => 201
   (provided
@@ -389,7 +389,7 @@
  (fact "exceptions do not blow up"
    (odd? "foo") => (throws Exception)
    "foo" =not=> odd?)
-   
+
 ;;; fact groups
 
 (fact-group :integration {:timing 3}
@@ -397,7 +397,7 @@
   (fact (inc 33) => 34)
   (let [stashed (compendium/last-fact-checked<>)]
     (fact (meta stashed) => (contains {:integration true :timing 3}))))
-            
+
 
                                         ;;; fact groups
 

@@ -36,7 +36,7 @@
 (facts "about exactly"
   #'exactly => checker?
   exactly => checker?
-  (exactly odd?) => checker? 
+  (exactly odd?) => checker?
   true => (exactly true)
   ( (exactly 2) 2) => truthy
   ( (exactly 1) 2) => falsey
@@ -66,7 +66,7 @@
     -1 => (roughly -1)
     -1.00001 => (roughly -1)
     -0.99999 => (roughly -1)
-  
+
     -1 => (roughly -1 0.1)
     -0.90001 => (roughly -1 0.1)
     -1.00001 => (roughly -1 0.1))
@@ -87,12 +87,12 @@
 (facts "about throws"
   (throws NullPointerException) => checker?
   (throws NullPointerException "hi") => checker?
-  
+
   (throw-exception) => (throws NullPointerException)
   (throw-exception "hi") => (throws Error "hi")
   (throw-exception "hi") => (throws Error #"h."))
 
-(silent-fact 
+(silent-fact
  (throw-exception "throws Error") => (throws NullPointerException)
  (throw-exception "throws Error") => (throws Error "bye"))
 (note-that (fails 2 times))
@@ -148,10 +148,10 @@
 (fact "Checkers turn unexpected exceptions into `false`"
   (silent-fact (throw-exception "throws Error") => anything)
   (note-that fact-fails, (fact-captured-throwable-with-message #"throws Error"))
-  
+
   (silent-fact (throw-exception "throws Error") => falsey)
   (note-that fact-fails, (fact-captured-throwable-with-message #"throws Error"))
-  
+
   (silent-fact (throw-exception "throws Error") => truthy)
   (note-that fact-fails, (fact-captured-throwable-with-message #"throws Error")))
 

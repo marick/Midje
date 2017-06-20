@@ -31,7 +31,7 @@
       (catch Exception e nil))
     (is (= (descriptions) ["level 1"]))))
 
-(deftest outside-of-the-contexts-there-is-no-fact-description-at-all 
+(deftest outside-of-the-contexts-there-is-no-fact-description-at-all
     (is (= (descriptions) [])))
 
 (deftest nested-descriptions-can-take-an-argument-to-tack-on

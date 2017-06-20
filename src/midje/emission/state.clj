@@ -14,7 +14,7 @@
        ~@body
      (finally
        ((ns-resolve '~ns '~set-name) original-value#)))))
-    
+
 
 (defmacro make-counter-atom [name & keys]
   (let [atom-name (symbol (str name "-atom"))
@@ -45,8 +45,8 @@
          (defn ~reset-name [] (reset! ~atom-name ~fresh-name))
          (~reset-name)
          ~(make-defmacro)
-         ~@(map make-one-getter keys) 
-         ~@(map make-one-setter keys) 
+         ~@(map make-one-getter keys)
+         ~@(map make-one-setter keys)
          ~@(map make-one-incrementer keys)))))
 
 
@@ -77,4 +77,4 @@
 (defmacro with-emission-map [map & body]
   `(binding [emission-functions ~map]
      ~@body))
-  
+

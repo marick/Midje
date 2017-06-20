@@ -34,9 +34,9 @@
    user's guide.
    "} midje)
 
-  
+
 ;; midje-repl
-(def ^{:doc 
+(def ^{:doc
   "
   Here are Midje repl functions. Use `doc` for more info on each one.
   To control verbosity of output, use the print levels described by
@@ -78,7 +78,7 @@
 
   ----- Fetching facts
   Same notation as the `check-facts` family, but with
-  \"fetch\" instead of \"check\". 
+  \"fetch\" instead of \"check\".
   To check the returned facts, use `check-one-fact`:
      (map check-one-fact (fetch-facts :all))
 
@@ -107,9 +107,9 @@
   verbose way:
     (check-facts :all 2)
     (check-facts :all :print-facts)
-  
+
   Here are all the variants:
-  
+
   :print-normally     (0)  -- failures and a summary.
   :print-no-summary  (-1)  -- failures only.
   :print-nothing     (-2)  -- nothing is printed.
@@ -130,7 +130,7 @@
       (let [result (prime-ish 5)]
         result => odd?
         result => (roughly 13)))
-     
+
   * Nested facts
     (facts \"about life\"
       (facts \"about birth\"...)
@@ -143,7 +143,7 @@
       ?x   ?y
        1    2
        0    3)
-      
+
   * Metadata
     (fact :integration ...)
     (fact {:priority 5} ...)
@@ -202,7 +202,7 @@
 
        (def unnatural-number (some-checker (complement number?) odd? neg?))
        (fact 'fred => unnatural-number)
-  "} midje-defining-checkers)        
+  "} midje-defining-checkers)
 
 (def ^{:doc "
   * Prerequisites and top-down TDD:
@@ -213,7 +213,7 @@
          (chars ..row..) => [..five.. ..three..]
          (char-value ..five..) => \"5\"
          (char-value ..three..) => \"3\"))
-          
+
   * Prerequisites can be defaulted for claims within a fact:
     (fact \"No one is ready until everyone is ready.\"
       (prerequisites (pilot-ready?) => true,
@@ -223,7 +223,7 @@
       (ready?) => falsey (provided (pilot-ready?) => false)
       (ready?) => falsey (provided (copilot-ready?) => false)
       (ready?) => falsey (provided (flight-engineer-ready?) => false))
-          
+
   * Prerequisites apply to nested facts
     (facts \"about airplanes\"
        (prerequisites (wings) => 2
@@ -232,7 +232,7 @@
              (prerequisite (crew) => 8)
              ...)))
 "} midje-prerequisites)
-       
+
 
 (def ^{:doc
        "
@@ -256,7 +256,7 @@
     5     =not=>    even?      ; Invert the check. Synonym: =deny=>
     (f)   =future=> halts      ; don't check, but issue reminder.
     (m x) =expands-to=> form   ; expand macro and check result
-          
+
   * In prerequisites
     ..meta.. =contains=> {:a 1} ; partial specification of map-like object
     (f)      =streams=>  (range 5 1000)
@@ -273,19 +273,19 @@
 
   If you want different configurations for repl and command-line
   Midje, use the `running-in-repl?` predicate.
-  
+
   You can temporarily override the configuration like this:
       (midje.config/with-augmented-config {:print-level :print-no-summary}
          <forms>...)
-  
+
   ------ Configuration keywords
   :print-level                  ; Verbosity of printing.
                                 ; See `(doc midje-print-levels)`.
-  
+
   :visible-deprecation          ; Whether information about deprecated
                                 ; features or functions is printed.
                                 ; Default: true.
-  
+
   :visible-future               ; Whether future facts produce output.
                                 ; Default: true.
                                 ; More: `(guide future-facts)`
@@ -297,13 +297,13 @@
   :fact-filter                  ; A function applied to the metadata of
                                 ; a fact to see if it should be checked.
                                 ; Default: (constantly true)
-  
+
   :check-after-creation         ; Should facts be checked as they're loaded?
                                 ; Default: true.
 
   :emitter                      ; Namespace or pathname that contains
                                   an \"emitter\" of custom output.
-  
+
   :partial-prerequisites        ; Whether the real function can be used.
                                 ; Default false.
                                 ; More: `(guide partial-prerequisites)`
@@ -380,13 +380,13 @@
 (def guide-urls (map second (partition 2 guide-raw)))
 
 (def guide-map (zipmap guide-topics guide-urls))
-                    
+
 (defmacro guide
   "Open a web page that addresses a particular topic"
   ([topic]
      `(if-let [url# (guide-map '~topic)]
         (browse/browse-url url#)
-        (do 
+        (do
           (println "There is no such topic. Did you mean one of these?")
           (doseq [topic# guide-topics]
             (println "   " topic#)))))

@@ -5,9 +5,9 @@
             [midje.parsing.util.recognizing :refer :all]
             [clojure.zip :as zip]))
 
-;;; Arrows 
+;;; Arrows
 
-(tabular 
+(tabular
  (fact "an embedded expect form can be recognized"
    (expect? (zip/seq-zip ?form)) => ?expected)
 
@@ -31,10 +31,10 @@
   (let [possible (fn [nested-form] (zip/down (zip/seq-zip nested-form)))]
               "a string" =not=> start-of-checking-arrow-sequence?
               '(foo) =not=> start-of-checking-arrow-sequence?
-    
+
               '( (f 1) ) =not=> start-of-checking-arrow-sequence?
     (possible '( (f 1) )) =not=> start-of-checking-arrow-sequence?
-    
+
               '( (f 1) (f 2)) =not=> start-of-checking-arrow-sequence?
     (possible '( (f 1) (f 2))) =not=> start-of-checking-arrow-sequence?
 

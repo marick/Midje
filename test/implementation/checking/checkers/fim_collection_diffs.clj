@@ -15,12 +15,12 @@
   (subject/classify {} (R.) #{}) => :map:map
   (subject/classify (R.) {} #{:gaps-ok :in-any-order}) => :map:map
   (subject/classify (R.) (R.) #{}) => :map:map
-  
+
   (subject/classify :other :things #{}) => :unknown)
 
 
 
-            
+
 
 ;; Eventually, the `differ` will be the actual checker, making this format a bit more
 ;; readable.

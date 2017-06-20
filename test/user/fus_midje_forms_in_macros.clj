@@ -6,7 +6,7 @@
 ;; complications when a user writes macros that wrap Midje forms. This
 ;; shows that some of those complications are handled.
 
-;; This is pretty incomplete so far. 
+;; This is pretty incomplete so far.
 
                                 ;;; against-background
 

@@ -23,7 +23,7 @@
 
 
 (defn expect-match-or-mismatch [arrow]
-  (condp = (name arrow) 
+  (condp = (name arrow)
     => :expect-match
     =expands-to=> :expect-match
     =not=> :expect-mismatch
@@ -78,7 +78,7 @@
 (defn provided? [loc]
   (boolean (and (symbol? (zip/node loc))
                 (= "provided" (name (zip/node loc))))))
-  
+
 (defn metaconstant-prerequisite? [[lhs arrow rhs & overrides :as fake-body]]
   (symbol-named? arrow =contains=>))
 

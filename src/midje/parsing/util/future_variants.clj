@@ -3,9 +3,9 @@
   (:require [midje.parsing.util.core :refer :all]
             [midje.util.pile :as pile]))
 
-(def future-prefixes ["future-" 
-                      "pending-" 
-                      "incipient-" 
+(def future-prefixes ["future-"
+                      "pending-"
+                      "incipient-"
                       "antiterminologicaldisintactitudinarian-"])
 
 (def future-fact-variant-names (for [prefix future-prefixes
