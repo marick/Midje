@@ -15,8 +15,8 @@
   ;; Note ordering
   (attractively-stringified-value {:b 2 :a 1}) => "{:a 1, :b 2}"
   (attractively-stringified-value #{9 6 2 7 1 3}) => "#{1 2 3 6 7 9}"
-  (read-string (attractively-stringified-value #{[1] [:a]})) => #{[1] [:a]}
-  (read-string (attractively-stringified-value {[1] "1" [:a] "a"})) => {[1] "1" [:a] "a"}
+  (attractively-stringified-value #{[1] [:a]}) => (some-checker "#{[1] [:a]}" "#{[:a] [1]}")
+  (attractively-stringified-value {[1] "1" [:a] "a"}) => (some-checker "{[1] \"1\", [:a] \"a\"}" "{[:a] \"a\", [1] \"1\"}")
   (attractively-stringified-value (R. 1 2 3)) => #"\{:a 3, :m 2, :x 1\}::\S+\.R")
 
 
