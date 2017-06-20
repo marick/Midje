@@ -180,3 +180,12 @@
           0
           ..m..) => 6)
 
+;;; Metaconstant behavior
+
+(unfinished gen-doc)
+(fact "=contains=> is evaluated once, even when referenced multiple times"
+  (identical? (gen-doc) (gen-doc)) => truthy
+  (provided
+    ..doc.. =contains=> {:header (rand)}
+    (gen-doc) => ..doc..))
+
