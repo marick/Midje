@@ -54,7 +54,7 @@
   (when (and (config-above? :print-nothing)
              (config/choice :visible-future))
     (bounce-to-plugin :future-fact description position)))
-  
+
 (defn forget-everything []
   (bounce-to-plugin :starting-fact-stream)
   ;; This happens after the `forget-everything` so that
@@ -90,8 +90,8 @@
        (bounce-to-plugin :finishing-fact-stream (state/output-counters) clojure-test-results)))
   ([]
      (fact-stream-summary {:test 0})))
-                                 
-;;; 
+
+;;;
 
 (defmacro producing-only-raw-fact-failures [& body]
   `(config/at-print-level :print-nothing

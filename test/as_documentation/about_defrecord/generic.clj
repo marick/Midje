@@ -1,6 +1,6 @@
 (ns as-documentation.about-defrecord.generic)
 
-;; Here's a simple protocol. To cover various cases, there's two arities for `bump` and 
+;; Here's a simple protocol. To cover various cases, there's two arities for `bump` and
 ;; `twice` begs out to use `bump` in its implementation.
 ;;
 ;; This namespace is named `generic` because the functions declared by records/types

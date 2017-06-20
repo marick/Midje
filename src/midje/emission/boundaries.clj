@@ -14,7 +14,7 @@
 
           (zero? failures)
           true
-        
+
           :else
           false)))
 
@@ -22,7 +22,7 @@
   {:failures (+ (state/output-counters:midje-failures)
                 (:fail ct-counters)
                 (:error ct-counters))})
-  
+
 
 ;; TODO: Once we reconcile the different ways results are checked and
 ;; returned by these two macros, extract commonality into a helper
@@ -68,4 +68,4 @@
   `(do ~@body))
 
 
-  
+

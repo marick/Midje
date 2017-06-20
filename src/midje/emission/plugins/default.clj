@@ -41,19 +41,19 @@
                       (if (= 1 fails)
                         (str (color/fail "FAILURE:") (format " %d check failed." fails))
                         (str (color/fail "FAILURE:") (format " %d checks failed." fails))))
-          
+
                     (midje-consolation []
                       (condp = passes
                         0 ""
                         (format " (But %d succeeded.)" passes)))]
-              
+
               (vector
                (cond (zero? (+ passes fails))
                      (color/note "No facts were checked. Is that what you wanted?")
-                     
+
                      (zero? fails)
                      (color/pass (format "All checks (%d) succeeded." passes))
-                     
+
                      :else
                      (str (midje-failure-summary) " " (midje-consolation))))))
 
@@ -77,7 +77,7 @@
   (util/emit-one-line "")
   (util/emit-one-line (str (color/note "WORK TO DO") " "
                            (when-let [doc (util/format-nested-descriptions description-list)]
-                             (str (pr-str doc) " "))                           
+                             (str (pr-str doc) " "))
                            "at " (util/filename-lineno position))))
 
 (defn make-map [& keys]
@@ -92,5 +92,5 @@
                                    :possible-new-namespace
                                    :finishing-fact-stream
                                    :starting-fact-stream)))
-  
+
 (state/install-emission-map emission-map)

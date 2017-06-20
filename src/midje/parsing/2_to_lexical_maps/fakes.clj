@@ -51,7 +51,7 @@
           (error/report-error call-form
                               "The first value in a prerequisite's call form has to be a var or a symbol."
                               (cl-format nil "~S starts with a keyword." call-form))
-     
+
           (compiler-will-inline-fn? (actual-var))
           (error/report-error call-form
                               (cl-format nil "You cannot override the function `~S`: it is inlined by the Clojure compiler." (actual-var)))
@@ -79,10 +79,10 @@
 (defn to-lexical-map-form [a-list]
   (assert-right-shape! a-list)
   (apply lexical-maps/fake (valid-pieces a-list)))
-    
-(defmacro fake 
+
+(defmacro fake
   "Creates a fake map that a particular call will be made. When it is made,
-   the result is to be returned. Either form may contain bound variables. 
+   the result is to be returned. Either form may contain bound variables.
    Example: (let [a 5] (fake (f a) => a))"
   {:arglists '([call-form arrow result & overrides])}
   [& _]

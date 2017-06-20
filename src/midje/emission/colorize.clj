@@ -1,4 +1,4 @@
-(ns ^{:doc "Functions dealing with making various forms of 
+(ns ^{:doc "Functions dealing with making various forms of
             Midje output be ergonomically colorful."}
   midje.emission.colorize
   (:require [colorize.core :as color]
@@ -27,7 +27,7 @@
       (def fail color/red)
       (def pass color/green)
       (def note color/cyan))
-    
+
     "REVERSE"
     (do
       (def fail color/red-bg)

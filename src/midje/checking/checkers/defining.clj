@@ -29,7 +29,7 @@
           (if (vector? (first arglists+bodies))
             (recur checker-name docstring attr-map (list arglists+bodies))
             (let [arglists (map first arglists+bodies)]
-              (make-checker-definition checker-name 
+              (make-checker-definition checker-name
                                        docstring
                                        attr-map
                                        arglists

@@ -36,7 +36,7 @@
     (g ..new-val..) => ..new-transformed-val..))
 (note-that parse-error-found (fact-failed-with-note #"The form before the `provided`"))
 
-(silent-fact "Misparenthesization" 
+(silent-fact "Misparenthesization"
   (f ..new-val.. => 0)
   (provided
     (g ..new-val..) => ..new-transformed-val..))
@@ -88,12 +88,12 @@
   (against-background (before :fact identity))
   1 => 2)
 (note-that parse-error-found (fact-failed-with-note #"Expected the target of `before` to be :facts, :checks, or :contents"))
-  
+
 (silent-fact
   (against-background (before :facts identity :aft identity))
   1 => 2)
 (note-that parse-error-found (fact-failed-with-note #"Expected the third argument of `before` to be :after"))
-  
+
 
 ;;; (after [:facts | :checks] <code>
 
@@ -111,8 +111,8 @@
   (against-background (after :fact identity))
   1 => 2)
 (note-that parse-error-found (fact-failed-with-note #"Expected the target of `after` to be :facts, :checks, or :contents"))
-  
-  
+
+
 ;;; (around [:facts | :checks] <code>
 
 (silent-fact
@@ -129,7 +129,7 @@
   (against-background (around :fact (let [a 1] ?form)))
   1 => 2)
 (note-that parse-error-found (fact-failed-with-note #"Expected the target of `around` to be :facts, :checks, or :contents"))
-  
+
 (silent-fact
   (against-background (around :facts (let [a 1] ?forms)))
   1 => 2)
@@ -140,7 +140,7 @@
 ;;; =====================================              `background` forms
 ;; `background` finds parse errors of its background changers"
 ;; For this first case, we check each of the types of background changers
-;; (fake, data-fake, and code-runner). In later background forms, we'll 
+;; (fake, data-fake, and code-runner). In later background forms, we'll
 ;; check fewer because they route through the same code.
 
 (capturing-failure-output  ;; a bad prerequisite
@@ -170,17 +170,17 @@
  (fact
    @fact-output => #"must look like a function call"))
 
-(capturing-failure-output 
+(capturing-failure-output
  (macroexpand-1 '(background (f 1) => 1, "1"))
  (fact
    @fact-output => #"\"1\" does not look like"))
 
-(capturing-failure-output 
+(capturing-failure-output
  (macroexpand-1 '(background ((f 1) => 1)))
  (fact
    @fact-output => #"\(\(f 1\) => 1\) does not look like"))
 
-(capturing-failure-output 
+(capturing-failure-output
  (macroexpand-1 '(background (first :facts identity)))
  (fact
    @fact-output => #"\(first :facts identity\) does not look like"))
@@ -197,13 +197,13 @@
  (macroexpand-1 '(against-background [f => 2] (fact 1 => 2)))
  (fact @fact-output => #"prerequisite must look like a function call"))
 
-(capturing-failure-output 
+(capturing-failure-output
  (macroexpand-1 '(against-background [(f 1) => 1, [1 2 3]] (fact 1 => 2)))
  (fact
    @fact-output => #"\[1 2 3\] does not look like"))
 
- 
-(capturing-failure-output 
+
+(capturing-failure-output
  (macroexpand-1 '(against-background [(f 1) => 1, (first thing)] (fact 1 => 2)))
  (fact
    @fact-output => #"\(first thing\) does not look like"))
@@ -216,12 +216,12 @@
 (fact "Nested future-facts do not trigger the complaint"
   (macroexpand-1 '(against-background [(f 1) => 1] (future-fact (+ 1 1) => 3))))
 
-  
+
 
 ;; It would be nice if it didn't complain about outer-level against-backgrounds
 ;; with nothing inside them, but that's more trouble than it's worth.
 
-(capturing-failure-output 
+(capturing-failure-output
  (macroexpand-1 '(against-background [(f 1) => 1]
                    ;; TBD
                    ))
@@ -247,7 +247,7 @@
 
   (fact "... which most likely happen by mixing the two forms"
     (against-background [(f 2) => 3]
-      (fact 
+      (fact
         (against-background [(f 3) => 4])
         (+ (f 2) (f 3)) => 7))))
 

@@ -17,7 +17,7 @@
     (when (seq extras)
       (throw (user-error "You have extra print level names or numbers.")))
     (dorun (map levels/validate-level! (filter number? args)))
-      
+
     (if print-level
       [[print-level]  print-level   non-levels]
       [[           ]  default       non-levels])))
@@ -54,19 +54,19 @@
           (loop [so-far {:true-args (vec true-args)}
                  flag-selector (zipmap (map set flag-descriptions)
                                        (map first flag-descriptions))
-                                       
+
                  flag-segments flag-segments]
             (let [[[flag] flag-args] (take 2 flag-segments)
                   matching-selector (first (filter #(% flag) (keys flag-selector)))]
               (cond (empty? flag-segments)
                     [(vals flag-selector) so-far]
-                    
+
                     matching-selector
                     (recur (assoc so-far (build-on-flag-keyword (flag-selector matching-selector) "?") true
                                   (build-on-flag-keyword (flag-selector matching-selector) "-args") (vec flag-args))
                            (dissoc flag-selector matching-selector)
                            (drop 2 flag-segments))
-                    
+
                     :else
                     (throw (Error. (str "It should be impossible for a flag-segment not to match a selector."
                                         (pr-str flag-descriptions arglist)))))))]
@@ -74,6 +74,6 @@
              (zipmap (map #(build-on-flag-keyword % "?") unmentioned-keys)
                      (repeat false))))))
 
-               
-          
-          
+
+
+

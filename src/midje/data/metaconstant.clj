@@ -1,4 +1,4 @@
-(ns ^{:doc "A notation that avoids confusion between what’s essential 
+(ns ^{:doc "A notation that avoids confusion between what’s essential
             about data and what’s accidental. A stand in for constant data."}
   midje.data.metaconstant
   (:require [midje.util.ecosystem :as ecosystem]
@@ -62,8 +62,8 @@
   (entryAt [this key]
            (find storage key))
   (assoc [this key val]
-    ;; (Metaconstant. (.underlying-symbol this) (assoc storage key val))) 
-    (throw (exceptions/user-error 
+    ;; (Metaconstant. (.underlying-symbol this) (assoc storage key val)))
+    (throw (exceptions/user-error
             (str "Metaconstants (" (.underlying-symbol this) ") can't have values assoc'd onto them.")
             "If you have a compelling need for that, please create an issue:"
             ecosystem/issues-url)))

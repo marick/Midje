@@ -7,7 +7,7 @@
             [midje.data.fact :as fact]
             [commons.clojure.core :as core]
             [such.function-makers :as mkfn]))
-  
+
 ;;; I consider whether we're running in the repl part of the config. This matters because
 ;;; threads can't examine the stack to see if they're in the repl. So we check once at
 ;;; startup time.
@@ -49,7 +49,7 @@
       (throw (user-error (str "These are not configuration keys: " (vec extras))))))
   (dorun (map validate-key! changes)))
 
-  
+
 (defmacro with-augmented-config
   "Dynamically bind the configuration. Example:
    (require '[clojure.config :as config])
@@ -69,13 +69,13 @@
   "Returns the configuration value of `key`"
   [key] (*config* key))
 
-(defn merge-permanently! 
+(defn merge-permanently!
   "Merges the given map into the root configuration.
    Does not affect any temporary (dynamic) configurations."
   [additions]
   (validate! additions)
   (alter-var-root #'*config* merge additions))
-  
+
 (defn change-defaults
   "Adds key-value pairs to the root configuration.
    Does not affect any temporary (dynamic) configurations.

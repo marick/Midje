@@ -51,7 +51,7 @@
 
 (defprotocol Addable
   (add-fields [this]))
-    
+
 (defprotocol MoreAddable
   (add-fields-and [this x]))
 
