@@ -33,9 +33,9 @@
   (fact
     (:test result) => 2
     (:fail result) => 1
-    (nth (:lines result) 1) => #"FAIL in.*a-clojure-test-fail"
-    (nth (:lines result) 2) => #"expected"
-    (nth (:lines result) 3) => #"actual"
+    (nth (:lines result) 1) => #"FAIL.*in.*a-clojure-test-fail"
+    (nth (:lines result) 3) => #"expected"
+    (nth (:lines result) 4) => #"actual"
     (take-last 2 (:lines result)) => ["Ran 2 tests containing 2 assertions."
                                       "1 failures, 0 errors."]))
 
