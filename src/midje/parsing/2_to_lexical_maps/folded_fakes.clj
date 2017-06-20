@@ -35,6 +35,7 @@
         mockable-function? (fn [fnref]
                              (not (or (some #{fnref} special-forms)
                                       (some #{fnref} checker-makers)
+                                      (keyword? fnref)
                                       (constructor? (fnref/as-symbol fnref))
                                       (checker? (fnref/resolved-to-actual-var-object fnref)))))]
     (and (list? x)
