@@ -27,7 +27,7 @@
       (with-record
         (subject/check-one (top-level true faux-fact))
         @record => "called"))
-    
+
     (fact "running a fact that matches a fact filter"
       (with-filter [:filt]
         (subject/check-one (tagged :filt (top-level true faux-fact)))
@@ -48,7 +48,7 @@
       (with-record
         (subject/check-one (top-level false faux-fact))
         @record => "called"))
-    
+
     (fact "running a fact without metadata in context of filter: *called*"
       ;; Called because if the filter mattered, this function would never be called.
       (with-filter [:filt]

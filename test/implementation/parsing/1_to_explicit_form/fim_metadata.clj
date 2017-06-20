@@ -8,7 +8,7 @@
 (def a-body '((f) => 3))
 (def body-guid (random/form-hash a-body))
 
-(facts "about separate-metadata" 
+(facts "about separate-metadata"
   (fact "contains the original source and other info, appropriately quoted"
     (let [[meta _] (separate-metadata `(fact "doc" ~@a-body))]
       (:midje/source meta) => `'(fact "doc" ~@a-body)
@@ -30,7 +30,7 @@
 
         (fact "and can be unparsed"
           (unparse-metadata meta) => (just "doc"))))
-    
+
     (fact "need not be present"
       (let [[meta body] (separate-metadata `(fact ~@a-body))]
         (:midje/description meta) => nil
@@ -38,7 +38,7 @@
 
         (fact "and can be unparsed"
           (unparse-metadata meta) => empty?)))
-      
+
     (fact "can provide the name"
       (let [[meta body] (separate-metadata `(fact "doc" ~@a-body))]
         (:midje/name meta) => "doc"
@@ -46,7 +46,7 @@
 
         (fact "and can be unparsed"
           (unparse-metadata meta) => (just "doc")))))
-  
+
   (facts "symbols"
     (fact "become the fact name"
       (let [[meta body] (separate-metadata `(fact cons ~@a-body))]
@@ -63,12 +63,12 @@
 
         (fact "and, when seen with a doc string, parses back into both originals"
           (unparse-metadata meta) => (just ['cons "foo"] :in-any-order)))
-        
+
       (let [[meta body] (separate-metadata `(fact cons "foo" ~@a-body))]
         (:midje/name meta) => "cons"
         body => a-body
         (unparse-metadata meta) => (just ['cons "foo"] :in-any-order)))
-    
+
     (fact "don't count as names when they are the head of an expect form"
       (let [[meta body] (separate-metadata `(fact foo => 3))]
         (:midje/name meta) => nil
@@ -105,28 +105,28 @@
   (fact "is not confused by the presence of an arrow form"
     (let [[meta form] (separate-metadata `(fact 112 => 211))]
       form => `(112 => 211))
-    
+
     (let [[meta form] (separate-metadata `(fact cons => cons))]
       (:midje/name meta) => nil
       form => `(cons => cons))
-    
+
     (let [[meta form] (separate-metadata `(fact :a => :b))]
       (:a meta) => nil
       form => `(:a => :b))
-    
+
     (let [[meta form] (separate-metadata `(fact {:a 1} => :b))]
       (:a meta) => nil
       form => `({:a 1} => :b))
-    
+
     (let [[meta form] (separate-metadata `(fact "foo" => 1))]
       (:midje/description meta) => nil
       form => `("foo" => 1))
-    
+
     (let [[meta form] (separate-metadata `(fact "name" "foo" => 1))]
       (:midje/name meta) => "name"
       (:midje/description meta) => "name"
       form => `("foo" => 1))
-    
+
     (let [[meta form] (separate-metadata `(fact foo "bar" => 1))]
       (:midje/name meta) => "foo"
       form => `("bar" => 1))))

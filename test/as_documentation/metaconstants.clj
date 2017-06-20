@@ -41,7 +41,7 @@
 
 (defn choose-interesting-arg [& args]
   (first (filter interesting? args)))
-  
+
 (fact
   (choose-interesting-arg ..first.. ..second..) => ..second..
   (provided
@@ -66,7 +66,7 @@
   (provided
     (--v-- 1 2 3) => 8))
 
-    
+
 ;; Metaconstants can also be used in background prerequisites, like this:
 
 (future-fact "This is a design flaw: background and 'local' prerequisites should be merged"

@@ -9,8 +9,8 @@
                                 namespace-symbol
                                 " is loaded.")))))]
 
-  (defn user-desires-checking? 
-    "If clojure.test/*load-tests* or midje.sweet/include-midje-checks 
+  (defn user-desires-checking?
+    "If clojure.test/*load-tests* or midje.sweet/include-midje-checks
     is false, facts won't run."
     []
     (and (value-within 'clojure.test '*load-tests*)

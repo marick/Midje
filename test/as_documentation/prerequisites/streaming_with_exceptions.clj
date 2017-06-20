@@ -13,7 +13,7 @@
 ;; this function.
 (defn value-stream
   "Convert on-demand calls of a function into a lazy seq of values.
-   Note that the stream is assumed to be infinite - there is no 
+   Note that the stream is assumed to be infinite - there is no
    'out of values' indicator."
   [stream-fn]
   (cons (stream-fn) (lazy-seq (value-stream stream-fn))))
@@ -55,7 +55,7 @@
 ;; 3: Compose the two ideas.
 
 (defn sentinelized-stream
-  "Convert stream into a lazy sequence of values, with 
+  "Convert stream into a lazy sequence of values, with
    ::sentinel replacing any exceptions."
   [stream-fn]
   (value-stream #(value-or-sentinel stream-fn (constantly ::sentinel))))
@@ -71,7 +71,7 @@
     (provided
       (source-of-values-fn) =throws=> (new Exception))))
 
-;; Per J.B. Rainsberger, "test until fear turns to boredom". I'm confident that the above 
+;; Per J.B. Rainsberger, "test until fear turns to boredom". I'm confident that the above
 ;; will work for a mixture of real values and exceptions, but let's see!
 ;;
 ;; Note: my first thought was to construct a lazy stream like this:
@@ -85,7 +85,7 @@
 ;; never changes. So we have to resort to explicit state.
 
 (defn mkfn:fail-on [fail-set]
-  (let [count (atom 0)] 
+  (let [count (atom 0)]
     (fn []
       (let [retval (swap! count inc)]
         (if (fail-set retval)

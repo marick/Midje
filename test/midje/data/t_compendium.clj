@@ -26,7 +26,7 @@
 
 (def named (a-fact "named" '(fact (+ 1 1) => 2)))
 (def unnamed (a-fact nil '(fact 3 => odd?)))
-  
+
 
 ;;; The direct functions
 
@@ -77,9 +77,9 @@
 
   (named-fact (fresh) 'no-such-namespace "something")
   => (throws Error #"no-such-namespace.*never been loaded"))
-  
 
-    
+
+
 (fact "deleting from the compendium"
   ;; Note: even if the last fact checked is deleted from the compendium,
   ;; it remains the last-fact-checked. (More strictly: I'm leaving the behavior
@@ -113,7 +113,7 @@
     (let [compendium (-> (fresh)
                          (add-to named)
                          (remove-namespace-facts-from common-namespace))]
-      (all-facts compendium) => empty?    
+      (all-facts compendium) => empty?
       (namespace-facts compendium common-namespace) => empty?
       (named-fact compendium common-namespace (fact/name named)) => nil
       (fact-with-guid compendium common-namespace (fact/guid named)) => nil))
@@ -121,7 +121,7 @@
     (let [compendium (-> (fresh)
                          (add-to named)
                          (remove-namespace-facts-from (the-ns common-namespace)))]
-      (all-facts compendium) => empty?    
+      (all-facts compendium) => empty?
       (namespace-facts compendium common-namespace) => empty?
       (named-fact compendium common-namespace (fact/name named)) => nil
       (fact-with-guid compendium common-namespace (fact/guid named)) => nil))
@@ -134,7 +134,7 @@
               (add-to existing)
               (previous-version possible-match)))]
   (tabular "previous version"
-    (fact 
+    (fact
       (let [existing ?existing
             possible-match ?possible]
         (check existing possible-match) => ?expected))
@@ -162,17 +162,17 @@
     ;; (which ought to be impossible)
     (a-fact "name1" '(fact same source))
     (a-fact nil '(fact same source))                      nil
-    
+
     ;; Not fooled by different namespaces and same name
     (a-fact "name1" '(fact same-source))
     (vary-meta (a-fact "name1" '(fact same-source)) assoc :midje/namespace 'clojure.core)
                                                           nil
-            
+
     ;; ... or different namespaces and same source
     (a-fact nil '(fact same-source))
     (vary-meta (a-fact nil '(fact same-source)) assoc :midje/namespace 'clojure.core)
                                                           nil
-            
+
     ))
 
 ;; The functions that work on global state
@@ -180,7 +180,7 @@
 (with-isolated-compendium
   ;; Certain facts do not allow themselves to be recorded.
   (fact :check-only-at-load-time (str "foo") => "foo")
-  (fact :check-only-at-load-time 
+  (fact :check-only-at-load-time
     (all-facts<>) => empty?
     ((last-fact-checked<>)) => "No fact has been checked.")
 
@@ -190,6 +190,6 @@
     (fact :check-only-at-load-time
       (all-facts<>) => empty?
       (fact-checking/check-one (last-fact-checked<>)) => true)))
-  
-  
+
+
 

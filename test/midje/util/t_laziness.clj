@@ -66,7 +66,7 @@
 (fact "eagerly preserves metadata"
   (meta (eagerly (with-meta (map identity [1 2 3]) {:hi :mom})))
   => {:hi :mom})
-    
+
 (fact "eagerly preserves identical? for non-collections."
   (let [eagered (first (eagerly (map identity [odd?])))]
     eagered => #(identical? % odd?)

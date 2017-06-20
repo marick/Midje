@@ -17,7 +17,7 @@
      (fact "... unless the config asks for everything"
        (config/with-augmented-config {:visible-deprecation :all}
          (with-out-str (deprecate "test message")) => #"test message")))))
-    
+
 (fact "deprecation global message"
   (let [global-message-regex #"(?sm)set configuration variable"]
     (config/with-augmented-config {:visible-deprecation true}
@@ -28,11 +28,11 @@
         (config/with-augmented-config {:visible-deprecation :all}
           (without-previous-deprecations
            (with-out-str (deprecate "test message")) =not=> global-message-regex))))))
-      
+
 (fact "visible deprecation can be turned off"
   (config/with-augmented-config {:visible-deprecation false}
     (without-previous-deprecations
      (with-out-str (deprecate "test message")) => "")))
-    
-  
-  
+
+
+

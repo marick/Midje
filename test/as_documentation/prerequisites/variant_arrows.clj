@@ -3,12 +3,12 @@
             [midje.util :refer :all]
             [midje.test-util :refer :all]
             [midje.util.exceptions :refer :all]))
-  
+
 
 ;; A typical called/caller relationship. The key thing is that
 ;; the caller calls the called more than once.
 (defn number [] )
-(defn two-numbers [] 
+(defn two-numbers []
   (+ (number) (number)))
 
 

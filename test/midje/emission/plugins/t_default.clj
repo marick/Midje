@@ -22,7 +22,7 @@
         desc-fact (with-meta (fn[]) {:midje/description "desc"})
         unnamed (with-meta (fn[]) {:midje/file "file" :midje/line 3})]
 
-    
+
     (fact "prints names in preference to descriptions"
       (innocuously :starting-to-check-fact name+desc-fact) => #"Checking named"
       (innocuously :starting-to-check-fact desc-fact) => #"Checking desc"

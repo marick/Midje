@@ -15,11 +15,11 @@
 
 (def simple-start 16)
 
-(silent-fact (+ 1 1) => 3) 
+(silent-fact (+ 1 1) => 3)
 (note-that (failure-was-at-line (+ simple-start 2)))
 
 (silent-fact "odd positioning"
-   
+
     (+ 1 1) =>   ; here
 
     3)
@@ -30,7 +30,7 @@
 (note-that (failure-was-at-line (+ simple-start 13)))
 
 (silent-fact (g 1) => 1
-  
+
   ;; quite the gap.
 
   (provided
@@ -64,15 +64,15 @@
              (prerequisite-was-never-called #"favorite-animal")
              (fact-expected "betsy")
              (failures-were-at-lines  (+ deftest-start 11) (+ deftest-start 11) (+ deftest-start 9)))
-  ;; Three things tested here. (1) there is a single composite "never-called" failure that 
+  ;; Three things tested here. (1) there is a single composite "never-called" failure that
   ;; (2) has the position of the first of it's elements. Moreover, (3) the prerequisite failure
   ;; comes before the bad actual value.
   (for-failure 1 (note-that (failure-was-at-line (+ deftest-start 11))))
   (for-failure 2 (note-that (fact-expected "betsy")
                             (failure-was-at-line (+ deftest-start 9))))
-             
 
-  
+
+
   (silent-fact
    (favorite-animal-only-animal) => "betsy"  ;; here
    (provided
@@ -120,7 +120,7 @@
 (config/with-augmented-config {:visible-future true}
   (capturing-fact-output
    (fact "text"
-     
+
      (+ 1 "1") =future=> "2")
    (fact @fact-output => #"fim_check_failures.*124")))
 
@@ -141,10 +141,10 @@
 (note-that (failure-was-at-line (+ patho-start 7)))
 
 (silent-fact "Facts that have detectable line numbers update the best-guess."
-   
+
    (+ 1 2) => odd?  ;; best guess is now here
    1 => even?)      ;; so this is correctly reported
-(note-that (failure-was-at-line (+ patho-start 14))) 
+(note-that (failure-was-at-line (+ patho-start 14)))
 
 (silent-fact "each emission, even if wrong, is taken as best guess for future"
    1 => even?  ;; This is correctly guessed.
@@ -180,7 +180,7 @@
   (silent-fact (inc ?n) => ?n)
 
 
-  
+
   ?n  ?comment
   1   "1")
 (note-that (failure-was-at-line (+ tabular-line 2)))

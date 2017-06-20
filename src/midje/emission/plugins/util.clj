@@ -10,7 +10,7 @@
             [midje.config :as config]
             [midje.util.ordered-map :as om]
             [midje.util.ordered-set :as os]))
-  
+
 
 
 ;; The theory here was that using clojure.test output would allow text
@@ -161,7 +161,7 @@
       (filename-lineno [filename line-num]))))
 
 
-(defn- format-binding-map [binding-map] 
+(defn- format-binding-map [binding-map]
   (let [formatted-entries (for [[k v] binding-map]
                             (str (pr-str k) " " (pr-str v)))]
     (str "[" (str/join "\n                           " formatted-entries) "]")))
