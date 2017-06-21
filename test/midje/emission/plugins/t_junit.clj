@@ -8,7 +8,7 @@
             [midje.emission.plugins.default-failure-lines :as failure-lines]))
 
 (defn innocuously [key & args]
-  (config/with-augmented-config {:emitter 'midje.emission.plugins.junit
+  (config/with-augmented-config {:emitter     'midje.emission.plugins.junit
                                  :print-level :print-facts}
     (captured-output (apply (key plugin/emission-map) args))))
 
@@ -16,8 +16,8 @@
   (with-meta (fn[]) {:midje/name "named" :midje/description "desc" :midje/namespace "blah"}))
 
 (def test-failure-map
- {:type :some-prerequisites-were-called-the-wrong-number-of-times,
-   :namespace "midje.emission.plugins.t-junit"})
+ {:type      :some-prerequisites-were-called-the-wrong-number-of-times,
+  :namespace "midje.emission.plugins.t-junit"})
 
 (fact "Entering a new namespace opens a file."
       (prerequisites
