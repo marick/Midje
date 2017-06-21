@@ -67,31 +67,31 @@
   [actual expected looseness]
   (compatibility-check actual expected looseness)
   (cond
-   (and (sequential? actual) (set? expected))
-   [actual (vec expected) (union looseness #{:in-any-order})]
+    (and (sequential? actual) (set? expected))
+    [actual (vec expected) (union looseness #{:in-any-order})]
 
-   (and (sequential? actual) (right-hand-singleton? expected))
-   [actual [expected] (union looseness #{:in-any-order})]
+    (and (sequential? actual) (right-hand-singleton? expected))
+    [actual [expected] (union looseness #{:in-any-order})]
 
-   (sequential? actual)
-   [actual expected looseness]
+    (sequential? actual)
+    [actual expected looseness]
 
-   (and (map? actual) (map? expected))
-   [actual expected looseness]
+    (and (map? actual) (map? expected))
+    [actual expected looseness]
 
-   (map? actual)
-   [actual (into {} expected) looseness]
+    (and (map? actual) (= (count (keys (into {} expected))) (count expected)))
+    [actual (into {} expected) looseness]
 
-   (set? actual)
-   (recur (vec actual) expected looseness-modifiers)
+    (set? actual)
+    (recur (vec actual) expected looseness-modifiers)
 
-   (and (string? actual)
-        (not (string? expected))
-        (not (regex? expected)))
-   (recur (vec actual) expected looseness-modifiers)
+    (and (string? actual)
+         (not (string? expected))
+         (not (regex? expected)))
+    (recur (vec actual) expected looseness-modifiers)
 
-   :else
-   [actual expected looseness]))
+    :else
+    [actual expected looseness]))
 
 (defn match? [actual expected looseness]
   (let [comparison (compare-results actual expected looseness)]
@@ -222,7 +222,7 @@ just is also useful if you don't care about order:
   [1 3 2] => (just   [1 2 3] :in-any-order)
   [1 3 2] => (just  #{1 2 3})"
     :arglists '([expected]
-                  [expected looseness])}
+                [expected looseness])}
   just (container-checker-maker 'just
                                 (fn [actual expected looseness]
                                   (let [[actual expected looseness] (standardized-arguments actual expected looseness)]
