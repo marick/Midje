@@ -292,6 +292,13 @@
  (  (just {:a even?}) {:a 1}) => falsey
  (  (just {:a even?}) {nil 1}) => falsey
 
+ ((just {:a 1}) {:a 1}) => truthy
+ ((just [{:a 1}]) {:a 1}) => falsey
+ ((just [{:a 1} {:b 2}]) {:a 1}) => falsey
+ ((just [{:a 1} {:b 2}] :in-any-order) {:a 1}) => falsey
+ ((just [{:a 1} {:a 2}]) {:a 2}) => falsey
+ ((just [{:a 1} {:a 2}] :in-any-order) {:a 2}) => falsey
+
  ;; extended-equality isn't recursive, so...
  ;; ... while this works without lower-level annotation
  {:actual-found ["12" "1" "123"] } => (contains {:actual-found ["12" "1" "123"] })
