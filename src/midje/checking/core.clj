@@ -52,18 +52,22 @@
   (catch Throwable ex
     [false {:thrown ex}])))
 
-(defn extended-= [actual expected]
-  (try
-    (cond
-     (data-laden-falsehood? actual)      actual
-     (data-laden-falsehood? expected)    expected
-     (extended-fn? expected)             (first (evaluate-checking-function expected actual))
-     (every? regex? [actual expected])   (= (str actual) (str expected))
-     (regex? expected)                   (re-find expected actual)
-     (and (record? actual) (classic-map? expected))   (= (into {} actual) expected)
-     (= (type expected) java.math.BigDecimal)   (= (compare actual expected) 0)
-     :else                               (= actual expected))
-    (catch Throwable ex false)))
+(defn extended-=
+  ([actual expected] (extended-= actual expected
+                                 (delay (evaluate-checking-function expected actual))))
+  ([actual expected delayed-check]
+   (try
+      (cond
+       (data-laden-falsehood? actual)           actual
+       (data-laden-falsehood? expected)         expected
+       (extended-fn? expected)                  (first @delayed-check)
+       (every? regex? [actual expected])        (= (str actual) (str expected))
+       (regex? expected)                        (re-find expected actual)
+       (and (record? actual)
+            (classic-map? expected))            (= (into {} actual) expected)
+       (= (type expected) java.math.BigDecimal) (= (compare actual expected) 0)
+       :else                                    (= actual expected))
+      (catch Throwable ex false))))
 
 (defn extended-list-=
   "Element-by-element comparison, using extended-= for the right-hand-side values."
