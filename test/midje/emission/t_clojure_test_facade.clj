@@ -11,8 +11,7 @@
     :check-only-at-load-time
     (:test result) => 0
     (:fail result) => 0
-    (:lines result) => ["",
-                        "Ran 0 tests containing 0 assertions."
+    (:lines result) => ["Ran 0 tests containing 0 assertions."
                         "0 failures, 0 errors."]))
 
 (clojure.test/deftest a-clojure-test-pass
@@ -22,8 +21,7 @@
   (fact
     (:test result) => 1
     (:fail result) => 0
-    (:lines result) => ["",
-                        "Ran 1 tests containing 1 assertions."
+    (:lines result) => ["Ran 1 tests containing 1 assertions."
                         "0 failures, 0 errors."]))
 
 (clojure.test/deftest a-clojure-test-fail
@@ -34,7 +32,7 @@
     (:test result) => 2
     (:fail result) => 1
     (nth (:lines result) 1) => #"FAIL.*in.*a-clojure-test-fail"
-    (nth (:lines result) 3) => #"expected"
+    (nth (:lines result) 2) => #"expected"
     (nth (:lines result) 4) => #"actual"
     (take-last 2 (:lines result)) => ["Ran 2 tests containing 2 assertions."
                                       "1 failures, 0 errors."]))
