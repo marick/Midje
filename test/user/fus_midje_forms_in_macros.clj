@@ -1,6 +1,7 @@
 (ns user.fus-midje-forms-in-macros
   (:require [midje.sweet :refer :all]
-            [midje.test-util :refer :all]))
+            [midje.test-util :refer :all]
+            [midje.parsing.1-to-explicit-form.parse-background :as parse-background]))
 
 ;; Because of the way that Midje does its parsing, there are
 ;; complications when a user writes macros that wrap Midje forms. This
@@ -46,6 +47,7 @@
 (add-midje-fact-symbols '[hidden-fact])
 (with-state-changes []
   (hidden-fact 1 => 1))
+(parse-background/remove-midje-fact-symbols '[hidden-fact])
 
 ;;; Here is an old bug
 
