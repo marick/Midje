@@ -517,9 +517,11 @@
   (set (keys (autotest-options))) => (contains #{:interval :files}))
 
 (fact "options can be set"
-  (:interval (autotest-options)) =not=> 832
-  (set-autotest-option! :interval 832)
-  (:interval (autotest-options)) => 832)
+  (let [old-interval (:interval (autotest-options))]
+    (:interval (autotest-options)) =not=> 832
+    (set-autotest-option! :interval 832)
+    (:interval (autotest-options)) => 832
+    (set-autotest-option! :interval old-interval)))
 
 (fact "autotest"
   (against-background (autotest-options) => ..options..
