@@ -40,3 +40,4 @@
                                       "1 failures, 0 errors."]))
 
 (ns-unmap *ns* 'a-clojure-test-fail) ; so as not to see failure when test rerun.
+(ns-unmap *ns* 'a-clojure-test-pass) ; so as not to see success when test rerun.
