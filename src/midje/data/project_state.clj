@@ -3,6 +3,7 @@
   (:require [clj-time.local :as time]
             [clojure.java.io :as io]
             [clojure.set]
+            [clojure.tools.namespace.dependency :as nsdependency]
             [clojure.tools.namespace.repl :as nsrepl]
             [clojure.tools.namespace.dir :as nsdir]
             [clojure.tools.namespace.track :as nstrack]
@@ -110,7 +111,7 @@
   "Records must be recreated if the protocols that they implement are reloaded."
   [state]
   (if (get state deps-key)
-    (update-in state [deps-key] clojure.tools.namespace.dependency/map->MapDependencyGraph)
+    (update-in state [deps-key] nsdependency/map->MapDependencyGraph)
     state))
 
 (defn mkfn:scan-and-react [options scanner]
