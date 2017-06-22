@@ -115,11 +115,10 @@
 
 (defn mkfn:scan-and-react [options scanner]
   (fn []
-    (swap! state-tracker-atom
-           #(let [state (with-fresh-copy-of-dependency-map %)
-                  new-tracker (apply scanner state (:files options))]
-              (react-to-tracker! new-tracker options)
-              (prepare-for-next-scan new-tracker)))))
+    (let [state       (with-fresh-copy-of-dependency-map @state-tracker-atom)
+          new-tracker (apply scanner state (:files options))]
+      (react-to-tracker! new-tracker options)
+      (reset! state-tracker-atom (prepare-for-next-scan new-tracker)))))
 
 
 (defn mkfn:react-to-changes [options]
