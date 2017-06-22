@@ -3,6 +3,10 @@
   (:require [clj-time.local :as time]
             [clojure.java.io :as io]
             [clojure.set]
+            [clojure.tools.namespace.repl :as nsrepl]
+            [clojure.tools.namespace.dir :as nsdir]
+            [clojure.tools.namespace.track :as nstrack]
+            [clojure.tools.namespace.reload :as nsreload]
             [commons.clojure.core :refer :all :exclude [any?]]
             [midje.config :as config]
             [midje.emission.api :as emit]
@@ -12,13 +16,6 @@
             [midje.util.bultitude :as tude]
             [such.maps :as map]
             [such.sequences :as seq]))
-
-
-(require '[clojure.tools.namespace.repl :as nsrepl]
-         '[clojure.tools.namespace.dir :as nsdir]
-         '[clojure.tools.namespace.track :as nstrack]
-         '[clojure.tools.namespace.reload :as nsreload])
-
 
 ;;; Querying the project tree
 
@@ -114,13 +111,13 @@
                  unkilled-descendents))))))
 
 (defn react-to-tracker! [state-tracker options]
-  (let [namespaces (load-key state-tracker)]
+  (let [namespaces       (load-key state-tracker)
+        namespace-loader (fn [] (require-namespaces! namespaces
+                                                     (:on-require-failure options)
+                                                     (mkfn:clean-dependents state-tracker)))]
+
     (when (not (empty? namespaces))
-      ( (:namespace-stream-checker options)
-        namespaces
-        #(require-namespaces! namespaces
-                              (:on-require-failure options)
-                              (mkfn:clean-dependents state-tracker)))
+      ((:namespace-stream-checker options) namespaces namespace-loader)
       (println (color/note (format "[Completed at %s]"
                                    (time/format-local-time (time/local-now) :hour-minute-second)))))))
 
