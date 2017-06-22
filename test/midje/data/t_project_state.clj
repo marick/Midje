@@ -50,31 +50,21 @@
     (prepare-for-next-scan tracker-with-deleled-ns) => (contains {deps-key {:dependents {..ns1.. #{..ns3..}}}})))
 
 
-(fact "a dependents cleaner knows how to remove namespaces that depend on a namespace"
-  (let [tracker {deps-key {:dependents {..ns1.. [..ns2..]
-                                        ..ns2.. [..ns3..]
-                                        ..ns3.. []}}}
-        cleaner (mkfn:clean-dependents tracker)]
-    (cleaner ..ns1.. [..ns2.. ..ns3..]) => empty?
-    (cleaner ..ns2.. [..ns1.. ..ns3..]) => [..ns1..]
-    (cleaner ..ns3.. [..ns1..]) => [..ns1..]))
-
-
 (def cleaner) ; standin for the calculated dependency cleaner
 (def failure-record (atom {}))
 (defn record-failure [ns throwable]
   (swap! failure-record (constantly {:ns ns, :throwable throwable})))
 
 
-(fact "A namespace list can be loaded, obeying dependents"
-  (require-namespaces! [] record-failure cleaner) => anything
+#_(fact "A namespace list can be loaded, obeying dependents"
+  (require-namespaces! [] record-failure) => anything
 
-  (require-namespaces! [..ns1.. ..ns2..] record-failure cleaner) => anything
+  (require-namespaces! [..ns1.. ..ns2..] record-failure) => anything
   (provided
     (require ..ns1.. :reload) => nil
     (require ..ns2.. :reload) => nil)
 
-  (require-namespaces! [..ns1.. ..ns2..] record-failure cleaner) => anything
+  (require-namespaces! [..ns1.. ..ns2..] record-failure) => anything
   (provided
     (require ..ns1.. :reload) => nil
     (require ..ns2.. :reload) => nil)
@@ -82,10 +72,9 @@
 
 
   (let [throwable (Error.)]
-    (require-namespaces! [..ns1.. ..ns2.. ..ns3..] record-failure cleaner) => anything
+    (require-namespaces! [..ns1.. ..ns2.. ..ns3..] record-failure) => anything
     (provided
       (require ..ns1.. :reload) =throws=> throwable
-      (cleaner ..ns1.. [..ns2.. ..ns3..]) => [..ns3..]
       (require ..ns3.. :reload) => nil)
     @failure-record => {:ns ..ns1.. :throwable throwable}))
 

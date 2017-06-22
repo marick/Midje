@@ -63,6 +63,8 @@
 (def filemap-key :clojure.tools.namespace.file/filemap)
 (def deps-key :clojure.tools.namespace.track/deps)
 (def time-key :clojure.tools.namespace.dir/time)
+(def error-key :clojure.tools.namespace.reload/error)
+(def error-ns-key :clojure.tools.namespace.reload/error-ns)
 
 ;; Global state.
 
@@ -78,43 +80,15 @@
            (map file-modification-time relevant-files))))
 
 
-(defn require-namespaces! [namespaces on-require-failure clean-dependents]
-  (letfn [(broken-source-file? [the-ns]
-            (try
-              (require the-ns :reload)
-              false
-            (catch Throwable t
-                (on-require-failure the-ns t)
-                true)))
-
-          (shorten-ns-list-by-trying-first [[the-ns & remainder]]
-            (if (broken-source-file? the-ns)
-              (clean-dependents the-ns remainder)
-              remainder))]
-
-    (loop [namespaces namespaces]
-      (when (not (empty? namespaces))
-        (recur (shorten-ns-list-by-trying-first namespaces))))))
-
-;; TODO: clojure.tools.namespace also finds a transitive closure when it finds
-;; the namespaces to reload, but I don't see quite how to hook into that mechanism,
-;; so I roll my own.
-(defn mkfn:clean-dependents [state-tracker]
-  (fn [failing-namespace other-namespaces]
-    (loop [[root-to-handle & roots-to-handle-later] [failing-namespace]
-           surviving-namespaces other-namespaces]
-      (if (nil? root-to-handle)
-        surviving-namespaces
-        (let [actual-dependent-set (set (get-in state-tracker [deps-key :dependents root-to-handle]))
-              [new-roots unkilled-descendents] (seq/bifurcate actual-dependent-set surviving-namespaces)]
-          (recur (concat roots-to-handle-later new-roots)
-                 unkilled-descendents))))))
+(defn require-namespaces! [tracker on-require-failure]
+  (let [reloaded-tracker (nsreload/track-reload tracker)]
+    (when-let [error (error-key reloaded-tracker)]
+      (on-require-failure (error-ns-key reloaded-tracker) error))))
 
 (defn react-to-tracker! [state-tracker options]
   (let [namespaces       (load-key state-tracker)
-        namespace-loader (fn [] (require-namespaces! namespaces
-                                                     (:on-require-failure options)
-                                                     (mkfn:clean-dependents state-tracker)))]
+        namespace-loader (fn [] (require-namespaces! state-tracker
+                                                     (:on-require-failure options)))]
 
     (when (not (empty? namespaces))
       ((:namespace-stream-checker options) namespaces namespace-loader)
