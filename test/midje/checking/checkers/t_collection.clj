@@ -278,6 +278,12 @@
  ( (contains (AB. 1 2)) {:a 1 :b 2}) => falsey
  ( (just {:top (just (AB. 1 2))}) {:top {:a 1, :b 2}}) => falsey
 
+ {:a 2}   => (contains {:a 2})
+ {:a 2}   => (contains [{:a 2}])
+ [{:a 2}] => (contains [{:a 2}])
+ {:a 2} =not=> (contains {:a 1} {:a 2})
+ {:a 2} =not=> (contains [{:a 1} {:a 2}] :in-any-order)
+ {:a 2} =not=> (contains [{:a 2} {:a 1}] :in-any-order)
  ( (contains {:a 1, :b 2, :c 2}) {:a 1, :b 2}) => falsey
  ( (contains {:a 1, :c 2}) {:a 1, :b 2}) => falsey
  ( (contains {:a 1, :b 'not-2}) {:a 1, :b 2}) => falsey
@@ -291,6 +297,13 @@
  ( (just {:a odd?}) {:a 1, :b 2}) => falsey
  (  (just {:a even?}) {:a 1}) => falsey
  (  (just {:a even?}) {nil 1}) => falsey
+
+ {:a 1} => (just {:a 1})
+ {:a 1} =not=> (just [{:a 1} {:b 2}])
+ {:a 1} =not=> (just [{:a 1} {:b 2}] :in-any-order)
+ {:a 2} =not=> (just [{:a 1} {:a 2}])
+ [{:a 1} {:a 2}] => (just [{:a 1} {:a 2}])
+ {:a 2} =not=> (just [{:a 1} {:a 2}] :in-any-order)
 
  ;; extended-equality isn't recursive, so...
  ;; ... while this works without lower-level annotation

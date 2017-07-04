@@ -9,7 +9,8 @@
             [midje.emission.boundaries :as emission-boundary]
             [midje.parsing.1-to-explicit-form.parse-background :as parse-background]
             [midje.util.exceptions :refer [captured-throwable]]
-            [midje.util.laziness :refer :all]))
+            [midje.util.laziness :refer :all]
+            [such.sequences :as seq]))
 
 
 (defn- minimal-failure-map
@@ -43,13 +44,13 @@
                              ;; at the top of the cond
                              (second @delayed-check)))
 
-           (inherently-false-map-to-record-comparison? actual expected)
-           (emit/fail (merge (minimal-failure-map :actual-result-did-not-match-expected-value actual checkable-map)
-                             (map-record-mismatch-addition actual expected)))
+          (inherently-false-map-to-record-comparison? actual expected)
+          (emit/fail (merge (minimal-failure-map :actual-result-did-not-match-expected-value actual checkable-map)
+                            (map-record-mismatch-addition actual expected)))
 
-           :else
-           (emit/fail (assoc (minimal-failure-map :actual-result-did-not-match-expected-value actual checkable-map)
-                             :expected-result expected)))))
+          :else
+          (emit/fail (assoc (minimal-failure-map :actual-result-did-not-match-expected-value actual checkable-map)
+                            :expected-result expected)))))
 
 
 (defn- check-for-mismatch [actual checkable-map]
@@ -108,14 +109,13 @@
    and checks the checkable, reporting results through the emission interface."
   [checkable-map local-fakes]
   ((config/choice :check-recorder) checkable-map local-fakes)
-  (with-installed-fakes (concat (reverse (filter :data-fake (parse-background/background-fakes)))
-                                local-fakes
-                                (remove :data-fake (parse-background/background-fakes)))
-    (emission-boundary/around-check
-      (let [actual (try
-                     (eagerly ((:function-under-test checkable-map)))
-                    (catch Throwable ex
-                      (captured-throwable ex)))]
-        (report-incorrect-call-counts local-fakes)
-        (check-result actual checkable-map)
-        :irrelevant-return-value))))
+  (let [[data-fakes fn-fakes] (seq/bifurcate :data-fake (parse-background/background-fakes))]
+    (with-installed-fakes (concat (reverse data-fakes) local-fakes fn-fakes)
+      (emission-boundary/around-check
+        (let [actual (try
+                       (eagerly ((:function-under-test checkable-map)))
+                      (catch Throwable ex
+                        (captured-throwable ex)))]
+          (report-incorrect-call-counts local-fakes)
+          (check-result actual checkable-map)
+          :irrelevant-return-value)))))

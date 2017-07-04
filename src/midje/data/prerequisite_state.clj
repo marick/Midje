@@ -62,7 +62,7 @@
 
 
 
-(defn- ^{:testable true } best-call-action
+(defn- ^{:testable true} best-call-action
   "Returns a fake: when one can handle the call
    Else returns a function: from the first fake with a usable-default-function.
    Returns nil otherwise."
@@ -76,7 +76,7 @@
                                                     fakes)]
       (default-function fake-with-usable-default))))
 
-(defn- ^{:testable true } handle-mocked-call [function-var actual-args fakes]
+(defn- ^{:testable true} handle-mocked-call [function-var actual-args fakes]
   (macro/macrolet [(counting-nested-calls [& forms]
                `(try
                   (record-start-of-prerequisite-call)
@@ -115,8 +115,9 @@
             (map var->faker-fn fn-fake-vars))))
 
 (defn- data-fakes-binding-map [data-fakes]
-  (apply merge-with metaconstant/merge-metaconstants (for [{:keys [var contained]} data-fakes]
-                                                       {var (Metaconstant. (pile/object-name var) contained nil)})))
+  (let [metaconstant-vars (for [{:keys [var contained]} data-fakes]
+                            {var (Metaconstant. (pile/object-name var) contained nil)})]
+    (apply merge-with metaconstant/merge-metaconstants metaconstant-vars)))
 
 (defn binding-map [fakes]
   (let [[data-fakes fn-fakes] (seq/bifurcate :data-fake fakes)]
