@@ -29,20 +29,14 @@
 
 (defn- check-for-match [actual checkable-map]
   (let [expected      (:expected-result checkable-map)
-        delayed-check (delay (evaluate-checking-function expected actual))]
-    (cond (extended-= actual expected delayed-check)
+        [check-result failure-details] (detailed-extended-= actual expected)]
+    (cond check-result
           (emit/pass)
 
           (has-function-checker? checkable-map)
           (emit/fail (merge (minimal-failure-map :actual-result-did-not-match-checker
                                                  actual checkable-map)
-                            ;; TODO: It is very lame that the
-                            ;; result-function has to be called again to
-                            ;; retrieve information that extended-=
-                            ;; knows and threw away. But it's surprisingly
-                            ;; difficult to use evaluate-checking-function
-                            ;; at the top of the cond
-                            (second @delayed-check)))
+                            failure-details))
 
           (inherently-false-map-to-record-comparison? actual expected)
           (emit/fail (merge (minimal-failure-map :actual-result-did-not-match-expected-value actual checkable-map)

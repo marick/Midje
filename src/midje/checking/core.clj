@@ -52,22 +52,26 @@
   (catch Throwable ex
     [false {:thrown ex}])))
 
+(defn detailed-extended-=
+  "Equality check that coerces arguments into comparable values. Returns tuple
+  contains the check result boolean and a failure detail map"
+  [actual expected]
+  (try
+    (cond
+      (data-laden-falsehood? actual)           [actual {}]
+      (data-laden-falsehood? expected)         [expected {}]
+      (extended-fn? expected)                  (evaluate-checking-function expected actual)
+      (every? regex? [actual expected])        [(= (str actual) (str expected)) {}]
+      (regex? expected)                        [(re-find expected actual) {}]
+      (and (record? actual)
+           (classic-map? expected))            [(= (into {} actual) expected) {}]
+      (= (type expected) java.math.BigDecimal) [(= (compare actual expected) 0) {}]
+      :else                                    [(= actual expected) {}])
+    (catch Throwable ex [false {:thrown ex}])))
+
 (defn extended-=
-  ([actual expected] (extended-= actual expected
-                                 (delay (evaluate-checking-function expected actual))))
-  ([actual expected delayed-check]
-   (try
-      (cond
-       (data-laden-falsehood? actual)           actual
-       (data-laden-falsehood? expected)         expected
-       (extended-fn? expected)                  (first @delayed-check)
-       (every? regex? [actual expected])        (= (str actual) (str expected))
-       (regex? expected)                        (re-find expected actual)
-       (and (record? actual)
-            (classic-map? expected))            (= (into {} actual) expected)
-       (= (type expected) java.math.BigDecimal) (= (compare actual expected) 0)
-       :else                                    (= actual expected))
-      (catch Throwable ex false))))
+  [actual expected]
+  (first (detailed-extended-= actual expected)))
 
 (defn extended-list-=
   "Element-by-element comparison, using extended-= for the right-hand-side values."
