@@ -14,28 +14,27 @@
             [such.sequences :as seq]))
 
 
+;; TODO: Maybe this wants to be a multimethod, but I'm not sure whether the
+;; resemblance between data-fakes and regular fakes isn't too coincidental.
+(defn- expand-fake [fake]
+ (cond (first-named? fake "fake")
+       (parse-fakes/to-lexical-map-form fake)
+
+       (first-named? fake "data-fake")
+       (parse-data-fakes/to-lexical-map-form fake)
+
+       (first-named? fake "not-called")
+       (macroexpand fake)
+
+       :else
+       (do (prn "Now here's a peculiar thing to find inside a check: " fake)
+           fake)))
+
 (defn expansion [call-form arrow expected-result fakes overrides]
   (branch-on arrow
     recognize/common-check-arrow?
     (let [check (lexical-maps/checkable call-form arrow expected-result overrides)
-          expanded-fakes (map (fn [fake]
-                                 ;; TODO: Maybe this wants to be a multimethod,
-                                 ;; but I'm not sure whether the resemblance between
-                                 ;; data-fakes and regular fakes isn't too coincidental.
-                                 (cond (first-named? fake "fake")
-                                       (parse-fakes/to-lexical-map-form fake)
-
-                                       (first-named? fake "data-fake")
-                                       (parse-data-fakes/to-lexical-map-form fake)
-
-                                       (first-named? fake "not-called")
-                                       (macroexpand fake)
-
-                                       :else
-                                       (do
-                                         (prn "Now here's a peculiar thing to find inside a check: " fake)
-                                         fake)))
-                               fakes)]
+          expanded-fakes (map expand-fake fakes)]
       `(midje.checking.checkables/check-one ~check ~(vec expanded-fakes)))
 
     recognize/macroexpansion-check-arrow?
