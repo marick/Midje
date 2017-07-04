@@ -104,6 +104,7 @@ Contributors
 * Alan Malloy
 * Brian Marick
 * Bob Martin
+* Phillip Mates
 * Paudi Moriarty
 * Dmitri Naumov
 * Alex Nixon
