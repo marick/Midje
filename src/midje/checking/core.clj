@@ -53,8 +53,9 @@
     [false {:thrown ex}])))
 
 (defn detailed-extended-=
-  "Equality check that coerces arguments into comparable values. Returns tuple
-  contains the check result boolean and a failure detail map"
+  "Equality check that can handle checker functions and compare arguments of
+  different types. Returns a tuple containing the boolean result and a failure
+  detail map"
   [actual expected]
   (try
     (cond
