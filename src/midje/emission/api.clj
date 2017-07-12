@@ -5,10 +5,9 @@
             [midje.emission.clojure-test-facade :as ctf]
             [midje.emission.levels :as levels]
             [midje.emission.state :as state]
-            [midje.emission.plugins.silence :as silence]
-            [midje.util.thread-safe-var-nesting :refer [with-altered-roots]]))
+            [midje.emission.plugins.silence :as silence]))
 
-;;; Level handling
+;;; Level handling
 
 (defn level-checker [operation]
   (fn [level-name]
@@ -18,7 +17,7 @@
 (def config-at-or-above? (level-checker >=))
 (def config-above?(level-checker >))
 
-;;; Plugins
+;;; Plugins
 
 (defn load-plugin [location]
   (if (symbol? location)
@@ -32,7 +31,7 @@
       (apply function args)
       (throw (Error. (str "Your emission plugin does not define " keyword state/emission-functions))))))
 
-;;; The API proper
+;;; The API proper
 
 (defn pass []
   (state/output-counters:inc:midje-passes!)
@@ -54,7 +53,7 @@
   (when (and (config-above? :print-nothing)
              (config/choice :visible-future))
     (bounce-to-plugin :future-fact description position)))
-  
+
 (defn forget-everything []
   (bounce-to-plugin :starting-fact-stream)
   ;; This happens after the `forget-everything` so that
@@ -90,8 +89,8 @@
        (bounce-to-plugin :finishing-fact-stream (state/output-counters) clojure-test-results)))
   ([]
      (fact-stream-summary {:test 0})))
-                                 
-;;; 
+
+;;;
 
 (defmacro producing-only-raw-fact-failures [& body]
   `(config/at-print-level :print-nothing

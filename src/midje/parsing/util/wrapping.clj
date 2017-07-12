@@ -1,17 +1,17 @@
-(ns ^{:doc "midje.background uses these to wrap extra code around 
+(ns ^{:doc "midje.background uses these to wrap extra code around
             :contents, :facts, or :expects"}
   midje.parsing.util.wrapping
   (:require [clojure.zip :as zip]
             [midje.parsing.util.core :refer :all]
-            [midje.util.thread-safe-var-nesting :refer [namespace-values-inside-out 
+            [midje.util.thread-safe-var-nesting :refer [namespace-values-inside-out
                                                         set-namespace-value
-                                                        with-pushed-namespace-values]] 
+                                                        with-pushed-namespace-values]]
             [midje.util.unify :as unify]
             [such.sequences :as seq]))
 
 
 (defn midje-wrapped
-  "This is used to prevent later wrapping passes from processing 
+  "This is used to prevent later wrapping passes from processing
    the code-that-produces-the-value."
   [value] value)
 
@@ -32,7 +32,7 @@
   (vary-meta what assoc :midje/wrapping-target target))
 
 (defn for-wrapping-target? [target]
-  (fn [actual] 
+  (fn [actual]
     (= target (:midje/wrapping-target (meta actual)))))
 
 (defmacro with-additional-wrappers [final-wrappers form]

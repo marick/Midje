@@ -22,7 +22,7 @@
   (if (data-laden-falsehood? result)
     (assoc result :actual actual)
     result))
-  
+
 (defn chatty-worth-reporting-on? [arg]
   (and (or (list? arg) (seq? arg)) ; what started as a list (fn x y) might now be a seq.
        (pos? (count arg))
@@ -31,7 +31,7 @@
 (defn chatty-untease [result-symbol arglist]
   (reduce (fn [[complex-forms substituted-args] current-arg]
               (if (chatty-worth-reporting-on? current-arg)
-                [ (conj complex-forms current-arg), 
+                [ (conj complex-forms current-arg),
                   (conj substituted-args `(~result-symbol ~(count complex-forms))) ]
                 [complex-forms, (conj substituted-args current-arg)]))
       [[] []]

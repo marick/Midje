@@ -7,13 +7,13 @@
  (against-background (before :checks (swap! test-atom (constantly 0))))
  (swap! test-atom inc) => 1
  (swap! test-atom dec) => -1)
-    
+
 (def test-atom (atom 0))
 (against-background [ (after :checks (swap! test-atom (constantly 0))) ]
   (fact
     (swap! test-atom inc) => 1
     (swap! test-atom dec) => -1))
-    
+
 (def before-atom (atom 10))
 (def after-atom (atom 33))
 (fact
@@ -24,7 +24,7 @@
   ;; [1 10]
   [(swap! before-atom inc) (swap! after-atom inc)] => [1 11]
   ;; [1 10]
-  
+
   (let [untouched [@before-atom @after-atom]]
     untouched => [1 10]))
 
@@ -110,7 +110,7 @@
   (fact "one set of facts"
     (against-background (before :checks (swap! per-check-atom (constantly 3))
                                 :after (swap! per-check-atom (constantly 888))))
-      
+
     @immediate-atom => 33  ;; content wrapper applies
     @per-fact-atom => 18   ;; fact wrapper applies
     @per-check-atom => 3   ;; per-check wrapper applies
@@ -122,7 +122,7 @@
     (swap! per-check-atom inc) => 4   ;; See?
 
     (+ (f ...arg...) x) => 301)
-  
+
   (fact "the other"
     @immediate-atom => 34       ;; immediate wrapper doesn't apply.
     @per-fact-atom => 18        ;; per-fact wrapper resets.
@@ -174,4 +174,4 @@
                                                 a (* 4 y)] ?form)))
       (+ x y z a) => 14)))
 
-  
+

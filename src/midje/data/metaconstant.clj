@@ -1,4 +1,4 @@
-(ns ^{:doc "A notation that avoids confusion between what’s essential 
+(ns ^{:doc "A notation that avoids confusion between what’s essential
             about data and what’s accidental. A stand in for constant data."}
   midje.data.metaconstant
   (:require [midje.util.ecosystem :as ecosystem]
@@ -62,8 +62,8 @@
   (entryAt [this key]
            (find storage key))
   (assoc [this key val]
-    ;; (Metaconstant. (.underlying-symbol this) (assoc storage key val))) 
-    (throw (exceptions/user-error 
+    ;; (Metaconstant. (.underlying-symbol this) (assoc storage key val)))
+    (throw (exceptions/user-error
             (str "Metaconstants (" (.underlying-symbol this) ") can't have values assoc'd onto them.")
             "If you have a compelling need for that, please create an issue:"
             ecosystem/issues-url)))
@@ -72,9 +72,10 @@
   clojure.lang.Seqable
   (seq [this] (seq storage))  ; I'm unhappy to define this, but it's needed by count/empty.
 
+  clojure.lang.Counted
+  (count [this] (count storage))
+
   clojure.lang.IPersistentCollection
-  (count [this]
-         (count storage))
   (cons [this o]
         ;; (Metaconstant. (.underlying-symbol this) (cons storage o)))
         (throw (exceptions/user-error
@@ -82,7 +83,7 @@
                 "If you have a compelling need for that, please create an issue:"
                 ecosystem/issues-url)))
   (empty [this]
-         (empty? storage))
+         (empty storage))
   (equiv [this that]
          (if (or (symbol? that)
                  (= (type that) Metaconstant)
@@ -105,14 +106,4 @@
 
 (defmethod print-method Metaconstant [^Metaconstant o ^java.io.Writer w]
   (print-method (.underlying-symbol o) w))
-
-
-
-
-
-
-
-
-
-
 

@@ -45,13 +45,13 @@
   (with-pushed-namespace-values :stacky '(1 2)
     (with-pushed-namespace-values :stacky '(3 4)
       (namespace-values-inside-out :stacky) => '(4 3 2 1)))
-  
+
   "... are not scrozzled by exceptions"
-  (try 
+  (try
     (with-pushed-namespace-values :stacky '(1 2)
       (namespace-values-inside-out :stacky) => '(2 1)
       (throw (Throwable. root)))
     (catch Throwable ex
       (namespace-values-inside-out :stacky) => '())))
-      
-  
+
+

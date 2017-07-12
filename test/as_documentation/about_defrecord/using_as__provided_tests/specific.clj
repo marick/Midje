@@ -7,12 +7,12 @@
   (:require [as-documentation.about-defrecord.generic :as generic]))
 
 ;; In contrast to the `defrecord` case (in `using_as__plain_tests/specific.clj`), the
-;; fact that the var-having-a-function-associated-with-it belongs to another package 
+;; fact that the var-having-a-function-associated-with-it belongs to another package
 ;; must be made explicit. That is, we could there do:
 ;;   (bump [_ by] (+ n by))
-;; ... but here we must do 
+;; ... but here we must do
 ;;   (generic/bump [_ by] (+ n by))
-;; This is unexpected enough that I consider it a bug. (Though you could argue that 
+;; This is unexpected enough that I consider it a bug. (Though you could argue that
 ;; its `defrecord`'s special-casing that's the original sin.)
 
 ;; However, such variation from `defrecord` is not required in the
@@ -30,7 +30,7 @@
     (generic/bump rec) => 4
     (generic/bump rec 5) => 8
     (generic/twice rec) => 6))
-  
+
 (fact "and you can now mock out one of these methods"
   (let [rec (->Record 3)]
     (+ 1 (generic/bump rec)) => 0

@@ -45,14 +45,14 @@
               (throw (user-error (str "I don't know how to make sense of a "
                                       "regular expression applied "
                                       looseness "."))))
-        
+
         (not (collection-like? actual))
         (throw (user-error (str "You can't compare " (pr-str actual) " (" (type actual)
                                 ") to " (pr-str expected) " (" (type expected) ").")))
-        
+
         (inherently-false-map-to-record-comparison? actual expected)
         (throw (user-error (inherently-false-map-to-record-comparison-note actual expected)))
-        
+
         (and (map? actual)
              (not (map? expected)))
         (try (into {} expected)
@@ -63,20 +63,35 @@
 
 (defn standardized-arguments
   "Reduce arguments to standard forms so there are fewer combinations to
- consider. Also blow up for some incompatible forms."
+  consider. Also blow up for some incompatible forms."
   [actual expected looseness]
-  (compatibility-check actual expected looseness)  
+  (compatibility-check actual expected looseness)
   (cond
-   (and (sequential? actual) (set? expected))                  [actual (vec expected) (union looseness #{:in-any-order })]
-   (and (sequential? actual) (right-hand-singleton? expected)) [actual [expected] (union looseness #{:in-any-order })]
-   (sequential? actual)                                        [actual expected looseness]
-   (and (map? actual) (map? expected))  [actual expected looseness]
-   (map? actual)                        [actual (into {} expected) looseness]
-   (set? actual)                        (recur (vec actual) expected looseness-modifiers)
-   (and (string? actual)               
-        (not (string? expected))       
-        (not (regex? expected)))        (recur (vec actual) expected looseness-modifiers)
-        :else                                [actual expected looseness]))
+    (and (sequential? actual) (set? expected))
+    [actual (vec expected) (union looseness #{:in-any-order})]
+
+    (and (sequential? actual) (right-hand-singleton? expected))
+    [actual [expected] (union looseness #{:in-any-order})]
+
+    (sequential? actual)
+    [actual expected looseness]
+
+    (and (map? actual) (map? expected))
+    [actual expected looseness]
+
+    (and (map? actual) (= (count (keys (into {} expected))) (count expected)))
+    [actual (into {} expected) looseness]
+
+    (set? actual)
+    (recur (vec actual) expected looseness-modifiers)
+
+    (and (string? actual)
+         (not (string? expected))
+         (not (regex? expected)))
+    (recur (vec actual) expected looseness-modifiers)
+
+    :else
+    [actual expected looseness]))
 
 (defn match? [actual expected looseness]
   (let [comparison (compare-results actual expected looseness)]
@@ -104,10 +119,10 @@
                       :else (let [[actual expected looseness] (standardized-arguments actual expected looseness)]
                               (cond (regex? expected)
                                     (try-re (pattern-fn expected) actual re-find)
-                                    
+
                                     (expected-fits? actual expected)
                                     (match? (take-fn (count expected) actual) expected looseness)
-                                    
+
                                     :else (noted-falsehood
                                            (cl-format nil
                                                       "A collection with ~R element~:P cannot match a ~A of size ~R."
@@ -146,7 +161,7 @@
   ^{:midje/checker true
     :doc "Checks that the expected result is a subsequence of the actual result:
 
-To succeed, f's result must be (1) contiguous and (2) in the 
+To succeed, f's result must be (1) contiguous and (2) in the
 same order as in the contains clause. Here are examples:
 
    [3 4 5 700]   => (contains [4 5 700]) ; true
@@ -169,7 +184,7 @@ The two modifiers can be used at the same time:
    [4 5 'hi 700]     => (contains [4 5 700] :in-any-order :gaps-ok) ; true
    [700 'hi 4 5 'hi] => (contains [4 5 700] :in-any-order :gaps-ok) ; true
 
-Another way to indicate :in-any-order is to describe 
+Another way to indicate :in-any-order is to describe
 what's contained by a set. The following two are equivalent:
 
    [700 4 5] => (contains [4 5 700] :in-any-order)
@@ -188,8 +203,8 @@ what's contained by a set. The following two are equivalent:
 
 (def ; just
   ^{:midje/checker true
-    :doc "A variant of contains, just, will fail if the 
-left-hand-side contains any extra values:   
+    :doc "A variant of contains, just, will fail if the
+left-hand-side contains any extra values:
    [1 2 3] => (just [1 2 3])  ; true
    [1 2 3] => (just [1 2 3 4]) ; false
 
@@ -207,7 +222,7 @@ just is also useful if you don't care about order:
   [1 3 2] => (just   [1 2 3] :in-any-order)
   [1 3 2] => (just  #{1 2 3})"
     :arglists '([expected]
-                  [expected looseness])}
+                [expected looseness])}
   just (container-checker-maker 'just
                                 (fn [actual expected looseness]
                                   (let [[actual expected looseness] (standardized-arguments actual expected looseness)]
@@ -222,10 +237,10 @@ just is also useful if you don't care about order:
                                                             (count expected)
                                                             (count actual))))))))
 
-(defchecker has 
-  "You can apply Clojure's quantification functions (every?, some, and so on) 
+(defchecker has
+  "You can apply Clojure's quantification functions (every?, some, and so on)
    to all the values of sequence.
-   
+
    Ex. (fact (f) => (has every? odd?))"
   [quantifier predicate]
   (checker [actual]
@@ -240,10 +255,10 @@ just is also useful if you don't care about order:
                     (vals actual)
                     actual)))))
 
-(defchecker n-of 
-  "Checks whether a sequence contains precisely n results, and 
+(defchecker n-of
+  "Checks whether a sequence contains precisely n results, and
    that they each match the checker.
-  
+
   Ex. (fact (repeat 100 :a) => (n-of :a 100))"
   [expected expected-count]
 
@@ -254,12 +269,12 @@ just is also useful if you don't care about order:
 (defmacro #^:private generate-n-of-checkers []
   (pile/macro-for [[num num-word] [[1 "one"] [2 "two"] [3 "three"] [4 "four"] [5 "five"]
                                    [6 "six"] [7 "seven"] [8 "eight"] [9 "nine"] [10 "ten"]]]
-    (let [name (symbol (str num-word "-of"))                                                                 
+    (let [name (symbol (str num-word "-of"))
           docstring (cl-format nil "Checks whether a sequence contains precisely ~R result~:[s, and \n  that they each match~;, and \n  that it matches~] the checker.
-  
+
    Ex. (fact ~A => (~C :a))" num (= num 1) (vec (repeat num :a )) name)]
-      `(defchecker 
-         ~name 
+      `(defchecker
+         ~name
          ~docstring
          {:arglists '([~'expected])}
          [expected#]

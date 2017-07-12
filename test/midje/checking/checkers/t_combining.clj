@@ -11,7 +11,7 @@
                                (fn [actual] (= (str actual) "5" )))]
 
     checker => checker?
-    
+
     (checker 5) => truthy
     (checker 400) => falsey  ; not odd
     (checker 99) => falsey   ; not close to 5
@@ -23,7 +23,7 @@
     3 =not=> checker))
 
 
-;; every-checker 
+;; every-checker
 (facts "about form of the failure value"
   (let [sanitized (fn [actual]
                     (data-laden-falsehood-to-map
@@ -64,7 +64,7 @@
     #"12*" => (every-checker regex? #"12*")))
 (fact "You can even use explicit values"
   5 => (every-checker 5 odd? (roughly 5)))
-  
+
 
 (fact "the empty every-checker passes"
   5 => (every-checker))
@@ -79,7 +79,7 @@
 ;; some-checker
 
 
-(facts "about some-checker" 
+(facts "about some-checker"
   (some-checker truthy falsey)  => checker?
   3 =>     (some-checker truthy falsey)
   3 =not=> (some-checker falsey string?)

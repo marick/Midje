@@ -13,7 +13,7 @@
 (deftest background-command-is-shadowed-by-against-background   ; deftest intentional
   (against-background [ (middlemost) => 33]
     (fact (+ (middlemost) (outermost)) => 35)))
-  
+
 (against-background [ (middlemost) => 33]
   (fact (+ (middlemost) (outermost)) => 35))
-  
+

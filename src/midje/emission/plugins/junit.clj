@@ -14,7 +14,8 @@
 
 ;; This plugin requires all emission api calls to be
 ;; forwarded to it.
-(config/change-defaults :print-level :print-facts)
+(config/change-defaults :print-level :print-facts
+                        :colorize false)
 
 (defonce report-file (atom nil))
 (defonce last-fact (atom {}))
@@ -64,7 +65,7 @@
 
 (defn process-fact [fact]
   (let [elapsed (/ (time/in-millis (time/interval (-> fact :attrs :start-time)
-                                                 (-> fact :attrs :stop-time)))
+                                                  (-> fact :attrs :stop-time)))
                    1000.0)
         dissoc-times (fn [attrs] (-> attrs
                                     (dissoc :start-time)

@@ -16,11 +16,11 @@
 
   (separate-print-levels [:print-nothing :all] ..irrelevant..)
   => [[:print-nothing] :print-nothing [:all]]
-  
+
   (let [number-form (print-levels/names-to-levels :print-facts)]
     (separate-print-levels ['a number-form 'b] ..irrelevant..)
     => [[number-form] number-form '[a b]])
-  
+
   ;; checks for valid levels
   (separate-print-levels [500 'something] ..irrelevant..)
   => (throws Error #"500.*not.*valid")
@@ -56,15 +56,15 @@
 
 
 
-  
+
 (fact "arglist parser with :options"
   (let [flag-descriptions [[:dirs :dir] [:interval]]
         parser (apply make-option-arglist-parser flag-descriptions)]
-     
+
     (fact "can find true args"
     (parser []) => (contains {:true-args []})
     (parser [:dirs]) => (contains {:true-args []}))
-      
+
     (fact "can find flags that are present"
       (parser ['arg :dirs 1 2]) => (contains '{:dirs? true :dirs-args [1 2]}))
 

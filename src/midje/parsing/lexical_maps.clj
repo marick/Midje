@@ -79,21 +79,18 @@
                          :rhs '~(cons result overrides)}
         override-map `(hash-map ~@overrides)
         line (:line (meta call-form))
-        result `(merge
-                 {
-                  :type :fake
-                  :var ~(fnref/as-var-form fnref)
-                  :value-at-time-of-faking (if (bound? ~(fnref/as-var-form fnref))
-                                             ~(fnref/as-form-to-fetch-var-value fnref))
-                  :arglist-matcher ~(choose-mkfn-for-arglist-matcher args)
-                  :result-supplier (from-fake-maps/mkfn:result-supplier ~arrow ~result)
-                  :times :default  ; Default allows for a more attractive error in the most common case.
+        result `(merge {:type :fake
+                        :var ~(fnref/as-var-form fnref)
+                        :value-at-time-of-faking (if (bound? ~(fnref/as-var-form fnref))
+                                                   ~(fnref/as-form-to-fetch-var-value fnref))
+                        :arglist-matcher ~(choose-mkfn-for-arglist-matcher args)
+                        :result-supplier (from-fake-maps/mkfn:result-supplier ~arrow (fn [] ~result))
+                        :times :default  ; Default allows for a more attractive error in the most common case.
 
-                  :position (pointer/line-number-known ~line)
-                  :namespace *ns*
-                  :call-count-atom (atom 0)
-                  :call-text-for-failures (str '~call-form)
-                 }
+                        :position (pointer/line-number-known ~line)
+                        :namespace *ns*
+                        :call-count-atom (atom 0)
+                        :call-text-for-failures (str '~call-form)}
                  ~source-details
                  ~override-map)]
     ;; pprint result
@@ -109,16 +106,14 @@
                          :rhs '~(cons contained overrides)}
         override-map `(hash-map ~@overrides)
         line (:line (meta contained))
-        result `(merge
-                 {
-                  :type :fake
-                  :data-fake true
-                  :var ~(fnref/as-var-form metaconstant)
-                  :contained ~contained
+        result `(merge {:type :fake
+                        :data-fake true
+                        :var ~(fnref/as-var-form metaconstant)
+                        :contained ~contained
 
-                  :position (pointer/line-number-known ~line)
-                  :call-count-atom (atom 1) ;; kludje
-                 }
+                        :position (pointer/line-number-known ~line)
+                        ;; kludje:
+                        :call-count-atom (atom 1)}
                  ~source-details
                  ~override-map)]
     ;; pprint result

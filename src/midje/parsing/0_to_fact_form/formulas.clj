@@ -14,12 +14,12 @@
 
 ;; Formulas work by running up to *num-trials* trials per formula.
 (def ^{:doc "The number of trials generated per formula."
-       :dynamic true} 
-  *num-trials* 100)   
+       :dynamic true}
+  *num-trials* 100)
 
-(set-validator! #'*num-trials* 
+(set-validator! #'*num-trials*
   (fn [new-val]
-    (if (pos? new-val) 
+    (if (pos? new-val)
       true
       (throw (Error. (str "*num-trials* must be an integer 1 or greater. You tried to set it to: " new-val))))))
 
@@ -39,10 +39,10 @@
 
 
 (defn- check-part-of [form]
-  (prewalk (fn [form] 
+  (prewalk (fn [form]
              (if (some (partial first-named? form) ["against-background" "background" "provided"])
-                 '() 
-                 form)) 
+                 '()
+                 form))
     form))
 
 (defn valid-pieces [[_formula_ & args :as form]]
@@ -50,25 +50,25 @@
         invalid-keys (remove (partial = :num-trials) (keys opts-map))]
     (cond (not (leaves-contain-arrow? (check-part-of args)))
           (error/report-error form "There is no expection in your formula form:")
-    
+
           (> (count (leaf-expect-arrows (check-part-of args))) 1)
           (error/report-error form "There are too many expections in your formula form:")
-  
+
           (or (not (vector? bindings))
               (odd? (count bindings))
               (< (count bindings) 2))
           (error/report-error form "Formula requires bindings to be an even numbered vector of 2 or more:")
-  
+
           (some #(and (named? %) (= "background" (name %))) (flatten args))
           (error/report-error form "background cannot be used inside of formula")
-  
+
           (not (empty? invalid-keys))
           (error/report-error form (format "Invalid keys (%s) in formula's options map. Valid keys are: :num-trials" (join ", " invalid-keys)))
-          
-          (and (:num-trials opts-map) 
+
+          (and (:num-trials opts-map)
                (not (pos? (:num-trials opts-map))))
           (error/report-error form (str ":num-trials must be an integer 1 or greater. You tried to set it to: " (:num-trials opts-map))))
-      
+
     [docstring? opts-map bindings body]))
 
 
@@ -85,21 +85,21 @@
        (emit/fail failure#)
        (emit/pass))))
 
-(defmacro formula 
-  "Generative-style fact macro. 
-  
-  Ex. (formula \"any two strings concatenated begins with the first\" 
-        [a (gen/string) b (gen/string)] 
+(defmacro formula
+  "Generative-style fact macro.
+
+  Ex. (formula \"any two strings concatenated begins with the first\"
+        [a (gen/string) b (gen/string)]
         (str a b) => (has-prefix a))
-        
-  Currently, we recommend you use generators from test.generative.generators. 
-   
+
+  Currently, we recommend you use generators from test.generative.generators.
+
   opts-map keys:
-  
-     :num-trials - Used to override the number of trials for this formula only. 
+
+     :num-trials - Used to override the number of trials for this formula only.
                    This is higher precedence than *num-trials*
                    Must be set to a number 1 or greater.
-  
+
   The *num-trials* dynamic var determines
   how many facts are generated per formula."
   {:arglists '([docstring? opts-map? bindings & body])}

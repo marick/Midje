@@ -27,7 +27,7 @@
   (namespace-values-inside-out :midje/background-fakes))
 
 
-;; Dissecting background changers. The TERMINOLOGY file will help you understand this.
+;; Dissecting background changers. The TERMINOLOGY file will help you understand this.
 
 (defn separate-extractable-background-changing-forms [fact-body-forms]
   (letfn [(definitely-extractable-form? [form]
@@ -49,7 +49,7 @@
 
 
 
-;; Dealing with a list of background changers
+;; Dealing with a list of background changers
 
 (defn- first-form-is-no-state-changer? [forms]
   (or (not (commons/linear-access? (first forms)))
@@ -92,7 +92,7 @@
 
 
 
-;; State changes are converted into unification templates. The unification happens when
+;; State changes are converted into unification templates. The unification happens when
 ;; individual bodies of code (facts, checkables, etc.) are processed.
 
 (defn- at-substitution-loc? [loc]
@@ -261,6 +261,11 @@
 (defn add-midje-fact-symbols [symbols]
   (alter-var-root #'at-least-one-string-with-this-name-must-be-present
                   commons/union
+                  (set (map name symbols))))
+
+(defn remove-midje-fact-symbols [symbols]
+  (alter-var-root #'at-least-one-string-with-this-name-must-be-present
+                  commons/difference
                   (set (map name symbols))))
 
 ;; It would be better to check symbols like `midje/fact` than the string "fact";

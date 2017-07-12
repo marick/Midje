@@ -22,7 +22,7 @@
   [0 3 'a 1 2] => (contains #(<= % 3) #(<= % 2) #(<= % 1) :in-any-order :gaps-ok)
   [0 2 3 'a 1] => (contains #(<= % 3) #(<= % 2) #(<= % 1) :in-any-order :gaps-ok))
 
-  
+
 
 (fact "left-hand-side: sequentials that are to contain things"
   [3 4 5 700]        => (contains [4 5 700])
@@ -35,7 +35,7 @@
   [4 5 'hi 700]      => (contains [4 5 700] :gaps-ok)
   [4 700 'hi 5] =deny=> (contains [4 5 700] :gaps-ok)
 
-  
+
   [4 700 5] => (contains [4 5 700] :gaps-ok :in-any-order)
   [4 5 'hi 700] => (contains [4 5 700] :in-any-order :gaps-ok)
   [700 'hi 4 5 'hi] => (contains [4 5 700] :in-any-order :gaps-ok)
@@ -54,9 +54,9 @@
   ( (contains [(AB. 1 2)]) [ [:a 1] [:b 2 ] ] ) => falsey
 
   ;; Just
-  [1 2 3] => (just [1 2 3]) 
-  ( (just [1 2 3 4]) [1 2 3]) => falsey 
-  ( (just [1 2 3]) [1 2 3 4]) => falsey 
+  [1 2 3] => (just [1 2 3])
+  ( (just [1 2 3 4]) [1 2 3]) => falsey
+  ( (just [1 2 3]) [1 2 3 4]) => falsey
 
   [1 2 3] => (just [odd? even? odd?])
 
@@ -108,7 +108,7 @@
   ( (has every? (chatty-checker [actual] (and (map? actual)
                                               (odd? (:x actual)))))
     [{:x 4}]) => falsey
-         
+
 
   ;; More than one not enclosed in a collection
   [700 4 5] => (just 4 5 700 :in-any-order)
@@ -125,20 +125,20 @@
 (fact "left-hand-side: actual return values that are strings"
   "abc" => (contains "bc")
   ( (contains "bc") "bd") => falsey
-  
-  "abc" => (contains "ac" :gaps-ok) 
+
+  "abc" => (contains "ac" :gaps-ok)
   "abc" => (contains "ba" :in-any-order)
 
   "abc" => (just "abc")
   ( (just "ab") "abc") => falsey
-  
+
   ( (just "ac" :gaps-ok) "abc") => falsey
   "abc" => (just "cba" :in-any-order)
   ( (just "cba" :in-any-order) "ab") => falsey
   ( (just "cba" :in-any-order) "abcd") => falsey
 
-  "abc" => (has-suffix "bc") 
-  "abc" => (has-prefix "ab") 
+  "abc" => (has-suffix "bc")
+  "abc" => (has-prefix "ab")
   ( (has-suffix "ac") "abc") => falsey
   ( (has-suffix "ap") "abc") => falsey
 
@@ -148,7 +148,7 @@
   ;; Comparisons to regular expressions
   "  1" => #"\d"
 
-  "  3" => (contains #"\d")  
+  "  3" => (contains #"\d")
   ( (contains #"\d") "   ") => falsey
 
   "123" => (just #"\d\d\d")
@@ -220,7 +220,7 @@
 
   ( (just "ab") "AB") => falsey
   "AB" => #"(?i)ab"
-  
+
   ;; Just to check
   ( (contains "a") [1]) => falsey
   ( (contains #"a") [1]) => falsey
@@ -235,7 +235,7 @@
 (fact "left-hand-side: sets to contain things"
   #{1 2 3} => (contains #{1 2 3})
   #{1 2 3} => (contains [1 2 3])
-                        
+
   #{"1" "12" "123"} => (contains [#"1" #"2" #"3"])
   #{"1" "12" "123"} => (contains [#"1" #"2" #"3"])
   #{"1" "12" "123"} => (contains #{#"1" #"2"})
@@ -278,6 +278,12 @@
  ( (contains (AB. 1 2)) {:a 1 :b 2}) => falsey
  ( (just {:top (just (AB. 1 2))}) {:top {:a 1, :b 2}}) => falsey
 
+ {:a 2}   => (contains {:a 2})
+ {:a 2}   => (contains [{:a 2}])
+ [{:a 2}] => (contains [{:a 2}])
+ {:a 2} =not=> (contains {:a 1} {:a 2})
+ {:a 2} =not=> (contains [{:a 1} {:a 2}] :in-any-order)
+ {:a 2} =not=> (contains [{:a 2} {:a 1}] :in-any-order)
  ( (contains {:a 1, :b 2, :c 2}) {:a 1, :b 2}) => falsey
  ( (contains {:a 1, :c 2}) {:a 1, :b 2}) => falsey
  ( (contains {:a 1, :b 'not-2}) {:a 1, :b 2}) => falsey
@@ -292,13 +298,20 @@
  (  (just {:a even?}) {:a 1}) => falsey
  (  (just {:a even?}) {nil 1}) => falsey
 
+ {:a 1} => (just {:a 1})
+ {:a 1} =not=> (just [{:a 1} {:b 2}])
+ {:a 1} =not=> (just [{:a 1} {:b 2}] :in-any-order)
+ {:a 2} =not=> (just [{:a 1} {:a 2}])
+ [{:a 1} {:a 2}] => (just [{:a 1} {:a 2}])
+ {:a 2} =not=> (just [{:a 1} {:a 2}] :in-any-order)
+
  ;; extended-equality isn't recursive, so...
  ;; ... while this works without lower-level annotation
  {:actual-found ["12" "1" "123"] } => (contains {:actual-found ["12" "1" "123"] })
  ;; ... this requires it:
  {:expected-found [#"2" #"1" #"3"] }
  => (contains {:expected-found (just [#"2" #"1" #"3"]) })
- 
+
  {} => (contains {})
  {nil nil} => (contains {})
  {nil nil} => (contains {nil nil})
@@ -367,8 +380,8 @@
   (AB. 1 2) => (just [[:a 1] [:b 2]])
   (AB. 1 2) => (just [:a 1] [:b 2])
   (AB. 1 2) => (contains [[:a 1]]))
- 
-  
+
+
 
 (facts "where actual values are of wrong type for legitimate expected"
 
@@ -413,7 +426,7 @@
 
   ; It'd be nice to make all kinds of recursive function printing work nicely.
   ; [odd? even?] => (contains [(exactly odd?) (exactly odd?)])
-  
+
   "checkers are printed nicely in the expected matched: section"
   (data-laden-falsehood-to-map ( (contains [5 (exactly 4)] :in-any-order) [1 2 4]))
   => (contains {:notes (contains #"It matched.*\[\(exactly 4\)\]")})
@@ -484,12 +497,12 @@
 (facts "n-of functions"
   (fact "pass w/ correct # of matching results"
     [33 33 ] => (two-of 33)
-    
+
     [1 3 ] => (n-of odd? 2)
     ["ab" "aab" "aaab"] => (n-of #"a+b" 3)
     ( (n-of odd? 1) [1 3]) => data-laden-falsehood?
     ( (n-of odd? 3) [1 2 3]) => data-laden-falsehood?
-  
+
     [1 1 3 3 5 5 7 7 9 9] => (ten-of odd?)
     [1 1 3 3 5 5 7 7 9] => (nine-of odd?)
     [1 1 3 3 5 5 7 7] => (eight-of odd?)
@@ -500,15 +513,15 @@
     [1 1 3] => (three-of odd?)
     [1 1] => (two-of odd?)
     [1] => (one-of odd?))
-  
+
   (fact "fail w/ wrong # of matching results"
     [33 33 22] =not=> (two-of 33)
-    
+
     [1 3 2] =not=> (n-of odd? 2)
     ["ab" "aab" "aaab" "ccc"] =not=> (n-of #"a+b" 3)
     ( (n-of odd? 1) [1]) =not=> data-laden-falsehood?
     ( (n-of odd? 3) [1 3 5]) =not=> data-laden-falsehood?
-  
+
     [1 1 3 3 5 5 7 7 9 9 11] =not=> (ten-of odd?)
     [1 1 3 3 5 5 7 7 9 9] =not=> (nine-of odd?)
     [1 1 3 3 5 5 7 7 9] =not=> (eight-of odd?)

@@ -18,7 +18,7 @@
 
 
 (defn run-tests
-  "Run clojure.test tests in the given namespaces. It does not 
+  "Run clojure.test tests in the given namespaces. It does not
    affect the Midje fact counters but instead returns a map
    that can be used to produce a separate report."
   [namespaces]
@@ -30,7 +30,7 @@
                             [])]
     (binding [ct/*test-out* (java.io.StringWriter.)]
       (assoc (apply ct/run-tests namespaces-to-run)
-             :lines (-> ct/*test-out* .toString str/split-lines)))))
+             :lines (->> ct/*test-out* .toString str/split-lines)))))
 
 (defn forget-failures
   "This can only be used within the dynamic scope of run-tests."

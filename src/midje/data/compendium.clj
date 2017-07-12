@@ -18,10 +18,10 @@
   (named-fact [this namespace name])
   (fact-with-guid [this namespace guid])
   (previous-version [this fact-function]))
-    
+
 
 ;; The compendium has three maps, each keyed by a namespace name.
-;; 
+;;
 ;; One maps that namespace to a list of facts (in the order in which
 ;; the facts were defined, which is usually the order of facts in the file.
 ;; This map is sorted alphabetically.
@@ -37,8 +37,8 @@
     (throw (user-error (str "You tried to work with `" symbol-or-namespace
                              "` but that namespace has never been loaded."))))
   (ns-name symbol-or-namespace))
-  
-  
+
+
 
 (defrecord Compendium [by-namespace by-name by-guid last-fact-checked]
   CompendiumProtocol
@@ -46,7 +46,7 @@
     (let [[namespace name guid]
           ( (juxt fact/namespace fact/name fact/guid)
             fact-function)]
-      (-> this 
+      (-> this
           (assoc-in [:by-namespace namespace]
                     (conj (by-namespace namespace []) fact-function))
           (#(if name
@@ -77,7 +77,7 @@
              (not (find-ns namespace)))
       this
       (let [namespace-name (friendly-ns-name namespace)]
-        (-> this 
+        (-> this
             (map/dissoc-keypath [:by-namespace namespace-name])
             (map/dissoc-keypath [:by-name namespace-name])
             (map/dissoc-keypath [:by-guid namespace-name])))))

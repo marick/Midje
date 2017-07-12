@@ -2,6 +2,20 @@
 This project adheres to [Semantic Versioning](http://semver.org/).       
 See [here](http://keepachangelog.com/) for the change log format.
 
+## [1.9.0-alpha8] - 2017-07-04
+Fixed issues:
+- 389: Midje throws exception when using prerequisites for stubbing function with specific arguments
+- 379: Fact running twice
+- 370: Improvement on "migrating from clojure.test" tutorial
+- 362: Keyword can not be used as function in `provided` clause
+- 348: `just` checker is accepting incorrect maps
+- 326: Wiki lacks documentation on provided
+- 317: Checking function is called twice
+- 281: Midje crashes on syntax
+- 267: clojure.walk/postwalk fails when given a metaconstant
+- 265: Midje messes up comparison of sets with vectors containing the same number of elements with different types.
+- 159: Metaconstants are different
+
 ## [1.9.0-alpha6] - 2016-10-26
 - Prevent use of `print` in prerequisites, which causes an infinite
   loop if Midje needs to print any errors. (#347)

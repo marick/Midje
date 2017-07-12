@@ -33,7 +33,7 @@
 
 (fact "changes are restricted to that scope"
   (config/choice :print-level) =not=> :print-nothing)
-  
+
 
 ;; Changing the print level is a common enough operation
 ;; (for at least Midje's own tests) that it has its own
@@ -43,6 +43,6 @@
 (fact "`at-print-level` changes the print level within a scope"
   (config/at-print-level :print-nothing
     (config/choice :print-level) => :print-nothing))
-     
+
 (fact "changes are restricted to that scope"
   (config/choice :print-level) =not=> :print-nothing)

@@ -59,7 +59,7 @@
       (load-facts (the-ns 'midje.t-repl-helper) :print-no-summary)
       (count (fetch-facts)) => 2
       (filter #(= (fact-name %) "FAKE") (fetch-facts :all)) => empty?)
-  
+
     (fact "metadata filters are obeyed"
       (load-facts 'midje.t-repl-helper :non-featherian :print-no-summary)
       (map fact-name (fetch-facts :all)) => ["a non-featherian test"]
@@ -104,13 +104,13 @@
       => (contains '{:given-level-args [:print-no-summary]
                     :given-filter-args [:non-featherian]
                     :given-namespace-args [midje.t-repl-helper]}))
-    
+
   )
   )
 
 ;;;; ==== PART 2: Working with loaded facts
 
- 
+
                                 ;;; Fetching facts
  (compendium/fresh!)
 
@@ -145,7 +145,7 @@
    (let [expected ["z - first - integration" "f - second - midje.parsing.1-to-explicit-form.facts"]]
      (names (fetch-facts :all "n")) => expected
      (names (fetch-facts)) => expected)
-   
+
    (names (fetch-facts 'midje.parsing.1-to-explicit-form.facts #"q")) => []
    (names (fetch-facts :all :integration)) => ["z - first - integration"]
    (names (fetch-facts *ns* :integration)) => []
@@ -154,7 +154,7 @@
    => ["f - second - midje.parsing.1-to-explicit-form.facts" "p - third - midje.repl"]
    )
 
-   
+
 
 
                                 ;;; Forgetting facts
@@ -225,7 +225,7 @@
       (load-facts 'midje.t-repl-helper :print-nothing)
       (forget-facts)
       (map fact-name (compendium/all-facts<>)) => ["not forgotten"])
-    
+
     (fact "it can get its default from check-facts"
       (forget-facts :all)
       (load-facts 'midje.t-repl-helper :print-nothing)
@@ -233,7 +233,7 @@
       (forget-facts)
       (map fact-name (compendium/namespace-facts<> 'midje.t-repl-helper))
       =not=> ["a non-featherian test"])
-    
+
     (fact "forget-facts does not affect check-facts"
       (forget-facts :all)
       (load-facts 'midje.t-repl-helper :non-featherian :print-nothing)
@@ -241,7 +241,7 @@
       (forget-facts 'midje.parsing.1-to-explicit-form.facts)
       (map fact-name (fetch-facts)) => ["a non-featherian test"]))
   )
-  
+
 
 
 
@@ -263,7 +263,7 @@
  (let [string-result ; will only be visible for facts defined at the repl.
        (config/with-augmented-config {:fact-filter (with-meta (constantly false)
                                                      {:created-from ["desiderata"]})}
-         
+
          (check-one-fact the-fact))]
    (fact :check-only-at-load-time
      string-result => #"ignored because of the current configuration"
@@ -273,7 +273,7 @@
 
         ;;; Checking multiple facts
 
-;; Create (silently, without affecting totals) a fact to be rechecked later. 
+;; Create (silently, without affecting totals) a fact to be rechecked later.
 (silent-fact "error fact" 1 => 2)
 
  (without-changing-cumulative-totals
@@ -328,7 +328,7 @@
   (fact "confirm the ordering of the two facts"
     :check-only-at-load-time
     (map fact-name (fetch-facts 'midje.t-repl)) => ["1" "2"])
-  
+
   (fact "Even though the first fact failed, both facts were checked"
     :check-only-at-load-time
     (check-facts 'midje.t-repl :print-nothing)
@@ -343,7 +343,7 @@
 
  (without-changing-cumulative-totals
   (config/with-augmented-config {:print-level :print-no-summary}
-  
+
     (fact "Rechecking the fact resets the totals"
       :check-only-at-load-time
       (recheck-fact)
@@ -351,7 +351,7 @@
       (recheck-fact)
       (:midje-passes (state/output-counters)) => 1
       (:midje-failures (state/output-counters)) => 0)
-    
+
     (fact "It also prints a summary"
       :check-only-at-load-time
       (config/with-augmented-config {:print-level :print-normally}
@@ -386,28 +386,28 @@
      (fact "inner"
        (swap! inner-count inc)
        2 => 2))
-   
+
    (fact "only outer fact is available"
      :check-only-at-load-time
      (count (fetch-facts :all)) => 1
      (fact-name (first (fetch-facts :all))) => "outer")
-   
+
    (fact
      :check-only-at-load-time
      (without-changing-cumulative-totals (check-facts :all))
      @outer-count => 2
      @inner-count => 2)
-   
-   
+
+
    ;; Facts with the same name redefine old versions.
    (forget-facts :all)
-   
+
    (def run-count (atom 0))
    (fact "name"
      (swap! run-count inc))
    (fact "name" :redefinition
      @run-count => 1)
-   
+
    (fact "Only the second fact now exists"
      :check-only-at-load-time
      (let [known-facts (fetch-facts :all)]
@@ -415,42 +415,42 @@
        (:redefinition (meta (first known-facts))) => true
        (without-changing-cumulative-totals (check-facts))
        @run-count => 1))
-   
+
    ;; Redefinition of an unnamed fact to an identical body does
    ;; not produce copies.
    (forget-facts :all)
    (fact :note-that-the-metadata-does-not-matter (+ 1 1) => 2)
    (fact :some-other-metadata                    (+ 1 1) => 2)
-   
+
    (fact "the old fact has been replaced"
      :check-only-at-load-time
      (count (fetch-facts :all)) => 1
      (map (comp :some-other-metadata meta) (fetch-facts :all)) => [true])
-   
-   
+
+
    ;; You can add a name to a fact.
    (forget-facts :all)
    (fact                         (+ 1 1) => 2)
    (fact "today we choose faces" (+ 1 1) => 2)
-   
+
    (fact "there is now only a named fact"
      :check-only-at-load-time
      (count (fetch-facts :all)) => 1
      (map fact-name (fetch-facts :all)) => ["today we choose faces"])
-   
-   
+
+
    ;; An unnamed fact does not replace a named one with an identical body.
    ;; It becomes a new fact.
    (forget-facts :all)
    (fact "named" (+ 1 1) => 2)
    (fact         (+ 1 1) => 2)
-   
+
    (fact "There are two facts"
      :check-only-at-load-time
      (count (fetch-facts :all)) => 2
      (map fact-name (fetch-facts :all)) => ["named" nil])
 
-   
+
         ;;; For recheck-fact
 
    (def outer-run-count (atom 0))
@@ -461,7 +461,7 @@
       (fact inner
         (swap! inner-run-count inc)
         (fact (- 1 1) => 0)))
-    
+
     (fact "The last fact check is the outermost nested check"
       :check-only-at-load-time
       (without-changing-cumulative-totals (rcf))
@@ -470,7 +470,7 @@
       @inner-run-count => 2)
 
     ;; Multiple nested facts
-    
+
     (def run-count (atom 0))
     (fact "outermost"
       (fact "inner 1"
@@ -492,13 +492,13 @@
       ?a ?b ?c
       1  2  3
       2  2  4)
-    
+
     (fact :check-only-at-load-time
       (without-changing-cumulative-totals (recheck-fact))
       @run-count => 4)
 
     ;; Facts mark themselves as last-fact-checked each time they're
-    ;; rechecked.  
+    ;; rechecked.
     (fact (+ 1 1) => 2)
     (def one-plus-one (last-fact-checked))
     (fact (+ 2 2) => 4)
@@ -517,9 +517,11 @@
   (set (keys (autotest-options))) => (contains #{:interval :files}))
 
 (fact "options can be set"
-  (:interval (autotest-options)) =not=> 832
-  (set-autotest-option! :interval 832)
-  (:interval (autotest-options)) => 832)
+  (let [old-interval (:interval (autotest-options))]
+    (:interval (autotest-options)) =not=> 832
+    (set-autotest-option! :interval 832)
+    (:interval (autotest-options)) => 832
+    (set-autotest-option! :interval old-interval)))
 
 (fact "autotest"
   (against-background (autotest-options) => ..options..
@@ -578,18 +580,18 @@
   (fact "skips adding nonexistent files or dirs"
     (captured-output (autotest :files "blah/src" "blah/test")) => anything
     (captured-output (autotest :files "blah/src.clj" "blah/test.clj")) => anything
-    
+
     (captured-output (autotest :dirs "blah/src" "blah/test")) => anything
     (captured-output (autotest :dirs "blah/src.clj" "blah/test.clj")) => anything
 
     (provided
       (set-autotest-option! :files anything) => irrelevant :times 0))
 )
-  
 
 
 
-               
+
+
 ;;;; ==== PART 6: Utilities
 
 (fact "decomposing arglists"
@@ -665,7 +667,7 @@
           (after [command-type first-args second-args]
             (set-previous-args first-args command-type)
             (deduce-user-intention second-args command-type))]
-            
+
     (fact "as before, all left out means all are replaced"
       (after :memory-command '[ns :filter :print-facts] [])
       => (contains {:given-namespace-args '[ns]
@@ -716,7 +718,7 @@
     (deduce-user-intention [] :memory-command)
     => (contains {:given-level-args []})
 
-    
+
     (and-update-defaults!
       (deduce-user-intention '[midje.t-repl :metadata] :disk-command)
       :disk-command)
@@ -741,9 +743,9 @@
          all-pass => true
          all-fail => false
          no-results => nil)))))
-     
 
-              
+
+
 
 
 )      ; confirming-cumulative-totals-not-stepped-on

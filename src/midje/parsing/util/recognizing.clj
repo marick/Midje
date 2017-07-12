@@ -23,7 +23,7 @@
 
 
 (defn expect-match-or-mismatch [arrow]
-  (condp = (name arrow) 
+  (condp = (name arrow)
     => :expect-match
     =expands-to=> :expect-match
     =not=> :expect-mismatch
@@ -44,7 +44,15 @@
                 (symbol? (second form))
                 (expect-arrows (name (second form))))))
 
-(defn start-of-prerequisite-arrow-sequence? [form]
+(defmulti start-of-prerequisite-arrow-sequence? tree-variant)
+
+(defmethod start-of-prerequisite-arrow-sequence? :zipper [loc]
+  (boolean (and (zip/right loc)
+                (let [node (zip/node (zip/right loc))]
+                  (and (symbol? node)
+                       (fake-arrows (name node)))))))
+
+(defmethod start-of-prerequisite-arrow-sequence? :form [form]
   (boolean (and (sequential? form)
                 (symbol? (second form))
                 (fake-arrows (name (second form))))))
@@ -70,7 +78,7 @@
 (defn provided? [loc]
   (boolean (and (symbol? (zip/node loc))
                 (= "provided" (name (zip/node loc))))))
-  
+
 (defn metaconstant-prerequisite? [[lhs arrow rhs & overrides :as fake-body]]
   (symbol-named? arrow =contains=>))
 

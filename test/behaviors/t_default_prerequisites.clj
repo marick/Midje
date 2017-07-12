@@ -7,5 +7,5 @@
 (unfinished unused)
 
 (against-background [(unused 3) => 4]
-  (fact 
+  (fact
     (calls-nothing) => nil))
