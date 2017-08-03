@@ -1,6 +1,9 @@
 # Change Log
-This project adheres to [Semantic Versioning](http://semver.org/).       
+This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
+
+## [1.9.0-alpha9] - 2017-08-03
+- Fail when `=contains=>` targets a non-map value, which has unclear semantics
 
 ## [1.9.0-alpha8] - 2017-07-04
 Fixed issues:
@@ -43,7 +46,7 @@ Fixed issues:
 - NOTE NOTE NOTE: Previous should be documented before 1.9.0 is released.
 - This is the last version compatible with Specter 0.9.X
 
-## [1.8.3] 
+## [1.8.3]
 - Bump to newer versions of dependencies
 
 ## [1.8.2]
