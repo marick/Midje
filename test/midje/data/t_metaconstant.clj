@@ -189,3 +189,16 @@
     ..doc.. =contains=> {:header (rand)}
     (gen-doc) => ..doc..))
 
+(silent-fact
+  (first (gen-doc)) => "list"
+  (provided
+    (gen-doc) => ..doc..
+    ..doc.. =contains=> ["list" "contains" "not" "supported"]))
+(note-that fact-fails, (fact-failed-with-note #".*is not a map"))
+
+(silent-fact
+  (first (gen-doc)) => \s
+  (provided
+    (gen-doc) => ..doc..
+    ..doc.. =contains=> "should fail"))
+(note-that fact-fails, (fact-failed-with-note #".*is not a map"))
