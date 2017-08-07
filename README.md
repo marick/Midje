@@ -1,4 +1,5 @@
 Available via [clojars](https://clojars.org/midje)
+
 Stable version: 
 
 ```clojure
