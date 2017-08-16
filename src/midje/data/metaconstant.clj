@@ -28,6 +28,11 @@
   (if-let [[variant body] (evaluate-comparison-potential x)]
     (str variant body variant)))
 
+(defn- report-error [top-line]
+  (exceptions/user-error
+   top-line
+   "If you have a compelling case for equality, please create an issue:"
+   ecosystem/issues-url))
 
 ;;; Metaconstant proper
 
@@ -98,6 +103,11 @@
   clojure.lang.IObj
   (meta [this] meta-data)
   (withMeta [this m] (Metaconstant. underlying-symbol storage m)))
+
+(defn metaconstant [underlying-symbol ^clojure.lang.Associative storage meta-data]
+  (when (not (map? storage))
+    (throw (report-error (str "Metaconstants (" underlying-symbol ") can't represent non-map values " (pr-str storage) "."))))
+  (Metaconstant. underlying-symbol storage meta-data))
 
 (defn merge-metaconstants [^Metaconstant mc1 ^Metaconstant mc2]
   (Metaconstant. (.underlying-symbol mc1)

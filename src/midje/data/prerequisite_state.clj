@@ -4,7 +4,7 @@
             [commons.clojure.core :refer :all :exclude [any?]]
             [midje.checking.core :refer :all]
             [midje.config :as config]
-            [midje.data.metaconstant :as metaconstant]
+            [midje.data.metaconstant :as mc]
             [midje.emission.api :as emit]
             [midje.emission.deprecation :refer [deprecate]]
             [midje.parsing.arrow-symbols :refer :all]
@@ -116,8 +116,8 @@
 
 (defn- data-fakes-binding-map [data-fakes]
   (let [metaconstant-vars (for [{:keys [var contained]} data-fakes]
-                            {var (Metaconstant. (pile/object-name var) contained nil)})]
-    (apply merge-with metaconstant/merge-metaconstants metaconstant-vars)))
+                            {var (mc/metaconstant (pile/object-name var) contained nil)})]
+    (apply merge-with mc/merge-metaconstants metaconstant-vars)))
 
 (defn binding-map [fakes]
   (let [[data-fakes fn-fakes] (seq/bifurcate :data-fake fakes)]

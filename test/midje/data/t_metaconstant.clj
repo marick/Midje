@@ -189,6 +189,25 @@
     ..doc.. =contains=> {:header (rand)}
     (gen-doc) => ..doc..))
 
+(let [some-map {:header 50}]
+  (fact "=contains=> pointing to a map var works"
+    (:header (gen-doc)) => 50
+    (provided
+      ..doc.. =contains=> some-map
+      (gen-doc) => ..doc..)))
+
+(def contains-exception (atom nil))
+(try
+  (let [some-list (list 1 2 3)]
+    (fact "=contains=> pointing to a non-map var fails at runtime"
+      (first (gen-doc)) => irrelevant
+      (provided
+        ..doc.. =contains=> some-list
+        (gen-doc) => ..doc..)))
+  (catch Error e (reset! contains-exception e)))
+(fact "assert that the contains check above failed"
+  @contains-exception =not=> nil)
+
 (silent-fact
   (first (gen-doc)) => "list"
   (provided
