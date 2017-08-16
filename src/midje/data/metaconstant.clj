@@ -68,10 +68,7 @@
            (find storage key))
   (assoc [this key val]
     ;; (Metaconstant. (.underlying-symbol this) (assoc storage key val)))
-    (throw (exceptions/user-error
-            (str "Metaconstants (" (.underlying-symbol this) ") can't have values assoc'd onto them.")
-            "If you have a compelling need for that, please create an issue:"
-            ecosystem/issues-url)))
+    (throw (report-error (str "Metaconstants (" (.underlying-symbol this) ") can't have values assoc'd onto them."))))
 
   ;; Next two interfaces are extended by Associative.
   clojure.lang.Seqable
@@ -83,10 +80,7 @@
   clojure.lang.IPersistentCollection
   (cons [this o]
         ;; (Metaconstant. (.underlying-symbol this) (cons storage o)))
-        (throw (exceptions/user-error
-                (str "Metaconstants (" (.underlying-symbol this) ") can't have values added onto them.")
-                "If you have a compelling need for that, please create an issue:"
-                ecosystem/issues-url)))
+        (throw (report-error (str "Metaconstants (" (.underlying-symbol this) ") can't have values added onto them."))))
   (empty [this]
          (empty storage))
   (equiv [this that]
@@ -94,10 +88,9 @@
                  (= (type that) Metaconstant)
                  (= that unbound-marker))
            (.equals this that)
-           (throw (exceptions/user-error
-                   (str "Metaconstants (" (.underlying-symbol this) ") can't be compared for equality with " (pr-str that) ".")
-                   "If you have a compelling case for equality, please create an issue:"
-                   ecosystem/issues-url))))
+           (throw
+             (report-error (str "Metaconstants (" (.underlying-symbol this) ") can't be compared for equality with "
+                                (pr-str that) ".")))))
 
   ;; Interface that provide meta support.
   clojure.lang.IObj
