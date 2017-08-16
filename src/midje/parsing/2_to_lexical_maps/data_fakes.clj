@@ -11,7 +11,11 @@
   (cond (not (metaconstant/metaconstant-symbol? metaconstant))
         (error/report-error form
                             (cl-format nil "In `~A ~A ~A`, ~A is not a metaconstant."
-                                       metaconstant arrow contained metaconstant)))
+                                       metaconstant arrow contained metaconstant))
+        (not (map? contained))
+        (error/report-error form
+                            (cl-format nil "In `~A ~A ~A`, ~A is not a map."
+                                       metaconstant arrow contained contained)))
   [metaconstant arrow contained overrides])
 
 (def assert-valid! valid-pieces)
