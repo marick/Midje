@@ -13,8 +13,7 @@
             [midje.util.pile :as pile]
             [midje.util.thread-safe-var-nesting :refer [with-altered-roots]]
             [such.maps :as map]
-            [such.sequences :as seq])
-  (:import midje.data.metaconstant.Metaconstant))
+            [such.sequences :as seq]))
 
 
 ;;; Questions to ask of fakes // accessors
