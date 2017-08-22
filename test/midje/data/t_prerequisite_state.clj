@@ -9,8 +9,7 @@
             [midje.parsing.2-to-lexical-maps.data-fakes :refer [data-fake]]
             [midje.util :refer :all]
             [midje.config :as config]
-            [such.sequences :as seq])
-  (:import midje.data.metaconstant.Metaconstant))
+            [such.sequences :as seq]))
 
 (expose-testables midje.data.prerequisite-state)
 
