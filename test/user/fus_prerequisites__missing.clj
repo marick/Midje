@@ -19,5 +19,5 @@
    @fact-output => #"an unrealized lazy sequence"
    @fact-output => #"pre-process.*never called"
    @fact-output => #"process.*never called"
-   @fact-output => #"Expected: \.\.processed\.\."
+   @fact-output => #"Expected:\n\.\.processed\.\."
    @fact-output => #"`process` returned this string"))

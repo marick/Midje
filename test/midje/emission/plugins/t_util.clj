@@ -1,6 +1,7 @@
 (ns midje.emission.plugins.t-util
   (:require [midje.config :as config]
             [midje.sweet :refer :all]
+            [midje.test-util :as test-util]
             [midje.emission.plugins.util :refer :all]))
 
 (fact "line structures can be linearized"
@@ -9,14 +10,20 @@
 (defrecord R [x m a])
 
 (fact "Different forms can be attractively printed"
-  (attractively-stringified-value even?) => "core/even?"
-  (attractively-stringified-value midje.emission.plugins.util/emit-lines) => "util/emit-lines"
+  (test-util/strip-ansi-coloring
+    (attractively-stringified-value even?)) => "\"core/even?\""
+  (test-util/strip-ansi-coloring
+    (attractively-stringified-value midje.emission.plugins.util/emit-lines)) => "\"util/emit-lines\""
   (attractively-stringified-value (fn [n] 1)) => #"fn--"
   ;; Note ordering
-  (attractively-stringified-value {:b 2 :a 1}) => "{:a 1, :b 2}"
-  (attractively-stringified-value #{9 6 2 7 1 3}) => "#{1 2 3 6 7 9}"
-  (attractively-stringified-value #{[1] [:a]}) => (some-checker "#{[1] [:a]}" "#{[:a] [1]}")
-  (attractively-stringified-value {[1] "1" [:a] "a"}) => (some-checker "{[1] \"1\", [:a] \"a\"}" "{[:a] \"a\", [1] \"1\"}")
+  (test-util/strip-ansi-coloring
+    (attractively-stringified-value {:b 2 :a 1})) => "{:a 1 :b 2}"
+  (test-util/strip-ansi-coloring
+    (attractively-stringified-value #{9 6 2 7 1 3})) => "#{1 2 3 6 7 9}"
+  (test-util/strip-ansi-coloring
+    (attractively-stringified-value #{[1] [:a]})) => (some-checker "#{[1] [:a]}" "#{[:a] [1]}")
+  (test-util/strip-ansi-coloring
+    (attractively-stringified-value {[1] "1" [:a] "a"})) => (some-checker "{[1] \"1\" [:a] \"a\"}" "{[:a] \"a\" [1] \"1\"}")
   (attractively-stringified-value (R. 1 2 3)) => #"\{:a 3, :m 2, :x 1\}::\S+\.R")
 
 

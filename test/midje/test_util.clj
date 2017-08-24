@@ -8,7 +8,8 @@
             [midje.emission.api :as emit]
             [midje.parsing.expanded-symbols :as expanded-symbols]
             [midje.parsing.util.error-handling :as error]
-            [midje.emission.state :as state]))
+            [midje.emission.state :as state])
+  (:import [java.util.regex Pattern]))
 
 ;;; The "silent" versions of fact and formula, which produce no user-visible results
 ;;; but do stash failures for later examination.
@@ -276,6 +277,12 @@
              (captured-output (state/with-isolated-output-counters ~fact1)))
      ~fact2))
 
+(def ^:private ansi-regex (Pattern/compile "\\e\\[.*?m"))
+
+(defn strip-ansi-coloring
+  "Strip special ansi coloring codes from text"
+  [string]
+  (str/replace string ansi-regex ""))
 
 
 ;;; OLD STUFF. Keep checking which of these are worth salvaging.

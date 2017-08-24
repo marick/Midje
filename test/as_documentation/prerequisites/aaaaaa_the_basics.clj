@@ -113,8 +113,8 @@
    @fact-output => #"\(lower-function 3\) \[expected at least once, actually never called\]"
    @fact-output => #"\(lower-function 4\) \[expected at least once, actually never called\]"
    ;; You also get a message about the failure:
-   @fact-output => #"Expected: 5555"
-   @fact-output => #"Actual: 55"))
+   (strip-ansi-coloring @fact-output) => #"Expected:\n5555"
+   (strip-ansi-coloring @fact-output) => #"Actual:\n55"))
 
 
                                 ;;; Call counts

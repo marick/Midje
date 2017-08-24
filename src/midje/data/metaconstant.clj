@@ -110,3 +110,5 @@
 (defmethod print-method Metaconstant [^Metaconstant o ^java.io.Writer w]
   (print-method (.underlying-symbol o) w))
 
+(defmethod clojure.pprint/simple-dispatch Metaconstant [^Metaconstant m]
+  (print m))
