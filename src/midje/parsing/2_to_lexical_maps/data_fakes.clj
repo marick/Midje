@@ -7,11 +7,21 @@
             [midje.parsing.util.core :refer :all]
             [midje.parsing.util.error-handling :as error]))
 
+(defn- not-map-or-symbol?
+  "Check if a value isn't a map or symbol; symbols are allowed because they may
+  resolve to maps at runtime"
+  [x]
+  (not (or (map? x) (symbol? x))))
+
 (defn valid-pieces [[_data-fake_ metaconstant arrow contained & overrides :as form]]
   (cond (not (metaconstant/metaconstant-symbol? metaconstant))
         (error/report-error form
                             (cl-format nil "In `~A ~A ~A`, ~A is not a metaconstant."
-                                       metaconstant arrow contained metaconstant)))
+                                       metaconstant arrow contained metaconstant))
+        (not-map-or-symbol? contained)
+        (error/report-error form
+                            (cl-format nil "In `~A ~A ~A`, ~A is not a map."
+                                       metaconstant arrow contained contained)))
   [metaconstant arrow contained overrides])
 
 (def assert-valid! valid-pieces)

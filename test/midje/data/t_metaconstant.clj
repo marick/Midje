@@ -3,8 +3,7 @@
             [midje
              [sweet :refer :all]
              [test-util :refer :all]]
-            [clojure.zip :as zip])
-  (:import midje.data.metaconstant.Metaconstant))
+            [clojure.zip :as zip]))
 
 ;;; Metaconstant symbols
 
@@ -44,67 +43,67 @@
 
 
 
-;;; Metaconstants
+;;; metaconstant
 
-(let [mc (Metaconstant. '..name.. {} nil)]
-  (fact "Metaconstants print as their name"
+(let [mc (metaconstant '..name.. {} nil)]
+  (fact "metaconstant print as their name"
     (str mc) => "..name.."
     (pr-str mc) => "..name.."))
 
-(fact "Metaconstants implement Named"
-  (name (Metaconstant. '..name. {} nil)) => "..name.")
+(fact "metaconstant implement Named"
+  (name (metaconstant '..name. {} nil)) => "..name.")
 
-(fact "Metaconstants are equal if their names are *comparable*."
+(fact "metaconstant are equal if their names are *comparable*."
   (fact "equal names are comparable"
-    (Metaconstant.    '...name... {} nil) => (Metaconstant. '...name... {} nil)
-    (Metaconstant.    '...name... {} nil) =not=> (Metaconstant. '...other... {} nil))
+    (metaconstant    '...name... {} nil) => (metaconstant '...name... {} nil)
+    (metaconstant    '...name... {} nil) =not=> (metaconstant '...other... {} nil))
 
   (fact "but so are names that have a different number of dots or dashes"
-    (Metaconstant.    '...name... {} nil) => (Metaconstant. '.name. {} nil)
-    (Metaconstant.    '---name- {} nil) => (Metaconstant. '-name--- {} nil))
+    (metaconstant    '...name... {} nil) => (metaconstant '.name. {} nil)
+    (metaconstant    '---name- {} nil) => (metaconstant '-name--- {} nil))
 
   (fact "However, dot-names are not equal to dash-names"
-    (Metaconstant.    '...name... {} nil) =not=> (Metaconstant. '---name--- {} nil))
+    (metaconstant    '...name... {} nil) =not=> (metaconstant '---name--- {} nil))
 
   (fact "values are irrelevant"
-    (Metaconstant.    '...name... {:key "value"} nil) => (Metaconstant. '...name... {:key "not-value"} nil)
-    (Metaconstant.  '...NAME... {:key "value"} nil) =not=> (Metaconstant. '...name... {:key "value"} nil))
+    (metaconstant    '...name... {:key "value"} nil) => (metaconstant '...name... {:key "not-value"} nil)
+    (metaconstant  '...NAME... {:key "value"} nil) =not=> (metaconstant '...name... {:key "value"} nil))
 
-  (fact "Metaconstants are equal to symbols with a comparable name"
-    (= (Metaconstant. '...name... {} nil) '.name.) => truthy
-    (= (Metaconstant. '...name... {} nil) '...not-name...) => falsey
+  (fact "metaconstant are equal to symbols with a comparable name"
+    (= (metaconstant '...name... {} nil) '.name.) => truthy
+    (= (metaconstant '...name... {} nil) '...not-name...) => falsey
 
     (fact "which means they can be compared to quoted lists"
-      (list 'a (Metaconstant. '...name... {} nil)) => '(a ...name.)
+      (list 'a (metaconstant '...name... {} nil)) => '(a ...name.)
       ;; The following works because Clojure shifts Associates to left-hand-side
-      '(a ...name...) => (list 'a (Metaconstant. '...name... {} nil)))))
+      '(a ...name...) => (list 'a (metaconstant '...name... {} nil)))))
 
-(fact "Metaconstants implement ILookup"
-  (let [mc (Metaconstant. 'm {:key "value"} nil)]
+(fact "metaconstant implement ILookup"
+  (let [mc (metaconstant 'm {:key "value"} nil)]
     (:key mc) => "value"
     (:not-key mc "default") => "default"
     "And let's allow the other type of map lookup"
     (mc :key) => "value"
     (mc :not-key "default") => "default"))
 
-(fact "Metaconstants implement Associative lookup"
-  (let [mc (Metaconstant. 'm {:key "value"} nil)]
+(fact "metaconstant implement Associative lookup"
+  (let [mc (metaconstant 'm {:key "value"} nil)]
     (contains? mc :key) => truthy
     (contains? mc :not-key) => falsey
 
     (find mc :key) => [:key "value"]))
 
 (fact "Associate extends some of Seqable and IPersistentCollection"
-  (let [mc (Metaconstant. 'm {:key "value"} nil)]
+  (let [mc (metaconstant 'm {:key "value"} nil)]
     (count mc) => 1
     (empty? mc) => falsey
     (.equiv mc mc) => truthy))
 
-(facts "Metaconstants implement IObj"
-  (let [mc (Metaconstant. 'm {} nil)]
+(facts "metaconstant implement IObj"
+  (let [mc (metaconstant 'm {} nil)]
     (meta mc) => nil
     (.meta (with-meta mc {:key "value"})) => {:key "value"})
-  (let [mc (Metaconstant. 'm {} {:key "value"})]
+  (let [mc (metaconstant 'm {} {:key "value"})]
     (meta mc) => {:key "value"}
     (.meta (with-meta mc {:key "other"})) => {:key "other"}))
 
@@ -189,3 +188,34 @@
     ..doc.. =contains=> {:header (rand)}
     (gen-doc) => ..doc..))
 
+(let [some-map {:header 50}]
+  (fact "=contains=> pointing to a map var works"
+    (:header (gen-doc)) => 50
+    (provided
+      ..doc.. =contains=> some-map
+      (gen-doc) => ..doc..)))
+
+(defn exec-runtime-failing-fact []
+  (let [some-list (list 1 2 3)]
+    (fact "=contains=> pointing to a non-map var fails at runtime"
+      (first (gen-doc)) => irrelevant
+      (provided
+        ..doc.. =contains=> some-list
+        (gen-doc) => ..doc..))))
+
+(fact "assert that the contains check above failed"
+  (exec-runtime-failing-fact) => (throws Error))
+
+(silent-fact
+  (first (gen-doc)) => "list"
+  (provided
+    (gen-doc) => ..doc..
+    ..doc.. =contains=> ["list" "contains" "not" "supported"]))
+(note-that fact-fails, (fact-failed-with-note #".*is not a map"))
+
+(silent-fact
+  (first (gen-doc)) => \s
+  (provided
+    (gen-doc) => ..doc..
+    ..doc.. =contains=> "should fail"))
+(note-that fact-fails, (fact-failed-with-note #".*is not a map"))

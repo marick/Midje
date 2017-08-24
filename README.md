@@ -1,6 +1,17 @@
-Available via [clojars](https://clojars.org/midje)   
-Stable version: [midje "1.8.3"]      
-Experimental version: [midje "1.9.0-alpha6"]      
+Available via [clojars](https://clojars.org/midje)
+
+Stable version: 
+
+```clojure
+[midje "1.8.3"]
+```
+
+Experimental version: 
+
+```clojure
+[midje "1.9.0-alpha9"]
+```
+
 License: [MIT](http://en.wikipedia.org/wiki/MIT_License)
 
 [![Build Status](https://travis-ci.org/marick/Midje.png?branch=master)](https://travis-ci.org/marick/Midje)
@@ -10,7 +21,7 @@ About Midje
 
 Midje is a test framework for Clojure. I created it to allow
 programmers to [test with
-ease](http://exampler.com/ease-and-joy.html), 
+ease](http://exampler.com/ease-and-joy.html),
 to provide a [smooth migration path from
 clojure.test](https://github.com/marick/Midje/wiki/A-tutorial-introduction-for-Clojure.test-users),
 to support [top-down](https://github.com/marick/Midje/wiki/The-idea-behind-top-down-development) as well as bottom-up testing,
@@ -38,7 +49,7 @@ way that's just as readable but also machine-checkable:
 
 While Midje assumes you'll be building a test suite with
 lasting value, it allows you to do that while still using
-the repl in an idiomatic way. 
+the repl in an idiomatic way.
 
 Here's the start of a typical Midje repl session:
 
@@ -70,9 +81,9 @@ that save you the trouble of writing common code:
 Learning Midje
 =======================
 
-[Tutorial](https://github.com/marick/Midje/wiki/A-tutorial-introduction)      
-[Tutorial (and sales pitch) for clojure.test user](https://github.com/marick/Midje/wiki/A-tutorial-introduction-for-Clojure.test-users)    
-[User guide](https://github.com/marick/Midje/wiki)    
+[Tutorial](https://github.com/marick/Midje/wiki/A-tutorial-introduction)
+[Tutorial (and sales pitch) for clojure.test user](https://github.com/marick/Midje/wiki/A-tutorial-introduction-for-Clojure.test-users)
+[User guide](https://github.com/marick/Midje/wiki)
 [Mailing list](http://groups.google.com/group/midje)
 
 Other Tools
