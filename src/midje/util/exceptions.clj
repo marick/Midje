@@ -1,6 +1,8 @@
 (ns ^{:doc "Functions for Midje to deal elegantly with exceptions."}
   midje.util.exceptions
   (:require [clojure.string :refer [join]]
+            [io.aviso.exception :as aviso.exception]
+            [io.aviso.ansi :as aviso.ansi]
             [midje.util.ecosystem :refer [line-separator]]))
 
 
@@ -30,8 +32,8 @@
 
 (defn- main-exception-lines [ex prefix]
   (cons (str ex)
-      (map #(str prefix %)
-        (without-midje-or-clojure-strings (stacktrace-as-strings ex)))))
+        (map #(str prefix %)
+             (without-midje-or-clojure-strings (stacktrace-as-strings ex)))))
 
 (defn- ^{:testable true} friendly-exception-lines [ex prefix]
   (concat (main-exception-lines ex prefix)
@@ -68,3 +70,11 @@
 
 (defn captured-message [ex]
   (.getMessage ^Throwable (throwable ex)))
+
+(defn format-exception [throwable]
+  (binding [aviso.exception/*traditional* true
+            aviso.exception/*fonts*       (merge aviso.exception/*fonts*
+                                                 {:message       aviso.ansi/white-font
+                                                  :clojure-frame aviso.ansi/white-font
+                                                  :function-name aviso.ansi/white-font})]
+    (aviso.exception/format-exception throwable)))

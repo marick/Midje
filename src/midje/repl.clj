@@ -4,6 +4,7 @@
   (:require [clojure.java.io :as io]
             [commons.clojure.core :refer :all :exclude [any?]]
             [midje.checking.facts :as fact-checking]
+            [midje.util.exceptions :as exceptions]
             [midje.config :as config]
             [midje.data.compendium :as compendium]
             [midje.data.fact :as fact-data]
@@ -387,7 +388,7 @@
 
 (defn- on-require-failure [the-ns throwable]
   (println (color/fail "LOAD FAILURE for " the-ns))
-  (println (.getMessage throwable))
+  (println (exceptions/format-exception throwable))
   (emit/fail-silently) ; to make sure last line shows a failure.
   (when (config/running-in-repl?)
     (when (re-find #"ould not locate.*classpath" (.getMessage throwable))
