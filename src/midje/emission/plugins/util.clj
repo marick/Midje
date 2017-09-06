@@ -1,5 +1,5 @@
 (ns ^{:doc "General purpose plugin utilities"}
-midje.emission.plugins.util
+  midje.emission.plugins.util
   (:require [clojure.repl :refer [demunge]]
             [clojure.string :as str]
             [commons.clojure.core :refer :all :exclude [any?]]
