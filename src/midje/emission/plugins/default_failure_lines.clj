@@ -47,8 +47,8 @@
   (let [expected (:expected-result m)
         actual (:actual m)]
     (list
-     (str "    Expected: " (attractively-stringified-value (:expected-result m)))
-     (str "      Actual: " (attractively-stringified-value (:actual m)))
+     (str "    Expected:\n" (attractively-stringified-value (:expected-result m)))
+     (str "      Actual:\n" (attractively-stringified-value (:actual m)))
      (diffs [actual expected])
      (notes m))))
 

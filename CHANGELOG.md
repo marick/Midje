@@ -2,6 +2,9 @@
 This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
 
+## [1.9.0-alpha10] - 2017-09-06
+- Colorize and pretty print output when an actual value doesn't match an expected value
+
 ## [1.9.0-alpha9] - 2017-08-03
 - Fail when `=contains=>` targets a non-map value, which has unclear semantics
 

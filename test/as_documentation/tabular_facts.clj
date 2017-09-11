@@ -32,13 +32,13 @@
    @fact-output => (contains "With table substitutions: [?a 1")
    @fact-output => (contains "                           ?b 2")
    @fact-output => (contains "                           ?result 3333]")
-   @fact-output => (contains "Expected: 3333")
-   @fact-output => (contains "  Actual: 3")
+   (strip-ansi-coloring @fact-output) => (contains "Expected:\n3333")
+   (strip-ansi-coloring @fact-output) => (contains "  Actual:\n3")
    @fact-output => (contains "With table substitutions: [?a 1")
    @fact-output => (contains "                           ?b 0")
    @fact-output => (contains "                           ?result 11]")
-   @fact-output => (contains "Expected: 11")
-   @fact-output => (contains "  Actual: 1")))
+   (strip-ansi-coloring @fact-output) => (contains "Expected:\n11")
+   (strip-ansi-coloring @fact-output) => (contains "  Actual:\n1")))
 
 
 ;;;                                     More about doc Strings and Metadata
@@ -82,8 +82,8 @@
  (fact
    @fact-output => (contains "With table substitutions: [?a 1")
    @fact-output => (contains "                           ?b 1]")
-   @fact-output => (contains "Expected: 1")
-   @fact-output => (contains "  Actual: 2")))
+   (strip-ansi-coloring @fact-output) => (contains "Expected:\n1")
+   (strip-ansi-coloring @fact-output) => (contains "  Actual:\n2")))
 
 ;; It's natural to think of substituting values and expressions,
 ;; but you can substitute anything, such as Midje arrows.
