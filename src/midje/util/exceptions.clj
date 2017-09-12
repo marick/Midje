@@ -29,7 +29,7 @@
 (declare caused-by-lines)
 
 (defn- main-exception-lines [ex prefix]
-  (cons (str ex)
+  (cons (str prefix ex)
       (map #(str prefix %)
         (without-midje-or-clojure-strings (stacktrace-as-strings ex)))))
 
@@ -58,7 +58,7 @@
   ICapturedThrowable
   (throwable [this] ex)
   (friendly-stacktrace [this]
-    (join line-separator (friendly-exception-lines (throwable this) "              "))))
+    (join line-separator (friendly-exception-lines (throwable this) "  "))))
 
 (defn captured-throwable [ex]
   (CapturedThrowable. ex))
