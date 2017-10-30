@@ -43,9 +43,12 @@
   (let [strings ["swank.core$eval"]]
     (without-midje-or-clojure-strings strings) => []))
 
+(defn- remove-nrepl-lines [lines]
+  (remove #(re-find #">>>refactor_nrepl" %) lines))
+
 (fact
   ;; since midje lines are omitted, there's not much we can check.
-  (let [lines (friendly-exception-lines (Error. "message") ">>>")]
+  (let [lines (remove-nrepl-lines (friendly-exception-lines (Error. "message") ">>>"))]
     (first lines) => #"Error.*message"
     (re-find #"^>>>" (first lines)) => falsey
     (count (keep #(re-find #">>>implementation.util.fim_exceptions" %) (rest lines))) => (count (rest lines))))
@@ -74,7 +77,7 @@
   (ex-info "Exception with a cause chain 2 deep" {:info "2 deep"} (call-nested-exception)))
 
 (fact "exceptions with nested 'cause' data more than 1 level deep, shows all 'cause' stacktraces"
-  (let [lines (friendly-exception-lines double-nested-exception ">>>")]
+  (let [lines (remove-nrepl-lines (friendly-exception-lines double-nested-exception ">>>"))]
     (clojure.string/join "&" lines) => #"(?x)^clojure.lang.ExceptionInfo:\ Exception\ with\ a\ cause\ chain\ 2\ deep\ \{:info\ \"2\ deep\"\}
                                              &
                                              &>>>Caused\ by:\ clojure.lang.ExceptionInfo:\ Found\ a\ NPE\ \{:info\ \"wrapped\ throw\ of\ an\ NPE\"\}
