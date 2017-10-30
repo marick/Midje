@@ -1,4 +1,4 @@
-(ns midje.Bootstrap
+(ns midje.bootstrap
   (:require [midje.config :as config]
             [midje.emission.api :as emission.api]
             [midje.emission.colorize :as emission.colorize]
