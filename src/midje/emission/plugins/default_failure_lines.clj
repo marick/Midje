@@ -33,7 +33,7 @@
                                                         (concat (map #(str "  " %) (rest s))))))))))))
 
           (prefix [[first & more]]
-            (cons (str "       Diffs: " first)
+            (cons (str "Diffs: " first)
                   (map #(str "              " %) more)))]
     (cond (or (every? sequential? pair)
               (every? map? pair)
