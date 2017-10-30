@@ -29,7 +29,7 @@
 (declare caused-by-lines)
 
 (defn- main-exception-lines [ex prefix]
-  (cons (str prefix ex)
+  (cons (str ex)
       (map #(str prefix %)
         (without-midje-or-clojure-strings (stacktrace-as-strings ex)))))
 
