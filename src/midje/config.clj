@@ -22,11 +22,10 @@
 (defn running-in-repl? []
   started-in-repl?)
 
-
-
 (defonce ^{:dynamic true}
   *config* {:print-level :print-normally
             :colorize (not (ecosystem/on-windows?))
+            :pretty-print true
             :visible-deprecation true
             :visible-future true
             :visible-failure-namespace false

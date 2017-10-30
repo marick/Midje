@@ -146,10 +146,17 @@
     (let [raw-str (cond (fn? v)     (function-name v)
                         (record? v) (str (sorted-if-appropriate v) "::" (record-name v))
                         :else       (sorted-if-appropriate v))]
-      (puget/cprint-str raw-str {:print-handlers {Metaconstant puget/pr-handler}
-                                 :print-fallback :pretty
-                                 :seq-limit      10
-                                 :map-delimiter  ""}))))
+      (cond
+        (config/choice :pretty-print)
+        (puget/cprint-str raw-str {:print-handlers {Metaconstant puget/pr-handler}
+                                   :print-fallback :pretty
+                                   :seq-limit      10
+                                   :map-delimiter  ""})
+        (string? raw-str)
+        raw-str
+
+        :else
+        (pr-str raw-str)))))
 
 (defn format-nested-descriptions
   "Takes vector like [\"about cars\" nil \"sports cars are fast\"] and returns non-nils joined with -'s
