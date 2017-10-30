@@ -1,10 +1,14 @@
-(ns midje.Bootstrap)
+(ns midje.Bootstrap
+  (:require [midje.config :as config]
+            [midje.emission.api :as emission.api]
+            [midje.emission.colorize :as emission.colorize]
+            [midje.emission.state :as emission.state]))
 
 (defonce bootstrapped false)
 
 (defn bootstrap []
   (when-not bootstrapped
-    (require 'midje.config)
+
     (let [saved-ns (ns-name *ns*)]
       (try
         (in-ns 'midje.config)
@@ -12,12 +16,8 @@
       (finally
         (in-ns saved-ns))))
 
-    (require 'midje.emission.api)
-    ( (ns-resolve 'midje.emission.api 'load-plugin)
-      ( (ns-resolve 'midje.config 'choice) :emitter))
+    (emission.api/load-plugin (config/choice :emitter))
+    (emission.colorize/init!)
+    (emission.state/no-more-plugin-installation)
 
-    ((ns-resolve 'midje.emission.colorize 'init!))
-
-    ((ns-resolve 'midje.emission.state 'no-more-plugin-installation))
     (alter-var-root #'bootstrapped (constantly true))))
-
