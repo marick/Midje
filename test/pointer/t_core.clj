@@ -8,13 +8,13 @@
 (defn this-file [line-number]
   ["t_core.clj" line-number])
 
-
 ;; Throughout this file, file positions are captured outside of
 ;; facts. That's because facts have their own mechanism for file
 ;; position, and I want it to be clear that this is just working with
 ;; the base (utility) function.
 
-
+(fact "loading a fact via `load-string` works"
+  (load-string "(fact 1 => 1)"))
 
 (defmacro fake [_ _ _]
   `{:position (line-number-known ~(:line (meta (second &form))))})
