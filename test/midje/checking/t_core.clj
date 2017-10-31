@@ -97,3 +97,18 @@
     (evaluate-checking-function (just 1) [2]) => [false extra])
   (let [error (Error.)]
     (evaluate-checking-function (fn [actual] (throw error)) anything) => [false {:thrown error}]))
+
+(def fail-call-count (atom 0))
+(def succeed-call-count (atom 0))
+
+(facts "Test checking function call counts"
+  (reset! fail-call-count 0)
+  (reset! succeed-call-count 0)
+  (silent-fact "Register call count of failing checking function"
+    nil => (fn [actual] (do (swap! fail-call-count inc) false)))
+  (note-that (fact-actual nil))
+  (fact "Register call count for successful checking function"
+    nil => (fn [actual] (do (swap! succeed-call-count inc) true)))
+  (fact "Checking functions are only called once, independent of success or failure"
+    @fail-call-count => 1
+    @succeed-call-count => 1))

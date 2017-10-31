@@ -263,6 +263,11 @@
                   commons/union
                   (set (map name symbols))))
 
+(defn remove-midje-fact-symbols [symbols]
+  (alter-var-root #'at-least-one-string-with-this-name-must-be-present
+                  commons/difference
+                  (set (map name symbols))))
+
 ;; It would be better to check symbols like `midje/fact` than the string "fact";
 ;; however, all the symbols are duplicated in midje.sweet and midje.repl (because they
 ;; can be loaded independently). It seems too convoluted to list everything twice, and the

@@ -4,7 +4,7 @@
             [commons.clojure.core :refer :all :exclude [any?]]
             [midje.checking.core :refer :all]
             [midje.config :as config]
-            [midje.data.metaconstant :as metaconstant]
+            [midje.data.metaconstant :as mc]
             [midje.emission.api :as emit]
             [midje.emission.deprecation :refer [deprecate]]
             [midje.parsing.arrow-symbols :refer :all]
@@ -13,8 +13,7 @@
             [midje.util.pile :as pile]
             [midje.util.thread-safe-var-nesting :refer [with-altered-roots]]
             [such.maps :as map]
-            [such.sequences :as seq])
-  (:import midje.data.metaconstant.Metaconstant))
+            [such.sequences :as seq]))
 
 
 ;;; Questions to ask of fakes // accessors
@@ -62,7 +61,7 @@
 
 
 
-(defn- ^{:testable true } best-call-action
+(defn- ^{:testable true} best-call-action
   "Returns a fake: when one can handle the call
    Else returns a function: from the first fake with a usable-default-function.
    Returns nil otherwise."
@@ -76,7 +75,7 @@
                                                     fakes)]
       (default-function fake-with-usable-default))))
 
-(defn- ^{:testable true } handle-mocked-call [function-var actual-args fakes]
+(defn- ^{:testable true} handle-mocked-call [function-var actual-args fakes]
   (macro/macrolet [(counting-nested-calls [& forms]
                `(try
                   (record-start-of-prerequisite-call)
@@ -115,8 +114,9 @@
             (map var->faker-fn fn-fake-vars))))
 
 (defn- data-fakes-binding-map [data-fakes]
-  (apply merge-with metaconstant/merge-metaconstants (for [{:keys [var contained]} data-fakes]
-                                                       {var (Metaconstant. (pile/object-name var) contained nil)})))
+  (let [metaconstant-vars (for [{:keys [var contained]} data-fakes]
+                            {var (mc/metaconstant (pile/object-name var) contained nil)})]
+    (apply merge-with mc/merge-metaconstants metaconstant-vars)))
 
 (defn binding-map [fakes]
   (let [[data-fakes fn-fakes] (seq/bifurcate :data-fake fakes)]

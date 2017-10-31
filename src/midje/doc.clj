@@ -69,7 +69,7 @@
   (recheck-fact :print-nothing) ; Check silently (but produce true/false).
   (rcf)                         ; Synonym for above.
 
-  Note: facts with `:check-only-at-load-time`metadata do not get
+  Note: facts with `:check-only-at-load-time` metadata do not get
   stored for rechecking.
 
   ----- Forgetting facts

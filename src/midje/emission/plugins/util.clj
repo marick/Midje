@@ -3,15 +3,16 @@
   (:require [clojure.repl :refer [demunge]]
             [clojure.string :as str]
             [commons.clojure.core :refer :all :exclude [any?]]
+            [puget.printer :as puget]
             [midje.util.pile :as pile]
             [midje.emission.clojure-test-facade :as ctf]
             [midje.emission.colorize :as color]
             [midje.util.exceptions :as exception]
             [midje.config :as config]
             [midje.util.ordered-map :as om]
-            [midje.util.ordered-set :as os]))
-
-
+            [midje.data.metaconstant :as mc]
+            [midje.util.ordered-set :as os])
+  (:import [midje.data.metaconstant Metaconstant]))
 
 ;; The theory here was that using clojure.test output would allow text
 ;; from failing *facts* to appear within the clojure.test segment of
@@ -139,12 +140,16 @@
         : a function named `foo`
         : a nicely printed stack trace
         : maps and sets sorted by key."
-  [value]
-  (branch-on value
-    fn?                           (function-name value)
-    exception/captured-throwable? (exception/friendly-stacktrace value)
-    record?                       (str (sorted-if-appropriate value) "::" (record-name value))
-    :else                         (pr-str (sorted-if-appropriate value))))
+  [v]
+  (let [raw-str (cond
+                  (fn? v)                           (function-name v)
+                  (exception/captured-throwable? v) (exception/friendly-stacktrace v)
+                  (record? v)                       (str (sorted-if-appropriate v) "::" (record-name v))
+                  :else                             (sorted-if-appropriate v))]
+    (puget/cprint-str raw-str {:print-handlers {Metaconstant puget/pr-handler}
+                               :print-fallback :pretty
+                               :seq-limit      10
+                               :map-delimiter  ""})))
 
 (defn format-nested-descriptions
   "Takes vector like [\"about cars\" nil \"sports cars are fast\"] and returns non-nils joined with -'s

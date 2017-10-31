@@ -35,7 +35,7 @@
   (let [c 'c]
     (concer ...source...) => "abc"
     (provided
-      ...source... =contains=> '{:a a, :b b}
+      ...source... =contains=> {:a 'a, :b 'b}
       ...source... =contains=> {:c c})))
 
 

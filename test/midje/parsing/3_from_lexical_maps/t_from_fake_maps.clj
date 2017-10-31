@@ -5,8 +5,7 @@
             [midje.parsing.3-from-lexical-maps.from-fake-maps :refer :all]
             [midje.test-util :refer :all]
             [midje.util :refer :all]
-            [midje.config :as config])
-  (:import midje.data.metaconstant.Metaconstant))
+            [midje.config :as config]))
 
 (expose-testables midje.data.prerequisite-state)
 

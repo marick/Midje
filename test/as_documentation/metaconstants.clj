@@ -145,6 +145,12 @@
     (provided
       --mc-- =contains=> {:c 50000})))
 
+(fact "Metaconstant implementations of Counted/IPersistentColleciton/Seq"
+  (prerequisites ..thing.. =contains=> {:name "basti" :counter 1})
+  (empty ..thing..) => {}
+  (count ..thing..) => 2
+  (seq ..thing..) => (list [:name "basti"] [:counter 1]))
+
 (unfinished gen-doc)
 (fact "Test merging of metaconstant that appear in data and function fakes"
   (:header (gen-doc)) => "gamma"

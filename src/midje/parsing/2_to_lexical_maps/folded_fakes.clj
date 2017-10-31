@@ -35,28 +35,30 @@
         mockable-function? (fn [fnref]
                              (not (or (some #{fnref} special-forms)
                                       (some #{fnref} checker-makers)
+                                      (keyword? fnref)
                                       (constructor? (fnref/as-symbol fnref))
                                       (checker? (fnref/resolved-to-actual-var-object fnref)))))]
     (and (list? x)
       (mockable-function? (first x)))))
 
-(letfn [(fake-form-funcall-arglist [[fake funcall => value & overrides :as _fake-form_]]
-          (rest funcall))]
+(defn- fake-form-funcall-arglist
+  [[fake funcall => value & overrides :as _fake-form_]]
+  (rest funcall))
 
-  (defn augment-substitutions [substitutions fake-form]
-    (let [needed-keys (filter mockable-funcall? (fake-form-funcall-arglist fake-form))]
-      ;; Note: because I like for a function's metaconstants to be
-      ;; easily mappable to the original fake, I don't make one
-      ;; unless I'm sure I need it.
-      (into substitutions (for [needed-key needed-keys
-                                :when (nil? (get substitutions needed-key))]
-                            [needed-key (metaconstant-for-form needed-key)]))))
+(defn augment-substitutions [substitutions fake-form]
+  (let [needed-keys (filter mockable-funcall? (fake-form-funcall-arglist fake-form))]
+    ;; Note: because I like for a function's metaconstants to be
+    ;; easily mappable to the original fake, I don't make one
+    ;; unless I'm sure I need it.
+    (into substitutions (for [needed-key needed-keys
+                              :when (nil? (get substitutions needed-key))]
+                          [needed-key (metaconstant-for-form needed-key)]))))
 
-  (defn folded-fake? [form]
-    (and (sequential? form)
-         (= `fake (first form))
-         (sequential? (second form))
-         (some mockable-funcall? (fake-form-funcall-arglist form)))))
+(defn folded-fake? [form]
+  (and (sequential? form)
+       (= `fake (first form))
+       (sequential? (second form))
+       (some mockable-funcall? (fake-form-funcall-arglist form))))
 
 (defn generate-fakes [substitutions overrides]
   (for [[funcall metaconstant] substitutions]

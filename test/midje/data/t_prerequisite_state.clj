@@ -9,8 +9,7 @@
             [midje.parsing.2-to-lexical-maps.data-fakes :refer [data-fake]]
             [midje.util :refer :all]
             [midje.config :as config]
-            [such.sequences :as seq])
-  (:import midje.data.metaconstant.Metaconstant))
+            [such.sequences :as seq]))
 
 (expose-testables midje.data.prerequisite-state)
 
@@ -220,6 +219,25 @@
         [_var_ metaconstant] (seq/only bindings)]
     (.underlying-symbol metaconstant) => 'name
     (.storage metaconstant) => {:a 1} ))
+
+(unfinished f)
+(fact "Able to mock exact keyword accessor function invocations"
+  (f (:fst {:fst 2})) => 2
+  (provided
+    (f (:fst {:fst 2})) => 2))
+
+(unfinished g)
+(defn call-g [] (g (:fst {:fst 2})))
+(fact "Able to mock exact keyword accessor invocations in nested function"
+  (call-g) => 2
+  (provided
+    (g (:fst {:fst 2})) => 2))
+
+(def my-inc inc)
+(fact "Able to mock exact nested function invocations"
+  (f (my-inc 1)) => 2
+  (provided
+    (f (my-inc 1)) => 2))
 
 
 ;;; DO NOT DELETE

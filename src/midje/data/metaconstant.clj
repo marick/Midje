@@ -28,6 +28,11 @@
   (if-let [[variant body] (evaluate-comparison-potential x)]
     (str variant body variant)))
 
+(defn- report-error [top-line]
+  (exceptions/user-error
+   top-line
+   "If you have a compelling case for equality, please create an issue:"
+   ecosystem/issues-url))
 
 ;;; Metaconstant proper
 
@@ -63,40 +68,39 @@
            (find storage key))
   (assoc [this key val]
     ;; (Metaconstant. (.underlying-symbol this) (assoc storage key val)))
-    (throw (exceptions/user-error
-            (str "Metaconstants (" (.underlying-symbol this) ") can't have values assoc'd onto them.")
-            "If you have a compelling need for that, please create an issue:"
-            ecosystem/issues-url)))
+    (throw (report-error (str "Metaconstants (" (.underlying-symbol this) ") can't have values assoc'd onto them."))))
 
   ;; Next two interfaces are extended by Associative.
   clojure.lang.Seqable
   (seq [this] (seq storage))  ; I'm unhappy to define this, but it's needed by count/empty.
 
+  clojure.lang.Counted
+  (count [this] (count storage))
+
   clojure.lang.IPersistentCollection
-  (count [this]
-         (count storage))
   (cons [this o]
         ;; (Metaconstant. (.underlying-symbol this) (cons storage o)))
-        (throw (exceptions/user-error
-                (str "Metaconstants (" (.underlying-symbol this) ") can't have values added onto them.")
-                "If you have a compelling need for that, please create an issue:"
-                ecosystem/issues-url)))
+        (throw (report-error (str "Metaconstants (" (.underlying-symbol this) ") can't have values added onto them."))))
   (empty [this]
-         (empty? storage))
+         (empty storage))
   (equiv [this that]
          (if (or (symbol? that)
                  (= (type that) Metaconstant)
                  (= that unbound-marker))
            (.equals this that)
-           (throw (exceptions/user-error
-                   (str "Metaconstants (" (.underlying-symbol this) ") can't be compared for equality with " (pr-str that) ".")
-                   "If you have a compelling case for equality, please create an issue:"
-                   ecosystem/issues-url))))
+           (throw
+             (report-error (str "Metaconstants (" (.underlying-symbol this) ") can't be compared for equality with "
+                                (pr-str that) ".")))))
 
   ;; Interface that provide meta support.
   clojure.lang.IObj
   (meta [this] meta-data)
   (withMeta [this m] (Metaconstant. underlying-symbol storage m)))
+
+(defn metaconstant [underlying-symbol ^clojure.lang.Associative storage meta-data]
+  (when (not (map? storage))
+    (throw (report-error (str "Metaconstants (" underlying-symbol ") can't represent non-map values " (pr-str storage) "."))))
+  (Metaconstant. underlying-symbol storage meta-data))
 
 (defn merge-metaconstants [^Metaconstant mc1 ^Metaconstant mc2]
   (Metaconstant. (.underlying-symbol mc1)
@@ -106,13 +110,5 @@
 (defmethod print-method Metaconstant [^Metaconstant o ^java.io.Writer w]
   (print-method (.underlying-symbol o) w))
 
-
-
-
-
-
-
-
-
-
-
+(defmethod clojure.pprint/simple-dispatch Metaconstant [^Metaconstant m]
+  (print m))
