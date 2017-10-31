@@ -11,7 +11,6 @@
          skip-to-rightmost-leaf)
 
 (def ^:private fallback-line-number (atom (Integer. 0)))
-(def ^:private fallback-file-name "UNKNOWN")
 
 ;; COMPILE-TIME POSITIONS.
 ;; For annotating forms with information retrieved at runtime.
