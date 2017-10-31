@@ -2,7 +2,7 @@
   (:require [clojure.zip :as zip]
             [midje.parsing.util.recognizing :refer [start-of-checking-arrow-sequence?]]
             [midje.sweet :refer :all]
-            [midje.test-util :refer [at-line]]
+            [midje.test-util :refer :all]
             [pointer.core :refer :all]))
 
 (defn this-file [line-number]
@@ -15,12 +15,14 @@
 
 (fact "loading a fact via `load-string` works"
   (load-string "(fact 1 => 1)"))
+(silent-fact (load-string "(fact 1 => 2)"))
+(note-that fact-fails)
 
 (defmacro fake [_ _ _]
   `{:position (line-number-known ~(:line (meta (second &form))))})
 
 
-(def line-marker-2 23)
+(def line-marker-2 25)
 (unfinished f)
 (let [fake-on-one-line (fake (a) => b)
       multiline-with-position-at-first-token (fake
@@ -37,7 +39,7 @@
 
 (defmacro result-of-second-form [& forms] (second forms))
 
-(def line-marker-3 40)
+(def line-marker-3 42)
 (let [fake (result-of-second-form
             "random garbage"
             (fake (f 1) => 33)
@@ -51,7 +53,7 @@
      (fake ~(nth forms 1) => ~(nth forms 3))))
 
 
-(def line-marker-4 54)
+(def line-marker-4 56)
 (let [fake (fake-constructor
                       "random garbage"
                       (f 1) => 33)]

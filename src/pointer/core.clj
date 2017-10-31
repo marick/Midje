@@ -30,10 +30,10 @@
   ;; This corrects that by looking up the stack. Note that it
   ;; produces a reasonable result for the repl, because the stack
   ;; frame it finds has NO_SOURCE_FILE as its "filename".
-  (if (or (nil? *file*)
-          (not (re-find #"NO_SOURCE" *file*)))
-    (this-filename)
-    (basename *file*)))
+  (if-not (or (nil? *file*)
+              (re-find #"NO_SOURCE" *file*))
+    (basename *file*)
+    (this-filename)))
 
 (defn form-position [form]
   (list (current-file-name)  (:line (meta form))))
