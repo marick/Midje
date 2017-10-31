@@ -8,8 +8,7 @@
 (config/with-augmented-config {:check-after-creation false}
   (fact "fact" 1 => "fact")
   (facts "facts" 1 => "facts")
-  (future-fact (throw (new Error ":check-after-creation fail")))
-)
+  (future-fact (throw (new Error ":check-after-creation fail"))))
 
 (silent-check-facts *ns* #"^fact$")
 (note-that fact-failed (fact-expected "fact"))
@@ -38,4 +37,3 @@
     (fact 1 => :never-executed)))
 
 (note-that (fact-failed-with-note #"It is meaningless to combine.*with-state-changes.*:check-after-creation"))
-

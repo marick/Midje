@@ -2,21 +2,14 @@
   midje.data.project-state
   (:require [clj-time.local :as time]
             [clojure.java.io :as io]
-            [clojure.set]
-            [clojure.tools.namespace.dependency :as nsdependency]
-            [clojure.tools.namespace.repl :as nsrepl]
-            [clojure.tools.namespace.dir :as nsdir]
-            [clojure.tools.namespace.track :as nstrack]
-            [clojure.tools.namespace.reload :as nsreload]
+            [clojure.tools.namespace.dir :as dir]
+            [clojure.tools.namespace.track :as track]
+            [clojure.tools.namespace.repl :as repl]
             [commons.clojure.core :refer :all :exclude [any?]]
-            [midje.config :as config]
             [midje.emission.api :as emit]
-            [midje.emission.boundaries :as emission-boundary]
             [midje.emission.colorize :as color]
             [midje.util.ecosystem :as ecosystem]
-            [midje.util.bultitude :as tude]
-            [such.maps :as map]
-            [such.sequences :as seq]))
+            [midje.util.bultitude :as tude]))
 
 ;;; Querying the project tree
 
@@ -58,72 +51,44 @@
 
 ;;; Responding to changed files
 
-;; tools.ns keys are annoyingly long. Shorthand.
-(def unload-key :clojure.tools.namespace.track/unload)
-(def load-key :clojure.tools.namespace.track/load)
-(def filemap-key :clojure.tools.namespace.file/filemap)
-(def deps-key :clojure.tools.namespace.track/deps)
-(def time-key :clojure.tools.namespace.dir/time)
-(def error-key :clojure.tools.namespace.reload/error)
-(def error-ns-key :clojure.tools.namespace.reload/error-ns)
+(defonce state-tracker-atom (atom (track/tracker)))
 
-;; Global state.
-
-(defonce state-tracker-atom (atom (nstrack/tracker)))
-
-(defn file-modification-time [file]
-  (.lastModified file))
-
-(defn latest-modification-time [state-tracker]
-  (let [ns-to-file (map/invert (filemap-key state-tracker))
-        relevant-files (map ns-to-file (load-key state-tracker))]
-    (apply max (time-key state-tracker)
-           (map file-modification-time relevant-files))))
-
-
-(defn require-namespaces! [tracker on-require-failure]
-  (let [reloaded-tracker (nsreload/track-reload tracker)]
-    (when-let [error (error-key reloaded-tracker)]
-      (on-require-failure (error-ns-key reloaded-tracker) error))))
-
-(defn react-to-tracker! [state-tracker options]
-  (let [namespaces       (load-key state-tracker)
-        namespace-loader (fn [] (require-namespaces! state-tracker
-                                                     (:on-require-failure options)))]
-
+(defn- react-to-tracker! [state-tracker options]
+  (let [namespaces       (:clojure.tools.namespace.track/load state-tracker)
+        namespace-loader (fn [] (let [refresh-result (repl/refresh)
+                                      on-failure     (:on-require-failure options)]
+                                  (when-not (= :ok refresh-result)
+                                    (on-failure refresh-result))))]
     (when (not (empty? namespaces))
       ((:namespace-stream-checker options) namespaces namespace-loader)
-      (println (color/note (format "[Completed at %s]"
-                                   (time/format-local-time (time/local-now) :hour-minute-second)))))))
+      (let [time-now (time/format-local-time (time/local-now) :hour-minute-second)]
+        (println (color/note (format "[Completed at %s]" time-now)))))))
 
-(defn prepare-for-next-scan [state-tracker]
-  (let [unloaded (clojure.set/difference (set (unload-key state-tracker))
-                                         (set (load-key state-tracker)))
-        remove-unloaded (fn [dependents] (apply disj dependents unloaded))]
-    (-> state-tracker
-        (assoc time-key (latest-modification-time state-tracker)
-               unload-key []
-               load-key [])
-        (update-in [deps-key :dependents]
-                   map/update-each-value remove-unloaded))))
+(let [prev-failed (atom nil)]
+  (defn- scan-for-changes [scanner tracker watch-dirs]
+    (try (let [new-tracker (apply scanner tracker watch-dirs)]
+           (reset! prev-failed false)
+           new-tracker)
+         (catch Exception e
+           (when-not @prev-failed
+             (println e))
+           (reset! prev-failed true)
+           ;; return the same tracker so we dont try to run tests
+           tracker))))
 
-(defn with-fresh-copy-of-dependency-map
-  "Records must be recreated if the protocols that they implement are reloaded."
-  [state]
-  (if (get state deps-key)
-    (update-in state [deps-key] nsdependency/map->MapDependencyGraph)
-    state))
-
-(defn mkfn:scan-and-react [options scanner]
+(defn- mkfn:scan-and-react [options scanner]
   (fn []
-    (let [state       (with-fresh-copy-of-dependency-map @state-tracker-atom)
-          new-tracker (apply scanner state (:files options))]
-      (react-to-tracker! new-tracker options)
-      (reset! state-tracker-atom (prepare-for-next-scan new-tracker)))))
-
+    (let [old-tracker @state-tracker-atom
+          new-tracker (scan-for-changes scanner old-tracker (:files options))]
+      (when-not (= new-tracker old-tracker)
+        (react-to-tracker! new-tracker options)
+        (reset! state-tracker-atom
+                (dissoc new-tracker
+                        :clojure.tools.namespace.track/load
+                        :clojure.tools.namespace.track/unload))))))
 
 (defn mkfn:react-to-changes [options]
-  (mkfn:scan-and-react options nsdir/scan))
+  (mkfn:scan-and-react options dir/scan))
 
 (defn load-everything [options]
-  ((mkfn:scan-and-react options nsdir/scan-all)))
+  ((mkfn:scan-and-react options dir/scan-all)))

@@ -385,8 +385,8 @@
 (defonce ^{:doc "Stores last exception encountered in autotesting"}
   *me nil)
 
-(defn- on-require-failure [the-ns throwable]
-  (println (color/fail "LOAD FAILURE for " the-ns))
+(defn- on-require-failure [throwable]
+  ;(println (color/fail "LOAD FAILURE for " the-ns))
   (println (.getMessage throwable))
   (emit/fail-silently) ; to make sure last line shows a failure.
   (when (config/running-in-repl?)

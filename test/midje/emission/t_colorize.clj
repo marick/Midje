@@ -51,7 +51,6 @@
 ;; Reset to user's default colorization.
 (color/init!)
 
-
 (fact "access environment vars only when namespace is loaded, not on each report line"
   (prerequisite (getenv "MIDJE_COLORIZE") => anything :times 0)
 

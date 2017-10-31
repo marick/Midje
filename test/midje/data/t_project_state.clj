@@ -29,27 +29,6 @@
 
 ;;; Working with modification times and dependencies
 
-(fact "The files to load can be used to find a modification time"
-  (against-background (file-modification-time ..file1..) => 222
-    (file-modification-time ..file2..) => 3333)
-
-  (let [empty-tracker {time-key 11
-                       load-key []
-                       filemap-key {..file1.. ..ns1..
-                                    ..file2.. ..ns2..}}
-        tracker-with-changes (assoc empty-tracker load-key [..ns1.. ..ns2..])
-        tracker-with-deleled-ns (assoc empty-tracker load-key [..ns1..]
-                                                     unload-key [..ns1.. ..ns2..]
-                                                     deps-key {:dependents {..ns1.. #{..ns2.. ..ns3..}}})]
-
-    (latest-modification-time empty-tracker) => 11
-    (latest-modification-time tracker-with-changes) => 3333
-
-    (prepare-for-next-scan empty-tracker) => (contains {time-key 11, unload-key [], load-key []})
-    (prepare-for-next-scan tracker-with-changes) => (contains {time-key 3333, unload-key [], load-key []})
-    (prepare-for-next-scan tracker-with-deleled-ns) => (contains {deps-key {:dependents {..ns1.. #{..ns3..}}}})))
-
-
 (def cleaner) ; standin for the calculated dependency cleaner
 (def failure-record (atom {}))
 (defn record-failure [ns throwable]
@@ -57,14 +36,14 @@
 
 
 #_(fact "A namespace list can be loaded, obeying dependents"
-  (require-namespaces! [] record-failure) => anything
+  (#'require-namespaces! [] record-failure) => anything
 
-  (require-namespaces! [..ns1.. ..ns2..] record-failure) => anything
+  (#'require-namespaces! [..ns1.. ..ns2..] record-failure) => anything
   (provided
     (require ..ns1.. :reload) => nil
     (require ..ns2.. :reload) => nil)
 
-  (require-namespaces! [..ns1.. ..ns2..] record-failure) => anything
+  (#'require-namespaces! [..ns1.. ..ns2..] record-failure) => anything
   (provided
     (require ..ns1.. :reload) => nil
     (require ..ns2.. :reload) => nil)
@@ -72,7 +51,7 @@
 
 
   (let [throwable (Error.)]
-    (require-namespaces! [..ns1.. ..ns2.. ..ns3..] record-failure) => anything
+    (#'require-namespaces! [..ns1.. ..ns2.. ..ns3..] record-failure) => anything
     (provided
       (require ..ns1.. :reload) =throws=> throwable
       (require ..ns3.. :reload) => nil)

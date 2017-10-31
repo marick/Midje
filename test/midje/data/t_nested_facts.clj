@@ -5,7 +5,6 @@
             [midje.test-util :refer :all]
             [midje.util.pile :as pile]))
 
-
 (defn faux-fact
   ([] (gensym))
   ([description]
