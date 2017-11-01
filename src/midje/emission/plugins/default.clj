@@ -35,45 +35,46 @@
                                                   (fact/line fact)])))))))
 
 
-(defn- midje-summary-lines [passes fails]
-  (letfn [(midje-failure-summary []
-            (if (= 1 fails)
-              (str (color/fail "FAILURE:") (format " %d check failed." fails))
-              (str (color/fail "FAILURE:") (format " %d checks failed." fails))))
+(defn- midje-summary-line [passes fails]
+  (cond (zero? (+ passes fails))
+        (color/note "No facts were checked. Is that what you wanted?")
 
-          (midje-consolation []
-            (condp = passes
-              0 ""
-              (format " (But %d succeeded.)" passes)))]
+        (zero? fails)
+        (color/pass (format "All checks (%d) succeeded." passes))
 
-    (vector
-      (cond (zero? (+ passes fails))
-            (color/note "No facts were checked. Is that what you wanted?")
-
-            (zero? fails)
-            (color/pass (format "All checks (%d) succeeded." passes))
-
-            :else
-            (str (midje-failure-summary) " " (midje-consolation))))))
+        :else
+        (let [fail-summary (if (= 1 fails)
+                             (str (color/fail "FAILURE:") (format " %d check failed." fails))
+                             (str (color/fail "FAILURE:") (format " %d checks failed." fails)))
+              consolation (condp = passes
+                            0 ""
+                            (format " (But %d succeeded.)" passes))]
+          (str fail-summary " " consolation))))
 
 (defn- clojure-test-prompted-lines [clojure-test-map]
   (when (pos? (:test clojure-test-map))
-    (let [lines (:lines clojure-test-map)
-          result-lines (drop-last 2 lines)
-          summary-line (last lines)
-          grievousness? (pos? (+ (:fail clojure-test-map) (:error clojure-test-map)))]
-      (concat [(color/note ">>> Output from clojure.test tests:")]
-              (map #(-> % (str/replace #"^FAIL" (color/fail "FAIL"))
+    (let [lines                       (:lines clojure-test-map)
+          result-lines                (drop-last 2 lines)
+          [success-line failure-line] (take-last 2 lines)
+          grievousness?               (pos? (+ (:fail clojure-test-map)
+                                               (:error clojure-test-map)))
+          emit-result                 (if grievousness? color/fail color/pass)]
+      (concat [(color/note "\n>>> Output from clojure.test tests:")]
+              (map #(-> %
+                        (str/replace #"^FAIL" (color/fail "FAIL"))
                         (str/replace #"^ERROR" (color/fail "ERROR")))
                    result-lines)
-              [((if grievousness? color/fail color/pass) summary-line)]
-              [(color/note ">>> Midje summary:")]))))
+              [(emit-result success-line)
+               (emit-result failure-line)]))))
 
 (defn finishing-fact-stream [midje-counters clojure-test-map]
-  (apply util/emit-one-line
-         (concat (clojure-test-prompted-lines clojure-test-map)
-                 (midje-summary-lines (:midje-passes midje-counters)
-                                      (:midje-failures midje-counters)))))
+  (let [clojure-test-lines (clojure-test-prompted-lines clojure-test-map)]
+    (apply util/emit-one-line
+           (concat [(when clojure-test-lines
+                      (color/note ">>> Midje summary:"))
+                    (midje-summary-line (:midje-passes midje-counters)
+                                        (:midje-failures midje-counters))]
+                   clojure-test-lines))))
 
 (defn future-fact [description-list position]
   (util/emit-one-line "")
