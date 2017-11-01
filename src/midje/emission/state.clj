@@ -3,50 +3,45 @@
            and people debugging."}
   midje.emission.state)
 
-;;; At some point, figure out how to do nested splicing quotes.
-(defn make-defmacro-body [ns name reset-name set-name body]
-  `(let [original-value# ((ns-resolve '~ns '~name))]
+(defmacro with-isolated-output-counters [& body]
+  `(let [original-value# (output-counters)]
      (try
-       ((ns-resolve '~ns '~reset-name))
+       (reset-output-counters!)
        ~@body
      (finally
-       ((ns-resolve '~ns '~set-name) original-value#)))))
+       (set-output-counters! original-value#)))))
 
-(defmacro make-counter-atom [name & keys]
-  (let [atom-name (symbol (str name "-atom"))
-        fresh-name (symbol (str "fresh-" name))
-        set-name (symbol (str "set-" name "!"))
-        reset-name (symbol (str "reset-" name "!"))
-        wrapper-name (symbol (str "with-isolated-" name))]
-    (letfn [(make-one-incrementer [key]
-              `(defn ~(symbol (str name ":inc" key "!")) []
-                 (swap! ~atom-name
-                        (partial merge-with +) {~key 1})))
-            (make-one-getter [key]
-              `(defn ~(symbol (str name key)) []
-                 (~key (~name))))
-            (make-one-setter [key]
-              `(defn ~(symbol (str name ":set" key "!")) [value#]
-                 (~set-name (assoc (~name) ~key value#))))
-            (make-defmacro []
-              (let [body-sym (gensym 'body-)]
-                `(defmacro ~wrapper-name [& ~body-sym]
-                   (make-defmacro-body '~(ns-name *ns*) '~name '~reset-name '~set-name ~body-sym))))]
-      `(do
-         (def ~atom-name (atom :undefined))
-         (defn ~name [] (deref ~atom-name))
-         (.setDynamic (var ~atom-name))
-         (def ~fresh-name ~(zipmap keys (repeat 0)))
-         (defn ~set-name [newval#] (swap! ~atom-name (constantly newval#)))
-         (defn ~reset-name [] (reset! ~atom-name ~fresh-name))
-         (~reset-name)
-         ~(make-defmacro)
-         ~@(map make-one-getter keys)
-         ~@(map make-one-setter keys)
-         ~@(map make-one-incrementer keys)))))
+(def ^:dynamic output-counters-atom (atom :undefined))
+(defn output-counters []
+  (deref output-counters-atom))
+(def fresh-output-counters {:midje-failures 0 :midje-passes 0})
+(defn set-output-counters! [new-val]
+  (swap!  output-counters-atom (constantly new-val)))
 
-(make-counter-atom output-counters
-  :midje-passes :midje-failures)
+(defn reset-output-counters!  []
+  (reset! output-counters-atom fresh-output-counters))
+
+(reset-output-counters!)
+
+(defn output-counters:midje-passes []
+  (:midje-passes (output-counters)))
+
+(defn output-counters:midje-failures []
+  (:midje-failures (output-counters)))
+
+(defn output-counters:set:midje-passes! [value]
+  (set-output-counters!
+    (assoc (output-counters) :midje-passes value)))
+
+(defn output-counters:set:midje-failures! [value]
+  (set-output-counters!
+    (assoc (output-counters) :midje-failures value)))
+
+(defn output-counters:inc:midje-passes! []
+  (swap! output-counters-atom (partial merge-with +) {:midje-passes 1}))
+
+(defn output-counters:inc:midje-failures! []
+  (swap!  output-counters-atom (partial merge-with +) {:midje-failures 1}))
 
 (def raw-fact-failures-atom (atom :uninitialized))
 (def raw-fact-failures #(deref raw-fact-failures-atom))
