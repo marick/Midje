@@ -3,14 +3,6 @@
            and people debugging."}
   midje.emission.state)
 
-(defmacro with-isolated-output-counters [& body]
-  `(let [original-value# (output-counters)]
-     (try
-       (reset-output-counters!)
-       ~@body
-     (finally
-       (set-output-counters! original-value#)))))
-
 (def ^:dynamic output-counters-atom (atom :undefined))
 (defn output-counters []
   (deref output-counters-atom))
@@ -42,6 +34,14 @@
 
 (defn output-counters:inc:midje-failures! []
   (swap!  output-counters-atom (partial merge-with +) {:midje-failures 1}))
+
+(defmacro with-isolated-output-counters [& body]
+  `(let [original-value# (output-counters)]
+     (try
+       (reset-output-counters!)
+       ~@body
+     (finally
+       (set-output-counters! original-value#)))))
 
 (def raw-fact-failures-atom (atom :uninitialized))
 (def raw-fact-failures #(deref raw-fact-failures-atom))
