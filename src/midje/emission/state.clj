@@ -1,10 +1,7 @@
-(ns ^{:doc
-"This namespace contains [will eventually contain] all the
- non-configuration state of the program. That is: the workings
- that are normally invisible to any user, with the exception
- of tests and people debugging."}
-  midje.emission.state
-  (:require [midje.util.ecosystem :as ecosystem]))
+(ns ^{:doc "The non-configuration state of the program. That is: the workings
+           that are normally invisible to any user, with the exception of tests
+           and people debugging."}
+  midje.emission.state)
 
 ;;; At some point, figure out how to do nested splicing quotes.
 (defn make-defmacro-body [ns name reset-name set-name body]
@@ -14,7 +11,6 @@
        ~@body
      (finally
        ((ns-resolve '~ns '~set-name) original-value#)))))
-
 
 (defmacro make-counter-atom [name & keys]
   (let [atom-name (symbol (str name "-atom"))
@@ -49,11 +45,8 @@
          ~@(map make-one-setter keys)
          ~@(map make-one-incrementer keys)))))
 
-
-
 (make-counter-atom output-counters
   :midje-passes :midje-failures)
-
 
 (def raw-fact-failures-atom (atom :uninitialized))
 (def raw-fact-failures #(deref raw-fact-failures-atom))
@@ -77,4 +70,3 @@
 (defmacro with-emission-map [map & body]
   `(binding [emission-functions ~map]
      ~@body))
-
