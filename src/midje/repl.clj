@@ -209,7 +209,9 @@
           (try (require ns :reload)
                (catch Exception e
                  (println (color/fail "LOAD FAILURE for " ns))
-                 (println (exceptions/format-exception e))))))))
+                 (if (config/choice :pretty-print)
+                   (println (exceptions/format-exception e))
+                   (println (.getMessage e)))))))))
   "Load given namespaces, as in:
      (load-facts 'midje.t-sweet 'midje.t-repl)
 
@@ -391,7 +393,9 @@
 
 (defn- on-require-failure [the-ns throwable]
   (println (color/fail "LOAD FAILURE for " the-ns))
-  (println (exceptions/format-exception throwable))
+  (if (config/choice :pretty-print)
+    (println (exceptions/format-exception throwable))
+    (println (.getMessage throwable)))
   (emit/fail-silently) ; to make sure last line shows a failure.
   (when (config/running-in-repl?)
     (when (re-find #"ould not locate.*classpath" (.getMessage throwable))
