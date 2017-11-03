@@ -206,7 +206,10 @@
           ;; That way, some error in the fresh namespace won't appear to
           ;; come from the last-loaded namespace.
           (emit/possible-new-namespace ns)
-          (require ns :reload)))))
+          (try (require ns :reload)
+               (catch Exception e
+                 (println (color/fail "LOAD FAILURE for " ns))
+                 (println (exceptions/format-exception e))))))))
   "Load given namespaces, as in:
      (load-facts 'midje.t-sweet 'midje.t-repl)
 
