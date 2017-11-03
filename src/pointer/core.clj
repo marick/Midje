@@ -4,16 +4,13 @@
             [clojure.set :refer [superset?]]
             [clojure.zip :as zip]))
 
-
 (declare -node?
          basename
          current-file-name
          replace-loc-line
          skip-to-rightmost-leaf)
 
-
 (def ^:private fallback-line-number (atom (Integer. 0)))
-
 
 ;; COMPILE-TIME POSITIONS.
 ;; For annotating forms with information retrieved at runtime.
@@ -21,10 +18,8 @@
 
 (declare line-number-for)
 
-
 (defn compile-time-fallback-position []
   (list (current-file-name) @fallback-line-number))
-
 
 (defn current-file-name []
   ;; clojure.test sometimes runs with *file* bound to #"NO_SOURCE.*".
@@ -35,10 +30,8 @@
     (basename *file*)
     (.getFileName (second (.getStackTrace (Throwable.))))))
 
-
 (defn form-position [form]
-  (list (current-file-name)  (:line (meta form))))
-
+  (list (current-file-name) (:line (meta form))))
 
 (defn line-number-for [form]
   "Return the best guess for what line given form is on."
@@ -59,10 +52,8 @@
       (reset! fallback-line-number lineish)
       (swap! fallback-line-number inc))))
 
-
 (defn set-fallback-line-number-from [form]
   (reset! fallback-line-number (or (:line (meta form)) (Integer. 0))))
-
 
 ;; RUNTIME POSITIONS
 ;; These are positions that determine the file or line at runtime.
@@ -87,12 +78,10 @@
           (recur (zip/next loc)
                  (zip/next line-loc)))))
 
-
 (defmacro line-number-known
   "Guess the filename of a file position, but use the given line number."
   [number]
   `[(current-file-name) ~number])
-
 
 (defn positioned-form
   "Make sure the form is annotated with a line number, either
@@ -112,7 +101,6 @@
         :else
         (vary-meta form assoc :line (:line (meta number-source)))))
 
-
 ;; PRIVATE MEMBERS
 
 (defn -node? [form]
@@ -122,10 +110,8 @@
       (set)
       (superset? #{:zip/make-node :zip/children :zip/branch?})))
 
-
 (defn- basename [string]
   (last (string/split string #"/")))
-
 
 (defn- replace-loc-line [loc loc-with-line]
   (let [m (fn [loc] (meta (zip/node loc)))
@@ -133,7 +119,6 @@
                            (assoc (m loc) :line (:line (m loc-with-line)))
                            (dissoc (m loc) :line ))]
     (zip/replace loc (with-meta (zip/node loc) transferred-meta))))
-
 
 (defn- skip-to-rightmost-leaf
   "When positioned at leftmost position of branch, move to the end form.

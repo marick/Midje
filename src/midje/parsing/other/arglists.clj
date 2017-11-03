@@ -10,7 +10,7 @@
             [such.sequences :as seq]))
 
 
-;;;                                           Print levels (keywords)
+;;;                                           Print levels (keywords)
 
 (defn separate-print-levels [args default]
   (let [[[print-level & extras] non-levels] (seq/bifurcate levels/valids args)]
@@ -23,7 +23,7 @@
       [[           ]  default       non-levels])))
 
 
-;;;                                           Metadata filters
+;;;                                           Metadata filters
 
 
 (defn separate-filters [args plain-argument?]
@@ -34,7 +34,7 @@
     (vector filters remainder)))
 
 
-;;;                                           Keyword options with 0 or more arguments.
+;;;                                           Keyword options with 0 or more arguments.
 
 (defn is-flag-segment-for? [flag-predicate]
   (comp boolean flag-predicate first))
@@ -73,7 +73,3 @@
       (merge map-with-flag-data-added
              (zipmap (map #(build-on-flag-keyword % "?") unmentioned-keys)
                      (repeat false))))))
-
-
-
-

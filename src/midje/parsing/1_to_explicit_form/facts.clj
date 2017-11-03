@@ -66,7 +66,7 @@
                       "The prerequisite arrow appears outside the body of a `provided`:"
                       (str left-expr " " arrow " " right-expr))))
 
-(defn to-explicit-form
+(defn- to-explicit-form
   "Convert sweet pseudo-forms into their explicit equivalents.
    1) Arrow sequences become expect forms.
    2) (provided ...) become fakes inserted into preceding expect."
@@ -131,7 +131,7 @@
 
 
 
-(defn at-arrow__add-line-number-to-end__no-movement [number loc]
+(defn- at-arrow__add-line-number-to-end__no-movement [number loc]
   (when (nil? (zip/right loc))
     (report-check-arrow-shape (pointer/positioned-form (zip/node (zip/up loc)) number)))
 
@@ -146,8 +146,7 @@
     recognize/any-arrow?
     #(at-arrow__add-line-number-to-end__no-movement (pointer/line-number-for %) %)))
 
-
-(defn expand-fact-body [forms]
+(defn- expand-fact-body [forms]
   (-> forms
       annotate-embedded-arrows-with-line-numbers
       to-explicit-form

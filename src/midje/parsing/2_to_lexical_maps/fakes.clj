@@ -45,7 +45,7 @@
    "  ;; ..."
    "  (provided (all-even? ..xs..) => true)"])
 
-(defn valid-pieces [[_ [fnref & args :as call-form] arrow result & overrides]]
+(defn- valid-pieces [[_ [fnref & args :as call-form] arrow result & overrides]]
   (let [actual-var (memoize (partial fnref/resolved-to-actual-var-object fnref))]
     (cond (keyword? fnref)
           (error/report-error call-form

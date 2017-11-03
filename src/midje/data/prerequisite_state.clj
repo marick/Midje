@@ -1,7 +1,6 @@
 (ns ^{:doc "Maintain the use of namespace-specific prerequisites"}
   midje.data.prerequisite-state
-  (:require [clojure.tools.macro :as macro]
-            [commons.clojure.core :refer :all :exclude [any?]]
+  (:require [commons.clojure.core :refer :all :exclude [any?]]
             [midje.checking.core :refer :all]
             [midje.config :as config]
             [midje.data.metaconstant :as mc]
@@ -75,32 +74,31 @@
                                                     fakes)]
       (default-function fake-with-usable-default))))
 
+(defmacro ^:private counting-nested-calls [& forms]
+  `(try
+     (record-start-of-prerequisite-call)
+     ~@forms
+     (finally (record-end-of-prerequisite-call))))
+
 (defn- ^{:testable true} handle-mocked-call [function-var actual-args fakes]
-  (macro/macrolet [(counting-nested-calls [& forms]
-               `(try
-                  (record-start-of-prerequisite-call)
-                  ~@forms
-                  (finally (record-end-of-prerequisite-call))))]
+  (let [action (counting-nested-calls (best-call-action function-var actual-args fakes))]
+    (branch-on action
+      extended-fn?
+      (apply action actual-args)
 
-    (let [action (counting-nested-calls (best-call-action function-var actual-args fakes))]
-      (branch-on action
-        extended-fn?
-        (apply action actual-args)
+      map?
+      (do
+        (swap! (:call-count-atom action) inc)
+        ((:result-supplier action)))
 
-        map?
-        (do
-          (swap! (:call-count-atom action) inc)
-          ((:result-supplier action)))
-
-        :else
-        (do
-          (emit/fail {:type :prerequisite-was-called-with-unexpected-arguments
-                      :var function-var
-                      :actual actual-args
-                      :position (:position (first fakes))})
-          (format "`%s` returned this string because it was called with an unexpected argument"
-                  (+symbol function-var)))))))
-
+      :else
+      (do
+        (emit/fail {:type :prerequisite-was-called-with-unexpected-arguments
+                    :var function-var
+                    :actual actual-args
+                    :position (:position (first fakes))})
+        (format "`%s` returned this string because it was called with an unexpected argument"
+                (+symbol function-var))))))
 
 ;; Binding map related
 
@@ -126,5 +124,3 @@
 (defmacro with-installed-fakes [fakes & forms]
   `(with-altered-roots (binding-map ~fakes)
      ~@forms))
-
-

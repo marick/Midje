@@ -1,5 +1,5 @@
 (ns midje.parsing.1-to-explicit-form.t-facts
-  (:require [midje.parsing.1-to-explicit-form.facts :refer :all]
+  (:require [midje.parsing.1-to-explicit-form.facts :as facts :refer :all]
             [midje.sweet :refer :all]
             [midje.test-util :refer :all]
             [midje.parsing.2-to-lexical-maps.expects :refer [expect]]
@@ -22,33 +22,33 @@
 (fact "translating entire fact forms"
   "some parts of a fact are to be left alone"
   (let [form '(a-form-would-go-here another-would-go-here)]
-    (to-explicit-form form) => form)
+    (#'facts/to-explicit-form form) => form)
 
-  (let [form '( (nested (form) form ) [ 1 2 3])]
-    (to-explicit-form form) => form)
+  (let [form '((nested (form) form ) [ 1 2 3])]
+    (#'facts/to-explicit-form form) => form)
 
   "arrow sequences are wrapped with expect"
-  (let [form `(     (f 1) => [2]                           (f 2) => (+ 1 2) )
-        expected `( (expect (f 1) => [2]) (expect (f 2) => (+ 1 2)))]
-    (to-explicit-form form) => expected)
+  (let [form `((f 1) => [2]                           (f 2) => (+ 1 2) )
+        expected `((expect (f 1) => [2]) (expect (f 2) => (+ 1 2)))]
+    (#'facts/to-explicit-form form) => expected)
 
   "the wrapping can include prerequisites turned into fake forms."
-  (let [form `( (f 1) => [1] :ekey "evalue"
-                (f 2) => (+ 2 2)
-                (provided (g 3) => 3
-                          (g 4) => 4 :pkey "pvalue")
-                (f 5) => truthy)
-        expected `( (expect (f 1) => [1] :ekey "evalue")
-                    (expect (f 2) => (+ 2 2)
-                            (fake (g 3) => 3)
-                            (fake (g 4) => 4 :pkey "pvalue"))
-                    (expect (f 5) => truthy))]
-    (to-explicit-form form) => expected)
+  (let [form `((f 1) => [1] :ekey "evalue"
+               (f 2) => (+ 2 2)
+               (provided (g 3) => 3
+                         (g 4) => 4 :pkey "pvalue")
+               (f 5) => truthy)
+        expected `((expect (f 1) => [1] :ekey "evalue")
+                   (expect (f 2) => (+ 2 2)
+                           (fake (g 3) => 3)
+                           (fake (g 4) => 4 :pkey "pvalue"))
+                   (expect (f 5) => truthy))]
+    (#'facts/to-explicit-form form) => expected)
 
   "It's useful to embed expect clauses with notcalled prerequisites, so they're skipped"
-  (let [form `(    (expect (f 1) => 2 (fake (g 1) => 2))
-                                      (fake (m 1) => 33))]
-    (to-explicit-form form) => form))
+  (let [form `((expect (f 1) => 2 (fake (g 1) => 2))
+                                  (fake (m 1) => 33))]
+    (#'facts/to-explicit-form form) => form))
 
 (config/with-augmented-config {:check-after-creation false}
   (with-out-str (fact 1 => 2)) => "")
@@ -59,8 +59,8 @@
         expected `( (f n) => 2 :position (line-number-known 10))
         z            (zip/seq-zip original)
         original-loc (-> z zip/down zip/right)
-        new-loc      (at-arrow__add-line-number-to-end__no-movement
-                        10 original-loc)]
+        new-loc      (#'facts/at-arrow__add-line-number-to-end__no-movement
+                       10 original-loc)]
     (name (zip/node new-loc)) => "=>"
     (zip/root new-loc) => expected))
 

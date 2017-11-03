@@ -150,7 +150,8 @@
   (let [[fakes state-changers] (seq/bifurcate recognize/fake? (separate-individual-changers background-forms))
         make-state-unification-templates (eagerly (map make-state-unification-template state-changers))]
     ;; The state template comes first on the off chance that a prerequisite depends on setup.
-    (concat make-state-unification-templates (list (make-prerequisite-unification-template fakes)))))
+    (concat make-state-unification-templates
+            (list (make-prerequisite-unification-template fakes)))))
 
 (def #^:private misused-content-message
   ["It is meaningless to combine `against-background` or `with-state-changes` and"
@@ -171,8 +172,9 @@
    "user=> (check-facts)"])
 
 
-(defn against-background-contents-wrappers [[_against-background_ background-forms & _ :as form]]
-  (let [result (filter (wrapping/for-wrapping-target? :contents )
+(defn against-background-contents-wrappers
+  [[_against-background_ background-forms & _ :as form]]
+  (let [result (filter (wrapping/for-wrapping-target? :contents)
                        (make-unification-templates background-forms))]
     (if (empty? result)
       result
@@ -183,13 +185,14 @@
                                                              :position '~(pointer/form-position form)})
                                                  ?form))))))
 
-(defn against-background-facts-and-checks-wrappers [[_against-background_ background-forms & _]]
-  (remove (wrapping/for-wrapping-target? :contents ) (make-unification-templates background-forms)))
+(defn against-background-facts-and-checks-wrappers
+  [[_against-background_ background-forms & _]]
+  (remove (wrapping/for-wrapping-target? :contents)
+          (make-unification-templates background-forms)))
 
 (defn surround-with-background-fakes [forms]
   `(with-installed-fakes (background-fakes)
      ~@forms))
-
 
 ;;; Validation
 

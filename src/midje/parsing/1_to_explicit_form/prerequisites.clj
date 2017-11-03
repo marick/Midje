@@ -2,8 +2,8 @@
   midje.parsing.1-to-explicit-form.prerequisites
   (:require [clojure.zip :as zip]
             [midje.parsing.1-to-explicit-form.expects :as parse-expects]
-            [midje.parsing.2-to-lexical-maps.data-fakes :refer [data-fake]]
-            [midje.parsing.2-to-lexical-maps.fakes :refer [fake]]
+            [midje.parsing.2-to-lexical-maps.data-fakes :as data-fakes]
+            [midje.parsing.2-to-lexical-maps.fakes :as fakes]
             [midje.parsing.arrow-symbols :refer :all]
             [midje.parsing.util.core :refer :all]
             [midje.parsing.util.error-handling :as error]
@@ -20,8 +20,8 @@
                                  zip/right
                                  pointer/line-number-for)
         fake-tag (if (recognize/metaconstant-prerequisite? fake-body)
-                   `data-fake
-                   `fake)]
+                   `data-fakes/data-fake
+                   `fakes/fake)]
     (vary-meta
      `(~fake-tag ~@fake-body)
      assoc :line (Integer. line-number))))
@@ -43,7 +43,7 @@
         (recur (conj so-far arrow-seq)
                (nthnext remainder (count arrow-seq)))))))
 
-(defn expand-prerequisites-into-fake-calls [provided-loc]
+(defn- expand-prerequisites-into-fake-calls [provided-loc]
   (let [fakes (-> provided-loc zip/up zip/node rest)
         fake-bodies (pull-all-arrow-seqs-from fakes)]
     (map prerequisite-to-fake fake-bodies)))
