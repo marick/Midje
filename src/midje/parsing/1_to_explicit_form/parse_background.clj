@@ -58,39 +58,48 @@
 (defn- first-form-is-a-state-changer? [forms]
   (#{"before" "after" "around"} (name (ffirst forms))))
 
-(defn- ^{:testable true } separate-individual-changers
+(defn- process-preq-arrow [forms]
+  (let [arrow-seq     (take-arrow-sequence forms)
+        line-override `(pointer/line-number-known
+                         ~(-> arrow-seq first meta :line))
+        tagged-fake   (-> arrow-seq
+                          prerequisite-to-fake
+                          (fakes/tag-as-background-fake line-override))]
+  [tagged-fake
+   (drop (count arrow-seq) forms)]))
+
+(defn- ^{:testable true} separate-individual-changers
   ([forms error-reporter]
      (loop [expanded []
             in-progress forms]
-       (commons/branch-on in-progress
-                          empty?
-                          expanded
+       (commons/branch-on
+         in-progress
 
-                  recognize/start-of-prerequisite-arrow-sequence?
-                  (let [arrow-seq (take-arrow-sequence in-progress)]
-                    (recur (conj expanded (-> arrow-seq prerequisite-to-fake fakes/tag-as-background-fake))
-                           (drop (count arrow-seq) in-progress)))
+         empty?
+         expanded
 
-                  recognize/metaconstant-prerequisite?
-                  (let [arrow-seq (take-arrow-sequence in-progress)]
-                    (recur (conj expanded (-> arrow-seq prerequisite-to-fake))
-                           (drop (count arrow-seq) in-progress)))
+         recognize/start-of-prerequisite-arrow-sequence?
+         (let [[tagged-fake remaining-forms] (process-preq-arrow in-progress)]
+           (recur (conj expanded tagged-fake) remaining-forms))
 
-                  first-form-is-no-state-changer?
-                  (error-reporter (commons/cl-format nil "~S does not look like a prerequisite or a before/after/around state changer." (first in-progress)))
+         recognize/metaconstant-prerequisite?
+         (let [arrow-seq (take-arrow-sequence in-progress)]
+           (recur (conj expanded (-> arrow-seq prerequisite-to-fake))
+                  (drop (count arrow-seq) in-progress)))
 
-                  first-form-is-a-state-changer?
-                  (recur (conj expanded (first in-progress))
-                         (rest in-progress))
+         first-form-is-no-state-changer?
+         (error-reporter (commons/cl-format nil "~S does not look like a prerequisite or a before/after/around state changer." (first in-progress)))
 
-                  :else
-                  (error-reporter (commons/cl-format nil "~S does not look like a before/after/around code runner." (first in-progress))))))
+         first-form-is-a-state-changer?
+         (recur (conj expanded (first in-progress))
+                (rest in-progress))
+
+         :else
+         (error-reporter (commons/cl-format nil "~S does not look like a before/after/around code runner." (first in-progress))))))
   ([forms]
      (separate-individual-changers forms
-                                       (fn [& args]
-                                         (throw (Error. "Supposedly impossible error parsing a background changer."))))))
-
-
+                                   (fn [& args]
+                                     (throw (Error. "Supposedly impossible error parsing a background changer."))))))
 
 ;; State changes are converted into unification templates. The unification happens when
 ;; individual bodies of code (facts, checkables, etc.) are processed.

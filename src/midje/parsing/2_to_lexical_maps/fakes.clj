@@ -7,8 +7,8 @@
             [midje.parsing.util.error-handling :as error]
             [midje.parsing.util.fnref :as fnref]))
 
-(defn tag-as-background-fake [fake]
-  `(~@fake :background :background :times (range 0)))
+(defn tag-as-background-fake [fake line-override]
+  `(~@fake :position ~line-override :background :background :times (range 0)))
 
 (defn- compiler-will-inline-fn? [var]
   (contains? (meta var) :inline))
