@@ -59,7 +59,7 @@
 
 (defn- readable? [classification]
   (or (jar-entry? classification)
-       (boolean (.canRead (:file classification)))))
+       (boolean (.canRead ^File (:file classification)))))
 
 (defn- describe-namespace-status
   "Produces a map describing whether a file is
@@ -187,7 +187,7 @@
   Example:
     (extend-directory-with-namespace (io/file \".\") \"a.b-test\")
     => (io/file \"./a/b_test\")"
-  [^File dir namespace]
+  [^File dir ^String namespace]
   (if namespace
     (io/file dir (-> namespace
                      (.replaceAll "\\." "/")

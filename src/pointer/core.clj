@@ -33,7 +33,7 @@
   ;; frame it finds has NO_SOURCE_FILE as its "filename".
   (if-not (re-find #"NO_SOURCE" *file*)
     (basename *file*)
-    (.getFileName (second (.getStackTrace (Throwable.))))))
+    (.getFileName ^StackTraceElement (second (.getStackTrace (Throwable.))))))
 
 
 (defn form-position [form]

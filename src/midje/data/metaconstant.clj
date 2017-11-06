@@ -45,7 +45,7 @@
 
   clojure.lang.Named
   (getNamespace [this]
-    (.getNamespace (.underlying-symbol this)))
+    (.getNamespace ^clojure.lang.Symbol (.underlying-symbol this)))
   (getName [this]
     (name (.underlying-symbol this)))
 
