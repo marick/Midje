@@ -9,6 +9,7 @@
                  ;; [marick/structural-typing "2.0.4" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
                  [org.clojure/math.combinatorics "0.1.4"]
                  [org.clojure/core.unify "0.5.7" :exclusions [org.clojure/clojure]]
+                 [org.clojure/test.check "0.9.0"]
                  [clj-time "0.13.0" :exclusions [org.clojure/clojure]]
                  [colorize "0.1.1" :exclusions [org.clojure/clojure]]
                  [org.clojure/tools.macro "0.1.5"]
