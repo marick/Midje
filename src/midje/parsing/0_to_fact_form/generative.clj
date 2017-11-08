@@ -1,7 +1,6 @@
 (ns ^{:doc ""}
-  midje.generative
-  (:require [midje.sweet :refer :all]
-            [midje.emission.api :as emission]
+  midje.parsing.0-to-fact-form.generative
+  (:require [midje.emission.api :as emission]
             [midje.emission.colorize :as color]
             [midje.emission.plugins.util :as util]
             [midje.emission.state :as state]
@@ -9,7 +8,6 @@
             [midje.parsing.1-to-explicit-form.metadata :as parse-metadata]
             [midje.parsing.util.error-handling :as error]
             [clojure.test.check :as tc]
-            [clojure.test.check.generators :as gen]
             [clojure.test.check.properties :as prop]))
 
 (defn- log-qc-info [seed names values]
@@ -55,24 +53,10 @@
                             result))]
     [run @passes]))
 
-(defmacro for-all
-  "Check facts using values generated using test.check
-
-  Options
-  :seed       used to re-run previous checks
-  :max-size   controls the size of generated vlues
-  :num-tests  how many times to run the checks
-
-  (for-all 'name \"doc string\"
-    [pos-int gen/s-pos-int]
-    {:num-tests 10}
-    (fact pos-int => integer?))"
-  {:arglists '([binding-form & facts]
-               [name doc-string binding-form opts-map & facts])}
-  [& _]
-  (let [[metadata forms]        (parse-metadata/separate-metadata &form)
+(defn parse-for-all [form]
+  (let [[metadata forms]        (parse-metadata/separate-metadata form)
         [prop-names prop-values
-         opts checks]           (parse-for-all-form &form forms)
+         opts checks]           (parse-for-all-form form forms)
         num-tests               (or (:num-tests opts) 10)
         quick-check-opts        (->> (select-keys opts [:seed :max-size])
                                      (into [])
@@ -89,12 +73,3 @@
 ;; TODO PLM:
 ;; test that fact filtering doesn't apply to nested facts (compare to tabular behavior)
 ;; show in test that metadata from nested facts isn't lifted to top-level
-
-#_(for-all "bar" [strictly-pos gen/s-pos-int
-            any-integer  gen/int]
-          (fact "foo"
-             strictly-pos => integer?
-             {:x (+ strictly-pos any-integer)} => (contains {:x pos?}))
-           (fact "Summing an integer to a positive integer should be positive? Really?"
-             strictly-pos => integer?
-             {:x (+ strictly-pos any-integer)} => (contains {:x pos?})))
