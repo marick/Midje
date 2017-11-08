@@ -49,6 +49,9 @@
   (state/add-raw-fact-failure! failure-map)
   (when (config-above? :print-nothing) (bounce-to-plugin :fail failure-map)))
 
+(defn info [lines]
+  (when (config-above? :print-nothing) (bounce-to-plugin :info lines)))
+
 (defn future-fact [description position]
   (when (and (config-above? :print-nothing)
              (config/choice :visible-future))
