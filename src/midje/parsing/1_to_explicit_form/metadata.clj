@@ -27,7 +27,6 @@
                     (string? head)
                     (recur (add-key :midje/description head) (rest body))
 
-
                     (symbol? head)
                     (recur (add-key :midje/name (name head)) (rest body))
 
