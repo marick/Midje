@@ -26,6 +26,14 @@
     (attractively-stringified-value {[1] "1" [:a] "a"})) => (some-checker "{[1] \"1\" [:a] \"a\"}" "{[:a] \"a\" [1] \"1\"}")
   (attractively-stringified-value (R. 1 2 3)) => #"\{:a 3, :m 2, :x 1\}::\S+\.R")
 
+(facts "Configuring :pretty-print settings"
+  (fact "You can turn off fancy pretty printing"
+    (config/with-augmented-config {:pretty-print false}
+      (attractively-stringified-value {:b 2 :a 1}) => "{:a 1, :b 2}"))
+  (fact "By default pretty-printing is on, and will print formatted, colored output"
+    (test-util/strip-ansi-coloring
+      (attractively-stringified-value {:b 2 :a 1})) => "{:a 1 :b 2}"
+    (attractively-stringified-value {:b 2 :a 1}) =not=> "{:a 1 :b 2}"))
 
 (tabular "descriptions harvested from nested facts can be formatted as '-' separated"
   (fact

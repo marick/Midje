@@ -282,6 +282,9 @@
   :print-level                  ; Verbosity of printing.
                                 ; See `(doc midje-print-levels)`.
 
+  :pretty-print                 ; Use formatting and color in test output
+                                ; Default: true
+
   :visible-deprecation          ; Whether information about deprecated
                                 ; features or functions is printed.
                                 ; Default: true.
