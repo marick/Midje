@@ -3,9 +3,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
 
 ## [1.9.0-alpha11] - 2017-11-09
-- `for-all` construct for quick-check style testing, powered by `clojure.test.check`
+- [`for-all`](https://github.com/marick/Midje/wiki/Generative-testing-with-for-all) construct for quick-check style testing, powered by `clojure.test.check`
 - show more info in load-time exception
-- fix stacktrace printing after output colorization changes in 1.9.0-alpha10
+- fix stacktrace printing after output colorization changes in `1.9.0-alpha10`
 - add `:pretty-print` config to allow for disabling the exception and datastructure pretty-printing. `:pretty-print` is enabled by default.
 - fix NPE to allow facts to be loaded via `load-string`
 - re-order midje/clojure.test output to clarify which is which
