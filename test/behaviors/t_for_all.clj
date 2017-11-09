@@ -1,5 +1,6 @@
 (ns behaviors.t-for-all
   (:require [midje.data.compendium :as compendium]
+            [midje.emission.state :as state]
             [midje.repl :as repl]
             [midje.sweet :refer :all]
             [midje.test-util :refer :all]
@@ -10,7 +11,7 @@
    any-integer  gen/int]
   {:seed 1510160943861}
   (fact (+ strictly-pos any-integer) => pos?))
-(note-that fact-fails (failure-was-at-line 12))
+(note-that fact-fails (failure-was-at-line 13))
 
 (silent-for-all
   [strictly-pos gen/s-pos-int
@@ -18,7 +19,7 @@
   {:seed 1510160943861}
   (fact 1 => 1)
   (+ strictly-pos any-integer) => pos?)
-(note-that fact-fails (failure-was-at-line 20))
+(note-that fact-fails (failure-was-at-line 21))
 
 (silent-for-all "generative tests"
   [strictly-pos gen/s-pos-int
@@ -29,16 +30,21 @@
     (+ strictly-pos any-integer) => pos?))
 (note-that (fails 1 time))
 
+(def pass-count (state/output-counters:midje-passes))
 (for-all
   [strictly-pos gen/s-pos-int
    any-integer  gen/int]
   {:seed 3510160943861}
+  (+ strictly-pos any-integer) => pos?
   (let [an-int 0]
     (fact "I. you can wrap your facts in `let`"
       (+ an-int strictly-pos any-integer) => pos?))
   (let [an-int 1]
     (fact "II. you can wrap your facts in `let`"
       (+ an-int strictly-pos any-integer) => pos?)))
+
+(fact
+  (state/output-counters:midje-passes) => (+ pass-count 3))
 
 (for-all "random map not confounded with quick-check options if in correct place"
   [strictly-pos gen/s-pos-int

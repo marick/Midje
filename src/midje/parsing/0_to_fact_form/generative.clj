@@ -80,7 +80,8 @@
                                                prop#
                                                ~@quick-check-opts))]
          (if (:result run#)
-           (repeatedly (/ passes# ~num-tests) emission/pass)
+           (dotimes [_# (/ passes# ~num-tests)]
+             (emission/pass))
            (run-with-smallest fact-fn# '~prop-names run#))
          (boolean (:result run#))))))
 
