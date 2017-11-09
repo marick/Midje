@@ -102,8 +102,8 @@
 
 (defn- ^{:testable true} defaulting-args [original-args command-type]
   (when-not ((mkfn/pred:any? fn? keyword?) (config/choice :fact-filter))
-    (throw (Error. (cl-format nil "The config `:fact-filter` should a function or keyword, not ~A."
-                              (config/choice :fact-filter)))))
+    (throw (Error. ^String (cl-format nil "The config `:fact-filter` should a function or keyword, not ~A."
+                                      (config/choice :fact-filter)))))
   (let [[given-level-seq print-level-to-use args]
           (parsing/separate-print-levels original-args (config/choice :print-level))
         [filters namespaces]
@@ -385,7 +385,7 @@
 (defonce ^{:doc "Stores last exception encountered in autotesting"}
   *me nil)
 
-(defn- on-require-failure [the-ns throwable]
+(defn- on-require-failure [the-ns ^Throwable throwable]
   (println (color/fail "LOAD FAILURE for " the-ns))
   (println (.getMessage throwable))
   (emit/fail-silently) ; to make sure last line shows a failure.

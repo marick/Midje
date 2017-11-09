@@ -22,7 +22,7 @@
   (list (current-file-name) @fallback-line-number))
 
 (defn- this-filename []
-  (.getFileName (second (.getStackTrace (Throwable.)))))
+  (.getFileName ^StackTraceElement (second (.getStackTrace (Throwable.)))))
 
 (defn current-file-name []
   ;; clojure.test sometimes runs with *file* bound to #"NO_SOURCE.*".

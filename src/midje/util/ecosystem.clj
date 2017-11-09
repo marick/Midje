@@ -8,7 +8,8 @@
 (ns ^{:doc "Environmental factors."}
   midje.util.ecosystem
   (:require [clojure.string :as str]
-            such.versions))
+            such.versions)
+  (:import [java.io File]))
 
 (def issues-url "https://github.com/marick/Midje/issues")
 (def syntax-errors-that-will-not-be-fixed
@@ -33,12 +34,12 @@
 
 (def line-separator (System/getProperty "line.separator"))
 
-(def home-config-file-name (str/join java.io.File/separator
+(def home-config-file-name (str/join File/separator
                                      [(getenv "HOME") ".midje.clj"]))
 (def project-config-file-name ".midje.clj")
 
-(defn- file-exists? [name]
-  (.isFile (new java.io.File name)))
+(defn- file-exists? [^String name]
+  (.isFile (File. name)))
 
 (defn has-home-config-file? []
   (and (getenv "HOME") (file-exists? home-config-file-name)))
