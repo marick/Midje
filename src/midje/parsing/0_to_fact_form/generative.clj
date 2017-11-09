@@ -12,10 +12,10 @@
 
 (defn- log-qc-info [seed names values]
   (emission/info [""
-                  (color/note "test.check seed:")
+                  (color/note "quick-check seed:")
                   seed
                   ""
-                  (color/note "test.check generated values:")
+                  (color/note "quick-check shrunken failing values:")
                   (util/attractively-stringified-value (zipmap names values))]))
 
 (defn- parse-for-all-form [full-form [binding-form & opts-map-and-checks]]
