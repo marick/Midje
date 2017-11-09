@@ -35,7 +35,7 @@
     (this-filename)))
 
 (defn form-position [form]
-  (list (current-file-name)  (:line (meta form))))
+  (list (current-file-name) (:line (meta form))))
 
 (defn line-number-for [form]
   "Return the best guess for what line given form is on."
@@ -114,10 +114,8 @@
       (set)
       (superset? #{:zip/make-node :zip/children :zip/branch?})))
 
-
 (defn- basename [string]
   (last (string/split string #"/")))
-
 
 (defn- replace-loc-line [loc loc-with-line]
   (let [m (fn [loc] (meta (zip/node loc)))
