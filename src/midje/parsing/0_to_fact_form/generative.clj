@@ -22,8 +22,12 @@
   (when-not (vector? binding-form)
     (error/report-error full-form "`for-all` must have a vector for its bindings"))
 
+  (when (empty? binding-form)
+    (error/report-error full-form "`for-all` cannot have an empty binding vector"))
+
   (when (odd? (count binding-form))
-    (error/report-error full-form "`for-all` must have an even number of forms in its binding vector"))
+    (error/report-error
+      full-form "`for-all` must have an even number of forms in its binding vector"))
 
   (let [bindings    (partition 2 binding-form)
         prop-names  (mapv first bindings)
@@ -35,6 +39,12 @@
         checks      (if opts?
                       (rest opts-map-and-checks)
                       opts-map-and-checks)]
+    (when (and (contains? opts :num-tests)
+               (not (pos? (:num-tests opts))))
+      (error/report-error
+        full-form (str ":num-tests `for-all` option must be greater than 0: "
+                       (:num-tests opts))))
+
     (when-let [extra-keys (and opts? (keys (dissoc opts :num-tests :seed :max-size)))]
       (error/report-error
         full-form (str "unrecognized keys in `for-all` options map: " extra-keys)))
@@ -53,23 +63,31 @@
                             result))]
     [run @passes]))
 
+(defn- build-parser [form]
+  (fn []
+    (let [[metadata forms]        (parse-metadata/separate-metadata form)
+          [prop-names prop-values
+           opts checks]           (parse-for-all-form form forms)
+          num-tests               (or (:num-tests opts) 10)
+          quick-check-opts        (->> (select-keys opts [:seed :max-size])
+                                       (into [])
+                                       flatten)]
+      `(let [fact-fn#       (fn ~prop-names
+                              ~(parse-facts/wrap-fact-around-body
+                                 metadata checks))
+             prop#          (prop/for-all* ~prop-values fact-fn#)
+             [run# passes#] (run-for-all (list ~num-tests
+                                               prop#
+                                               ~@quick-check-opts))]
+         (if (:result run#)
+           (repeatedly (/ passes# ~num-tests) emission/pass)
+           (run-with-smallest fact-fn# '~prop-names run#))
+         (boolean (:result run#))))))
+
 (defn parse-for-all [form]
-  (let [[metadata forms]        (parse-metadata/separate-metadata form)
-        [prop-names prop-values
-         opts checks]           (parse-for-all-form form forms)
-        num-tests               (or (:num-tests opts) 10)
-        quick-check-opts        (->> (select-keys opts [:seed :max-size])
-                                     (into [])
-                                     flatten)]
-    `(let [fact-fn#       (fn ~prop-names
-                            ~(parse-facts/wrap-fact-around-body metadata checks))
-           prop#          (prop/for-all* ~prop-values fact-fn#)
-           [run# passes#] (run-for-all (list ~num-tests prop# ~@quick-check-opts))]
-       (if (:result run#)
-         (repeatedly (/ passes# ~num-tests) emission/pass)
-         (run-with-smallest fact-fn# '~prop-names run#))
-       (boolean (:result run#)))))
+  (error/parse-and-catch-failure form (build-parser form)))
 
 ;; TODO PLM:
-;; test that fact filtering doesn't apply to nested facts (compare to tabular behavior)
-;; show in test that metadata from nested facts isn't lifted to top-level
+;; - test that fact filtering doesn't apply to nested facts (compare to tabular
+;; behavior)
+;; - show in test that metadata from nested facts isn't lifted to top-level
