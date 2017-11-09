@@ -33,6 +33,3 @@
   (config/with-augmented-config {:visible-deprecation false}
     (without-previous-deprecations
      (with-out-str (deprecate "test message")) => "")))
-
-
-

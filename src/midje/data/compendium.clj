@@ -57,7 +57,7 @@
 
   (remove-from [this fact-function]
     (letfn [(vector-remove [vector target]
-              (let [index-to-exclude (.indexOf vector target)]
+              (let [index-to-exclude (.indexOf ^clojure.lang.PersistentVector vector target)]
                   (assert (not (neg? index-to-exclude)))
                   (into (subvec vector 0 index-to-exclude)
                         (subvec vector (inc index-to-exclude)))))]

@@ -9,7 +9,8 @@
             [midje.parsing.util.wrapping :refer [for-wrapping-target?]]
             [midje.test-util :refer :all]
             [midje.util :refer :all]
-            [midje.util.unify :as unify]))
+            [midje.util.unify :as unify]
+            [pointer.core :as pcore]))
 (expose-testables midje.parsing.1-to-explicit-form.parse-background)
 
 
@@ -73,18 +74,22 @@
   (fact "ordinary prerequisites are converted to fakes"
     (separate-individual-changers []) => []
     (separate-individual-changers `[(f 1) => 2])
-    => `[(fake (f 1) => 2 :background :background
+    => `[(fake (f 1) => 2 :position (pcore/line-number-known nil)
+                          :background :background
                           :times (range 0))]
-    (separate-individual-changers `[   (f 1) => 2 :foo 'bar (f 2) => 33 ])
+    (separate-individual-changers `[(f 1) => 2 :foo 'bar (f 2) => 33])
     => `[(fake (f 1) => 2 :foo 'bar
+                          :position (pcore/line-number-known nil)
                           :background :background
                           :times (range 0))
-         (fake (f 2) => 33 :background :background
-                           :times (range 0)) ])
+         (fake (f 2) => 33 :position (pcore/line-number-known nil)
+                           :background :background
+                           :times (range 0))])
 
   (fact "metaconstant `=contains=>` become data fakes"
     (separate-individual-changers `[...m... =contains=> {:a 1, :b 2}])
     => `[(data-fake ...m... =contains=> {:a 1, :b 2}
+                    :position (pcore/line-number-known nil)
                     :background :background
                     :times (range 0))])
 
@@ -95,10 +100,12 @@
 
   (fact "mixtures"
     (separate-individual-changers `[ (f 1) => 2 (before :checks (swap! test-atom (constantly 0))) (f 2) => 3 ])
-    => `[ (fake (f 1) => 2 :background :background
+    => `[ (fake (f 1) => 2 :position (pcore/line-number-known nil)
+                           :background :background
                            :times (range 0))
           (before :checks (swap! test-atom (constantly 0)))
-          (fake (f 2) => 3 :background :background
+          (fake (f 2) => 3 :position (pcore/line-number-known nil)
+                           :background :background
                            :times (range 0)) ]))
 
 

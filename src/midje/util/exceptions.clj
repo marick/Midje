@@ -1,6 +1,8 @@
 (ns ^{:doc "Functions for Midje to deal elegantly with exceptions."}
   midje.util.exceptions
   (:require [clojure.string :refer [join]]
+            [io.aviso.exception :as aviso.exception]
+            [io.aviso.ansi :as aviso.ansi]
             [midje.util.ecosystem :refer [line-separator]]))
 
 
@@ -30,14 +32,14 @@
 
 (defn- main-exception-lines [ex prefix]
   (cons (str ex)
-      (map #(str prefix %)
-        (without-midje-or-clojure-strings (stacktrace-as-strings ex)))))
+        (map #(str prefix %)
+             (without-midje-or-clojure-strings (stacktrace-as-strings ex)))))
 
 (defn- ^{:testable true} friendly-exception-lines [ex prefix]
   (concat (main-exception-lines ex prefix)
           (caused-by-lines ex prefix)))
 
-(defn- caused-by-lines [ex prefix]
+(defn- caused-by-lines [^Throwable ex prefix]
   (when-let [cause (.getCause ex)]
     (let [[message & stacktrace] (friendly-exception-lines cause prefix)]
       (concat ["" (str prefix "Caused by: " message)]
@@ -58,7 +60,7 @@
   ICapturedThrowable
   (throwable [this] ex)
   (friendly-stacktrace [this]
-    (join line-separator (friendly-exception-lines (throwable this) "              "))))
+    (join line-separator (friendly-exception-lines (throwable this) "  "))))
 
 (defn captured-throwable [ex]
   (CapturedThrowable. ex))
@@ -68,3 +70,11 @@
 
 (defn captured-message [ex]
   (.getMessage ^Throwable (throwable ex)))
+
+(defn format-exception [throwable]
+  (binding [aviso.exception/*traditional* true
+            aviso.exception/*fonts*       (merge aviso.exception/*fonts*
+                                                 {:message       aviso.ansi/white-font
+                                                  :clojure-frame aviso.ansi/white-font
+                                                  :function-name aviso.ansi/white-font})]
+    (aviso.exception/format-exception throwable)))

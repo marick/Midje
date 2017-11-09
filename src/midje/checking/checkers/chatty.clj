@@ -58,7 +58,7 @@
 
             (or (:special-form metadata)
                 (:macro metadata))
-            (throw (new Error (cl-format nil "~%~A:~%Chatty checkers can't be used with special forms or macros.~%(`and` and `or` are allowed, as a special case.)~%~%"
+            (throw (Error. ^String (cl-format nil "~%~A:~%Chatty checkers can't be used with special forms or macros.~%(`and` and `or` are allowed, as a special case.)~%~%"
                                          (colorize/fail "PARSE ERROR"))))))))
 
 

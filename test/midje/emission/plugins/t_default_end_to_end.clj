@@ -15,8 +15,10 @@
  (fact (+ 1 1) =not=> 2)
  (fact
    @fact-output => #"FAIL"
-   (strip-ansi-coloring @fact-output) => #"Expected: Anything BUT 2"
-   (strip-ansi-coloring @fact-output) => #"Actual:\s+2"))
+   (strip-ansi-coloring @fact-output) => #"Expected: Anything BUT"
+   (strip-ansi-coloring @fact-output) => #"2"
+   (strip-ansi-coloring @fact-output) => #"Actual:"
+   (strip-ansi-coloring @fact-output) => #"2"))
 
 (capturing-failure-output
  (fact (+ 1 1) => odd?)
