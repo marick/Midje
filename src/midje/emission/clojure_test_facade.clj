@@ -16,7 +16,6 @@
 (defn note-fail [] (ct/inc-report-counter :fail))
 (defn note-test [] (ct/inc-report-counter :test))
 
-
 (defn run-tests
   "Run clojure.test tests in the given namespaces. It does not
    affect the Midje fact counters but instead returns a map
