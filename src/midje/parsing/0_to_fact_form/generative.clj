@@ -1,4 +1,4 @@
-(ns ^{:doc ""}
+(ns ^{:doc "Check multiple facts given clojure.check generated values, failing values are shrunk before being shown."}
   midje.parsing.0-to-fact-form.generative
   (:require [midje.emission.api :as emission]
             [midje.emission.colorize :as color]
