@@ -7,7 +7,7 @@
 
 (defn stop [service-tag]
   (if-let [future (service-tag @scheduled-futures)]
-    (.cancel future true)
+    (future-cancel future)
     (swap! scheduled-futures dissoc service-tag)))
 
 (defn schedule [service-tag function interval]

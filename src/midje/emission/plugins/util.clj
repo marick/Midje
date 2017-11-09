@@ -105,7 +105,7 @@
 (defn function-name
   "Convert a function into a readable name, if possible."
   [function]
-  (->> (.. function getClass getName)
+  (->> (.getName (class function))
        demunge
        ( #(str/split % #"\.|/"))
        (take-last 2)

@@ -7,8 +7,8 @@
             [midje.parsing.util.error-handling :as error]
             [midje.parsing.util.fnref :as fnref]))
 
-(defn tag-as-background-fake [fake]
-  `(~@fake :background :background :times (range 0)))
+(defn tag-as-background-fake [fake line-override]
+  `(~@fake :position ~line-override :background :background :times (range 0)))
 
 (defn- compiler-will-inline-fn? [var]
   (contains? (meta var) :inline))
@@ -45,7 +45,7 @@
    "  ;; ..."
    "  (provided (all-even? ..xs..) => true)"])
 
-(defn valid-pieces [[_ [fnref & args :as call-form] arrow result & overrides]]
+(defn- valid-pieces [[_ [fnref & args :as call-form] arrow result & overrides]]
   (let [actual-var (memoize (partial fnref/resolved-to-actual-var-object fnref))]
     (cond (keyword? fnref)
           (error/report-error call-form

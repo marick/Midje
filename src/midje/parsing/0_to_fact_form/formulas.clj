@@ -45,7 +45,7 @@
                  form))
     form))
 
-(defn valid-pieces [[_formula_ & args :as form]]
+(defn- valid-pieces [[_formula_ & args :as form]]
   (let [[docstring? opts-map bindings body] (deconstruct-formula-args args)
         invalid-keys (remove (partial = :num-trials) (keys opts-map))]
     (cond (not (leaves-contain-arrow? (check-part-of args)))

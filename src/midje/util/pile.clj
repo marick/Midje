@@ -104,7 +104,7 @@
         false
 
         (string? stringlike)
-        (.contains given stringlike)
+        (.contains ^String given stringlike)
 
         :else
         (boolean (re-find stringlike given))))

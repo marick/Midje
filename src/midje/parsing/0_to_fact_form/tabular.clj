@@ -30,7 +30,7 @@
     (map (partial pile/ordered-zipmap headings-row) value-rows)))
 
 
-(defn valid-pieces [full-form locals]
+(defn- valid-pieces [full-form locals]
   (let [[metadata [fact-form & table]] (metadata/separate-two-level-metadata full-form)
         [headings-row values] (headings-rows+values table locals)]
     (cond (empty? table)
