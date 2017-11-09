@@ -45,6 +45,8 @@
   (silent-body 'midje.sweet/tabular &form))
 (defmacro silent-formula [& _]
   (silent-body 'midje.sweet/formula &form))
+(defmacro silent-for-all [& _]
+  (silent-body 'midje.sweet/for-all &form))
 (defmacro silent-against-background [& _]
   (silent-body 'midje.sweet/against-background &form))
 (defmacro silent-with-state-changes [& _]

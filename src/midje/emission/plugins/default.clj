@@ -12,6 +12,9 @@
 (defn fail [failure-map]
   (util/emit-lines (lines/summarize failure-map)))
 
+(defn info [lines]
+  (util/emit-lines lines))
+
 (def last-namespace-shown (atom nil))
 
 (defn set-last-namespace-shown! [string]
@@ -90,6 +93,7 @@
 
 (def emission-map (merge silence/emission-map
                          (make-map :fail
+                                   :info
                                    :future-fact
                                    :starting-to-check-fact
                                    :possible-new-namespace
