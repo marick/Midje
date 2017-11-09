@@ -8,6 +8,7 @@
                  ;; structural-typing currently broken with specter 0.13
                  ;; [marick/structural-typing "2.0.4" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
                  [org.clojure/math.combinatorics "0.1.4"]
+                 [io.aviso/pretty "0.1.34"]
                  [org.clojure/core.unify "0.5.7" :exclusions [org.clojure/clojure]]
                  [clj-time "0.13.0" :exclusions [org.clojure/clojure]]
                  [colorize "0.1.1" :exclusions [org.clojure/clojure]]

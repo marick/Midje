@@ -4,6 +4,7 @@
   (:require [clojure.java.io :as io]
             [commons.clojure.core :refer :all :exclude [any?]]
             [midje.checking.facts :as fact-checking]
+            [midje.util.exceptions :as exceptions]
             [midje.config :as config]
             [midje.data.compendium :as compendium]
             [midje.data.fact :as fact-data]
@@ -205,7 +206,12 @@
           ;; That way, some error in the fresh namespace won't appear to
           ;; come from the last-loaded namespace.
           (emit/possible-new-namespace ns)
-          (require ns :reload)))))
+          (try (require ns :reload)
+               (catch Exception e
+                 (println (color/fail "LOAD FAILURE for " ns))
+                 (if (config/choice :pretty-print)
+                   (println (exceptions/format-exception e))
+                   (println (.getMessage e)))))))))
   "Load given namespaces, as in:
      (load-facts 'midje.t-sweet 'midje.t-repl)
 
@@ -387,7 +393,9 @@
 
 (defn- on-require-failure [the-ns ^Throwable throwable]
   (println (color/fail "LOAD FAILURE for " the-ns))
-  (println (.getMessage throwable))
+  (if (config/choice :pretty-print)
+    (println (exceptions/format-exception throwable))
+    (println (.getMessage throwable)))
   (emit/fail-silently) ; to make sure last line shows a failure.
   (when (config/running-in-repl?)
     (when (re-find #"ould not locate.*classpath" (.getMessage throwable))
