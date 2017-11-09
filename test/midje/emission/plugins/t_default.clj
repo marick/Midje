@@ -64,16 +64,13 @@
                                    :error 1
                                    :lines ["line 1"
                                            "line 2"
-                                           ""
-                                           "summary line"]}))
-    => (contains #"Output from clojure.test"
+                                           "successes"
+                                           "failures"]}))
+    => (contains #"Midje summary"
+                 #"All checks \(2\) succeeded."
+                 #""
+                 #"Output from clojure.test"
                  #"line 1"
                  #"line 2"
-                 #"summary line"
-                 #"Midje summary"
-                 #"All checks \(2\) succeeded.")
-    ))
-
-
-
-
+                 #"successes"
+                 #"failures")))

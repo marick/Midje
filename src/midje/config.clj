@@ -22,8 +22,6 @@
 (defn running-in-repl? []
   started-in-repl?)
 
-
-
 (defonce ^{:dynamic true}
   *config* {:print-level :print-normally
             :colorize (not (ecosystem/on-windows?))

@@ -60,7 +60,7 @@
   ICapturedThrowable
   (throwable [this] ex)
   (friendly-stacktrace [this]
-    (join line-separator (friendly-exception-lines (throwable this) "              "))))
+    (join line-separator (friendly-exception-lines (throwable this) "  "))))
 
 (defn captured-throwable [ex]
   (CapturedThrowable. ex))

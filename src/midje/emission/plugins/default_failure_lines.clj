@@ -33,7 +33,7 @@
                                                         (concat (map #(str "  " %) (rest s))))))))))))
 
           (prefix [[first & more]]
-            (cons (str "       Diffs: " first)
+            (cons (str "Diffs: " first)
                   (map #(str "              " %) more)))]
     (cond (or (every? sequential? pair)
               (every? map? pair)
@@ -47,30 +47,30 @@
   (let [expected (:expected-result m)
         actual (:actual m)]
     (list
-     (str "    Expected:\n" (attractively-stringified-value (:expected-result m)))
-     (str "      Actual:\n" (attractively-stringified-value (:actual m)))
+     (str "Expected:\n" (attractively-stringified-value (:expected-result m)))
+     (str "Actual:\n" (attractively-stringified-value (:actual m)))
      (diffs [actual expected])
      (notes m))))
 
 (defmethod messy-lines :actual-result-should-not-have-matched-expected-value [m]
   (list
-   (str "    Expected: Anything BUT " (attractively-stringified-value (:expected-result m)))
-   (str "      Actual: " (attractively-stringified-value (:actual m)))
+   (str "Expected: Anything BUT\n" (attractively-stringified-value (:expected-result m)))
+   (str "Actual:\n" (attractively-stringified-value (:actual m)))
    (notes m)))
 
 (defmethod messy-lines :actual-result-did-not-match-checker [m]
     (list
       "Actual result did not agree with the checking function."
-      (str "        Actual result: " (attractively-stringified-value (:actual m)))
-      (str "    Checking function: " (:expected-result-form m))
+      (str "Actual result:\n" (attractively-stringified-value (:actual m)))
+      (str "Checking function: " (:expected-result-form m))
       (intermediate-results m)
       (notes m)))
 
 (defmethod messy-lines :actual-result-should-not-have-matched-checker [m]
     (list
       "Actual result was NOT supposed to agree with the checking function."
-      (str "        Actual result: " (attractively-stringified-value (:actual m)))
-      (str "    Checking function: " (:expected-result-form m))))
+      (str "Actual result:\n" (attractively-stringified-value (:actual m)))
+      (str "Checking function: " (:expected-result-form m))))
 
 
 (defmethod messy-lines :some-prerequisites-were-called-the-wrong-number-of-times [m]
