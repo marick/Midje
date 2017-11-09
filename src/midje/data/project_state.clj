@@ -25,8 +25,8 @@
 (defn valid-namespace-symbols [classifieds]
   (letfn [(filenames [fileseq]
             (prn (:file (first fileseq)))
-            (prn (.getName (:file (first fileseq))))
-            (into [] (map #(.getName (:file %)) fileseq)))]
+            (prn (.getName ^java.io.File (:file (first fileseq))))
+            (into [] (map #(.getName ^java.io.File (:file %)) fileseq)))]
     (let [grouped-by-status (group-by :status classifieds)]
       (when-not (empty? (:unreadable grouped-by-status))
         (prn (:unreadable grouped-by-status))
@@ -45,10 +45,10 @@
 ;; but the name below emphasizes it.
 (def namespaces-test-first namespaces)
 
-(defn classifications-on-classpath [prefix]
+(defn- classifications-on-classpath [prefix]
   (let [roots (map io/file (ecosystem/leiningen-paths))
         selecteds (map #(tude/select-subdirectory % prefix) roots)
-        dirnames (map #(.getPath %) selecteds)]
+        dirnames (map #(.getPath ^java.io.File %) selecteds)]
     (mapcat tude/classify-dir-entries dirnames)))
 
 (defn unglob-partial-namespaces [namespaces]
@@ -71,7 +71,7 @@
 
 (defonce state-tracker-atom (atom (nstrack/tracker)))
 
-(defn file-modification-time [file]
+(defn file-modification-time [^java.io.File file]
   (.lastModified file))
 
 (defn latest-modification-time [state-tracker]

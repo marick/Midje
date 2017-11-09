@@ -37,7 +37,7 @@
   (concat (main-exception-lines ex prefix)
           (caused-by-lines ex prefix)))
 
-(defn- caused-by-lines [ex prefix]
+(defn- caused-by-lines [^Throwable ex prefix]
   (when-let [cause (.getCause ex)]
     (let [[message & stacktrace] (friendly-exception-lines cause prefix)]
       (concat ["" (str prefix "Caused by: " message)]

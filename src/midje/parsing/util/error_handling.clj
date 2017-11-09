@@ -1,6 +1,6 @@
 (ns midje.parsing.util.error-handling
   "Utility functions dealing with checking or tranforming forms or zippers."
-  (:require [commons.clojure.core :refer :all :exclude [any?]]
+  (:require [commons.clojure.core :as commons]
             [midje.emission.api :as emit]
             [midje.util.exceptions :refer [user-error-exception-lines]]
             [pointer.core :refer [form-position]]))
@@ -37,7 +37,7 @@
     (if (inside-an-error-handling-wrapper?)
       (parser)
       (binding [*wrap-count* (inc *wrap-count*)]
-        (try+
+        (commons/try+
          (parser)
          (catch (partial = bail-out-of-parsing) _
            false)
@@ -51,6 +51,4 @@
   (emit/fail {:type :parse-error
               :notes notes
               :position (form-position form)})
-  (throw+ bail-out-of-parsing))
-
-
+  (commons/throw+ bail-out-of-parsing))

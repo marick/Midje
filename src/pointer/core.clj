@@ -21,14 +21,18 @@
 (defn compile-time-fallback-position []
   (list (current-file-name) @fallback-line-number))
 
+(defn- this-filename []
+  (.getFileName ^StackTraceElement (second (.getStackTrace (Throwable.)))))
+
 (defn current-file-name []
   ;; clojure.test sometimes runs with *file* bound to #"NO_SOURCE.*".
   ;; This corrects that by looking up the stack. Note that it
   ;; produces a reasonable result for the repl, because the stack
   ;; frame it finds has NO_SOURCE_FILE as its "filename".
-  (if-not (re-find #"NO_SOURCE" *file*)
+  (if-not (or (nil? *file*)
+              (re-find #"NO_SOURCE" *file*))
     (basename *file*)
-    (.getFileName (second (.getStackTrace (Throwable.))))))
+    (this-filename)))
 
 (defn form-position [form]
   (list (current-file-name) (:line (meta form))))

@@ -83,7 +83,7 @@
     (checker [wrapped-throwable]
      (if-not (instance? ICapturedThrowable wrapped-throwable)
        false
-       (let [throwable (.throwable wrapped-throwable)
+       (let [throwable (.throwable ^ICapturedThrowable wrapped-throwable)
              evaluations (map (partial throwable-as-desired? throwable)
                               desiderata)
              failures (filter extended-false? evaluations)]
