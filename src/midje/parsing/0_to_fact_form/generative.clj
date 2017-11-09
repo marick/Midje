@@ -86,8 +86,3 @@
 
 (defn parse-for-all [form]
   (error/parse-and-catch-failure form (build-parser form)))
-
-;; TODO PLM:
-;; - test that fact filtering doesn't apply to nested facts (compare to tabular
-;; behavior)
-;; - show in test that metadata from nested facts isn't lifted to top-level

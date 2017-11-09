@@ -58,10 +58,8 @@
     (:midje/guid metadata) => string?
     (:midje/namespace metadata) => (ns-name *ns*)))
 
-
-
-;; "Background" forms within a prerequisite end up wrapping a newly-constructed fact, so
-;; metadata must be preserved.
+;; "Background" forms within a prerequisite end up wrapping a newly-constructed
+;; fact, so metadata must be preserved.
 
 (unfinished f)
 (fact name "doc string" {:meta (+ 1 2) :symbol 'symbol}
@@ -79,7 +77,3 @@
     (:midje/line metadata) => number?
     (:midje/guid metadata) => string?
     (:midje/namespace metadata) => (ns-name *ns*)))
-
-
-
-

@@ -1,7 +1,24 @@
 (ns behaviors.t-for-all
-  (:require [midje.test-util :refer :all]
+  (:require [midje.data.compendium :as compendium]
+            [midje.repl :as repl]
             [midje.sweet :refer :all]
+            [midje.test-util :refer :all]
             [clojure.test.check.generators :as gen]))
+
+(silent-for-all
+  [strictly-pos gen/s-pos-int
+   any-integer  gen/int]
+  {:seed 1510160943861}
+  (fact (+ strictly-pos any-integer) => pos?))
+(note-that fact-fails (failure-was-at-line 12))
+
+(silent-for-all
+  [strictly-pos gen/s-pos-int
+   any-integer  gen/int]
+  {:seed 1510160943861}
+  (fact 1 => 1)
+  (+ strictly-pos any-integer) => pos?)
+(note-that fact-fails (failure-was-at-line 20))
 
 (silent-for-all "generative tests"
   [strictly-pos gen/s-pos-int
@@ -103,3 +120,36 @@
 (fact "when any fact fails, generated input is shrunk causing all facts to be
       run again"
   @my-inc-count => 2)
+
+(def gen-count (atom 0))
+(def gen-int-with-count
+  (gen/sized (fn [size]
+               (swap! gen-count inc)
+               (gen/choose (- size) size))))
+
+(for-all "an empty `for-all` body is fine; quick-check code is still run"
+  [x gen-int-with-count]
+  {:num-tests 6})
+(fact @gen-count => 6)
+
+(for-all :for-all-test :slow {:priority 5}
+  [x gen/int]
+  (fact :a-for-all-fact x => integer?))
+
+(fact "`for-all` expressions can be tagged and fetched"
+  (let [marked-for-all (repl/fetch-facts *ns* :for-all-test)]
+    (count marked-for-all) => 1
+    (:for-all-test (meta (first marked-for-all))) => true
+    (:priority (meta (first marked-for-all))) => 5))
+
+(fact "tagged facts inside of `for-all` don't get registered"
+  (let [marked-facts (repl/fetch-facts *ns* :a-for-all-fact)]
+    (count marked-facts) => 0))
+
+(def setup-state (atom nil))
+(for-all "with-state-changes works with `for-all`"
+  [strictly-pos gen/s-pos-int]
+  (with-state-changes [(before :facts (reset! setup-state strictly-pos))
+                       (after :facts (reset! setup-state 0))]
+    (fact @setup-state => strictly-pos)))
+(fact @setup-state => 0)
