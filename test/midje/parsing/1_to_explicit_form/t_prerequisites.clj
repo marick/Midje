@@ -1,5 +1,5 @@
 (ns midje.parsing.1-to-explicit-form.t-prerequisites
-  (:require [midje.parsing.1-to-explicit-form.prerequisites :refer :all]
+  (:require [midje.parsing.1-to-explicit-form.prerequisites :as prereqs :refer :all]
             [midje.sweet :refer :all]
             [midje.test-util :refer :all]
             [midje.parsing.2-to-lexical-maps.fakes :refer [fake]]
@@ -12,13 +12,13 @@
         translated `(        (fake (f 1) => 3) (fake (f 2) => (+ 1 1)))
         z (zip/seq-zip original)
         loc (zip/down z)]
-    (expand-prerequisites-into-fake-calls loc) => translated)
+    (#'prereqs/expand-prerequisites-into-fake-calls loc) => translated)
   "including metaconstant prerequisites"
   (let [original `( provided            ...m... =contains=> {:a 'a})
         translated `(        (data-fake ...m... =contains=> {:a 'a}) )
         z (zip/seq-zip original)
         loc (zip/down z)]
-    (expand-prerequisites-into-fake-calls loc) => translated))
+    (#'prereqs/expand-prerequisites-into-fake-calls loc) => translated))
 
 
 (fact "created fakes have the line number of the arrow form"

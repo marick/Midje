@@ -13,7 +13,7 @@
   [x]
   (not (or (map? x) (symbol? x))))
 
-(defn valid-pieces [[_data-fake_ metaconstant arrow contained & overrides :as form]]
+(defn- valid-pieces [[_data-fake_ metaconstant arrow contained & overrides :as form]]
   (cond (not (metaconstant/metaconstant-symbol? metaconstant))
         (error/report-error form
                             (cl-format nil "In `~A ~A ~A`, ~A is not a metaconstant."

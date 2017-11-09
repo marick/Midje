@@ -16,7 +16,7 @@
      (try
        (throw (Exception.))
        (catch Exception e
-         (not (empty? (filter #(.contains % "clojure.main$repl$read_eval_print")
+         (not (empty? (filter #(.contains ^String % "clojure.main$repl$read_eval_print")
                               (map str (.getStackTrace e))))))))
 
 (defn running-in-repl? []
@@ -102,16 +102,16 @@
 (defn describes-callable-matcher? [arg]
   (or (fn? arg) (keyword? arg)))
 
-(defn name-matcher-for [desired]
+(defn- name-matcher-for [desired]
   #(pile/stringlike-matches? desired (fact/name %)))
 (defn callable-matcher-for [desired]
   (comp desired meta))
 
-(defn appropriate-matcher-for [desired]
-  ( (core/branch-on desired
-               describes-name-matcher? name-matcher-for
-               describes-callable-matcher? callable-matcher-for
-               :else (throw (Error. (str "Program error: Bad matcher for " desired))))
+(defn- appropriate-matcher-for [desired]
+  ((core/branch-on desired
+     describes-name-matcher? name-matcher-for
+     describes-callable-matcher? callable-matcher-for
+     :else (throw (Error. (str "Program error: Bad matcher for " desired))))
     desired))
 
 (defn mkfn:fact-filter-predicate [desireds]

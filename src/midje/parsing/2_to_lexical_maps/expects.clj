@@ -53,7 +53,7 @@
     :else
     (throw (Error. (str "Program error: Unknown arrow form " arrow)))))
 
-(defn valid-pieces [[_ call-form arrow expected-result & fakes+overrides]]
+(defn- valid-pieces [[_ call-form arrow expected-result & fakes+overrides]]
   (cond (and (sequential? call-form)
              (= (first call-form) 'provided))
         (error/report-error call-form
