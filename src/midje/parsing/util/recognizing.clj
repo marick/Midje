@@ -75,6 +75,9 @@
 (defn tabular? [form]
   (first-named? form "tabular"))
 
+(defn for-all? [form]
+  (first-named? form "for-all"))
+
 (defn provided? [loc]
   (boolean (and (symbol? (zip/node loc))
                 (= "provided" (name (zip/node loc))))))

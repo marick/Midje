@@ -116,6 +116,7 @@
     recognize/expect?      (wrapping/multiwrap form (wrapping/forms-to-wrap-around :checks))
     recognize/fact?        (macroexpand form)
     recognize/tabular?     (macroexpand form)
+    recognize/for-all?     (macroexpand form)
     sequential?  (preserve-type form (eagerly (map midjcoexpand form)))
     :else        form))
 
