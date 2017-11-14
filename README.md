@@ -9,7 +9,7 @@ Stable version:
 Experimental version: 
 
 ```clojure
-[midje "1.9.0-alpha11"]
+[midje "1.9.0-alpha12"]
 ```
 
 License: [MIT](http://en.wikipedia.org/wiki/MIT_License)
