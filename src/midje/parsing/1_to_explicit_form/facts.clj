@@ -105,20 +105,22 @@
       (first-named? form "with-state-changes")))
 
 (defn midjcoexpand
-  "Descend form, macroexpanding *only* midje forms and placing background wrappers where appropriate."
+  "Descend form, macroexpanding *only* midje forms and placing background
+  wrappers where appropriate."
   [form]
   (branch-on form
-    wrapping/already-wrapped?     form
-    quoted?              form
+    wrapping/already-wrapped?      form
+    quoted?                        form
     recognize/future-fact?         (macroexpand form)
     ;; The `prerequisites` form is not supposed to be used in wrapping style.
     wrapping-background-changer?  (expand-wrapping-background-changer form)
-    recognize/expect?      (wrapping/multiwrap form (wrapping/forms-to-wrap-around :checks))
-    recognize/fact?        (macroexpand form)
-    recognize/tabular?     (macroexpand form)
-    recognize/for-all?     (macroexpand form)
-    sequential?  (preserve-type form (eagerly (map midjcoexpand form)))
-    :else        form))
+    recognize/expect?             (wrapping/multiwrap
+                                    form (wrapping/forms-to-wrap-around :checks))
+    recognize/fact?               (macroexpand form)
+    recognize/tabular?            (macroexpand form)
+    recognize/for-all?            (macroexpand form)
+    sequential?                   (preserve-type form (eagerly (map midjcoexpand form)))
+    :else                         form))
 
 (defn parse-expects [form]
   (pzip/translate-zipper form
