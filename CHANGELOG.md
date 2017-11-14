@@ -2,6 +2,9 @@
 This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
 
+## [1.9.0-alpha12] - 2017-11-14
+- allow `for-all` to appear inside of `fact` forms
+
 ## [1.9.0-alpha11] - 2017-11-09
 - `for-all` construct for quick-check style testing, powered by `clojure.test.check`
 - show more info in load-time exception
