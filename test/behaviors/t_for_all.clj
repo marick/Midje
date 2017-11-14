@@ -159,3 +159,8 @@
                        (after :facts (reset! setup-state 0))]
     (fact @setup-state => strictly-pos)))
 (fact @setup-state => 0)
+
+(fact "you can put for-all inside of a fact"
+  (for-all
+    [x gen/int]
+    x => integer?))
