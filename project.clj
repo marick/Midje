@@ -1,4 +1,4 @@
-(defproject midje "1.9.0-alpha12"
+(defproject midje "1.9.0-alpha13"
   :description "A TDD library for Clojure that supports top-down ('mockish') TDD, encourages readable tests, provides a smooth migration path from clojure.test, balances abstraction and concreteness, and strives for graciousness."
   :url "https://github.com/marick/Midje"
   :pedantic? :warn
@@ -44,4 +44,4 @@
 
   ;; For Clojure snapshots
   :repositories {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"
-                 "stuartsierra-releases" "http://stuartsierra.com/maven2"})
+                 "stuartsierra-releases" "https://stuartsierra.com/maven2"})

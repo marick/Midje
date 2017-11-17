@@ -3,6 +3,7 @@
   (:require [commons.clojure.core :refer :all :exclude [any?]]
             ;; TODO: Shouldn't really have this dependency.
             [midje.emission.plugins.util :as names]
+            [midje.checking.checkers.defining :as defining]
             [such.sequences :as seq]))
 
 ;;; There is a notion of "extended falsehood", in which a false value may be a
@@ -61,7 +62,8 @@
     (cond
       (data-laden-falsehood? actual)           [actual {}]
       (data-laden-falsehood? expected)         [expected {}]
-      (extended-fn? expected)                  (evaluate-checking-function expected actual)
+      (or (extended-fn? expected)
+          (defining/checker? expected))        (evaluate-checking-function expected actual)
       (every? regex? [actual expected])        [(= (str actual) (str expected)) {}]
       (regex? expected)                        [(re-find expected actual) {}]
       (and (record? actual)

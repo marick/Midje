@@ -1,5 +1,6 @@
 (ns midje.checking.checkers.collection-util
   (:require [commons.clojure.core :refer :all :exclude [any?]]
+            [midje.checking.checkers.defining :as defining]
             [midje.checking.core :refer :all]))
 
 (defn same-lengths? [actual expected]
@@ -10,6 +11,7 @@
    in a seq? (Ex: regex #'a+' can match 'a' and 'aa'.)"
   [checker]
   (or (extended-fn? checker)
+      (defining/checker? checker)
       (regex? checker)))
 
 (defn total-match?
