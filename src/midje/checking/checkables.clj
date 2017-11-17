@@ -3,6 +3,7 @@
   (:require [commons.clojure.core :refer :all :exclude [any?]]
             [midje.checking.core :refer :all]
             [midje.config :as config]
+            [midje.checking.checkers.defining :as defining]
             [midje.data.nested-facts :as nested-facts]
             [midje.data.prerequisite-state :refer :all]
             [midje.emission.api :as emit]
@@ -22,7 +23,10 @@
       base
       (assoc base :midje/table-bindings table-bindings))))
 
-(def ^{:private true} has-function-checker? (comp extended-fn? :expected-result))
+(defn- has-function-checker? [checkable-map]
+  (let [expected (:expected-result checkable-map)]
+    (or (defining/checker? expected)
+        (extended-fn? expected))))
 
 (defn map-record-mismatch-addition [actual expected]
   {:notes [(inherently-false-map-to-record-comparison-note actual expected)]})
@@ -49,7 +53,8 @@
 
 (defn- check-for-mismatch [actual checkable-map]
   (let [expected (:expected-result checkable-map)]
-    (cond (inherently-false-map-to-record-comparison? actual expected)
+    (cond (and (not (defining/checker? expected))
+               (inherently-false-map-to-record-comparison? actual expected))
           (emit/fail (merge (minimal-failure-map :actual-result-should-not-have-matched-expected-value actual checkable-map)
                             (map-record-mismatch-addition actual expected)))
 
