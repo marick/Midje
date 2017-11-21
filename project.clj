@@ -1,4 +1,4 @@
-(defproject midje "1.9.0-alpha12"
+(defproject midje "1.9.0"
   :description "A TDD library for Clojure that supports top-down ('mockish') TDD, encourages readable tests, provides a smooth migration path from clojure.test, balances abstraction and concreteness, and strives for graciousness."
   :url "https://github.com/marick/Midje"
   :pedantic? :warn
@@ -25,7 +25,7 @@
              :test-libs {:dependencies [[prismatic/plumbing "0.5.4"]]}
              :1.7 [:test-libs {:dependencies [[org.clojure/clojure "1.7.0"]]}]
              :1.8 [:test-libs {:dependencies [[org.clojure/clojure "1.8.0"]]}]
-             :1.9 [:test-libs {:dependencies [[org.clojure/clojure "1.9.0-alpha17"]]}]
+             :1.9 [:test-libs {:dependencies [[org.clojure/clojure "1.9.0-RC1"]]}]
              ;; The following profile can be used to check that `lein with-profile`
              ;; profiles are obeyed. Note that profile `:test-paths` *add on* to the
              ;; defaults.
