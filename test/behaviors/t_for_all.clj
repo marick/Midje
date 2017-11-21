@@ -3,6 +3,7 @@
             [midje.emission.state :as state]
             [midje.repl :as repl]
             [midje.sweet :refer :all]
+            [midje.experimental :refer [for-all]]
             [midje.test-util :refer :all]
             [clojure.test.check.generators :as gen]))
 
@@ -11,7 +12,7 @@
    any-integer  gen/int]
   {:seed 1510160943861}
   (fact (+ strictly-pos any-integer) => pos?))
-(note-that fact-fails (failure-was-at-line 13))
+(note-that fact-fails (failure-was-at-line 14))
 
 (silent-for-all
   [strictly-pos gen/s-pos-int
@@ -19,7 +20,7 @@
   {:seed 1510160943861}
   (fact 1 => 1)
   (+ strictly-pos any-integer) => pos?)
-(note-that fact-fails (failure-was-at-line 21))
+(note-that fact-fails (failure-was-at-line 22))
 
 (silent-for-all "generative tests"
   [strictly-pos gen/s-pos-int

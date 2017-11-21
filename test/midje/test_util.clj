@@ -46,7 +46,7 @@
 (defmacro silent-formula [& _]
   (silent-body 'midje.sweet/formula &form))
 (defmacro silent-for-all [& _]
-  (silent-body 'midje.sweet/for-all &form))
+  (silent-body 'midje.experimental/for-all &form))
 (defmacro silent-against-background [& _]
   (silent-body 'midje.sweet/against-background &form))
 (defmacro silent-with-state-changes [& _]
