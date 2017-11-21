@@ -1,15 +1,9 @@
 Available via [clojars](https://clojars.org/midje)
 
-Stable version: 
+Stable version:
 
 ```clojure
-[midje "1.8.3"]
-```
-
-Experimental version: 
-
-```clojure
-[midje "1.9.0-alpha12"]
+[midje "1.9.0"]
 ```
 
 License: [MIT](http://en.wikipedia.org/wiki/MIT_License)

@@ -2,6 +2,43 @@
 This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
 
+## [1.9.0] - 2017-11-21
+
+### Changed
+- [POTENTIALLY BREAKING] Fail when `=contains=>` targets a non-map value, such as a vector, which has unclear semantics. A fact that looks like
+
+```clojure
+(unfinished gen-list)
+(fact
+  (first (gen-list)) => 'list
+  (provided
+    (gen-list) => ..some-list..
+    ..some-list.. =contains=> ['list 'contains 'not-suppored]`))
+```
+
+can be updated to
+
+```clojure
+(let [some-list ['list 'contains 'not-suppored]
+  (fact
+    (first (gen-list)) => 'list
+    (provided
+      (gen-list) => some-list)))
+```
+
+Note that clojure doesn't allow var names that begin with `.` (like `..some-metaconstant..`) in `let`-forms
+
+### Added
+- Experimental [`for-all`](https://github.com/marick/Midje/wiki/Generative-testing-with-for-all) construct for quick-check style testing, powered by `clojure.test.check`. Currently in the `midje.experimental` namespace.
+- Pretty printing output and exceptions. Can be disabled by setting the `:pretty-print` configuration to `false`.
+- Support for the using the same metaconstant in a function fake and `=contains=>` ([#159](https://github.com/marick/Midje/issues/159))
+
+### Removed
+- Drop support for Clojure `1.5` and `1.6`
+
+### Fixed
+See fixes noted in versions since `1.8.3`
+
 ## [1.9.0-alpha12] - 2017-11-14
 - allow `for-all` to appear inside of `fact` forms
 

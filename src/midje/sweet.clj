@@ -27,7 +27,6 @@
             [midje.parsing.util.wrapping :as wrapping]
             [pointer.core :as pointer]
             [midje.parsing.0-to-fact-form.tabular :as parse-tabular]
-            [midje.parsing.0-to-fact-form.generative :as parse-generative]
             [midje.parsing.0-to-fact-form.formulas :as parse-formulas]
             [midje.parsing.1-to-explicit-form.facts :as parse-facts]
             [midje.parsing.1-to-explicit-form.parse-background :as parse-background]
@@ -220,25 +219,6 @@
   [& _]
   (pointer/set-fallback-line-number-from &form)
   (parse-tabular/parse (keys &env) &form))
-
-(defmacro for-all
-  "Check facts using values generated using test.check
-
-  Options
-  :seed       used to re-run previous checks
-  :max-size   controls the size of generated vlues
-  :num-tests  how many times to run the checks
-
-  (for-all 'name \"doc string\"
-    [pos-int gen/s-pos-int]
-    {:num-tests 10}
-    (fact pos-int => integer?))"
-  {:arglists '([binding-form & facts]
-               [name doc-string binding-form opts-map & facts])}
-  [& _]
-  (pointer/set-fallback-line-number-from &form)
-  (parse-generative/parse-for-all &form))
-
 
 (defmacro metaconstants
   "For a few operations, such as printing and equality checking,
