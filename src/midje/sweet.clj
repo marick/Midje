@@ -1,5 +1,5 @@
-(require 'midje.Bootstrap)
-(midje.Bootstrap/bootstrap)
+(require 'midje.bootstrap)
+(midje.bootstrap/bootstrap)
 
 (ns ^{:doc "A TDD library for Clojure that supports top-down ('mockish') TDD,
             encourages readable tests, provides a smooth migration path from
