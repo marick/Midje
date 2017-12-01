@@ -11,21 +11,21 @@
                  [io.aviso/pretty "0.1.34"]
                  [org.clojure/core.unify "0.5.7" :exclusions [org.clojure/clojure]]
                  [org.clojure/test.check "0.9.0"]
-                 [clj-time "0.13.0" :exclusions [org.clojure/clojure]]
+                 [clj-time "0.14.2" :exclusions [org.clojure/clojure]]
                  [colorize "0.1.1" :exclusions [org.clojure/clojure]]
                  [org.clojure/tools.macro "0.1.5"]
-                 [org.tcrawley/dynapath "0.2.5"]
+                 [org.tcrawley/dynapath "1.0.0"]
                  [swiss-arrows "1.0.0" :exclusions [org.clojure/clojure]]
                  [org.clojure/tools.namespace "0.2.11"]
                  [flare "0.2.9" :exclusions [org.clojure/clojure]]
                  [slingshot "0.12.2"]
-                 [mvxcvi/puget "1.0.1" :exclusions [org.clojure/clojure]]]
-  :profiles {:dev {:dependencies [[prismatic/plumbing "0.5.4"]]
+                 [mvxcvi/puget "1.0.2" :exclusions [org.clojure/clojure]]]
+  :profiles {:dev {:dependencies [[prismatic/plumbing "0.5.5"]]
                    :plugins [[lein-midje "3.2.1"]]}
-             :test-libs {:dependencies [[prismatic/plumbing "0.5.4"]]}
+             :test-libs {:dependencies [[prismatic/plumbing "0.5.5"]]}
              :1.7 [:test-libs {:dependencies [[org.clojure/clojure "1.7.0"]]}]
              :1.8 [:test-libs {:dependencies [[org.clojure/clojure "1.8.0"]]}]
-             :1.9 [:test-libs {:dependencies [[org.clojure/clojure "1.9.0-RC1"]]}]
+             :1.9 [:test-libs {:dependencies [[org.clojure/clojure "1.9.0-RC2"]]}]
              ;; The following profile can be used to check that `lein with-profile`
              ;; profiles are obeyed. Note that profile `:test-paths` *add on* to the
              ;; defaults.
