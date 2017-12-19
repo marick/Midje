@@ -46,4 +46,4 @@
 
   ;; For Clojure snapshots
   :repositories {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"
-                 "stuartsierra-releases" "http://stuartsierra.com/maven2"})
+                 "stuartsierra-releases" "https://stuartsierra.com/maven2"})
