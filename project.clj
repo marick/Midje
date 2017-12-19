@@ -1,9 +1,11 @@
-(defproject midje "1.9.0"
+(defproject midje "1.9.1"
   :description "A TDD library for Clojure that supports top-down ('mockish') TDD, encourages readable tests, provides a smooth migration path from clojure.test, balances abstraction and concreteness, and strives for graciousness."
   :url "https://github.com/marick/Midje"
   :pedantic? :warn
-  :dependencies [[org.clojure/clojure "1.8.0"]
+  :dependencies [[org.clojure/clojure "1.9.0"]
                  [marick/suchwow "6.0.0" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
+                 ;; for now pin specter version to override old version in suchwow. Remove once suchwow is updated
+                 [com.rpl/specter "1.0.4" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
                  [marick/clojure-commons "3.0.0" :exclusions [org.clojure/clojure]]
                  ;; structural-typing currently broken with specter 0.13
                  ;; [marick/structural-typing "2.0.4" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
@@ -25,7 +27,7 @@
              :test-libs {:dependencies [[prismatic/plumbing "0.5.5"]]}
              :1.7 [:test-libs {:dependencies [[org.clojure/clojure "1.7.0"]]}]
              :1.8 [:test-libs {:dependencies [[org.clojure/clojure "1.8.0"]]}]
-             :1.9 [:test-libs {:dependencies [[org.clojure/clojure "1.9.0-RC2"]]}]
+             :1.9 [:test-libs {:dependencies [[org.clojure/clojure "1.9.0"]]}]
              ;; The following profile can be used to check that `lein with-profile`
              ;; profiles are obeyed. Note that profile `:test-paths` *add on* to the
              ;; defaults.
