@@ -2,6 +2,11 @@
 This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
 
+## [1.9.1] - 2017-12-19
+
+- pin specter version to fix import warning in suchwow
+- use released version of clojure 1.9
+
 ## [1.9.0] - 2017-11-21
 
 ### Changed
