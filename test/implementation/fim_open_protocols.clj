@@ -36,4 +36,9 @@
 
 
 
+(defprotocol Caller
+  (call [caller x]))
+
+(defn fake-func [arg] 'shouldnt-return)
+
 

@@ -9,6 +9,10 @@
 
 (defrecord R [x m a])
 
+(defrecord Container [value]
+  Object
+  (toString [this] (str value)))
+
 (fact "Different forms can be attractively printed"
   (test-util/strip-ansi-coloring
     (attractively-stringified-value even?)) => "\"core/even?\""
@@ -23,13 +27,23 @@
   (test-util/strip-ansi-coloring
     (attractively-stringified-value #{[1] [:a]})) => (some-checker "#{[1] [:a]}" "#{[:a] [1]}")
   (test-util/strip-ansi-coloring
-    (attractively-stringified-value {[1] "1" [:a] "a"})) => (some-checker "{[1] \"1\" [:a] \"a\"}" "{[:a] \"a\" [1] \"1\"}")
-  (attractively-stringified-value (R. 1 2 3)) => #"\{:a 3, :m 2, :x 1\}::\S+\.R")
+    (attractively-stringified-value {[1] "1" [:a] "a"})) => (some-checker "{[1] \"1\" [:a] \"a\"}" "{[:a] \"a\" [1] \"1\"}"))
+
+(facts "Attractively printing records"
+  (fact "uses the dispatch macro classname notation"
+    (test-util/strip-ansi-coloring
+      (attractively-stringified-value (R. 1 2 3))) => #"\#[^\s\#]+\ \{:a 3 :m 2 :x 1\}")
+  (fact "It should be visible to users when records are nested within records"
+    (test-util/strip-ansi-coloring
+      (attractively-stringified-value (Container. (R. 1 2 3)))) => #"\#[^\s\#]+\s\{:value \#[^\s\#]+\s\{:a 3 :m 2 :x 1\}}"))
 
 (facts "Configuring :pretty-print settings"
   (fact "You can turn off fancy pretty printing"
     (config/with-augmented-config {:pretty-print false}
       (attractively-stringified-value {:b 2 :a 1}) => "{:a 1, :b 2}"))
+  (fact "Record printing w/o pretty printing. Element ordering isn't guaranteed"
+    (config/with-augmented-config {:pretty-print false}
+      (attractively-stringified-value (Container. (R. 1 2 3))) => #"\#[^\s\#]+\{:value \#[^\s\#]+\{:[a-z] \d, :[a-z] \d, :[a-z] \d\}}"))
   (fact "By default pretty-printing is on, and will print formatted, colored output"
     (test-util/strip-ansi-coloring
       (attractively-stringified-value {:b 2 :a 1})) => "{:a 1 :b 2}"
