@@ -2,7 +2,6 @@
   "Functions useful when using Midje in the repl or from the command line.
    See `midje-repl-help` for details."
   (:require [clojure.java.io :as io]
-            [commons.clojure.core :refer :all :exclude [any?]]
             [midje.checking.facts :as fact-checking]
             [midje.util.exceptions :as exceptions]
             [midje.config :as config]
@@ -18,12 +17,12 @@
             [midje.util.ecosystem :as ecosystem]
             [midje.util.pile :as pile]
             [midje.util.scheduling :as scheduling]
+            [clojure.pprint :refer [cl-format]]
             [such.function-makers :as mkfn]
+            [such.shorthand :refer [not-empty?]]
             [such.immigration :as immigrate]))
 
 (fact-data/make-getters *ns* "fact-")
-
-
 
 (when (doc/appropriate?)
   (immigrate/import-vars [midje.doc midje-repl])
@@ -186,7 +185,7 @@
 ;; on test namespaces preceding source namespaces.)
 
 (defn- forget-certain-namespaces! [namespaces]
-  (dosync (alter @#'clojure.core/*loaded-libs* difference (set namespaces))))
+  (dosync (alter @#'clojure.core/*loaded-libs* clojure.set/difference (set namespaces))))
 
 (defn- unloaded? [ns]
   (not (contains? @@#'clojure.core/*loaded-libs* ns)))

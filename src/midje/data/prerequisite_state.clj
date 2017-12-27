@@ -1,6 +1,9 @@
 (ns ^{:doc "Maintain the use of namespace-specific prerequisites"}
   midje.data.prerequisite-state
-  (:require [commons.clojure.core :refer :all :exclude [any?]]
+  (:require [such.control-flow :refer [branch-on]]
+            [such.types :as types]
+            [such.symbols :refer [+symbol]]
+            [such.shorthand :refer [find-first]]
             [midje.checking.core :refer :all]
             [midje.config :as config]
             [midje.data.metaconstant :as mc]
@@ -41,7 +44,7 @@
        (bound? (:var fake))
        (let [value-in-var (var-get (:var fake))
              unfinished-fun (:midje/unfinished-fun (meta (:var fake)))]
-         (and (extended-fn? value-in-var)
+         (and (types/extended-fn? value-in-var)
               (or (nil? unfinished-fun)
                   (not= unfinished-fun value-in-var))))))
 
@@ -83,7 +86,7 @@
 (defn- ^{:testable true} handle-mocked-call [function-var actual-args fakes]
   (let [action (counting-nested-calls (best-call-action function-var actual-args fakes))]
     (branch-on action
-      extended-fn?
+      types/extended-fn?
       (apply action actual-args)
 
       map?

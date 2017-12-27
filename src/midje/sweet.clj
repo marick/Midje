@@ -10,15 +10,14 @@
   ;; The following lets us avoid a circular dependency. Sigh.
   (:require midje.parsing.1-to-explicit-form.future-facts)
 
-  (:require [commons.clojure.core :refer :all :exclude [any?]]
-            [midje.parsing.util.core :refer :all]
+  (:require [midje.parsing.util.core :refer :all]
             [midje.production-mode :refer :all])
   ;; For immigration
   (:require [midje.doc :as doc]
             midje.checking.checkables
             midje.checkers)
   (:require [clojure.string :as str]
-            [commons.ns :as ns]
+            [such.ns :as ns]
             [midje.util.pile :as pile]
             [midje.util.exceptions :as exceptions]
             [midje.util.ecosystem :as ecosystem]
@@ -34,6 +33,7 @@
             [midje.parsing.1-to-explicit-form.metaconstants :as parse-metaconstants]
             [midje.data.nested-facts :as nested-facts]
             [midje.emission.api :as emit]
+            [clojure.pprint :as pprint]
             [such.immigration :as immigrate]))
 
 (immigrate/import-all-vars midje.parsing.arrow-symbols)
@@ -64,7 +64,7 @@
   (pile/macro-for [name names]
      `(do
         (defn ~name [& args#]
-          (let [pprint# (partial cl-format nil "~S")]
+          (let [pprint# (partial pprint/cl-format nil "~S")]
             (throw (exceptions/user-error (format "#'%s has no implementation, but it was called like this:%s(%s %s)"
                                                   '~name ecosystem/line-separator '~name
                                                   (str/join " " (map pprint# args#)))))))

@@ -1,17 +1,17 @@
 (ns ^{:doc "Generating functions that work on fake maps."}
   midje.parsing.3-from-lexical-maps.from-fake-maps
-  (:require [commons.clojure.core :refer :all :exclude [any?]]
-            [midje.checkers :as checkers]
+  (:require [midje.checkers :as checkers]
             [midje.checking.core :refer :all]
             [midje.checking.checkers.defining :refer [checker?]]
             [midje.parsing.arrow-symbols :refer :all]
-            [midje.util.exceptions :as exceptions]))
+            [midje.util.exceptions :as exceptions]
+            [such.types :as types]))
 
 (defn- mkfn:arg-matcher
   "Based on an expected value, generates a function that returns
   true if the actual value matches it."
   [expected]
-  (if (and (extended-fn? expected)
+  (if (and (types/extended-fn? expected)
            (not (checker? expected)))
     (fn [actual] (extended-= actual (checkers/exactly expected)))
     (fn [actual] (extended-= actual expected))))

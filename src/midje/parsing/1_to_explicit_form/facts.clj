@@ -1,7 +1,8 @@
 (ns ^{:doc "Parsing facts."}
   midje.parsing.1-to-explicit-form.facts
   (:require [clojure.zip :as zip]
-            [commons.clojure.core :refer :all :exclude [any?]]
+            [such.control-flow :refer [branch-on]]
+            [clojure.pprint :as pprint]
             [midje.data.compendium :as compendium]
             [midje.parsing.1-to-explicit-form.expects :refer [wrap-with-expect__then__at-rightmost-expect-leaf]]
             [midje.parsing.1-to-explicit-form.metaconstants :refer [predefine-metaconstants-from-form]]
@@ -92,11 +93,11 @@
 (defn expand-wrapping-background-changer [form]
   (parse-background/assert-right-shape! form)
   (parse-background/assert-contains-facts! form)
-  (-<> form
+  (->> form
        parse-background/body-of-against-background
        midjcoexpand
-       (wrapping/with-additional-wrappers (parse-background/against-background-facts-and-checks-wrappers form) <>)
-       (wrapping/multiwrap <> (parse-background/against-background-contents-wrappers form))))
+       (wrapping/with-additional-wrappers (parse-background/against-background-facts-and-checks-wrappers form))
+       (#(wrapping/multiwrap % (parse-background/against-background-contents-wrappers form)))))
 
 ;; Note that this predicate assumes that extractable (non-wrapping) background changers
 ;; have already been extracted from the body of a fact.
@@ -129,7 +130,7 @@
 
 (defn report-check-arrow-shape [form]
   (error/report-error form
-                      (cl-format nil "    This form: ~A" form)
+                      (pprint/cl-format nil "    This form: ~A" form)
                       "... has the wrong shape. Expecting: (<actual> => <expected> [<keyword-value pairs>*])"))
 
 

@@ -1,7 +1,6 @@
 (ns midje.util.pile
   "Functions that are somewhat general purpose."
-  (:require [commons.clojure.core :refer :all :exclude [any?]]
-            [midje.util.ordered-map :refer [ordered-map]]
+  (:require [midje.util.ordered-map :refer [ordered-map]]
             [such.maps :as map]))
 
 ;;; Named things
@@ -18,7 +17,7 @@
 (defn name-object [object name]
   (vary-meta object assoc :name name))
 
-;;; Maps
+;;; Maps
 
 (defn sort-map [m]
   (into (sorted-map) m))
@@ -36,9 +35,7 @@
              (next vs))
       m)))
 
-
-
-;;; Sequences
+;;; Sequences
 
 (defn rotations
   "Returns a lazy seq of all rotations of a seq"
@@ -51,16 +48,14 @@
   [f x]
   (cons (f (first x)) (rest x)))
 
-
-
 (defn apply-pairwise
   "(apply-pairwise [inc dec] [1 1] [2 2]) => [ [2 0] [3 1] ]
    Note that the functions must take only a single argument."
   [functions & arglists]
   (map (partial map
-  		(fn [f arg] (f arg))
-  		functions)
-  	arglists))
+                (fn [f arg] (f arg))
+                functions)
+       arglists))
 
 (defn pop-if
   "Extracts optional arg (that we assume is present if the pred is true) from head of args"
@@ -78,7 +73,7 @@
   (partial pop-if map?))
 
 
-;;; Definition helpers
+;;; Definition helpers
 
 (defmacro macro-for
   "Macroexpands the body once for each of the elements in the
@@ -97,7 +92,7 @@
        ~@body)))
 
 
-;;; Randomness
+;;; Randomness
 
 (defn stringlike-matches? [stringlike given]
   (cond (not (string? given))

@@ -1,7 +1,6 @@
 (ns ^{:doc "Emissions change global state: the output and the pass/fail record."}
   midje.emission.api
-  (:require [commons.clojure.core :refer :all :exclude [any?]]
-            [midje.config :as config]
+  (:require [midje.config :as config]
             [midje.emission.clojure-test-facade :as ctf]
             [midje.emission.levels :as levels]
             [midje.emission.state :as state]

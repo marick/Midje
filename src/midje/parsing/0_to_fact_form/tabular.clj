@@ -2,7 +2,6 @@
   midje.parsing.0-to-fact-form.tabular
   (:require [clojure.string :as str]
             [clojure.zip :as zip]
-            [commons.clojure.core :refer :all :exclude [any?]]
             [midje.data.metaconstant :refer [metaconstant-symbol?]]
             [midje.emission.deprecation :refer [deprecate]]
             [midje.parsing.1-to-explicit-form.facts :as parse-facts]

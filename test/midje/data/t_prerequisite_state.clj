@@ -1,6 +1,5 @@
 (ns midje.data.t-prerequisite-state
-  (:require [commons.clojure.core :refer :all :exclude [any?]]
-            [midje
+  (:require [midje
              [sweet :refer :all]
              [test-util :refer :all]]
             [midje.data.prerequisite-state :refer [binding-map implements-a-fake? usable-default-function?]]
@@ -9,6 +8,7 @@
             [midje.parsing.2-to-lexical-maps.data-fakes :refer [data-fake]]
             [midje.util :refer :all]
             [midje.config :as config]
+            [such.shorthand :as shorthand]
             [such.sequences :as seq]))
 
 (expose-testables midje.data.prerequisite-state)
@@ -40,11 +40,6 @@
 
     ( (result-map #'f) 1) => 3
     (map #(deref (:call-count-atom %)) fakes) => [1 0]))
-
-
-
-
-
 
 (defn called-because-mock-checking-requires-it [] nil)
 (defn has-faked-function []
@@ -92,8 +87,8 @@
 
   (defn message-about-mocking-midje-functions [reported]
     (let [important-error
-          (find-first #(= (:type %) :actual-result-did-not-match-checker)
-                      reported)]
+          (shorthand/find-first #(= (:type %) :actual-result-did-not-match-checker)
+                                reported)]
       (and important-error
            (.getMessage (.throwable (:actual important-error))))))
 

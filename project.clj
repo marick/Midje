@@ -1,12 +1,9 @@
-(defproject midje "1.9.2"
+(defproject midje "1.9.2-SNAPSHOT"
   :description "A TDD library for Clojure that supports top-down ('mockish') TDD, encourages readable tests, provides a smooth migration path from clojure.test, balances abstraction and concreteness, and strives for graciousness."
   :url "https://github.com/marick/Midje"
   :pedantic? :warn
   :dependencies [[org.clojure/clojure "1.9.0"]
-                 [marick/suchwow "6.0.1" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
-                 [marick/clojure-commons "3.0.0" :exclusions [org.clojure/clojure]]
-                 ;; structural-typing currently broken with specter 0.13
-                 ;; [marick/structural-typing "2.0.4" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
+                 [marick/suchwow "6.0.2" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
                  [org.clojure/math.combinatorics "0.1.4"]
                  [io.aviso/pretty "0.1.34"]
                  [org.clojure/core.unify "0.5.7" :exclusions [org.clojure/clojure]]
@@ -15,7 +12,6 @@
                  [colorize "0.1.1" :exclusions [org.clojure/clojure]]
                  [org.clojure/tools.macro "0.1.5"]
                  [org.tcrawley/dynapath "1.0.0"]
-                 [swiss-arrows "1.0.0" :exclusions [org.clojure/clojure]]
                  [org.clojure/tools.namespace "0.2.11"]
                  [flare "0.2.9" :exclusions [org.clojure/clojure]]
                  [slingshot "0.12.2"]

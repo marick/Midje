@@ -1,5 +1,5 @@
 (ns midje.checking.checkers.collection-util
-  (:require [commons.clojure.core :refer :all :exclude [any?]]
+  (:require [such.types :as types]
             [midje.checking.core :refer :all]))
 
 (defn same-lengths? [actual expected]
@@ -9,8 +9,8 @@
   "Can the checker potentially match non-unique elements
    in a seq? (Ex: regex #'a+' can match 'a' and 'aa'.)"
   [checker]
-  (or (extended-fn? checker)
-      (regex? checker)))
+  (or (types/extended-fn? checker)
+      (types/regex? checker)))
 
 (defn total-match?
   "Have all the expected elements been discovered?"

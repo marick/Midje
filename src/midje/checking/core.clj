@@ -1,8 +1,6 @@
 (ns midje.checking.core
   "Core ideas underlying all checking"
-  (:require [commons.clojure.core :refer :all :exclude [any?]]
-            ;; TODO: Shouldn't really have this dependency.
-            [midje.emission.plugins.util :as names]
+  (:require [such.types :as types]
             [such.sequences :as seq]))
 
 ;;; There is a notion of "extended falsehood", in which a false value may be a
@@ -61,11 +59,11 @@
     (cond
       (data-laden-falsehood? actual)           [actual {}]
       (data-laden-falsehood? expected)         [expected {}]
-      (extended-fn? expected)                  (evaluate-checking-function expected actual)
-      (every? regex? [actual expected])        [(= (str actual) (str expected)) {}]
-      (regex? expected)                        [(re-find expected actual) {}]
+      (types/extended-fn? expected)            (evaluate-checking-function expected actual)
+      (every? types/regex? [actual expected])  [(= (str actual) (str expected)) {}]
+      (types/regex? expected)                  [(re-find expected actual) {}]
       (and (record? actual)
-           (classic-map? expected))            [(= (into {} actual) expected) {}]
+           (types/classic-map? expected))      [(= (into {} actual) expected) {}]
       (= (type expected) java.math.BigDecimal) [(= (compare actual expected) 0) {}]
       :else                                    [(= actual expected) {}])
     (catch Throwable ex [false {:thrown ex}])))

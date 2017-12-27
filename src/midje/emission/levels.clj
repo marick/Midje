@@ -1,8 +1,6 @@
 (ns ^{:doc "print levels"}
   midje.emission.levels
-  (:require [commons.clojure.core :refer :all :exclude [any?]]
-            [midje.util.exceptions :refer [user-error]]))
-
+  (:require [midje.util.exceptions :refer [user-error]]))
 
 (def level-names [:print-nothing :print-no-summary :print-normally :print-namespaces :print-facts])
 (def levels      [-2        -1           0       1           2])

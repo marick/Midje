@@ -1,6 +1,6 @@
 (ns ^{:doc "An intermediate stage in the compilation of prerequisites."}
   midje.parsing.2-to-lexical-maps.fakes
-  (:require [commons.clojure.core :refer :all :exclude [any?]]
+  (:require [clojure.pprint :refer [cl-format]]
             [midje.parsing.arrow-symbols :refer :all]
             [midje.parsing.lexical-maps :as lexical-maps]
             [midje.parsing.util.core :refer :all]

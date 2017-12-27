@@ -1,7 +1,6 @@
 (ns midje.parsing.2-to-lexical-maps.expects
   "generate a map for a particular checkable"
-  (:require [commons.clojure.core :refer :all :exclude [any?]]
-            [midje.data.nested-facts :as nested-facts]
+  (:require [midje.data.nested-facts :as nested-facts]
             [midje.emission.api :as emit]
             [midje.parsing.2-to-lexical-maps.data-fakes :as parse-data-fakes]
             [midje.parsing.2-to-lexical-maps.fakes :as parse-fakes]
@@ -10,6 +9,8 @@
             [midje.parsing.util.core :refer :all]
             [midje.parsing.util.error-handling :as error]
             [midje.parsing.util.recognizing :as recognize]
+            [clojure.pprint :as pprint]
+            [such.control-flow :refer [branch-on]]
             [such.maps :as map]
             [such.sequences :as seq]))
 
@@ -57,7 +58,7 @@
   (cond (and (sequential? call-form)
              (= (first call-form) 'provided))
         (error/report-error call-form
-                            (cl-format nil "... ~S ~A ~S" call-form arrow expected-result)
+                            (pprint/cl-format nil "... ~S ~A ~S" call-form arrow expected-result)
                             "It looks as though you've misparenthesized a prerequisite."))
   (let [[fakes overrides] (seq/bifurcate recognize/fake? fakes+overrides)]
     [call-form arrow expected-result fakes overrides]))

@@ -3,7 +3,6 @@
   (:require [clj-time.local :as time]
             [clojure.java.io :as io]
             [clojure.set]
-            [commons.clojure.core :refer :all :exclude [any?]]
             [midje.config :as config]
             [midje.emission.api :as emit]
             [midje.emission.boundaries :as emission-boundary]
