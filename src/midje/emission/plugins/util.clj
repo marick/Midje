@@ -111,15 +111,6 @@
        (take-last 2)
        (str/join "/")))
 
-(defn record-name [value]
-  (.getName (class value)))
-
-(defn record-name-shorthand [value]
-  (last (str/split (record-name value) #"\.")))
-
-(defn maplike-name [value]
-  (if (classic-map? value) "map" (record-name-shorthand value)))
-
 (defn prerequisite-var-description
   "Takes a var naming a prerequisite and returns a string useful for printing"
   [prerequisite-var]
@@ -144,8 +135,8 @@
   (if (exception/captured-throwable? v)
     (exception/friendly-stacktrace v)
     (let [raw-str (cond (fn? v)     (function-name v)
-                        (record? v) (str (sorted-if-appropriate v) "::" (record-name v))
-                        :else       (sorted-if-appropriate v))]
+                        (record? v) v
+                        :else       (nested-sort v))]
       (cond
         (config/choice :pretty-print)
         (puget/cprint-str raw-str {:print-handlers {Metaconstant puget/pr-handler}

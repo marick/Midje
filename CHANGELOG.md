@@ -2,6 +2,11 @@
 This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
 
+## [1.9.2] - 2017-12-27
+
+- Print records in conventional way `#user.YourRecord {:arg-one 100}`, instead of `{:arg-one 100}::YourRecord`
+- Fix upstream reflection warnings in `suchwow`
+
 ## [1.9.1] - 2017-12-19
 
 - pin specter version to fix import warning in suchwow
