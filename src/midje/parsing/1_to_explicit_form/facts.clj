@@ -1,7 +1,6 @@
 (ns ^{:doc "Parsing facts."}
   midje.parsing.1-to-explicit-form.facts
   (:require [clojure.zip :as zip]
-            [swiss.arrows :refer [-<>]]
             [such.control-flow :refer [branch-on]]
             [clojure.pprint :as pprint]
             [midje.data.compendium :as compendium]
@@ -94,11 +93,11 @@
 (defn expand-wrapping-background-changer [form]
   (parse-background/assert-right-shape! form)
   (parse-background/assert-contains-facts! form)
-  (-<> form
+  (->> form
        parse-background/body-of-against-background
        midjcoexpand
-       (wrapping/with-additional-wrappers (parse-background/against-background-facts-and-checks-wrappers form) <>)
-       (wrapping/multiwrap <> (parse-background/against-background-contents-wrappers form))))
+       (wrapping/with-additional-wrappers (parse-background/against-background-facts-and-checks-wrappers form))
+       (#(wrapping/multiwrap % (parse-background/against-background-contents-wrappers form)))))
 
 ;; Note that this predicate assumes that extractable (non-wrapping) background changers
 ;; have already been extracted from the body of a fact.

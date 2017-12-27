@@ -22,7 +22,6 @@
             [pointer.core :as pointer]
             [clojure.pprint :as pprint]
             [clojure.set :as set]
-            [swiss.arrows :refer [-<>]]
             [such.control-flow :as control-flow]
             [such.shorthand :as shorthand]
             [such.types :as types]
@@ -290,11 +289,11 @@
 ;; can be loaded independently). It seems too convoluted to list everything twice, and the
 ;; worst that can happen from a name clash is that the parse error isn't caught.
 (defn assert-contains-facts! [wrapping-background-form]
-  (let [possibilities (-<> wrapping-background-form
+  (let [possibilities (->> wrapping-background-form
                            body-of-against-background
                            flatten
-                           (filter symbol? <>)
-                           (map name <>)
+                           (filter symbol?)
+                           (map name)
                            set)]
     (when (empty? (set/intersection possibilities at-least-one-string-with-this-name-must-be-present))
       (error/report-error wrapping-background-form
