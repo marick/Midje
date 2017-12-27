@@ -1,7 +1,6 @@
 (ns ^{:doc "Recognizing Midje forms"}
   midje.parsing.util.recognizing
   (:require [clojure.zip :as zip]
-            [commons.clojure.core :refer :all :exclude [any?]]
             [midje.parsing.arrow-symbols :refer :all]
             [midje.parsing.util.core :refer :all]
             [midje.parsing.util.future-variants :as future-variants]
@@ -12,7 +11,7 @@
 
 (def expect-arrows #{=> =not=> =deny=> =future=> =expands-to=> =throw-parse-exception=>})
 (def fake-arrows #{=> =contains=> =streams=> =throws=>})
-(def all-arrows (union expect-arrows fake-arrows))
+(def all-arrows (clojure.set/union expect-arrows fake-arrows))
 
 (defn mkfn:arrow? [& expected]
   (fn [actual] ((set expected) (name actual))))

@@ -2,8 +2,8 @@
   midje.parsing.0-to-fact-form.formulas
   (:require [clojure.string :refer [join]]
             [clojure.walk :refer [prewalk]]
-            [commons.clojure.core :refer :all :exclude [any?]]
             [midje.emission.api :as emit]
+            [such.types :as types]
             [midje.emission.boundaries :as emission-boundary]
             [midje.emission.state :as state]
             [midje.emission.plugins.silence :as emission-silence]
@@ -26,7 +26,7 @@
 ;;; Validation
 
 (defn leaf-expect-arrows [nested-form]
-  (let [named-form-leaves (map name (filter named? (flatten nested-form)))]
+  (let [named-form-leaves (map name (filter types/named? (flatten nested-form)))]
     (filter recognize/expect-arrows named-form-leaves)))
 
 (defn leaves-contain-arrow? [nested-form]
@@ -59,7 +59,7 @@
               (< (count bindings) 2))
           (error/report-error form "Formula requires bindings to be an even numbered vector of 2 or more:")
 
-          (some #(and (named? %) (= "background" (name %))) (flatten args))
+          (some #(and (types/named? %) (= "background" (name %))) (flatten args))
           (error/report-error form "background cannot be used inside of formula")
 
           (not (empty? invalid-keys))

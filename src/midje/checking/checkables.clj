@@ -1,6 +1,7 @@
 (ns ^{:doc "Core Midje functions that process expects and report on their results."}
   midje.checking.checkables
-  (:require [commons.clojure.core :refer :all :exclude [any?]]
+  (:require [such.types :as types]
+            [such.control-flow :refer [branch-on]]
             [midje.checking.core :refer :all]
             [midje.config :as config]
             [midje.data.nested-facts :as nested-facts]
@@ -22,7 +23,7 @@
       base
       (assoc base :midje/table-bindings table-bindings))))
 
-(def ^{:private true} has-function-checker? (comp extended-fn? :expected-result))
+(def ^{:private true} has-function-checker? (comp types/extended-fn? :expected-result))
 
 (defn map-record-mismatch-addition [actual expected]
   {:notes [(inherently-false-map-to-record-comparison-note actual expected)]})

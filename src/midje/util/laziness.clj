@@ -1,7 +1,6 @@
 (ns midje.util.laziness
   "To evaluate a fact it needs to be eagerly evaluated."
-  (:require [commons.clojure.core :refer :all :exclude [any?]]))
-
+  (:require [such.control-flow :refer [branch-on]]))
 
 (defn eagerly
   "Descend form, converting all lazy seqs into lists.

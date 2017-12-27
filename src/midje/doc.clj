@@ -1,7 +1,6 @@
 (ns ^{:doc "In-repl user documentation"}
   midje.doc
   (:require [clojure.java.browse :as browse]
-            [commons.clojure.core :refer :all :exclude [any?]]
             [midje.config :as config]
             [midje.emission.colorize :as color]
             [midje.util.ecosystem :as ecosystem]))

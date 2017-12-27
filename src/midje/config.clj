@@ -5,7 +5,8 @@
             [midje.util.exceptions :refer [user-error]]
             [midje.util.pile :as pile]
             [midje.data.fact :as fact]
-            [commons.clojure.core :as core]
+            [such.types :as types]
+            [such.control-flow :refer [branch-on]]
             [such.function-makers :as mkfn]))
 
 ;;; I consider whether we're running in the repl part of the config. This matters because
@@ -42,8 +43,8 @@
 (defmethod validate-key! :default [_])
 
 (defn validate! [changes]
-  (let [extras (core/difference (set (keys changes))
-                                (set (keys *config*)))]
+  (let [extras (clojure.set/difference (set (keys changes))
+                                       (set (keys *config*)))]
     (when (not (empty? extras))
       (throw (user-error (str "These are not configuration keys: " (vec extras))))))
   (dorun (map validate-key! changes)))
@@ -96,7 +97,7 @@
 
 ;; Fact filters
 
-(def describes-name-matcher? core/stringlike?)
+(def describes-name-matcher? types/stringlike?)
 (defn describes-callable-matcher? [arg]
   (or (fn? arg) (keyword? arg)))
 
@@ -106,7 +107,7 @@
   (comp desired meta))
 
 (defn- appropriate-matcher-for [desired]
-  ((core/branch-on desired
+  ((branch-on desired
      describes-name-matcher? name-matcher-for
      describes-callable-matcher? callable-matcher-for
      :else (throw (Error. (str "Program error: Bad matcher for " desired))))

@@ -1,11 +1,11 @@
 (ns midje.parsing.2-to-lexical-maps.t-expects
   (:require [clojure.test :refer :all]  ;; This is used to check production mode with deftest.
-            [commons.clojure.core :refer :all :exclude [any?]]
             [midje.sweet :refer :all]
             [midje.parsing.2-to-lexical-maps.expects :refer :all]
             [midje.parsing.2-to-lexical-maps.fakes :refer [fake]]
             [midje.parsing.2-to-lexical-maps.data-fakes :refer [data-fake]]
             [midje.test-util :refer :all]
+            [clojure.set :refer [intersection]]
             [midje.util :refer :all]
             [such.sequences :as seq]
             [midje.config :as config]
@@ -22,7 +22,7 @@
 
 (unfinished faked-function mocked-function other-function)
 
-;;;
+;;;
 
 (fact "expect calls emission functions"
   (tabular "emit/pass"

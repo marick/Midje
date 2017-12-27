@@ -1,10 +1,7 @@
-;; Note: checkers need to be exported in ../checkers.clj
-
 (ns ^{:doc "Code to use to compare collections."}
   midje.checking.checkers.collection-comparison
   (:require [clojure.math.combinatorics :as comb]
             [clojure.string :as str]
-            [commons.clojure.core :refer :all :exclude [any?]]
             [midje.checking.core :refer :all]
             [midje.checking.checkers
              [collection-util :refer :all]
@@ -13,6 +10,8 @@
              [defining :refer :all]]
             [midje.util.pile :as pile]
             [such.maps :as map]))
+
+;; Note: checkers need to be exported in ../checkers.clj
 
 ;; There is an annoying only-semi-similarity between maps and sequences.
 ;; These are the generic functions.
@@ -29,7 +28,6 @@
 
 (defmethod collection-string ::not-map [_midje-classification_ elements]
   (str "[" (str/join " " elements) "]"))
-;;-
 
 (defmulti best-actual-match
   "Describe the best actuals found in the comparison."
@@ -51,7 +49,7 @@
     [(str "      It matched: "
        (->> comparison :expected-found (map element-maker) (collection-string midje-classification))
        suffix
-       ".")])) ]
+       ".")]))]
 
   (defmethod best-expected-match ::not-map [midje-classification comparison expected]
     (best-expected-match-wrapper midje-classification

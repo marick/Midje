@@ -1,9 +1,9 @@
 (ns midje.checking.checkers.t-combining
   (:require [midje.sweet :refer :all]
-            [commons.clojure.core :refer :all :exclude [any?]]
             [midje.checking.core :refer :all]
             [midje.checking.checkers.defining :refer [checker?]]
-            [midje.test-util :refer :all]))
+            [midje.test-util :refer :all]
+            [such.types :as types]))
 
 (fact "about 'every' combinations"
   (let [checker (every-checker odd?
@@ -39,8 +39,7 @@
     (sanitized 99) => (contains {:intermediate-results
                                [['(roughly 5 3) false]]})
     (sanitized 3) => (contains {:intermediate-results
-                               [['(fn [actual] (= (str actual) "5" )) false]]})
-    ))
+                               [['(fn [actual] (= (str actual) "5" )) false]]})))
 
 (def mychatty (chatty-checker [actual] (or (= actual 88) (= actual 99))))
 
@@ -61,7 +60,7 @@
     "x1xx" =not=> checks-out
     [1 2 3 4] =not=> checks-out)
   (fact "even such a silly case as a regexp compared to a regexp"
-    #"12*" => (every-checker regex? #"12*")))
+    #"12*" => (every-checker types/regex? #"12*")))
 (fact "You can even use explicit values"
   5 => (every-checker 5 odd? (roughly 5)))
 
@@ -120,5 +119,3 @@
   4 => (some-checker even?
                      (fn [_] (swap! hit-count inc)))
   @hit-count => 0)
-
-

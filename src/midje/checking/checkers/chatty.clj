@@ -1,6 +1,7 @@
 (ns ^{:doc "Checkers that explain more about a failure."}
   midje.checking.checkers.chatty
-  (:require [commons.clojure.core :refer :all :exclude [any?]]
+  (:require [such.control-flow :refer [branch-on]]
+            [clojure.pprint :as pprint]
             [midje.checking.checkers.defining :refer [as-checker]]
             [midje.checking.core :refer :all]
             [midje.emission.colorize :as colorize]
@@ -8,8 +9,6 @@
             [such.sequences :as seq]))
 
 ;; Note: checkers need to be exported in ../checkers.clj
-
-
 
 (defn as-chatty-checker [function]
   (as-checker (vary-meta function assoc :midje/chatty-checker true)))
@@ -57,8 +56,8 @@
 
             (or (:special-form metadata)
                 (:macro metadata))
-            (throw (Error. ^String (cl-format nil "~%~A:~%Chatty checkers can't be used with special forms or macros.~%(`and` and `or` are allowed, as a special case.)~%~%"
-                                         (colorize/fail "PARSE ERROR"))))))))
+            (throw (Error. ^String (pprint/cl-format nil "~%~A:~%Chatty checkers can't be used with special forms or macros.~%(`and` and `or` are allowed, as a special case.)~%~%"
+                                                     (colorize/fail "PARSE ERROR"))))))))
 
 
 (defmacro chatty-checker

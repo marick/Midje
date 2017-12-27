@@ -1,19 +1,19 @@
-;; Note: checkers need to be exported in ../checkers.clj
-
 (ns ^{:doc "Checkers for collections and strings."}
   midje.checking.checkers.collection
-  (:require [commons.clojure.core :refer :all :exclude [any?]]
+  (:require [such.control-flow :refer [branch-on]]
+            [such.types :as types]
+            [clojure.pprint :as pprint]
             [midje.checking.core :refer :all]
-            [midje.checking.checkers
-             [collection-util :refer :all]
-             [util :refer :all]
-             [chatty :refer :all]
-             [defining :refer :all]
-             [collection-comparison :refer :all]]
+            [midje.checking.checkers.collection-util :refer :all]
+            [midje.checking.checkers.util :refer :all]
+            [midje.checking.checkers.chatty :refer :all]
+            [midje.checking.checkers.defining :refer :all]
+            [midje.checking.checkers.collection-comparison :refer :all]
             [midje.util.exceptions :refer [user-error]]
             [midje.util.pile :as pile]
             [such.sequences :as seq]))
 
+;; Note: checkers need to be exported in ../checkers.clj
 
 (def #^:private looseness-modifiers #{:in-any-order :gaps-ok})
 
@@ -39,7 +39,7 @@
   [actual expected looseness]
 
   ;; Throwing Errors is just an implementation convenience.
-  (cond (regex? expected)
+  (cond (types/regex? expected)
         (cond (and (not (sequential? actual))
                    (not (empty? looseness)))
               (throw (user-error (str "I don't know how to make sense of a "
@@ -68,10 +68,10 @@
   (compatibility-check actual expected looseness)
   (cond
     (and (sequential? actual) (set? expected))
-    [actual (vec expected) (union looseness #{:in-any-order})]
+    [actual (vec expected) (clojure.set/union looseness #{:in-any-order})]
 
     (and (sequential? actual) (right-hand-singleton? expected))
-    [actual [expected] (union looseness #{:in-any-order})]
+    [actual [expected] (clojure.set/union looseness #{:in-any-order})]
 
     (sequential? actual)
     [actual expected looseness]
@@ -87,7 +87,7 @@
 
     (and (string? actual)
          (not (string? expected))
-         (not (regex? expected)))
+         (not (types/regex? expected)))
     (recur (vec actual) expected looseness-modifiers)
 
     :else
@@ -117,16 +117,16 @@
                       set? (noted-falsehood (format "Sets don't have %ses." x-name))
                       map? (noted-falsehood (format "Maps don't have %ses." x-name))
                       :else (let [[actual expected looseness] (standardized-arguments actual expected looseness)]
-                              (cond (regex? expected)
+                              (cond (types/regex? expected)
                                     (try-re (pattern-fn expected) actual re-find)
 
                                     (expected-fits? actual expected)
                                     (match? (take-fn (count expected) actual) expected looseness)
 
                                     :else (noted-falsehood
-                                           (cl-format nil
-                                                      "A collection with ~R element~:P cannot match a ~A of size ~R."
-                                                      (count actual) x-name (count expected))))))))
+                                           (pprint/cl-format nil
+                                                             "A collection with ~R element~:P cannot match a ~A of size ~R."
+                                                             (count actual) x-name (count expected))))))))
 
 (def ; has-prefix
   ^{:midje/checker true
@@ -196,7 +196,7 @@ what's contained by a set. The following two are equivalent:
   contains (container-checker-maker 'contains
                                     (fn [actual expected looseness]
                                       (let [[actual expected looseness] (standardized-arguments actual expected looseness)]
-                                        (cond (regex? expected)
+                                        (cond (types/regex? expected)
                                               (try-re expected actual re-find)
 
                                               :else (match? actual expected looseness))))))
@@ -226,16 +226,16 @@ just is also useful if you don't care about order:
   just (container-checker-maker 'just
                                 (fn [actual expected looseness]
                                   (let [[actual expected looseness] (standardized-arguments actual expected looseness)]
-                                    (cond (regex? expected)
+                                    (cond (types/regex? expected)
                                           (try-re expected actual re-matches)
 
                                           (same-lengths? actual expected)
                                           (match? actual expected looseness)
 
                                           :else (noted-falsehood
-                                                 (cl-format nil "Expected ~R element~:P. There ~[were~;was~:;were~]~:* ~R."
-                                                            (count expected)
-                                                            (count actual))))))))
+                                                 (pprint/cl-format nil "Expected ~R element~:P. There ~[were~;was~:;were~]~:* ~R."
+                                                                   (count expected)
+                                                                   (count actual))))))))
 
 (defchecker has
   "You can apply Clojure's quantification functions (every?, some, and so on)
@@ -246,7 +246,7 @@ just is also useful if you don't care about order:
   (checker [actual]
     (let [lifted-quantifier
           (fn [predicate collection]
-            (quantifier #(let [predicate-to-run (if (regex? predicate)
+            (quantifier #(let [predicate-to-run (if (types/regex? predicate)
                                                   (fn [actual] (try-re predicate actual re-find))
                                                   predicate)]
             (extended-true? (predicate-to-run %))) collection))]
@@ -270,7 +270,7 @@ just is also useful if you don't care about order:
   (pile/macro-for [[num num-word] [[1 "one"] [2 "two"] [3 "three"] [4 "four"] [5 "five"]
                                    [6 "six"] [7 "seven"] [8 "eight"] [9 "nine"] [10 "ten"]]]
     (let [name (symbol (str num-word "-of"))
-          docstring (cl-format nil "Checks whether a sequence contains precisely ~R result~:[s, and \n  that they each match~;, and \n  that it matches~] the checker.
+          docstring (pprint/cl-format nil "Checks whether a sequence contains precisely ~R result~:[s, and \n  that they each match~;, and \n  that it matches~] the checker.
 
    Ex. (fact ~A => (~C :a))" num (= num 1) (vec (repeat num :a )) name)]
       `(defchecker

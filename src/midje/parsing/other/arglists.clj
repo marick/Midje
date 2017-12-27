@@ -1,12 +1,12 @@
 (ns ^{:doc "Parsing function argument lists"}
   midje.parsing.other.arglists
-  (:require [commons.clojure.core :refer :all :exclude [any?]]
-            [midje.config :as config]
+  (:require [midje.config :as config]
             [midje.emission.levels :as levels]
             [midje.parsing.util.core :refer :all]
             [midje.util.exceptions :refer [user-error]]
             [midje.util.pile :as pile]
             [such.function-makers :as mkfn]
+            [such.types :as types]
             [such.sequences :as seq]))
 
 
@@ -29,7 +29,7 @@
 (defn separate-filters [args plain-argument?]
   (let [[filters remainder]
         (seq/bifurcate #(and (not (plain-argument? %))
-                            ((mkfn/pred:any? string? regex? fn? keyword?) %))
+                            ((mkfn/pred:any? string? types/regex? fn? keyword?) %))
                   args)]
     (vector filters remainder)))
 

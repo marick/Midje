@@ -1,7 +1,6 @@
 (ns midje.shape-checkers
   "Checkers that use structural-typing"
-  (:require [commons.clojure.core :refer :all :exclude [any?]]
-            [midje.checking.core :as checking.core]
+  (:require [midje.checking.core :as checking.core]
             [midje.checking.checkers.defining :refer [checker defchecker]]
             [midje.util.ecosystem :refer [when-1-7+]]
             [such.immigration :as immigrate]))
@@ -30,8 +29,5 @@
   (checker [actual]
     (type/all-built-like type-repo type-shorthand actual)))
 
-
 )
-
-
 )
