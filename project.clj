@@ -1,11 +1,9 @@
-(defproject midje "1.9.2-SNAPSHOT"
+(defproject midje "1.9.2"
   :description "A TDD library for Clojure that supports top-down ('mockish') TDD, encourages readable tests, provides a smooth migration path from clojure.test, balances abstraction and concreteness, and strives for graciousness."
   :url "https://github.com/marick/Midje"
   :pedantic? :warn
   :dependencies [[org.clojure/clojure "1.9.0"]
-                 [marick/suchwow "6.0.0" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
-                 ;; for now pin specter version to override old version in suchwow. Remove once suchwow is updated
-                 [com.rpl/specter "1.0.4" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
+                 [marick/suchwow "6.0.1" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
                  [marick/clojure-commons "3.0.0" :exclusions [org.clojure/clojure]]
                  ;; structural-typing currently broken with specter 0.13
                  ;; [marick/structural-typing "2.0.4" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
