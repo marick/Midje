@@ -2,7 +2,7 @@
   (:require [midje
              [sweet :refer :all]
              [test-util :refer :all]]
-            [midje.data.prerequisite-state :refer [binding-map implements-a-fake? usable-default-function?]]
+            [midje.data.prerequisite-state :refer [binding-map implements-a-fake? usable-default-function?] :as prereq-state]
             [midje.test-util :refer :all]
             [midje.parsing.2-to-lexical-maps.fakes :refer [fake]]
             [midje.parsing.2-to-lexical-maps.data-fakes :refer [data-fake]]
@@ -234,6 +234,35 @@
   (provided
     (f (my-inc 1)) => 2))
 
+(defn multi-arity-func
+  ([a] a)
+  ([a b] a))
+
+(defn opts-func
+  ([a] a)
+  ([a b & opts] a))
+
+(defn single-arity-func
+  [a] a)
+(unfinished unfinished-func)
+
+(fact "check if provided arg count matches one of the function's arglists"
+  (#'prereq-state/correct-arg-count? #'single-arity-func 0) => falsey
+  (#'prereq-state/correct-arg-count? #'single-arity-func 1) => truthy
+  (#'prereq-state/correct-arg-count? #'single-arity-func 2) => falsey
+
+  (#'prereq-state/correct-arg-count? #'multi-arity-func 0) => falsey
+  (#'prereq-state/correct-arg-count? #'multi-arity-func 1) => truthy
+  (#'prereq-state/correct-arg-count? #'multi-arity-func 2) => truthy
+  (#'prereq-state/correct-arg-count? #'multi-arity-func 3) => falsey
+
+  (#'prereq-state/correct-arg-count? #'opts-func 0) => falsey
+  (#'prereq-state/correct-arg-count? #'opts-func 1) => truthy
+  (#'prereq-state/correct-arg-count? #'opts-func 2) => truthy
+  (#'prereq-state/correct-arg-count? #'opts-func 3) => truthy
+
+  (#'prereq-state/correct-arg-count? #'unfinished-func 1) => truthy
+  (#'prereq-state/correct-arg-count? #'unfinished-func 0) => truthy)
 
 ;;; DO NOT DELETE
 ;;; These are used to test the use of vars to fake private functions

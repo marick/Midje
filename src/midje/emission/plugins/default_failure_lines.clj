@@ -103,6 +103,16 @@
         " would be called with these arguments:")
    (str "    " (pretty-xs (:actual m)))))
 
+(defmethod messy-lines :prerequisite-arg-count-mismatches-implementation [m]
+  (list
+   (str "You faked "
+        (prerequisite-var-description (:var m))
+        " with an argument count that doesn't match the function's defined arguements:")
+   (str "Provided "
+        (:provided-arg-count m)
+        " argument(s), where valid options are: "
+        (:expected-arg-count-msg m))))
+
 (defmethod messy-lines :parse-error [m]
   (list
    (str "    Midje could not understand something you wrote: ")

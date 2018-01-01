@@ -272,4 +272,12 @@
   (provided
     (second-est (first-est 1 5)) => 100))
 
+(defn my-inc [a b] (- (+ a (inc b)) b))
+(defn strange-adder [a b]
+  (+ (my-inc a) b))
 
+(silent-fact
+  (strange-adder 1 2) => 300
+  (provided (my-inc 1) => 298))
+
+(note-that fact-fails)
