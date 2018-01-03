@@ -81,13 +81,17 @@
      ~@forms
      (finally (record-end-of-prerequisite-call))))
 
-(defn- valid-arg-counts [function-var]
+(defn- valid-arg-counts
+  "Get required and optional argument counts for a function variable"
+  [function-var]
   (let [arglists                    (:arglists (meta function-var))
         [opt-arglists req-arglists] (seq/bifurcate #((set %) '&) arglists)]
     [(set (map count req-arglists))
      (and (seq opt-arglists) (apply min (map #(-> % count (- 2)) opt-arglists)))]))
 
-(defn- correct-arg-count-message [function-var]
+(defn- correct-arg-count-message
+  "Readable message describing a function's valid required/optional arg counts"
+  [function-var]
   (let [[req-arg-counts-set
          opt-arg-min]       (valid-arg-counts function-var)
         req-counts          (when (not (empty? req-arg-counts-set))
@@ -102,7 +106,9 @@
       :else
       (str req-counts " arguments"))))
 
-(defn- correct-arg-count? [function-var provided-arg-count]
+(defn- correct-arg-count?
+  "Does the argument count provided fit one of the function's defined arities?"
+  [function-var provided-arg-count]
   (if-let [arglists (:arglists (meta function-var))]
     (let [[req-arg-counts-set
            opt-arg-min]       (valid-arg-counts function-var)
@@ -113,14 +119,6 @@
           in-opt-arglists?))
     true))
 
-(defn- fail-fake-unexpected-args [function-var actual-args fakes]
-  (emit/fail {:type :prerequisite-was-called-with-unexpected-arguments
-              :var function-var
-              :actual actual-args
-              :position (:position (first fakes))})
-  (format "`%s` returned this string because it was called with an unexpected argument"
-          (+symbol function-var)))
-
 (defn- fail-fake-arg-mismatch [function-var actual-args fakes]
   (emit/fail {:type :prerequisite-arg-count-mismatches-implementation
               :var function-var
@@ -130,6 +128,14 @@
   (format "`%s` returned this string because it was faked with an
           incorrect number of arguments with respect to the function
           implementation"
+          (+symbol function-var)))
+
+(defn- fail-fake-unexpected-args [function-var actual-args fakes]
+  (emit/fail {:type :prerequisite-was-called-with-unexpected-arguments
+              :var function-var
+              :actual actual-args
+              :position (:position (first fakes))})
+  (format "`%s` returned this string because it was called with an unexpected argument"
           (+symbol function-var)))
 
 (defn- ^{:testable true} handle-mocked-call [function-var actual-args fakes]
