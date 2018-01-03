@@ -245,6 +245,7 @@
 (defn single-arity-func
   [a] a)
 (unfinished unfinished-func)
+(declare declared-func)
 
 (fact "check if provided arg count matches one of the function's arglists"
   (#'prereq-state/correct-arg-count? #'single-arity-func 0) => falsey
@@ -262,7 +263,10 @@
   (#'prereq-state/correct-arg-count? #'opts-func 3) => truthy
 
   (#'prereq-state/correct-arg-count? #'unfinished-func 1) => truthy
-  (#'prereq-state/correct-arg-count? #'unfinished-func 0) => truthy)
+  (#'prereq-state/correct-arg-count? #'unfinished-func 0) => truthy
+
+  (#'prereq-state/correct-arg-count? #'declared-func 0) => truthy
+  (#'prereq-state/correct-arg-count? #'declared-func 10) => truthy)
 
 ;;; DO NOT DELETE
 ;;; These are used to test the use of vars to fake private functions
