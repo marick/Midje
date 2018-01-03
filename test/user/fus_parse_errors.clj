@@ -24,6 +24,12 @@
     (+ 3 3) => 0))
 (note-that parse-error-found (fact-failed-with-note #"clojure.core/\+.*is inlined"))
 
+(silent-fact "clojure.core functions cannot be faked"
+  (f 3) => 0
+  (provided
+    (set [3]) => 0))
+(note-that parse-error-found (fact-failed-with-note #"You seem to have created a prerequisite for.*set"))
+
 (silent-fact "the left-hand side must look like a function call"
   (f) => 0
   (provided
@@ -186,8 +192,9 @@
    @fact-output => #"\(first :facts identity\) does not look like"))
 
 
+(unfinished foo)
 (fact ;; prerequisite forms don't object to prerequisite arrows
-  (prerequisite (rand) =streams=> [1 2 3])
+  (prerequisite (foo) =streams=> [1 2 3])
   1 => 1)
 
 ;;; =====================================              Outside-fact against-background
