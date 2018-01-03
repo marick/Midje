@@ -158,7 +158,10 @@
  (provided
    (g (h (i (j 1)))) => 3))
 
-(defn second-arg [a b] (+ a (f a (g b))))
+(defn f [n m] 100)
+(defn second-arg [a b]
+  (+ a (f a (g b))))
+
 (fact
  (second-arg 1 2) => 9
  (provided
