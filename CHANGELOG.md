@@ -2,8 +2,8 @@
 This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
 
-## [1.9.2-alpha3] - 2018-01-03
-- Disallow faking of all functions in `clojure.core`. If Midje happens to use any of them in code paths executed while they are redifined, it will change the behavior of Midje.
+## [2.0.0-alpha1] - 2018-01-12
+- __BREAKING__ Disallow faking of all functions in `clojure.core`. This is a safety measure because if Midje happens to use any of them in code paths executed while they are redefined, it will change the behavior of Midje. Any tests that previously faked `clojure.core` functions will need to be adapted by either wrapping them in a custom function that can be safely faked, or tweaking the test to not require faking.
 
 ## [1.9.2-alpha2] - 2018-01-03
 - 431: __POTENTIALLY BREAKING__ Fix issue where you can fake functions with incorrect arities. Function faking now produces a test failure if you provide more or less arguments than expected by the function definition. This may break tests that incorrectly faked functions, but this is a good thing because it will reveal bugs in your tests.
