@@ -5,7 +5,8 @@
             [midje.checking.checkers.defining :refer [checker?]]
             [midje.checking.checkers.chatty :refer [chatty-worth-reporting-on?
                                                     chatty-untease
-                                                    chatty-checker?]]
+                                                    chatty-checker?]
+             :as chatty]
             [midje.test-util :refer :all]))
 (expose-testables midje.checking.checkers.chatty)
 
@@ -30,7 +31,8 @@
 
 (tabular
   (fact "A single argument can be converted into a structured-form and a arg-value-name"
-    (against-background (gensym 'symbol-for-destructured-arg) => 'unique-3)
+    (against-background
+      (#'chatty/gen-destruct-symbol) => 'unique-3)
     (let [[form name] (single-destructuring-arg->form+name ?original)]
       form => ?form
       name => ?name))
@@ -174,7 +176,3 @@
   (fact "`and` and `or`  are still OK, though."
     (macroexpand '(chatty-checker [n] (and 1 2))) =not=> (throws)
     (macroexpand '(chatty-checker [n] (or 1 2))) =not=> (throws)))
-
-
-
-

@@ -74,15 +74,19 @@
   ;; Note that the order is guaranteed: test paths come before project paths.
   (alter-var-root #'leiningen-paths-var
                   (constantly (concat (:test-paths project) (:source-paths project)))))
+
 (defmacro #^:private defproject [name version & {:as args}]
   `(set-leiningen-paths! (merge {:test-paths ["test"] :source-paths ["src"]} '~args)))
+
+(defn- load-project-file []
+  (load-file "project.clj"))
 
 (defn- set-leiningen-paths-from-project-file! []
   (binding [*ns* (find-ns 'midje.util.ecosystem)]
     (try
-      (load-file "project.clj")
+      (load-project-file)
     (catch java.io.FileNotFoundException e
-        (set-leiningen-paths! {:test-paths ["test"]})))))
+      (set-leiningen-paths! {:test-paths ["test"]})))))
 
 (defn leiningen-paths []
   (or leiningen-paths-var

@@ -35,8 +35,11 @@
       [[] []]
       arglist))
 
+(defn- gen-destruct-symbol []
+  (gensym 'symbol-for-destructured-arg))
+
 (defn- ^{:testable true} single-destructuring-arg->form+name [arg-form]
-  (let [as-symbol          (gensym 'symbol-for-destructured-arg)
+  (let [as-symbol          (gen-destruct-symbol)
         snd-to-last-is-as? #(= :as (second (reverse %)))
         has-key-as?        #(contains? % :as)]
     (branch-on arg-form

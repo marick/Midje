@@ -10,10 +10,9 @@
 
 
 
-
                    ;;; Simple cases
 
-(def simple-start 16)
+(def simple-start 15)
 
 (silent-fact (+ 1 1) => 3)
 (note-that (failure-was-at-line (+ simple-start 2)))
@@ -41,11 +40,12 @@
                ;;; Inside a deftest
 
 (unfinished favorite-animal)
-(defn favorite-animal-name [] (name (favorite-animal)))
+(def get-name name)
+(defn favorite-animal-name [] (get-name (favorite-animal)))
 (defn return-nil [] )
 (defn favorite-animal-only-animal [] (favorite-animal))
-(defn favorite-animal-only-name [] (name "fred"))
-(defn favorite-animal-one-call [] (name (favorite-animal 1)))
+(defn favorite-animal-only-name [] (get-name "fred"))
+(defn favorite-animal-one-call [] (get-name (favorite-animal 1)))
 
 (def deftest-start 50)
 
@@ -53,14 +53,14 @@
   (fact
     (favorite-animal-name) => "betsy"
     (provided
-      (name (favorite-animal)) => "betsy"))
+      (get-name (favorite-animal)) => "betsy"))
 
   (silent-fact
     (return-nil) => "betsy"   ;; wrong result
     (provided
-      (name (favorite-animal)) => "betsy"))  ;; two prerequisites unfolded here, but never called.
+      (get-name (favorite-animal)) => "betsy"))  ;; two prerequisites unfolded here, but never called.
 
-  (note-that (prerequisite-was-never-called #"name")
+  (note-that (prerequisite-was-never-called #"get-name")
              (prerequisite-was-never-called #"favorite-animal")
              (fact-expected "betsy")
              (failures-were-at-lines  (+ deftest-start 11) (+ deftest-start 11) (+ deftest-start 9)))
@@ -76,19 +76,19 @@
   (silent-fact
    (favorite-animal-only-animal) => "betsy"  ;; here
    (provided
-     (name (favorite-animal)) => "betsy"))   ;; here (name not called)
+     (get-name (favorite-animal)) => "betsy"))   ;; here (get-name not called)
 
-  (note-that (prerequisite-was-never-called #"name")
+  (note-that (prerequisite-was-never-called #"get-name")
              (fact-expected "betsy")
              (failures-were-at-lines (+ deftest-start 29) (+ deftest-start 27)))
 
   (silent-fact
-    (favorite-animal-only-name) => "betsy"   ;; This calls for the name of frank.
+    (favorite-animal-only-name) => "betsy"   ;; This calls for the get-name of frank.
     (provided
-      (name (favorite-animal)) => "betsy"))
+      (get-name (favorite-animal)) => "betsy"))
 
   (note-that some-prerequisite-was-called-with-unexpected-arguments
-             (prerequisite-was-never-called #"name")  ;; never correctly called, I guess I should say.
+             (prerequisite-was-never-called #"get-name")  ;; never correctly called, I guess I should say.
              (prerequisite-was-never-called #"favorite-animal")
              (fact-expected "betsy")
              (failures-were-at-lines (+ deftest-start 38) (+ deftest-start 38) (+ deftest-start 38) (+ deftest-start 36)))
@@ -97,8 +97,8 @@
   (silent-fact
     (favorite-animal-one-call) => "betsy"
     (provided
-      (name (favorite-animal 1)) => "betsy"
-      (name (favorite-animal 2)) => "jake")) ;; a folded prerequisite can have two errors.
+      (get-name (favorite-animal 1)) => "betsy"
+      (get-name (favorite-animal 2)) => "jake")) ;; a folded prerequisite can have two errors.
   (note-that (failures-were-at-lines (+ deftest-start 51) (+ deftest-start 51)))
   (ctf/forget-failures) ;; So clojure.test failures don't show up in summary output.
   )
