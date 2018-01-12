@@ -203,10 +203,13 @@
   (midje.parsing.2-to-lexical-maps.expects/expect (chatty-fut 5) => "hello"
           (fake (chatty-prerequisite (actual-plus-one-is-greater-than 5)) => "hello")))
 
-(fact "you can fake a function from another namespace"
-  (let [myfun (fn [x] (list x))]
-    (midje.parsing.2-to-lexical-maps.expects/expect (myfun 1) => :list-called
-            (fake (list 1) => :list-called))))
+
+(def listy list)
+(let [myfun (fn [x] (listy x))]
+  (fact "you can fake a function from another namespace"
+      (midje.parsing.2-to-lexical-maps.expects/expect
+        (myfun 1) => :list-called
+        (fake (listy 1) => :list-called))))
 
 (defn set-handler [set1 set2]
   (if (empty? (intersection set1 set2))

@@ -1,6 +1,6 @@
 (ns midje.util.t-ecosystem
   (:require [midje.sweet :refer :all]
-            [midje.util.ecosystem :refer :all]
+            [midje.util.ecosystem :refer :all :as ecosystem]
             [midje.test-util :refer :all]))
 
 (fact "can find paths to load from project.clj"
@@ -15,7 +15,7 @@
   (fact "and provides a default if it does not"
     (leiningen-paths) => ["test"]
     (provided
-      (load-file "project.clj") =throws=> (new java.io.FileNotFoundException)))
+      (#'ecosystem/load-project-file) =throws=> (new java.io.FileNotFoundException)))
 
   (fact "except that lein-midje can explicitly set the value"
     (set-leiningen-paths! {:test-paths ["t"] :source-paths ["s"]})

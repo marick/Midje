@@ -7,20 +7,6 @@
             [midje.emission.plugins.test-support :as plugin]
             [midje.config :as config]))
 
-(fact load-plugin
-  (fact "symbols are required"
-    (emit/load-plugin 'symbol) => irrelevant
-    (provided
-      (require 'symbol :reload) => anything))
-
-  (fact "strings are given to load-file"
-    (emit/load-plugin "string") => irrelevant
-    (provided
-      (load-file "string") => anything)))
-
-
-
-
 (defmacro innocuously [& body]
   `(without-changing-cumulative-totals
     (state/with-emission-map plugin/emission-map

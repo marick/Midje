@@ -13,17 +13,18 @@
 (defn- compiler-will-inline-fn? [var]
   (contains? (meta var) :inline))
 
+(defn- is-core?
+  "Is a variable from `clojure.core`, excluding `rand`.
+
+   `rand` is excluded because it is useful to fake and unused by Midje, so
+   there is no danger to faking it"
+  [var]
+  (let [var-meta (meta var)]
+    (and (not (= 'rand (:name var-meta)))
+         (= 'clojure.core (some-> var-meta :ns ns-name)))))
+
 (defn- exposed-testable? [var]
   (contains? (meta var) :testable))
-
-(defn #^:private
-  statically-disallowed-prerequisite-function-set
-  "To prevent people from mocking functions that Midje itself uses,
-   we mostly rely on dynamic checking. But there are functions within
-   the dynamic checking code that must also not be replaced. These are
-   the ones that are known."
-  [some-var]
-  (#{#'deref #'assoc #'list? #'print #'println} some-var))
 
 (defn assert-right-shape! [[_fake_ funcall & _ :as form]]
   (when-not (or (list? funcall)
@@ -56,6 +57,9 @@
           (error/report-error call-form
                               (cl-format nil "You cannot override the function `~S`: it is inlined by the Clojure compiler." (actual-var)))
 
+          (is-core? (actual-var))
+          (apply error/report-error call-form (disallowed-function-failure-lines (actual-var)))
+
           (and (symbol? fnref) (exposed-testable? (actual-var)))
           (error/report-error call-form
                               "A prerequisite cannot use a symbol exposed via `expose-testables` or `testable-privates`."
@@ -66,10 +70,7 @@
           (error/report-error call-form
                               (cl-format nil "... ~S ~A ~S" call-form arrow result)
                               "Do you really want a checker on the right-hand side of a prerequisite?"
-                              "It's easy to use `truthy` when you meant `true`, etc.")
-
-          (statically-disallowed-prerequisite-function-set (actual-var))
-          (apply error/report-error call-form (disallowed-function-failure-lines (actual-var)))))
+                              "It's easy to use `truthy` when you meant `true`, etc.")))
   [call-form fnref args arrow result overrides])
 
 (defn assert-valid! [form]

@@ -1,7 +1,6 @@
 (ns midje.data.t-prerequisite-state
-  (:require [midje
-             [sweet :refer :all]
-             [test-util :refer :all]]
+  (:require [midje.sweet :refer :all]
+            [midje.test-util :refer :all]
             [midje.data.prerequisite-state :refer [binding-map implements-a-fake? usable-default-function?] :as prereq-state]
             [midje.test-util :refer :all]
             [midje.parsing.2-to-lexical-maps.fakes :refer [fake]]
@@ -69,33 +68,19 @@
     (provided
       (internal 1) => -33))
 
-
-  ;; The same thing can be done with clojure.core functions
-
-  (defn double-partition [first-seq second-seq]
-    (concat (partition-all 1 first-seq) (partition-all 1 second-seq)))
-
-  (fact (double-partition [1 2] [3 4]) => [ [1] [2] [3] [4] ])
-
-  (fact
-    (double-partition [1 2] ..xs..) => [[1] [2] [..x1..] [..x2..]]
-    (provided (partition-all 1 ..xs..) => [ [..x1..] [..x2..] ]))
-
-
-  ;; However you can't override functions that are used by Midje itself
+  ;; However you can't override `clojure.core` functions because they might be
+  ;; used by Midje itself.
   ;; These are reported thusly:
 
   (defn message-about-mocking-midje-functions [reported]
     (let [important-error
-          (shorthand/find-first #(= (:type %) :actual-result-did-not-match-checker)
+          (shorthand/find-first #(= (:type %) :parse-error)
                                 reported)]
-      (and important-error
-           (.getMessage (.throwable (:actual important-error))))))
+      (->> important-error :notes (clojure.string/join " "))))
 
   (defn all-even? [xs] (every? even? xs))
 
-
-  (silent-fact "get a user error from nested call to faked `every?`"
+  (silent-fact "get a parse error from faking a core clojure func"
      (all-even? ..xs..) => truthy
      (provided (every? even? ..xs..) => true))
   (fact
@@ -104,6 +89,10 @@
       text => #"clojure\.core/every\?"
       text => #"interferes with.*Midje"))
 
+  (defn call-rand [] (rand))
+  (fact "get a user error from nested call to faked `every?`"
+    (call-rand) => 1
+    (provided (rand) => 1))
 
 ;; ;; How it works
 

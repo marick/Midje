@@ -1,7 +1,7 @@
 (ns midje.data.t-project-state
   (:require [midje.sweet :refer :all]
             [midje.test-util :refer :all]
-            [midje.data.project-state :refer :all]
+            [midje.data.project-state :refer :all :as project-state]
             [midje.util.ecosystem :as ecosystem]
             [midje.util.bultitude :as tude]
             [clojure.java.io :as io]))
@@ -67,25 +67,23 @@
 
 
 (fact "A namespace list can be loaded, obeying dependents"
-  (require-namespaces! [] record-failure cleaner) => anything
+  (#'project-state/require-namespaces! [] record-failure cleaner) => anything
 
-  (require-namespaces! [..ns1.. ..ns2..] record-failure cleaner) => anything
+  (#'project-state/require-namespaces! [..ns1.. ..ns2..] record-failure cleaner) => anything
   (provided
-    (require ..ns1.. :reload) => nil
-    (require ..ns2.. :reload) => nil)
+    (#'project-state/load-failure ..ns1..) => nil
+    (#'project-state/load-failure ..ns2..) => nil)
 
-  (require-namespaces! [..ns1.. ..ns2..] record-failure cleaner) => anything
+  (#'project-state/require-namespaces! [..ns1.. ..ns2..] record-failure cleaner) => anything
   (provided
-    (require ..ns1.. :reload) => nil
-    (require ..ns2.. :reload) => nil)
-
-
+    (#'project-state/load-failure ..ns1..) => nil
+    (#'project-state/load-failure ..ns2..) => nil)
 
   (let [throwable (Error.)]
-    (require-namespaces! [..ns1.. ..ns2.. ..ns3..] record-failure cleaner) => anything
+    (#'project-state/require-namespaces! [..ns1.. ..ns2.. ..ns3..] record-failure cleaner) => anything
     (provided
-      (require ..ns1.. :reload) =throws=> throwable
+      (#'project-state/load-failure ..ns1..) => throwable
       (cleaner ..ns1.. [..ns2.. ..ns3..]) => [..ns3..]
-      (require ..ns3.. :reload) => nil)
+      (#'project-state/load-failure ..ns3..) => nil)
     @failure-record => {:ns ..ns1.. :throwable throwable}))
 

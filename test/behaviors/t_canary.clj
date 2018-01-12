@@ -9,15 +9,16 @@
 
 
 (unfinished favorite-animal)
-(defn favorite-animal-name [] (name (favorite-animal)))
+(def get-name name)
+(defn favorite-animal-name [] (get-name (favorite-animal)))
 (defn favorite-animal-empty [] )
 (defn favorite-animal-only-animal [] (favorite-animal))
-(defn favorite-animal-only-name [] (name "fred"))
+(defn favorite-animal-only-name [] (get-name "fred"))
 
 (fact
      (favorite-animal-name) => "betsy"
      (provided
-       (name (favorite-animal)) => "betsy"))
+       (get-name (favorite-animal)) => "betsy"))
 
 
 
@@ -28,8 +29,8 @@
 (def ...procedure... '...procedure...)
 (defn build-map [exclusion-function]
   (reduce (fn [accumulator name] (conj accumulator {name (exclusion-function name)}))
-	  {}
-	  (all-procedures)))
+          {}
+          (all-procedures)))
 (defn all-procedures-exclude-nothing []
   (build-map (fn [procedure] [])))
 
@@ -46,8 +47,8 @@
   (fact "makes a stream of given day of the month"
     (day-of-month-stream 1) => ?date-time)
 
-	?nth   ?date-time
-        first  (new-date 1 2 3))
+  ?nth   ?date-time
+  first  (new-date 1 2 3))
 
 (defn today-num [])
 

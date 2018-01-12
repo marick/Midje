@@ -79,19 +79,17 @@
     (apply max (time-key state-tracker)
            (map file-modification-time relevant-files))))
 
+(defn- load-failure [the-ns]
+  (try
+    (require the-ns :reload)
+    nil
+    (catch Throwable t t)))
 
-(defn require-namespaces! [namespaces on-require-failure clean-dependents]
-  (letfn [(broken-source-file? [the-ns]
-            (try
-              (require the-ns :reload)
-              false
-            (catch Throwable t
-                (on-require-failure the-ns t)
-                true)))
-
-          (shorten-ns-list-by-trying-first [[the-ns & remainder]]
-            (if (broken-source-file? the-ns)
-              (clean-dependents the-ns remainder)
+(defn- require-namespaces! [namespaces on-require-failure clean-dependents]
+  (letfn [(shorten-ns-list-by-trying-first [[the-ns & remainder]]
+            (if-let [throwable (load-failure the-ns)]
+              (do (on-require-failure the-ns throwable)
+                  (clean-dependents the-ns remainder))
               remainder))]
 
     (loop [namespaces namespaces]
