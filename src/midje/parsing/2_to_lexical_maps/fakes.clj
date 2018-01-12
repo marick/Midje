@@ -13,8 +13,15 @@
 (defn- compiler-will-inline-fn? [var]
   (contains? (meta var) :inline))
 
-(defn- is-core? [var]
-  (-> var meta :ns ns-name (= 'clojure.core)))
+(defn- is-core?
+  "Is a variable from `clojure.core`, excluding `rand`.
+
+   `rand` is excluded because it is useful to fake and unused by Midje, so
+   there is no danger to faking it"
+  [var]
+  (let [var-meta (meta var)]
+    (and (not (= 'rand (:name var-meta)))
+         (= 'clojure.core (some-> var-meta :ns ns-name)))))
 
 (defn- exposed-testable? [var]
   (contains? (meta var) :testable))

@@ -80,7 +80,7 @@
 
   (defn all-even? [xs] (every? even? xs))
 
-  (silent-fact "get a user error from nested call to faked `every?`"
+  (silent-fact "get a parse error from faking a core clojure func"
      (all-even? ..xs..) => truthy
      (provided (every? even? ..xs..) => true))
   (fact
@@ -88,6 +88,11 @@
       text => #"seem to have created a prerequisite"
       text => #"clojure\.core/every\?"
       text => #"interferes with.*Midje"))
+
+  (defn call-rand [] (rand))
+  (fact "get a user error from nested call to faked `every?`"
+    (call-rand) => 1
+    (provided (rand) => 1))
 
 ;; ;; How it works
 
