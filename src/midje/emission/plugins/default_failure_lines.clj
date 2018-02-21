@@ -74,8 +74,9 @@
 
 (defmethod messy-lines :checker-exception [m]
     (list
-      (str "The checking function `" (:expected-result-form m) "` threw the exception:\n")
-      (exceptions/friendly-exception (:thrown m))))
+      (str "The checking function `" (:expected-result-form m) "` threw the exception:")
+      (exceptions/friendly-exception (:thrown m))
+      (str "\nWhen checked against the actual result:\n" (attractively-stringified-value (:actual m)))))
 
 (defmethod messy-lines :some-prerequisites-were-called-the-wrong-number-of-times [m]
   (letfn [(format-one-failure [fail]
