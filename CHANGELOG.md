@@ -2,6 +2,9 @@
 This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
 
+## [1.9.2-alpha3] - 2018-02-21
+- 436: Show exceptions raised by checker functions
+
 ## [1.9.2-alpha2] - 2018-01-03
 - 431: __POTENTIALLY BREAKING__ Fix issue where you can fake functions with incorrect arities. Function faking now produces a test failure if you provide more or less arguments than expected by the function definition. This may break tests that incorrectly faked functions, but this is a good thing because it will reveal bugs in your tests.
 

@@ -29,10 +29,17 @@
   {:notes [(inherently-false-map-to-record-comparison-note actual expected)]})
 
 (defn- check-for-match [actual checkable-map]
-  (let [expected      (:expected-result checkable-map)
+  (let [expected (:expected-result checkable-map)
         [check-result failure-details] (detailed-extended-= actual expected)]
     (cond check-result
           (emit/pass)
+
+          ;; checker logic threw an exception
+          (:thrown failure-details)
+          (emit/fail (merge (minimal-failure-map :checker-exception
+                                                 actual checkable-map)
+                            failure-details))
+
 
           (has-function-checker? checkable-map)
           (emit/fail (merge (minimal-failure-map :actual-result-did-not-match-checker
