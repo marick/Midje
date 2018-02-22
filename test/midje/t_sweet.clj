@@ -396,6 +396,10 @@
   "baz" =not=> odd?)
 (fact-failed-with-note #"The checking function `odd?` threw the exception:")
 
+(silent-fact
+  (throw (ex-info "foo" {})) =not=> even?)
+(fact-failed-with-note #"The checking function `even?` threw the exception:")
+
 ;;; fact groups
 
 (fact-group :integration {:timing 3}
