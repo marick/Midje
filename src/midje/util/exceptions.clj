@@ -45,9 +45,6 @@
       (concat ["" (str prefix "Caused by: " message)]
               stacktrace))))
 
-(defn friendly-exception [ex]
-  (join line-separator (friendly-exception-lines ex "  ")))
-
 (defn user-error-exception-lines [throwable]
   (cons (str throwable)
     (without-clojure-strings (stacktrace-as-strings throwable))))
@@ -63,7 +60,7 @@
   ICapturedThrowable
   (throwable [this] ex)
   (friendly-stacktrace [this]
-    (friendly-exception (throwable this))))
+    (join line-separator (friendly-exception-lines (throwable this) "  "))))
 
 (defn captured-throwable [ex]
   (CapturedThrowable. ex))

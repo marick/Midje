@@ -4,7 +4,6 @@
             [clojure.pprint :refer [cl-format]]
             [flare.core :as flare]
             [midje.emission.plugins.util :refer :all]
-            [midje.util.exceptions :as exceptions]
             [midje.util.ecosystem :as ecosystem]))
 
 (defmulti messy-lines :type)
@@ -75,7 +74,7 @@
 (defmethod messy-lines :checker-exception [m]
     (list
       (str "The checking function `" (:expected-result-form m) "` threw the exception:")
-      (exceptions/friendly-exception (:thrown m))
+      (attractively-stringified-value (:thrown m))
       (str "\nWhen checked against the actual result:\n" (attractively-stringified-value (:actual m)))))
 
 (defmethod messy-lines :some-prerequisites-were-called-the-wrong-number-of-times [m]
