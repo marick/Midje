@@ -269,8 +269,13 @@
   (data-laden-falsehood-to-map ( (has-prefix 1) {:a 1}))
   => (contains {:actual {:a 1} :notes ["Maps don't have prefixes."]})
   (data-laden-falsehood-to-map ( (has-suffix 1) {:a 1}))
-  => (contains {:actual {:a 1} :notes ["Maps don't have suffixes."]})
-  )
+  => (contains {:actual {:a 1} :notes ["Maps don't have suffixes."]}))
+
+(fact "contains expecting a list but passed a map throws an excpetion"
+  ;; TODO PLM: the exceptions thrown by `contains` here are very unhelpful
+  ((contains {:a 1} {:a 2}) {:a 2}) => (throws Exception)
+  ((contains [{:a 1} {:a 2}] :in-any-order) {:a 2}) => (throws Exception)
+  ((contains [{:a 2} {:a 1}] :in-any-order) {:a 2}) => (throws Exception))
 
 (fact "left-hand-side: maps"
  {:a 1, :b 2} => (contains {:a 1, :b 2})
@@ -281,9 +286,6 @@
  {:a 2}   => (contains {:a 2})
  {:a 2}   => (contains [{:a 2}])
  [{:a 2}] => (contains [{:a 2}])
- {:a 2} =not=> (contains {:a 1} {:a 2})
- {:a 2} =not=> (contains [{:a 1} {:a 2}] :in-any-order)
- {:a 2} =not=> (contains [{:a 2} {:a 1}] :in-any-order)
  ( (contains {:a 1, :b 2, :c 2}) {:a 1, :b 2}) => falsey
  ( (contains {:a 1, :c 2}) {:a 1, :b 2}) => falsey
  ( (contains {:a 1, :b 'not-2}) {:a 1, :b 2}) => falsey

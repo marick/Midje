@@ -9,7 +9,7 @@
 (capturing-failure-output
  (fact "Midje seems to have a problem with lazyseqs"
    (-> (map pre-process [..metaconstant..])
-       process) => ..processed..
+       process) => #(= ..processed.. %)
        (provided
          (pre-process ..metaconstant..) => ..intermediate..
          (process [..intermediate..]) => ..processed..))
@@ -19,5 +19,4 @@
    @fact-output => #"an unrealized lazy sequence"
    @fact-output => #"pre-process.*never called"
    @fact-output => #"process.*never called"
-   @fact-output => #"Expected:\n\.\.processed\.\."
    @fact-output => #"`process` returned this string"))

@@ -47,8 +47,8 @@
       (if (data-laden-falsehood? function-result)
         [false function-result]
         [function-result {}]))
-  (catch Throwable ex
-    [false {:thrown ex}])))
+    (catch Throwable ex
+      [false {:thrown ex}])))
 
 (defn detailed-extended-=
   "Equality check that can handle checker functions and compare arguments of

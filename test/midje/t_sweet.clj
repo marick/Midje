@@ -389,9 +389,16 @@
    (#'midje.data.t-prerequisite-state/var-inc
     (#'midje.data.t-prerequisite-state/var-inc 2)) => 201))
 
- (fact "exceptions do not blow up"
-   (odd? "foo") => (throws Exception)
-   "foo" =not=> odd?)
+(fact "exceptions do not blow up"
+ (odd? "foo") => (throws Exception))
+
+(silent-fact
+  "baz" =not=> odd?)
+(fact-failed-with-note #"The checking function `odd?` threw the exception:")
+
+(silent-fact
+  (throw (ex-info "foo" {})) =not=> even?)
+(fact-failed-with-note #"The checking function `even?` threw the exception:")
 
 ;;; fact groups
 

@@ -71,6 +71,11 @@
       (str "Actual result:\n" (attractively-stringified-value (:actual m)))
       (str "Checking function: " (:expected-result-form m))))
 
+(defmethod messy-lines :checker-exception [m]
+    (list
+      (str "The checking function `" (:expected-result-form m) "` threw the exception:")
+      (attractively-stringified-value (:thrown m))
+      (str "\nWhen checked against the actual result:\n" (attractively-stringified-value (:actual m)))))
 
 (defmethod messy-lines :some-prerequisites-were-called-the-wrong-number-of-times [m]
   (letfn [(format-one-failure [fail]
