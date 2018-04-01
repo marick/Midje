@@ -18,6 +18,20 @@
   (provided (deref cons) => 2))
 (note-that parse-error-found (fact-failed-with-note #"You seem to have created a prerequisite for.*deref"))
 
+(unfinished process)
+(defn pre-process [n] 5)
+
+(defn baz []
+  (map pre-process [1]))
+
+(silent-fact "Comment out the `preprocess` prerequisite below, and this suddenly passes"
+  (process (baz)) => :done
+  (provided
+    (pre-process 1) => 5
+    (process [5]) => :done))
+
+(note-that nested-prerequisite)
+
 (silent-fact "inlined functions cannot be faked"
   (f 3) => 0
   (provided
