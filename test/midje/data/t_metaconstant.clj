@@ -131,9 +131,6 @@
     ..m.. =contains=> {:a 4}
     ..n.. =contains=> {:a 4}))
 
-(fact "It is an error to compare a metaconstant to a map or record."
-  (= ..m.. {:a 4}) => (throws Error))
-
 (fact "It is appropriate to compare a metaconstant to its name."
   (= '..m.. ..m..) => truthy
   (= ..m.. '..m..) => truthy
@@ -146,13 +143,14 @@
   (= 'm ..m..) => falsey
   (= ..m.. 'm) => falsey)
 
-(fact "Metaconstant equality blows up when given anything else."
-  (= ..m.. "foo") => (throws Error)
-  (= ..m.. :foo) => (throws Error)
-  (= ..m.. 1111) => (throws Error)
-  (= "foo" ..m..) => (throws Error)
-  (= :foo ..m..) => (throws Error)
-  (= 11111 ..m..) => (throws Error))
+(fact "Metaconstant equality returns false for everything else."
+  (= ..m.. {:a 4}) => falsey
+  (= ..m.. "foo") => falsey
+  (= ..m.. :foo) => falsey
+  (= ..m.. 1111) => falsey
+  (= "foo" ..m..) => falsey
+  (= :foo ..m..) => falsey
+  (= 11111 ..m..) => falsey)
 
 
 (fact "a good many operations are not allowed"

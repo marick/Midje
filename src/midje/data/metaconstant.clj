@@ -84,13 +84,10 @@
   (empty [this]
          (empty storage))
   (equiv [this that]
-         (if (or (symbol? that)
-                 (= (type that) Metaconstant)
-                 (= that unbound-marker))
-           (.equals this that)
-           (throw
-             (report-error (str "Metaconstants (" (.underlying-symbol this) ") can't be compared for equality with "
-                                (pr-str that) ".")))))
+         (and (or (symbol? that)
+                  (= (type that) Metaconstant)
+                  (= that unbound-marker))
+              (.equals this that)))
 
   ;; Interface that provide meta support.
   clojure.lang.IObj
