@@ -56,9 +56,6 @@
 (defn nested-prerequisite-call? [function-var]
   (= 2 (get-in (deref *call-action-count*) [(Thread/currentThread) function-var])))
 
-(defn prereq-call []
-  (println @*call-action-count*))
-
 (defn record-start-of-prerequisite-call [function-var]
   (swap! *call-action-count* update-in [(Thread/currentThread) function-var] (fnil inc 0)))
 (defn record-end-of-prerequisite-call [function-var]
