@@ -53,33 +53,34 @@
      default-function :value-at-time-of-faking)
 
 (def #^:dynamic #^:private *call-action-count* (atom {}))
-(defn nested-prerequisite-call? []
-  (= 2 (get (deref *call-action-count*) (Thread/currentThread))))
+(defn nested-prerequisite-call? [function-var]
+  (= 2 (get-in (deref *call-action-count*) [(Thread/currentThread) function-var])))
 
-(defn record-start-of-prerequisite-call []
-  (swap! *call-action-count* update-in [(Thread/currentThread)] (fnil inc 0)))
-(defn record-end-of-prerequisite-call []
-  (swap! *call-action-count* update-in [(Thread/currentThread)] dec))
+(defn prereq-call []
+  (println @*call-action-count*))
+
+(defn record-start-of-prerequisite-call [function-var]
+  (swap! *call-action-count* update-in [(Thread/currentThread) function-var] (fnil inc 0)))
+(defn record-end-of-prerequisite-call [function-var]
+  (swap! *call-action-count* update-in [(Thread/currentThread) function-var] dec))
 
 (defn- ^{:testable true} best-call-action
   "Returns a fake: when one can handle the call
    Else returns a function: from the first fake with a usable-default-function.
    Returns nil otherwise."
   [function-var actual-args fakes]
-  (when (nested-prerequisite-call?)
-    (throw (apply exceptions/user-error (parse-fakes/disallowed-function-failure-lines function-var))))
-  (if-let [found (find-first (partial call-handled-by-fake? function-var actual-args) fakes)]
-    found
-    (when-let [fake-with-usable-default (find-first #(and (= function-var (:var %))
-                                                          (usable-default-function? %))
-                                                    fakes)]
-      (default-function fake-with-usable-default))))
-
-(defmacro ^:private counting-nested-calls [& forms]
-  `(try
-     (record-start-of-prerequisite-call)
-     ~@forms
-     (finally (record-end-of-prerequisite-call))))
+  (try
+    (record-start-of-prerequisite-call function-var)
+    (when (nested-prerequisite-call? function-var)
+      (throw (apply exceptions/user-error
+                    (parse-fakes/disallowed-function-failure-lines function-var))))
+    (if-let [found (find-first (partial call-handled-by-fake? function-var actual-args) fakes)]
+      found
+      (when-let [fake-with-usable-default (find-first #(and (= function-var (:var %))
+                                                            (usable-default-function? %))
+                                                      fakes)]
+        (default-function fake-with-usable-default)))
+    (finally (record-end-of-prerequisite-call function-var))))
 
 (defn- valid-arg-counts
   "Get required and optional argument counts for a function variable"
@@ -139,7 +140,7 @@
           (+symbol function-var)))
 
 (defn- ^{:testable true} handle-mocked-call [function-var actual-args fakes]
-  (let [action (counting-nested-calls (best-call-action function-var actual-args fakes))]
+  (let [action (best-call-action function-var actual-args fakes)]
     (branch-on action
       ;; default fall-through for when :partial-prerequisites config is set
       types/extended-fn?

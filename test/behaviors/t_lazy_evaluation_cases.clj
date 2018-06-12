@@ -79,3 +79,15 @@
 (fact "exceptions are forced out in good time"
   (exploder) => (throws Error)
   (map exploder [1 2 3]) => (throws Error))
+
+(unfinished process)
+(defn pre-process [n] 5)
+
+(defn baz []
+  (map pre-process [1]))
+
+(fact "mocking inside lazy seqs works: used to fail due to subtle bug"
+  (process (baz)) => :done
+  (provided
+    (pre-process 1) => 5
+    (process [5]) => :done))
