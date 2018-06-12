@@ -47,7 +47,7 @@
       (if (data-laden-falsehood? function-result)
         [false function-result]
         [function-result {}]))
-    (catch Throwable ex
+    (catch Exception ex
       [false {:thrown ex}])))
 
 (defn raw-detailed-extended-= [actual expected]
