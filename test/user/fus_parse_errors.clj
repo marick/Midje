@@ -18,13 +18,6 @@
   (provided (deref cons) => 2))
 (note-that parse-error-found (fact-failed-with-note #"You seem to have created a prerequisite for.*deref"))
 
-(defn foo [x] (set [1]))
-(silent-fact "Functions used deep in faking logic can't be faked themselves"
- (foo 1) => :whatever
- (provided
-  (set [1]) => true))
-(note-that parse-error-found (fact-failed-with-note #"You seem to have created a prerequisite for.*set"))
-
 (silent-fact "inlined functions cannot be faked"
   (f 3) => 0
   (provided

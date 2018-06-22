@@ -95,8 +95,9 @@
   (evaluate-checking-function odd? 4) => [false {}]
   (let [extra ((just 1) [2])]
     (evaluate-checking-function (just 1) [2]) => [false extra])
-  (let [error (Error.)]
-    (evaluate-checking-function (fn [actual] (throw error)) anything) => [false {:thrown error}]))
+  (evaluate-checking-function (fn [actual] (throw (Error.))) anything) => (throws Error)
+  (let [exception (Exception.)]
+    (evaluate-checking-function (fn [actual] (throw exception)) anything) => [false {:thrown exception}]))
 
 (def fail-call-count (atom 0))
 (def succeed-call-count (atom 0))
