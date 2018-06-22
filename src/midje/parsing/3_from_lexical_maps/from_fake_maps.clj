@@ -13,8 +13,8 @@
   [expected]
   (if (and (types/extended-fn? expected)
            (not (checker? expected)))
-    (fn [actual] (extended-= actual (checkers/exactly expected)))
-    (fn [actual] (extended-= actual expected))))
+    (fn [actual] (first (raw-detailed-extended-= actual (checkers/exactly expected))))
+    (fn [actual] (first (raw-detailed-extended-= actual expected)))))
 
 (defn mkfn:arglist-matcher-fixed-arity
   "Generates a function that returns true if all the matchers return true for the actual args it's passed."

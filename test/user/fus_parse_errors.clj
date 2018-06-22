@@ -285,4 +285,3 @@
   (against-background (cons 1 [2]))
   1 => 2)
 (note-that parse-error-found (fact-failed-with-note #"\(cons 1 \[2\]\) does not look like"))
-

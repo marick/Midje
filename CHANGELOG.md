@@ -2,6 +2,9 @@
 This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
 
+## [1.9.2-alpha4] - 2018-06-22
+- 332: Fix issue with `provided` in presence of laziness
+
 ## [1.9.2-alpha3] - 2018-02-21
 - 436: Show exceptions raised by checker functions
 

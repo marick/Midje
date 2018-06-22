@@ -47,8 +47,20 @@
       (if (data-laden-falsehood? function-result)
         [false function-result]
         [function-result {}]))
-    (catch Throwable ex
+    (catch Exception ex
       [false {:thrown ex}])))
+
+(defn raw-detailed-extended-= [actual expected]
+  (cond
+    (data-laden-falsehood? actual)           [actual {}]
+    (data-laden-falsehood? expected)         [expected {}]
+    (types/extended-fn? expected)            (evaluate-checking-function expected actual)
+    (every? types/regex? [actual expected])  [(= (str actual) (str expected)) {}]
+    (types/regex? expected)                  [(re-find expected actual) {}]
+    (and (record? actual)
+         (types/classic-map? expected))      [(= (into {} actual) expected) {}]
+    (= (type expected) java.math.BigDecimal) [(= (compare actual expected) 0) {}]
+    :else                                    [(= actual expected) {}]))
 
 (defn detailed-extended-=
   "Equality check that can handle checker functions and compare arguments of
@@ -56,27 +68,23 @@
   detail map"
   [actual expected]
   (try
-    (cond
-      (data-laden-falsehood? actual)           [actual {}]
-      (data-laden-falsehood? expected)         [expected {}]
-      (types/extended-fn? expected)            (evaluate-checking-function expected actual)
-      (every? types/regex? [actual expected])  [(= (str actual) (str expected)) {}]
-      (types/regex? expected)                  [(re-find expected actual) {}]
-      (and (record? actual)
-           (types/classic-map? expected))      [(= (into {} actual) expected) {}]
-      (= (type expected) java.math.BigDecimal) [(= (compare actual expected) 0) {}]
-      :else                                    [(= actual expected) {}])
+    (raw-detailed-extended-= actual expected)
     (catch Throwable ex [false {:thrown ex}])))
 
 (defn extended-=
   [actual expected]
   (first (detailed-extended-= actual expected)))
 
+(defn- raw-extended-=
+  [actual expected]
+  (first (raw-detailed-extended-= actual expected)))
+
 (defn extended-list-=
   "Element-by-element comparison, using extended-= for the right-hand-side values."
   [actual-args checkers]
   (and (= (count actual-args) (count checkers))
-       (every? (partial apply extended-=) (seq/vertical-slices actual-args checkers))))
+       (every? (partial apply raw-extended-=)
+               (seq/vertical-slices actual-args checkers))))
 
 ;;; An element of extended-= is that an actual map cannot match an expected record (or type).
 ;;; That produces a plain `false` above. If client code wants to be more informative, it
