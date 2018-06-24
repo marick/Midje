@@ -42,6 +42,9 @@
                   flatlines
                   prefix))))
 
+(defmethod messy-lines :exception-inside-fact [m]
+  (list "Error encountered while running fact"))
+
 (defmethod messy-lines :actual-result-did-not-match-expected-value [m]
   (let [expected (:expected-result m)
         actual (:actual m)]
@@ -143,4 +146,3 @@
                            {:expected-result-form (sorted-if-appropriate (:expected-result-form failure-map))})]
     (linearize-lines (cons (failure-notice failure-map)
                            (messy-lines improved-map)))))
-

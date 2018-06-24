@@ -10,7 +10,7 @@
 
 (def fact-properties
   [:midje/source :midje/guid :midje/file :midje/line :midje/namespace
-   :midje/name :midje/description :midje/top-level?])
+   :midje/name :midje/description :midje/top-level-fact?])
 
 (defn make-getters
   "Create midje.data.fact/name midje.data.fact/file, etc."
