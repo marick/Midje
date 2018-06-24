@@ -1,5 +1,5 @@
 (ns ^{:doc "Parsing facts."}
-  midje.parsing.1-to-explicit-form.facts
+    midje.parsing.1-to-explicit-form.facts
   (:require [clojure.zip :as zip]
             [such.control-flow :refer [branch-on]]
             [clojure.pprint :as pprint]

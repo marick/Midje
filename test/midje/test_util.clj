@@ -306,7 +306,3 @@
        (defn ~name ~args
          (swap! ~atom-name inc)
          ~@body))))
-
-
-
-

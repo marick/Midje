@@ -17,7 +17,7 @@
 (defn- minimal-failure-map
   "Failure maps are created by adding on to parser-created maps"
   [type actual existing]
-  (let [base (assoc existing :type type :actual actual)
+  (let [base           (assoc existing :type type :actual actual)
         table-bindings (nested-facts/table-bindings)]
     (if (empty? table-bindings)
       base
@@ -29,8 +29,9 @@
   {:notes [(inherently-false-map-to-record-comparison-note actual expected)]})
 
 (defn- check-for-match [actual checkable-map]
-  (let [expected (:expected-result checkable-map)
-        [check-result failure-details] (detailed-extended-= actual expected)]
+  (let [expected          (:expected-result checkable-map)
+        [check-result
+         failure-details] (detailed-extended-= actual expected)]
     (cond check-result
           (emit/pass)
 
@@ -111,7 +112,6 @@
                 :failures failures
                 :position (:position (first failures))
                 :namespace *ns*})))
-
 
 (defn check-one
   "Takes a map describing a single checkable, plus some function-redefinition maps
