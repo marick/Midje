@@ -19,3 +19,10 @@
   [& _]
   (pointer/set-fallback-line-number-from &form)
   (parse-generative/parse-for-all &form))
+
+(defmacro gen-let
+  {:arglists '([binding-form & facts]
+                [name doc-string binding-form opts-map & facts])}
+  [& _]
+  (pointer/set-fallback-line-number-from &form)
+  (parse-generative/parse-gen-let &form))

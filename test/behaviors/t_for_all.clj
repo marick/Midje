@@ -3,9 +3,11 @@
             [midje.emission.state :as state]
             [midje.repl :as repl]
             [midje.sweet :refer :all]
-            [midje.experimental :refer [for-all]]
+            [midje.experimental :refer [for-all gen-let]]
             [midje.test-util :refer :all]
-            [clojure.test.check.generators :as gen]))
+            [clojure.test.check.generators :as gen]
+            [clojure.test.check :as tc]
+            [clojure.test.check.properties :as prop]))
 
 (silent-for-all
   [strictly-pos gen/s-pos-int
@@ -165,3 +167,10 @@
   (for-all
     [x gen/int]
     x => integer?))
+
+(fact "for-all bindings behave in the same way as the test.check.generators/let macro"
+  (gen-let [strs (gen/not-empty (gen/list gen/string))
+            s (gen/elements strs)]
+           strs => (contains [s])))
+
+

@@ -8,7 +8,9 @@
             [midje.parsing.1-to-explicit-form.metadata :as parse-metadata]
             [midje.parsing.util.error-handling :as error]
             [clojure.test.check :as tc]
-            [clojure.test.check.properties :as prop]))
+            [clojure.test.check.properties :as prop]
+            [clojure.test.check.generators :as generators]
+            [clojure.test.check.generators :as gen]))
 
 (defn- log-qc-info [seed names values]
   (emission/info [""
@@ -85,5 +87,42 @@
            (run-with-smallest fact-fn# '~prop-names run#))
          (boolean (:result run#))))))
 
+(defn roll-up [bindings gen-names check-fn-name]
+  (if (empty? bindings)
+    `(generators/return {:function ~check-fn-name
+                         :result   (~check-fn-name ~@gen-names)
+                         :args     (list ~@gen-names)})
+    (let [[gen-name gen-expr] (first bindings)]
+      (list 'clojure.test.check.generators/bind
+            gen-expr
+            (list 'fn [gen-name] (roll-up (rest bindings) gen-names check-fn-name))))))
+
+(defn- build-gen-let-parser [form]
+  (fn []
+    (let [[metadata forms] (parse-metadata/separate-metadata form)
+          [prop-names prop-values
+           opts checks] (parse-for-all-form form forms)
+          num-tests        (or (:num-tests opts) 10)
+          quick-check-opts (->> (select-keys opts [:seed :max-size])
+                                (into [])
+                                flatten)
+          fact-fn-name     (gensym "fact-fn")
+          prop             (roll-up (map vector prop-names prop-values) prop-names fact-fn-name)]
+
+      `(let [~fact-fn-name  (fn ~prop-names
+                              ~(parse-facts/wrap-fact-around-body
+                                 metadata checks))
+             [run# passes#] (run-for-all (list ~num-tests
+                                               ~prop
+                                               ~@quick-check-opts))]
+         (if (:result run#)
+           (dotimes [_# (/ passes# ~num-tests)]
+             (emission/pass))
+           (run-with-smallest ~fact-fn-name '~prop-names run#))
+         (boolean (:result run#))))))
+
 (defn parse-for-all [form]
   (error/parse-and-catch-failure form (build-parser form)))
+
+(defn parse-gen-let [form]
+  (error/parse-and-catch-failure form (build-gen-let-parser form)))
