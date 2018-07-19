@@ -14,7 +14,7 @@
    any-integer  gen/int]
   {:seed 1510160943861}
   (fact (+ strictly-pos any-integer) => pos?))
-(note-that fact-fails (failure-was-at-line 14))
+(note-that fact-fails (failure-was-at-line 16))
 
 (silent-for-all
   [strictly-pos gen/s-pos-int
@@ -22,7 +22,7 @@
   {:seed 1510160943861}
   (fact 1 => 1)
   (+ strictly-pos any-integer) => pos?)
-(note-that fact-fails (failure-was-at-line 22))
+(note-that fact-fails (failure-was-at-line 24))
 
 (silent-for-all "generative tests"
   [strictly-pos gen/s-pos-int
@@ -168,9 +168,10 @@
     [x gen/int]
     x => integer?))
 
-(fact "for-all bindings behave in the same way as the test.check.generators/let macro"
-  (gen-let [strs (gen/not-empty (gen/list gen/string))
-            s (gen/elements strs)]
+
+(gen-let [strs (gen/not-empty (gen/list gen/string))
+          s (gen/elements strs)]
+         (fact "bla"
            strs => (contains [s])))
 
 

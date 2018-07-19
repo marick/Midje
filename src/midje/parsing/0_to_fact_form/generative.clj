@@ -73,18 +73,19 @@
           num-tests               (or (:num-tests opts) 10)
           quick-check-opts        (->> (select-keys opts [:seed :max-size])
                                        (into [])
-                                       flatten)]
-      `(let [fact-fn#       (fn ~prop-names
+                                       flatten)
+          fact-fn-name            (gensym "fact-fn")]
+      `(let [~fact-fn-name       (fn ~prop-names
                               ~(parse-facts/wrap-fact-around-body
                                  metadata checks))
-             prop#          (prop/for-all* ~prop-values fact-fn#)
+             prop#          (prop/for-all* ~prop-values ~fact-fn-name)
              [run# passes#] (run-for-all (list ~num-tests
                                                prop#
                                                ~@quick-check-opts))]
          (if (:result run#)
            (dotimes [_# (/ passes# ~num-tests)]
              (emission/pass))
-           (run-with-smallest fact-fn# '~prop-names run#))
+           (run-with-smallest ~fact-fn-name '~prop-names run#))
          (boolean (:result run#))))))
 
 (defn roll-up [bindings gen-names check-fn-name]
