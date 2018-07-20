@@ -168,10 +168,6 @@
     [x gen/int]
     x => integer?))
 
-
-(gen-let [strs (gen/not-empty (gen/list gen/string))
-          s (gen/elements strs)]
-         (fact "bla"
-           strs => (contains [s])))
-
-
+(fact "you can put gen-let inside of a fact"
+  (gen-let [s (gen/return "s")]
+    s => "s"))
