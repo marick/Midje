@@ -14,7 +14,7 @@
    any-integer  gen/int]
   {:seed 1510160943861}
   (fact (+ strictly-pos any-integer) => pos?))
-(note-that fact-fails (failure-was-at-line 16))
+(note-that fact-fails (failure-was-at-line 17))
 
 (silent-for-all
   [strictly-pos gen/s-pos-int
@@ -22,7 +22,7 @@
   {:seed 1510160943861}
   (fact 1 => 1)
   (+ strictly-pos any-integer) => pos?)
-(note-that fact-fails (failure-was-at-line 24))
+(note-that fact-fails (failure-was-at-line 25))
 
 (silent-for-all "generative tests"
   [strictly-pos gen/s-pos-int
@@ -171,3 +171,7 @@
 (fact "you can put gen-let inside of a fact"
   (gen-let [s (gen/return "s")]
     s => "s"))
+
+(gen-let [i (gen/elements [1 2 3])
+          s (gen/return (str i))]
+  (Integer/parseInt s) => i)

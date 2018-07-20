@@ -89,14 +89,21 @@
          (boolean (:result run#))))))
 
 (defn roll-up [bindings gen-names check-fn-name]
-  (if (empty? bindings)
-    `(generators/return {:function ~check-fn-name
-                         :result   (~check-fn-name ~@gen-names)
-                         :args     (list ~@gen-names)})
+  (cond
+    (empty? bindings) `{:function ~check-fn-name
+                        :result   (~check-fn-name ~@gen-names)
+                        :args     (list ~@gen-names)}
+
+    (= 1 (count bindings))
     (let [[gen-name gen-expr] (first bindings)]
-      (list 'clojure.test.check.generators/bind
-            gen-expr
-            (list 'fn [gen-name] (roll-up (rest bindings) gen-names check-fn-name))))))
+      (list 'clojure.test.check.generators/fmap
+            (list 'fn [gen-name] (roll-up (rest bindings) gen-names check-fn-name))
+            gen-expr))
+
+    :else (let [[gen-name gen-expr] (first bindings)]
+            (list 'clojure.test.check.generators/bind
+                  gen-expr
+                  (list 'fn [gen-name] (roll-up (rest bindings) gen-names check-fn-name))))))
 
 (defn- build-gen-let-parser [form]
   (fn []
