@@ -88,22 +88,42 @@
            (run-with-smallest ~fact-fn-name '~prop-names run#))
          (boolean (:result run#))))))
 
+(declare roll-up-bindings)
+
+(defn bind-expr [gen-name gen-expr inner-body other-bindings]
+  (roll-up-bindings
+    other-bindings
+    (list 'clojure.test.check.generators/bind
+          gen-expr
+          (list `fn [gen-name] inner-body))))
+
+(defn let-expr [fmap-bindings inner-body other-bindings]
+  (roll-up-bindings
+    other-bindings
+    `(let ~fmap-bindings
+       ~inner-body)))
+
+(defn roll-up-bindings [bindings inner-body]
+  (let [[fst-binding & rst-bindings] bindings
+        [lhs rhs] fst-binding]
+    (cond
+       (empty? bindings) inner-body
+       (= :let lhs)  (let-expr rhs inner-body rst-bindings)
+       :else (bind-expr lhs rhs inner-body rst-bindings))))
+
+
 (defn roll-up [bindings gen-names check-fn-name]
-  (cond
-    (empty? bindings) `{:function ~check-fn-name
-                        :result   (~check-fn-name ~@gen-names)
-                        :args     (list ~@gen-names)}
+  (roll-up-bindings (reverse bindings)
+                    `(gen/return {:function ~check-fn-name
+                                  :result   (~check-fn-name ~@gen-names)
+                                  :args     (list ~@gen-names)})))
 
-    (= 1 (count bindings))
-    (let [[gen-name gen-expr] (first bindings)]
-      (list 'clojure.test.check.generators/fmap
-            (list 'fn [gen-name] (roll-up (rest bindings) gen-names check-fn-name))
-            gen-expr))
-
-    :else (let [[gen-name gen-expr] (first bindings)]
-            (list 'clojure.test.check.generators/bind
-                  gen-expr
-                  (list 'fn [gen-name] (roll-up (rest bindings) gen-names check-fn-name))))))
+(defn variables [bindings]
+  (->> bindings
+       (mapcat (fn [[lhs rhs]]
+                 (cond (= :let lhs)  (->> rhs (partition 2) (map first))
+                       :else [lhs])))
+       vec))
 
 (defn- build-gen-let-parser [form]
   (fn []
@@ -115,9 +135,10 @@
                                 (into [])
                                 flatten)
           fact-fn-name     (gensym "fact-fn")
-          prop             (roll-up (map vector prop-names prop-values) prop-names fact-fn-name)]
-
-      `(let [~fact-fn-name  (fn ~prop-names
+          bindings         (map vector prop-names prop-values)
+          vars             (variables bindings)
+          prop             (roll-up bindings vars fact-fn-name)]
+      `(let [~fact-fn-name  (fn ~vars
                               ~(parse-facts/wrap-fact-around-body
                                  metadata checks))
              [run# passes#] (run-for-all (list ~num-tests
@@ -126,7 +147,7 @@
          (if (:result run#)
            (dotimes [_# (/ passes# ~num-tests)]
              (emission/pass))
-           (run-with-smallest ~fact-fn-name '~prop-names run#))
+           (run-with-smallest ~fact-fn-name '~vars run#))
          (boolean (:result run#))))))
 
 (defn parse-for-all [form]
@@ -134,3 +155,4 @@
 
 (defn parse-gen-let [form]
   (error/parse-and-catch-failure form (build-gen-let-parser form)))
+
