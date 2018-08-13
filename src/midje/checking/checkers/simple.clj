@@ -32,7 +32,7 @@
 (ns/defalias irrelevant anything)
 
 (defchecker irrelevant-value
-  "Accpets any value (doesn't accept functions"
+  "Accepts any value but functions"
   [actual]
   (and (not (captured-throwable? actual)) (not (fn? actual))))
 
