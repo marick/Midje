@@ -126,6 +126,16 @@
       run again"
   @my-inc-count => 2)
 
+(def pass-count (state/output-counters:midje-passes))
+(try
+  (silent-for-all
+    [x gen/int]
+    (fact "Exceptions that occur in fact set up should propagate up and not cause a passing test."
+      (/ 1 0)
+      x => integer?))
+  (catch java.lang.ArithmeticException e))
+(fact (state/output-counters:midje-passes) => pass-count)
+
 (def gen-count (atom 0))
 (def gen-int-with-count
   (gen/sized (fn [size]
