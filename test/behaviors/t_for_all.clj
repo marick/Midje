@@ -10,22 +10,19 @@
 (silent-for-all
   [strictly-pos gen/s-pos-int
    any-integer  gen/int]
-  {:seed 1510160943861}
   (fact (+ strictly-pos any-integer) => pos?))
-(note-that fact-fails (failure-was-at-line 14))
+(note-that fact-fails (failure-was-at-line 13))
 
 (silent-for-all
   [strictly-pos gen/s-pos-int
    any-integer  gen/int]
-  {:seed 1510160943861}
   (fact 1 => 1)
   (+ strictly-pos any-integer) => pos?)
-(note-that fact-fails (failure-was-at-line 22))
+(note-that fact-fails (failure-was-at-line 20))
 
 (silent-for-all "generative tests"
   [strictly-pos gen/s-pos-int
    any-integer  gen/int]
-  {:seed 1510160943861}
   (fact "Summing an integer to a positive integer should be positive? Really?"
     strictly-pos => integer?
     (+ strictly-pos any-integer) => pos?))
@@ -34,7 +31,6 @@
 (def pass-count (state/output-counters:midje-passes))
 (for-all
   [strictly-pos gen/s-pos-int]
-  {:seed 3510160943861}
   (+ strictly-pos 0) => pos?
   (let [an-int 0]
     (fact "I. you can wrap your facts in `let`"
