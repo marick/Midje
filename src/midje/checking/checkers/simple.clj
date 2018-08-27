@@ -31,6 +31,11 @@
   (not (captured-throwable? actual)))
 (ns/defalias irrelevant anything)
 
+(defchecker irrelevant-value
+  "Accepts any value but functions"
+  [actual]
+  (and (not (captured-throwable? actual)) (not (fn? actual))))
+
 (defchecker exactly
   "Checks for equality. Use to avoid default handling of functions."
   [expected]

@@ -31,7 +31,11 @@
   false => anything
   even? => anything
   "irrelevant is a synonym"
-  1 => irrelevant)
+  1 => irrelevant
+  "irrelevant-value doesn't accept functions"
+  (fn []) =not=> irrelevant-value
+  3 => irrelevant-value
+  {} => irrelevant-value)
 
 (facts "about exactly"
   #'exactly => checker?
