@@ -10,14 +10,14 @@
 (silent-for-all
   [strictly-pos gen/s-pos-int
    any-integer  gen/int]
-  {:num-tests 100}
+  {:num-tests 1000}
   (fact (+ strictly-pos any-integer) => pos?))
 (note-that fact-fails (failure-was-at-line 14))
 
 (silent-for-all
   [strictly-pos gen/s-pos-int
    any-integer  gen/int]
-  {:num-tests 100}
+  {:num-tests 1000}
   (fact 1 => 1)
   (+ strictly-pos any-integer) => pos?)
 (note-that fact-fails (failure-was-at-line 22))
@@ -25,7 +25,7 @@
 (silent-for-all "generative tests"
   [strictly-pos gen/s-pos-int
    any-integer  gen/int]
-  {:num-tests 100}
+  {:num-tests 1000}
   (fact "Summing an integer to a positive integer should be positive? Really?"
     strictly-pos => integer?
     (+ strictly-pos any-integer) => pos?))
