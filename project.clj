@@ -7,7 +7,7 @@
                  [org.clojure/math.combinatorics "0.1.4"]
                  [io.aviso/pretty "0.1.34"]
                  [org.clojure/core.unify "0.5.7" :exclusions [org.clojure/clojure]]
-                 [org.clojure/test.check "0.9.0"]
+                 [org.clojure/test.check "0.10.0-alpha3"]
                  [clj-time "0.14.2" :exclusions [org.clojure/clojure]]
                  [colorize "0.1.1" :exclusions [org.clojure/clojure]]
                  [org.clojure/tools.macro "0.1.5"]

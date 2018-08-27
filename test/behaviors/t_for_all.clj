@@ -10,14 +10,14 @@
 (silent-for-all
   [strictly-pos gen/s-pos-int
    any-integer  gen/int]
-  {:seed 1510160943861}
+  {:num-tests 1000}
   (fact (+ strictly-pos any-integer) => pos?))
 (note-that fact-fails (failure-was-at-line 14))
 
 (silent-for-all
   [strictly-pos gen/s-pos-int
    any-integer  gen/int]
-  {:seed 1510160943861}
+  {:num-tests 1000}
   (fact 1 => 1)
   (+ strictly-pos any-integer) => pos?)
 (note-that fact-fails (failure-was-at-line 22))
@@ -25,7 +25,7 @@
 (silent-for-all "generative tests"
   [strictly-pos gen/s-pos-int
    any-integer  gen/int]
-  {:seed 1510160943861}
+  {:num-tests 1000}
   (fact "Summing an integer to a positive integer should be positive? Really?"
     strictly-pos => integer?
     (+ strictly-pos any-integer) => pos?))
@@ -33,26 +33,23 @@
 
 (def pass-count (state/output-counters:midje-passes))
 (for-all
-  [strictly-pos gen/s-pos-int
-   any-integer  gen/int]
-  {:seed 3510160943861}
-  (+ strictly-pos any-integer) => pos?
+  [strictly-pos gen/s-pos-int]
+  (+ strictly-pos 0) => pos?
   (let [an-int 0]
     (fact "I. you can wrap your facts in `let`"
-      (+ an-int strictly-pos any-integer) => pos?))
+      (+ an-int strictly-pos) => pos?))
   (let [an-int 1]
     (fact "II. you can wrap your facts in `let`"
-      (+ an-int strictly-pos any-integer) => pos?)))
+      (+ an-int strictly-pos) => pos?)))
 
 (fact
   (state/output-counters:midje-passes) => (+ pass-count 3))
 
 (for-all "random map not confounded with quick-check options if in correct place"
-  [strictly-pos gen/s-pos-int
-   any-integer  gen/int]
+  [strictly-pos gen/s-pos-int]
   {:seed 3510160943861}
   {:some 'random :map '.}
-  (fact (+ strictly-pos any-integer) => pos?))
+  (fact (+ strictly-pos 0) => pos?))
 
 (silent-for-all "confounding random map with quick-check options"
   [strictly-pos gen/s-pos-int
@@ -127,6 +124,16 @@
 (fact "when any fact fails, generated input is shrunk causing all facts to be
       run again"
   @my-inc-count => 2)
+
+(def pass-count (state/output-counters:midje-passes))
+(try
+  (silent-for-all
+    [x gen/int]
+    (fact "Exceptions that occur in fact set up should propagate up and not cause a passing test."
+      (/ 1 0)
+      x => integer?))
+  (catch java.lang.ArithmeticException e))
+(fact (state/output-counters:midje-passes) => pass-count)
 
 (def gen-count (atom 0))
 (def gen-int-with-count
