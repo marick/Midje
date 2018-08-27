@@ -98,6 +98,7 @@ Contributors
 * André Eriksson
 * Jason Felice
 * Rafael Ferreira
+* Adam Frey
 * Anders Furseth
 * Stuart Halloway
 * Chris Hapgood
