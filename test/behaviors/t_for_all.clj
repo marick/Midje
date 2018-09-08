@@ -9,13 +9,13 @@
             [clojure.test.check :as tc]
             [clojure.test.check.properties :as prop]
             [midje.parsing.0-to-fact-form.generative :as parser]))
-#_#_#_#_
+
 (silent-for-all
   [strictly-pos gen/s-pos-int
    any-integer  gen/int]
   {:seed 1510160943861}
   (fact (+ strictly-pos any-integer) => pos?))
-(note-that fact-fails (failure-was-at-line 16))
+(note-that fact-fails (failure-was-at-line 17))
 
 (silent-for-all
   [strictly-pos gen/s-pos-int
@@ -23,7 +23,7 @@
   {:seed 1510160943861}
   (fact 1 => 1)
   (+ strictly-pos any-integer) => pos?)
-(note-that fact-fails (failure-was-at-line 24))
+(note-that fact-fails (failure-was-at-line 25))
 
 (silent-for-all "generative tests"
   [strictly-pos gen/s-pos-int
@@ -169,65 +169,86 @@
     [x gen/int]
     x => integer?))
 
+(gen-let [s (gen/return "s")]
+  s => "s")
+
 (fact "you can put gen-let inside of a fact"
   (gen-let [s (gen/return "s")]
     s => "s")
   )
+(fact "gen-let composes generators"
+  (gen-let [i (gen/elements [1 2 3])
+            s (gen/return (str i))]
+    (Integer/parseInt s) => i))
 
-(gen-let [s (gen/return "s")]
-  s => "s")
+(fact "gen-let composes multiple generators"
+  (gen-let [i  gen/s-pos-int
+            is (gen/vector gen/int i)
+            e  (gen/elements is)]
+    (count is) => i
+    (some #{e} is) => e))
 
-(gen-let [i (gen/elements [1 2 3])
-          s (gen/return (str i))]
-  (Integer/parseInt s) => i)
+(fact ":let syntax allows for simple functions over generated elements"
+  (gen-let [i gen/pos-int
+            :let [s  (str i)
+                  s2 (str s s)]]
+    (Integer/parseInt s2) => (+ (* 10 i) i)))
 
-(gen-let [i (gen/elements [1 2 3])
-          :let [s (str i)
-                s2 (str s s)]]
-  (Integer/parseInt s2) => (+ (* 10 i) i))
+(fact "a :let block can be in the middle of gen-let bindings"
+  (gen-let [i  (gen/choose 0 9)
+            :let [s  (str i)
+                  s2 (str s s)]
+            xs (gen/elements [s s2])]
+    (->> xs seq (map #(Character/getNumericValue %)) (some #{i})) => i))
 
+(fact "a :let block can be in the beginning of gen-let bindings"
+  (gen-let [:let [i 2
+                  j (+ i 2)]
+            x (gen/vector gen/int i j)]
+    (some #{2 3 4} (count x)) => some?))
 
-(fact
+(facts "verifying gen-let macro code generation"
+  (fact
+    (parser/roll-up-bindings
+      `([s (gen/return "s")])
+      `(gen/return
+         {:args     (list s)
+          :function fact-fn-sym
+          :result   (fact-fn-sym s)}))
+    => `(gen/bind
+          (gen/return "s")
+          (fn
+            [s]
+            (gen/return
+              {:args     (list s)
+               :function fact-fn-sym
+               :result   (fact-fn-sym s)}))))
+
+  (fact
+    (parser/roll-up-bindings
+      `([s (gen/return (str i))]
+         [i (gen/elements [1 2 3])])
+      `(gen/return
+         {:args     (list i s)
+          :function fact-fn-sym
+          :result   (fact-fn-sym i s)}))
+    => `(gen/bind
+          (gen/elements [1 2 3])
+          (fn [i]
+            (gen/bind
+              (gen/return (str i))
+              (fn
+                [s]
+                (gen/return
+                  {:args     (list i s)
+                   :function fact-fn-sym
+                   :result   (fact-fn-sym i s)}))))))
+
   (parser/roll-up-bindings
-    `([s (gen/return "s")])
-    `(gen/return
-       {:args     (list s)
-       :function fact-fn-sym
-       :result   (fact-fn-sym s)}))
-  => `(gen/bind
-       (gen/return "s")
-       (fn
-         [s]
-         (gen/return
-           {:args (list s)
-            :function fact-fn-sym
-            :result (fact-fn-sym s)}))))
-
-(fact
-  (parser/roll-up-bindings
-    `([s (gen/return (str i))]
-      [i (gen/elements [1 2 3])])
+    `([:let [s (str i)]]
+       [i (gen/elements [1 2 3])])
     `(gen/return
        {:args     (list i s)
         :function fact-fn-sym
-        :result   (fact-fn-sym i s)}))
-  => `(gen/bind
-        (gen/elements [1 2 3])
-        (fn [i]
-          (gen/bind
-            (gen/return (str i))
-            (fn
-              [s]
-              (gen/return
-                {:args     (list i s)
-                 :function fact-fn-sym
-                 :result   (fact-fn-sym i s)}))))))
-
-(parser/roll-up-bindings
-  `([:let [s (str i)]]
-    [i (gen/elements [1 2 3])])
-  `(gen/return
-     {:args     (list i s)
-      :function fact-fn-sym
-      :result   (fact-fn-sym i s)}))
+        :result   (fact-fn-sym i s)})))
 
