@@ -144,11 +144,11 @@
              [run# passes#] (run-for-all (list ~num-tests
                                                ~prop
                                                ~@quick-check-opts))]
-         (if (:result run#)
+         (if (:pass? run#)
            (dotimes [_# (/ passes# ~num-tests)]
              (emission/pass))
            (run-with-smallest ~fact-fn-name '~vars run#))
-         (boolean (:result run#))))))
+         (boolean (:pass? run#))))))
 
 (defn parse-for-all [form]
   (error/parse-and-catch-failure form (build-parser form)))

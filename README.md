@@ -3,13 +3,7 @@ Available via [clojars](https://clojars.org/midje)
 Stable version:
 
 ```clojure
-[midje "1.9.1"]
-```
-
-Experimental version:
-
-```clojure
-[midje "1.9.2-alpha3"]
+[midje "1.9.2"]
 ```
 
 License: [MIT](http://en.wikipedia.org/wiki/MIT_License)
@@ -103,6 +97,8 @@ Contributors
 * Dolmio
 * André Eriksson
 * Jason Felice
+* Rafael Ferreira
+* Adam Frey
 * Anders Furseth
 * Stuart Halloway
 * Chris Hapgood

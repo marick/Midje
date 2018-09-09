@@ -1,4 +1,4 @@
-(defproject midje "1.9.2-alpha4"
+(defproject midje "1.9.3-alpha1"
   :description "A TDD library for Clojure that supports top-down ('mockish') TDD, encourages readable tests, provides a smooth migration path from clojure.test, balances abstraction and concreteness, and strives for graciousness."
   :url "https://github.com/marick/Midje"
   :pedantic? :warn
@@ -7,7 +7,7 @@
                  [org.clojure/math.combinatorics "0.1.4"]
                  [io.aviso/pretty "0.1.34"]
                  [org.clojure/core.unify "0.5.7" :exclusions [org.clojure/clojure]]
-                 [org.clojure/test.check "0.9.0"]
+                 [org.clojure/test.check "0.10.0-alpha3"]
                  [clj-time "0.14.2" :exclusions [org.clojure/clojure]]
                  [colorize "0.1.1" :exclusions [org.clojure/clojure]]
                  [org.clojure/tools.macro "0.1.5"]
