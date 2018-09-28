@@ -6,6 +6,12 @@ Stable version:
 [midje "1.9.2"]
 ```
 
+Alpha version:
+
+```clojure
+[midje "1.9.3-alpha2"]
+```
+
 License: [MIT](http://en.wikipedia.org/wiki/MIT_License)
 
 [![Build Status](https://travis-ci.org/marick/Midje.png?branch=master)](https://travis-ci.org/marick/Midje)
