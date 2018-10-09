@@ -3,13 +3,7 @@ Available via [clojars](https://clojars.org/midje)
 Stable version:
 
 ```clojure
-[midje "1.9.2"]
-```
-
-Alpha version:
-
-```clojure
-[midje "1.9.3-alpha2"]
+[midje "1.9.3"]
 ```
 
 License: [MIT](http://en.wikipedia.org/wiki/MIT_License)
