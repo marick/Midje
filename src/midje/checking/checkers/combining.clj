@@ -7,7 +7,7 @@
 (defn report-failure [actual checker-form result]
   (as-data-laden-falsehood {:actual actual
                             :intermediate-results
-                            [ [checker-form (user-friendly-falsehood result)]]}))
+                            [[checker-form (user-friendly-falsehood result)]]}))
 
 (defn- build-check-form [checker-form actual-sym]
   `(extended-= ~actual-sym ~checker-form))
