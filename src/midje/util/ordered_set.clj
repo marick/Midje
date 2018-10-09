@@ -72,7 +72,7 @@
     (.count this))
   (isEmpty [this]
     (zero? (.count this)))
-  (toArray [this dest]
+  (^objects toArray [this ^objects dest]
     (reduce (fn [idx item]
               (aset dest idx item)
               (inc idx))
