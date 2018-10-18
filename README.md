@@ -1,10 +1,6 @@
 Available via [clojars](https://clojars.org/midje)
 
-Stable version:
-
-```clojure
-[midje "1.9.3"]
-```
+[![Current Version](https://img.shields.io/clojars/v/midje/midje.svg)](https://clojars.org/midje)
 
 License: [MIT](http://en.wikipedia.org/wiki/MIT_License)
 
