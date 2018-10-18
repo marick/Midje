@@ -1,4 +1,4 @@
-(defproject midje "1.9.3"
+(defproject midje "1.9.4"
   :description "A TDD library for Clojure that supports top-down ('mockish') TDD, encourages readable tests, provides a smooth migration path from clojure.test, balances abstraction and concreteness, and strives for graciousness."
   :url "https://github.com/marick/Midje"
   :pedantic? :warn
@@ -17,7 +17,9 @@
                  [slingshot "0.12.2"]
                  [mvxcvi/puget "1.0.2" :exclusions [org.clojure/clojure fipp]]
                  ;; pin fipp until puget bumps version
-                 [fipp "0.6.13"]]
+                 [fipp "0.6.13" :exclusions [org.clojure/core.rrb-vector]]
+                 ;; pin rrb-vector until `fipp` updates
+                 [org.clojure/core.rrb-vector "0.0.13"]]
   :profiles {:dev {:dependencies [[prismatic/plumbing "0.5.5"]]
                    :plugins [[lein-midje "3.2.1"]
                              [lein-ancient "0.6.15" :exclusions [com.fasterxml.jackson.core/jackson-databind

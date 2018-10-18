@@ -2,6 +2,9 @@
 This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
 
+## [1.9.4] - 2018-10-18
+- Fix boxed math warnings from `rrb-vector`
+
 ## [1.9.3] - 2018-10-09
 - Support JDK 11
 
