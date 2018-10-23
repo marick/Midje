@@ -1,24 +1,28 @@
-(defproject midje "1.9.3-alpha1"
+(defproject midje "1.9.4"
   :description "A TDD library for Clojure that supports top-down ('mockish') TDD, encourages readable tests, provides a smooth migration path from clojure.test, balances abstraction and concreteness, and strives for graciousness."
   :url "https://github.com/marick/Midje"
   :pedantic? :warn
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [marick/suchwow "6.0.2" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
                  [org.clojure/math.combinatorics "0.1.4"]
-                 [io.aviso/pretty "0.1.34"]
+                 [io.aviso/pretty "0.1.35"]
                  [org.clojure/core.unify "0.5.7" :exclusions [org.clojure/clojure]]
                  [org.clojure/test.check "0.10.0-alpha3"]
-                 [clj-time "0.14.2" :exclusions [org.clojure/clojure]]
+                 [clj-time "0.14.4" :exclusions [org.clojure/clojure]]
                  [colorize "0.1.1" :exclusions [org.clojure/clojure]]
                  [org.clojure/tools.macro "0.1.5"]
                  [org.tcrawley/dynapath "1.0.0"]
-                 [org.clojure/tools.namespace "0.2.11"]
+                 [org.clojure/tools.namespace "0.3.0-alpha4"]
                  [flare "0.2.9" :exclusions [org.clojure/clojure]]
                  [slingshot "0.12.2"]
-                 [mvxcvi/puget "1.0.2" :exclusions [org.clojure/clojure]]]
+                 [mvxcvi/puget "1.0.2" :exclusions [org.clojure/clojure fipp]]
+                 ;; pin fipp until puget bumps version
+                 [fipp "0.6.13" :exclusions [org.clojure/core.rrb-vector]]
+                 ;; pin rrb-vector until `fipp` updates
+                 [org.clojure/core.rrb-vector "0.0.13"]]
   :profiles {:dev {:dependencies [[prismatic/plumbing "0.5.5"]]
                    :plugins [[lein-midje "3.2.1"]
-                             [lein-ancient "0.6.14" :exclusions [com.fasterxml.jackson.core/jackson-databind
+                             [lein-ancient "0.6.15" :exclusions [com.fasterxml.jackson.core/jackson-databind
                                                                  com.fasterxml.jackson.core/jackson-core]]]}
              :test-libs {:dependencies [[prismatic/plumbing "0.5.5"]]}
              :1.7 [:test-libs {:dependencies [[org.clojure/clojure "1.7.0"]]}]
