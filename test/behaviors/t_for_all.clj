@@ -181,8 +181,8 @@
 
 (fact "you can put gen-let inside of a fact"
   (gen-let [s (gen/return "s")]
-    s => "s")
-  )
+    s => "s"))
+
 (fact "gen-let composes generators"
   (gen-let [i (gen/elements [1 2 3])
             s (gen/return (str i))]
