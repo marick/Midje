@@ -69,7 +69,7 @@
                             result))]
     [run @passes]))
 
-(defn- build-parser [form]
+(defn- build-for-all-parser [form]
   (fn []
     (let [[metadata forms]        (parse-metadata/separate-metadata form)
           [prop-names prop-values
@@ -155,7 +155,7 @@
          (boolean (:pass? run#))))))
 
 (defn parse-for-all [form]
-  (error/parse-and-catch-failure form (build-parser form)))
+  (error/parse-and-catch-failure form (build-for-all-parser form)))
 
 (defn parse-gen-let [form]
   (error/parse-and-catch-failure form (build-gen-let-parser form)))
