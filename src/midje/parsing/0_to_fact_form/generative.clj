@@ -97,7 +97,7 @@
 (defn bind-expr [gen-name gen-expr inner-body other-bindings]
   (roll-up-bindings
     other-bindings
-    (list 'clojure.test.check.generators/bind
+    (list `generators/bind
           gen-expr
           (list `fn [gen-name] inner-body))))
 
