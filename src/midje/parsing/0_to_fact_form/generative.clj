@@ -20,16 +20,19 @@
                   (color/note "quick-check shrunken failing values:")
                   (util/attractively-stringified-value (zipmap names values))]))
 
+(defn- form-name [full-form]
+  (-> full-form first name))
+
 (defn- parse-for-all-form [full-form [binding-form & opts-map-and-checks]]
   (when-not (vector? binding-form)
-    (error/report-error full-form "`for-all` must have a vector for its bindings"))
+    (error/report-error full-form (format "`%s` must have a vector for its bindings" (form-name full-form))))
 
   (when (empty? binding-form)
-    (error/report-error full-form "`for-all` cannot have an empty binding vector"))
+    (error/report-error full-form (format "`%s` cannot have an empty binding vector" (form-name full-form))))
 
   (when (odd? (count binding-form))
     (error/report-error
-      full-form "`for-all` must have an even number of forms in its binding vector"))
+      full-form (format "`%s` must have an even number of forms in its binding vector" (form-name full-form))))
 
   (let [bindings    (partition 2 binding-form)
         prop-names  (mapv first bindings)
@@ -44,12 +47,13 @@
     (when (and (contains? opts :num-tests)
                (not (pos? (:num-tests opts))))
       (error/report-error
-        full-form (str ":num-tests `for-all` option must be greater than 0: "
-                       (:num-tests opts))))
+        full-form (format ":num-tests `%s` option must be greater than 0: %d"
+                          (form-name full-form)
+                          (:num-tests opts))))
 
     (when-let [extra-keys (and opts? (keys (dissoc opts :num-tests :seed :max-size)))]
       (error/report-error
-        full-form (str "unrecognized keys in `for-all` options map: " extra-keys)))
+        full-form (format "unrecognized keys in `%s` options map: %s" (form-name full-form) extra-keys)))
     [prop-names prop-values opts checks]))
 
 (defn run-with-smallest [fact-fn prop-names run-result]
