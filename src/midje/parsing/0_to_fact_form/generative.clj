@@ -111,10 +111,9 @@
   (let [[fst-binding & rst-bindings] bindings
         [lhs rhs] fst-binding]
     (cond
-       (empty? bindings) inner-body
-       (= :let lhs)  (let-expr rhs inner-body rst-bindings)
-       :else (bind-expr lhs rhs inner-body rst-bindings))))
-
+      (empty? bindings) inner-body
+      (= :let lhs)      (let-expr rhs inner-body rst-bindings)
+      :else             (bind-expr lhs rhs inner-body rst-bindings))))
 
 (defn roll-up [bindings gen-names check-fn-name]
   (roll-up-bindings (reverse bindings)
