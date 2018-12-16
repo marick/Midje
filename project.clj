@@ -17,9 +17,7 @@
                  [slingshot "0.12.2"]
                  [mvxcvi/puget "1.0.2" :exclusions [org.clojure/clojure fipp]]
                  ;; pin fipp until puget bumps version
-                 [fipp "0.6.13" :exclusions [org.clojure/core.rrb-vector]]
-                 ;; pin rrb-vector until `fipp` updates
-                 [org.clojure/core.rrb-vector "0.0.13"]]
+                 [fipp "0.6.14"]]
   :profiles {:dev {:dependencies [[prismatic/plumbing "0.5.5"]]
                    :plugins [[lein-midje "3.2.1"]
                              [lein-ancient "0.6.15" :exclusions [com.fasterxml.jackson.core/jackson-databind
