@@ -12,6 +12,8 @@
             [clojure.test.check.generators :as generators]
             [clojure.test.check.generators :as gen]))
 
+(def default-num-tests 10)
+
 (defn- log-qc-info [seed names values]
   (emission/info [""
                   (color/note "quick-check seed:")
@@ -69,16 +71,20 @@
                             result))]
     [run @passes]))
 
+(def quick-check-opt-keys [:seed :max-size])
+
+(defn options [opts-map-form]
+  {:num-tests (get opts-map-form :num-tests default-num-tests)
+   :quick-check-opts (->> (select-keys opts-map-form quick-check-opt-keys)
+                          (into [])
+                          flatten)})
+
 (defn- build-for-all-parser [form]
   (fn []
-    (let [[metadata forms]        (parse-metadata/separate-metadata form)
-          [prop-names prop-values
-           opts checks]           (parse-for-all-form form forms)
-          num-tests               (or (:num-tests opts) 10)
-          quick-check-opts        (->> (select-keys opts [:seed :max-size])
-                                       (into [])
-                                       flatten)
-          fact-fn-name            (gensym "fact-fn")]
+    (let [[metadata forms] (parse-metadata/separate-metadata form)
+          [prop-names prop-values opts checks] (parse-for-all-form form forms)
+          {:keys [num-tests quick-check-opts]} (options opts)
+          fact-fn-name (gensym "fact-fn")]
       `(let [~fact-fn-name       (fn ~prop-names
                               ~(parse-facts/wrap-fact-around-body
                                  metadata checks))
@@ -133,10 +139,7 @@
     (let [[metadata forms] (parse-metadata/separate-metadata form)
           [prop-names prop-values
            opts checks] (parse-for-all-form form forms)
-          num-tests        (or (:num-tests opts) 10)
-          quick-check-opts (->> (select-keys opts [:seed :max-size])
-                                (into [])
-                                flatten)
+          {:keys [num-tests quick-check-opts]} (options opts)
           fact-fn-name     (gensym "fact-fn")
           bindings         (map vector prop-names prop-values)
           vars             (variables bindings)
