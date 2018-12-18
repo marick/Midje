@@ -25,6 +25,13 @@
 (defn- form-name [full-form]
   (-> full-form first name))
 
+(defn variables [bindings]
+  (->> bindings
+       (mapcat (fn [[lhs rhs]]
+                 (cond (= :let lhs)  (->> rhs (partition 2) (map first))
+                       :else [lhs])))
+       vec))
+
 (defn- parse-for-all-form [full-form [binding-form & opts-map-and-checks]]
   (when-not (vector? binding-form)
     (error/report-error full-form (format "`%s` must have a vector for its bindings" (form-name full-form))))
@@ -45,7 +52,8 @@
                       {})
         checks      (if opts?
                       (rest opts-map-and-checks)
-                      opts-map-and-checks)]
+                      opts-map-and-checks)
+        vars        (variables bindings)]
     (when (and (contains? opts :num-tests)
                (not (pos? (:num-tests opts))))
       (error/report-error
@@ -56,7 +64,12 @@
     (when-let [extra-keys (and opts? (keys (dissoc opts :num-tests :seed :max-size)))]
       (error/report-error
         full-form (format "unrecognized keys in `%s` options map: %s" (form-name full-form) extra-keys)))
-    [prop-names prop-values opts checks]))
+    {:generators {:names  prop-names
+                  :values prop-values
+                  :vars        vars
+                  :bindings    bindings}
+     :opts       opts
+     :checks     checks}))
 
 (defn run-with-smallest [fact-fn prop-names run-result]
   (let [smallest-failing-args (-> run-result :shrunk :smallest)]
@@ -79,24 +92,31 @@
                           (into [])
                           flatten)})
 
-(defn- build-for-all-parser [form]
+(defn for-all-property [{values :values} fact-fn-name]
+  `(prop/for-all* ~values ~fact-fn-name))
+
+(defn build-parser [form property]
   (fn []
     (let [[metadata forms] (parse-metadata/separate-metadata form)
-          [prop-names prop-values opts checks] (parse-for-all-form form forms)
+          {:keys [generators opts checks]} (parse-for-all-form form forms)
+          {:keys [vars]} generators
           {:keys [num-tests quick-check-opts]} (options opts)
-          fact-fn-name (gensym "fact-fn")]
-      `(let [~fact-fn-name       (fn ~prop-names
-                              ~(parse-facts/wrap-fact-around-body
-                                 metadata checks))
-             prop#          (prop/for-all* ~prop-values ~fact-fn-name)
+          fact-fn-name (gensym "fact-fn")
+          property     (property generators fact-fn-name)]
+      `(let [~fact-fn-name (fn ~vars
+                             ~(parse-facts/wrap-fact-around-body
+                                metadata checks))
              [run# passes#] (run-for-all (list ~num-tests
-                                               prop#
+                                               ~property
                                                ~@quick-check-opts))]
          (if (:pass? run#)
            (dotimes [_# (/ passes# ~num-tests)]
              (emission/pass))
-           (run-with-smallest ~fact-fn-name '~prop-names run#))
+           (run-with-smallest ~fact-fn-name '~vars run#))
          (:pass? run#)))))
+
+(defn- build-for-all-parser [form]
+  (build-parser form for-all-property))
 
 (declare roll-up-bindings)
 
@@ -121,40 +141,14 @@
       (= :let lhs)      (let-expr rhs inner-body rst-bindings)
       :else             (bind-expr lhs rhs inner-body rst-bindings))))
 
-(defn roll-up [bindings gen-names check-fn-name]
+(defn gen-let-property [{:keys [bindings vars] :as x} check-fn-name]
   (roll-up-bindings (reverse bindings)
                     `(gen/return {:function ~check-fn-name
-                                  :result   (~check-fn-name ~@gen-names)
-                                  :args     (list ~@gen-names)})))
-
-(defn variables [bindings]
-  (->> bindings
-       (mapcat (fn [[lhs rhs]]
-                 (cond (= :let lhs)  (->> rhs (partition 2) (map first))
-                       :else [lhs])))
-       vec))
+                                  :result   (~check-fn-name ~@vars)
+                                  :args     (list ~@vars)})))
 
 (defn- build-gen-let-parser [form]
-  (fn []
-    (let [[metadata forms] (parse-metadata/separate-metadata form)
-          [prop-names prop-values
-           opts checks] (parse-for-all-form form forms)
-          {:keys [num-tests quick-check-opts]} (options opts)
-          fact-fn-name     (gensym "fact-fn")
-          bindings         (map vector prop-names prop-values)
-          vars             (variables bindings)
-          prop             (roll-up bindings vars fact-fn-name)]
-      `(let [~fact-fn-name  (fn ~vars
-                              ~(parse-facts/wrap-fact-around-body
-                                 metadata checks))
-             [run# passes#] (run-for-all (list ~num-tests
-                                               ~prop
-                                               ~@quick-check-opts))]
-         (if (:pass? run#)
-           (dotimes [_# (/ passes# ~num-tests)]
-             (emission/pass))
-           (run-with-smallest ~fact-fn-name '~vars run#))
-         (:pass? run#)))))
+  (build-parser form gen-let-property))
 
 (defn parse-for-all [form]
   (error/parse-and-catch-failure form (build-for-all-parser form)))
