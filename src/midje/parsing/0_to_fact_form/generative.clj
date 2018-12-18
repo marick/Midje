@@ -25,7 +25,7 @@
 (defn- form-name [full-form]
   (-> full-form first name))
 
-(defn variables [bindings]
+(defn- variables [bindings]
   (->> bindings
        (mapcat (fn [[lhs rhs]]
                  (cond (= :let lhs)  (->> rhs (partition 2) (map first))
