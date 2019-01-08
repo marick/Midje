@@ -2,7 +2,7 @@
 This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
 
-## [1.9.5] - 2018-10-18
+## [1.9.5] - 2019-01-08
 - Introduce `midje.experimental/gen-let` macro for combining generative matchers
 
 ## [1.9.4] - 2018-10-18
