@@ -3,16 +3,19 @@
             [midje.emission.state :as state]
             [midje.repl :as repl]
             [midje.sweet :refer :all]
-            [midje.experimental :refer [for-all]]
+            [midje.experimental :refer [for-all gen-let]]
             [midje.test-util :refer :all]
-            [clojure.test.check.generators :as gen]))
+            [clojure.test.check.generators :as gen]
+            [clojure.test.check :as tc]
+            [clojure.test.check.properties :as prop]
+            [midje.parsing.0-to-fact-form.generative :as parser]))
 
 (silent-for-all
   [strictly-pos gen/s-pos-int
    any-integer  gen/int]
   {:num-tests 1000}
   (fact (+ strictly-pos any-integer) => pos?))
-(note-that fact-fails (failure-was-at-line 14))
+(note-that fact-fails (failure-was-at-line 17))
 
 (silent-for-all
   [strictly-pos gen/s-pos-int
@@ -20,7 +23,16 @@
   {:num-tests 1000}
   (fact 1 => 1)
   (+ strictly-pos any-integer) => pos?)
-(note-that fact-fails (failure-was-at-line 22))
+(note-that fact-fails (failure-was-at-line 25))
+
+(silent-gen-let
+  [strictly-pos gen/s-pos-int
+   smaller (gen/choose (- strictly-pos) strictly-pos)]
+  {:num-tests 1000}
+  (fact 1 => 1)
+  (fact smaller => #(< (- strictly-pos) % strictly-pos)))
+(note-that fact-fails (failure-was-at-line 30))
+(note-that (fails 1 time))
 
 (silent-for-all "generative tests"
   [strictly-pos gen/s-pos-int
@@ -172,3 +184,116 @@
   (for-all
     [x gen/int]
     x => integer?))
+
+(gen-let [s (gen/return "s")]
+  s => "s")
+
+(fact "you can put gen-let inside of a fact"
+  (gen-let [s (gen/return "s")]
+    s => "s"))
+
+(fact "gen-let composes generators"
+  (gen-let [i (gen/elements [1 2 3])
+            s (gen/return (str i))]
+    (Integer/parseInt s) => i))
+
+(fact "gen-let composes multiple generators"
+  (gen-let [i  gen/s-pos-int
+            is (gen/vector gen/int i)
+            e  (gen/elements is)]
+    (count is) => i
+    (some #{e} is) => e))
+
+(fact ":let syntax allows for simple functions over generated elements"
+  (gen-let [i gen/pos-int
+            :let [s  (str i)
+                  s2 (str s s)]]
+    (Integer/parseInt s2) => (+ (* 10 i) i)))
+
+(fact "a :let block can be in the middle of gen-let bindings"
+  (gen-let [i  (gen/choose 0 9)
+            :let [s  (str i)
+                  s2 (str s s)]
+            xs (gen/elements [s s2])]
+    (->> xs seq (map #(Character/getNumericValue %)) (some #{i})) => i))
+
+(fact "a :let block can be in the beginning of gen-let bindings"
+  (gen-let [:let [i 2
+                  j (+ i 2)]
+            x (gen/vector gen/int i j)]
+    (some #{2 3 4} (count x)) => some?))
+
+(silent-gen-let "generative tests"
+  [strictly-pos gen/s-pos-int
+   any-integer  gen/int]
+  {:num-tests 1000}
+  (fact "Summing an integer to a positive integer should be positive? Really?"
+    strictly-pos => integer?
+    (+ strictly-pos any-integer) => pos?))
+(note-that (fails 1 time))
+
+(silent-gen-let "confounding random map with quick-check options"
+  [strictly-pos gen/s-pos-int
+   any-integer  gen/int]
+  {:some 'random :map '.}
+  (fact (+ strictly-pos any-integer) => pos?))
+(note-that
+  parse-error-found
+  (fact-failed-with-note #"unrecognized keys in \`gen-let\` options map: \(:some :map\)"))
+
+(silent-gen-let "uneven count in binding vector"
+  [strictly-pos gen/s-pos-int
+   any-integer]
+  (fact 1 => 1))
+(note-that
+  parse-error-found
+  (fact-failed-with-note #"\`gen-let\` must have an even number"))
+
+(for-all "a `for-all` with no checks inside still works"
+  [strictly-pos gen/s-pos-int]
+  false)
+
+(silent-gen-let "a `gen-let` with generation boundings still works"
+  []
+  (fact 1 => 1))
+(note-that
+  parse-error-found
+  (fact-failed-with-note #"\`gen-let\` cannot have an empty binding vector"))
+
+(silent-gen-let
+  [y gen/int]
+  {:num-tests -1}
+  y => integer?)
+(note-that
+  parse-error-found
+  (fact-failed-with-note #":num-tests \`gen-let\` option must be greater than 0: -1"))
+
+(silent-gen-let
+  [y gen/int]
+  {:num-tests 0}
+  y => integer?)
+(note-that
+  parse-error-found
+  (fact-failed-with-note #":num-tests \`gen-let\` option must be greater than 0: 0"))
+
+(defn-call-countable my-gen-let-inc [x] (inc x))
+
+(silent-gen-let
+  [x gen/int]
+  1 => 2
+  (my-gen-let-inc x) => integer?)
+(fact "when any fact fails, generated input is shrunk causing all facts to be
+      run again"
+  @my-gen-let-inc-count => 2)
+
+(def pass-count (state/output-counters:midje-passes))
+(try
+  (silent-gen-let
+    [x gen/int]
+    (fact "Exceptions that occur in fact set up should propagate up and not cause a passing test."
+      (/ 1 0)
+      x => integer?))
+  (catch java.lang.ArithmeticException e))
+(fact (state/output-counters:midje-passes) => pass-count)
+
+

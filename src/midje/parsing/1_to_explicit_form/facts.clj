@@ -120,6 +120,7 @@
     recognize/fact?               (macroexpand form)
     recognize/tabular?            (macroexpand form)
     recognize/for-all?            (macroexpand form)
+    recognize/gen-let?            (macroexpand form)
     sequential?                   (preserve-type form (eagerly (map midjcoexpand form)))
     :else                         form))
 

@@ -77,6 +77,9 @@
 (defn for-all? [form]
   (first-named? form "for-all"))
 
+(defn gen-let? [form]
+  (first-named? form "gen-let"))
+
 (defn provided? [loc]
   (boolean (and (symbol? (zip/node loc))
                 (= "provided" (name (zip/node loc))))))
