@@ -183,7 +183,7 @@
      - notes on which bindings were supplied to a tabular fact"
   [m]
   (let [description (when-let [doc (format-nested-descriptions (:description m))]
-                      (str (pr-str doc) " "))
+                      (str doc " "))
         position (position-str (:position m) (:namespace m))
         table-substitutions (when (:midje/table-bindings m)
                               (str "With table substitutions: " (format-binding-map (:midje/table-bindings m))))]

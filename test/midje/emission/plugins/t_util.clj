@@ -69,7 +69,9 @@
   (failure-notice {:position ["filename" 10]})
   => (just #"FAIL\S* at \(filename:10\)" nil)
   (failure-notice {:position ["filename" 10] :description ["outer" nil "inner"]})
-  => (just #"FAIL\S* \"outer - inner\" at \(filename:10\)" nil)
+  => (just #"FAIL\S* outer - inner at \(filename:10\)" nil)
+  (failure-notice {:position ["filename" 10] :description ["multi\nline" nil "inner"]})
+  => (just #"FAIL\S* multi\nline - inner at \(filename:10\)" nil)
   (failure-notice {:position ["filename" 10] :midje/table-bindings '{?a 1}})
   => (just #"FAIL\S* at \(filename:10\)"
            "With table substitutions: [?a 1]")
