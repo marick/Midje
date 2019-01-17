@@ -1,5 +1,5 @@
-(ns ^{:doc "General purpose plugin utilities"}
-  midje.emission.plugins.util
+(ns midje.emission.plugins.util
+  "General purpose plugin utilities"
   (:require [clojure.repl :refer [demunge]]
             [clojure.string :as str]
             [puget.printer :as puget]
@@ -177,13 +177,13 @@
 
 
 (defn failure-notice
-  "The reader's eye is guided by a bright red FAIL, the filename and lineno, and
+  "The reader's eye is guided by a bright red FAIL, the filename and line-number, and
    perhaps this other information:
-     : the descriptions of all enclosing facts, if any
-     : notes on which bindings were supplied to a tabular fact"
+     - the descriptions of all enclosing facts, if any
+     - notes on which bindings were supplied to a tabular fact"
   [m]
   (let [description (when-let [doc (format-nested-descriptions (:description m))]
-                      (str (pr-str doc) " "))
+                      (str doc " "))
         position (position-str (:position m) (:namespace m))
         table-substitutions (when (:midje/table-bindings m)
                               (str "With table substitutions: " (format-binding-map (:midje/table-bindings m))))]
