@@ -28,12 +28,12 @@ examples in Clojure books. Here's how  *[The Joy of
 Clojure](http://www.amazon.com/The-Joy-Clojure-Thinking-Way/dp/1935182641)*
 uses syntax to explain Clojure:
 
-![](https://raw.github.com/marick/midje-clojure-test-tutorial/master/images/other/truthy.jpg)
+![](https://raw.githubusercontent.com/marick/midje-clojure-test-tutorial/master/images/other/truthy.jpg)
 
 Here's the same fact about Clojure in Midje, expressed in a
 way that's just as readable but also machine-checkable:
 
-![](https://raw.github.com/marick/midje-clojure-test-tutorial/master/images/other/truthy-fact.jpg)
+![](https://raw.githubusercontent.com/marick/midje-clojure-test-tutorial/master/images/other/truthy-fact.jpg)
 
 ------------
 
@@ -43,7 +43,7 @@ the repl in an idiomatic way.
 
 Here's the start of a typical Midje repl session:
 
-![](https://raw.github.com/marick/midje-clojure-test-tutorial/master/images/plain/3.jpg)
+![](https://raw.githubusercontent.com/marick/midje-clojure-test-tutorial/master/images/plain/3.jpg)
 
 Midje has loaded the tests and run them for the first time.
 It's also watching for file changes. When it sees them, it
@@ -54,7 +54,7 @@ documentation, having your editor send code snippets to the
 repl to evaluate, *and* saving source or test files to
 immediately see what passes or fails:
 
-![](https://raw.github.com/marick/midje-clojure-test-tutorial/master/images/plain/5.jpg)
+![](https://raw.githubusercontent.com/marick/midje-clojure-test-tutorial/master/images/plain/5.jpg)
 
 -------------
 
@@ -62,7 +62,7 @@ Midje supplies prepackaged
 [checkers](https://github.com/marick/Midje/wiki/Checkers)
 that save you the trouble of writing common code:
 
-![](https://raw.github.com/marick/midje-clojure-test-tutorial/master/images/other/checkers.jpg)
+![](https://raw.githubusercontent.com/marick/midje-clojure-test-tutorial/master/images/other/checkers.jpg)
 
 -------------
 
