@@ -20,22 +20,21 @@
   (str/upper-case (or (ecosystem/getenv "MIDJE_COLORIZE")
                       (config-choice-as-string))))
 
-(defn init! []
-  (case (colorize-string)
-    "TRUE"
-    (do
-      (def fail color/red)
-      (def pass color/green)
-      (def note color/cyan))
+(defmacro ^:private def-colorize
+  [fn-name on reverse]
+  `(defn ~fn-name
+     [s#]
+     ((case (colorize-string)
+        "TRUE" ~on
+        "REVERSE" ~reverse
+        str)
+      s#)))
 
-    "REVERSE"
-    (do
-      (def fail color/red-bg)
-      (def pass color/green-bg)
-      (def note color/cyan-bg))
+(def-colorize fail
+  color/red color/red-bg)
 
-    ;; else
-    (do
-      (def fail str)
-      (def pass str)
-      (def note str))))
+(def-colorize pass
+  color/green color/green-bg)
+
+(def-colorize note
+  color/cyan color/cyan-bg)

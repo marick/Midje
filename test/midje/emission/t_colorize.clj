@@ -9,7 +9,6 @@
     (prerequisites (color/config-choice :colorize) => ?config-choice
                    (getenv "MIDJE_COLORIZE") => ?env-choice)
 
-    (color/init!)
     (?color-fn "string") => ?result)
 
   ?color-fn     ?env-choice   ?config-choice   ?result
@@ -36,7 +35,6 @@
 (tabular
   (fact "about the escape strings that apply to different choices"
     (prerequisite (getenv "MIDJE_COLORIZE") => ?env-value)
-    (color/init!)
     (?color-fn "string") => ?result)
 
   ?color-fn     ?env-value        ?result
@@ -47,10 +45,6 @@
   color/note    "FALSE"           "string"
   color/note    "TRUE"            "\u001b[36mstring\u001b[0m"
   color/note    "reverse"         "\u001b[46mstring\u001b[0m")
-
-;; Reset to user's default colorization.
-(color/init!)
-
 
 (fact "access environment vars only when namespace is loaded, not on each report line"
   (prerequisite (getenv "MIDJE_COLORIZE") => anything :times 0)
