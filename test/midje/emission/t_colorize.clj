@@ -46,9 +46,14 @@
   color/note    "TRUE"            "\u001b[36mstring\u001b[0m"
   color/note    "reverse"         "\u001b[46mstring\u001b[0m")
 
-(fact "access environment vars only when namespace is loaded, not on each report line"
-  (prerequisite (getenv "MIDJE_COLORIZE") => anything :times 0)
+(fact "access environment vars on each report line"
+      (color/fail "a") => anything
+      (provided
+       (getenv "MIDJE_COLORIZE") => anything :times 1)
+      (color/note "b") => anything
+      (provided
+       (getenv "MIDJE_COLORIZE") => anything :times 1)
+      (color/fail "c") => anything
+      (provided
+       (getenv "MIDJE_COLORIZE") => anything :times 1))
 
-  (color/fail "a") => anything
-  (color/note "b") => anything
-  (color/fail "c") => anything)
