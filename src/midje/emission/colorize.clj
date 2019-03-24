@@ -2,31 +2,19 @@
             Midje output be ergonomically colorful."}
   midje.emission.colorize
   (:require [colorize.core :as color]
-            [clojure.string :as str]
-            [midje.config :as config]
-            [midje.util.ecosystem :as ecosystem]))
+            [midje.config :as config]))
 
 ;; This indirection is required so that the tests of this
 ;; file can fake the prerequisite
 (def config-choice config/choice)
 
-(defn- config-choice-as-string []
-  (let [choice (config-choice :colorize)]
-    (if (keyword? choice)
-      (name choice)
-      (str choice))))
-
-(defn- colorize-string []
-  (str/upper-case (or (ecosystem/getenv "MIDJE_COLORIZE")
-                      (config-choice-as-string))))
-
 (defmacro ^:private def-colorize
   [fn-name on reverse]
   `(defn ~fn-name
      [s#]
-     ((case (colorize-string)
-        "TRUE" ~on
-        "REVERSE" ~reverse
+     ((case (config-choice :colorize)
+        :true ~on
+        :reverse ~reverse
         str)
       s#)))
 

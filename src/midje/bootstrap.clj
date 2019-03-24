@@ -12,6 +12,7 @@
       (try
         (in-ns 'midje.config)
         ((ns-resolve 'midje.config 'load-config-files))
+        ((ns-resolve 'midje.config 'load-env-vars))
       (finally
         (in-ns saved-ns))))
 

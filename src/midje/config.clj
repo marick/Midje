@@ -1,6 +1,7 @@
 (ns ^{:doc "Customizable configuration"}
   midje.config
-  (:require [midje.emission.levels :as levels]
+  (:require [clojure.string :as str]
+            [midje.emission.levels :as levels]
             [midje.util.ecosystem :as ecosystem]
             [midje.util.exceptions :refer [user-error]]
             [midje.util.pile :as pile]
@@ -49,6 +50,17 @@
       (throw (user-error (str "These are not configuration keys: " (vec extras))))))
   (dorun (map validate-key! changes)))
 
+(defn conform-config
+  ;; Should be private, but we use it in a public macro
+  "Transforms keys from non-standard representation to the standard one"
+  [config]
+  (cond-> config
+    (:colorize config)
+    (update :colorize #(-> (if (keyword? %)
+                             (name %)
+                             (str %))
+                           str/lower-case
+                           keyword))))
 
 (defmacro with-augmented-config
   "Dynamically bind the configuration. Example:
@@ -56,7 +68,7 @@
    (config/with-augmented-config {:check-after-creation false}
      (fact 1 => 2))"
   [additions & body]
-  `(let [true-map# ~additions]
+  `(let [true-map# (conform-config ~additions)]
      (validate! true-map#)
      (binding [*config* (merge *config* true-map#)]
        ~@body)))
@@ -73,8 +85,9 @@
   "Merges the given map into the root configuration.
    Does not affect any temporary (dynamic) configurations."
   [additions]
-  (validate! additions)
-  (alter-var-root #'*config* merge additions))
+  (let [additions (conform-config additions)]
+    (validate! additions)
+    (alter-var-root #'*config* merge additions)))
 
 (defn change-defaults
   "Adds key-value pairs to the root configuration.
@@ -132,3 +145,6 @@
 (defn load-config-files []
   (dorun (map load-file ecosystem/config-files)))
 
+(defn load-env-vars []
+  (change-defaults :colorize (or (ecosystem/getenv "MIDJE_COLORIZE")
+                                 (choice :colorize))))
