@@ -8,21 +8,17 @@
 ;; file can fake the prerequisite
 (def config-choice config/choice)
 
-(defmacro ^:private def-colorize
-  [fn-name on reverse]
-  `(defn ~fn-name
-     [& s#]
-     (apply (case (config-choice :colorize)
-              :true ~on
-              :reverse ~reverse
-              str)
-            s#)))
+(defn- build-colorizer
+  [normal-color reverse-color]
+  (fn [& s]
+    (apply (case (config-choice :colorize)
+             :true normal-color
+             :reverse reverse-color
+             str)
+           s)))
 
-(def-colorize fail
-  color/red color/red-bg)
+(def fail (build-colorizer color/red color/red-bg))
 
-(def-colorize pass
-  color/green color/green-bg)
+(def pass (build-colorizer color/green color/green-bg))
 
-(def-colorize note
-  color/cyan color/cyan-bg)
+(def note (build-colorizer color/cyan color/cyan-bg))
