@@ -11,12 +11,12 @@
 (defmacro ^:private def-colorize
   [fn-name on reverse]
   `(defn ~fn-name
-     [s#]
-     ((case (config-choice :colorize)
-        :true ~on
-        :reverse ~reverse
-        str)
-      s#)))
+     [& s#]
+     (apply (case (config-choice :colorize)
+              :true ~on
+              :reverse ~reverse
+              str)
+            s#)))
 
 (def-colorize fail
   color/red color/red-bg)
