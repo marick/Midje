@@ -98,34 +98,38 @@
           (meta fun) => (contains {:created-from [:has-this-meta-key]}))))))
 
 (facts "about setting :colorize"
-       (tabular
-        (fact "environment variable takes precedent over config"
-              (prerequisite (ecosystem/getenv "MIDJE_COLORIZE") => ?env-choice)
-              ;; Nest a binding of the config with a modification
-              (config/with-augmented-config {:colorize ?config-choice}
-                ;; Modify the root config and copy to the local binding
-                (set! config/*config* (config/load-env-vars))
-                ;; Make assertion about the local binding
-                (config/choice :colorize) => ?result))
+       (let [stashed-config config/*config*]
+         (try
+           (tabular
+            (fact "environment variable takes precedent over config"
+                  (prerequisite (ecosystem/getenv "MIDJE_COLORIZE") => ?env-choice)
+                  ;; Nest a binding of the config with a modification
+                  (config/with-augmented-config {:colorize ?config-choice}
+                    ;; Modify the root config and copy to the local binding
+                    (set! config/*config* (config/load-env-vars))
+                    ;; Make assertion about the local binding
+                    (config/choice :colorize) => ?result))
 
-        ?env-choice ?config-choice ?result
-        "TRUE"      :true          :true
-        "TRUE"      :reverse       :true
-        "TRUE"      :false         :true
+            ?env-choice ?config-choice ?result
+            "TRUE"      :true          :true
+            "TRUE"      :reverse       :true
+            "TRUE"      :false         :true
 
-        "FALSE"     :true          :false
-        "FALSE"     :false         :false
-        "FALSE"     :reverse       :false
+            "FALSE"     :true          :false
+            "FALSE"     :false         :false
+            "FALSE"     :reverse       :false
 
-        "REVERSE"   :true          :reverse
-        "reverse"   :false         :reverse
-        "REVERSE"   :reverse       :reverse
+            "REVERSE"   :true          :reverse
+            "reverse"   :false         :reverse
+            "REVERSE"   :reverse       :reverse
 
-        nil         :true          :true
-        nil         :false         :false
-        nil         :reverse       :reverse
+            nil         :true          :true
+            nil         :false         :false
+            nil         :reverse       :reverse
 
-        ;; Testing the normalization
-        nil         "TRUE"         :true
-        nil         true           :true
-        nil         :true          :true))
+            ;; Testing the normalization
+            nil         "TRUE"         :true
+            nil         true           :true
+            nil         :true          :true)
+           (finally
+             (config/merge-permanently! stashed-config)))))
