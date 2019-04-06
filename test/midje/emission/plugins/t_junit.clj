@@ -9,6 +9,8 @@
 
 (defn innocuously [key & args]
   (config/with-augmented-config {:emitter     'midje.emission.plugins.junit
+                                 :pretty-print false
+                                 :colorize :false
                                  :print-level :print-facts}
     (captured-output (apply (key plugin/emission-map) args))))
 
@@ -81,3 +83,14 @@
   (innocuously :fail test-failure-map) => (contains "<failure type=':some-prerequisites-were-called-the-wrong-number-of-times'>")
   (provided
     (#'plugin/log-fn) => #(println %)))
+
+(fact "failure also produces a CDATA section with failure description"
+      (plugin/starting-to-check-fact test-fact)
+
+      (innocuously :fail {:type :actual-result-did-not-match-expected-value
+                          :namespace "midje.emission.plugins.t-junit"
+                          :actual 1
+                          :expected-result 2})
+      => (contains "<![CDATA[\nFAIL at (null:null)\nExpected:\n2\nActual:\n1]]>")
+      (provided
+       (#'plugin/log-fn) => #(println %)))
