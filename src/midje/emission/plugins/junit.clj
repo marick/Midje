@@ -81,7 +81,7 @@
 
 (defn- testcase-with-failure [failure-map]
   (let [testcase (process-fact @last-fact)
-        failure-content (str "<![CDATA[" (apply str (lines/summarize failure-map)) "]]>")
+        failure-content (str "<![CDATA[" (string/join "\n" (lines/summarize failure-map)) "]]>")
         fail-type (:type failure-map)
         fail-element {:tag :failure
                       :content [failure-content]
