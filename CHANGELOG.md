@@ -2,6 +2,9 @@
 This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
 
+## [1.9.8] - 2019-04-08
+- add newline to junit emitter
+
 ## [1.9.7] - 2019-04-02
 - respect the `MIDJE_COLORIZE` environment variable when configuring colorization settings
 
