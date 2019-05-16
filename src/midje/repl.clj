@@ -190,6 +190,12 @@
 (defn- unloaded? [ns]
   (not (contains? @@#'clojure.core/*loaded-libs* ns)))
 
+(defn- run-ns [ns]
+  (let [before (System/currentTimeMillis)
+        res    (require ns :reload)
+        after  (System/currentTimeMillis)]
+    (println "Namespace " ns ": " (- after before))
+    res))
 
 (def-obedient-function :disk-command load-facts and-update-defaults!
   (fn [intention]
@@ -205,7 +211,7 @@
           ;; That way, some error in the fresh namespace won't appear to
           ;; come from the last-loaded namespace.
           (emit/possible-new-namespace ns)
-          (try (require ns :reload)
+          (try (run-ns ns)
                (catch Exception e
                  (println (color/fail "LOAD FAILURE for " ns))
                  (if (config/choice :pretty-print)
