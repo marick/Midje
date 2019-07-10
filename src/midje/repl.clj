@@ -505,6 +505,7 @@
   The default is to check twice each second.
   "
   [& args]
+  (scheduling/stop :autotest)
   (letfn [(start-periodic-check []
             (scheduling/schedule :autotest
                                  (project-state/mkfn:react-to-changes (autotest-options))
