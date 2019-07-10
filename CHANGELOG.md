@@ -2,6 +2,9 @@
 This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
 
+## [1.9.9] - 2019-07-10
+- fix infinite loop when `(autotest)` is called twice
+
 ## [1.9.8] - 2019-04-08
 - add newline to junit emitter
 
