@@ -19,7 +19,7 @@
       (#'da/da-called 1) => 8988)))
 
 
-;; 2. Alternately, you can tag private vars with ^{:private true} metadata, and then
+;; 2. Alternately, you can tag private vars with ^{:testable true} metadata, and then
 ;;    "expose" them with `expose-testables`.
 
 (require '[as-documentation.about-privates.privates-for-expose-testables])
