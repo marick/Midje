@@ -68,7 +68,7 @@
         stop-time (-> fact :attrs :stop-time)
         elapsed (if (time/before? start-time stop-time) 
                   (/ (time/in-millis (time/interval start-time stop-time))
-                   1000.0)
+                     1000.0)
                   0.0)
         dissoc-times (fn [attrs] (-> attrs
                                     (dissoc :start-time)
