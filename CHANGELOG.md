@@ -2,6 +2,9 @@
 This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
 
+## [1.9.10] - 2021-03-04
+- fix time reporting issue in junit reporter
+
 ## [1.9.9] - 2019-07-10
 - fix infinite loop when `(autotest)` is called twice
 
