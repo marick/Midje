@@ -2,6 +2,9 @@
 This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
 
+## [1.10.0] - 2021-05-10
+- Support `tabular` macro and exclude arrows from `clj-kondo` linter
+
 ## [1.9.10] - 2021-03-04
 - fix time reporting issue in junit reporter
 
