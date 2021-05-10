@@ -1,0 +1,11 @@
+{:hooks {:analyze-call {midje.sweet/tabular marick.midje/tabular}}
+ :linters {:unresolved-symbol {:exclude [=>
+                                         =not=>
+                                         =deny=>
+                                         =expands-to=>
+                                         =future=>
+                                         =contains=>
+                                         =streams=>
+                                         =throws=>
+                                         =test=>
+                                         =throw-parse-exception=>]}}}
