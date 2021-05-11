@@ -13,9 +13,6 @@
                =test=>
                =throw-parse-exception=>})
 
-(defn ^:private index-of [e coll]
-  (first (keep-indexed #(when (= e %2) %1) coll)))
-
 (defn ^:private let-form [body bindings]
   (let [new-bindings (vec (reduce (fn [acc i]
                                     (concat acc [i (hooks/token-node 'identity)]))
@@ -35,31 +32,26 @@
     (and (symbol? sexpr)
          (string/starts-with? (str sexpr) "?"))))
 
-(defn ^:private handle-fact-outside-tabular [children arrow]
-  (let [pos-arrow-index (inc (index-of arrow children))
-        body (do-form children)
-        bindings (->> children
-                      (map-indexed (fn [i el]
-                                     (when (> i pos-arrow-index)
-                                       el)))
-                      (remove nil?))]
-    (if (hooks/vector-node? (first bindings))
-      {:node (->> (hooks/sexpr (first bindings))
+(defn ^:private tabular-node [first-bindings bindings body]
+  (if (hooks/vector-node? first-bindings)
+      {:node (->> (hooks/sexpr first-bindings)
                   (map hooks/token-node)
                   (let-form body))}
       {:node (->> bindings
                   (filter table-variable?)
-                  (let-form body))})))
+                  (let-form body))}))
+
+(defn ^:private handle-fact-outside-tabular [children arrow]
+  (let [body (do-form children)
+        bindings (->> children
+                      (drop-while #(not (= arrow %)))
+                      rest
+                      (drop 1))]
+    (tabular-node (first bindings) bindings body)))
 
 (defn fact-tabular [fact vec-bindings bindings]
   (let [body (do-form (cons fact bindings))]
-    (if (hooks/vector-node? vec-bindings)
-      {:node (->> (hooks/sexpr vec-bindings)
-                  (map hooks/token-node)
-                  (let-form body))}
-      {:node (->> (cons vec-bindings bindings)
-                  (filter table-variable?)
-                  (let-form body))})))
+    (tabular-node vec-bindings (cons vec-bindings bindings) body)))
 
 (defn ^:private handle-fact-inside-tabular [children]
   (if (hooks/string-node? (first children))
