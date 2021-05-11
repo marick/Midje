@@ -1,14 +1,38 @@
 {:hooks {:analyze-call {midje.sweet/tabular marick.midje/tabular}}
- :linters {:unresolved-symbol {:exclude [anything
-                                         contains
-                                         irrelevant
-                                         =>
-                                         =not=>
-                                         =deny=>
-                                         =expands-to=>
-                                         =future=>
-                                         =contains=>
-                                         =streams=>
-                                         =throws=>
-                                         =test=>
-                                         =throw-parse-exception=>]}}}
+ :lint-as {midje.checking.checkers.defining/defchecker clojure.core/defn
+ :linters {:unresolved-symbol {:exclude [(midje.sweet/fact
+                                          [throws
+                                           contains
+                                           as-checker
+                                           truthy
+                                           falsey
+                                           irrelevant
+                                           anything
+                                           =>
+                                           =not=>
+                                           =deny=>
+                                           =expands-to=>
+                                           =future=>
+                                           =contains=>
+                                           =streams=>
+                                           =throws=>
+                                           =test=>
+                                           =throw-parse-exception=>])
+                                         (midje.sweet/facts
+                                          [throws
+                                           contains
+                                           as-checker
+                                           truthy
+                                           falsey
+                                           irrelevant
+                                           anything
+                                           =>
+                                           =not=>
+                                           =deny=>
+                                           =expands-to=>
+                                           =future=>
+                                           =contains=>
+                                           =streams=>
+                                           =throws=>
+                                           =test=>
+                                           =throw-parse-exception=>])]}}}
