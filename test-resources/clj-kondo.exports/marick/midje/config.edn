@@ -1,4 +1,5 @@
 {:hooks {:analyze-call {midje.sweet/tabular marick.midje/tabular}}
+ :lint-as {midje.checking.checkers.defining/defchecker clojure.core/defn
  :linters {:unresolved-symbol {:exclude [(midje.sweet/fact
                                           [throws
                                            contains
