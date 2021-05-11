@@ -2,6 +2,9 @@
 This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
 
+## [1.10.1] - 2021-05-11
+- Improve `clj-kondo` support of `tabular`
+
 ## [1.10.0] - 2021-05-10
 - Support `tabular` macro and exclude arrows from `clj-kondo` linter
 
