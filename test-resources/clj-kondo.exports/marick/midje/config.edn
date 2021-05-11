@@ -1,5 +1,8 @@
 {:hooks {:analyze-call {midje.sweet/tabular marick.midje/tabular}}
- :linters {:unresolved-symbol {:exclude [=>
+ :linters {:unresolved-symbol {:exclude [anything
+                                         contains
+                                         irrelevant
+                                         =>
                                          =not=>
                                          =deny=>
                                          =expands-to=>
