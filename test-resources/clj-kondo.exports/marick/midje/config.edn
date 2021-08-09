@@ -4,6 +4,14 @@
                                           [throws
                                            contains
                                            as-checker
+                                           exactly
+                                           has
+                                           has-sufix
+                                           has-prefix
+                                           just
+                                           one-of
+                                           two-of
+                                           roughly
                                            truthy
                                            falsey
                                            irrelevant
@@ -21,6 +29,14 @@
                                          (midje.sweet/facts
                                           [throws
                                            contains
+                                           exactly
+                                           has
+                                           has-sufix
+                                           has-prefix
+                                           just
+                                           one-of
+                                           two-of
+                                           roughly
                                            as-checker
                                            truthy
                                            falsey
