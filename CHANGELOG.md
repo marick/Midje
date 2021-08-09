@@ -2,6 +2,9 @@
 This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
 
+## [1.10.4] - 2021-08-09
+- Add more midje symbols to `clj-kondo` config
+
 ## [1.10.2] - 2021-05-11
 - Improve `clj-kondo` support for checkers
 
