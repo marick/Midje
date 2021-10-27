@@ -51,4 +51,30 @@
                                            =streams=>
                                            =throws=>
                                            =test=>
+                                           =throw-parse-exception=>])
+                                         (midje.sweet/tabular
+                                          [throws
+                                           contains
+                                           exactly
+                                           has
+                                           has-sufix
+                                           has-prefix
+                                           just
+                                           one-of
+                                           two-of
+                                           roughly
+                                           as-checker
+                                           truthy
+                                           falsey
+                                           irrelevant
+                                           anything
+                                           =>
+                                           =not=>
+                                           =deny=>
+                                           =expands-to=>
+                                           =future=>
+                                           =contains=>
+                                           =streams=>
+                                           =throws=>
+                                           =test=>
                                            =throw-parse-exception=>])]}}}
