@@ -2,6 +2,9 @@
 This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
 
+## [1.10.6] - 2022-03-28
+- bump libraries
+
 ## [1.10.5] - 2021-10-27
 - Add midje.sweet/tabular `clj-kondo` config
 
