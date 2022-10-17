@@ -2,6 +2,11 @@
 This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
 
+## [1.10.6] - 2022-10-17
+- Allow setting midje config via java system properties (#483)
+
+  For example: `(System/setProperty "midje.check-after-creation" "false")` can now be done instead of `(change-defaults :check-after-creation false)` in the `.midje.clj` config file
+
 ## [1.10.5] - 2021-10-27
 - Add midje.sweet/tabular `clj-kondo` config
 

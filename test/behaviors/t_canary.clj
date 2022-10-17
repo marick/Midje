@@ -9,15 +9,21 @@
 
 
 (unfinished favorite-animal)
-(defn favorite-animal-name [] (name (favorite-animal)))
+
+;; create custom name' to get around the fact that midje uses
+;; `clojure.core/name` and so examples that redef `name` via `provided` cause
+;; issues
+(def name' name)
+
+(defn favorite-animal-name [] (name' (favorite-animal)))
 (defn favorite-animal-empty [] )
 (defn favorite-animal-only-animal [] (favorite-animal))
-(defn favorite-animal-only-name [] (name "fred"))
+(defn favorite-animal-only-name [] (name' "fred"))
 
 (fact
      (favorite-animal-name) => "betsy"
      (provided
-       (name (favorite-animal)) => "betsy"))
+       (name' (favorite-animal)) => "betsy"))
 
 
 
