@@ -14,7 +14,7 @@
                  [org.tcrawley/dynapath "1.1.0"]
                  [org.clojure/tools.namespace "1.2.0"]
                  [flare "0.2.9" :exclusions [org.clojure/clojure]]
-                 [mvxcvi/puget "1.3.2" :exclusions [org.clojure/clojure]]]
+                 [mvxcvi/puget "1.1.2" :exclusions [org.clojure/clojure]]]
   :profiles {:dev {:dependencies [[prismatic/plumbing "0.6.0"]]
                    :plugins [[lein-midje "3.2.1"]
                              [lein-ancient "0.6.15" :exclusions [com.fasterxml.jackson.core/jackson-databind

@@ -277,6 +277,9 @@
       (midje.config/with-augmented-config {:print-level :print-no-summary}
          <forms>...)
 
+  or by setting java system properties:
+      (System/setProperty \"midje.print-level\" \":print-namespaces\")
+
   ------ Configuration keywords
   :print-level                  ; Verbosity of printing.
                                 ; See `(doc midje-print-levels)`.

@@ -1,6 +1,7 @@
-(ns ^{:doc "Customizable configuration"}
-  midje.config
-  (:require [clojure.string :as str]
+(ns midje.config
+  "Customizable configuration"
+  (:require [clojure.edn :as edn]
+            [clojure.string :as str]
             [midje.emission.levels :as levels]
             [midje.util.ecosystem :as ecosystem]
             [midje.util.exceptions :refer [user-error]]
@@ -78,8 +79,14 @@
      ~@body))
 
 (defn choice
-  "Returns the configuration value of `key`"
-  [key] (*config* key))
+  "Returns the configuration value of `key`
+
+  If a java system property `midje.the-key` is set, uses that value instead of
+  whatever is in the config at `:the-key`"
+  [key]
+  (if-let [property-override (System/getProperty (str "midje." (name key)))]
+    (edn/read-string property-override)
+    (get *config* key)))
 
 (defn merge-permanently!
   "Merges the given map into the root configuration.
