@@ -1,12 +1,10 @@
 (ns midje.parsing.util.error-handling
   "Utility functions dealing with checking or tranforming forms or zippers."
-  (:require [slingshot.slingshot :as slingshot]
-            [midje.emission.api :as emit]
+  (:require [midje.emission.api :as emit]
             [midje.util.exceptions :refer [user-error-exception-lines]]
             [pointer.core :refer [form-position]]))
 
 (def ^{:dynamic true} *wrap-count* 0)
-(def bail-out-of-parsing (gensym))
 
 (defn inside-an-error-handling-wrapper? [] (pos? *wrap-count*))
 
@@ -37,10 +35,14 @@
     (if (inside-an-error-handling-wrapper?)
       (parser)
       (binding [*wrap-count* (inc *wrap-count*)]
-        (slingshot/try+
+        (try
          (parser)
-         (catch (partial = bail-out-of-parsing) _
-           false)
+         (catch clojure.lang.ExceptionInfo ex
+           (if (= ::bail-out-of-parsing (-> ex ex-data :type))
+             false
+             (do
+               (report-exception ex)
+               false)))
          (catch Exception ex
            (report-exception ex)
            false))))))
@@ -51,4 +53,4 @@
   (emit/fail {:type :parse-error
               :notes notes
               :position (form-position form)})
-  (slingshot/throw+ bail-out-of-parsing))
+  (throw (ex-info "internal Midje exception" {:type ::bail-out-of-parsing})))

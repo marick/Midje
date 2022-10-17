@@ -7,6 +7,8 @@ See [here](http://keepachangelog.com/) for the change log format.
 
   For example: `(System/setProperty "midje.check-after-creation" "false")` can now be done instead of `(change-defaults :check-after-creation false)` in the `.midje.clj` config file
 
+- bump libraries
+
 ## [1.10.5] - 2021-10-27
 - Add midje.sweet/tabular `clj-kondo` config
 
