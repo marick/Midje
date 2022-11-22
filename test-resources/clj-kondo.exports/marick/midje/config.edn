@@ -6,7 +6,7 @@
                                            as-checker
                                            exactly
                                            has
-                                           has-sufix
+                                           has-suffix
                                            has-prefix
                                            just
                                            one-of
@@ -38,6 +38,7 @@
                                            two-of
                                            roughly
                                            as-checker
+                                           every-checker
                                            truthy
                                            falsey
                                            irrelevant
@@ -57,13 +58,14 @@
                                            contains
                                            exactly
                                            has
-                                           has-sufix
+                                           has-suffix
                                            has-prefix
                                            just
                                            one-of
                                            two-of
                                            roughly
                                            as-checker
+                                           every-checker
                                            truthy
                                            falsey
                                            irrelevant
