@@ -2,6 +2,10 @@
 This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
 
+## [1.10.7] - 2022-11-23
+- bump library dependencies
+- fix typos and missing entries in `clj-kondo` config
+
 ## [1.10.6] - 2022-10-17
 - Allow setting midje config via java system properties (#483)
 

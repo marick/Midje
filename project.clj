@@ -1,20 +1,21 @@
-(defproject midje "1.10.6"
+(defproject midje "1.10.7"
   :description "A TDD library for Clojure that supports top-down ('mockish') TDD, encourages readable tests, provides a smooth migration path from clojure.test, balances abstraction and concreteness, and strives for graciousness."
   :url "https://github.com/marick/Midje"
   :pedantic? :warn
-  :dependencies [[org.clojure/clojure "1.9.0"]
+  :dependencies [;; Note that in order to bump past Clojure 1.9.0 a test suite rehaul is needed given Clojure's improvements to macroexpansion errors
+                 [org.clojure/clojure "1.9.0"]
                  [marick/suchwow "6.0.3" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
                  [org.clojure/math.combinatorics "0.1.6"]
-                 [io.aviso/pretty "1.1.1" :exclusions [org.clojure/clojure]]
+                 [io.aviso/pretty "1.3" :exclusions [org.clojure/clojure]]
                  [org.clojure/core.unify "0.5.7" :exclusions [org.clojure/clojure]]
                  [org.clojure/test.check "1.1.1"]
-                 [clj-time "0.15.1" :exclusions [org.clojure/clojure]]
+                 [clj-time "0.15.2" :exclusions [org.clojure/clojure]]
                  [colorize "0.1.1" :exclusions [org.clojure/clojure]]
                  [org.clojure/tools.macro "0.1.5"]
                  [org.tcrawley/dynapath "1.1.0"]
-                 [org.clojure/tools.namespace "1.2.0"]
+                 [org.clojure/tools.namespace "1.3.0"]
                  [flare "0.2.9" :exclusions [org.clojure/clojure]]
-                 [mvxcvi/puget "1.1.2" :exclusions [org.clojure/clojure]]]
+                 [mvxcvi/puget "1.3.4" :exclusions [org.clojure/clojure]]]
   :profiles {:dev {:dependencies [[prismatic/plumbing "0.6.0"]]
                    :plugins [[lein-midje "3.2.1"]
                              [lein-ancient "0.6.15" :exclusions [com.fasterxml.jackson.core/jackson-databind
