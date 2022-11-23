@@ -2,8 +2,10 @@
 This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
 
-## [1.10.7] - 2022-11-23
+## [1.10.8] - 2022-11-23
 - __POTENTIALLY BREAKING__ constrain `provided` to disallow mocking `clojure.core/str` since it causes issues with the Midje internals. Addresses [#481](https://github.com/marick/Midje/issues/481)
+
+## [1.10.7] - 2022-11-23
 - bump library dependencies
 - fix typos and missing entries in `clj-kondo` config
 
