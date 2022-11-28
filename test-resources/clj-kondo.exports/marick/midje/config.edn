@@ -4,6 +4,7 @@
                                           [throws
                                            contains
                                            as-checker
+                                           every-checker
                                            exactly
                                            has
                                            has-suffix
