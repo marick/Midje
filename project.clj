@@ -2,8 +2,7 @@
   :description "A TDD library for Clojure that supports top-down ('mockish') TDD, encourages readable tests, provides a smooth migration path from clojure.test, balances abstraction and concreteness, and strives for graciousness."
   :url "https://github.com/marick/Midje"
   :pedantic? :warn
-  :dependencies [;; Note that in order to bump past Clojure 1.9.0 a test suite rehaul is needed given Clojure's improvements to macroexpansion errors
-                 [org.clojure/clojure "1.9.0"]
+  :dependencies [[org.clojure/clojure "1.9.0"]
                  [marick/suchwow "6.0.3" :exclusions [org.clojure/clojure org.clojure/clojurescript]]
                  [org.clojure/math.combinatorics "0.1.6"]
                  [io.aviso/pretty "1.3" :exclusions [org.clojure/clojure]]
@@ -24,6 +23,9 @@
              :1.7 [:test-libs {:dependencies [[org.clojure/clojure "1.7.0"]]}]
              :1.8 [:test-libs {:dependencies [[org.clojure/clojure "1.8.0"]]}]
              :1.9 [:test-libs {:dependencies [[org.clojure/clojure "1.9.0"]]}]
+             :1.10 [:test-libs {:dependencies [[org.clojure/clojure "1.10.3"]]}]
+             :1.11 [:test-libs {:dependencies [[org.clojure/clojure "1.11.1"]]}]
+             :1.12 [:test-libs {:dependencies [[org.clojure/clojure "1.12.0-alpha5"]]}]
              ;; The following profile can be used to check that `lein with-profile`
              ;; profiles are obeyed. Note that profile `:test-paths` *add on* to the
              ;; defaults.
