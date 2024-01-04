@@ -1,4 +1,4 @@
-(ns implementation.parsing.util.fim_exception_line_numbers
+(ns implementation.parsing.util.fim-exception-line-numbers
   (:require [midje
              [sweet :refer :all]
              [test-util :refer :all]]))

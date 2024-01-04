@@ -37,15 +37,16 @@
       (binding [*wrap-count* (inc *wrap-count*)]
         (try
          (parser)
-         (catch clojure.lang.ExceptionInfo ex
-           (if (= ::bail-out-of-parsing (-> ex ex-data :type))
-             false
-             (do
-               (report-exception ex)
-               false)))
          (catch Exception ex
-           (report-exception ex)
-           false))))))
+           (let [;; Handle CompilerExceptions from 1.10+
+                 ex (if (contains? (ex-data ex) :clojure.error/phase)
+                      (.getCause ex)
+                      ex)]
+             (if (= ::bail-out-of-parsing (-> ex ex-data :type))
+               false
+               (do
+                 (report-exception ex)
+                 false)))))))))
 
 
 

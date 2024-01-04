@@ -58,10 +58,13 @@
 ;; Concerning Throwables
 
 (letfn [(throwable-as-desired? [throwable desideratum]
-           (branch-on desideratum
-                   fn?                        (desideratum throwable)
-                   (some-fn string? regex?)   (extended-= (.getMessage ^Throwable throwable) desideratum)
-                   class?                     (instance? desideratum throwable)))]
+           ;; Handle CompilerExceptions from 1.10+
+           (if (contains? (ex-data throwable) :clojure.error/phase)
+             (recur (.getCause throwable) desideratum)
+             (branch-on desideratum
+               fn?                        (desideratum throwable)
+               (some-fn string? regex?)   (extended-= (.getMessage ^Throwable throwable) desideratum)
+               class?                     (instance? desideratum throwable))))]
 
   (defchecker throws
     "Checks for a thrown Throwable.
