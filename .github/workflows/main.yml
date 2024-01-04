@@ -11,7 +11,7 @@ on:
   workflow_dispatch: null
 
 jobs:
-  fetch-deps:
+  tests:
     timeout-minutes: 5
     runs-on: ubuntu-latest
     steps:
