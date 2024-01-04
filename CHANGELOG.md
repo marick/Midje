@@ -2,6 +2,10 @@
 This project adheres to [Semantic Versioning](http://semver.org/).
 See [here](http://keepachangelog.com/) for the change log format.
 
+## [1.10.10] - 2024-01-04
+- fix exception handling issue occurring with clojure 1.10 and above
+- bump libs
+
 ## [1.10.9] - 2022-11-28
 - add `every-checker` to `clj-kondo` config
 

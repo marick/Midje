@@ -1,0 +1,63 @@
+name: Continuous Delivery
+
+on:
+  push:
+    tags-ignore:
+      - '[a-z0-9]**'
+    branches:
+      - '**'
+  # allow for manual running of this workflow on the occasional case when github
+  # actions is being wonky
+  workflow_dispatch: null
+
+jobs:
+  tests:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '11.0.7'
+
+      - name: Install clojure
+        uses: DeLaGuardo/setup-clojure@master
+        with:
+          cli: '1.10.3.1087'
+          bb: latest
+          clj-kondo: latest
+
+      - name: maven cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.m2
+            ~/.gitlibs
+            ~/.deps.clj
+          key: ${{ runner.os }}-maven-${{ hashFiles('deps.edn','bb.edn') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: fetch maven deps
+        run: lein deps
+
+      - name: Run tests with Clojure 1.7
+        run: lein with-profile 1.7 midje
+
+      - name: Run tests with Clojure 1.8
+        run: lein with-profile 1.8 midje
+
+      - name: Run tests with Clojure 1.9
+        run: lein with-profile 1.9 midje
+
+      - name: Run tests with Clojure 1.10
+        run: lein with-profile 1.10 midje
+
+      - name: Run tests with Clojure 1.11
+        run: lein with-profile 1.11 midje
+
+      - name: Run tests with Clojure 1.12
+        run: lein with-profile 1.12 midje
