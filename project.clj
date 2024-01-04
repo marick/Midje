@@ -37,8 +37,7 @@
   :deploy-repositories [["releases" :clojars]
                         ["snapshots" :clojars]]
 
-  :aliases {"compatibility" ["with-profile" "1.7:1.8:1.9" "midje" ":config" ".compatibility-test-config"]
-            "travis" ["with-profile" "1.7:1.8:1.9" "midje"]}
+  :aliases {"compatibility" ["with-profile" "1.7:1.8:1.9" "midje" ":config" ".compatibility-test-config"]}
 
   ;; For Clojure snapshots
   :repositories {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"
