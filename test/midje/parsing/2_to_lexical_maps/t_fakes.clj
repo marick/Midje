@@ -25,7 +25,7 @@
 (silent-fact "results in stack overflow"
   (my-fn 'url) => 'some-result
   (provided (noop (str 'url)) => 'some-result))
-(note-that (fact-captured-throwable-with-message #"You seem to have created a prerequisite*"))
+(note-that parse-error-found (fact-failed-with-note #"You seem to have created a prerequisite*"))
 
 (fact "note that you can get around it by not mocking `str`"
   (let [s (str 'url)]

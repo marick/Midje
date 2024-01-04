@@ -1,4 +1,0 @@
-language: clojure
-lein: lein
-script: lein travis
-sudo: false

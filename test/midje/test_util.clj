@@ -190,36 +190,30 @@
 
 ;;;; Dispatchers
 
-
 (defmacro note-that [& claims]
-  (letfn [(reducer [so-far claim]
-            (letfn [(claim-needs-all-failures? [claim]
-                      (:all-failures (meta (ns-resolve *ns* claim))))
-                    (tack-on [stuff]
-                      (concat so-far stuff))
+  (letfn [(claim-needs-all-failures? [claim]
+            (->> claim (ns-resolve *ns*) meta :all-failures boolean))
+          (reducer [so-far claim]
+            (letfn [(tack-on [stuff] (concat so-far stuff))
                     (tack-on-claim [all-failures?]
-                      (tack-on `(~(if all-failures? '@silent-fact:raw-failures '@silent-fact:last-raw-failure)
-                                 midje.sweet/=> ~claim)))]
-              (cond (symbol? claim)
-                    (cond (or (= claim 'fact-fails)
-                              (= claim 'fact-failed))
-                          (tack-on '(@silent-fact:failure-count => pos?))
+                      (let [failures (if all-failures?
+                                       '@silent-fact:raw-failures
+                                       '@silent-fact:last-raw-failure)]
+                        (tack-on `(~failures midje.sweet/=> ~claim))))]
+              (cond (#{'fact-fails 'fact-failed} claim)
+                    (tack-on '(@silent-fact:failure-count => pos?))
 
-                          (or (= claim 'fact-passes)
-                              (= claim 'fact-passed))
-                          (tack-on '(@silent-fact:failure-count => zero?))
+                    (#{'fact-passes 'fact-passed} claim)
+                    (tack-on '(@silent-fact:failure-count => zero?))
 
-                          :else
-                          (tack-on-claim (claim-needs-all-failures? claim)))
+                    (symbol? claim)
+                    (tack-on-claim (claim-needs-all-failures? claim))
 
+                    (and (sequential? claim)
+                         (#{'fails 'failed} (first claim)))
+                    (tack-on `(@silent-fact:failure-count midje.sweet/=> ~(second claim)))
                     (sequential? claim)
-                    (let [claim-symbol (first claim)]
-                      (cond (or (= claim-symbol 'fails)
-                                (= claim-symbol 'failed))
-                            (tack-on `(@silent-fact:failure-count midje.sweet/=> ~(second claim)))
-
-                            :else
-                            (tack-on-claim (claim-needs-all-failures? claim-symbol))))
+                    (tack-on-claim (claim-needs-all-failures? (first claim)))
 
                     :else
                     (throw (Error. (str "What kind of claim is " (pr-str claim)))))))]
